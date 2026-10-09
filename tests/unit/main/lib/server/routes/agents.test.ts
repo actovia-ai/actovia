@@ -13,7 +13,10 @@ const respond = vi.fn()
 const interrupt = vi.fn()
 let live: { respond: typeof respond; interrupt: typeof interrupt } | undefined
 vi.mock('@main/lib/agents/registry', () => ({
-  agentRegistry: { bySession: () => live, stopSession: vi.fn(async () => {}) }
+  agentRegistry: {
+    bySession: () => live,
+    stopSession: (id: string) => stopSession(id)
+  }
 }))
 vi.mock('@main/lib/agents/cli-check', () => ({
   getCliStatus: vi.fn(async () => ({
@@ -24,19 +27,12 @@ vi.mock('@main/lib/agents/cli-check', () => ({
 }))
 vi.mock('@main/lib/agents/login-shell', () => ({ resetLoginShellEnv: vi.fn() }))
 const openInTerminal = vi.fn(async (_path: string) => {})
+const writeResumeScript = vi.fn(async () => '/data/run/terminal/x.sh')
+const stopSession = vi.fn(async (_id: string) => {})
 vi.mock('@main/lib/agents/terminal', async (importActual) => ({
   ...(await importActual<typeof import('@main/lib/agents/terminal')>()),
-  openInTerminal: (p: string) => openInTerminal(p)
-}))
-const writeMetaFile = vi.fn(
-  async (_p: unknown, rel: string, _c: string, _m?: number) => `/meta/${rel}`
-)
-vi.mock('@main/lib/agents/meta-files', () => ({
-  writeMetaFile: (...a: [unknown, string, string, number?]) =>
-    writeMetaFile(...a)
-}))
-vi.mock('@main/lib/db/project-queries', () => ({
-  getProjectById: async () => ({ id: 'p', dir: '/proj' })
+  openInTerminal: (p: string) => openInTerminal(p),
+  writeResumeScript: () => writeResumeScript()
 }))
 let cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
 vi.mock('@main/lib/agents/default-employees', () => ({
@@ -152,19 +148,18 @@ describe('agents routes', () => {
       expect((await post('/sessions/s1/respond', body)).status).toBe(400)
   })
 
-  it('Continue in Terminal runs a 0700 script by path, not typed arguments', async () => {
+  it('Continue in Terminal stops the run first, then runs the script by path', async () => {
+    const order: string[] = []
+    stopSession.mockImplementationOnce(async () => void order.push('stop'))
+    writeResumeScript.mockImplementationOnce(async () => {
+      order.push('write')
+      return '/data/run/terminal/x.sh'
+    })
     const res = await post('/sessions/s1/terminal')
     expect(res.status).toBe(200)
-    const [, rel, content, mode] = writeMetaFile.mock.calls.at(-1) as [
-      unknown,
-      string,
-      string,
-      number
-    ]
-    expect(rel).toBe('sessions/s1.resume.sh')
-    expect(mode).toBe(0o700)
-    expect(content).toContain('--resume')
-    expect(openInTerminal).toHaveBeenCalledWith('/meta/sessions/s1.resume.sh')
+    expect(order).toEqual(['stop', 'write'])
+    expect(stopSession).toHaveBeenCalledWith('s1')
+    expect(openInTerminal).toHaveBeenCalledWith('/data/run/terminal/x.sh')
   })
 
   it('refuses a session id that is not shaped like one', async () => {

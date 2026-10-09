@@ -59,10 +59,14 @@ settingsRouter.post('/', async (c) => {
   // phone or a process on loopback without the presence token.
   const fromWindow =
     listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))
-  if (!fromWindow && payload.agents) {
+  if (!fromWindow) {
     const stored = (await getSettings()).agents
+    const incoming =
+      payload.agents && typeof payload.agents === 'object'
+        ? payload.agents
+        : { worktrees: stored?.worktrees ?? true }
     payload.agents = {
-      ...payload.agents,
+      ...incoming,
       cliPaths: stored?.cliPaths ?? {},
       projectsDir: stored?.projectsDir
     }

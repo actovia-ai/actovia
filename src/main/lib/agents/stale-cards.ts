@@ -6,12 +6,14 @@ import {
   updateConversationMessageParts
 } from '../db/conversation-queries'
 import { logger } from '../logger'
+import { sweepResumeScripts } from './terminal'
 
 /**
  * At start: sessions a crash left `working`/`blocked` are stopped, and the
  * cards persisted with their messages say so too (best effort, never blocks).
  */
 export async function stopStaleSessions(): Promise<void> {
+  await sweepResumeScripts().catch(() => {})
   const rows = await markLiveSessionsStopped()
   for (const row of rows) {
     if (!row.messageId) continue

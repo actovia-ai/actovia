@@ -1,5 +1,16 @@
 import { execFileSync } from 'child_process'
-import { mkdirSync, mkdtempSync, realpathSync } from 'fs'
+import {
+  existsSync,
+  readFileSync,
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  rmSync,
+  statSync,
+  symlinkSync,
+  utimesSync,
+  writeFileSync
+} from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -10,7 +21,13 @@ import {
   resumeScript,
   shellEscapePath
 } from '@main/lib/agents/terminal'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+const home = mkdtempSync(join(tmpdir(), 'exodus-home-'))
+vi.mock('@main/lib/paths', () => ({ getExodusHome: () => home }))
+
+const { writeResumeScript, sweepResumeScripts, terminalDir } =
+  await import('@main/lib/agents/terminal')
 
 describe('Continue in Terminal', () => {
   it('single-quotes for the shell, escaping single quotes', () => {
@@ -33,7 +50,11 @@ describe('Continue in Terminal', () => {
       `exec ${shellQuote("/bin/it's")} --resume 'abc-12345'`
     )
     // Run only the cd: sh must land in exactly that directory.
-    const cdOnly = script.split(' && exec')[0].split('\n')[1] + ' && pwd'
+    const cdOnly =
+      script
+        .split('\n')
+        .find((l) => l.startsWith('cd '))!
+        .split(' && exec')[0] + ' && pwd'
     const out = execFileSync('sh', ['-c', cdOnly]).toString().trim()
     expect(realpathSync(out)).toBe(realpathSync(cwd))
   })
@@ -48,5 +69,37 @@ describe('Continue in Terminal', () => {
     expect(isCliSessionId('3f2a9c1e-1111-4222-8333-444455556666')).toBe(true)
     expect(isCliSessionId("x'; rm -rf ~ #")).toBe(false)
     expect(isCliSessionId('abc')).toBe(false)
+  })
+
+  it('writes the hand-off script under Exodus data, 0700, deleting itself first', async () => {
+    const path = await writeResumeScript('/p', '/bin/claude', 'abc-12345')
+    expect(path.startsWith(join(home, 'run', 'terminal'))).toBe(true)
+    expect(statSync(path).mode & 0o777).toBe(0o700)
+    const text = readFileSync(path, 'utf8')
+    expect(text.split('\n').slice(0, 2)).toEqual(['#!/bin/sh', 'rm -f -- "$0"'])
+    execFileSync('sh', ['-n', path])
+  })
+
+  it('refuses a symlinked run/terminal directory', async () => {
+    const elsewhere = mkdtempSync(join(tmpdir(), 'elsewhere-'))
+    rmSync(terminalDir(), { recursive: true })
+    symlinkSync(elsewhere, terminalDir())
+    await expect(
+      writeResumeScript('/p', '/bin/claude', 'abc-12345')
+    ).rejects.toThrow()
+    rmSync(terminalDir())
+  })
+
+  it('sweeps only scripts older than an hour', async () => {
+    mkdirSync(terminalDir(), { recursive: true })
+    const old = join(terminalDir(), 'old.sh')
+    const fresh = join(terminalDir(), 'fresh.sh')
+    writeFileSync(old, 'x')
+    writeFileSync(fresh, 'x')
+    const past = new Date(Date.now() - 2 * 3_600_000)
+    utimesSync(old, past, past)
+    await sweepResumeScripts()
+    expect(existsSync(old)).toBe(false)
+    expect(existsSync(fresh)).toBe(true)
   })
 })

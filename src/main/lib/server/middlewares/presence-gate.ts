@@ -25,7 +25,12 @@ export function needsPresence(path: string): boolean {
  * stands for the owner in person (a `curl` from the CLI's own Bash tool could
  * otherwise approve its own prompt). The renderer sends `presenceHeaders()`.
  */
-const WRITE_PREFIXES = ['/api/v1/agents', '/api/v1/projects']
+const WRITE_PREFIXES = [
+  '/api/v1/agents',
+  '/api/v1/projects',
+  // Employee edits (runtime, permission mode): a model must not loosen its own.
+  '/api/v1/philharmonic/agents'
+]
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 export function needsPresenceFor(path: string, method: string): boolean {

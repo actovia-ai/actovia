@@ -42,9 +42,8 @@ export async function assertMetaDir(
 export async function writeMetaFile(
   project: Pick<Project, 'dir'>,
   relPath: string,
-  content: string,
-  mode = 0o600
-): Promise<string> {
+  content: string
+): Promise<void> {
   const parent = dirname(relPath)
   const dir = await assertMetaDir(project, ...(parent === '.' ? [] : [parent]))
   const target = join(dir, relPath.split('/').pop() as string)
@@ -55,13 +54,12 @@ export async function writeMetaFile(
       constants.O_CREAT |
       constants.O_EXCL |
       constants.O_NOFOLLOW,
-    mode
+    0o600
   )
   try {
     await handle.writeFile(content, 'utf8')
     await handle.close()
     await rename(tmp, target)
-    return target
   } catch (error) {
     await handle.close().catch(() => {})
     await unlink(tmp).catch(() => {})

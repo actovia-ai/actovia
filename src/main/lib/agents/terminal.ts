@@ -1,4 +1,10 @@
 import { execFile } from 'child_process'
+import { randomUUID } from 'crypto'
+import { constants } from 'fs'
+import { lstat, mkdir, open, readdir, stat, unlink } from 'fs/promises'
+import { join } from 'path'
+
+import { getExodusHome } from '../paths'
 
 export const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`
 export const appleScriptString = (s: string) =>
@@ -20,7 +26,58 @@ export const resumeScript = (
   binPath: string,
   cliSessionId: string
 ) =>
-  `#!/bin/sh\ncd ${shellQuote(cwd)} && exec ${shellQuote(binPath)} --resume ${shellQuote(cliSessionId)}\n`
+  `#!/bin/sh\nrm -f -- "$0"\ncd ${shellQuote(cwd)} && exec ${shellQuote(binPath)} --resume ${shellQuote(cliSessionId)}\n`
+
+/** Exodus' own data, out of every agent's reach (assertWorkableFolder refuses it and its ancestors). */
+export const terminalDir = () => join(getExodusHome(), 'run', 'terminal')
+
+async function assertPrivateDir(dir: string): Promise<void> {
+  await mkdir(dir, { mode: 0o700 }).catch((e: NodeJS.ErrnoException) => {
+    if (e.code !== 'EEXIST') throw e
+  })
+  const info = await lstat(dir)
+  if (info.isSymbolicLink() || !info.isDirectory())
+    throw new Error(`Refusing to use ${dir}: not a plain directory`)
+}
+
+/** A fresh 0700 one-shot script; it deletes itself as its first command. */
+export async function writeResumeScript(
+  cwd: string,
+  binPath: string,
+  cliSessionId: string
+): Promise<string> {
+  const dir = terminalDir()
+  await mkdir(join(getExodusHome(), 'run'), { recursive: true, mode: 0o700 })
+  await assertPrivateDir(join(getExodusHome(), 'run'))
+  await assertPrivateDir(dir)
+  const target = join(dir, `${randomUUID()}.sh`)
+  const handle = await open(
+    target,
+    constants.O_WRONLY |
+      constants.O_CREAT |
+      constants.O_EXCL |
+      constants.O_NOFOLLOW,
+    0o700
+  )
+  try {
+    await handle.writeFile(resumeScript(cwd, binPath, cliSessionId), 'utf8')
+  } finally {
+    await handle.close()
+  }
+  return target
+}
+
+/** At start: scripts Terminal never ran are not left lying around. */
+export async function sweepResumeScripts(maxAgeMs = 3_600_000): Promise<void> {
+  const dir = terminalDir()
+  const names = await readdir(dir).catch(() => [] as string[])
+  for (const name of names) {
+    const file = join(dir, name)
+    const info = await stat(file).catch(() => null)
+    if (info?.isFile() && Date.now() - info.mtimeMs > maxAgeMs)
+      await unlink(file).catch(() => {})
+  }
+}
 
 /** Spec §5: the owner takes the session over by hand, in Terminal.app — running our script, no typed arguments. */
 export function openInTerminal(scriptPath: string): Promise<void> {

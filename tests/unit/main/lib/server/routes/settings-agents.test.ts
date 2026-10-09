@@ -40,13 +40,13 @@ const body = JSON.stringify({
     projectsDir: '/evil'
   }
 })
-const save = (headers: Record<string, string>, env?: object) =>
+const save = (headers: Record<string, string>, env?: object, text = body) =>
   app.request(
     '/',
     {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...headers },
-      body
+      body: text
     },
     env
   )
@@ -64,6 +64,14 @@ describe('settings write keeps the CLI path and projects folder', () => {
     await save({})
     expect(written()).toMatchObject({
       maxRunning: 5,
+      cliPaths: { 'claude-code': '/good/claude' },
+      projectsDir: '/good'
+    })
+  })
+
+  it('agents: null does not clear the stored block', async () => {
+    await save({}, undefined, JSON.stringify({ id: 1, agents: null }))
+    expect(written()).toMatchObject({
       cliPaths: { 'claude-code': '/good/claude' },
       projectsDir: '/good'
     })

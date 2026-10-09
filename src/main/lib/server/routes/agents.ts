@@ -16,12 +16,11 @@ import { z } from 'zod'
 import { getCliStatus } from '../../agents/cli-check'
 import { ensureDefaultCliEmployees } from '../../agents/default-employees'
 import { resetLoginShellEnv } from '../../agents/login-shell'
-import { writeMetaFile } from '../../agents/meta-files'
 import { agentRegistry } from '../../agents/registry'
 import {
   isCliSessionId,
   openInTerminal,
-  resumeScript
+  writeResumeScript
 } from '../../agents/terminal'
 import {
   getAgentSession,
@@ -31,7 +30,6 @@ import {
   getConversationMessageById,
   updateConversationMessageParts
 } from '../../db/conversation-queries'
-import { getProjectById } from '../../db/project-queries'
 import { desktopOnly } from '../middlewares/desktop-only'
 import type { Variables } from '../types'
 import { getRequiredParam, successResponse, validateSchema } from '../utils'
@@ -101,27 +99,29 @@ router.post('/sessions/:id/terminal', desktopOnly, async (c) => {
     )
   const status = await getCliStatus('claude-code')
   if (!status.path) throw new ConflictError(ErrorCode.AGENT_NOT_RUNNING)
-  const project = await getProjectById(session.projectId)
-  if (!project) throw new NotFoundError()
-  const scriptPath = await writeMetaFile(
-    project,
-    `sessions/${id}.resume.sh`,
-    resumeScript(session.cwd, status.path, session.cliSessionId),
-    0o700
+  // Never two drivers on one session: Exodus lets go first — and only then is
+  // the script written, in Exodus' own data where no agent can edit it.
+  await agentRegistry.stopSession(session.id)
+  const scriptPath = await writeResumeScript(
+    session.cwd,
+    status.path,
+    session.cliSessionId
   )
-  // Never two drivers on one session: Exodus lets go first.
-  await agentRegistry.stopSession(id)
   await openInTerminal(scriptPath)
-  await updateAgentSession(id, { continuedInTerminal: true })
+  await updateAgentSession(session.id, { continuedInTerminal: true })
   // The persisted card says so too, and an open group sees it at once.
   if (session.messageId) {
     const message = await getConversationMessageById(session.messageId)
-    const card = message?.parts?.find((p) => p.kind === 'agent_card') as
-      | AgentCard
-      | undefined
-    if (card) {
-      const next = { ...card, continuedInTerminal: true }
-      await updateConversationMessageParts(session.messageId, [next as never])
+    const parts = (message?.parts ?? []) as Array<Record<string, unknown>>
+    const index = parts.findIndex((p) => p.kind === 'agent_card')
+    if (index !== -1) {
+      const next = {
+        ...(parts[index] as unknown as AgentCard),
+        continuedInTerminal: true
+      }
+      const all = [...parts]
+      all[index] = next as never
+      await updateConversationMessageParts(session.messageId, all)
       emitToConversation(session.conversationId, {
         type: 'agent_card',
         conversationId: session.conversationId,
