@@ -28,7 +28,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useSettings } from '@/hooks/use-settings'
-import { cliStatusView } from '@/lib/cli-status'
 import {
   CLI_MODEL_SUGGESTIONS,
   exodusModelOptions,
@@ -44,10 +43,16 @@ import {
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
 import { AvatarPicker } from './avatar-picker'
+import { CliRuntimeLabel } from './cli-runtime-label'
 import { EmployeeAvatar } from './employee-avatar'
 
 /** SelectItem's value for "no pin": the app's own model. */
 const DEFAULT_MODEL = '__default__'
+
+/** The draft as saved: a CLI model is typed raw and trimmed here, null when empty. */
+function toSaved(draft: AgentData): AgentData {
+  return { ...draft, model: draft.model?.trim() || null }
+}
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -68,7 +73,7 @@ export function EmployeeEditor({
   onSave: (data: Partial<AgentData>) => void
   onClose: () => void
 }) {
-  const { t } = useTranslation(['common', 'philharmonic', 'settings'])
+  const { t } = useTranslation(['common', 'philharmonic'])
   const [draft, setDraft] = useState<AgentData>(employee)
   const [skills, setSkills] = useState<Array<{ slug: string; name: string }>>(
     []
@@ -214,7 +219,11 @@ export function EmployeeEditor({
             }
           >
             <SelectTrigger className="border-border bg-muted w-full rounded-lg">
-              <SelectValue />
+              <SelectValue>
+                {draft.runtime === 'exodus'
+                  ? t('philharmonic:employees.runtime.exodus')
+                  : CLI_NAMES[draft.runtime]}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="exodus">
@@ -226,9 +235,7 @@ export function EmployeeEditor({
                   value={c.id}
                   disabled={c.state !== 'ready' && draft.runtime !== c.id}
                 >
-                  {CLI_NAMES[c.id]}
-                  {c.state !== 'ready' &&
-                    ` — ${t(`settings:${cliStatusView(c).labelKey}` as never)}`}
+                  <CliRuntimeLabel cli={c} />
                 </SelectItem>
               ))}
             </SelectContent>
@@ -277,7 +284,7 @@ export function EmployeeEditor({
                 onChange={(e) =>
                   setDraft((d) => ({
                     ...d,
-                    model: e.target.value.trim() || null
+                    model: e.target.value || null
                   }))
                 }
                 className="border-border bg-muted rounded-lg"
@@ -438,7 +445,7 @@ export function EmployeeEditor({
         </Button>
         <Button
           size="sm"
-          onClick={() => canSave && onSave(draft)}
+          onClick={() => canSave && onSave(toSaved(draft))}
           disabled={!canSave}
         >
           {isNew ? t('action.create') : t('action.save')}

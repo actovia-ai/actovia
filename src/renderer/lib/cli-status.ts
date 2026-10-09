@@ -1,8 +1,13 @@
 import type { CliStatus } from '@exodus/shared/types/agents'
+import type { ParseKeys } from 'i18next'
 
 const VIEW: Record<
   CliStatus['state'],
-  { tone: 'ok' | 'warn' | 'error'; labelKey: string; hintKey: string | null }
+  {
+    tone: 'ok' | 'warn' | 'error'
+    labelKey: ParseKeys<'philharmonic'>
+    hintKey: ParseKeys<'philharmonic'> | null
+  }
 > = {
   ready: { tone: 'ok', labelKey: 'agents.cli.state.ready', hintKey: null },
   not_installed: {

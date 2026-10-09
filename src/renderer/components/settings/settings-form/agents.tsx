@@ -38,7 +38,7 @@ function CliRow({
       .join(' · ') || t('agents.cli.notFound')
   const description = [
     facts,
-    view.hintKey ? t(view.hintKey as 'agents.cli.hint.install') : null,
+    view.hintKey ? t(view.hintKey) : null,
     status.detail
   ]
     .filter(Boolean)
@@ -49,7 +49,7 @@ function CliRow({
       <div className="flex items-center gap-3">
         <span className="flex items-center gap-1.5 text-sm">
           <span className={cn('size-2 rounded-full', DOT[view.tone])} />
-          {t(view.labelKey as 'agents.cli.state.ready')}
+          {t(view.labelKey)}
         </span>
         <Button
           variant="outline"
