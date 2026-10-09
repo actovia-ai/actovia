@@ -2,6 +2,7 @@ import type { Attachment } from '@exodus/shared/types/chat'
 import type { PlanDto } from '@exodus/shared/types/philharmonic'
 import { fetcher } from '@exodus/shared/utils/http'
 
+import { presenceHeaders } from '@/lib/presence'
 import type {
   ConversationData,
   ConversationMessageData
@@ -28,7 +29,9 @@ export const deleteConversation = (id: string) =>
   fetcher<void>(`${BASE}/conversations/${id}`, { method: 'DELETE' })
 export const getConversationMessages = (id: string) =>
   fetcher<ConversationMessageData[]>(`${BASE}/conversations/${id}/messages`)
-export const sendConversationMessage = (
+// A group message and an answer to the PM carry the window's presence
+// token: no other local process may set the group's agents to work.
+export const sendConversationMessage = async (
   id: string,
   content: string,
   attachments?: Attachment[]
@@ -39,12 +42,14 @@ export const sendConversationMessage = (
       content,
       attachments:
         attachments && attachments.length > 0 ? attachments : undefined
-    } as never
+    } as never,
+    headers: await presenceHeaders()
   })
-export const respondToConversation = (id: string, response: string) =>
+export const respondToConversation = async (id: string, response: string) =>
   fetcher<{ success: boolean }>(`${BASE}/conversations/${id}/respond`, {
     method: 'POST',
-    body: { response } as never
+    body: { response } as never,
+    headers: await presenceHeaders()
   })
 
 /**

@@ -31,11 +31,18 @@ const WRITE_PREFIXES = [
   // Employee edits (runtime, permission mode): a model must not loosen its own.
   '/api/v1/philharmonic/agents'
 ]
+/**
+ * A group message and an answer to the PM's question: a local process
+ * posting either could get the PM to hand an `auto` coding agent work.
+ */
+const GROUP_POSTS =
+  /^\/api\/v1\/philharmonic\/conversations\/[^/]+\/(?:messages|respond)\/?$/u
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
 export function needsPresenceFor(path: string, method: string): boolean {
   if (needsPresence(path)) return true
   if (SAFE_METHODS.has(method.toUpperCase())) return false
+  if (GROUP_POSTS.test(path)) return true
   return WRITE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))
 }
 

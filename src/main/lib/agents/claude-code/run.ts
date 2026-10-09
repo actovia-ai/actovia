@@ -1,6 +1,12 @@
 // src/main/lib/agents/claude-code/run.ts
 import { spawn } from 'child_process'
-import { constants, createWriteStream, openSync } from 'fs'
+import {
+  closeSync,
+  constants,
+  createWriteStream,
+  fstatSync,
+  openSync
+} from 'fs'
 import { createInterface } from 'readline'
 
 import type { AgentAnswer } from '@exodus/shared/types/agents'
@@ -33,11 +39,13 @@ export function buildArgs(input: StartInput): string[] {
 export function startClaudeCode(input: StartInput): AgentRun {
   const listeners = new Set<(e: AgentEvent) => void>()
   const pending = new Map<string, Record<string, unknown>>()
-  // Never follow a symlink at the log path (an agent can plant one in its
-  // own cwd); logging is optional, so a failure disables it, not the run.
+  // Never follow a symlink at the log path, nor append through a hard link
+  // (an agent can plant either in its own cwd to make Exodus write elsewhere);
+  // logging is optional, so a refusal disables it, not the run.
   let log: ReturnType<typeof createWriteStream> | null = null
+  let fd: number | null = null
   try {
-    const fd = openSync(
+    fd = openSync(
       input.logPath,
       constants.O_WRONLY |
         constants.O_APPEND |
@@ -45,10 +53,19 @@ export function startClaudeCode(input: StartInput): AgentRun {
         constants.O_NOFOLLOW,
       0o600
     )
+    const info = fstatSync(fd)
+    if (!info.isFile() || info.nlink !== 1)
+      throw new Error('Refusing a log that is not one plain file')
     log = createWriteStream(input.logPath, { fd, autoClose: true })
     // Logging must never break the run.
     log.on('error', () => {})
   } catch {
+    if (fd !== null && !log)
+      try {
+        closeSync(fd)
+      } catch {
+        // already closed
+      }
     log = null
   }
   let cliSessionId: string | null = null

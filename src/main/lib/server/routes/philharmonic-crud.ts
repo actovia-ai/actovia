@@ -1,4 +1,9 @@
-import { AGENT_RUNTIMES, PERMISSION_MODES } from '@exodus/shared/types/agents'
+import { ErrorCode, ValidationError } from '@exodus/shared'
+import {
+  AGENT_RUNTIMES,
+  PERMISSION_MODES,
+  type AgentRuntime
+} from '@exodus/shared/types/agents'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -6,6 +11,7 @@ import { listInstalledSkills } from '../../ai/skills/skills-manager'
 import {
   createAgent,
   deleteAgent,
+  getAgentById,
   getAgentMemories,
   getAllAgents,
   updateAgent
@@ -47,6 +53,25 @@ const employeeSchema = z.object({
   isActive: z.boolean().optional()
 })
 
+/**
+ * A CLI employee's model goes on the CLI's command line (`--model <it>`):
+ * a model name, never something the CLI could read as a flag.
+ */
+const isCliModel = (model: string) =>
+  /^[\w.:[\]-]+$/u.test(model) && !model.startsWith('-')
+
+function assertCliModel(
+  runtime: AgentRuntime | null | undefined,
+  model: string | null | undefined
+) {
+  if (!runtime || runtime === 'exodus' || model == null) return
+  if (!isCliModel(model))
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'Invalid model name for Claude Code'
+    )
+}
+
 philharmonicCrud.get('/agents', async (c) =>
   successResponse(
     c,
@@ -63,6 +88,7 @@ philharmonicCrud.post('/agents', async (c) => {
     await c.req.json(),
     'Invalid employee data'
   )
+  assertCliModel(data.runtime, data.model)
   return successResponse(
     c,
     await handleDatabaseOperation(
@@ -80,6 +106,11 @@ philharmonicCrud.put('/agents/:id', async (c) => {
     await c.req.json(),
     'Invalid employee data'
   )
+  if (data.model != null)
+    assertCliModel(
+      data.runtime ?? ((await getAgentById(id))?.runtime as AgentRuntime),
+      data.model
+    )
   return successResponse(
     c,
     await handleDatabaseOperation(

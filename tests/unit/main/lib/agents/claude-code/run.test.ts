@@ -1,6 +1,7 @@
 // tests/unit/main/lib/agents/claude-code/run.test.ts
 import {
   chmodSync,
+  linkSync,
   mkdtempSync,
   readFileSync,
   symlinkSync,
@@ -314,6 +315,18 @@ describe('Claude Code run', () => {
     const link = join(mkdtempSync(join(tmpdir(), 'lnk-')), 'raw.jsonl')
     symlinkSync(outside, link)
     const { run } = start('resume.jsonl', {}, { logPath: link })
+    run.send('hello')
+    await next(run, (e) => e.type === 'turn_end')
+    await run.stop()
+    expect(readFileSync(outside, 'utf8')).toBe('keep\n')
+  })
+
+  it('does not append through a hard link at the log path, and still runs', async () => {
+    const outside = join(mkdtempSync(join(tmpdir(), 'out-')), 'rc')
+    writeFileSync(outside, 'keep\n')
+    const hard = join(mkdtempSync(join(tmpdir(), 'hl-')), 'raw.jsonl')
+    linkSync(outside, hard)
+    const { run } = start('resume.jsonl', {}, { logPath: hard })
     run.send('hello')
     await next(run, (e) => e.type === 'turn_end')
     await run.stop()

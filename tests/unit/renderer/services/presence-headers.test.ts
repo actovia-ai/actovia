@@ -10,7 +10,10 @@ vi.mock('@/lib/presence', () => ({
 }))
 
 const { updateSettings } = await import('@/services/settings')
-const { checkCli, respondToAgent } = await import('@/services/agents')
+const { checkCli, continueInTerminal, respondToAgent } =
+  await import('@/services/agents')
+const { respondToConversation, sendConversationMessage } =
+  await import('@/services/philharmonic-chat')
 const { createProject, setProjectWorktrees } =
   await import('@/services/projects')
 
@@ -41,6 +44,29 @@ describe('presence header on writes', () => {
     await setProjectWorktrees('id', false)
     expect(fetcherMock.mock.calls[0][1]).toMatchObject({
       method: 'PATCH',
+      headers: { 'x-exodus-presence': 'tok' }
+    })
+  })
+  it('a group message and an answer to the PM', async () => {
+    await sendConversationMessage('c', 'build it')
+    expect(fetcherMock.mock.calls[0][1]).toMatchObject({
+      method: 'POST',
+      body: { content: 'build it' },
+      headers: { 'x-exodus-presence': 'tok' }
+    })
+    fetcherMock.mockReset()
+    await respondToConversation('c', 'yes')
+    expect(fetcherMock.mock.calls[0][1]).toMatchObject({
+      method: 'POST',
+      body: { response: 'yes' },
+      headers: { 'x-exodus-presence': 'tok' }
+    })
+  })
+  it('Continue in Terminal names the card it was pressed on', async () => {
+    await continueInTerminal('s', 'm')
+    expect(fetcherMock.mock.calls[0][1]).toMatchObject({
+      method: 'POST',
+      body: { messageId: 'm' },
       headers: { 'x-exodus-presence': 'tok' }
     })
   })

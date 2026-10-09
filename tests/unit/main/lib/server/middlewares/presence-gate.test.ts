@@ -19,6 +19,7 @@ app.all('/api/v1/philharmonic/agents/*', (c) => c.text('employees'))
 app.all('/api/v1/philharmonic/agents', (c) => c.text('employees'))
 app.all('/api/v1/projects', (c) => c.text('projects'))
 app.get('/api/v1/devices-and-more', (c) => c.text('not devices'))
+app.all('/api/v1/philharmonic/conversations/*', (c) => c.text('groups'))
 
 const withToken = { headers: { [PRESENCE_HEADER]: getPresenceToken() } }
 
@@ -71,7 +72,10 @@ describe('presenceGate', () => {
     ['PATCH', '/api/v1/projects/p1'],
     ['POST', '/api/v1/philharmonic/agents'],
     ['PUT', '/api/v1/philharmonic/agents/a1'],
-    ['DELETE', '/api/v1/philharmonic/agents/a1']
+    ['DELETE', '/api/v1/philharmonic/agents/a1'],
+    // A group message or an answer to the PM can set an `auto` agent to work.
+    ['POST', '/api/v1/philharmonic/conversations/c1/messages'],
+    ['POST', '/api/v1/philharmonic/conversations/c1/respond']
   ])('%s %s needs the window token on loopback', async (method, path) => {
     const res = await app.request(path, { method })
     expect(res.status).toBe(403)
@@ -80,6 +84,15 @@ describe('presenceGate', () => {
     expect(
       (await app.request(path, { method }, { listener: 'lan' })).status
     ).toBe(200)
+  })
+
+  it('a group’s other routes and its history read stay as they were', async () => {
+    for (const [method, path] of [
+      ['GET', '/api/v1/philharmonic/conversations/c1/messages'],
+      ['POST', '/api/v1/philharmonic/conversations/c1/interrupt'],
+      ['POST', '/api/v1/philharmonic/conversations']
+    ])
+      expect((await app.request(path, { method })).status, path).toBe(200)
   })
 
   it('reads of agents and projects stay open', async () => {
