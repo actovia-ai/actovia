@@ -9,6 +9,7 @@ import started from 'electron-squirrel-startup'
 
 import { ensureDefaultCliEmployees } from './lib/agents/default-employees'
 import { agentRegistry } from './lib/agents/registry'
+import { stopStaleSessions } from './lib/agents/stale-cards'
 import { closeDuckDB } from './lib/analytics/duckdb'
 import {
   registerArtifactScheme,
@@ -89,7 +90,7 @@ app.on('ready', async () => {
   await runMigrate()
 
   // A previous run that crashed left its sessions `working`; nothing runs now.
-  await markLiveSessionsStopped().catch((err) => {
+  await stopStaleSessions().catch((err) => {
     logger.error('app', 'Failed to clear stale agent sessions', { error: err })
   })
   // A Ready CLI gets its employee without setup; never blocks start-up.
@@ -268,11 +269,14 @@ app.on('will-quit', (event) => {
   // Claude Code processes go down first (Exodus' own children must not
   // outlive it), under their own budget, so PGlite keeps its full window.
   const agentsDown = (async () => {
+    // The whole shutdown shares one budget: a hung DB write cannot hold quit.
     await Promise.race([
-      agentRegistry.stopAll(),
+      (async () => {
+        await agentRegistry.stopAll()
+        await markLiveSessionsStopped()
+      })(),
       new Promise((r) => setTimeout(r, AGENTS_STOP_TIMEOUT_MS))
     ]).catch(() => {})
-    await markLiveSessionsStopped().catch(() => {})
   })()
   const timeout = agentsDown.then(
     () =>

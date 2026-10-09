@@ -13,6 +13,9 @@ app.post('/api/v1/chat/approval', (c) => c.text('answered'))
 app.get('/api/v1/devices', (c) => c.text('devices'))
 app.post('/api/v1/devices/pairing', (c) => c.text('pairing open'))
 app.post('/api/v1/chat', (c) => c.text('chat'))
+app.all('/api/v1/agents/*', (c) => c.text('agents'))
+app.all('/api/v1/projects/*', (c) => c.text('projects'))
+app.all('/api/v1/projects', (c) => c.text('projects'))
 app.get('/api/v1/devices-and-more', (c) => c.text('not devices'))
 
 const withToken = { headers: { [PRESENCE_HEADER]: getPresenceToken() } }
@@ -55,6 +58,28 @@ describe('presenceGate', () => {
       200
     )
     expect((await app.request('/api/v1/devices-and-more')).status).toBe(200)
+  })
+
+  it.each([
+    ['POST', '/api/v1/agents/sessions/s1/respond'],
+    ['POST', '/api/v1/agents/sessions/s1/interrupt'],
+    ['POST', '/api/v1/agents/clis/claude-code/check'],
+    ['POST', '/api/v1/projects'],
+    ['PUT', '/api/v1/projects/conversations/c1'],
+    ['PATCH', '/api/v1/projects/p1']
+  ])('%s %s needs the window token on loopback', async (method, path) => {
+    const res = await app.request(path, { method })
+    expect(res.status).toBe(403)
+    expect((await res.json()).error.code).toBe('PRESENCE_REQUIRED')
+    expect((await app.request(path, { method, ...withToken })).status).toBe(200)
+    expect(
+      (await app.request(path, { method }, { listener: 'lan' })).status
+    ).toBe(200)
+  })
+
+  it('reads of agents and projects stay open', async () => {
+    expect((await app.request('/api/v1/agents/clis')).status).toBe(200)
+    expect((await app.request('/api/v1/projects')).status).toBe(200)
   })
 
   it('the token is stable for the launch and compared exactly', () => {

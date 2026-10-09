@@ -53,9 +53,10 @@ export async function findResumableSession(
 }
 
 /** At start and at quit: nothing is running any more. */
-export async function markLiveSessionsStopped(): Promise<void> {
-  await db
+export async function markLiveSessionsStopped(): Promise<AgentSession[]> {
+  return db
     .update(agentSession)
     .set({ state: 'stopped', updatedAt: new Date() })
     .where(inArray(agentSession.state, ['working', 'blocked']))
+    .returning()
 }

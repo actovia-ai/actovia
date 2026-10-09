@@ -19,8 +19,23 @@ export function needsPresence(path: string): boolean {
   return PRESENCE_PATHS.some((p) => path === p || path.startsWith(`${p}/`))
 }
 
+/**
+ * Claude Code employees: answering a permission prompt, interrupting,
+ * Continue in Terminal, folder changes, a CLI check — everything but a read
+ * stands for the owner in person (a `curl` from the CLI's own Bash tool could
+ * otherwise approve its own prompt). The renderer sends `presenceHeaders()`.
+ */
+const WRITE_PREFIXES = ['/api/v1/agents', '/api/v1/projects']
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
+
+export function needsPresenceFor(path: string, method: string): boolean {
+  if (needsPresence(path)) return true
+  if (SAFE_METHODS.has(method.toUpperCase())) return false
+  return WRITE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`))
+}
+
 export async function presenceGate(c: Context, next: Next) {
-  if (!needsPresence(c.req.path)) return next()
+  if (!needsPresenceFor(c.req.path, c.req.method)) return next()
   if (listenerOf(c) === 'lan') return next()
   if (isPresenceToken(c.req.header(PRESENCE_HEADER))) return next()
   return c.json(

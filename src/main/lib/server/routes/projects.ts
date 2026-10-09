@@ -18,6 +18,7 @@ import {
   updateProject
 } from '../../db/project-queries'
 import { getMainWindow } from '../../window'
+import { desktopOnly } from '../middlewares/desktop-only'
 import type { Variables } from '../types'
 import { getRequiredParam, successResponse, validateSchema } from '../utils'
 
@@ -25,7 +26,7 @@ const router = new Hono<{ Variables: Variables }>()
 
 router.get('/', async (c) => successResponse(c, await listRecentProjects()))
 
-router.post('/', async (c) => {
+router.post('/', desktopOnly, async (c) => {
   const { name } = validateSchema(
     z.object({ name: z.string().trim().min(1).max(80) }),
     await c.req.json(),
@@ -34,7 +35,7 @@ router.post('/', async (c) => {
   return successResponse(c, await createNewProject(name))
 })
 
-router.post('/pick', async (c) => {
+router.post('/pick', desktopOnly, async (c) => {
   const win = getMainWindow()
   const opts = {
     properties: ['openDirectory', 'createDirectory'] as Array<
@@ -49,7 +50,7 @@ router.post('/pick', async (c) => {
   })
 })
 
-router.post('/open', async (c) => {
+router.post('/open', desktopOnly, async (c) => {
   const { folder } = validateSchema(
     z.object({ folder: z.string().min(1) }),
     await c.req.json(),
@@ -72,7 +73,7 @@ router.get('/conversations/:id', async (c) => {
   })
 })
 
-router.put('/conversations/:id', async (c) => {
+router.put('/conversations/:id', desktopOnly, async (c) => {
   const { projectId } = validateSchema(
     z.object({ projectId: z.string().uuid().nullable() }),
     await c.req.json(),
@@ -82,7 +83,7 @@ router.put('/conversations/:id', async (c) => {
   return successResponse(c, { success: true })
 })
 
-router.patch('/:id', async (c) => {
+router.patch('/:id', desktopOnly, async (c) => {
   const id = getRequiredParam(c, 'id')
   const { useWorktrees } = validateSchema(
     z.object({ useWorktrees: z.boolean() }),

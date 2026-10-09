@@ -16,12 +16,29 @@ vi.mock('@main/lib/agents/registry', () => ({
   agentRegistry: { bySession: () => live, stopSession: vi.fn(async () => {}) }
 }))
 vi.mock('@main/lib/agents/cli-check', () => ({
-  getCliStatus: vi.fn(async () => ({ id: 'claude-code', state: 'ready' }))
+  getCliStatus: vi.fn(async () => ({
+    id: 'claude-code',
+    state: 'ready',
+    path: '/bin/claude'
+  }))
 }))
 vi.mock('@main/lib/agents/login-shell', () => ({ resetLoginShellEnv: vi.fn() }))
-vi.mock('@main/lib/agents/terminal', () => ({
-  openInTerminal: vi.fn(async () => {})
+const openInTerminal = vi.fn(async (_path: string) => {})
+vi.mock('@main/lib/agents/terminal', async (importActual) => ({
+  ...(await importActual<typeof import('@main/lib/agents/terminal')>()),
+  openInTerminal: (p: string) => openInTerminal(p)
 }))
+const writeMetaFile = vi.fn(
+  async (_p: unknown, rel: string, _c: string, _m?: number) => `/meta/${rel}`
+)
+vi.mock('@main/lib/agents/meta-files', () => ({
+  writeMetaFile: (...a: [unknown, string, string, number?]) =>
+    writeMetaFile(...a)
+}))
+vi.mock('@main/lib/db/project-queries', () => ({
+  getProjectById: async () => ({ id: 'p', dir: '/proj' })
+}))
+let cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
 vi.mock('@main/lib/agents/default-employees', () => ({
   ensureDefaultCliEmployees: vi.fn(async () => {})
 }))
@@ -33,7 +50,8 @@ vi.mock('@main/lib/db/agent-session-queries', () => ({
   getAgentSession: async () => ({
     id: 's1',
     cwd: '/p',
-    cliSessionId: 'cli',
+    cliSessionId,
+    projectId: 'p',
     conversationId: 'c'
   }),
   updateAgentSession: vi.fn(async () => ({}))
@@ -49,12 +67,16 @@ const app = new Hono()
 app.route('/', agentsRouter)
 app.onError(errorHandler)
 
-const post = (path: string, body?: unknown) =>
-  app.request(path, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: body ? JSON.stringify(body) : undefined
-  })
+const post = (path: string, body?: unknown, env?: object) =>
+  app.request(
+    path,
+    {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined
+    },
+    env
+  )
 
 describe('agents routes', () => {
   it('passes an answer to the live run', async () => {
@@ -102,5 +124,77 @@ describe('agents routes', () => {
         })
       ).status
     ).toBe(400)
+  })
+
+  it('bounds an answer set: key and value length, at most 20 keys, requestId', async () => {
+    live = { respond: respond.mockReturnValue(true), interrupt }
+    const bad = [
+      { requestId: 'r'.repeat(201), answer: { kind: 'allow' } },
+      {
+        requestId: 'r',
+        answer: { kind: 'answers', answers: { ['k'.repeat(501)]: 'v' } }
+      },
+      {
+        requestId: 'r',
+        answer: { kind: 'answers', answers: { k: 'v'.repeat(4001) } }
+      },
+      {
+        requestId: 'r',
+        answer: {
+          kind: 'answers',
+          answers: Object.fromEntries(
+            Array.from({ length: 21 }, (_, i) => [`k${i}`, 'v'])
+          )
+        }
+      }
+    ]
+    for (const body of bad)
+      expect((await post('/sessions/s1/respond', body)).status).toBe(400)
+  })
+
+  it('Continue in Terminal runs a 0700 script by path, not typed arguments', async () => {
+    const res = await post('/sessions/s1/terminal')
+    expect(res.status).toBe(200)
+    const [, rel, content, mode] = writeMetaFile.mock.calls.at(-1) as [
+      unknown,
+      string,
+      string,
+      number
+    ]
+    expect(rel).toBe('sessions/s1.resume.sh')
+    expect(mode).toBe(0o700)
+    expect(content).toContain('--resume')
+    expect(openInTerminal).toHaveBeenCalledWith('/meta/sessions/s1.resume.sh')
+  })
+
+  it('refuses a session id that is not shaped like one', async () => {
+    cliSessionId = "x'; rm -rf ~ #"
+    openInTerminal.mockClear()
+    expect((await post('/sessions/s1/terminal')).status).toBe(400)
+    expect(openInTerminal).not.toHaveBeenCalled()
+    cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
+  })
+
+  it('the computer-side actions are 403 for a paired phone; answering is not', async () => {
+    const lan = { listener: 'lan' }
+    for (const path of [
+      '/clis/claude-code/check',
+      '/sessions/s1/terminal',
+      '/sessions/s1/open-folder'
+    ]) {
+      const res = await post(path, undefined, lan)
+      expect(res.status).toBe(403)
+      expect((await res.json()).error.code).toBe('FORBIDDEN')
+    }
+    live = { respond: respond.mockReturnValue(true), interrupt }
+    expect(
+      (
+        await post(
+          '/sessions/s1/respond',
+          { requestId: 'r', answer: { kind: 'allow' } },
+          lan
+        )
+      ).status
+    ).toBe(200)
   })
 })

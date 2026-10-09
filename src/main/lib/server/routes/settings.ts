@@ -11,6 +11,7 @@ import {
   updateSettings
 } from '../../db/queries'
 import { Settings as DBSettings } from '../../db/schema'
+import { isPresenceToken, PRESENCE_HEADER } from '../../presence'
 import { resolveSearchProvider } from '../../search/resolve-search-provider'
 import { looksLikeMask, maskSettings, normalizeBaseUrl } from '../../secrets'
 import { pendingMovedSecrets } from '../../secrets/moved'
@@ -20,7 +21,7 @@ import {
   listModelsRequestSchema,
   updateSettingsSchema
 } from '../schemas/settings'
-import { Variables } from '../types'
+import { listenerOf, Variables } from '../types'
 import {
   handleDatabaseOperation,
   successResponse,
@@ -52,6 +53,20 @@ settingsRouter.post('/', async (c) => {
     await c.req.json(),
     'Invalid setting configuration'
   )
+
+  // `agents.cliPaths` names a binary Exodus executes and `agents.projectsDir`
+  // where it works: only the Exodus window may change them, never a paired
+  // phone or a process on loopback without the presence token.
+  const fromWindow =
+    listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))
+  if (!fromWindow && payload.agents) {
+    const stored = (await getSettings()).agents
+    payload.agents = {
+      ...payload.agents,
+      cliPaths: stored?.cliPaths ?? {},
+      projectsDir: stored?.projectsDir
+    }
+  }
 
   // A posted mask means "unchanged" — `updateSettings` swaps it back for the
   // stored key. The answer is the driver's write result (no row data in it).
