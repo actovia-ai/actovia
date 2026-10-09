@@ -67,7 +67,9 @@
     "APP_LOCKED": "アプリケーションはロックされています。",
     "APPROVAL_NOT_FOUND": "このリクエストはもう回答を待っていません。",
     "RUN_NOT_FOUND": "その回答はこのチャットにもうありません。",
-    "ATTEMPT_LOCKED": "会話が先に進んだため、この回答はもう入れ替えられません。"
+    "ATTEMPT_LOCKED": "会話が先に進んだため、この回答はもう入れ替えられません。",
+    "AGENT_PROMPT_GONE": "このリクエストはすでに回答済みか、Claude Code が先に進んでいます。",
+    "AGENT_NOT_RUNNING": "この手順では Claude Code は実行されていません。"
   },
   "routeBoundary": {
     "title": "問題が発生しました",

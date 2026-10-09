@@ -7,6 +7,8 @@ import { join } from 'path'
 import { app, BrowserWindow, globalShortcut, powerMonitor } from 'electron'
 import started from 'electron-squirrel-startup'
 
+import { ensureDefaultCliEmployees } from './lib/agents/default-employees'
+import { agentRegistry } from './lib/agents/registry'
 import { closeDuckDB } from './lib/analytics/duckdb'
 import {
   registerArtifactScheme,
@@ -14,6 +16,7 @@ import {
 } from './lib/artifact-protocol'
 import { setupAutoUpdater } from './lib/auto-updater'
 import { startBackupScheduler } from './lib/backup'
+import { markLiveSessionsStopped } from './lib/db/agent-session-queries'
 import { pglite } from './lib/db/db'
 import { runMigrate } from './lib/db/migrate'
 import {
@@ -84,6 +87,13 @@ app.on('ready', async () => {
   // Must run before setupIPC() / createWindow() — both assume the schema
   // is already migrated once a renderer can issue DB queries.
   await runMigrate()
+
+  // A previous run that crashed left its sessions `working`; nothing runs now.
+  await markLiveSessionsStopped().catch((err) => {
+    logger.error('app', 'Failed to clear stale agent sessions', { error: err })
+  })
+  // A Ready CLI gets its employee without setup; never blocks start-up.
+  void ensureDefaultCliEmployees().catch(() => {})
 
   // Secrets at rest (spec 2026-09-25 §2.3), before anything reads settings:
   // encrypt what an earlier build left plaintext, strip keys from queued job
@@ -225,6 +235,7 @@ app.on('window-all-closed', () => {
 
 let hasClosedPglite = false
 const PGLITE_CLOSE_TIMEOUT_MS = 5000
+const AGENTS_STOP_TIMEOUT_MS = 3500
 app.on('will-quit', (event) => {
   destroyTray()
   globalShortcut.unregisterAll()
@@ -254,18 +265,32 @@ app.on('will-quit', (event) => {
   // loop alive. Race the close against a timeout, then force-exit
   // unconditionally so the process is *guaranteed* to terminate.
   let timedOut = false
-  const timeout = new Promise<void>((resolve) => {
-    setTimeout(() => {
-      timedOut = true
-      resolve()
-    }, PGLITE_CLOSE_TIMEOUT_MS)
-  })
-  Promise.race([
-    pglite.close().catch((err) => {
-      logger.error('app', 'Failed to close PGlite cleanly on quit', {
-        error: err
+  // Claude Code processes go down first (Exodus' own children must not
+  // outlive it), under their own budget, so PGlite keeps its full window.
+  const agentsDown = (async () => {
+    await Promise.race([
+      agentRegistry.stopAll(),
+      new Promise((r) => setTimeout(r, AGENTS_STOP_TIMEOUT_MS))
+    ]).catch(() => {})
+    await markLiveSessionsStopped().catch(() => {})
+  })()
+  const timeout = agentsDown.then(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(() => {
+          timedOut = true
+          resolve()
+        }, PGLITE_CLOSE_TIMEOUT_MS)
       })
-    }),
+  )
+  Promise.race([
+    agentsDown.then(() =>
+      pglite.close().catch((err) => {
+        logger.error('app', 'Failed to close PGlite cleanly on quit', {
+          error: err
+        })
+      })
+    ),
     timeout
   ])
     .then(() => {

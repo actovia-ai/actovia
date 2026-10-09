@@ -67,7 +67,9 @@
     "APP_LOCKED": "O aplicativo está bloqueado.",
     "APPROVAL_NOT_FOUND": "Esta solicitação não está mais aguardando resposta.",
     "RUN_NOT_FOUND": "Essa resposta não está mais neste chat.",
-    "ATTEMPT_LOCKED": "A conversa seguiu em frente, então esta resposta não pode mais ser trocada."
+    "ATTEMPT_LOCKED": "A conversa seguiu em frente, então esta resposta não pode mais ser trocada.",
+    "AGENT_PROMPT_GONE": "Este pedido já foi respondido, ou o Claude Code seguiu em frente.",
+    "AGENT_NOT_RUNNING": "O Claude Code não está em execução nesta etapa."
   },
   "routeBoundary": {
     "title": "Algo deu errado",

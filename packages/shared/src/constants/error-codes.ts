@@ -97,7 +97,11 @@ export enum ErrorCode {
 
   // ── Conflict Errors (409) ──────────────────────────────────────────────────
   /** A regenerate group's choice can no longer change: a later run exists. */
-  ATTEMPT_LOCKED = 'ATTEMPT_LOCKED'
+  ATTEMPT_LOCKED = 'ATTEMPT_LOCKED',
+  /** A Claude Code prompt was already answered, or the run moved on. */
+  AGENT_PROMPT_GONE = 'AGENT_PROMPT_GONE',
+  /** Nothing runs for that Claude Code step. */
+  AGENT_NOT_RUNNING = 'AGENT_NOT_RUNNING'
 }
 
 /**
@@ -180,7 +184,9 @@ export const ErrorCodeToStatus: Record<ErrorCode, number> = {
   [ErrorCode.APP_LOCKED]: 423,
 
   // Conflict Errors
-  [ErrorCode.ATTEMPT_LOCKED]: 409
+  [ErrorCode.ATTEMPT_LOCKED]: 409,
+  [ErrorCode.AGENT_PROMPT_GONE]: 409,
+  [ErrorCode.AGENT_NOT_RUNNING]: 409
 }
 
 /**
@@ -289,5 +295,8 @@ export const ErrorMessages: Record<ErrorCode, string> = {
 
   // Conflict Errors
   [ErrorCode.ATTEMPT_LOCKED]:
-    'The conversation has moved on, so this answer can no longer be swapped.'
+    'The conversation has moved on, so this answer can no longer be swapped.',
+  [ErrorCode.AGENT_PROMPT_GONE]:
+    'This request was already answered, or Claude Code has moved on.',
+  [ErrorCode.AGENT_NOT_RUNNING]: 'Claude Code is not running for this step.'
 }
