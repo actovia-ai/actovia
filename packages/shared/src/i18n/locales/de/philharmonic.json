@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "{{name}} entfernen"
     },
+    "folder": {
+      "none": "Kein Ordner",
+      "recent": "Zuletzt",
+      "new": "Neues Projekt…",
+      "namePlaceholder": "Projektname, dann Enter",
+      "open": "Ordner öffnen…",
+      "worktree": "Worktree",
+      "failed": "Der Ordner konnte nicht geändert werden",
+      "refused": "Dieser Ordner kann nicht verwendet werden",
+      "missing": "{{name}} — Ordner fehlt; wähle ihn erneut mit „Ordner öffnen…“"
+    },
     "uploader": {
       "attachAria": "Bilder anhängen",
       "s3FallbackTitle": "S3-Upload fehlgeschlagen, verwende eingebettete Daten",

@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "Rimuovi {{name}}"
     },
+    "folder": {
+      "none": "Nessuna cartella",
+      "recent": "Recenti",
+      "new": "Nuovo progetto…",
+      "namePlaceholder": "Nome del progetto, poi Invio",
+      "open": "Apri cartella…",
+      "worktree": "Worktree",
+      "failed": "Impossibile cambiare la cartella",
+      "refused": "Questa cartella non può essere usata",
+      "missing": "{{name}} — cartella mancante; sceglila di nuovo con Apri cartella…"
+    },
     "uploader": {
       "attachAria": "Allega immagini",
       "s3FallbackTitle": "Caricamento su S3 non riuscito, verranno usati dati incorporati",

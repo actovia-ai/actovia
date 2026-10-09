@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "Remover {{name}}"
     },
+    "folder": {
+      "none": "Sem pasta",
+      "recent": "Recentes",
+      "new": "Novo projeto…",
+      "namePlaceholder": "Nome do projeto e Enter",
+      "open": "Abrir pasta…",
+      "worktree": "Worktree",
+      "failed": "Não foi possível alterar a pasta",
+      "refused": "Esta pasta não pode ser usada",
+      "missing": "{{name}} — pasta ausente; escolha-a novamente em Abrir pasta…"
+    },
     "uploader": {
       "attachAria": "Anexar imagens",
       "s3FallbackTitle": "Falha no upload para o S3; usando dados incorporados",

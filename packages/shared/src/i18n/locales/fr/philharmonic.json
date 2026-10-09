@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "Supprimer {{name}}"
     },
+    "folder": {
+      "none": "Aucun dossier",
+      "recent": "Récents",
+      "new": "Nouveau projet…",
+      "namePlaceholder": "Nom du projet, puis Entrée",
+      "open": "Ouvrir un dossier…",
+      "worktree": "Worktree",
+      "failed": "Impossible de changer le dossier",
+      "refused": "Ce dossier ne peut pas être utilisé",
+      "missing": "{{name}} — dossier introuvable ; choisissez-le de nouveau avec Ouvrir un dossier…"
+    },
     "uploader": {
       "attachAria": "Joindre des images",
       "s3FallbackTitle": "Échec du téléversement S3, utilisation de données intégrées",

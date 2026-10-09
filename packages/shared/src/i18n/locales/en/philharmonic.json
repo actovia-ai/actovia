@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "Remove {{name}}"
     },
+    "folder": {
+      "none": "No folder",
+      "recent": "Recent",
+      "new": "New project…",
+      "namePlaceholder": "Project name, then Enter",
+      "open": "Open folder…",
+      "worktree": "Worktree",
+      "failed": "Could not change the folder",
+      "refused": "This folder can't be used",
+      "missing": "{{name}} — folder missing; choose it again with Open folder…"
+    },
     "uploader": {
       "attachAria": "Attach images",
       "s3FallbackTitle": "S3 upload failed, using inline data",

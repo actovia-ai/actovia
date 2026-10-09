@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils'
 import { philharmonicAttachmentAtom } from '@/stores/philharmonic'
 
 import { AttachmentPreview } from './attachment-preview'
+import { FolderChip } from './folder-chip'
 import { ComposerUploader } from './uploader'
 
 /** `gap-x-1` on the row, in pixels: what the field's compact width is measured with. */
@@ -39,11 +40,13 @@ const PILL_RADIUS = 28
  * transcript, which the group chat lays out for it.
  */
 export function Composer({
+  conversationId,
   onSend,
   disabled,
   busy = false,
   onStop
 }: {
+  conversationId: string
   onSend: (text: string, attachments: Attachment[]) => void
   disabled?: boolean
   /** PM is currently running — the Send button becomes a Stop button. */
@@ -113,78 +116,81 @@ export function Composer({
   }
 
   return (
-    <BorderBeam
-      size={resolvedTheme === 'light' ? 'pulse-outside' : 'pulse-inner'}
-      borderRadius={PILL_RADIUS}
-      className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col rounded-[28px] shadow-[0_2px_6px_rgb(0_0_0/0.04),0_10px_28px_rgb(0_0_0/0.06)]"
-    >
-      <div className="border-border/60 focus-within:border-border/90 z-1 flex flex-col gap-1.5 rounded-[28px] border bg-transparent px-2.5 py-2 backdrop-blur-md transition-colors">
-        <AttachmentPreview />
-        <div
-          ref={rowRef}
-          data-expanded={expanded || undefined}
-          className="grid grid-cols-[auto_1fr_auto] items-end gap-x-1 [grid-template-areas:'field_field_field'_'leading_middle_trailing']"
-        >
-          <div ref={leadingRef} className="flex [grid-area:leading]">
-            <ComposerUploader />
-          </div>
-          <Textarea
-            ref={textareaRef}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                if (isComposingRef.current || busy) return
-                submit()
-              }
-            }}
-            onCompositionStart={() => {
-              isComposingRef.current = true
-            }}
-            onCompositionEnd={() => {
-              isComposingRef.current = false
-            }}
-            onPaste={onPaste}
-            placeholder={t('chat.composer.placeholder')}
-            rows={1}
-            className={cn(
-              'max-h-[45dvh] min-h-8 w-full min-w-0 resize-none rounded-none border-none bg-transparent! px-1 py-1 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-sm',
-              expanded ? 'mb-1 [grid-area:field]' : '[grid-area:middle]'
-            )}
-          />
+    <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col gap-2">
+      <FolderChip conversationId={conversationId} />
+      <BorderBeam
+        size={resolvedTheme === 'light' ? 'pulse-outside' : 'pulse-inner'}
+        borderRadius={PILL_RADIUS}
+        className="flex w-full flex-col rounded-[28px] shadow-[0_2px_6px_rgb(0_0_0/0.04),0_10px_28px_rgb(0_0_0/0.06)]"
+      >
+        <div className="border-border/60 focus-within:border-border/90 z-1 flex flex-col gap-1.5 rounded-[28px] border bg-transparent px-2.5 py-2 backdrop-blur-md transition-colors">
+          <AttachmentPreview />
           <div
-            ref={trailingRef}
-            className="flex justify-end [grid-area:trailing]"
+            ref={rowRef}
+            data-expanded={expanded || undefined}
+            className="grid grid-cols-[auto_1fr_auto] items-end gap-x-1 [grid-template-areas:'field_field_field'_'leading_middle_trailing']"
           >
-            {busy ? (
-              <Button
-                size="icon"
-                // Neutral, as Chat's: a stop that differs from send says the
-                // group is still working.
-                className="bg-foreground text-background hover:bg-foreground/85 rounded-full"
-                onClick={onStop}
-                aria-label={t('chat.composer.stopAria')}
-              >
-                <HugeiconsIcon
-                  icon={StopIcon}
-                  className="size-3 fill-current"
-                />
-              </Button>
-            ) : (
-              <Button
-                size="icon"
-                className="bg-primary-ink hover:bg-primary-ink/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 rounded-full text-white"
-                onClick={submit}
-                disabled={!canSend}
-                aria-label={t('chat.composer.sendAria')}
-              >
-                <HugeiconsIcon icon={ArrowUpIcon} />
-              </Button>
-            )}
+            <div ref={leadingRef} className="flex [grid-area:leading]">
+              <ComposerUploader />
+            </div>
+            <Textarea
+              ref={textareaRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault()
+                  if (isComposingRef.current || busy) return
+                  submit()
+                }
+              }}
+              onCompositionStart={() => {
+                isComposingRef.current = true
+              }}
+              onCompositionEnd={() => {
+                isComposingRef.current = false
+              }}
+              onPaste={onPaste}
+              placeholder={t('chat.composer.placeholder')}
+              rows={1}
+              className={cn(
+                'max-h-[45dvh] min-h-8 w-full min-w-0 resize-none rounded-none border-none bg-transparent! px-1 py-1 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-sm',
+                expanded ? 'mb-1 [grid-area:field]' : '[grid-area:middle]'
+              )}
+            />
+            <div
+              ref={trailingRef}
+              className="flex justify-end [grid-area:trailing]"
+            >
+              {busy ? (
+                <Button
+                  size="icon"
+                  // Neutral, as Chat's: a stop that differs from send says the
+                  // group is still working.
+                  className="bg-foreground text-background hover:bg-foreground/85 rounded-full"
+                  onClick={onStop}
+                  aria-label={t('chat.composer.stopAria')}
+                >
+                  <HugeiconsIcon
+                    icon={StopIcon}
+                    className="size-3 fill-current"
+                  />
+                </Button>
+              ) : (
+                <Button
+                  size="icon"
+                  className="bg-primary-ink hover:bg-primary-ink/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 rounded-full text-white"
+                  onClick={submit}
+                  disabled={!canSend}
+                  aria-label={t('chat.composer.sendAria')}
+                >
+                  <HugeiconsIcon icon={ArrowUpIcon} />
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-    </BorderBeam>
+      </BorderBeam>
+    </div>
   )
 }

@@ -77,6 +77,17 @@
     "attachmentPreview": {
       "removeAria": "移除 {{name}}"
     },
+    "folder": {
+      "none": "沒有資料夾",
+      "recent": "最近",
+      "new": "新增專案…",
+      "namePlaceholder": "輸入專案名稱後按 Enter",
+      "open": "開啟資料夾…",
+      "worktree": "工作樹",
+      "failed": "無法更改資料夾",
+      "refused": "無法使用此資料夾",
+      "missing": "{{name}} — 找不到資料夾；請用「開啟資料夾…」重新選擇"
+    },
     "uploader": {
       "attachAria": "附加圖片",
       "s3FallbackTitle": "S3 上載失敗，改用內嵌資料",

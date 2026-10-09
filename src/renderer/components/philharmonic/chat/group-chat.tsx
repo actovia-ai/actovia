@@ -412,6 +412,7 @@ export function GroupChat({
         </div>
         <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t to-transparent pt-8 pb-6 [&>*]:pointer-events-auto">
           <Composer
+            conversationId={conversationId}
             onSend={(text, attachments) =>
               sendConversationMessage(conversationId, text, attachments)
             }
