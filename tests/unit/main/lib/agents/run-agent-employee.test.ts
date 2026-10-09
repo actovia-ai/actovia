@@ -393,6 +393,97 @@ describe('runAgentEmployee', () => {
     ])
   })
 
+  it('lets a reused process finish its unprompted turn before the next step speaks', async () => {
+    const reply = (r: FakeRun) => {
+      r.fire({ type: 'text', text: `Reply ${r.sent.length}` })
+      r.fire({
+        type: 'turn_end',
+        ok: true,
+        interrupted: false,
+        text: '',
+        costUsd: null,
+        denials: 0
+      })
+    }
+    const run = makeRun(reply)
+    const d = deps(run)
+    const first = await runAgentEmployee(args(), d)
+    sessions.get(first.sessionId!)!.messageId = 'msg-1'
+    resumable = sessions.get(first.sessionId!)
+    // An unprompted turn begins…
+    run.busy = true
+    run.fire({ type: 'text', text: 'The background job finished.' })
+    const second = runAgentEmployee(args({ instructions: 'next' }), d)
+    await new Promise((r) => setTimeout(r, 5))
+    expect(run.sent).toHaveLength(1)
+    // …and ends: only then does the next step send.
+    run.fire({
+      type: 'turn_end',
+      ok: true,
+      interrupted: false,
+      text: '',
+      costUsd: null,
+      denials: 0
+    })
+    const out = await second
+    expect(run.sent).toHaveLength(2)
+    expect(out.output).toContain('Reply 2')
+    expect(out.output).not.toContain('background')
+    await vi.waitFor(() =>
+      expect(updateParts).toHaveBeenCalledWith('msg-1', [
+        expect.objectContaining({
+          blocks: ['Reply 1', 'The background job finished.']
+        })
+      ])
+    )
+  })
+
+  it('starts afresh, resuming, when the busy process exits instead', async () => {
+    const runs = [makeRun(happy), makeRun(happy)]
+    const starts: StartInput[] = []
+    const d = {
+      ...deps(runs[0]),
+      start: (input: StartInput) => {
+        starts.push(input)
+        return runs[starts.length - 1] as unknown as AgentRun
+      }
+    }
+    const first = await runAgentEmployee(args(), d)
+    resumable = sessions.get(first.sessionId!)
+    runs[0].busy = true
+    const second = runAgentEmployee(args({ instructions: 'next' }), d)
+    await new Promise((r) => setTimeout(r, 5))
+    runs[0].alive = false
+    runs[0].fire({ type: 'exit', code: 0, stderrTail: '', expected: true })
+    const out = await second
+    expect(starts).toHaveLength(2)
+    expect(starts[1].resume).toBe('cli-1')
+    expect(runs[1].sent).toHaveLength(1)
+    expect(out.output.startsWith('[Claude Code · done]')).toBe(true)
+  })
+
+  it('a step stopped while queued is stopped, not failed', async () => {
+    const emit = vi.fn()
+    const d = {
+      ...deps(makeRun(happy)),
+      registry: new AgentRegistry({
+        maxRunning: async () => 0,
+        keepAliveMs: async () => 60_000
+      })
+    }
+    const ctrl = new AbortController()
+    const pending = runAgentEmployee(args({ emit, signal: ctrl.signal }), d)
+    await new Promise((r) => setTimeout(r, 5))
+    ctrl.abort()
+    await expect(pending).rejects.toBeDefined()
+    expect([...sessions.values()][0]).toMatchObject({ state: 'stopped' })
+    const cards = emit.mock.calls
+      .map((c) => c[0])
+      .filter((e) => e.type === 'agent_card')
+    expect(cards.at(-1).card).toMatchObject({ state: 'stopped', queued: false })
+    expect(emit.mock.calls.at(-1)?.[0].type).toBe('message_end')
+  })
+
   it('formats what the PM reads', () => {
     const card = {
       state: 'done',

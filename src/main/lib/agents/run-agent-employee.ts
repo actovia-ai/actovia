@@ -86,6 +86,30 @@ export function formatAgentOutput(card: AgentCard, sessionId: string): string {
 
 export const agentCardMessageText = (card: AgentCard) => cardText(card)
 
+/**
+ * Wait out a turn the process is in (an unprompted one): its listener keeps
+ * folding it into the previous message until its `turn_end` or `exit`.
+ */
+function turnSettled(run: AgentRun, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const done = () => {
+      off()
+      signal?.removeEventListener('abort', onAbort)
+    }
+    const off = run.on((e) => {
+      if (e.type !== 'turn_end' && e.type !== 'exit') return
+      done()
+      resolve()
+    })
+    const onAbort = () => {
+      done()
+      reject(signal!.reason)
+    }
+    if (signal?.aborted) onAbort()
+    else signal?.addEventListener('abort', onAbort, { once: true })
+  })
+}
+
 /** Session meta is a mirror for the folder; a failed write never fails the step. */
 async function setSession(
   project: Project,
@@ -103,6 +127,25 @@ async function setSession(
     })
     return undefined
   }
+}
+
+/** After the step: the card's later updates go to the message the PM saved for it. */
+async function persistCard(
+  sessionId: string | null,
+  conversationId: string,
+  card: AgentCard
+): Promise<void> {
+  const row = sessionId ? await getAgentSession(sessionId) : undefined
+  if (!row?.messageId) return
+  await updateConversationMessageParts(row.messageId, [
+    card as unknown as Record<string, unknown>
+  ])
+  emitToConversation(conversationId, {
+    type: 'agent_card',
+    conversationId,
+    messageId: row.messageId,
+    card
+  })
 }
 
 export async function runAgentEmployee(
@@ -144,19 +187,6 @@ export async function runAgentEmployee(
     /** Set once the step resolved: later (unprompted) turns update the persisted message. */
     let stepDone = false
 
-    const persist = async (latest: AgentCard) => {
-      const row = sessionId ? await getAgentSession(sessionId) : undefined
-      if (!row?.messageId) return
-      await updateConversationMessageParts(row.messageId, [
-        latest as unknown as Record<string, unknown>
-      ])
-      emitToConversation(conversationId, {
-        type: 'agent_card',
-        conversationId,
-        messageId: row.messageId,
-        card: latest
-      })
-    }
     const flush = () => {
       if (timer) clearTimeout(timer)
       timer = null
@@ -166,7 +196,7 @@ export async function runAgentEmployee(
         emit({ type: 'agent_card', conversationId, messageId, card })
         return
       }
-      void persist(card).catch((error: Error) =>
+      void persistCard(sessionId, conversationId, card).catch((error: Error) =>
         logger.warn('agents', 'card persist failed', {
           sessionId,
           message: error.message
@@ -227,6 +257,11 @@ export async function runAgentEmployee(
       flush()
 
       let run = deps.registry.live(key)
+      if (run?.busy) {
+        // Its unprompted turn's end must not answer this step; if it exits, start afresh.
+        await turnSettled(run, signal)
+        run = deps.registry.live(key)
+      }
       if (!run) {
         await assertMetaDir(project, 'logs')
         run = deps.start({
@@ -332,10 +367,18 @@ export async function runAgentEmployee(
       if (timer) clearTimeout(timer)
       timer = null
       if (sessionId) {
-        const state =
+        const unfinished =
           !card || card.state === 'working' || card.state === 'blocked'
-            ? 'error'
-            : card.state
+        // Stopped by the group (even while queued) is not a failure.
+        const state = unfinished
+          ? signal?.aborted
+            ? 'stopped'
+            : 'error'
+          : card!.state
+        if (card && unfinished && !stepDone) {
+          card = { ...card, state, queued: false }
+          emit({ type: 'agent_card', conversationId, messageId, card })
+        }
         await setSession(project, sessionId, { state })
       }
       emit({ type: 'message_end', conversationId, messageId })

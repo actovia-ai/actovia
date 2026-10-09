@@ -2,6 +2,11 @@
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
+/**
+ * `roster` is read again on every call: an employee recruited later in the
+ * turn is pushed onto it. An id outside it is refused — the PM model's word
+ * alone never starts an employee (a CLI one runs on the owner's machine).
+ */
 export function createDelegateTaskTool(
   roster: Array<{ id: string; name: string; description: string | null }>,
   onDelegate: (p: {
@@ -34,6 +39,13 @@ export function createDelegateTaskTool(
       _id: string,
       p: { employeeId: string; instructions: string; stepId?: string }
     ) => {
+      if (!roster.some((a) => a.id === p.employeeId)) {
+        const error = `Unknown employee id ${p.employeeId} — choose one from the list`
+        return {
+          content: [{ type: 'text' as const, text: error }],
+          details: { employeeId: p.employeeId, stepId: p.stepId, error }
+        }
+      }
       const result = await onDelegate({
         employeeId: p.employeeId,
         instructions: p.instructions,

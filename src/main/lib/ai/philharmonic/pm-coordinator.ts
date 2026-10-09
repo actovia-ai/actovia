@@ -143,6 +143,15 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     getConversationById(conversationId)
   ])
   const conversationTitle = conversationRow?.title ?? 'Group'
+  // Who the PM may delegate to; a recruit joins it (see createDelegateTaskTool).
+  const roster = employees.map((e) => ({
+    id: e.id,
+    name: e.name,
+    description:
+      e.runtime === 'exodus'
+        ? e.description
+        : `${e.description ?? ''} [Coding agent — Claude Code on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
+  }))
   const teamNameById = new Map(allTeams.map((t) => [t.id, t.name]))
 
   // PhilharmonicLcm hydrates the LLM history: when within budget it's a
@@ -256,14 +265,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       return { stepId: step.id, ordinal: step.ordinal }
     }),
     createDelegateTaskTool(
-      employees.map((e) => ({
-        id: e.id,
-        name: e.name,
-        description:
-          e.runtime === 'exodus'
-            ? e.description
-            : `${e.description ?? ''} [Coding agent — Claude Code on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
-      })),
+      roster,
       async ({ employeeId, instructions, stepId }) => {
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
@@ -348,6 +350,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       const emp = await autoCreateEmployee({ role, skills, name })
       await addMemberToConversation(conversationId, emp.id)
       emit({ type: 'member_joined', conversationId, agentId: emp.id })
+      roster.push({ id: emp.id, name: emp.name, description: null })
       return { id: emp.id, name: emp.name }
     }),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),

@@ -44,7 +44,11 @@ export async function runDelegatedTask(args: {
 }): Promise<DelegatedOutput> {
   const { taskId, agentId, conversationId, instructions, emit, signal } = args
   const agent = await getAgentById(agentId)
-  if (!agent) throw new Error(`Agent ${agentId} not found`)
+  // Only an active employee runs — never one the PM model named on its own say-so.
+  if (!agent?.isActive) {
+    await updateTask(taskId, { status: 'failed' })
+    throw new Error(`Employee ${agent?.name ?? agentId} is not active`)
+  }
 
   const taskRow = await getTaskById(taskId)
   // task.maxRetries is the number of retries beyond the first attempt.

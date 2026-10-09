@@ -49,7 +49,7 @@ beforeEach(() => {
 
 describe('runDelegatedTask', () => {
   it('runs an Exodus employee in its own loop, retrying a transient failure', async () => {
-    agentRow = { id: 'a1', name: 'Avery', runtime: 'exodus' }
+    agentRow = { id: 'a1', name: 'Avery', runtime: 'exodus', isActive: true }
     runEmployeeLoop
       .mockRejectedValueOnce(new Error('ECONNRESET'))
       .mockResolvedValueOnce('the report')
@@ -67,7 +67,12 @@ describe('runDelegatedTask', () => {
   })
 
   it('gives a Claude Code employee’s step to the CLI, with its card and session', async () => {
-    agentRow = { id: 'a1', name: 'Claude Code', runtime: 'claude-code' }
+    agentRow = {
+      id: 'a1',
+      name: 'Claude Code',
+      runtime: 'claude-code',
+      isActive: true
+    }
     const outcome = {
       output: '[Claude Code · done]',
       parts: [{ kind: 'agent_card' }],
@@ -86,10 +91,28 @@ describe('runDelegatedTask', () => {
   })
 
   it('never retries a CLI step, even on a transient-looking failure', async () => {
-    agentRow = { id: 'a1', name: 'Claude Code', runtime: 'claude-code' }
+    agentRow = {
+      id: 'a1',
+      name: 'Claude Code',
+      runtime: 'claude-code',
+      isActive: true
+    }
     runAgentEmployee.mockRejectedValue(new Error('ECONNRESET'))
     await expect(call()).rejects.toThrow('ECONNRESET')
     expect(runAgentEmployee).toHaveBeenCalledTimes(1)
     expect(updateTask).toHaveBeenCalledWith('t1', { status: 'failed' })
+  })
+
+  it('starts no employee that is not active', async () => {
+    agentRow = {
+      id: 'a1',
+      name: 'Claude Code',
+      runtime: 'claude-code',
+      isActive: false
+    }
+    await expect(call()).rejects.toThrow('Employee Claude Code is not active')
+    expect(runAgentEmployee).not.toHaveBeenCalled()
+    expect(runEmployeeLoop).not.toHaveBeenCalled()
+    expect(updateTaskExecution).not.toHaveBeenCalled()
   })
 })
