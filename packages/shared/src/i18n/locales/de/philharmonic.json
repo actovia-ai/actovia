@@ -194,6 +194,26 @@
         "memory": "Gedächtnis (schreibgeschützt)",
         "noMemory": "Noch kein angesammeltes Gedächtnis"
       }
+    },
+    "runtime": {
+      "label": "Läuft auf",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Modell",
+      "default": "Standard (das Modell der App)",
+      "cliDefault": "Standard der CLI",
+      "cliHint": "So, wie die CLI es nennt: opus, sonnet, haiku oder eine vollständige Modell-ID."
+    },
+    "permission": {
+      "label": "Berechtigungen",
+      "hint": "Was es ohne Rückfrage tun darf. Bei allem anderen fragt es immer nach.",
+      "default": "Vor Änderungen fragen",
+      "acceptEdits": "Dateien frei bearbeiten, vor Befehlen fragen",
+      "auto": "Auto (die CLI entscheidet, was sicher ist)"
+    },
+    "systemPrompt": {
+      "cliLabel": "Anweisungen, die jeder Aufgabe hinzugefügt werden"
     }
   },
   "teams": {

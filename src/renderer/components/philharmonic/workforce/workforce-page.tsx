@@ -332,6 +332,8 @@ function emptyEmployeeDraft(teamId: string): AgentData {
     mcpServerNames: null,
     model: null,
     provider: null,
+    runtime: 'exodus',
+    permissionMode: null,
     isActive: true,
     createdAt: '',
     updatedAt: ''

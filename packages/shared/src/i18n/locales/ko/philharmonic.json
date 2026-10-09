@@ -193,6 +193,26 @@
         "memory": "메모리 (읽기 전용)",
         "noMemory": "아직 축적된 메모리가 없습니다"
       }
+    },
+    "runtime": {
+      "label": "실행 환경",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "모델",
+      "default": "기본값(앱의 모델)",
+      "cliDefault": "CLI의 기본값",
+      "cliHint": "CLI에서 부르는 이름으로 입력하세요: opus, sonnet, haiku 또는 전체 모델 ID."
+    },
+    "permission": {
+      "label": "권한",
+      "hint": "묻지 않고 할 수 있는 일입니다. 그 외에는 항상 먼저 묻습니다.",
+      "default": "변경 전에 묻기",
+      "acceptEdits": "파일은 자유롭게 편집, 명령 전에 묻기",
+      "auto": "자동(CLI가 안전한 것을 판단)"
+    },
+    "systemPrompt": {
+      "cliLabel": "모든 작업에 추가되는 지침"
     }
   },
   "teams": {

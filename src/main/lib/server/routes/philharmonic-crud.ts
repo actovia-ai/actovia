@@ -1,3 +1,4 @@
+import { AGENT_RUNTIMES, PERMISSION_MODES } from '@exodus/shared/types/agents'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -41,6 +42,8 @@ const employeeSchema = z.object({
   mcpServerNames: z.array(z.string()).optional(),
   model: z.string().optional().nullable(),
   provider: z.string().optional().nullable(),
+  runtime: z.enum(AGENT_RUNTIMES).optional(),
+  permissionMode: z.enum(PERMISSION_MODES).nullable().optional(),
   isActive: z.boolean().optional()
 })
 

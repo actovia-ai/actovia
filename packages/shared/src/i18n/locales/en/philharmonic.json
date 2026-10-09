@@ -194,6 +194,26 @@
         "memory": "Memory (read-only)",
         "noMemory": "No accumulated memory yet"
       }
+    },
+    "runtime": {
+      "label": "Runs on",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Model",
+      "default": "Default (the app's model)",
+      "cliDefault": "The CLI's default",
+      "cliHint": "As the CLI names it: opus, sonnet, haiku, or a full model id."
+    },
+    "permission": {
+      "label": "Permissions",
+      "hint": "What it may do without asking you. It always asks for anything else.",
+      "default": "Ask before changes",
+      "acceptEdits": "Edit files freely, ask before commands",
+      "auto": "Auto (the CLI decides what is safe)"
+    },
+    "systemPrompt": {
+      "cliLabel": "Instructions added to every task"
     }
   },
   "teams": {

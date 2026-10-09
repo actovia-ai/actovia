@@ -194,6 +194,26 @@
         "memory": "Mémoire (lecture seule)",
         "noMemory": "Aucune mémoire accumulée pour le moment"
       }
+    },
+    "runtime": {
+      "label": "Fonctionne sur",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Modèle",
+      "default": "Par défaut (le modèle de l'app)",
+      "cliDefault": "Le défaut de la CLI",
+      "cliHint": "Comme la CLI le nomme : opus, sonnet, haiku ou un identifiant de modèle complet."
+    },
+    "permission": {
+      "label": "Autorisations",
+      "hint": "Ce qu'il peut faire sans vous demander. Il demande toujours pour le reste.",
+      "default": "Demander avant les modifications",
+      "acceptEdits": "Modifier les fichiers librement, demander avant les commandes",
+      "auto": "Auto (la CLI décide de ce qui est sûr)"
+    },
+    "systemPrompt": {
+      "cliLabel": "Instructions ajoutées à chaque tâche"
     }
   },
   "teams": {

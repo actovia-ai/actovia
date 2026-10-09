@@ -1,3 +1,4 @@
+import type { AgentRuntime, PermissionMode } from '@exodus/shared/types/agents'
 import type { Attachment } from '@exodus/shared/types/chat'
 import type { ConversationMessageRole } from '@exodus/shared/types/philharmonic'
 import { atom } from 'jotai'
@@ -23,6 +24,8 @@ export interface AgentData {
   mcpServerNames: string[] | null
   model: string | null
   provider: string | null
+  runtime: AgentRuntime
+  permissionMode: PermissionMode | null
   isActive: boolean | null
   createdAt: string
   updatedAt: string

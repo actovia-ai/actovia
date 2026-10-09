@@ -193,6 +193,26 @@
         "memory": "メモリー(読み取り専用)",
         "noMemory": "蓄積されたメモリーはまだありません"
       }
+    },
+    "runtime": {
+      "label": "実行環境",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "モデル",
+      "default": "デフォルト(アプリのモデル)",
+      "cliDefault": "CLI のデフォルト",
+      "cliHint": "CLI での名前で指定します: opus、sonnet、haiku、または完全なモデル ID。"
+    },
+    "permission": {
+      "label": "権限",
+      "hint": "確認なしで実行できること。それ以外は常に確認します。",
+      "default": "変更の前に確認",
+      "acceptEdits": "ファイルは自由に編集、コマンドの前に確認",
+      "auto": "自動(CLI が安全と判断したもの)"
+    },
+    "systemPrompt": {
+      "cliLabel": "すべてのタスクに追加される指示"
     }
   },
   "teams": {

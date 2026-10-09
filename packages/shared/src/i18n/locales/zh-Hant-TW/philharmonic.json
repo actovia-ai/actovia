@@ -193,6 +193,26 @@
         "memory": "記憶（唯讀）",
         "noMemory": "尚無累積的記憶"
       }
+    },
+    "runtime": {
+      "label": "執行於",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "模型",
+      "default": "預設(App 的模型)",
+      "cliDefault": "CLI 的預設值",
+      "cliHint": "使用 CLI 的名稱:opus、sonnet、haiku,或完整的模型 ID。"
+    },
+    "permission": {
+      "label": "權限",
+      "hint": "不需詢問你即可執行的操作。其他一律會先詢問。",
+      "default": "變更前先詢問",
+      "acceptEdits": "可自由編輯檔案,執行指令前詢問",
+      "auto": "自動(由 CLI 判斷何者安全)"
+    },
+    "systemPrompt": {
+      "cliLabel": "附加到每項任務的指示"
     }
   },
   "teams": {
