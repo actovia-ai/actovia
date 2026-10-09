@@ -13,7 +13,9 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getPhilharmonicCostRows: getPhilharmonicCostRows
 }))
 const getPhilharmonicCostRows = vi.fn()
-const deleteConversation = vi.fn(async () => {})
+const deleteConversation = vi.fn(async () => {
+  order.push('delete')
+})
 vi.mock('@main/lib/db/conversation-queries', () => ({ deleteConversation }))
 const removeGroupMedia = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({ removeGroupMedia }))
@@ -25,6 +27,20 @@ vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
 }))
 vi.mock('@main/lib/server/routes/philharmonic-sse', () => ({
   emitToConversation: vi.fn()
+}))
+const order: string[] = []
+const abort = vi.fn((_id: string) => {
+  order.push('abort')
+  return true
+})
+vi.mock('@main/lib/ai/philharmonic/pm-run-registry', () => ({
+  pmRunRegistry: { abort: (id: string) => abort(id) }
+}))
+const stopConversation = vi.fn(async (_id: string) => {
+  order.push('stop agents')
+})
+vi.mock('@main/lib/agents/registry', () => ({
+  agentRegistry: { stopConversation: (id: string) => stopConversation(id) }
 }))
 
 const { aggregateCosts, default: conversationsRouter } =
@@ -67,5 +83,18 @@ describe('DELETE /conversations/:id', () => {
     expect(res.status).toBe(200)
     expect(deleteConversation).toHaveBeenCalledWith('id')
     expect(removeGroupMedia).toHaveBeenCalledWith('id')
+  })
+
+  it('stops the PM and every agent working for the group before deleting it', async () => {
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    order.length = 0
+
+    await app.request('/conversations/id', { method: 'DELETE' })
+
+    expect(abort).toHaveBeenCalledWith('id')
+    expect(stopConversation).toHaveBeenCalledWith('id')
+    expect(order).toEqual(['abort', 'stop agents', 'delete'])
   })
 })

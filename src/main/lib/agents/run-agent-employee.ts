@@ -11,11 +11,12 @@ import type { SseEmitter } from '../ai/philharmonic/employee-loop'
 import {
   createAgentSession,
   findResumableSession,
-  getAgentSession,
   updateAgentSession
 } from '../db/agent-session-queries'
 import {
+  createConversationMessage,
   getConversationById,
+  updateConversationMessageContent,
   updateConversationMessageParts
 } from '../db/conversation-queries'
 import { updateTask } from '../db/philharmonic-queries'
@@ -37,8 +38,8 @@ import { agentSettings } from './settings'
 
 export interface DelegatedOutput {
   output: string
-  parts?: Record<string, unknown>[]
-  sessionId?: string
+  /** A CLI step's own message, saved as the step began; the PM saves no other. */
+  messageId?: string
 }
 
 export interface RunAgentEmployeeArgs {
@@ -129,23 +130,42 @@ async function setSession(
   }
 }
 
-/** After the step: the card's later updates go to the message the PM saved for it. */
-async function persistCard(
-  sessionId: string | null,
-  conversationId: string,
-  card: AgentCard
-): Promise<void> {
-  const row = sessionId ? await getAgentSession(sessionId) : undefined
-  if (!row?.messageId) return
-  await updateConversationMessageParts(row.messageId, [
-    card as unknown as Record<string, unknown>
-  ])
-  emitToConversation(conversationId, {
-    type: 'agent_card',
-    conversationId,
-    messageId: row.messageId,
-    card
-  })
+/**
+ * The step's message, kept current: writes go out one at a time, in order,
+ * and a card queued behind a write is replaced by a newer one, never
+ * written stale. A failed write is logged; the next one carries the card.
+ */
+function messageWriter(messageId: string) {
+  let chain = Promise.resolve()
+  let nextCard: AgentCard | null = null
+  const run = (write: () => Promise<void>) => {
+    chain = chain.then(() =>
+      write().catch((error: Error) =>
+        logger.warn('agents', 'card persist failed', {
+          messageId,
+          message: error.message
+        })
+      )
+    )
+  }
+  return {
+    card(card: AgentCard) {
+      const queued = nextCard !== null
+      nextCard = card
+      if (queued) return
+      run(() => {
+        const latest = nextCard!
+        nextCard = null
+        return updateConversationMessageParts(messageId, [
+          latest as unknown as Record<string, unknown>
+        ])
+      })
+    },
+    content(text: string) {
+      run(() => updateConversationMessageContent(messageId, text))
+    },
+    settled: () => chain
+  }
 }
 
 export async function runAgentEmployee(
@@ -171,7 +191,15 @@ export async function runAgentEmployee(
   const key = `${project.id}:${agent.id}`
 
   return deps.registry.queue(key, async () => {
+    // Before any await: a parallel step in this project must see this one.
+    const unclaim = deps.registry.claimProject(project.id)
+    const othersInProject =
+      deps.registry.claimsInProject(project.id) > 1 ||
+      deps.registry.runningInProject(project.id) > 0
+    // The card's one home, from the start: the live events and the saved row share this id.
     const messageId = uuidV4()
+    const writer = messageWriter(messageId)
+    let saved = false
     emit({
       type: 'message_start',
       conversationId,
@@ -192,16 +220,16 @@ export async function runAgentEmployee(
       timer = null
       lastEmit = Date.now()
       if (!card) return
-      if (!stepDone) {
-        emit({ type: 'agent_card', conversationId, messageId, card })
-        return
+      const event = {
+        type: 'agent_card' as const,
+        conversationId,
+        messageId,
+        card
       }
-      void persistCard(sessionId, conversationId, card).catch((error: Error) =>
-        logger.warn('agents', 'card persist failed', {
-          sessionId,
-          message: error.message
-        })
-      )
+      // After the step the PM's stream may be over; the group's still listens.
+      if (stepDone) emitToConversation(conversationId, event)
+      else emit(event)
+      if (saved) writer.card(card)
     }
     const throttled = () => {
       const wait = THROTTLE_MS - (Date.now() - lastEmit)
@@ -210,25 +238,27 @@ export async function runAgentEmployee(
     }
 
     try {
-      // The session row first: its id names the worktree and the log.
+      // The session row first: its id names the worktree and the log. It
+      // points at this step's message from now on (stale cards, Terminal).
       const previous = await findResumableSession(project.id, agent.id)
       const session = previous
         ? await updateAgentSession(previous.id, {
             state: 'working',
             continuedInTerminal: false,
-            conversationId
+            conversationId,
+            messageId
           })
         : await (async () => {
             const id = uuidV4()
             const othersRunning =
-              (await agentSettings()).worktrees &&
-              deps.registry.runningInProject(project.id) > 0
+              othersInProject && (await agentSettings()).worktrees
             const w = await prepareWorkDir(project, id, othersRunning)
             return createAgentSession({
               id,
               projectId: project.id,
               agentId: agent.id,
               conversationId,
+              messageId,
               runtime: 'claude-code',
               cwd: w.cwd,
               branch: w.branch,
@@ -249,7 +279,18 @@ export async function runAgentEmployee(
         }),
         queued: true
       }
+      // Saved before anything can wait on the owner, so a prompt is never only an event.
+      await createConversationMessage({
+        id: messageId,
+        conversationId,
+        role: 'employee',
+        agentId: agent.id,
+        content: formatAgentOutput(card, session.id),
+        parts: [card as unknown as Record<string, unknown>],
+        taskId
+      })
       flush()
+      saved = true
       // A live process must not be idled out while this step waits for a slot.
       deps.registry.cancelIdleExit(key)
       release = await deps.registry.acquireSlot(signal)
@@ -274,8 +315,8 @@ export async function runAgentEmployee(
           resume: previous?.cliSessionId ?? null,
           logPath: sessionLogPath(project, session.id)
         })
-        deps.registry.attach(key, session.id, project.id, run)
-      }
+        deps.registry.attach(key, session.id, project.id, conversationId, run)
+      } else deps.registry.bindConversation(key, conversationId)
 
       const liveRun = run
       const owner = {}
@@ -325,7 +366,7 @@ export async function runAgentEmployee(
               break
             }
             case 'answered':
-              throttled()
+              flush()
               if (card!.prompts.length === 0) {
                 void updateTask(taskId, { status: 'running' })
                 void setSession(project, session.id, { state: 'working' })
@@ -357,12 +398,9 @@ export async function runAgentEmployee(
       } finally {
         signal?.removeEventListener('abort', onAbort)
       }
-      return {
-        output: formatAgentOutput(card, session.id),
-        parts: [card as unknown as Record<string, unknown>],
-        sessionId: session.id
-      }
+      return { output: formatAgentOutput(card, session.id), messageId }
     } finally {
+      unclaim()
       release?.()
       if (timer) clearTimeout(timer)
       timer = null
@@ -377,10 +415,14 @@ export async function runAgentEmployee(
           : card!.state
         if (card && unfinished && !stepDone) {
           card = { ...card, state, queued: false }
-          emit({ type: 'agent_card', conversationId, messageId, card })
+          flush()
         }
         await setSession(project, sessionId, { state })
       }
+      // What the PM reads, also in the row its history is built from.
+      if (saved && card && sessionId)
+        writer.content(formatAgentOutput(card, sessionId))
+      await writer.settled()
       emit({ type: 'message_end', conversationId, messageId })
       deps.registry.scheduleIdleExit(key)
     }

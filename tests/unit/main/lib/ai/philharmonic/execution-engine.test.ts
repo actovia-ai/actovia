@@ -66,7 +66,7 @@ describe('runDelegatedTask', () => {
     )
   })
 
-  it('gives a Claude Code employee’s step to the CLI, with its card and session', async () => {
+  it('gives a Claude Code employee’s step to the CLI, with the message its step saved', async () => {
     agentRow = {
       id: 'a1',
       name: 'Claude Code',
@@ -75,8 +75,7 @@ describe('runDelegatedTask', () => {
     }
     const outcome = {
       output: '[Claude Code · done]',
-      parts: [{ kind: 'agent_card' }],
-      sessionId: 's1'
+      messageId: 'm1'
     }
     runAgentEmployee.mockResolvedValueOnce(outcome)
     await expect(call()).resolves.toEqual(outcome)

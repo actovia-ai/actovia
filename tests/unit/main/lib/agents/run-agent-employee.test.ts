@@ -4,13 +4,20 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const updateTask = vi.fn()
 const notify = vi.fn()
-const updateParts = vi.fn()
+const updateParts = vi.fn(async () => {})
+const updateContent = vi.fn(async () => {})
+const createMessage = vi.fn(async (d: Record<string, unknown>) => ({ ...d }))
 const emitToConversation = vi.fn()
-const prepareWorkDir = vi.fn(async () => ({
-  cwd: '/x/notes',
-  branch: 'main',
-  note: null
-}))
+const prepareWorkDir = vi.fn(
+  async (_p: unknown, id: string, othersRunning: boolean) =>
+    othersRunning
+      ? {
+          cwd: `/x/notes/.exodus/worktrees/${id}`,
+          branch: `exodus/${id}`,
+          note: null
+        }
+      : { cwd: '/x/notes', branch: 'main', note: null }
+)
 const sessions = new Map<string, Record<string, unknown>>()
 let resumable: Record<string, unknown> | undefined
 let sessionSeq = 0
@@ -32,7 +39,9 @@ vi.mock('@main/lib/server/routes/philharmonic-sse', () => ({
 vi.mock('@main/lib/db/conversation-queries', () => ({
   getConversationById: async (id: string) =>
     id === 'no-folder' ? { id, projectId: null } : { id, projectId: 'p1' },
-  updateConversationMessageParts: updateParts
+  createConversationMessage: createMessage,
+  updateConversationMessageParts: updateParts,
+  updateConversationMessageContent: updateContent
 }))
 vi.mock('@main/lib/db/project-queries', () => ({
   getProjectById: async () => ({
@@ -187,6 +196,8 @@ beforeEach(() => {
   updateTask.mockClear()
   notify.mockClear()
   updateParts.mockClear()
+  updateContent.mockClear()
+  createMessage.mockClear()
   emitToConversation.mockClear()
   prepareWorkDir.mockClear()
 })
@@ -252,12 +263,33 @@ describe('runAgentEmployee', () => {
     expect(types[0]).toBe('message_start')
     expect(types).toContain('agent_card')
     expect(types.at(-1)).toBe('message_end')
-    const sessionId = out.sessionId!
+    const sessionId = [...sessions.keys()][0]
     expect(out.output).toBe(
       `[Claude Code · done]\nBuilt it.\nFiles changed: index.html\nSession: ${sessionId}`
     )
-    expect(out.parts?.[0]).toMatchObject({ kind: 'agent_card', state: 'done' })
+    // One message, saved as the step began under the live events' id, kept current.
+    expect(createMessage).toHaveBeenCalledTimes(1)
+    expect(createMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: out.messageId,
+        conversationId: 'c',
+        role: 'employee',
+        agentId: 'a1',
+        taskId: 't',
+        parts: [expect.objectContaining({ kind: 'agent_card', queued: true })]
+      })
+    )
+    expect(emit.mock.calls[0][0]).toMatchObject({
+      type: 'message_start',
+      messageId: out.messageId
+    })
+    expect(updateParts.mock.calls.at(-1)).toEqual([
+      out.messageId,
+      [expect.objectContaining({ kind: 'agent_card', state: 'done' })]
+    ])
+    expect(updateContent).toHaveBeenCalledWith(out.messageId, out.output)
     expect(sessions.get(sessionId)).toMatchObject({
+      messageId: out.messageId,
       cliSessionId: 'cli-1',
       state: 'done',
       projectId: 'p1',
@@ -284,7 +316,7 @@ describe('runAgentEmployee', () => {
       cwd: '/x/notes/.exodus/worktrees/w'
     })
     expect(prepareWorkDir).not.toHaveBeenCalled()
-    expect(out.sessionId).toBe('sess-old')
+    expect(sessions.get('sess-old')?.messageId).toBe(out.messageId)
   })
 
   it('reuses the employee’s live process for its next step', async () => {
@@ -292,10 +324,14 @@ describe('runAgentEmployee', () => {
     const starts: StartInput[] = []
     const d = deps(run, starts)
     const first = await runAgentEmployee(args(), d)
-    resumable = sessions.get(first.sessionId!)
-    await runAgentEmployee(args({ instructions: 'again' }), d)
+    const sessionId = [...sessions.keys()][0]
+    resumable = sessions.get(sessionId)
+    const second = await runAgentEmployee(args({ instructions: 'again' }), d)
     expect(starts).toHaveLength(1)
     expect(run.sent).toHaveLength(2)
+    // The session points at the step it runs now, never the one before.
+    expect(second.messageId).not.toBe(first.messageId)
+    expect(sessions.get(sessionId)?.messageId).toBe(second.messageId)
   })
 
   it('waits for the owner: the task is waiting, a notification goes out, and work resumes on the answer', async () => {
@@ -366,7 +402,6 @@ describe('runAgentEmployee', () => {
   it('keeps the persisted card current through an unprompted turn after the step', async () => {
     const run = makeRun(happy)
     const out = await runAgentEmployee(args(), deps(run))
-    sessions.get(out.sessionId!)!.messageId = 'msg-1'
     run.fire({ type: 'text', text: 'The background job finished.' })
     run.fire({
       type: 'turn_end',
@@ -381,16 +416,20 @@ describe('runAgentEmployee', () => {
         'c',
         expect.objectContaining({
           type: 'agent_card',
-          messageId: 'msg-1',
+          messageId: out.messageId,
           card: expect.objectContaining({
             blocks: ['Built it.', 'The background job finished.']
           })
         })
       )
     )
-    expect(updateParts).toHaveBeenCalledWith('msg-1', [
-      expect.objectContaining({ kind: 'agent_card' })
-    ])
+    await vi.waitFor(() =>
+      expect(updateParts).toHaveBeenLastCalledWith(out.messageId, [
+        expect.objectContaining({
+          blocks: ['Built it.', 'The background job finished.']
+        })
+      ])
+    )
   })
 
   it('lets a reused process finish its unprompted turn before the next step speaks', async () => {
@@ -408,8 +447,7 @@ describe('runAgentEmployee', () => {
     const run = makeRun(reply)
     const d = deps(run)
     const first = await runAgentEmployee(args(), d)
-    sessions.get(first.sessionId!)!.messageId = 'msg-1'
-    resumable = sessions.get(first.sessionId!)
+    resumable = sessions.get([...sessions.keys()][0])
     // An unprompted turn begins…
     run.busy = true
     run.fire({ type: 'text', text: 'The background job finished.' })
@@ -430,12 +468,18 @@ describe('runAgentEmployee', () => {
     expect(out.output).toContain('Reply 2')
     expect(out.output).not.toContain('background')
     await vi.waitFor(() =>
-      expect(updateParts).toHaveBeenCalledWith('msg-1', [
+      expect(updateParts).toHaveBeenCalledWith(first.messageId, [
         expect.objectContaining({
           blocks: ['Reply 1', 'The background job finished.']
         })
       ])
     )
+    // …and the next step's card never took the unprompted turn's text.
+    expect(updateParts).not.toHaveBeenCalledWith(out.messageId, [
+      expect.objectContaining({
+        blocks: expect.arrayContaining(['The background job finished.'])
+      })
+    ])
   })
 
   it('starts afresh, resuming, when the busy process exits instead', async () => {
@@ -448,8 +492,8 @@ describe('runAgentEmployee', () => {
         return runs[starts.length - 1] as unknown as AgentRun
       }
     }
-    const first = await runAgentEmployee(args(), d)
-    resumable = sessions.get(first.sessionId!)
+    await runAgentEmployee(args(), d)
+    resumable = sessions.get([...sessions.keys()][0])
     runs[0].busy = true
     const second = runAgentEmployee(args({ instructions: 'next' }), d)
     await new Promise((r) => setTimeout(r, 5))
@@ -482,6 +526,105 @@ describe('runAgentEmployee', () => {
       .filter((e) => e.type === 'agent_card')
     expect(cards.at(-1).card).toMatchObject({ state: 'stopped', queued: false })
     expect(emit.mock.calls.at(-1)?.[0].type).toBe('message_end')
+  })
+
+  it('saves a waiting prompt with its card before any answer, answerable from what was saved', async () => {
+    const run = makeRun((r) => {
+      r.fire({ type: 'init', cliSessionId: 'cli-1', model: null })
+      r.fire({
+        type: 'blocked',
+        prompt: {
+          kind: 'permission',
+          requestId: 'q1',
+          tool: 'Bash',
+          summary: 'npm install',
+          detail: 'npm install'
+        }
+      })
+    })
+    run.respond = (requestId: string) => {
+      if (requestId !== 'q1') return false
+      queueMicrotask(() => {
+        run.fire({ type: 'answered', requestId: 'q1' })
+        run.fire({
+          type: 'turn_end',
+          ok: true,
+          interrupted: false,
+          text: 'ok',
+          costUsd: null,
+          denials: 0
+        })
+      })
+      return true
+    }
+    const d = deps(run)
+    // The owner is elsewhere: no one reads the live events.
+    const pending = runAgentEmployee(args({ emit: vi.fn() }), d)
+    await vi.waitFor(() =>
+      expect(updateParts).toHaveBeenLastCalledWith(expect.any(String), [
+        expect.objectContaining({ state: 'blocked' })
+      ])
+    )
+    // What a reload of the group's history shows: the saved row's card.
+    const [messageId, [saved]] = updateParts.mock.calls.at(-1) as unknown as [
+      string,
+      [{ sessionId: string; prompts: Array<{ requestId: string }> }]
+    ]
+    expect(createMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ id: messageId })
+    )
+    expect(saved.prompts).toEqual([
+      expect.objectContaining({ requestId: 'q1', summary: 'npm install' })
+    ])
+    expect(sessions.get(saved.sessionId)?.messageId).toBe(messageId)
+    // The respond route answers through the saved card's session and request.
+    expect(
+      d.registry
+        .bySession(saved.sessionId)
+        ?.respond(saved.prompts[0].requestId, { kind: 'allow' })
+    ).toBe(true)
+    const out = await pending
+    expect(out.messageId).toBe(messageId)
+    expect(updateParts).toHaveBeenLastCalledWith(messageId, [
+      expect.objectContaining({ state: 'done', prompts: [] })
+    ])
+  })
+
+  it('gives parallel steps in one project their own folders: the first the shared one, the next a worktree', async () => {
+    const d = deps(makeRun(happy))
+    const starts: StartInput[] = []
+    const runs = [makeRun(happy), makeRun(happy)]
+    d.start = (input: StartInput) => {
+      starts.push(input)
+      return runs[starts.length - 1] as unknown as AgentRun
+    }
+    const other = { ...(agent as object), id: 'a2' } as never
+    await Promise.all([
+      runAgentEmployee(args(), d),
+      runAgentEmployee(args({ agent: other }), d)
+    ])
+    expect(prepareWorkDir.mock.calls.map((c) => c[2])).toEqual([false, true])
+    const cwds = starts.map((s) => s.cwd)
+    expect(cwds).toContain('/x/notes')
+    expect(new Set(cwds).size).toBe(2)
+    expect(d.registry.claimsInProject('p1')).toBe(0)
+  })
+
+  it('a failed step leaves its saved card failed and its content what the PM was told', async () => {
+    const run = makeRun((r) => {
+      r.fire({ type: 'init', cliSessionId: 'cli-1', model: null })
+      r.alive = false
+      r.fire({ type: 'exit', code: 1, stderrTail: 'boom', expected: false })
+    })
+    await expect(runAgentEmployee(args(), deps(run))).rejects.toThrow('boom')
+    const messageId = createMessage.mock.calls[0][0].id as string
+    expect(updateParts).toHaveBeenLastCalledWith(messageId, [
+      expect.objectContaining({ state: 'error' })
+    ])
+    expect(updateContent).toHaveBeenCalledWith(
+      messageId,
+      expect.stringMatching(/^\[Claude Code · error\]/)
+    )
   })
 
   it('formats what the PM reads', () => {

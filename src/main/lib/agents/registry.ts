@@ -6,6 +6,8 @@ interface Entry {
   run: AgentRun
   sessionId: string
   projectId: string
+  /** The group whose step the process runs now (a session follows its latest step). */
+  conversationId: string
   idleTimer?: ReturnType<typeof setTimeout>
   /** Set by `cancelIdleExit`; a timer armed after the cancel (the settings read is async) checks it. */
   idleCancelled?: boolean
@@ -16,6 +18,8 @@ export class AgentRegistry {
   private entries = new Map<string, Entry>()
   private queues = new Map<string, Promise<unknown>>()
   private inFlight = 0
+  /** Steps under way per project, from before their first await (see `claimProject`). */
+  private claims = new Map<string, number>()
   private waiters: Array<() => void> = []
 
   constructor(
@@ -75,13 +79,35 @@ export class AgentRegistry {
     return next
   }
 
+  /**
+   * A step in `projectId` is under way. Taken synchronously as the step
+   * begins, so parallel steps see each other before any process attaches
+   * (a step's worktree depends on it); the returned function gives it back.
+   */
+  claimProject(projectId: string): () => void {
+    this.claims.set(projectId, (this.claims.get(projectId) ?? 0) + 1)
+    let released = false
+    return () => {
+      if (released) return
+      released = true
+      const n = (this.claims.get(projectId) ?? 1) - 1
+      if (n > 0) this.claims.set(projectId, n)
+      else this.claims.delete(projectId)
+    }
+  }
+
+  claimsInProject(projectId: string): number {
+    return this.claims.get(projectId) ?? 0
+  }
+
   attach(
     key: string,
     sessionId: string,
     projectId: string,
+    conversationId: string,
     run: AgentRun
   ): void {
-    this.entries.set(key, { run, sessionId, projectId })
+    this.entries.set(key, { run, sessionId, projectId, conversationId })
     const off = run.on((e) => {
       if (e.type !== 'exit') return
       off()
@@ -91,6 +117,12 @@ export class AgentRegistry {
         this.entries.delete(key)
       }
     })
+  }
+
+  /** A live process takes a step from another group: it belongs to that group now. */
+  bindConversation(key: string, conversationId: string): void {
+    const entry = this.entries.get(key)
+    if (entry) entry.conversationId = conversationId
   }
 
   live(key: string): AgentRun | undefined {
@@ -135,6 +167,18 @@ export class AgentRegistry {
   async stopSession(sessionId: string): Promise<void> {
     for (const e of this.entries.values())
       if (e.sessionId === sessionId) await e.run.stop()
+  }
+
+  /** The group is going away (spec §10): interrupt and exit every agent working for it. */
+  async stopConversation(conversationId: string): Promise<void> {
+    await Promise.all(
+      [...this.entries.values()]
+        .filter((e) => e.conversationId === conversationId)
+        .map(async (e) => {
+          e.run.interrupt()
+          await e.run.stop()
+        })
+    )
   }
 
   async stopAll(): Promise<void> {

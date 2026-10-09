@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { agentRegistry } from '../../agents/registry'
 import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
 import { toPlanDto } from '../../ai/philharmonic/plan-dto'
 import { runPmCoordinator } from '../../ai/philharmonic/pm-coordinator'
@@ -138,6 +139,11 @@ router.post('/conversations', async (c) => {
 
 router.delete('/conversations/:id', async (c) => {
   const id = getRequiredParam(c, 'id')
+  // Spec §10: nothing keeps working for a group that is gone — the PM is
+  // stopped, and every agent on one of its steps interrupted and exited.
+  // The folders are left alone.
+  pmRunRegistry.abort(id)
+  await agentRegistry.stopConversation(id)
   await handleDatabaseOperation(
     () => deleteConversation(id),
     'Failed to delete conversation'

@@ -22,8 +22,8 @@ export type { DelegatedOutput }
  * Run one delegated employee task end-to-end: mark running, create the
  * execution row, run the employee loop (with transient-failure retry), mark
  * completed/failed. Returns the employee's final text output for the PM
- * to review — for a CLI employee also its card (the message's parts) and
- * its session.
+ * to review — for a CLI employee also the message its step saved (the
+ * card lives in it).
  *
  * Retry behavior (Exodus' own loop only — a CLI step is never retried: a
  * second run would redo the work):

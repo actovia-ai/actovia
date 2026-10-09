@@ -67,8 +67,9 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getActiveAgents,
   createTask: vi.fn(async (d) => ({ id: 't1', ...d }))
 }))
-const updateAgentSession = vi.fn()
-vi.mock('@main/lib/db/agent-session-queries', () => ({ updateAgentSession }))
+vi.mock('@main/lib/logger', () => ({
+  logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
+}))
 vi.mock('@main/lib/db/team-queries', () => ({ getAllTeams: async () => [] }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
   createConversationMessage,
@@ -167,7 +168,7 @@ describe('runPmCoordinator — secrets outside Exodus', () => {
 })
 
 describe('runPmCoordinator — a Claude Code employee', () => {
-  it('is described to the PM as a coding agent, and its card is persisted with the message it binds its session to', async () => {
+  it('is described to the PM as a coding agent, and its step’s own message is the only one saved', async () => {
     getActiveAgents.mockResolvedValueOnce([
       {
         id: 'cc',
@@ -179,11 +180,9 @@ describe('runPmCoordinator — a Claude Code employee', () => {
     ])
     const { runDelegatedTask } =
       await import('@main/lib/ai/philharmonic/execution-engine')
-    const card = { kind: 'agent_card', state: 'done' }
     vi.mocked(runDelegatedTask).mockResolvedValueOnce({
       output: '[Claude Code · done]',
-      parts: [card],
-      sessionId: 'sess-1'
+      messageId: 'm-step'
     })
     agentLoopMock.mockReset()
     agentLoopMock.mockReturnValue(fakeStream([]))
@@ -207,15 +206,62 @@ describe('runPmCoordinator — a Claude Code employee', () => {
       'UNAVAILABLE: this group has no folder'
     )
     await delegate.execute('x', { employeeId: 'cc', instructions: 'go' })
-    expect(createConversationMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        role: 'employee',
-        content: '[Claude Code · done]',
-        parts: [card]
-      })
+    expect(createConversationMessage).not.toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'employee' })
     )
-    expect(updateAgentSession).toHaveBeenCalledWith('sess-1', {
-      messageId: 'm'
+  })
+})
+
+describe('runPmCoordinator — the plan mirror', () => {
+  it('never fails a step: a mirror that throws is logged and the delegation still succeeds', async () => {
+    const plans = await import('@main/lib/db/plan-queries')
+    const step = (status: string) => ({
+      id: 's1',
+      status,
+      output: null,
+      note: null,
+      startedAt: null,
+      completedAt: null
     })
+    vi.mocked(plans.updateStep).mockImplementation(
+      async (_id, patch) => step(patch.status ?? 'running') as never
+    )
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue({
+      plan: { id: 'p', status: 'active' },
+      steps: [step('running')]
+    } as never)
+    const { writePlanMirror } =
+      await import('@main/lib/ai/philharmonic/plan-mirror')
+    vi.mocked(writePlanMirror).mockRejectedValue(new Error('meta dir refused'))
+    const { logger } = await import('@main/lib/logger')
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go',
+      emit: vi.fn()
+    }).catch(() => {})
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    const delegate = tools.find((t) => t.name === 'delegateTask')!
+    await expect(
+      delegate.execute('x', {
+        employeeId: 'a1',
+        instructions: 'go',
+        stepId: 's1'
+      })
+    ).resolves.toBeDefined()
+    expect(plans.updateStep).not.toHaveBeenCalledWith('s1', {
+      status: 'failed'
+    })
+    expect(logger.warn).toHaveBeenCalledWith(
+      'philharmonic',
+      'plan mirror failed',
+      expect.objectContaining({ message: 'meta dir refused' })
+    )
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
 })
