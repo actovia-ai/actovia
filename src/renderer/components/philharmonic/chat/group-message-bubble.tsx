@@ -9,12 +9,12 @@ import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
-import { Markdown } from '@/components/markdown/markdown'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { AgentCardView } from './agent-card'
+import { BubbleMarkdown } from './bubble-markdown'
 
 interface ArtifactPart {
   artifactId: string
@@ -44,11 +44,6 @@ export interface BubbleModel {
   artifacts?: ArtifactPart[]
   /** A coding agent's run; shown in place of the text for employee messages. */
   agentCard?: AgentCard
-}
-
-/** How a group bubble renders its Markdown. */
-export function BubbleMarkdown({ text }: { text: string }) {
-  return <Markdown src={text} />
 }
 
 export function GroupMessageBubble({

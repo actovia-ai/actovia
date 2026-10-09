@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
 
+import { recordAgentCard } from '@/lib/agent-card'
 import { getActivePlan } from '@/services/philharmonic-chat'
 
 import { emptyBusyState, reduceBusy, type BusyState } from './busy-reducer'
@@ -52,8 +53,9 @@ export interface ConversationStream {
   pmRunning: boolean
   /** actorId → activity label. Presence means "busy". '__pm__' for the PM. */
   busyAgents: ReadonlyMap<string, string>
-  /** sessionId → the latest card seen live; it keeps a persisted message's
-   * card current after the message itself has been saved. */
+  /** messageId → the latest card seen live; it keeps a persisted message's
+   * card current after the message itself has been saved. Keyed by message:
+   * an employee's next step resumes the same session in a new message. */
   agentCards: Record<string, AgentCard>
 }
 
@@ -195,10 +197,9 @@ export function useConversationStream(
           )
           break
         case 'agent_card':
-          setAgentCards((prev) => ({
-            ...prev,
-            [evt.card.sessionId]: evt.card
-          }))
+          setAgentCards((prev) =>
+            recordAgentCard(prev, evt.messageId, evt.card)
+          )
           setBubbles((prev) =>
             prev.map((b) =>
               b.messageId === evt.messageId ? { ...b, agentCard: evt.card } : b

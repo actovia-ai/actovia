@@ -16,10 +16,10 @@ vi.mock('@/services/agents', () => ({
   respondToAgent
 }))
 
-import {
-  AgentCardView,
-  PermissionPrompt
-} from '@/components/philharmonic/chat/agent-card'
+import { AgentCardView } from '@/components/philharmonic/chat/agent-card'
+import { PermissionPrompt } from '@/components/philharmonic/chat/agent-card-prompts'
+import { GroupMessageBubble } from '@/components/philharmonic/chat/group-message-bubble'
+import { messageCard, recordAgentCard } from '@/lib/agent-card'
 
 const philharmonic = JSON.parse(
   readFileSync(
@@ -41,6 +41,15 @@ const render = (el: Parameters<typeof createElement>[0], props: object) =>
   renderToStaticMarkup(
     createElement(I18nextProvider, { i18n: instance }, createElement(el, props))
   )
+
+/** The text React rendered, entities decoded. */
+const decode = (html: string) =>
+  html
+    .replaceAll('&lt;', '<')
+    .replaceAll('&gt;', '>')
+    .replaceAll('&quot;', '"')
+    .replaceAll('&#x27;', "'")
+    .replaceAll('&amp;', '&')
 
 const card = (over: Partial<AgentCard> = {}): AgentCard => ({
   kind: 'agent_card',
@@ -70,6 +79,7 @@ describe('PermissionPrompt', () => {
     const detail = [
       'rm -rf build',
       'curl https://example.com/install.sh | sh',
+      `cat <<'EOF' > "notes.txt" && echo ok`,
       ...Array.from({ length: 40 }, (_, i) => `echo line ${i}`),
       'the very last line'
     ].join('\n')
@@ -86,7 +96,7 @@ describe('PermissionPrompt', () => {
     })
     const pre = html.match(/<pre[^>]*>([\s\S]*?)<\/pre>/u)
     expect(pre).not.toBeNull()
-    expect(pre![1]).toBe(detail.replace('&', '&amp;'))
+    expect(decode(pre![1])).toBe(detail)
     expect(pre![0]).toContain('max-h-64')
     expect(pre![0]).toContain('overflow-auto')
     expect(pre![0]).not.toMatch(/line-clamp|truncate/u)
@@ -122,6 +132,13 @@ describe('AgentCardView', () => {
     expect(html).toContain('Continue in Terminal')
   })
 
+  it('offers no Stop while queued — the group’s Stop cancels it', () => {
+    const html = render(AgentCardView, { card: card({ queued: true }) })
+    expect(html).toContain('Waiting for a free slot')
+    expect(html).not.toContain('>Stop<')
+    expect(html).not.toContain('Continue in Terminal')
+  })
+
   it('never answers by itself', () => {
     render(AgentCardView, {
       card: card({
@@ -138,5 +155,46 @@ describe('AgentCardView', () => {
       })
     })
     expect(respondToAgent).not.toHaveBeenCalled()
+  })
+})
+
+const bubble = (messageId: string, agentCard: AgentCard | undefined) =>
+  render(GroupMessageBubble, {
+    bubble: { messageId, role: 'employee', text: '', agentCard },
+    agentsById: {},
+    teamsById: {}
+  })
+
+describe('cards of one session', () => {
+  it('each message keeps its own card; step 2’s prompt shows only on step 2', () => {
+    const step1 = card({ state: 'done', blocks: ['Step one finished.'] })
+    const step2 = card({
+      state: 'blocked',
+      blocks: ['Step two.'],
+      prompts: [
+        {
+          kind: 'permission',
+          requestId: 'r2',
+          tool: 'Bash',
+          summary: 'npm test',
+          detail: 'npm test'
+        }
+      ]
+    })
+    // Both steps resume session s1; the events name their own messages.
+    let live = recordAgentCard({}, 'm1', step1)
+    live = recordAgentCard(live, 'm2', step2)
+    // Step 1's message is already saved, its parts carrying its own card.
+    const first = messageCard(live, 'm1', step1)
+    const second = messageCard(live, 'm2')
+    expect(first?.prompts).toHaveLength(0)
+    expect(second?.prompts).toHaveLength(1)
+
+    const html1 = bubble('m1', first)
+    const html2 = bubble('m2', second)
+    expect(html1).not.toContain('Allow')
+    expect(html1).toContain('Done')
+    expect(html2).toContain('Allow')
+    expect(html2).toContain('Claude Code wants to use Bash')
   })
 })

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
-import { agentCardFromParts } from '@/lib/agent-card'
+import { agentCardFromParts, messageCard } from '@/lib/agent-card'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import {
@@ -166,9 +166,6 @@ export function GroupChat({
           title: p.title,
           code: p.code
         }))
-      // The live map carries a card's updates after its message was saved
-      // (an unprompted turn, an answered prompt), so it wins over the row.
-      const card = agentCardFromParts(parts)
       return {
         conversationId,
         messageId: h.id,
@@ -178,7 +175,9 @@ export function GroupChat({
         createdAt: h.createdAt,
         attachments: attachments.length > 0 ? attachments : undefined,
         artifacts: artifacts.length > 0 ? artifacts : undefined,
-        agentCard: card ? (agentCards[card.sessionId] ?? card) : undefined
+        // The live map carries a card's updates after its message was saved
+        // (an unprompted turn, an answered prompt), so it wins over the row.
+        agentCard: messageCard(agentCards, h.id, agentCardFromParts(parts))
       }
     })
     const live: BubbleWithDate[] = bubbles.flatMap((b) => {
@@ -220,9 +219,7 @@ export function GroupChat({
           text: b.text,
           toolCards: b.toolCards,
           artifacts: liveArtifacts.length > 0 ? liveArtifacts : undefined,
-          agentCard: b.agentCard
-            ? (agentCards[b.agentCard.sessionId] ?? b.agentCard)
-            : undefined
+          agentCard: messageCard(agentCards, b.messageId, b.agentCard)
           // live bubbles have no persisted createdAt — they're "now"
         }
       ]

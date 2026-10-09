@@ -12,6 +12,24 @@ export function agentCardFromParts(
   )
 }
 
+/** The live map after an `agent_card` event for `messageId`. */
+export const recordAgentCard = (
+  live: Readonly<Record<string, AgentCard>>,
+  messageId: string,
+  card: AgentCard
+): Record<string, AgentCard> => ({ ...live, [messageId]: card })
+
+/**
+ * A message's card: the latest one the stream sent for that message, else the
+ * one it carries. Keyed by message, never by session — an employee's steps
+ * resume one session, and each step's message keeps its own card.
+ */
+export const messageCard = (
+  live: Readonly<Record<string, AgentCard>>,
+  messageId: string,
+  own?: AgentCard
+): AgentCard | undefined => live[messageId] ?? own
+
 /** The last `max` steps, and how many earlier ones are folded away. */
 export function visibleSteps(
   card: AgentCard,
