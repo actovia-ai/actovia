@@ -53,7 +53,7 @@ vi.mock('@main/lib/db/db', async () => {
   const { drizzle } = await import('drizzle-orm/pglite')
   const { createMigratedPglite } =
     await import('../../../helpers/migrated-pglite')
-  const pglite = await createMigratedPglite('0009', { pgmq: true })
+  const pglite = await createMigratedPglite('0015', { pgmq: true })
   for (const q of ['lcm-post-turn', 'memory-consolidate']) {
     await pglite.exec(`SELECT pgmq.create('${q}');`)
   }
