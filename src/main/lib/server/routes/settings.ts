@@ -3,6 +3,7 @@ import { ValidationError } from '@exodus/shared/errors/app-error'
 import { AiProviders } from '@exodus/shared/types/ai'
 import { Hono } from 'hono'
 
+import { assertProjectsDirAllowed } from '../../agents/projects-dir'
 import { listModelsByProvider } from '../../ai/providers/list-models'
 import { getAllMcpServers } from '../../db/mcp-queries'
 import {
@@ -59,17 +60,19 @@ settingsRouter.post('/', async (c) => {
   // phone or a process on loopback without the presence token.
   const fromWindow =
     listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))
-  if (!fromWindow) {
+  if (fromWindow) {
+    const dir = payload.agents?.projectsDir
+    if (dir) await assertProjectsDirAllowed(dir)
+  } else if (payload.agents !== undefined) {
     const stored = (await getSettings()).agents
-    const incoming =
+    payload.agents =
       payload.agents && typeof payload.agents === 'object'
-        ? payload.agents
-        : { worktrees: stored?.worktrees ?? true }
-    payload.agents = {
-      ...incoming,
-      cliPaths: stored?.cliPaths ?? {},
-      projectsDir: stored?.projectsDir
-    }
+        ? {
+            ...payload.agents,
+            cliPaths: stored?.cliPaths as never,
+            projectsDir: stored?.projectsDir
+          }
+        : (stored as never)
   }
 
   // A posted mask means "unchanged" — `updateSettings` swaps it back for the

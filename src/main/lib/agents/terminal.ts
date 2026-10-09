@@ -1,7 +1,7 @@
 import { execFile } from 'child_process'
 import { randomUUID } from 'crypto'
 import { constants } from 'fs'
-import { lstat, mkdir, open, readdir, stat, unlink } from 'fs/promises'
+import { lstat, mkdir, open, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 
 import { getExodusHome } from '../paths'
@@ -70,10 +70,14 @@ export async function writeResumeScript(
 /** At start: scripts Terminal never ran are not left lying around. */
 export async function sweepResumeScripts(maxAgeMs = 3_600_000): Promise<void> {
   const dir = terminalDir()
+  for (const d of [join(getExodusHome(), 'run'), dir]) {
+    const info = await lstat(d).catch(() => null)
+    if (!info?.isDirectory() || info.isSymbolicLink()) return
+  }
   const names = await readdir(dir).catch(() => [] as string[])
   for (const name of names) {
     const file = join(dir, name)
-    const info = await stat(file).catch(() => null)
+    const info = await lstat(file).catch(() => null)
     if (info?.isFile() && Date.now() - info.mtimeMs > maxAgeMs)
       await unlink(file).catch(() => {})
   }

@@ -5,12 +5,16 @@ vi.mock('@main/lib/logger', () => ({
 }))
 vi.mock('@main/lib/db/db', () => ({ db: {}, pglite: {} }))
 vi.mock('electron', () => ({}))
+vi.mock('@main/lib/paths', () => ({ getExodusHome: () => '/data/exodus' }))
 const updateSettings = vi.fn(async () => ({}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({
     agents: {
       cliPaths: { 'claude-code': '/good/claude' },
-      projectsDir: '/good'
+      projectsDir: '/good',
+      maxRunning: 3,
+      keepAliveMinutes: 7,
+      worktrees: true
     }
   }),
   getAllSearchableMessages: vi.fn(),
@@ -69,12 +73,56 @@ describe('settings write keeps the CLI path and projects folder', () => {
     })
   })
 
-  it('agents: null does not clear the stored block', async () => {
+  it('agents: null keeps the stored block as it is', async () => {
     await save({}, undefined, JSON.stringify({ id: 1, agents: null }))
+    expect(written()).toEqual({
+      cliPaths: { 'claude-code': '/good/claude' },
+      projectsDir: '/good',
+      maxRunning: 3,
+      keepAliveMinutes: 7,
+      worktrees: true
+    })
+  })
+
+  it('no agents key leaves the column untouched', async () => {
+    await save({}, undefined, JSON.stringify({ id: 1 }))
+    const payload = updateSettings.mock.calls.at(-1) as unknown as [
+      Record<string, unknown>
+    ]
+    expect('agents' in payload[0]).toBe(false)
+  })
+
+  it('an object keeps its own numbers but the stored path and folder', async () => {
+    await save({})
     expect(written()).toMatchObject({
+      maxRunning: 5,
       cliPaths: { 'claude-code': '/good/claude' },
       projectsDir: '/good'
     })
+  })
+
+  it('the window may not point projectsDir at Exodus data, home or root', async () => {
+    const headers = { [PRESENCE_HEADER]: getPresenceToken() }
+    for (const dir of ['/', '/data/exodus', '/data/exodus/projects', '/data']) {
+      const res = await save(
+        headers,
+        undefined,
+        JSON.stringify({ id: 1, agents: { worktrees: true, projectsDir: dir } })
+      )
+      expect(res.status, dir).toBe(400)
+    }
+    const ok = await save(
+      headers,
+      undefined,
+      JSON.stringify({
+        id: 1,
+        agents: {
+          worktrees: true,
+          projectsDir: '/Volumes/work/Exodus Projects'
+        }
+      })
+    )
+    expect(ok.status).toBe(200)
   })
 
   it('from a paired phone', async () => {
