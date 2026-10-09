@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
+import { agentCardFromParts } from '@/lib/agent-card'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import {
@@ -74,7 +75,8 @@ export function GroupChat({
   const { open: sidebarOpen } = useSidebar()
   const isFullscreen = useIsFullscreen()
   const [history, setHistory] = useState<ConversationMessageData[]>([])
-  const { bubbles, askUser, error, revision, plan, pmRunning } = stream
+  const { bubbles, askUser, error, revision, plan, pmRunning, agentCards } =
+    stream
   const [answer, setAnswer] = useState('')
   const [editingTitle, setEditingTitle] = useState(false)
   const [draftTitle, setDraftTitle] = useState(conversation.title)
@@ -164,6 +166,9 @@ export function GroupChat({
           title: p.title,
           code: p.code
         }))
+      // The live map carries a card's updates after its message was saved
+      // (an unprompted turn, an answered prompt), so it wins over the row.
+      const card = agentCardFromParts(parts)
       return {
         conversationId,
         messageId: h.id,
@@ -172,7 +177,8 @@ export function GroupChat({
         text: h.content,
         createdAt: h.createdAt,
         attachments: attachments.length > 0 ? attachments : undefined,
-        artifacts: artifacts.length > 0 ? artifacts : undefined
+        artifacts: artifacts.length > 0 ? artifacts : undefined,
+        agentCard: card ? (agentCards[card.sessionId] ?? card) : undefined
       }
     })
     const live: BubbleWithDate[] = bubbles.flatMap((b) => {
@@ -213,13 +219,16 @@ export function GroupChat({
           agentId: b.agentId,
           text: b.text,
           toolCards: b.toolCards,
-          artifacts: liveArtifacts.length > 0 ? liveArtifacts : undefined
+          artifacts: liveArtifacts.length > 0 ? liveArtifacts : undefined,
+          agentCard: b.agentCard
+            ? (agentCards[b.agentCard.sessionId] ?? b.agentCard)
+            : undefined
           // live bubbles have no persisted createdAt — they're "now"
         }
       ]
     })
     return [...fromHistory, ...live]
-  }, [history, bubbles, persistedIds, conversationId])
+  }, [history, bubbles, persistedIds, conversationId, agentCards])
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })

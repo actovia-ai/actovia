@@ -360,6 +360,30 @@
     },
     "notify": {
       "waitingTitle": "{{name}} があなたを待っています"
+    },
+    "card": {
+      "state": {
+        "queued": "空きを待っています",
+        "working": "作業中",
+        "waiting": "あなたを待っています",
+        "done": "完了",
+        "stopped": "停止",
+        "failed": "失敗"
+      },
+      "moreSteps_other": "以前のステップ {{count}} 件",
+      "wantsTo": "{{name}} が {{tool}} を使おうとしています",
+      "reasonPlaceholder": "理由を伝える（任意、拒否したときに送信）",
+      "allow": "許可",
+      "deny": "拒否",
+      "other": "その他…",
+      "submit": "回答",
+      "answerFailed": "回答が届きませんでした",
+      "stop": "停止",
+      "continueInTerminal": "ターミナルで続ける",
+      "terminalFailed": "ターミナルを開けませんでした",
+      "stopFailed": "停止できませんでした",
+      "folderFailed": "フォルダを開けませんでした",
+      "inTerminal": "ターミナルで続行中 — 次のステップで Exodus が引き継ぎます。"
     }
   }
 }

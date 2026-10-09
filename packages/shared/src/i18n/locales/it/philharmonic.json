@@ -364,6 +364,31 @@
     },
     "notify": {
       "waitingTitle": "{{name}} ti sta aspettando"
+    },
+    "card": {
+      "state": {
+        "queued": "In attesa di un posto libero",
+        "working": "Al lavoro",
+        "waiting": "Ti aspetta",
+        "done": "Fatto",
+        "stopped": "Interrotto",
+        "failed": "Non riuscito"
+      },
+      "moreSteps_one": "{{count}} passaggio precedente",
+      "moreSteps_other": "{{count}} passaggi precedenti",
+      "wantsTo": "{{name}} vuole usare {{tool}}",
+      "reasonPlaceholder": "Spiegagli perché (facoltativo, inviato se rifiuti)",
+      "allow": "Consenti",
+      "deny": "Rifiuta",
+      "other": "Altro…",
+      "submit": "Rispondi",
+      "answerFailed": "La tua risposta non è arrivata",
+      "stop": "Interrompi",
+      "continueInTerminal": "Continua nel Terminale",
+      "terminalFailed": "Impossibile aprire il Terminale",
+      "stopFailed": "Impossibile interromperlo",
+      "folderFailed": "Impossibile aprire la cartella",
+      "inTerminal": "Continuato nel Terminale — Exodus riprende al passaggio successivo."
     }
   }
 }

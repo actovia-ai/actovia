@@ -364,6 +364,31 @@
     },
     "notify": {
       "waitingTitle": "{{name}} está esperando por você"
+    },
+    "card": {
+      "state": {
+        "queued": "Aguardando uma vaga livre",
+        "working": "Trabalhando",
+        "waiting": "Aguardando você",
+        "done": "Concluído",
+        "stopped": "Parado",
+        "failed": "Falhou"
+      },
+      "moreSteps_one": "{{count}} etapa anterior",
+      "moreSteps_other": "{{count}} etapas anteriores",
+      "wantsTo": "{{name}} quer usar {{tool}}",
+      "reasonPlaceholder": "Diga o motivo (opcional, enviado se você negar)",
+      "allow": "Permitir",
+      "deny": "Negar",
+      "other": "Outro…",
+      "submit": "Responder",
+      "answerFailed": "Sua resposta não chegou",
+      "stop": "Parar",
+      "continueInTerminal": "Continuar no Terminal",
+      "terminalFailed": "Não foi possível abrir o Terminal",
+      "stopFailed": "Não foi possível parar",
+      "folderFailed": "Não foi possível abrir a pasta",
+      "inTerminal": "Continuado no Terminal — o Exodus retoma na próxima etapa."
     }
   }
 }

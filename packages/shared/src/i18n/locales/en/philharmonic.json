@@ -364,6 +364,31 @@
     },
     "notify": {
       "waitingTitle": "{{name}} is waiting for you"
+    },
+    "card": {
+      "state": {
+        "queued": "Waiting for a free slot",
+        "working": "Working",
+        "waiting": "Waiting for you",
+        "done": "Done",
+        "stopped": "Stopped",
+        "failed": "Failed"
+      },
+      "moreSteps_one": "{{count}} earlier step",
+      "moreSteps_other": "{{count}} earlier steps",
+      "wantsTo": "{{name}} wants to use {{tool}}",
+      "reasonPlaceholder": "Tell it why (optional, sent if you deny)",
+      "allow": "Allow",
+      "deny": "Deny",
+      "other": "Other…",
+      "submit": "Answer",
+      "answerFailed": "Your answer didn't reach it",
+      "stop": "Stop",
+      "continueInTerminal": "Continue in Terminal",
+      "terminalFailed": "Could not open Terminal",
+      "stopFailed": "Couldn't stop it",
+      "folderFailed": "Couldn't open the folder",
+      "inTerminal": "Continued in Terminal — Exodus picks it up again on its next step."
     }
   }
 }

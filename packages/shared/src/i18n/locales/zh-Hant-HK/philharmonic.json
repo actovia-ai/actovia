@@ -360,6 +360,30 @@
     },
     "notify": {
       "waitingTitle": "{{name}} 正等緊你"
+    },
+    "card": {
+      "state": {
+        "queued": "等待空位",
+        "working": "工作中",
+        "waiting": "等待你回覆",
+        "done": "完成",
+        "stopped": "已停止",
+        "failed": "失敗"
+      },
+      "moreSteps_other": "較早的 {{count}} 個步驟",
+      "wantsTo": "{{name}} 想使用 {{tool}}",
+      "reasonPlaceholder": "告訴它原因（可選，拒絕時發送）",
+      "allow": "允許",
+      "deny": "拒絕",
+      "other": "其他…",
+      "submit": "回答",
+      "answerFailed": "你的回答未能送達",
+      "stop": "停止",
+      "continueInTerminal": "在終端機繼續",
+      "terminalFailed": "無法開啟終端機",
+      "stopFailed": "無法停止",
+      "folderFailed": "無法開啟資料夾",
+      "inTerminal": "已在終端機繼續 — Exodus 會在下一步重新接手。"
     }
   }
 }

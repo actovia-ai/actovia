@@ -1,4 +1,5 @@
 import { BASE_URL } from '@exodus/shared/constants/systems'
+import type { AgentCard } from '@exodus/shared/types/agents'
 import type {
   PhilharmonicSseEvent,
   PlanDto,
@@ -24,6 +25,8 @@ export interface LiveBubble {
     phase: 'start' | 'end'
     result?: unknown
   }>
+  /** A coding agent's run, for an employee message driven by a CLI. */
+  agentCard?: AgentCard
 }
 
 export interface RetryNotice {
@@ -49,6 +52,9 @@ export interface ConversationStream {
   pmRunning: boolean
   /** actorId → activity label. Presence means "busy". '__pm__' for the PM. */
   busyAgents: ReadonlyMap<string, string>
+  /** sessionId → the latest card seen live; it keeps a persisted message's
+   * card current after the message itself has been saved. */
+  agentCards: Record<string, AgentCard>
 }
 
 function applyStepPatch(step: StepDto, patch: StepPatch): StepDto {
@@ -77,6 +83,7 @@ export function useConversationStream(
   const retryCounter = useRef(0)
   const [pmRunning, setPmRunning] = useState(false)
   const [busy, setBusy] = useState<BusyState>(emptyBusyState)
+  const [agentCards, setAgentCards] = useState<Record<string, AgentCard>>({})
 
   // Pull the current plan on mount / conversation switch so users coming back
   // to a Group after closing the panel see the latest state. SSE events
@@ -104,8 +111,8 @@ export function useConversationStream(
   }, [conversationId])
 
   // react-doctor-disable-next-line react-doctor/no-adjust-state-on-prop-change -- Intentional:
-  // All five setState calls here reset ephemeral SSE-streaming state (live
-  // bubbles, ask-user prompt, error, PM-running flag, busy map) when switching
+  // All six setState calls here reset ephemeral SSE-streaming state (live
+  // bubbles, ask-user prompt, error, PM-running flag, busy map, agent cards) when switching
   // to a different conversation. This is required — the old conversation's
   // in-flight data must not bleed into the new one. The alternative (passing
   // conversationId as `key`) would unmount/remount the EventSource on every
@@ -118,6 +125,7 @@ export function useConversationStream(
     setError(null)
     setPmRunning(false)
     setBusy(emptyBusyState())
+    setAgentCards({})
 
     const source = new EventSource(
       `${BASE_URL}/api/v1/philharmonic/conversations/${conversationId}/sse`
@@ -183,6 +191,17 @@ export function useConversationStream(
                     ]
                   }
                 : b
+            )
+          )
+          break
+        case 'agent_card':
+          setAgentCards((prev) => ({
+            ...prev,
+            [evt.card.sessionId]: evt.card
+          }))
+          setBubbles((prev) =>
+            prev.map((b) =>
+              b.messageId === evt.messageId ? { ...b, agentCard: evt.card } : b
             )
           )
           break
@@ -254,6 +273,7 @@ export function useConversationStream(
     plan,
     lastRetry,
     pmRunning,
-    busyAgents: busy.busyAgents
+    busyAgents: busy.busyAgents,
+    agentCards
   }
 }

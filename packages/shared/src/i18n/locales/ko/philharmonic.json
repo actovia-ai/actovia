@@ -360,6 +360,30 @@
     },
     "notify": {
       "waitingTitle": "{{name}} 님이 기다리고 있습니다"
+    },
+    "card": {
+      "state": {
+        "queued": "빈 자리를 기다리는 중",
+        "working": "작업 중",
+        "waiting": "응답을 기다리는 중",
+        "done": "완료",
+        "stopped": "중지됨",
+        "failed": "실패"
+      },
+      "moreSteps_other": "이전 단계 {{count}}개",
+      "wantsTo": "{{name}}에서 {{tool}}을(를) 사용하려고 합니다",
+      "reasonPlaceholder": "이유 알려주기(선택, 거부할 때 전송)",
+      "allow": "허용",
+      "deny": "거부",
+      "other": "기타…",
+      "submit": "답변",
+      "answerFailed": "답변이 전달되지 않았습니다",
+      "stop": "중지",
+      "continueInTerminal": "터미널에서 계속",
+      "terminalFailed": "터미널을 열 수 없습니다",
+      "stopFailed": "중지할 수 없습니다",
+      "folderFailed": "폴더를 열 수 없습니다",
+      "inTerminal": "터미널에서 계속 중 — 다음 단계에서 Exodus가 다시 이어받습니다."
     }
   }
 }

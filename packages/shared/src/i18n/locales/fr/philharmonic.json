@@ -364,6 +364,31 @@
     },
     "notify": {
       "waitingTitle": "{{name}} vous attend"
+    },
+    "card": {
+      "state": {
+        "queued": "En attente d’une place libre",
+        "working": "En cours",
+        "waiting": "Vous attend",
+        "done": "Terminé",
+        "stopped": "Arrêté",
+        "failed": "Échec"
+      },
+      "moreSteps_one": "{{count}} étape précédente",
+      "moreSteps_other": "{{count}} étapes précédentes",
+      "wantsTo": "{{name}} veut utiliser {{tool}}",
+      "reasonPlaceholder": "Dites-lui pourquoi (facultatif, envoyé si vous refusez)",
+      "allow": "Autoriser",
+      "deny": "Refuser",
+      "other": "Autre…",
+      "submit": "Répondre",
+      "answerFailed": "Votre réponse ne lui est pas parvenue",
+      "stop": "Arrêter",
+      "continueInTerminal": "Continuer dans le Terminal",
+      "terminalFailed": "Impossible d’ouvrir le Terminal",
+      "stopFailed": "Impossible de l’arrêter",
+      "folderFailed": "Impossible d’ouvrir le dossier",
+      "inTerminal": "Poursuivi dans le Terminal — Exodus reprend à sa prochaine étape."
     }
   }
 }
