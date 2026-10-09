@@ -37,7 +37,16 @@ const STEP_ICON = {
 } as const
 
 /** A coding agent's run in the group (spec §5). */
-export function AgentCardView({ card }: { card: AgentCard }) {
+export function AgentCardView({
+  card,
+  messageId,
+  superseded
+}: {
+  card: AgentCard
+  messageId: string
+  /** A newer step of this session follows in the group: only it may go to Terminal. */
+  superseded: boolean
+}) {
   const { t } = useTranslation('philharmonic')
   const { shown, hidden } = visibleSteps(card)
   const running = card.state === 'working' || card.state === 'blocked'
@@ -161,12 +170,12 @@ export function AgentCardView({ card }: { card: AgentCard }) {
             {t('agents.card.stop')}
           </Button>
         )}
-        {!running && (
+        {!running && !superseded && (
           <Button
             variant="ghost"
             size="xs"
             onClick={() =>
-              void continueInTerminal(card.sessionId).catch(
+              void continueInTerminal(card.sessionId, messageId).catch(
                 failed(t('agents.card.terminalFailed'))
               )
             }

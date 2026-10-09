@@ -11,7 +11,9 @@ vi.mock('electron', () => ({
 }))
 const respond = vi.fn()
 const interrupt = vi.fn()
-let live: { respond: typeof respond; interrupt: typeof interrupt } | undefined
+let live:
+  | { respond: typeof respond; interrupt: typeof interrupt; busy?: boolean }
+  | undefined
 vi.mock('@main/lib/agents/registry', () => ({
   agentRegistry: {
     bySession: () => live,
@@ -35,6 +37,9 @@ vi.mock('@main/lib/agents/terminal', async (importActual) => ({
   writeResumeScript: () => writeResumeScript()
 }))
 let cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
+/** The session's current step's message. */
+const CURRENT = '9b1c2d3e-aaaa-4bbb-8ccc-ddddeeeeffff'
+const OLDER = '1a1a1a1a-aaaa-4bbb-8ccc-ddddeeeeffff'
 vi.mock('@main/lib/agents/default-employees', () => ({
   ensureDefaultCliEmployees: vi.fn(async () => {})
 }))
@@ -48,7 +53,8 @@ vi.mock('@main/lib/db/agent-session-queries', () => ({
     cwd: '/p',
     cliSessionId,
     projectId: 'p',
-    conversationId: 'c'
+    conversationId: 'c',
+    messageId: CURRENT
   }),
   updateAgentSession: vi.fn(async () => ({}))
 }))
@@ -155,7 +161,8 @@ describe('agents routes', () => {
       order.push('write')
       return '/data/run/terminal/x.sh'
     })
-    const res = await post('/sessions/s1/terminal')
+    live = undefined
+    const res = await post('/sessions/s1/terminal', { messageId: CURRENT })
     expect(res.status).toBe(200)
     expect(order).toEqual(['stop', 'write'])
     expect(stopSession).toHaveBeenCalledWith('s1')
@@ -165,9 +172,28 @@ describe('agents routes', () => {
   it('refuses a session id that is not shaped like one', async () => {
     cliSessionId = "x'; rm -rf ~ #"
     openInTerminal.mockClear()
-    expect((await post('/sessions/s1/terminal')).status).toBe(400)
+    expect(
+      (await post('/sessions/s1/terminal', { messageId: CURRENT })).status
+    ).toBe(400)
     expect(openInTerminal).not.toHaveBeenCalled()
     cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
+  })
+
+  it('Continue in Terminal from an older card, or while the session works, is a conflict and stops nothing', async () => {
+    stopSession.mockClear()
+    openInTerminal.mockClear()
+    live = undefined
+    const stale = await post('/sessions/s1/terminal', { messageId: OLDER })
+    expect(stale.status).toBe(409)
+    expect((await stale.json()).error.message).toMatch(/newer step/)
+    live = { respond, interrupt, busy: true }
+    expect(
+      (await post('/sessions/s1/terminal', { messageId: CURRENT })).status
+    ).toBe(409)
+    expect((await post('/sessions/s1/terminal')).status).toBe(400)
+    expect(stopSession).not.toHaveBeenCalled()
+    expect(openInTerminal).not.toHaveBeenCalled()
+    live = undefined
   })
 
   it('the computer-side actions are 403 for a paired phone; answering is not', async () => {

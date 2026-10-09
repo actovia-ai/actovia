@@ -90,8 +90,20 @@ router.post('/sessions/:id/interrupt', async (c) => {
 
 router.post('/sessions/:id/terminal', desktopOnly, async (c) => {
   const id = getRequiredParam(c, 'id')
+  const { messageId } = validateSchema(
+    z.object({ messageId: z.string().uuid() }),
+    await c.req.json().catch(() => ({})),
+    'Invalid card'
+  )
   const session = await getAgentSession(id)
   if (!session?.cliSessionId) throw new NotFoundError()
+  // Only the session's current card, and never while it works: taking the
+  // session over would stop a newer step the owner did not mean to stop.
+  if (agentRegistry.bySession(id)?.busy || session.messageId !== messageId)
+    throw new ConflictError(
+      ErrorCode.AGENT_NOT_RUNNING,
+      'Claude Code is working on a newer step; wait for it to finish.'
+    )
   if (!isCliSessionId(session.cliSessionId))
     throw new ValidationError(
       ErrorCode.VALIDATION_FAILED,

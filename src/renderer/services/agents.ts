@@ -28,7 +28,10 @@ export const respondToAgent = (
   })
 export const interruptAgent = (sessionId: string) =>
   post<{ success: boolean }>(`${BASE}/sessions/${sessionId}/interrupt`)
-export const continueInTerminal = (sessionId: string) =>
-  post<{ success: boolean }>(`${BASE}/sessions/${sessionId}/terminal`)
+/** `messageId`: the card's message — refused unless it is the session's current step. */
+export const continueInTerminal = (sessionId: string, messageId: string) =>
+  post<{ success: boolean }>(`${BASE}/sessions/${sessionId}/terminal`, {
+    messageId
+  })
 export const openAgentFolder = (sessionId: string) =>
   post<{ success: boolean }>(`${BASE}/sessions/${sessionId}/open-folder`)

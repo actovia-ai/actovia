@@ -109,6 +109,8 @@ describe('PermissionPrompt', () => {
 describe('AgentCardView', () => {
   it('names the CLI, the project and the state', () => {
     const html = render(AgentCardView, {
+      messageId: 'm1',
+      superseded: false,
       card: card({ model: 'opus', branch: 'exodus/fix' })
     })
     expect(html).toContain('Claude Code (opus)')
@@ -124,7 +126,11 @@ describe('AgentCardView', () => {
       summary: `step-${i}`,
       status: 'ok' as const
     }))
-    const html = render(AgentCardView, { card: card({ state: 'done', steps }) })
+    const html = render(AgentCardView, {
+      messageId: 'm1',
+      superseded: false,
+      card: card({ state: 'done', steps })
+    })
     expect(html).toContain('2 earlier steps')
     expect(html).toContain('Web Fetch')
     expect(html).not.toContain('step-1<')
@@ -133,14 +139,30 @@ describe('AgentCardView', () => {
   })
 
   it('offers no Stop while queued — the group’s Stop cancels it', () => {
-    const html = render(AgentCardView, { card: card({ queued: true }) })
+    const html = render(AgentCardView, {
+      messageId: 'm1',
+      superseded: false,
+      card: card({ queued: true })
+    })
     expect(html).toContain('Waiting for a free slot')
     expect(html).not.toContain('>Stop<')
     expect(html).not.toContain('Continue in Terminal')
   })
 
+  it('hands only the session’s latest card to Terminal', () => {
+    const done = card({ state: 'done' })
+    expect(
+      render(AgentCardView, { messageId: 'm1', superseded: true, card: done })
+    ).not.toContain('Continue in Terminal')
+    expect(
+      render(AgentCardView, { messageId: 'm2', superseded: false, card: done })
+    ).toContain('Continue in Terminal')
+  })
+
   it('never answers by itself', () => {
     render(AgentCardView, {
+      messageId: 'm1',
+      superseded: false,
       card: card({
         state: 'blocked',
         prompts: [

@@ -44,6 +44,8 @@ export interface BubbleModel {
   artifacts?: ArtifactPart[]
   /** A coding agent's run; shown in place of the text for employee messages. */
   agentCard?: AgentCard
+  /** A newer step of the card's session follows it in the group. */
+  agentCardSuperseded?: boolean
 }
 
 export function GroupMessageBubble({
@@ -155,7 +157,11 @@ export function GroupMessageBubble({
           </div>
         )}
         {bubble.role === 'employee' && bubble.agentCard ? (
-          <AgentCardView card={bubble.agentCard} />
+          <AgentCardView
+            card={bubble.agentCard}
+            messageId={bubble.messageId}
+            superseded={bubble.agentCardSuperseded ?? false}
+          />
         ) : (
           bubble.text.length > 0 && (
             <div
