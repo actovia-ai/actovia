@@ -80,6 +80,59 @@ describe('agent registry', () => {
     await expect(waiting).rejects.toThrow('stopped')
   })
 
+  it('passes the wake on when the woken waiter was aborted', async () => {
+    const r = registry(1)
+    const releaseA = await r.acquireSlot()
+    const ctrlB = new AbortController()
+    const b = r.acquireSlot(ctrlB.signal)
+    const c = r.acquireSlot()
+    await new Promise((ok) => setTimeout(ok, 0))
+    releaseA()
+    ctrlB.abort(new Error('stopped'))
+    await expect(b).rejects.toThrow('stopped')
+    const releaseC = await c
+    expect(typeof releaseC).toBe('function')
+  })
+
+  it('does not take a slot when aborted while the limit is being read', async () => {
+    let resolveMax!: (n: number) => void
+    let first = true
+    const r = new AgentRegistry({
+      maxRunning: () =>
+        first
+          ? ((first = false), new Promise<number>((ok) => (resolveMax = ok)))
+          : Promise.resolve(1),
+      keepAliveMs: async () => 1000
+    })
+    const ctrl = new AbortController()
+    const pending = r.acquireSlot(ctrl.signal)
+    ctrl.abort(new Error('stopped'))
+    resolveMax(1)
+    await expect(pending).rejects.toThrow('stopped')
+    const release = await r.acquireSlot()
+    expect(typeof release).toBe('function')
+  })
+
+  it('admits a waiter on the next release when the limit was raised', async () => {
+    let max = 1
+    const r = new AgentRegistry({
+      maxRunning: async () => max,
+      keepAliveMs: async () => 1000
+    })
+    const releaseA = await r.acquireSlot()
+    let admitted = false
+    const waiting = r.acquireSlot().then((rel) => {
+      admitted = true
+      return rel
+    })
+    await new Promise((ok) => setTimeout(ok, 0))
+    expect(admitted).toBe(false)
+    max = 2
+    releaseA()
+    await waiting
+    expect(admitted).toBe(true)
+  })
+
   it('runs one step at a time per employee and project, in order, past a failure', async () => {
     const r = registry()
     const order: string[] = []

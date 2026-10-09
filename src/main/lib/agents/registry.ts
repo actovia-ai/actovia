@@ -28,7 +28,10 @@ export class AgentRegistry {
   async acquireSlot(signal?: AbortSignal): Promise<() => void> {
     for (;;) {
       if (signal?.aborted) throw signal.reason
-      if (this.inFlight < (await this.deps.maxRunning())) break
+      const max = await this.deps.maxRunning()
+      // The limit is read asynchronously: an abort during the read must not take a slot.
+      if (signal?.aborted) throw signal.reason
+      if (this.inFlight < max) break
       await new Promise<void>((resolve, reject) => {
         // The limit is read asynchronously, so the abort may already have fired.
         if (signal?.aborted) {
@@ -53,7 +56,11 @@ export class AgentRegistry {
       if (released) return
       released = true
       this.inFlight--
-      this.waiters.shift()?.()
+      // Wake everyone: each re-reads the limit and parks again if there is no room, so a
+      // waiter that aborted meanwhile cannot swallow the wake, and a raised limit admits more.
+      const woken = this.waiters
+      this.waiters = []
+      for (const wake of woken) wake()
     }
   }
 
