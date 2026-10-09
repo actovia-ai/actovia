@@ -14,7 +14,8 @@ vi.mock('@main/lib/db/queries', () => ({
       projectsDir: '/good',
       maxRunning: 3,
       keepAliveMinutes: 7,
-      worktrees: true
+      worktrees: true,
+      defaultEmployeeCreated: true
     }
   }),
   getAllSearchableMessages: vi.fn(),
@@ -80,7 +81,8 @@ describe('settings write keeps the CLI path and projects folder', () => {
       projectsDir: '/good',
       maxRunning: 3,
       keepAliveMinutes: 7,
-      worktrees: true
+      worktrees: true,
+      defaultEmployeeCreated: true
     })
   })
 
@@ -136,5 +138,25 @@ describe('settings write keeps the CLI path and projects folder', () => {
       cliPaths: { 'claude-code': '/evil/claude' },
       projectsDir: '/evil'
     })
+  })
+
+  it('no one, not even the window, changes whether the default employee was added', async () => {
+    for (const headers of [{}, { [PRESENCE_HEADER]: getPresenceToken() }]) {
+      await save(
+        headers,
+        undefined,
+        JSON.stringify({
+          id: 1,
+          agents: { worktrees: true, defaultEmployeeCreated: false }
+        })
+      )
+      expect(written().defaultEmployeeCreated).toBe(true)
+      await save(
+        headers,
+        undefined,
+        JSON.stringify({ id: 1, agents: { worktrees: true } })
+      )
+      expect(written().defaultEmployeeCreated).toBe(true)
+    }
   })
 })

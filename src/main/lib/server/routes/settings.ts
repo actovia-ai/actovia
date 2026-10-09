@@ -75,6 +75,16 @@ settingsRouter.post('/', async (c) => {
         : (stored as never)
   }
 
+  // Whether the default Claude Code employee was added is the server's to
+  // record (default-employees.ts): a whole-section save never changes it.
+  if (payload.agents && typeof payload.agents === 'object') {
+    const stored = (await getSettings()).agents
+    payload.agents = {
+      ...payload.agents,
+      defaultEmployeeCreated: stored?.defaultEmployeeCreated
+    } as never
+  }
+
   // A posted mask means "unchanged" — `updateSettings` swaps it back for the
   // stored key. The answer is the driver's write result (no row data in it).
   const updatedSettings = await handleDatabaseOperation(

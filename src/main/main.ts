@@ -7,7 +7,6 @@ import { join } from 'path'
 import { app, BrowserWindow, globalShortcut, powerMonitor } from 'electron'
 import started from 'electron-squirrel-startup'
 
-import { ensureDefaultCliEmployees } from './lib/agents/default-employees'
 import { agentRegistry } from './lib/agents/registry'
 import { stopStaleSessions } from './lib/agents/stale-cards'
 import { closeDuckDB } from './lib/analytics/duckdb'
@@ -93,8 +92,6 @@ app.on('ready', async () => {
   await stopStaleSessions().catch((err) => {
     logger.error('app', 'Failed to clear stale agent sessions', { error: err })
   })
-  // A Ready CLI gets its employee without setup; never blocks start-up.
-  void ensureDefaultCliEmployees().catch(() => {})
 
   // Secrets at rest (spec 2026-09-25 §2.3), before anything reads settings:
   // encrypt what an earlier build left plaintext, strip keys from queued job
