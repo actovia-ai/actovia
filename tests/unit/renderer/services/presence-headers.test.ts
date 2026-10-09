@@ -12,8 +12,12 @@ vi.mock('@/lib/presence', () => ({
 const { updateSettings } = await import('@/services/settings')
 const { checkCli, continueInTerminal, respondToAgent } =
   await import('@/services/agents')
-const { respondToConversation, sendConversationMessage } =
+const { deleteConversation, respondToConversation, sendConversationMessage } =
   await import('@/services/philharmonic-chat')
+const { cancelScheduledTask, createScheduledTask } =
+  await import('@/services/philharmonic-tasks')
+const { createTeamApi, deleteTeamApi, updateTeamApi } =
+  await import('@/services/philharmonic')
 const { createProject, setProjectWorktrees } =
   await import('@/services/projects')
 
@@ -61,6 +65,26 @@ describe('presence header on writes', () => {
       body: { response: 'yes' },
       headers: { 'x-exodus-presence': 'tok' }
     })
+  })
+  it('scheduled tasks, team edits and deleting a group', async () => {
+    await createScheduledTask({ title: 't', conversationId: 'c' })
+    expect(fetcherMock.mock.calls[0][1]).toMatchObject({
+      method: 'POST',
+      body: { title: 't', conversationId: 'c' },
+      headers: { 'x-exodus-presence': 'tok' }
+    })
+    const writes = [
+      () => cancelScheduledTask('t'),
+      () => createTeamApi({ name: 'x' } as never),
+      () => updateTeamApi('t', { name: 'y' } as never),
+      () => deleteTeamApi('t'),
+      () => deleteConversation('c')
+    ]
+    for (const write of writes) {
+      fetcherMock.mockReset()
+      await write()
+      expect(headersOfCall()).toEqual({ 'x-exodus-presence': 'tok' })
+    }
   })
   it('Continue in Terminal names the card it was pressed on', async () => {
     await continueInTerminal('s', 'm')

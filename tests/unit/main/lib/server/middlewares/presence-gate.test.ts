@@ -20,6 +20,10 @@ app.all('/api/v1/philharmonic/agents', (c) => c.text('employees'))
 app.all('/api/v1/projects', (c) => c.text('projects'))
 app.get('/api/v1/devices-and-more', (c) => c.text('not devices'))
 app.all('/api/v1/philharmonic/conversations/*', (c) => c.text('groups'))
+app.all('/api/v1/philharmonic/tasks', (c) => c.text('tasks'))
+app.all('/api/v1/philharmonic/tasks/*', (c) => c.text('tasks'))
+app.all('/api/v1/philharmonic/teams', (c) => c.text('teams'))
+app.all('/api/v1/philharmonic/teams/*', (c) => c.text('teams'))
 
 const withToken = { headers: { [PRESENCE_HEADER]: getPresenceToken() } }
 
@@ -75,7 +79,16 @@ describe('presenceGate', () => {
     ['DELETE', '/api/v1/philharmonic/agents/a1'],
     // A group message or an answer to the PM can set an `auto` agent to work.
     ['POST', '/api/v1/philharmonic/conversations/c1/messages'],
-    ['POST', '/api/v1/philharmonic/conversations/c1/respond']
+    ['POST', '/api/v1/philharmonic/conversations/c1/respond'],
+    // Another door to the PM: a scheduled task's run is a PM run…
+    ['POST', '/api/v1/philharmonic/tasks'],
+    ['PATCH', '/api/v1/philharmonic/tasks/t1'],
+    // …and a team's prompt reaches its members.
+    ['POST', '/api/v1/philharmonic/teams'],
+    ['PUT', '/api/v1/philharmonic/teams/t1'],
+    ['DELETE', '/api/v1/philharmonic/teams/t1'],
+    // Deleting a group deletes its scheduled tasks.
+    ['DELETE', '/api/v1/philharmonic/conversations/c1']
   ])('%s %s needs the window token on loopback', async (method, path) => {
     const res = await app.request(path, { method })
     expect(res.status).toBe(403)
@@ -90,7 +103,11 @@ describe('presenceGate', () => {
     for (const [method, path] of [
       ['GET', '/api/v1/philharmonic/conversations/c1/messages'],
       ['POST', '/api/v1/philharmonic/conversations/c1/interrupt'],
-      ['POST', '/api/v1/philharmonic/conversations']
+      ['POST', '/api/v1/philharmonic/conversations'],
+      ['PUT', '/api/v1/philharmonic/conversations/c1'],
+      ['GET', '/api/v1/philharmonic/tasks/upcoming'],
+      ['GET', '/api/v1/philharmonic/tasks/recurring'],
+      ['GET', '/api/v1/philharmonic/teams']
     ])
       expect((await app.request(path, { method })).status, path).toBe(200)
   })

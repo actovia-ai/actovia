@@ -25,8 +25,12 @@ export const updateConversation = (
     method: 'PUT',
     body: data as never
   })
-export const deleteConversation = (id: string) =>
-  fetcher<void>(`${BASE}/conversations/${id}`, { method: 'DELETE' })
+// Deleting a group deletes its scheduled tasks: loopback needs the window's token.
+export const deleteConversation = async (id: string) =>
+  fetcher<void>(`${BASE}/conversations/${id}`, {
+    method: 'DELETE',
+    headers: await presenceHeaders()
+  })
 export const getConversationMessages = (id: string) =>
   fetcher<ConversationMessageData[]>(`${BASE}/conversations/${id}/messages`)
 // A group message and an answer to the PM carry the window's presence

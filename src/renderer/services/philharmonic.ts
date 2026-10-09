@@ -8,16 +8,26 @@ const BASE = '/api/v1/philharmonic'
 export const getAgents = () => fetcher<AgentData[]>(`${BASE}/agents`)
 
 export const getTeams = () => fetcher<TeamData[]>(`${BASE}/teams`)
-export const createTeamApi = (
+// A team's prompt reaches its members: loopback needs the window's token.
+export const createTeamApi = async (
   data: Partial<Omit<TeamData, 'id' | 'createdAt' | 'updatedAt'>>
-) => fetcher<TeamData>(`${BASE}/teams`, { method: 'POST', body: data as never })
-export const updateTeamApi = (id: string, data: Partial<TeamData>) =>
+) =>
+  fetcher<TeamData>(`${BASE}/teams`, {
+    method: 'POST',
+    body: data as never,
+    headers: await presenceHeaders()
+  })
+export const updateTeamApi = async (id: string, data: Partial<TeamData>) =>
   fetcher<TeamData>(`${BASE}/teams/${id}`, {
     method: 'PUT',
-    body: data as never
+    body: data as never,
+    headers: await presenceHeaders()
   })
-export const deleteTeamApi = (id: string) =>
-  fetcher<void>(`${BASE}/teams/${id}`, { method: 'DELETE' })
+export const deleteTeamApi = async (id: string) =>
+  fetcher<void>(`${BASE}/teams/${id}`, {
+    method: 'DELETE',
+    headers: await presenceHeaders()
+  })
 
 // Employee edits change what an employee may do: loopback needs the window's token.
 export const createAgentApi = async (
