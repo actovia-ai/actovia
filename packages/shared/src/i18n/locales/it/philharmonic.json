@@ -288,5 +288,50 @@
       "saveTeamFailed": "Impossibile salvare il team",
       "deleteTeamFailed": "Impossibile eliminare il team"
     }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Gli agenti di programmazione sono dipendenti di Philharmonic eseguiti da una CLI che hai installato e a cui hai effettuato l'accesso. Exodus la avvia nella cartella di un gruppo, mostra cosa fa e si ferma per te ogni volta che ti fa una domanda.",
+      "clisTitle": "Su questo Mac",
+      "runTitle": "Come vengono eseguiti",
+      "projectsDir": {
+        "label": "Cartella dei progetti",
+        "description": "I nuovi progetti vengono creati qui, e ogni progetto conserva qui note e log, anche quando il lavoro avviene in una cartella che hai aperto.",
+        "choose": "Scegli…"
+      },
+      "maxRunning": {
+        "label": "Agenti contemporanei",
+        "description": "I passaggi successivi attendono uno slot libero. Ognuno usa il tuo computer e il tuo piano."
+      },
+      "keepAlive": {
+        "label": "Tieni pronto un agente (minuti)",
+        "description": "Dopo un passaggio, il suo processo attende questo tempo così il passaggio successivo parte subito. 0 lo ferma subito."
+      },
+      "worktrees": {
+        "label": "Worktree separati",
+        "description": "Quando due agenti lavorano insieme nello stesso repository git, ognuno ottiene il proprio worktree e ramo. L'unione spetta a te."
+      },
+      "safety": "Gli agenti di programmazione girano con i propri permessi, nella cartella che indichi. Exodus non risponde mai alle loro domande né approva le loro azioni al posto tuo."
+    },
+    "cli": {
+      "check": "Verifica",
+      "notFound": "Non trovato su questo Mac",
+      "state": {
+        "ready": "Pronto",
+        "notInstalled": "Non installato",
+        "broken": "Danneggiato",
+        "tooOld": "Troppo vecchio",
+        "loggedOut": "Accesso non effettuato"
+      },
+      "hint": {
+        "install": "Installalo, poi premi Verifica.",
+        "reinstall": "Il suo launcher c'è, ma il programma che avvia manca — reinstallalo.",
+        "update": "Aggiornalo all'ultima versione, poi premi Verifica.",
+        "login": "Eseguilo una volta nel Terminale ed effettua l'accesso, poi premi Verifica."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} ti sta aspettando"
+    }
   }
 }

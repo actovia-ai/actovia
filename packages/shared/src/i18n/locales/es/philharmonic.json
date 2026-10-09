@@ -288,5 +288,50 @@
       "saveTeamFailed": "No se pudo guardar el equipo",
       "deleteTeamFailed": "No se pudo eliminar el equipo"
     }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Los agentes de programación son empleados de Philharmonic que ejecuta una CLI que instalaste y en la que iniciaste sesión. Exodus la inicia en la carpeta de un grupo, muestra lo que hace y se detiene para ti cada vez que te pregunta algo.",
+      "clisTitle": "En este Mac",
+      "runTitle": "Cómo se ejecutan",
+      "projectsDir": {
+        "label": "Carpeta de proyectos",
+        "description": "Los proyectos nuevos se crean aquí, y cada proyecto guarda aquí sus notas y registros, incluso cuando el trabajo ocurre en una carpeta que abriste.",
+        "choose": "Elegir…"
+      },
+      "maxRunning": {
+        "label": "Agentes a la vez",
+        "description": "Los demás pasos esperan a que haya un hueco libre. Cada uno usa tu equipo y tu plan."
+      },
+      "keepAlive": {
+        "label": "Mantener un agente listo (minutos)",
+        "description": "Tras un paso, su proceso espera este tiempo para que el siguiente paso empiece al instante. 0 lo detiene de inmediato."
+      },
+      "worktrees": {
+        "label": "Worktrees separados",
+        "description": "Cuando dos agentes trabajan a la vez en el mismo repositorio git, cada uno recibe su propio worktree y rama. Fusionarlos depende de ti."
+      },
+      "safety": "Los agentes de programación se ejecutan con sus propios permisos, en la carpeta que les das. Exodus nunca responde a sus preguntas ni aprueba sus acciones por ti."
+    },
+    "cli": {
+      "check": "Comprobar",
+      "notFound": "No se encontró en este Mac",
+      "state": {
+        "ready": "Listo",
+        "notInstalled": "No instalado",
+        "broken": "Dañado",
+        "tooOld": "Demasiado antiguo",
+        "loggedOut": "Sin sesión iniciada"
+      },
+      "hint": {
+        "install": "Instálalo y pulsa Comprobar.",
+        "reinstall": "Su lanzador está, pero falta el programa que inicia: reinstálalo.",
+        "update": "Actualízalo a la última versión y pulsa Comprobar.",
+        "login": "Ejecútalo una vez en Terminal, inicia sesión y pulsa Comprobar."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} te está esperando"
+    }
   }
 }

@@ -18,7 +18,8 @@ import {
   CompassIcon,
   MonitorSmartphoneIcon,
   SparklesIcon,
-  BrainCircuitIcon
+  BrainCircuitIcon,
+  CodeIcon
 } from '@hugeicons/core-free-icons'
 import type { ParseKeys } from 'i18next'
 
@@ -38,6 +39,7 @@ export enum SettingsLabel {
   Voice = 'Voice',
   DeepResearch = 'Deep Research',
   ComputerUse = 'Computer Use',
+  Agents = 'Agents',
   DataControls = 'Data Controls',
   Logger = 'Logger',
   ChatAudit = 'Chat Audit',
@@ -78,6 +80,7 @@ export const NAV_TITLE_KEYS = {
   [SettingsLabel.Voice]: 'nav.voice.title',
   [SettingsLabel.DeepResearch]: 'nav.deepResearch.title',
   [SettingsLabel.ComputerUse]: 'nav.computerUse.title',
+  [SettingsLabel.Agents]: 'nav.agents.title',
   [SettingsLabel.DataControls]: 'nav.dataControls.title',
   [SettingsLabel.Logger]: 'nav.logger.title',
   [SettingsLabel.ChatAudit]: 'nav.chatAudit.title',
@@ -122,6 +125,7 @@ export const menus = {
         { title: SettingsLabel.FullTextSearch, icon: TextSearchIcon },
         { title: SettingsLabel.KnowledgeBase, icon: NetworkIcon },
         { title: SettingsLabel.ComputerUse, icon: MousePointer2 },
+        { title: SettingsLabel.Agents, icon: CodeIcon },
         { title: SettingsLabel.McpServers, icon: HammerIcon },
         { title: SettingsLabel.SkillsMarket, icon: ShoppingBagIcon },
         { title: SettingsLabel.Devices, icon: MonitorSmartphoneIcon }

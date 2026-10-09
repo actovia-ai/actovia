@@ -80,6 +80,9 @@
     "computerUse": {
       "title": "Computer Use"
     },
+    "agents": {
+      "title": "에이전트"
+    },
     "dataControls": {
       "title": "데이터 관리"
     },

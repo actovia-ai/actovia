@@ -288,5 +288,50 @@
       "saveTeamFailed": "Impossible d'enregistrer l'équipe",
       "deleteTeamFailed": "Impossible de supprimer l'équipe"
     }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Les agents de code sont des employés de Philharmonic exécutés par une CLI que vous avez installée et dans laquelle vous êtes connecté. Exodus la lance dans le dossier d'un groupe, montre ce qu'elle fait et s'arrête pour vous dès qu'elle pose une question.",
+      "clisTitle": "Sur ce Mac",
+      "runTitle": "Comment ils s'exécutent",
+      "projectsDir": {
+        "label": "Dossier des projets",
+        "description": "Les nouveaux projets sont créés ici, et chaque projet y garde ses notes et ses journaux, même quand le travail se fait dans un dossier que vous avez ouvert.",
+        "choose": "Choisir…"
+      },
+      "maxRunning": {
+        "label": "Agents simultanés",
+        "description": "Les autres étapes attendent qu'une place se libère. Chacune utilise votre machine et votre abonnement."
+      },
+      "keepAlive": {
+        "label": "Garder un agent prêt (minutes)",
+        "description": "Après une étape, son processus attend ce délai pour que l'étape suivante démarre aussitôt. 0 l'arrête immédiatement."
+      },
+      "worktrees": {
+        "label": "Worktrees séparés",
+        "description": "Quand deux agents travaillent en même temps dans le même dépôt git, chacun reçoit son propre worktree et sa propre branche. La fusion vous revient."
+      },
+      "safety": "Les agents de code s'exécutent avec leurs propres autorisations, dans le dossier que vous leur donnez. Exodus ne répond jamais à leurs questions et n'approuve jamais leurs actions à votre place."
+    },
+    "cli": {
+      "check": "Vérifier",
+      "notFound": "Introuvable sur ce Mac",
+      "state": {
+        "ready": "Prêt",
+        "notInstalled": "Non installé",
+        "broken": "Défectueux",
+        "tooOld": "Trop ancien",
+        "loggedOut": "Non connecté"
+      },
+      "hint": {
+        "install": "Installez-le, puis appuyez sur Vérifier.",
+        "reinstall": "Son lanceur est présent, mais le programme qu'il démarre est introuvable — réinstallez-le.",
+        "update": "Mettez-le à jour vers la dernière version, puis appuyez sur Vérifier.",
+        "login": "Lancez-le une fois dans Terminal et connectez-vous, puis appuyez sur Vérifier."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} vous attend"
+    }
   }
 }

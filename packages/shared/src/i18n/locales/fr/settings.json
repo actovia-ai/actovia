@@ -80,6 +80,9 @@
     "computerUse": {
       "title": "Utilisation de l'ordinateur"
     },
+    "agents": {
+      "title": "Agents"
+    },
     "dataControls": {
       "title": "Contrôles des données"
     },

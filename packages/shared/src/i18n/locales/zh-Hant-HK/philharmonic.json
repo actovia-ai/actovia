@@ -284,5 +284,50 @@
       "saveTeamFailed": "無法儲存此團隊",
       "deleteTeamFailed": "無法刪除此團隊"
     }
+  },
+  "agents": {
+    "settings": {
+      "intro": "編碼代理係由你安裝並已登入嘅 CLI 運行嘅 Philharmonic 員工。Exodus 會喺群組嘅資料夾啟動 CLI、顯示佢做緊啲乜，並喺佢每次發問時停低等你回應。",
+      "clisTitle": "喺呢部 Mac 上",
+      "runTitle": "運行方式",
+      "projectsDir": {
+        "label": "專案資料夾",
+        "description": "新專案會建立喺呢度，而每個專案嘅筆記同記錄都會保存喺呢度，即使工作係喺你開啟嘅資料夾入面進行。",
+        "choose": "選擇…"
+      },
+      "maxRunning": {
+        "label": "同時運行嘅代理數目",
+        "description": "其餘步驟會等候空位。每個代理都會用到你部機同你嘅方案。"
+      },
+      "keepAlive": {
+        "label": "保持代理待命（分鐘）",
+        "description": "一個步驟完成後，程序會等候呢段時間，等下一個步驟即時開始。0 代表立即停止。"
+      },
+      "worktrees": {
+        "label": "獨立 worktree",
+        "description": "當兩個代理同時喺同一個 git 儲存庫工作，各自會有自己嘅 worktree 同分支。合併由你決定。"
+      },
+      "safety": "編碼代理以自己嘅權限，喺你指定嘅資料夾運行。Exodus 絕不會代你回答佢哋嘅問題，或批准佢哋嘅操作。"
+    },
+    "cli": {
+      "check": "檢查",
+      "notFound": "喺呢部 Mac 搵唔到",
+      "state": {
+        "ready": "就緒",
+        "notInstalled": "未安裝",
+        "broken": "已損壞",
+        "tooOld": "版本太舊",
+        "loggedOut": "未登入"
+      },
+      "hint": {
+        "install": "安裝後按「檢查」。",
+        "reinstall": "啟動程式喺度，但佢要啟動嘅程式不見咗，請重新安裝。",
+        "update": "更新到最新版本後按「檢查」。",
+        "login": "喺「終端機」運行一次並登入，然後按「檢查」。"
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} 正等緊你"
+    }
   }
 }
