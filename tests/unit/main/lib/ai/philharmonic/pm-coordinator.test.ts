@@ -21,7 +21,7 @@ vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
 }))
 // Mock execution-engine to avoid transitive mcp/electron imports
 vi.mock('@main/lib/ai/philharmonic/execution-engine', () => ({
-  runDelegatedTask: vi.fn(async () => 'delegated result')
+  runDelegatedTask: vi.fn(async () => ({ output: 'delegated result' }))
 }))
 // Mock recruit to avoid transitive pi-ai/queries imports
 vi.mock('@main/lib/ai/philharmonic/recruit', () => ({
@@ -53,7 +53,13 @@ vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
   askUserRegistry: { wait: vi.fn(), has: vi.fn(), resolve: vi.fn() }
 }))
 const getActiveAgents = vi.fn(async () => [
-  { id: 'a1', name: 'Avery', description: 'Analyst', isActive: true }
+  {
+    id: 'a1',
+    name: 'Avery',
+    description: 'Analyst',
+    isActive: true,
+    runtime: 'exodus'
+  }
 ])
 const createConversationMessage = vi.fn(async (d) => ({ id: 'm', ...d }))
 const getMessagesByConversationId = vi.fn(async () => [])
@@ -61,6 +67,8 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getActiveAgents,
   createTask: vi.fn(async (d) => ({ id: 't1', ...d }))
 }))
+const updateAgentSession = vi.fn()
+vi.mock('@main/lib/db/agent-session-queries', () => ({ updateAgentSession }))
 vi.mock('@main/lib/db/team-queries', () => ({ getAllTeams: async () => [] }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
   createConversationMessage,
@@ -155,5 +163,59 @@ describe('runPmCoordinator — secrets outside Exodus', () => {
     await expect(
       call('read_file', { path: `${getGroupsDir()}/c1/.env` })
     ).resolves.toBe(undefined)
+  })
+})
+
+describe('runPmCoordinator — a Claude Code employee', () => {
+  it('is described to the PM as a coding agent, and its card is persisted with the message it binds its session to', async () => {
+    getActiveAgents.mockResolvedValueOnce([
+      {
+        id: 'cc',
+        name: 'Claude Code',
+        description: 'Builds things',
+        isActive: true,
+        runtime: 'claude-code'
+      }
+    ])
+    const { runDelegatedTask } =
+      await import('@main/lib/ai/philharmonic/execution-engine')
+    const card = { kind: 'agent_card', state: 'done' }
+    vi.mocked(runDelegatedTask).mockResolvedValueOnce({
+      output: '[Claude Code · done]',
+      parts: [card],
+      sessionId: 'sess-1'
+    })
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    createConversationMessage.mockClear()
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'build it',
+      emit: vi.fn()
+    }).catch(() => {})
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      description: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    const delegate = tools.find((t) => t.name === 'delegateTask')!
+    expect(delegate.description).toContain(
+      'Builds things [Coding agent — Claude Code'
+    )
+    expect(delegate.description).toContain(
+      'UNAVAILABLE: this group has no folder'
+    )
+    await delegate.execute('x', { employeeId: 'cc', instructions: 'go' })
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'employee',
+        content: '[Claude Code · done]',
+        parts: [card]
+      })
+    )
+    expect(updateAgentSession).toHaveBeenCalledWith('sess-1', {
+      messageId: 'm'
+    })
   })
 })

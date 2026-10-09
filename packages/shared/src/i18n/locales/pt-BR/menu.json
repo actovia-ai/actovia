@@ -16,7 +16,8 @@
   },
   "notification": {
     "philharmonicGroupError": "O grupo \"{{title}}\" encontrou um erro",
-    "philharmonicGroupFinished": "O grupo \"{{title}}\" foi concluído"
+    "philharmonicGroupFinished": "O grupo \"{{title}}\" foi concluído",
+    "agentWaiting": "{{name}} está esperando por você"
   },
   "attachment": {
     "saveImageAs": "Salvar imagem como…",

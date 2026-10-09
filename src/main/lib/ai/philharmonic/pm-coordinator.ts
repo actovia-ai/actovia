@@ -5,6 +5,7 @@ import type { Message } from '@earendil-works/pi-ai'
 import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
+import { updateAgentSession } from '../../db/agent-session-queries'
 import {
   addMemberToConversation,
   createConversationMessage,
@@ -258,7 +259,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       employees.map((e) => ({
         id: e.id,
         name: e.name,
-        description: e.description
+        description:
+          e.runtime === 'exodus'
+            ? e.description
+            : `${e.description ?? ''} [Coding agent — Claude Code on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
       })),
       async ({ employeeId, instructions, stepId }) => {
         // Bind to a plan step if provided. Mark running before kicking off
@@ -289,7 +293,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           retryCount: 0
         })
         try {
-          const output = await runDelegatedTask({
+          const { output, parts, sessionId } = await runDelegatedTask({
             taskId: childTask.id,
             agentId: employeeId,
             conversationId,
@@ -298,13 +302,17 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             signal
           })
           // Persist the employee's final output as a chat bubble.
-          await createConversationMessage({
+          const message = await createConversationMessage({
             conversationId,
             role: 'employee',
             agentId: employeeId,
             content: output,
+            parts: parts ?? null,
             taskId: childTask.id
           })
+          // A CLI session's later (unprompted) turns update this message's card.
+          if (sessionId)
+            await updateAgentSession(sessionId, { messageId: message.id })
           if (stepId) {
             // Step status moves to "done" only when the PM later calls
             // updatePlanStep — we don't auto-close, so the PM can choose
