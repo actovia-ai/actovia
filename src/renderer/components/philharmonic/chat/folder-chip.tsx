@@ -5,7 +5,7 @@ import {
   Tick02Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
 
@@ -35,6 +35,21 @@ import {
 const CHIP =
   'no-drag h-6 max-w-56 gap-1 rounded-full px-2.5 text-xs font-normal'
 
+type FolderState = Awaited<ReturnType<typeof getConversationProject>>
+
+/** Fetches a group's folder and applies it unless `alive()` says the chip moved on. */
+export async function loadFolder(
+  conversationId: string,
+  alive: () => boolean,
+  apply: (r: FolderState) => void
+) {
+  const r = await getConversationProject(conversationId)
+  if (alive()) apply(r)
+}
+
+const errorMessage = (err: unknown) =>
+  err instanceof Error ? err.message : String(err)
+
 /** The group's folder (spec §4): where its coding agents work. */
 export function FolderChip({ conversationId }: { conversationId: string }) {
   const { t } = useTranslation('philharmonic')
@@ -45,12 +60,60 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
   const [naming, setNaming] = useState(false)
   const [name, setName] = useState('')
 
-  const refresh = useCallback(async () => {
-    const r = await getConversationProject(conversationId)
-    setProject(r.project)
-    setBranch(r.branch)
-    setMissing(r.missing)
-  }, [conversationId])
+  const [open, setOpen] = useState(false)
+  // Set false on unmount: the chip is keyed by group, so a late answer for a
+  // group we left must not land.
+  const alive = useRef(true)
+  useEffect(() => {
+    alive.current = true
+    return () => {
+      alive.current = false
+    }
+  }, [])
+
+  const refresh = useCallback(
+    () =>
+      loadFolder(
+        conversationId,
+        () => alive.current,
+        (r) => {
+          setProject(r.project)
+          setBranch(r.branch)
+          setMissing(r.missing)
+        }
+      ),
+    [conversationId]
+  )
+
+  const onOpenChange = (next: boolean) => {
+    setOpen(next)
+    if (!next) {
+      setNaming(false)
+      setName('')
+      return
+    }
+    void listProjects()
+      .then((list) => alive.current && setRecent(list))
+      .catch((err) =>
+        sileo.error({
+          title: t('chat.folder.listFailed'),
+          description: errorMessage(err)
+        })
+      )
+  }
+
+  const toggleWorktrees = async (on: boolean) => {
+    if (!project) return
+    try {
+      const next = await setProjectWorktrees(project.id, on)
+      if (alive.current) setProject(next)
+    } catch (err) {
+      sileo.error({
+        title: t('chat.folder.failed'),
+        description: errorMessage(err)
+      })
+    }
+  }
 
   useEffect(() => {
     void refresh().catch(() => {})
@@ -63,7 +126,7 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
     } catch (err) {
       sileo.error({
         title: t('chat.folder.failed'),
-        description: err instanceof Error ? err.message : String(err)
+        description: errorMessage(err)
       })
     }
   }
@@ -76,7 +139,7 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
     } catch (err) {
       sileo.error({
         title: t('chat.folder.refused'),
-        description: err instanceof Error ? err.message : String(err)
+        description: errorMessage(err)
       })
     }
   }
@@ -84,30 +147,36 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
   const createNamed = async () => {
     const trimmed = name.trim()
     if (!trimmed) return
-    setNaming(false)
-    setName('')
     try {
-      await bind(await createProject(trimmed))
+      const created = await createProject(trimmed)
+      setOpen(false)
+      setNaming(false)
+      setName('')
+      await bind(created)
     } catch (err) {
       sileo.error({
         title: t('chat.folder.failed'),
-        description: err instanceof Error ? err.message : String(err)
+        description: errorMessage(err)
       })
     }
   }
 
   return (
     <div className="flex items-center gap-1.5">
-      <DropdownMenu
-        onOpenChange={(open) =>
-          open &&
-          void listProjects()
-            .then(setRecent)
-            .catch(() => {})
-        }
-      >
+      <DropdownMenu open={open} onOpenChange={onOpenChange}>
         <DropdownMenuTrigger
-          render={<Button variant="outline" size="xs" className={CHIP} />}
+          render={
+            <Button
+              variant="outline"
+              size="xs"
+              className={CHIP}
+              title={
+                project && missing
+                  ? t('chat.folder.missing', { name: project.name })
+                  : undefined
+              }
+            />
+          }
         >
           <HugeiconsIcon icon={Folder01Icon} className="size-3.5" />
           <span className={cn('truncate', missing && 'text-destructive')}>
@@ -188,9 +257,7 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
             <Switch
               size="sm"
               checked={project.useWorktrees}
-              onCheckedChange={async (on) =>
-                setProject(await setProjectWorktrees(project.id, on))
-              }
+              onCheckedChange={(on) => void toggleWorktrees(on)}
             />
           </label>
         </span>

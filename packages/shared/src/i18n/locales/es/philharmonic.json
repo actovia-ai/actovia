@@ -85,6 +85,7 @@
       "open": "Abrir carpeta…",
       "worktree": "Worktree",
       "failed": "No se pudo cambiar la carpeta",
+      "listFailed": "No se pudieron cargar los proyectos recientes",
       "refused": "Esta carpeta no se puede usar",
       "missing": "{{name}} — falta la carpeta; elígela de nuevo con Abrir carpeta…"
     },

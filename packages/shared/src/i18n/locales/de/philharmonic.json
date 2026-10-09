@@ -85,6 +85,7 @@
       "open": "Ordner öffnen…",
       "worktree": "Worktree",
       "failed": "Der Ordner konnte nicht geändert werden",
+      "listFailed": "Zuletzt verwendete Projekte konnten nicht geladen werden",
       "refused": "Dieser Ordner kann nicht verwendet werden",
       "missing": "{{name}} — Ordner fehlt; wähle ihn erneut mit „Ordner öffnen…“"
     },

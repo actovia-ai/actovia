@@ -3,6 +3,7 @@ import { join } from 'path'
 
 import type { CliStatus } from '@exodus/shared/types/agents'
 import i18n from 'i18next'
+import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { describe, expect, it } from 'vitest'
@@ -38,9 +39,11 @@ describe('CliRuntimeLabel', () => {
   })
   const render = (state: CliStatus['state']) =>
     renderToStaticMarkup(
-      <I18nextProvider i18n={instance}>
-        <CliRuntimeLabel cli={cli(state)} />
-      </I18nextProvider>
+      createElement(
+        I18nextProvider,
+        { i18n: instance },
+        createElement(CliRuntimeLabel, { cli: cli(state) })
+      )
     )
 
   it('says in words why a CLI is not ready', () => {

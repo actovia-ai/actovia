@@ -85,6 +85,7 @@
       "open": "Open folder…",
       "worktree": "Worktree",
       "failed": "Could not change the folder",
+      "listFailed": "Could not load recent projects",
       "refused": "This folder can't be used",
       "missing": "{{name}} — folder missing; choose it again with Open folder…"
     },

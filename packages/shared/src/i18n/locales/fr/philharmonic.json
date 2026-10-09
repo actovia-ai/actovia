@@ -85,6 +85,7 @@
       "open": "Ouvrir un dossier…",
       "worktree": "Worktree",
       "failed": "Impossible de changer le dossier",
+      "listFailed": "Impossible de charger les projets récents",
       "refused": "Ce dossier ne peut pas être utilisé",
       "missing": "{{name}} — dossier introuvable ; choisissez-le de nouveau avec Ouvrir un dossier…"
     },

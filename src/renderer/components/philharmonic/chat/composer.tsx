@@ -117,7 +117,7 @@ export function Composer({
 
   return (
     <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col gap-2">
-      <FolderChip conversationId={conversationId} />
+      <FolderChip key={conversationId} conversationId={conversationId} />
       <BorderBeam
         size={resolvedTheme === 'light' ? 'pulse-outside' : 'pulse-inner'}
         borderRadius={PILL_RADIUS}

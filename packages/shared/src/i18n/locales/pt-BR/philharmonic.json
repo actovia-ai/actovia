@@ -85,6 +85,7 @@
       "open": "Abrir pasta…",
       "worktree": "Worktree",
       "failed": "Não foi possível alterar a pasta",
+      "listFailed": "Não foi possível carregar os projetos recentes",
       "refused": "Esta pasta não pode ser usada",
       "missing": "{{name}} — pasta ausente; escolha-a novamente em Abrir pasta…"
     },
