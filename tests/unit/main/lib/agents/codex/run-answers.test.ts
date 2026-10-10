@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { blocked, next, prepareFake, start } from './fake'
+import { THREAD, blocked, next, prepareFake, rpcIdOf, start } from './fake'
 
 beforeAll(prepareFake)
 
@@ -16,7 +16,7 @@ describe('Codex run answers', () => {
     expect(run.respond(b.prompt.requestId, { kind: 'allow' })).toBe(false)
     await next(run, (e) => e.type === 'turn_end')
     expect(recorded()).toContainEqual({
-      id: Number(b.prompt.requestId),
+      id: rpcIdOf(b.prompt.requestId),
       result: { decision: 'accept' }
     })
     expect(run.cliSessionId).toBe('01a1245d-2907-72f3-9b06-3dc67f153940')
@@ -36,7 +36,7 @@ describe('Codex run answers', () => {
       { type: 'turn_end' }
     >
     expect(recorded()).toContainEqual({
-      id: Number(b.prompt.requestId),
+      id: rpcIdOf(b.prompt.requestId),
       result: { decision: 'decline' }
     })
     expect(end.denials).toBe(1)
@@ -65,7 +65,7 @@ describe('Codex run answers', () => {
       id: 901,
       method: 'item/tool/requestUserInput',
       params: {
-        threadId: 't',
+        threadId: THREAD,
         turnId: 'u',
         itemId: 'i',
         isBlocking: true,
@@ -101,12 +101,51 @@ describe('Codex run answers', () => {
     expect(readFileSync(logPath, 'utf8')).not.toMatch(/s3cret-value/u)
   })
 
+  it('sends each pick as its own answer', async () => {
+    const extra = JSON.stringify({
+      id: 903,
+      method: 'item/tool/requestUserInput',
+      params: {
+        threadId: THREAD,
+        turnId: 'u',
+        itemId: 'i',
+        isBlocking: true,
+        questions: [
+          {
+            id: 'env',
+            header: 'Env',
+            question: 'Where?',
+            isOther: true,
+            isSecret: false,
+            options: [{ label: 'staging', description: '' }]
+          }
+        ]
+      }
+    })
+    const { run, recorded } = start('allow-decline-interrupt.jsonl', {
+      FAKE_CODEX_EXTRA_REQUEST: extra
+    })
+    run.send('1')
+    const q = await blocked(run)
+    run.respond(q.prompt.requestId, {
+      kind: 'answers',
+      answers: { env: ['staging', 'my laptop, too'] }
+    })
+    run.respond((await blocked(run)).prompt.requestId, { kind: 'allow' })
+    await next(run, (e) => e.type === 'turn_end')
+    await run.stop()
+    expect(recorded()).toContainEqual({
+      id: 903,
+      result: { answers: { env: { answers: ['staging', 'my laptop, too'] } } }
+    })
+  })
+
   it('grants a permission request for this turn only, or nothing on Deny', async () => {
     const extra = JSON.stringify({
       id: 902,
       method: 'item/permissions/requestApproval',
       params: {
-        threadId: 't',
+        threadId: THREAD,
         turnId: 'u',
         itemId: 'i',
         environmentId: null,
@@ -160,7 +199,7 @@ describe('Codex run answers', () => {
     await answered
     await next(run, (e) => e.type === 'turn_end')
     expect(run.respond(b.prompt.requestId, { kind: 'allow' })).toBe(false)
-    expect(recorded().some((m) => m.id === Number(b.prompt.requestId))).toBe(
+    expect(recorded().some((m) => m.id === rpcIdOf(b.prompt.requestId))).toBe(
       false
     )
     await run.stop()

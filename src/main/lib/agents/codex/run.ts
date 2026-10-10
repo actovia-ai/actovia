@@ -1,4 +1,6 @@
 // src/main/lib/agents/codex/run.ts
+import { randomUUID } from 'crypto'
+
 import type { AgentAnswer, PermissionMode } from '@exodus/shared/types/agents'
 
 import type { AgentEvent, AgentRun, StartInput } from '../driver'
@@ -40,17 +42,44 @@ function reply(p: PendingRequest, answer: AgentAnswer): Json {
       questions
         .map((q) => (typeof q?.id === 'string' ? q.id : ''))
         .filter((id) => id && given[id] !== undefined)
-        .map((id) => [id, { answers: [given[id]] }])
+        .map((id) => [
+          id,
+          { answers: Array.isArray(given[id]) ? given[id] : [given[id]] }
+        ])
     )
   }
 }
+
+interface ThreadResponse {
+  thread?: { id?: unknown }
+  model?: unknown
+  approvalPolicy?: unknown
+  approvalsReviewer?: unknown
+  sandbox?: { type?: unknown; networkAccess?: unknown } | null
+}
+
+/** What Codex reports it will do that Exodus did not ask for, in its own words. */
+function overrides(r: ThreadResponse, approvalPolicy: string): string[] {
+  const out: string[] = []
+  if (r.approvalPolicy !== approvalPolicy)
+    out.push(`approval policy ${JSON.stringify(r.approvalPolicy ?? null)}`)
+  if (r.approvalsReviewer !== 'user')
+    out.push(
+      `approvals reviewer ${JSON.stringify(r.approvalsReviewer ?? null)}`
+    )
+  if (r.sandbox?.type !== 'workspaceWrite')
+    out.push(`sandbox ${JSON.stringify(r.sandbox?.type ?? null)}`)
+  else if (r.sandbox.networkAccess !== false) out.push('network access on')
+  return out
+}
+
 /** One `codex app-server` process (spec §3). Never throws: failures arrive as `exit`. */
 export function startCodex(input: StartInput): AgentRun {
   const listeners = new Set<(e: AgentEvent) => void>()
   const emit = (e: AgentEvent) => {
     for (const l of Array.from(listeners)) l(e)
   }
-  const parser = createCodexParser()
+  const parser = createCodexParser(randomUUID().slice(0, 8))
   const pending = new Map<string, PendingRequest>()
   const waiting = new Map<
     number,
@@ -174,10 +203,15 @@ export function startCodex(input: StartInput): AgentRun {
     )
   }
 
+  const approvalPolicy = CODEX_APPROVAL[input.permissionMode]
+  // Pinned whatever ~/.codex/config.toml says: approvals reach the owner, and
+  // the sandbox is what the modes' texts describe.
   const threadParams = {
     cwd: input.cwd,
-    approvalPolicy: CODEX_APPROVAL[input.permissionMode],
+    approvalPolicy,
+    approvalsReviewer: 'user',
     sandbox: 'workspace-write',
+    config: { 'sandbox_workspace_write.network_access': false },
     ...(input.model ? { model: input.model } : {})
   }
 
@@ -193,9 +227,20 @@ export function startCodex(input: StartInput): AgentRun {
         input.resume
           ? { threadId: input.resume, ...threadParams }
           : threadParams
-      )) as { thread?: { id?: unknown }; model?: unknown } | null
+      )) as ThreadResponse | null
       threadId = typeof r?.thread?.id === 'string' ? r.thread.id : null
       if (!threadId) throw new Error('Codex started no thread')
+      const overridden = overrides(r!, approvalPolicy)
+      if (overridden.length > 0) {
+        // A managed (enterprise) config wins over thread params: never run under it.
+        emit({
+          type: 'notice',
+          text: `Codex reported ${overridden.join(', ')} — not what Exodus asked for. A managed or enterprise Codex configuration overrides it, so Exodus won’t run this step.`
+        })
+        throw new Error(
+          `Codex overrode Exodus’ approval settings: ${overridden.join(', ')}`
+        )
+      }
       parser.setThread(
         threadId,
         typeof r?.model === 'string' ? r.model : (input.model ?? null)
@@ -241,6 +286,20 @@ export function startCodex(input: StartInput): AgentRun {
     },
     interrupt() {
       if (!busy || !proc.alive) return false
+      if (queue.length > 0) {
+        // Still starting: the task is dropped, never sent.
+        queue.length = 0
+        endTurn()
+        emit({
+          type: 'turn_end',
+          ok: false,
+          interrupted: true,
+          text: '',
+          costUsd: null,
+          denials: 0
+        })
+        return true
+      }
       if (!interruptedTurn) interruptWanted = true
       sendInterrupt()
       return true

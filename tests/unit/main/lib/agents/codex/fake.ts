@@ -8,6 +8,10 @@ import type { AgentEvent, AgentRun } from '@main/lib/agents/driver'
 
 const FIX = resolve(import.meta.dirname, '../../../../../fixtures/codex')
 const FAKE = join(FIX, 'fake-codex.mjs')
+/** The thread in the fixtures. */
+export const THREAD = '01a1245d-2907-72f3-9b06-3dc67f153940'
+/** The JSON-RPC id behind a prompt's `${nonce}:${rpcId}` request id. */
+export const rpcIdOf = (requestId: string) => Number(requestId.split(':')[1])
 export const prepareFake = () => chmodSync(FAKE, 0o755)
 
 export function start(

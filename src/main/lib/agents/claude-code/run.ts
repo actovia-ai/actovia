@@ -105,7 +105,16 @@ export function startClaudeCode(input: StartInput): AgentRun {
           : answer.kind === 'answers'
             ? {
                 behavior: 'allow',
-                updatedInput: { ...original, answers: answer.answers }
+                updatedInput: {
+                  ...original,
+                  // One string per question, picks joined as Claude Code asks.
+                  answers: Object.fromEntries(
+                    Object.entries(answer.answers).map(([k, v]) => [
+                      k,
+                      Array.isArray(v) ? v.join(', ') : v
+                    ])
+                  )
+                }
               }
             : { behavior: 'allow', updatedInput: original }
       if (

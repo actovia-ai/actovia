@@ -46,7 +46,10 @@ const AnswerSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('answers'),
     answers: z
-      .record(z.string().max(500), z.string().max(4000))
+      .record(
+        z.string().max(500),
+        z.union([z.string().max(4000), z.array(z.string().max(4000)).max(20)])
+      )
       .refine((a) => Object.keys(a).length <= 20, 'Too many answers')
   })
 ])

@@ -11,6 +11,7 @@ const str = (v: unknown): string | null => (typeof v === 'string' ? v : null)
 export type PendingKind = 'command' | 'fileChange' | 'permissions' | 'userInput'
 export interface PendingRequest {
   rpcId: number | string
+  /** `${nonce}:${rpcId}`: Codex numbers its requests from 0 in every process. */
   requestId: string
   kind: PendingKind
   params: Json
@@ -164,7 +165,19 @@ function questionsOf(params: Json): AgentQuestion[] {
   }))
 }
 
-export function createCodexParser(): CodexParser {
+/** What a request from another thread is told: the owner never saw it. */
+const DECLINED: Partial<Record<string, unknown>> = {
+  'item/commandExecution/requestApproval': { decision: 'decline' },
+  'item/fileChange/requestApproval': { decision: 'decline' },
+  'item/permissions/requestApproval': { permissions: {}, scope: 'turn' },
+  'item/tool/requestUserInput': { answers: {} }
+}
+
+/**
+ * `nonce` prefixes every request id, so an answer meant for another process
+ * (whose ids also start at 0) never matches one of this process's requests.
+ */
+export function createCodexParser(nonce: string): CodexParser {
   let threadId = ''
   let model: string | null = null
   const fileChanges = new Map<string, FileChange[]>()
@@ -173,13 +186,37 @@ export function createCodexParser(): CodexParser {
   const openSteps = new Set<string>()
 
   const notice = (text: string): AgentEvent => ({ type: 'notice', text })
+  /** Names a thread, and not this run's (none is known before `setThread`). */
+  const foreign = (params: Json) =>
+    threadId !== '' &&
+    typeof params.threadId === 'string' &&
+    params.threadId !== threadId
 
   function serverRequest(
     rpcId: number | string,
     method: string,
     params: Json
   ): ParsedMessage {
-    const requestId = String(rpcId)
+    const requestId = `${nonce}:${rpcId}`
+    if (foreign(params)) {
+      const refused = DECLINED[method]
+      return {
+        events: [
+          notice(
+            `Codex asked for “${method}” on another thread; Exodus declined it.`
+          )
+        ],
+        refusal: refused
+          ? { rpcId, result: refused }
+          : {
+              rpcId,
+              error: {
+                code: -32601,
+                message: `Exodus does not handle ${method} for another thread`
+              }
+            }
+      }
+    }
     switch (method) {
       case 'item/commandExecution/requestApproval':
         return {
@@ -306,6 +343,12 @@ export function createCodexParser(): CodexParser {
         }
       }
       if (id !== null && method) return serverRequest(id, method, params)
+      // Another thread's turn must never start, fill or end this run's.
+      if (
+        (method?.startsWith('turn/') || method?.startsWith('item/')) &&
+        foreign(params)
+      )
+        return { events: [] }
       const item = isObj(params.item) ? params.item : null
       switch (method) {
         case 'turn/started': {
@@ -389,7 +432,7 @@ export function createCodexParser(): CodexParser {
         case 'serverRequest/resolved': {
           const rid = params.requestId
           return typeof rid === 'number' || typeof rid === 'string'
-            ? { events: [], resolved: String(rid) }
+            ? { events: [], resolved: `${nonce}:${rid}` }
             : { events: [] }
         }
         case 'error':

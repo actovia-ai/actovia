@@ -16,7 +16,7 @@ const lines = (name: string) =>
   readFileSync(resolve(FIX, name), 'utf8').split('\n').filter(Boolean)
 
 function replay(name: string) {
-  const parser = createCodexParser()
+  const parser = createCodexParser('n')
   parser.setThread('01a1245d-2907-72f3-9b06-3dc67f153940', 'gpt-5.6-terra')
   const events: AgentEvent[] = []
   const pendings: unknown[] = []
@@ -76,7 +76,7 @@ describe('Codex protocol', () => {
     expect(pendings).toHaveLength(4)
     expect(pendings[0]).toMatchObject({
       kind: 'fileChange',
-      requestId: String((pendings[0] as { rpcId: number }).rpcId)
+      requestId: `n:${(pendings[0] as { rpcId: number }).rpcId}`
     })
   })
 
@@ -139,7 +139,7 @@ describe('Codex protocol', () => {
   })
 
   it('makes a question prompt from requestUserInput, keeping ids and flags', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const out = p.parse(
       JSON.stringify({
         id: 9,
@@ -165,7 +165,7 @@ describe('Codex protocol', () => {
     expect(out.pending).toMatchObject({
       kind: 'userInput',
       rpcId: 9,
-      requestId: '9'
+      requestId: 'n:9'
     })
     expect(out.events[0]).toMatchObject({
       type: 'blocked',
@@ -177,7 +177,7 @@ describe('Codex protocol', () => {
   })
 
   it('refuses an MCP elicitation and anything it does not model, with a notice', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const e = p.parse(
       JSON.stringify({
         id: 4,
@@ -198,7 +198,7 @@ describe('Codex protocol', () => {
   })
 
   it("passes responses to Exodus' own requests through, and ignores noise", () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     expect(
       p.parse(JSON.stringify({ id: 2, result: { thread: { id: 't' } } }))
         .response
@@ -211,7 +211,7 @@ describe('Codex protocol', () => {
   })
 
   it('shows stdin input as input, and a set environmentId', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const out = p.parse(
       JSON.stringify({
         id: 1,
@@ -247,7 +247,7 @@ describe('Codex protocol', () => {
   })
 
   it('shows the latest diff after patchUpdated, and forgets it when the item completes', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const ch = (d: string) => [
       { path: 'a.txt', kind: { type: 'update' }, diff: d }
     ]
@@ -279,7 +279,7 @@ describe('Codex protocol', () => {
   })
 
   it('treats a question without options as free text', () => {
-    const out = createCodexParser().parse(
+    const out = createCodexParser('n').parse(
       JSON.stringify({
         id: 1,
         method: 'item/tool/requestUserInput',
@@ -292,7 +292,7 @@ describe('Codex protocol', () => {
   })
 
   it('closes open steps at turn end and stays quiet on a retried error', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const send = (o: unknown) => p.parse(JSON.stringify(o))
     send({
       method: 'item/started',
@@ -311,18 +311,84 @@ describe('Codex protocol', () => {
   })
 
   it('says which request Codex resolved itself, as Exodus keys it', () => {
-    const p = createCodexParser()
+    const p = createCodexParser('n')
     const out = p.parse(
       JSON.stringify({
         method: 'serverRequest/resolved',
         params: { threadId: 't', requestId: 0 }
       })
     )
-    expect(out).toEqual({ events: [], resolved: '0' })
+    expect(out).toEqual({ events: [], resolved: 'n:0' })
     expect(
       p.parse(JSON.stringify({ method: 'serverRequest/resolved', params: {} }))
         .resolved
     ).toBeUndefined()
+  })
+
+  it('keys requests by the run’s nonce: another process’s request 0 is not this one’s', () => {
+    const request = JSON.stringify({
+      id: 0,
+      method: 'item/commandExecution/requestApproval',
+      params: { command: 'ls' }
+    })
+    expect(createCodexParser('a').parse(request).pending?.requestId).toBe('a:0')
+    expect(createCodexParser('b').parse(request).pending?.requestId).toBe('b:0')
+  })
+
+  it('ignores another thread’s turns and items, and declines its requests', () => {
+    const p = createCodexParser('n')
+    p.setThread('mine', null)
+    const parse = (m: object) => p.parse(JSON.stringify(m))
+    expect(
+      parse({
+        method: 'turn/started',
+        params: { threadId: 'other', turn: { id: 'x' } }
+      })
+    ).toEqual({ events: [] })
+    expect(
+      parse({
+        method: 'item/agentMessage/delta',
+        params: { threadId: 'other', delta: 'hi' }
+      })
+    ).toEqual({ events: [] })
+    expect(
+      parse({
+        method: 'turn/completed',
+        params: { threadId: 'other', turn: { id: 'x', status: 'completed' } }
+      })
+    ).toEqual({ events: [] })
+    // This run's own thread, and messages naming none, still count.
+    expect(
+      parse({
+        method: 'turn/completed',
+        params: { threadId: 'mine', turn: { id: 'y', status: 'completed' } }
+      }).events.at(-1)
+    ).toMatchObject({ type: 'turn_end', ok: true })
+    expect(
+      parse({ method: 'item/agentMessage/delta', params: { delta: 'hi' } })
+        .events
+    ).toEqual([{ type: 'text_delta', delta: 'hi' }])
+
+    const asked = parse({
+      id: 3,
+      method: 'item/commandExecution/requestApproval',
+      params: { threadId: 'other', command: 'rm -rf /' }
+    })
+    expect(asked.pending).toBeUndefined()
+    expect(asked.refusal).toEqual({ rpcId: 3, result: { decision: 'decline' } })
+    expect(asked.events).toEqual([
+      { type: 'notice', text: expect.stringMatching(/another thread/u) }
+    ])
+    expect(
+      parse({
+        id: 4,
+        method: 'item/permissions/requestApproval',
+        params: {
+          threadId: 'other',
+          permissions: { network: { enabled: true } }
+        }
+      }).refusal
+    ).toEqual({ rpcId: 4, result: { permissions: {}, scope: 'turn' } })
   })
 
   it('leaves no step open across the recorded interrupted turn', () => {

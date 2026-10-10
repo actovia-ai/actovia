@@ -81,7 +81,8 @@ export type AgentPrompt =
 export type AgentAnswer =
   | { kind: 'allow' }
   | { kind: 'deny'; reason?: string }
-  | { kind: 'answers'; answers: Record<string, string> }
+  /** Codex takes one answer per pick (a list); Claude Code one string per question. */
+  | { kind: 'answers'; answers: Record<string, string | string[]> }
 
 /** What an employee message shows for a CLI run; also its persisted `parts[0]`. */
 export interface AgentCard {

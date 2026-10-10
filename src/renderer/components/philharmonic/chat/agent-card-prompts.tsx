@@ -169,15 +169,18 @@ export function QuestionPrompt({
         : [label]
       return { ...p, [answerKey(q)]: next }
     })
+  const given = (q: AgentQuestion) =>
+    [...(picked[answerKey(q)] ?? []), other[answerKey(q)]?.trim()].filter(
+      (a): a is string => Boolean(a)
+    )
+  // Codex (questions with an id) takes each pick as its own answer.
   const answers = Object.fromEntries(
     prompt.questions.map((q) => [
       answerKey(q),
-      [...(picked[answerKey(q)] ?? []), other[answerKey(q)]?.trim()]
-        .filter(Boolean)
-        .join(', ')
+      q.id === undefined ? given(q).join(', ') : given(q)
     ])
   )
-  const complete = prompt.questions.every((q) => answers[answerKey(q)])
+  const complete = prompt.questions.every((q) => given(q).length > 0)
   const send = async () => {
     if (!(await answer({ kind: 'answers', answers }))) return
     // A secret lives in this component only, and not a moment past its send.

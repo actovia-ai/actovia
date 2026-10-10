@@ -48,6 +48,7 @@ let waitingFor = null
 let resume = null
 let interrupted = false
 let replying = 0
+let threadId = 't'
 /** Waits for the client's reply to server request `id`. */
 const replyTo = (id) => {
   waitingFor = id
@@ -58,11 +59,14 @@ const replyTo = (id) => {
 
 async function playTurn() {
   const turn = turns[played++] ?? []
+  const mine = played
   playing = true
   const turnId = turn[0]?.params?.turn?.id ?? `turn-${played}`
   for (const m of turn) {
     if (interrupted) break
     out(m)
+    if (m.method === 'turn/started' && process.env.FAKE_CODEX_EXTRA_NOTIFY)
+      out(JSON.parse(process.env.FAKE_CODEX_EXTRA_NOTIFY))
     if (m.method === 'turn/started' && process.env.FAKE_CODEX_EXTRA_REQUEST) {
       const extra = JSON.parse(process.env.FAKE_CODEX_EXTRA_REQUEST)
       out(extra)
@@ -75,13 +79,14 @@ async function playTurn() {
     out({
       method: 'turn/completed',
       params: {
-        threadId: 't',
+        threadId,
         turn: { id: turnId, status: 'interrupted', error: null }
       }
     })
     interrupted = false
   }
-  playing = false
+  // A turn started right after this one ended is still playing.
+  if (played === mine) playing = false
 }
 
 const isPlaying = () => playing
@@ -118,13 +123,33 @@ createInterface({ input: process.stdin })
               message: process.env.FAKE_CODEX_THREAD_ERROR
             }
           })
-        return out({
-          id: m.id,
-          result: responseTo(2) ?? {
+        {
+          const result = responseTo(2) ?? {
             thread: { id: 'fake-thread' },
             model: 'fake'
           }
-        })
+          threadId = result.thread.id
+          // Like the real server: what was asked holds, unless a managed
+          // config (FAKE_CODEX_THREAD_OVERRIDE) says otherwise.
+          const network =
+            m.params.config?.['sandbox_workspace_write.network_access'] ?? false
+          return out({
+            id: m.id,
+            result: {
+              ...result,
+              approvalPolicy: m.params.approvalPolicy,
+              approvalsReviewer: m.params.approvalsReviewer ?? 'user',
+              sandbox: {
+                type: 'workspaceWrite',
+                writableRoots: [],
+                networkAccess: network,
+                excludeTmpdirEnvVar: false,
+                excludeSlashTmp: false
+              },
+              ...JSON.parse(process.env.FAKE_CODEX_THREAD_OVERRIDE ?? '{}')
+            }
+          })
+        }
       case 'model/list':
         return out({
           id: m.id,
@@ -146,7 +171,7 @@ createInterface({ input: process.stdin })
         if (waitingFor !== null) {
           out({
             method: 'serverRequest/resolved',
-            params: { threadId: 't', requestId: waitingFor }
+            params: { threadId, requestId: waitingFor }
           })
           waitingFor = null
           resume?.()

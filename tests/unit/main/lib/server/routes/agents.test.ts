@@ -98,6 +98,17 @@ describe('agents routes', () => {
     expect(respond).toHaveBeenCalledWith('r1', { kind: 'deny', reason: 'no' })
   })
 
+  it('passes a Codex answer with several picks through as a list', async () => {
+    live = { respond: respond.mockReturnValue(true), interrupt }
+    const answer = { kind: 'answers', answers: { env: ['staging', 'prod'] } }
+    const res = await post('/sessions/s1/respond', {
+      requestId: 'n:0',
+      answer
+    })
+    expect(res.status).toBe(200)
+    expect(respond).toHaveBeenCalledWith('n:0', answer)
+  })
+
   it('409s when the prompt was already answered or the run moved on', async () => {
     live = { respond: respond.mockReturnValue(false), interrupt }
     expect(
