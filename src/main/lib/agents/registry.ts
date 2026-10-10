@@ -1,10 +1,13 @@
 // src/main/lib/agents/registry.ts
+import type { CliId } from '@exodus/shared/types/agents'
+
 import type { AgentRun } from './driver'
 import { agentSettings } from './settings'
 
 interface Entry {
   run: AgentRun
   sessionId: string
+  cli: CliId
   projectId: string
   /** The group whose step the process runs now (a session follows its latest step). */
   conversationId: string
@@ -103,11 +106,12 @@ export class AgentRegistry {
   attach(
     key: string,
     sessionId: string,
+    cli: CliId,
     projectId: string,
     conversationId: string,
     run: AgentRun
   ): void {
-    this.entries.set(key, { run, sessionId, projectId, conversationId })
+    this.entries.set(key, { run, sessionId, cli, projectId, conversationId })
     const off = run.on((e) => {
       if (e.type !== 'exit') return
       off()
@@ -128,6 +132,23 @@ export class AgentRegistry {
   live(key: string): AgentRun | undefined {
     const run = this.entries.get(key)?.run
     return run?.alive ? run : undefined
+  }
+
+  /**
+   * The live process under `key` if it runs `sessionId` with `cli`; one that
+   * runs another session or CLI (the employee was switched, its thread
+   * dropped) is stopped first and never reused.
+   */
+  async liveFor(
+    key: string,
+    sessionId: string,
+    cli: CliId
+  ): Promise<AgentRun | undefined> {
+    const entry = this.entries.get(key)
+    if (!entry?.run.alive) return undefined
+    if (entry.sessionId === sessionId && entry.cli === cli) return entry.run
+    await entry.run.stop()
+    return undefined
   }
 
   bySession(sessionId: string): AgentRun | undefined {

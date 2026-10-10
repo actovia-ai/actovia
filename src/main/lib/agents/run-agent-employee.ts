@@ -217,6 +217,10 @@ export async function runAgentEmployee(
     let lastEmit = 0
     /** Set once the step resolved: later (unprompted) turns update the persisted message. */
     let stepDone = false
+    /** This step started the process, and its first turn began. */
+    let startedHere = false
+    let began = false
+    let forgetThread = false
 
     const flush = () => {
       if (timer) clearTimeout(timer)
@@ -244,9 +248,8 @@ export async function runAgentEmployee(
       // The session row first: its id names the worktree and the log. It
       // points at this step's message from now on (stale cards, Terminal).
       const found = await findResumableSession(project.id, agent.id)
-      // Another CLI's session (the employee was switched) is neither resumed nor reused.
+      // Another CLI's session (the employee was switched) is not resumed.
       const previous = found?.runtime === cli ? found : undefined
-      if (found && !previous) await deps.registry.stopSession(found.id)
       const session = previous
         ? await updateAgentSession(previous.id, {
             state: 'working',
@@ -303,13 +306,14 @@ export async function runAgentEmployee(
       card = { ...card, queued: false }
       flush()
 
-      let run = deps.registry.live(key)
+      let run = await deps.registry.liveFor(key, session.id, cli)
       if (run?.busy) {
         // Its unprompted turn's end must not answer this step; if it exits, start afresh.
         await turnSettled(run, signal)
         run = deps.registry.live(key)
       }
       if (!run) {
+        startedHere = true
         await assertMetaDir(project, 'logs')
         run = deps.start(cli, {
           binPath,
@@ -321,7 +325,14 @@ export async function runAgentEmployee(
           resume: previous?.cliSessionId ?? null,
           logPath: sessionLogPath(project, session.id)
         })
-        deps.registry.attach(key, session.id, project.id, conversationId, run)
+        deps.registry.attach(
+          key,
+          session.id,
+          cli,
+          project.id,
+          conversationId,
+          run
+        )
       } else deps.registry.bindConversation(key, conversationId)
 
       const liveRun = run
@@ -348,6 +359,7 @@ export async function runAgentEmployee(
           }
           switch (e.type) {
             case 'init':
+              began = true
               void setSession(project, session.id, {
                 cliSessionId: e.cliSessionId
               })
@@ -384,6 +396,9 @@ export async function runAgentEmployee(
               resolve()
               break
             case 'exit':
+              // It never got as far as a turn (a refused resume, a failed
+              // start): the next step starts a fresh thread (spec §7).
+              if (startedHere && !began && !e.expected) forgetThread = true
               flush()
               off()
               reject(new Error(card!.error ?? `${name} stopped`))
@@ -423,7 +438,10 @@ export async function runAgentEmployee(
           card = { ...card, state, queued: false }
           flush()
         }
-        await setSession(project, sessionId, { state })
+        await setSession(project, sessionId, {
+          state,
+          ...(forgetThread ? { cliSessionId: null } : {})
+        })
       }
       // What the PM reads, also in the row its history is built from.
       if (saved && card && sessionId)

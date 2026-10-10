@@ -54,7 +54,11 @@ vi.mock('@main/lib/db/project-queries', () => ({
   })
 }))
 vi.mock('@main/lib/db/agent-session-queries', () => ({
-  findResumableSession: async () => resumable,
+  // Like the query: a row whose CLI session id was cleared is not resumed.
+  findResumableSession: async () => {
+    const row = resumable && sessions.get(resumable.id as string)
+    return row?.cliSessionId === null ? undefined : resumable
+  },
   createAgentSession: async (d: Record<string, unknown>) => {
     const row = { ...d, id: d.id ?? `sess-${++sessionSeq}` }
     sessions.set(row.id as string, row)
@@ -397,8 +401,80 @@ describe('runAgentEmployee', () => {
     await expect(runAgentEmployee(args({ emit }), deps(run))).rejects.toThrow(
       'boom'
     )
-    expect([...sessions.values()][0]).toMatchObject({ state: 'error' })
+    // A thread that ran a turn is kept: the next step resumes it.
+    expect([...sessions.values()][0]).toMatchObject({
+      state: 'error',
+      cliSessionId: 'cli-1'
+    })
     expect(emit.mock.calls.at(-1)?.[0].type).toBe('message_end')
+  })
+
+  it('a resume refused before any turn forgets the thread: the next step starts fresh', async () => {
+    for (const runtime of ['claude-code', 'codex'] as const) {
+      sessions.clear()
+      resumable = {
+        id: 'sess-old',
+        runtime,
+        cliSessionId: 'thread-gone',
+        cwd: '/x/notes',
+        branch: 'main'
+      }
+      sessions.set('sess-old', { ...resumable })
+      const dead = makeRun((r) => {
+        r.alive = false
+        r.fire({
+          type: 'exit',
+          code: 1,
+          stderrTail: 'no rollout found for thread id thread-gone',
+          expected: false
+        })
+      })
+      const starts: StartInput[] = []
+      const employee = { ...(agent as object), runtime } as never
+      await expect(
+        runAgentEmployee(args({ agent: employee }), deps(dead, starts))
+      ).rejects.toThrow(/no rollout/u)
+      expect(starts[0].resume).toBe('thread-gone')
+      expect(sessions.get('sess-old')).toMatchObject({
+        state: 'error',
+        cliSessionId: null
+      })
+
+      await runAgentEmployee(
+        args({ agent: employee }),
+        deps(makeRun(happy), starts)
+      )
+      expect(starts[1].resume).toBeNull()
+    }
+  })
+
+  it('a live process of another session is stopped, never given the step', async () => {
+    resumable = {
+      id: 'sess-old',
+      runtime: 'claude-code',
+      cliSessionId: 'cli-old',
+      cwd: '/x/notes',
+      branch: 'main'
+    }
+    sessions.set('sess-old', { ...resumable })
+    const stale = makeRun(happy)
+    const fresh = makeRun(happy)
+    const starts: StartInput[] = []
+    const d = deps(fresh, starts)
+    d.registry.attach(
+      'p1:a1',
+      'sess-other',
+      'claude-code',
+      'p1',
+      'c',
+      stale as never
+    )
+    await runAgentEmployee(args(), d)
+    expect(stale.alive).toBe(false)
+    expect(stale.sent).toEqual([])
+    expect(starts).toHaveLength(1)
+    expect(starts[0].resume).toBe('cli-old')
+    expect(fresh.sent).toHaveLength(1)
   })
 
   it('keeps the persisted card current through an unprompted turn after the step', async () => {
@@ -700,7 +776,14 @@ describe('runAgentEmployee', () => {
         return codex as unknown as AgentRun
       }
     }
-    d.registry.attach('p1:a1', 'sess-old', 'p1', 'c', claude as never)
+    d.registry.attach(
+      'p1:a1',
+      'sess-old',
+      'claude-code',
+      'p1',
+      'c',
+      claude as never
+    )
     await runAgentEmployee(
       args({ agent: { ...(agent as object), runtime: 'codex' } }),
       d
