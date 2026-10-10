@@ -1,4 +1,5 @@
 // tests/unit/main/lib/agents/run-agent-employee.test.ts
+import type { CliId } from '@exodus/shared/types/agents'
 import type { AgentEvent, AgentRun, StartInput } from '@main/lib/agents/driver'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -154,7 +155,7 @@ const agent = {
   permissionMode: null,
   runtime: 'claude-code'
 } as never
-const ready = async () =>
+const ready = async (_cli: CliId) =>
   ({
     id: 'claude-code',
     state: 'ready',
@@ -167,7 +168,7 @@ const ready = async () =>
 
 function deps(run: ReturnType<typeof makeRun>, starts: StartInput[] = []) {
   return {
-    start: (input: StartInput) => {
+    start: (_cli: CliId, input: StartInput) => {
       starts.push(input)
       return run as unknown as AgentRun
     },
@@ -235,7 +236,7 @@ describe('runAgentEmployee', () => {
   it('refuses when Claude Code is not ready, with its state', async () => {
     const d = {
       ...deps(makeRun(happy)),
-      cliStatus: async () =>
+      cliStatus: async (_cli: CliId) =>
         ({ state: 'logged_out', detail: 'run claude' }) as never
     }
     await expect(runAgentEmployee(args(), d)).rejects.toThrow(/logged_out/)
@@ -487,7 +488,7 @@ describe('runAgentEmployee', () => {
     const starts: StartInput[] = []
     const d = {
       ...deps(runs[0]),
-      start: (input: StartInput) => {
+      start: (_cli: CliId, input: StartInput) => {
         starts.push(input)
         return runs[starts.length - 1] as unknown as AgentRun
       }
@@ -594,7 +595,7 @@ describe('runAgentEmployee', () => {
     const d = deps(makeRun(happy))
     const starts: StartInput[] = []
     const runs = [makeRun(happy), makeRun(happy)]
-    d.start = (input: StartInput) => {
+    d.start = (_cli: CliId, input: StartInput) => {
       starts.push(input)
       return runs[starts.length - 1] as unknown as AgentRun
     }
@@ -629,6 +630,7 @@ describe('runAgentEmployee', () => {
 
   it('formats what the PM reads', () => {
     const card = {
+      runtime: 'claude-code',
       state: 'done',
       blocks: ['Done.'],
       pending: '',
@@ -638,5 +640,43 @@ describe('runAgentEmployee', () => {
     expect(formatAgentOutput(card, 's')).toBe(
       '[Claude Code · done]\nDone.\nThe owner denied 2 requests.\nSession: s'
     )
+  })
+
+  it('runs a Codex employee through Codex: its driver, its check, its name', async () => {
+    const run = makeRun(happy)
+    const clis: CliId[] = []
+    const checked: CliId[] = []
+    const d = {
+      ...deps(run),
+      start: (cli: CliId) => {
+        clis.push(cli)
+        return run as unknown as AgentRun
+      },
+      cliStatus: async (cli: CliId) => {
+        checked.push(cli)
+        return { ...(await ready(cli)), id: cli, path: '/bin/codex' }
+      }
+    }
+    const out = await runAgentEmployee(
+      args({ agent: { ...(agent as object), runtime: 'codex' } }),
+      d
+    )
+    expect(clis).toEqual(['codex'])
+    expect(checked).toEqual(['codex'])
+    const card = createMessage.mock.calls[0][0].parts as Array<
+      Record<string, unknown>
+    >
+    expect(card[0].runtime).toBe('codex')
+    expect([...sessions.values()][0].runtime).toBe('codex')
+    expect(out.output.startsWith('[Codex · done]')).toBe(true)
+  })
+
+  it('refuses an employee whose runtime is no CLI', async () => {
+    await expect(
+      runAgentEmployee(
+        args({ agent: { ...(agent as object), runtime: 'exodus' } }),
+        deps(makeRun(happy))
+      )
+    ).rejects.toThrow(/not a coding-agent CLI/)
   })
 })

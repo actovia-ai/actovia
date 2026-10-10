@@ -1,4 +1,4 @@
-import type { AgentCard } from '@exodus/shared/types/agents'
+import { type AgentCard, CLI_NAMES } from '@exodus/shared/types/agents'
 
 import type { AgentEvent } from './driver'
 
@@ -116,7 +116,8 @@ export function applyAgentEvent(card: AgentCard, e: AgentEvent): AgentCard {
         state: e.expected ? 'stopped' : 'error',
         error: e.expected
           ? null
-          : e.stderrTail || `Claude Code exited (code ${e.code ?? '?'}).`
+          : e.stderrTail ||
+            `${CLI_NAMES[card.runtime]} exited (code ${e.code ?? '?'}).`
       }
   }
 }

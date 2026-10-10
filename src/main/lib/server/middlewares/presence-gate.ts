@@ -20,10 +20,10 @@ export function needsPresence(path: string): boolean {
 }
 
 /**
- * Claude Code employees: answering a permission prompt, interrupting,
- * Continue in Terminal, folder changes, a CLI check — everything but a read
- * stands for the owner in person (a `curl` from the CLI's own Bash tool could
- * otherwise approve its own prompt). The renderer sends `presenceHeaders()`.
+ * CLI employees (Claude Code, Codex): answering a permission prompt,
+ * interrupting, Continue in Terminal, folder changes, a CLI check — everything
+ * but a read stands for the owner in person (a `curl` from the CLI's own shell
+ * tool could otherwise approve its own prompt). The renderer sends `presenceHeaders()`.
  */
 const WRITE_PREFIXES = [
   '/api/v1/agents',

@@ -263,7 +263,7 @@ app.on('will-quit', (event) => {
   // loop alive. Race the close against a timeout, then force-exit
   // unconditionally so the process is *guaranteed* to terminate.
   let timedOut = false
-  // Claude Code processes go down first (Exodus' own children must not
+  // CLI employees' processes go down first (Exodus' own children must not
   // outlive it), under their own budget, so PGlite keeps its full window.
   const agentsDown = (async () => {
     // The whole shutdown shares one budget: a hung DB write cannot hold quit.

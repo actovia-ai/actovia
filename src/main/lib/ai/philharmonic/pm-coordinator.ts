@@ -2,9 +2,11 @@
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'
+import { CLI_NAMES } from '@exodus/shared/types/agents'
 import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
+import { cliOf } from '../../agents/drivers'
 import {
   addMemberToConversation,
   createConversationMessage,
@@ -150,7 +152,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     description:
       e.runtime === 'exodus'
         ? e.description
-        : `${e.description ?? ''} [Coding agent — Claude Code on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
+        : `${e.description ?? ''} [Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
   }))
   const teamNameById = new Map(allTeams.map((t) => [t.id, t.name]))
 

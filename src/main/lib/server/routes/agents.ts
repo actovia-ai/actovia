@@ -6,6 +6,7 @@ import {
 } from '@exodus/shared'
 import {
   CLI_IDS,
+  CLI_NAMES,
   type AgentCard,
   type CliId
 } from '@exodus/shared/types/agents'
@@ -15,6 +16,7 @@ import { z } from 'zod'
 
 import { getCliStatus } from '../../agents/cli-check'
 import { ensureDefaultCliEmployees } from '../../agents/default-employees'
+import { DRIVERS, isCliId } from '../../agents/drivers'
 import { resetLoginShellEnv } from '../../agents/login-shell'
 import { agentRegistry } from '../../agents/registry'
 import {
@@ -97,19 +99,25 @@ router.post('/sessions/:id/terminal', desktopOnly, async (c) => {
   )
   const session = await getAgentSession(id)
   if (!session?.cliSessionId) throw new NotFoundError()
+  if (!isCliId(session.runtime))
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'This session has no coding-agent CLI'
+    )
+  const cli = session.runtime
   // Only the session's current card, and never while it works: taking the
   // session over would stop a newer step the owner did not mean to stop.
   if (agentRegistry.bySession(id)?.busy || session.messageId !== messageId)
     throw new ConflictError(
       ErrorCode.AGENT_NOT_RUNNING,
-      'Claude Code is working on a newer step; wait for it to finish.'
+      `${CLI_NAMES[cli]} is working on a newer step; wait for it to finish.`
     )
   if (!isCliSessionId(session.cliSessionId))
     throw new ValidationError(
       ErrorCode.VALIDATION_FAILED,
-      'Invalid Claude Code session'
+      `Invalid ${CLI_NAMES[cli]} session`
     )
-  const status = await getCliStatus('claude-code')
+  const status = await getCliStatus(cli)
   if (!status.path) throw new ConflictError(ErrorCode.AGENT_NOT_RUNNING)
   // Never two drivers on one session: Exodus lets go first — and only then is
   // the script written, in Exodus' own data where no agent can edit it.
@@ -117,7 +125,7 @@ router.post('/sessions/:id/terminal', desktopOnly, async (c) => {
   const scriptPath = await writeResumeScript(
     session.cwd,
     status.path,
-    session.cliSessionId
+    DRIVERS[cli].resumeArgs(session.cliSessionId)
   )
   await openInTerminal(scriptPath)
   await updateAgentSession(session.id, { continuedInTerminal: true })

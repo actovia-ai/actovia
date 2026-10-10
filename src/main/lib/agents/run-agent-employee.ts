@@ -1,6 +1,7 @@
 // src/main/lib/agents/run-agent-employee.ts
 import type {
   AgentCard,
+  CliId,
   CliStatus,
   PermissionMode
 } from '@exodus/shared/types/agents'
@@ -27,9 +28,9 @@ import { logger } from '../logger'
 import { notifyIfBackground } from '../philharmonic-notifications'
 import { emitToConversation } from '../server/routes/philharmonic-sse'
 import { applyAgentEvent, cardText, newCard, touchedFiles } from './card'
-import { startClaudeCode } from './claude-code/run'
 import { getCliStatus } from './cli-check'
 import type { AgentRun, StartInput } from './driver'
+import { DRIVERS, cliOf } from './drivers'
 import { loginShellEnv } from './login-shell'
 import { assertMetaDir } from './meta-files'
 import { prepareWorkDir, sessionLogPath, writeSessionMeta } from './projects'
@@ -52,16 +53,16 @@ export interface RunAgentEmployeeArgs {
 }
 
 export interface RunAgentEmployeeDeps {
-  start(input: StartInput): AgentRun
+  start(cli: CliId, input: StartInput): AgentRun
   registry: AgentRegistry
-  cliStatus(): Promise<CliStatus>
+  cliStatus(cli: CliId): Promise<CliStatus>
   env(): Promise<Record<string, string>>
 }
 
 const defaultDeps: RunAgentEmployeeDeps = {
-  start: startClaudeCode,
+  start: (cli, input) => DRIVERS[cli].start(input),
   registry: agentRegistry,
-  cliStatus: () => getCliStatus('claude-code'),
+  cliStatus: (cli) => getCliStatus(cli),
   env: loginShellEnv
 }
 
@@ -72,7 +73,7 @@ const stepOwner = new WeakMap<AgentRun, object>()
 
 export function formatAgentOutput(card: AgentCard, sessionId: string): string {
   const lines = [
-    `[${CLI_NAMES['claude-code']} · ${card.state}]`,
+    `[${CLI_NAMES[card.runtime]} · ${card.state}]`,
     cardText(card) || '(no reply)'
   ]
   const files = touchedFiles(card)
@@ -173,18 +174,20 @@ export async function runAgentEmployee(
   deps: RunAgentEmployeeDeps = defaultDeps
 ): Promise<DelegatedOutput> {
   const { agent, instructions, taskId, conversationId, emit, signal } = args
+  const cli = cliOf(agent.runtime)
+  const name = CLI_NAMES[cli]
   const conversation = await getConversationById(conversationId)
   const project = conversation?.projectId
     ? await getProjectById(conversation.projectId)
     : undefined
   if (!project)
     throw new Error(
-      'This group has no folder. Choose one in the composer before giving Claude Code a step.'
+      `This group has no folder. Choose one in the composer before giving ${name} a step.`
     )
-  const status = await deps.cliStatus()
+  const status = await deps.cliStatus(cli)
   if (status.state !== 'ready' || !status.path) {
     throw new Error(
-      `Claude Code is not ready (${status.state}): ${status.detail ?? ''}`.trim()
+      `${name} is not ready (${status.state}): ${status.detail ?? ''}`.trim()
     )
   }
   const binPath = status.path
@@ -259,7 +262,7 @@ export async function runAgentEmployee(
               agentId: agent.id,
               conversationId,
               messageId,
-              runtime: 'claude-code',
+              runtime: cli,
               cwd: w.cwd,
               branch: w.branch,
               state: 'working'
@@ -271,7 +274,7 @@ export async function runAgentEmployee(
         ...newCard({
           sessionId: session.id,
           agentId: agent.id,
-          runtime: 'claude-code',
+          runtime: cli,
           model: agent.model ?? null,
           projectName: project.name,
           cwd: session.cwd,
@@ -305,7 +308,7 @@ export async function runAgentEmployee(
       }
       if (!run) {
         await assertMetaDir(project, 'logs')
-        run = deps.start({
+        run = deps.start(cli, {
           binPath,
           cwd: session.cwd,
           env: await deps.env(),
@@ -380,7 +383,7 @@ export async function runAgentEmployee(
             case 'exit':
               flush()
               off()
-              reject(new Error(card!.error ?? 'Claude Code stopped'))
+              reject(new Error(card!.error ?? `${name} stopped`))
               break
             default:
               throttled()
@@ -391,7 +394,7 @@ export async function runAgentEmployee(
       const onAbort = () => liveRun.interrupt()
       signal?.addEventListener('abort', onAbort, { once: true })
       try {
-        if (!liveRun.send(prompt)) throw new Error('Claude Code is not running')
+        if (!liveRun.send(prompt)) throw new Error(`${name} is not running`)
         // An abort between the slot and the listener above would be missed.
         if (signal?.aborted) onAbort()
         await result

@@ -20,23 +20,29 @@ vi.mock('@main/lib/agents/registry', () => ({
     stopSession: (id: string) => stopSession(id)
   }
 }))
+const getCliStatus = vi.fn(async (id: string) => ({
+  id,
+  state: 'ready',
+  path: id === 'codex' ? '/bin/codex' : '/bin/claude'
+}))
 vi.mock('@main/lib/agents/cli-check', () => ({
-  getCliStatus: vi.fn(async () => ({
-    id: 'claude-code',
-    state: 'ready',
-    path: '/bin/claude'
-  }))
+  getCliStatus: (id: string) => getCliStatus(id)
 }))
 vi.mock('@main/lib/agents/login-shell', () => ({ resetLoginShellEnv: vi.fn() }))
 const openInTerminal = vi.fn(async (_path: string) => {})
-const writeResumeScript = vi.fn(async () => '/data/run/terminal/x.sh')
+const writeResumeScript = vi.fn(
+  async (_cwd: string, _bin: string, _args: string[]) =>
+    '/data/run/terminal/x.sh'
+)
 const stopSession = vi.fn(async (_id: string) => {})
 vi.mock('@main/lib/agents/terminal', async (importActual) => ({
   ...(await importActual<typeof import('@main/lib/agents/terminal')>()),
   openInTerminal: (p: string) => openInTerminal(p),
-  writeResumeScript: () => writeResumeScript()
+  writeResumeScript: (cwd: string, bin: string, args: string[]) =>
+    writeResumeScript(cwd, bin, args)
 }))
 let cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
+let runtime = 'claude-code'
 /** The session's current step's message. */
 const CURRENT = '9b1c2d3e-aaaa-4bbb-8ccc-ddddeeeeffff'
 const OLDER = '1a1a1a1a-aaaa-4bbb-8ccc-ddddeeeeffff'
@@ -51,6 +57,7 @@ vi.mock('@main/lib/db/agent-session-queries', () => ({
   getAgentSession: async () => ({
     id: 's1',
     cwd: '/p',
+    runtime,
     cliSessionId,
     projectId: 'p',
     conversationId: 'c',
@@ -165,8 +172,41 @@ describe('agents routes', () => {
     const res = await post('/sessions/s1/terminal', { messageId: CURRENT })
     expect(res.status).toBe(200)
     expect(order).toEqual(['stop', 'write'])
+    expect(writeResumeScript).toHaveBeenLastCalledWith('/p', '/bin/claude', [
+      '--resume',
+      '3f2a9c1e-1111-4222-8333-444455556666'
+    ])
     expect(stopSession).toHaveBeenCalledWith('s1')
     expect(openInTerminal).toHaveBeenCalledWith('/data/run/terminal/x.sh')
+  })
+
+  it('Continue in Terminal resumes a Codex session with Codex', async () => {
+    runtime = 'codex'
+    cliSessionId = '01a1245d-2907-72f3-9b06-3dc67f153940'
+    live = undefined
+    getCliStatus.mockClear()
+    writeResumeScript.mockClear()
+    const res = await post('/sessions/s1/terminal', { messageId: CURRENT })
+    expect(res.status).toBe(200)
+    expect(getCliStatus).toHaveBeenCalledWith('codex')
+    expect(writeResumeScript).toHaveBeenCalledWith('/p', '/bin/codex', [
+      'resume',
+      '01a1245d-2907-72f3-9b06-3dc67f153940'
+    ])
+    runtime = 'claude-code'
+    cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
+  })
+
+  it('Continue in Terminal refuses a session no CLI runs, writing nothing', async () => {
+    runtime = 'exodus'
+    stopSession.mockClear()
+    writeResumeScript.mockClear()
+    expect(
+      (await post('/sessions/s1/terminal', { messageId: CURRENT })).status
+    ).toBe(400)
+    expect(stopSession).not.toHaveBeenCalled()
+    expect(writeResumeScript).not.toHaveBeenCalled()
+    runtime = 'claude-code'
   })
 
   it('refuses a session id that is not shaped like one', async () => {

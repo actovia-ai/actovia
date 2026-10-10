@@ -1,11 +1,14 @@
 // src/main/lib/agents/cli-check.ts
 import { execFile } from 'child_process'
-import { access, constants } from 'fs/promises'
+import { randomUUID } from 'crypto'
+import { access, constants, unlink } from 'fs/promises'
+import { tmpdir } from 'os'
 import { join } from 'path'
 
 import type { CliId, CliStatus } from '@exodus/shared/types/agents'
 
 import { loginShellEnv } from './login-shell'
+import { superviseProcess } from './process'
 import { agentSettings } from './settings'
 
 export const CLI_BINARY: Record<CliId, string> = {
@@ -26,6 +29,12 @@ export interface CheckDeps {
     args: string[],
     env: Record<string, string>
   ): Promise<{ code: number; stdout: string; stderr: string }>
+  /** The CLI's models, asked without spending quota; null when unknown. */
+  listModels(
+    id: CliId,
+    path: string,
+    env: Record<string, string>
+  ): Promise<string[] | null>
 }
 
 export function compareVersions(a: string, b: string): number {
@@ -57,6 +66,89 @@ export async function findOnPath(
 const tail = (s: string, n = 600) =>
   (s.length > n ? '…' + s.slice(-n) : s).trim()
 
+/** `codex login status`: "Logged in using ChatGPT" (exit 0), "Not logged in" (exit 1). */
+export function parseCodexLoginStatus(
+  code: number,
+  out: string
+): { loggedIn: boolean; authMethod: string | null } {
+  const loggedIn = code === 0 && /Logged in/u.test(out)
+  const method = out.match(/Logged in using (.+)/u)?.[1]?.trim()
+  return { loggedIn, authMethod: loggedIn ? method || null : null }
+}
+
+const MODEL_LIST_TIMEOUT_MS = 10_000
+
+/**
+ * Codex' models, from a short-lived `codex app-server` (`model/list` spends no
+ * quota) run outside any project folder. The process always ends: on the
+ * answer, a failure or the timeout; any of the latter two gives null.
+ */
+export function listCodexModels(
+  path: string,
+  env: Record<string, string>,
+  timeoutMs = MODEL_LIST_TIMEOUT_MS
+): Promise<string[] | null> {
+  const logPath = join(tmpdir(), `exodus-codex-models-${randomUUID()}.log`)
+  return new Promise((resolve) => {
+    let settled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const finish = (models: string[] | null) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      void proc.stop().then(() => unlink(logPath).catch(() => {}))
+      resolve(models)
+    }
+    const proc = superviseProcess({
+      binPath: path,
+      args: ['app-server'],
+      cwd: tmpdir(),
+      env,
+      logPath,
+      onLine(line) {
+        let m: { id?: unknown; result?: unknown; error?: unknown }
+        try {
+          m = JSON.parse(line)
+        } catch {
+          return
+        }
+        if (m?.id === 1) {
+          if (m.error) return finish(null)
+          proc.write({ method: 'initialized' })
+          proc.write({ id: 2, method: 'model/list', params: {} })
+        } else if (m?.id === 2) {
+          const data = (m.result as { data?: unknown } | undefined)?.data
+          if (m.error || !Array.isArray(data)) return finish(null)
+          finish(
+            (data as Array<Record<string, unknown>>)
+              .filter((e) => e && e.hidden !== true)
+              .map((e) =>
+                typeof e.model === 'string'
+                  ? e.model
+                  : typeof e.id === 'string'
+                    ? e.id
+                    : ''
+              )
+              .filter(Boolean)
+          )
+        }
+      },
+      onExit() {
+        finish(null)
+      }
+    })
+    timer = setTimeout(() => finish(null), timeoutMs)
+    proc.write({
+      id: 1,
+      method: 'initialize',
+      params: {
+        clientInfo: { name: 'exodus', title: 'Exodus', version: '1' },
+        capabilities: null
+      }
+    })
+  })
+}
+
 const defaultDeps: CheckDeps = {
   env: loginShellEnv,
   overridePath: async (id) => (await agentSettings()).cliPaths[id] || null,
@@ -75,7 +167,9 @@ const defaultDeps: CheckDeps = {
           })
         }
       )
-    })
+    }),
+  listModels: (id, path, env) =>
+    id === 'codex' ? listCodexModels(path, env) : Promise.resolve(null)
 }
 
 /** Found · runs · new enough · logged in (spec §3). Spends no quota. */
@@ -111,12 +205,21 @@ export async function checkCli(
   if (compareVersions(version, MIN_VERSION[id]) < 0)
     return { ...base, path, version, state: 'too_old' }
 
-  const a = await deps.exec(path, ['auth', 'status'], env)
-  let auth: { loggedIn?: boolean; authMethod?: string } = {}
-  try {
-    auth = JSON.parse(a.stdout.slice(a.stdout.indexOf('{')))
-  } catch {
-    // not JSON: treated as logged out, with the CLI's words
+  const a = await deps.exec(
+    path,
+    id === 'codex' ? ['login', 'status'] : ['auth', 'status'],
+    env
+  )
+  let auth: { loggedIn?: boolean; authMethod?: string | null } = {}
+  if (id === 'codex') {
+    // Codex 0.162.1 prints its status on stderr.
+    auth = parseCodexLoginStatus(a.code, `${a.stdout}\n${a.stderr}`)
+  } else {
+    try {
+      auth = JSON.parse(a.stdout.slice(a.stdout.indexOf('{')))
+    } catch {
+      // not JSON: treated as logged out, with the CLI's words
+    }
   }
   if (auth.loggedIn !== true) {
     return {
@@ -132,7 +235,8 @@ export async function checkCli(
     path,
     version,
     state: 'ready',
-    authMethod: auth.authMethod ?? null
+    authMethod: auth.authMethod ?? null,
+    models: await deps.listModels(id, path, env).catch(() => null)
   }
 }
 

@@ -20,13 +20,10 @@ export const isCliSessionId = (s: string) => /^[0-9a-f-]{8,64}$/iu.test(s)
 /**
  * The resume script: `/bin/sh` parses the quoting (the owner's interactive
  * shell may be fish, which reads `\'` inside single quotes differently).
+ * Every word, the binary included, is quoted.
  */
-export const resumeScript = (
-  cwd: string,
-  binPath: string,
-  cliSessionId: string
-) =>
-  `#!/bin/sh\nrm -f -- "$0"\ncd ${shellQuote(cwd)} && exec ${shellQuote(binPath)} --resume ${shellQuote(cliSessionId)}\n`
+export const resumeScript = (cwd: string, binPath: string, args: string[]) =>
+  `#!/bin/sh\nrm -f -- "$0"\ncd ${shellQuote(cwd)} && exec ${[binPath, ...args].map((word) => shellQuote(word)).join(' ')}\n`
 
 /** Exodus' own data, out of every agent's reach (assertWorkableFolder refuses it and its ancestors). */
 export const terminalDir = () => join(getExodusHome(), 'run', 'terminal')
@@ -44,7 +41,7 @@ async function assertPrivateDir(dir: string): Promise<void> {
 export async function writeResumeScript(
   cwd: string,
   binPath: string,
-  cliSessionId: string
+  args: string[]
 ): Promise<string> {
   const dir = terminalDir()
   await mkdir(join(getExodusHome(), 'run'), { recursive: true, mode: 0o700 })
@@ -60,7 +57,7 @@ export async function writeResumeScript(
     0o700
   )
   try {
-    await handle.writeFile(resumeScript(cwd, binPath, cliSessionId), 'utf8')
+    await handle.writeFile(resumeScript(cwd, binPath, args), 'utf8')
   } finally {
     await handle.close()
   }

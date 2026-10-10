@@ -1,12 +1,14 @@
 import { ErrorCode, ValidationError } from '@exodus/shared'
 import {
   AGENT_RUNTIMES,
+  CLI_NAMES,
   PERMISSION_MODES,
   type AgentRuntime
 } from '@exodus/shared/types/agents'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { cliOf } from '../../agents/drivers'
 import { listInstalledSkills } from '../../ai/skills/skills-manager'
 import {
   createAgent,
@@ -68,7 +70,7 @@ function assertCliModel(
   if (!isCliModel(model))
     throw new ValidationError(
       ErrorCode.VALIDATION_FAILED,
-      'Invalid model name for Claude Code'
+      `Invalid model name for ${CLI_NAMES[cliOf(runtime)]}`
     )
 }
 
