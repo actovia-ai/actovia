@@ -12,9 +12,9 @@ let running: Promise<void> | null = null
 
 /**
  * After a check finds a CLI Ready: add its employee ("Claude Code", "Codex";
- * the CLI's default model, `default` mode) — once per CLI. Settings record it, so an employee
- * the owner deleted is never added back. One run at a time: two checks
- * landing together share it.
+ * the CLI's default model, `default` mode) — once per CLI. Settings record
+ * it, so an employee the owner deleted is never added back. One run at a
+ * time: two checks landing together share it.
  */
 export function ensureDefaultCliEmployees(): Promise<void> {
   running ??= addOnce().finally(() => {
@@ -49,8 +49,10 @@ async function addOnce(): Promise<void> {
     })
   }
   if (!changed) return
+  // Settings as they are now: the owner may have saved while CLIs were checked.
+  const fresh = (await getSettings()).agents
   await updateSettingField('agents', {
-    ...stored,
-    defaultEmployeesCreated: created
+    ...fresh,
+    defaultEmployeesCreated: { ...fresh?.defaultEmployeesCreated, ...created }
   })
 }

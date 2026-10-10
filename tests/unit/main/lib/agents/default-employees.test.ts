@@ -105,4 +105,27 @@ describe('ensureDefaultCliEmployees', () => {
       defaultEmployeesCreated: { 'claude-code': true }
     })
   })
+
+  it('flags Codex without a second employee when the owner made one', async () => {
+    existing = [{ runtime: 'codex' }]
+    state = 'missing'
+    await ensureDefaultCliEmployees()
+    expect(createAgent).not.toHaveBeenCalled()
+    expect(agentsSettings).toMatchObject({
+      defaultEmployeesCreated: { codex: true }
+    })
+  })
+
+  it('merges the flags into the settings as they are when written', async () => {
+    createAgent.mockImplementationOnce(async () => {
+      agentsSettings = { worktrees: true, maxRunning: 5 }
+      return {}
+    })
+    await ensureDefaultCliEmployees()
+    expect(agentsSettings).toMatchObject({
+      worktrees: true,
+      maxRunning: 5,
+      defaultEmployeesCreated: { 'claude-code': true, codex: true }
+    })
+  })
 })
