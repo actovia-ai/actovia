@@ -1,0 +1,1 @@
+ALTER TYPE "public"."agent_runtime" ADD VALUE 'codex';

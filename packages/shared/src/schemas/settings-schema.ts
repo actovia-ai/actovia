@@ -170,8 +170,8 @@ export const AgentsSettingsSchema = z.object({
   worktrees: z.boolean().default(true),
   /** A path the owner set by hand, per CLI id; empty = look it up. */
   cliPaths: z.record(z.string(), z.string()).default({}),
-  /** Set once the default Claude Code employee was added; never added again (the owner may delete it). Server-owned. */
-  defaultEmployeeCreated: z.boolean().optional()
+  /** Per CLI: its default employee was added once; never again (the owner may delete it). Server-owned. */
+  defaultEmployeesCreated: z.record(z.string(), z.boolean()).optional()
 })
 export type AgentsSettings = z.infer<typeof AgentsSettingsSchema>
 

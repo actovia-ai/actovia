@@ -75,13 +75,13 @@ settingsRouter.post('/', async (c) => {
         : (stored as never)
   }
 
-  // Whether the default Claude Code employee was added is the server's to
+  // Whether each CLI's default employee was added is the server's to
   // record (default-employees.ts): a whole-section save never changes it.
   if (payload.agents && typeof payload.agents === 'object') {
     const stored = (await getSettings()).agents
     payload.agents = {
       ...payload.agents,
-      defaultEmployeeCreated: stored?.defaultEmployeeCreated
+      defaultEmployeesCreated: stored?.defaultEmployeesCreated
     } as never
   }
 

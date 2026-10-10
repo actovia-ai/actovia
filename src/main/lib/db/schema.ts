@@ -298,7 +298,8 @@ export type Team = InferSelectModel<typeof team>
 
 export const agentRuntimeEnum = pgEnum('agent_runtime', [
   'exodus',
-  'claude-code'
+  'claude-code',
+  'codex'
 ])
 
 export const agent = pgTable('agent', {

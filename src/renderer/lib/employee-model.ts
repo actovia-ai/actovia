@@ -11,7 +11,8 @@ import {
 } from './provider-labels'
 
 export const CLI_MODEL_SUGGESTIONS: Record<CliId, string[]> = {
-  'claude-code': ['opus', 'sonnet', 'haiku']
+  'claude-code': ['opus', 'sonnet', 'haiku'],
+  codex: []
 }
 
 /** The models an Exodus employee can be pinned to: every listed provider's catalog. */

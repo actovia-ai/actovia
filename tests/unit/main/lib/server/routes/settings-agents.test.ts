@@ -15,7 +15,7 @@ vi.mock('@main/lib/db/queries', () => ({
       maxRunning: 3,
       keepAliveMinutes: 7,
       worktrees: true,
-      defaultEmployeeCreated: true
+      defaultEmployeesCreated: { 'claude-code': true }
     }
   }),
   getAllSearchableMessages: vi.fn(),
@@ -82,7 +82,7 @@ describe('settings write keeps the CLI path and projects folder', () => {
       maxRunning: 3,
       keepAliveMinutes: 7,
       worktrees: true,
-      defaultEmployeeCreated: true
+      defaultEmployeesCreated: { 'claude-code': true }
     })
   })
 
@@ -147,16 +147,23 @@ describe('settings write keeps the CLI path and projects folder', () => {
         undefined,
         JSON.stringify({
           id: 1,
-          agents: { worktrees: true, defaultEmployeeCreated: false }
+          agents: {
+            worktrees: true,
+            defaultEmployeesCreated: { 'claude-code': false }
+          }
         })
       )
-      expect(written().defaultEmployeeCreated).toBe(true)
+      expect(written().defaultEmployeesCreated).toEqual({
+        'claude-code': true
+      })
       await save(
         headers,
         undefined,
         JSON.stringify({ id: 1, agents: { worktrees: true } })
       )
-      expect(written().defaultEmployeeCreated).toBe(true)
+      expect(written().defaultEmployeesCreated).toEqual({
+        'claude-code': true
+      })
     }
   })
 })

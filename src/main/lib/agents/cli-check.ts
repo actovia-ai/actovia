@@ -8,9 +8,15 @@ import type { CliId, CliStatus } from '@exodus/shared/types/agents'
 import { loginShellEnv } from './login-shell'
 import { agentSettings } from './settings'
 
-export const CLI_BINARY: Record<CliId, string> = { 'claude-code': 'claude' }
+export const CLI_BINARY: Record<CliId, string> = {
+  'claude-code': 'claude',
+  codex: 'codex'
+}
 /** The version the driver was verified against (probes, 2026-10-09). */
-export const MIN_VERSION: Record<CliId, string> = { 'claude-code': '2.1.294' }
+export const MIN_VERSION: Record<CliId, string> = {
+  'claude-code': '2.1.294',
+  codex: '0.162.1'
+}
 
 export interface CheckDeps {
   env(): Promise<Record<string, string>>
@@ -83,6 +89,7 @@ export async function checkCli(
     version: null,
     authMethod: null,
     detail: null,
+    models: null,
     checkedAt: Date.now()
   }
   const env = await deps.env()

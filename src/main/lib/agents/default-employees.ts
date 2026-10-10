@@ -11,8 +11,8 @@ import { getCliStatus } from './cli-check'
 let running: Promise<void> | null = null
 
 /**
- * After a check finds a CLI Ready: add its employee ("Claude Code", the CLI's
- * default model, `default` mode) — once. Settings record it, so an employee
+ * After a check finds a CLI Ready: add its employee ("Claude Code", "Codex";
+ * the CLI's default model, `default` mode) — once per CLI. Settings record it, so an employee
  * the owner deleted is never added back. One run at a time: two checks
  * landing together share it.
  */
@@ -24,12 +24,17 @@ export function ensureDefaultCliEmployees(): Promise<void> {
 }
 
 async function addOnce(): Promise<void> {
-  if ((await getSettings()).agents?.defaultEmployeeCreated) return
+  const stored = (await getSettings()).agents
+  const created: Record<string, boolean> = {
+    ...stored?.defaultEmployeesCreated
+  }
   const agents = await getAllAgents()
-  let settled = false
+  let changed = false
   for (const id of CLI_IDS) {
+    if (created[id]) continue
     if ((await getCliStatus(id)).state !== 'ready') continue
-    settled = true
+    created[id] = true
+    changed = true
     // One the owner made already counts: the default is never added beside it.
     if (agents.some((a) => a.runtime === id)) continue
     await createAgent({
@@ -43,10 +48,9 @@ async function addOnce(): Promise<void> {
       avatarStyle: DEFAULT_AVATAR_STYLE
     })
   }
-  if (!settled) return
-  const stored = (await getSettings()).agents
+  if (!changed) return
   await updateSettingField('agents', {
     ...stored,
-    defaultEmployeeCreated: true
+    defaultEmployeesCreated: created
   })
 }
