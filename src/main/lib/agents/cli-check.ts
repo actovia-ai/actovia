@@ -100,6 +100,17 @@ function codexAuthMethod(out: string): string | null {
   return cleaned || null
 }
 
+/** Codex' own words, every "Logged in using …" line cut to its label: its tail can be part of a key. */
+const codexLoginWords = (out: string) =>
+  out
+    .split('\n')
+    .map((line) =>
+      /Logged in using/u.test(line)
+        ? `Logged in using ${codexAuthMethod(line) ?? 'an unknown method'}`
+        : line
+    )
+    .join('\n')
+
 /** `codex login status`: "Logged in using ChatGPT" (exit 0), "Not logged in" (exit 1). */
 export function parseCodexLoginStatus(
   code: number,
@@ -265,7 +276,12 @@ export async function checkCli(
       path,
       version,
       state: 'logged_out',
-      detail: tail(a.stderr || a.stdout) || null
+      detail:
+        tail(
+          id === 'codex'
+            ? codexLoginWords(a.stderr || a.stdout)
+            : a.stderr || a.stdout
+        ) || null
     }
   }
   return {

@@ -216,6 +216,18 @@ describe('CLI check', () => {
     expect(s.detail).toMatch(/Not logged in/u)
   })
 
+  it('a failed Codex login status never shows part of a key', async () => {
+    const dir = codexBin(
+      '0.162.1',
+      'Logged in using an API key - sk-proj-***ABCD',
+      1
+    )
+    const s = await checkCli('codex', deps(dir))
+    expect(s.state).toBe('logged_out')
+    expect(s.detail).toBe('Logged in using API key')
+    expect(s.detail).not.toMatch(/sk-proj|ABCD/u)
+  })
+
   it('lists Codex models from a short-lived app-server, hidden ones left out', async () => {
     const bin = fakeAppServer(`
   if (m.method === 'initialize') out({ id: m.id, result: {} })
