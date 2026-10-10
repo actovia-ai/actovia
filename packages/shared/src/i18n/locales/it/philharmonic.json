@@ -222,7 +222,13 @@
       "hint": "Ciò che può fare senza chiederti. Per tutto il resto chiede sempre.",
       "default": "Chiedi prima delle modifiche",
       "acceptEdits": "Modifica i file liberamente, chiedi prima dei comandi",
-      "auto": "Auto (la CLI decide cosa è sicuro)"
+      "auto": "Auto (la CLI decide cosa è sicuro)",
+      "codex": {
+        "default": "Chiedere prima di ogni comando e modifica ai file",
+        "acceptEdits": "Lavorare liberamente nella cartella; chiedere per uscirne",
+        "auto": "Non chiedere mai; solo nella cartella, senza rete",
+        "hint": "Codex lavora sempre in una sandbox limitata alla cartella del gruppo."
+      }
     },
     "systemPrompt": {
       "cliLabel": "Istruzioni aggiunte a ogni attività"
@@ -381,6 +387,7 @@
       "allow": "Consenti",
       "deny": "Rifiuta",
       "other": "Altro…",
+      "secretPlaceholder": "Segreto: inviato all'agente, non salvato",
       "submit": "Rispondi",
       "answerFailed": "La tua risposta non è arrivata",
       "stop": "Interrompi",

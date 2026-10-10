@@ -1,5 +1,9 @@
 import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
+import {
+  CLI_NAMES,
+  type CliId,
+  type CliStatus
+} from '@exodus/shared/types/agents'
 import type { AiProviders } from '@exodus/shared/types/ai'
 
 import type { AgentData } from '@/stores/philharmonic'
@@ -10,9 +14,13 @@ import {
   modelLabel
 } from './provider-labels'
 
-export const CLI_MODEL_SUGGESTIONS: Record<CliId, string[]> = {
-  'claude-code': ['opus', 'sonnet', 'haiku'],
-  codex: []
+/** Claude Code's aliases are fixed; any CLI that listed its models offers those. */
+export function cliModelSuggestions(
+  cli: CliId,
+  status: Pick<CliStatus, 'models'> | undefined
+): string[] {
+  if (status?.models) return status.models
+  return cli === 'claude-code' ? ['opus', 'sonnet', 'haiku'] : []
 }
 
 /** The models an Exodus employee can be pinned to: every listed provider's catalog. */

@@ -222,7 +222,13 @@
       "hint": "What it may do without asking you. It always asks for anything else.",
       "default": "Ask before changes",
       "acceptEdits": "Edit files freely, ask before commands",
-      "auto": "Auto (the CLI decides what is safe)"
+      "auto": "Auto (the CLI decides what is safe)",
+      "codex": {
+        "default": "Ask before every command and file change",
+        "acceptEdits": "Work freely inside the folder; ask to go beyond it",
+        "auto": "Never ask; only inside the folder, no network",
+        "hint": "Codex always works in a sandbox limited to the group's folder."
+      }
     },
     "systemPrompt": {
       "cliLabel": "Instructions added to every task"
@@ -381,6 +387,7 @@
       "allow": "Allow",
       "deny": "Deny",
       "other": "Other…",
+      "secretPlaceholder": "Secret — sent to the agent, not saved",
       "submit": "Answer",
       "answerFailed": "Your answer didn't reach it",
       "stop": "Stop",

@@ -222,7 +222,13 @@
       "hint": "Lo que puede hacer sin preguntarte. Para todo lo demás siempre pregunta.",
       "default": "Preguntar antes de cambios",
       "acceptEdits": "Editar archivos libremente, preguntar antes de comandos",
-      "auto": "Auto (la CLI decide qué es seguro)"
+      "auto": "Auto (la CLI decide qué es seguro)",
+      "codex": {
+        "default": "Preguntar antes de cada comando y cambio de archivo",
+        "acceptEdits": "Trabajar libremente dentro de la carpeta; preguntar para salir de ella",
+        "auto": "No preguntar nunca; solo dentro de la carpeta, sin red",
+        "hint": "Codex siempre trabaja en un entorno aislado limitado a la carpeta del grupo."
+      }
     },
     "systemPrompt": {
       "cliLabel": "Instrucciones añadidas a cada tarea"
@@ -381,6 +387,7 @@
       "allow": "Permitir",
       "deny": "Denegar",
       "other": "Otro…",
+      "secretPlaceholder": "Secreto: se envía al agente, no se guarda",
       "submit": "Responder",
       "answerFailed": "Tu respuesta no llegó",
       "stop": "Detener",

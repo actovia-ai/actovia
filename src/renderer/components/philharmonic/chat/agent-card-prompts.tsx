@@ -16,6 +16,9 @@ import { CHOICE_ROW, ChoiceIndicator } from '@/components/ui/questionnaire'
 import { cn } from '@/lib/utils'
 import { respondToAgent } from '@/services/agents'
 
+/** What an answer is filed under: Codex's question id, else (Claude Code) the text. */
+export const answerKey = (q: AgentQuestion) => q.id ?? q.question
+
 export const errorText = (err: unknown) =>
   err instanceof Error ? err.message : String(err)
 
@@ -29,16 +32,19 @@ function useAnswer(card: AgentCard, requestId: string) {
   const { t } = useTranslation('philharmonic')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  /** Resolves true once the answer landed. */
   const answer = async (value: AgentAnswer) => {
     setSending(true)
     try {
       await respondToAgent(card.sessionId, requestId, value)
       setSent(true)
+      return true
     } catch (err) {
       sileo.error({
         title: t('agents.card.answerFailed'),
         description: errorText(err)
       })
+      return false
     } finally {
       setSending(false)
     }
@@ -73,13 +79,16 @@ export function PermissionPrompt({
       <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs break-all whitespace-pre-wrap">
         {prompt.detail}
       </pre>
-      <Input
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-        placeholder={t('agents.card.reasonPlaceholder')}
-        maxLength={2000}
-        className="h-8 text-sm"
-      />
+      {/* Codex's decline carries no words, so it is not asked for one. */}
+      {card.runtime === 'claude-code' && (
+        <Input
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={t('agents.card.reasonPlaceholder')}
+          maxLength={2000}
+          className="h-8 text-sm"
+        />
+      )}
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -152,49 +161,76 @@ export function QuestionPrompt({
   const { answer, disabled } = useAnswer(card, prompt.requestId)
   const toggle = (q: AgentQuestion, label: string) =>
     setPicked((p) => {
-      const cur = p[q.question] ?? []
+      const cur = p[answerKey(q)] ?? []
       const next = q.multiSelect
         ? cur.includes(label)
           ? cur.filter((l) => l !== label)
           : [...cur, label]
         : [label]
-      return { ...p, [q.question]: next }
+      return { ...p, [answerKey(q)]: next }
     })
   const answers = Object.fromEntries(
     prompt.questions.map((q) => [
-      q.question,
-      [...(picked[q.question] ?? []), other[q.question]?.trim()]
+      answerKey(q),
+      [...(picked[answerKey(q)] ?? []), other[answerKey(q)]?.trim()]
         .filter(Boolean)
         .join(', ')
     ])
   )
-  const complete = prompt.questions.every((q) => answers[q.question])
+  const complete = prompt.questions.every((q) => answers[answerKey(q)])
+  const send = async () => {
+    if (!(await answer({ kind: 'answers', answers }))) return
+    // A secret lives in this component only, and not a moment past its send.
+    setOther((p) =>
+      Object.fromEntries(
+        prompt.questions
+          .filter((q) => !q.isSecret)
+          .map((q) => [answerKey(q), p[answerKey(q)] ?? ''])
+      )
+    )
+  }
   return (
     <div className="bg-muted/60 flex flex-col gap-3 rounded-xl p-3">
-      {prompt.questions.map((q) => (
-        <div key={q.question} className="flex flex-col gap-1.5">
-          <p className="text-sm font-medium">{q.question}</p>
-          <QuestionChoices
-            question={q}
-            picked={picked[q.question] ?? []}
-            onToggle={(label) => toggle(q, label)}
-          />
-          <Input
-            value={other[q.question] ?? ''}
-            onChange={(e) =>
-              setOther((p) => ({ ...p, [q.question]: e.target.value }))
-            }
-            placeholder={t('agents.card.other')}
-            maxLength={4000}
-            className="h-8 text-sm"
-          />
-        </div>
-      ))}
+      {prompt.questions.map((q) => {
+        const key = answerKey(q)
+        const hasOptions = q.options.length > 0
+        // Closed choices get no free text; a question without any is free-form.
+        const freeText = q.isSecret || !hasOptions || q.isOther !== false
+        return (
+          <div key={key} className="flex flex-col gap-1.5">
+            <p className="text-sm font-medium">{q.question}</p>
+            <QuestionChoices
+              question={q}
+              picked={picked[key] ?? []}
+              onToggle={(label) => toggle(q, label)}
+            />
+            {freeText && (
+              <Input
+                type={q.isSecret ? 'password' : 'text'}
+                autoComplete={q.isSecret ? 'off' : undefined}
+                value={other[key] ?? ''}
+                onChange={(e) =>
+                  setOther((p) => ({ ...p, [key]: e.target.value }))
+                }
+                placeholder={
+                  q.isSecret
+                    ? t('agents.card.secretPlaceholder')
+                    : hasOptions
+                      ? t('agents.card.other')
+                      : undefined
+                }
+                maxLength={4000}
+                className="h-8 text-sm"
+              />
+            )}
+          </div>
+        )
+      })}
       <div className="flex justify-end">
         <Button
           size="sm"
           disabled={!complete || disabled}
-          onClick={() => void answer({ kind: 'answers', answers })}
+          onClick={() => void send()}
         >
           {t('agents.card.submit')}
         </Button>

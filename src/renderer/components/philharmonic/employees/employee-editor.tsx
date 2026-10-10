@@ -1,6 +1,7 @@
 import {
   CLI_NAMES,
   PERMISSION_MODES,
+  type CliId,
   type CliStatus
 } from '@exodus/shared/types/agents'
 import { EditIcon } from '@hugeicons/core-free-icons'
@@ -29,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useSettings } from '@/hooks/use-settings'
 import {
-  CLI_MODEL_SUGGESTIONS,
+  cliModelSuggestions,
   exodusModelOptions,
   parseModelValue
 } from '@/lib/employee-model'
@@ -97,6 +98,8 @@ export function EmployeeEditor({
   }, [employee.id, isNew])
 
   const isExodus = draft.runtime === 'exodus'
+  // Codex's levels mean something else than Claude Code's, so they read differently.
+  const permissionNs = draft.runtime === 'codex' ? 'codex.' : ''
   const canSave = draft.name.trim().length > 0 && Boolean(draft.teamId)
 
   return (
@@ -290,11 +293,12 @@ export function EmployeeEditor({
                 className="border-border bg-muted rounded-lg"
               />
               <datalist id="cli-models">
-                {CLI_MODEL_SUGGESTIONS[draft.runtime as 'claude-code'].map(
-                  (m) => (
-                    <option key={m} value={m} />
-                  )
-                )}
+                {cliModelSuggestions(
+                  draft.runtime as CliId,
+                  clis.find((c) => c.id === draft.runtime)
+                ).map((m) => (
+                  <option key={m} value={m} />
+                ))}
               </datalist>
               <p className="text-muted-foreground mt-1 text-xs">
                 {t('philharmonic:employees.model.cliHint')}
@@ -322,13 +326,15 @@ export function EmployeeEditor({
                 <SelectContent>
                   {PERMISSION_MODES.map((m) => (
                     <SelectItem key={m} value={m}>
-                      {t(`philharmonic:employees.permission.${m}`)}
+                      {t(
+                        `philharmonic:employees.permission.${permissionNs}${m}`
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <p className="text-muted-foreground mt-1 text-xs">
-                {t('philharmonic:employees.permission.hint')}
+                {t(`philharmonic:employees.permission.${permissionNs}hint`)}
               </p>
             </div>
           </>

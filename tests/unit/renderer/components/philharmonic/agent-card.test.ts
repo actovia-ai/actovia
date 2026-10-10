@@ -17,7 +17,10 @@ vi.mock('@/services/agents', () => ({
 }))
 
 import { AgentCardView } from '@/components/philharmonic/chat/agent-card'
-import { PermissionPrompt } from '@/components/philharmonic/chat/agent-card-prompts'
+import {
+  PermissionPrompt,
+  QuestionPrompt
+} from '@/components/philharmonic/chat/agent-card-prompts'
 import { GroupMessageBubble } from '@/components/philharmonic/chat/group-message-bubble'
 import { messageCard, recordAgentCard } from '@/lib/agent-card'
 
@@ -103,6 +106,76 @@ describe('PermissionPrompt', () => {
     expect(html).toContain('Claude Code wants to use Bash')
     expect(html).toContain('Allow')
     expect(html).toContain('Deny')
+  })
+})
+
+describe('Codex prompts', () => {
+  const permission = {
+    kind: 'permission' as const,
+    requestId: 'r1',
+    tool: 'Bash',
+    summary: 'ls',
+    detail: 'ls'
+  }
+  it('offers a deny reason only where the runtime can carry one', () => {
+    const reason = 'Tell it why'
+    expect(
+      render(PermissionPrompt, {
+        card: card({ runtime: 'claude-code' }),
+        prompt: permission
+      })
+    ).toContain(reason)
+    expect(
+      render(PermissionPrompt, {
+        card: card({ runtime: 'codex' }),
+        prompt: permission
+      })
+    ).not.toContain(reason)
+  })
+
+  it('asks a secret as a password field with no options', () => {
+    const html = render(QuestionPrompt, {
+      card: card({ runtime: 'codex' }),
+      prompt: {
+        kind: 'question',
+        requestId: 'q1',
+        questions: [
+          {
+            id: 'tok',
+            question: 'Paste it',
+            isSecret: true,
+            isOther: false,
+            options: [],
+            multiSelect: false
+          }
+        ]
+      }
+    })
+    expect(html).toMatch(/<input[^>]* type="password"/u)
+    expect(html).toContain('autoComplete="off"')
+    expect(html).toContain('Secret')
+    expect(html).not.toContain('questionnaire-choice')
+  })
+
+  it('shows no free-text field when the question closes its options', () => {
+    const html = render(QuestionPrompt, {
+      card: card({ runtime: 'codex' }),
+      prompt: {
+        kind: 'question',
+        requestId: 'q1',
+        questions: [
+          {
+            id: 'pick',
+            question: 'Which?',
+            isOther: false,
+            options: [{ label: 'A' }, { label: 'B' }],
+            multiSelect: false
+          }
+        ]
+      }
+    })
+    expect(html).toContain('questionnaire-choice')
+    expect(html).not.toContain('<input')
   })
 })
 

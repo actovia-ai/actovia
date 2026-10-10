@@ -221,7 +221,13 @@
       "hint": "不需詢問你即可執行的操作。其他一律會先詢問。",
       "default": "變更前先詢問",
       "acceptEdits": "可自由編輯檔案,執行指令前詢問",
-      "auto": "自動(由 CLI 判斷何者安全)"
+      "auto": "自動(由 CLI 判斷何者安全)",
+      "codex": {
+        "default": "每次執行指令和修改檔案前都先詢問",
+        "acceptEdits": "在資料夾內自由工作;超出資料夾時先詢問",
+        "auto": "從不詢問;僅限資料夾內,無網路",
+        "hint": "Codex 一律在限定於群組資料夾的沙箱中運作。"
+      }
     },
     "systemPrompt": {
       "cliLabel": "附加到每項任務的指示"
@@ -376,6 +382,7 @@
       "allow": "允許",
       "deny": "拒絕",
       "other": "其他…",
+      "secretPlaceholder": "機密:會傳送給代理,不會儲存",
       "submit": "回答",
       "answerFailed": "你的回答未能送達",
       "stop": "停止",

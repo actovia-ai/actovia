@@ -222,7 +222,13 @@
       "hint": "Ce qu'il peut faire sans vous demander. Il demande toujours pour le reste.",
       "default": "Demander avant les modifications",
       "acceptEdits": "Modifier les fichiers librement, demander avant les commandes",
-      "auto": "Auto (la CLI décide de ce qui est sûr)"
+      "auto": "Auto (la CLI décide de ce qui est sûr)",
+      "codex": {
+        "default": "Demander avant chaque commande et modification de fichier",
+        "acceptEdits": "Travailler librement dans le dossier ; demander pour en sortir",
+        "auto": "Ne jamais demander ; uniquement dans le dossier, sans réseau",
+        "hint": "Codex travaille toujours dans un bac à sable limité au dossier du groupe."
+      }
     },
     "systemPrompt": {
       "cliLabel": "Instructions ajoutées à chaque tâche"
@@ -381,6 +387,7 @@
       "allow": "Autoriser",
       "deny": "Refuser",
       "other": "Autre…",
+      "secretPlaceholder": "Secret : envoyé à l'agent, non enregistré",
       "submit": "Répondre",
       "answerFailed": "Votre réponse ne lui est pas parvenue",
       "stop": "Arrêter",

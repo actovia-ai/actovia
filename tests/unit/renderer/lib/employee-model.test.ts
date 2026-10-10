@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  cliModelSuggestions,
   employeeModelLabel,
   exodusModelOptions,
   parseModelValue
@@ -63,5 +64,19 @@ describe('employee model', () => {
         settings
       )
     ).toBe('Claude Code')
+  })
+})
+
+describe('cliModelSuggestions', () => {
+  it('knows Claude Code’s aliases and takes the rest from the CLI', () => {
+    expect(cliModelSuggestions('claude-code', undefined)).toEqual([
+      'opus',
+      'sonnet',
+      'haiku'
+    ])
+    expect(
+      cliModelSuggestions('codex', { models: ['gpt-x'] } as never)
+    ).toEqual(['gpt-x'])
+    expect(cliModelSuggestions('codex', undefined)).toEqual([])
   })
 })

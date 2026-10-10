@@ -222,7 +222,13 @@
       "hint": "Was es ohne Rückfrage tun darf. Bei allem anderen fragt es immer nach.",
       "default": "Vor Änderungen fragen",
       "acceptEdits": "Dateien frei bearbeiten, vor Befehlen fragen",
-      "auto": "Auto (die CLI entscheidet, was sicher ist)"
+      "auto": "Auto (die CLI entscheidet, was sicher ist)",
+      "codex": {
+        "default": "Vor jedem Befehl und jeder Dateiänderung fragen",
+        "acceptEdits": "Frei im Ordner arbeiten; für alles darüber hinaus fragen",
+        "auto": "Nie fragen; nur im Ordner, ohne Netzwerk",
+        "hint": "Codex arbeitet immer in einer Sandbox, die auf den Ordner der Gruppe beschränkt ist."
+      }
     },
     "systemPrompt": {
       "cliLabel": "Anweisungen, die jeder Aufgabe hinzugefügt werden"
@@ -381,6 +387,7 @@
       "allow": "Erlauben",
       "deny": "Ablehnen",
       "other": "Andere…",
+      "secretPlaceholder": "Geheimnis – wird an den Agenten gesendet, nicht gespeichert",
       "submit": "Antworten",
       "answerFailed": "Deine Antwort ist nicht angekommen",
       "stop": "Stoppen",
