@@ -30,6 +30,8 @@ export interface ParsedMessage {
     error?: { code?: number; message?: string }
   }
   turnId?: string
+  /** A server request Codex resolved itself (a cancelled turn, a timeout), keyed as `requestId`. */
+  resolved?: string
 }
 export interface FileChange {
   path: string
@@ -383,6 +385,12 @@ export function createCodexParser(): CodexParser {
               params.changes.filter(isObj) as unknown as FileChange[]
             )
           return { events: [] }
+        }
+        case 'serverRequest/resolved': {
+          const rid = params.requestId
+          return typeof rid === 'number' || typeof rid === 'string'
+            ? { events: [], resolved: String(rid) }
+            : { events: [] }
         }
         case 'error':
           if (params.willRetry === true) return { events: [] }

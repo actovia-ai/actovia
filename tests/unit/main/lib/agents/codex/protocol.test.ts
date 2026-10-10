@@ -310,6 +310,21 @@ describe('Codex protocol', () => {
     ).toEqual([])
   })
 
+  it('says which request Codex resolved itself, as Exodus keys it', () => {
+    const p = createCodexParser()
+    const out = p.parse(
+      JSON.stringify({
+        method: 'serverRequest/resolved',
+        params: { threadId: 't', requestId: 0 }
+      })
+    )
+    expect(out).toEqual({ events: [], resolved: '0' })
+    expect(
+      p.parse(JSON.stringify({ method: 'serverRequest/resolved', params: {} }))
+        .resolved
+    ).toBeUndefined()
+  })
+
   it('leaves no step open across the recorded interrupted turn', () => {
     const { events } = replay('allow-decline-interrupt.jsonl')
     const open = new Set<string>()
