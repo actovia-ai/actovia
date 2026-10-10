@@ -23,7 +23,12 @@ export interface Supervised {
   write(value: unknown): boolean
   /** End stdin, SIGTERM after 1.5 s, SIGKILL after 3 s; resolves once `onExit` has run. */
   stop(): Promise<void>
-  /** Kill the child and report `message` as the exit's stderr tail, unexpected (a failed handshake). */
+  /**
+   * Kill the child and report `message` as the exit's stderr tail, unexpected
+   * (a failed handshake). A no-op once stopping (the exit stays expected) or
+   * once the child is gone — then, still draining, the exit keeps the child's
+   * own stderr.
+   */
   fail(message: string): Promise<void>
 }
 
@@ -90,10 +95,10 @@ export function superviseProcess(opts: {
   let childExited = false
   let finished = false
   let stdoutClosed = false
-  let finishNow = () => {}
+  let finishNow: (() => void) | null = null
   lines.on('close', () => {
     stdoutClosed = true
-    finishNow()
+    finishNow?.()
   })
   lines.on('line', (line) => {
     if (finished) return
@@ -108,8 +113,10 @@ export function superviseProcess(opts: {
 
   let exitCode: number | null = null
   let exitMessage: string | undefined
-  let settle: () => void = () => {}
-  const settled = new Promise<void>((r) => (settle = r))
+  let settle!: () => void
+  const settled = new Promise<void>((r) => {
+    settle = r
+  })
   // `onExit` is the last call: it waits for stdout to drain (so no line is
   // lost and none follows it), but not for a grandchild holding the pipe open.
   const finish = () => {
@@ -164,7 +171,7 @@ export function superviseProcess(opts: {
       return settled
     },
     fail(message) {
-      if (childExited) return settled
+      if (childExited || stopping) return settled
       failMessage = message
       child.stdin.end()
       kill('SIGTERM')

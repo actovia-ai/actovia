@@ -18,8 +18,10 @@ function run(body: string) {
   const dir = mkdtempSync(join(tmpdir(), 'sup-log-'))
   const lines: string[] = []
   let exit: ExitInfo | null = null
-  let finished = () => {}
-  const done = new Promise<void>((ok) => (finished = ok))
+  let finished!: () => void
+  const done = new Promise<void>((ok) => {
+    finished = ok
+  })
   const sup = superviseProcess({
     binPath: script(body),
     args: [],
@@ -44,7 +46,7 @@ describe('superviseProcess', () => {
   })
 
   it('reports a failed handshake as an unexpected exit carrying the message', async () => {
-    const r = run('sleep 30')
+    const r = run('exec sleep 30')
     await r.sup.fail('Not logged in')
     await r.done
     expect(r.exit()).toMatchObject({

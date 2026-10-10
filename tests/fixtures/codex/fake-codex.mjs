@@ -38,12 +38,23 @@ for (const m of lines) {
 }
 
 const out = (o) => process.stdout.write(JSON.stringify(o) + '\n')
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const sleep = (ms) =>
+  new Promise((r) => {
+    setTimeout(r, ms)
+  })
 let played = 0
 let playing = false
 let waitingFor = null
 let resume = null
 let interrupted = false
+let replying = 0
+/** Waits for the client's reply to server request `id`. */
+const replyTo = (id) => {
+  waitingFor = id
+  return new Promise((r) => {
+    resume = r
+  })
+}
 
 async function playTurn() {
   const turn = turns[played++] ?? []
@@ -55,13 +66,9 @@ async function playTurn() {
     if (m.method === 'turn/started' && process.env.FAKE_CODEX_EXTRA_REQUEST) {
       const extra = JSON.parse(process.env.FAKE_CODEX_EXTRA_REQUEST)
       out(extra)
-      waitingFor = extra.id
-      await new Promise((r) => (resume = r))
+      await replyTo(extra.id)
     }
-    if (m.id !== undefined && m.method) {
-      waitingFor = m.id
-      await new Promise((r) => (resume = r))
-    }
+    if (m.id !== undefined && m.method) await replyTo(m.id)
     await sleep(1)
   }
   if (interrupted) {
@@ -78,6 +85,8 @@ async function playTurn() {
 }
 
 const isPlaying = () => playing
+// A reply that can no longer arrive does not hold the server open.
+const draining = () => (isPlaying() && waitingFor === null) || replying > 0
 createInterface({ input: process.stdin })
   .on('line', async (line) => {
     record({ stdin: JSON.parse(line) })
@@ -91,8 +100,12 @@ createInterface({ input: process.stdin })
     }
     switch (m.method) {
       case 'initialize':
+        // A reply already under way is still written after stdin closes.
+        replying += 1
         await sleep(Number(process.env.FAKE_CODEX_INIT_DELAY_MS ?? 0))
-        return out({ id: m.id, result: responseTo(1) ?? { userAgent: 'fake' } })
+        out({ id: m.id, result: responseTo(1) ?? { userAgent: 'fake' } })
+        replying -= 1
+        break
       case 'initialized':
         return
       case 'thread/start':
@@ -144,7 +157,6 @@ createInterface({ input: process.stdin })
     }
   })
   .on('close', async () => {
-    // A reply that can no longer arrive does not hold the server open.
-    while (isPlaying() && waitingFor === null) await sleep(5)
+    while (draining()) await sleep(5)
     process.exit(0)
   })

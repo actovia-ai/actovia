@@ -1,69 +1,11 @@
 // tests/unit/main/lib/agents/codex/run.test.ts
-import { chmodSync, mkdtempSync, readFileSync } from 'fs'
-import { tmpdir } from 'os'
-import { join, resolve } from 'path'
+import { readFileSync } from 'fs'
 
-import { startCodex } from '@main/lib/agents/codex/run'
-import type { AgentEvent, AgentRun } from '@main/lib/agents/driver'
 import { beforeAll, describe, expect, it } from 'vitest'
 
-const FIX = resolve(import.meta.dirname, '../../../../../fixtures/codex')
-const FAKE = join(FIX, 'fake-codex.mjs')
-beforeAll(() => chmodSync(FAKE, 0o755))
+import { blocked, next, prepareFake, start } from './fake'
 
-function start(
-  fixture: string,
-  extra: Record<string, string> = {},
-  input: Partial<Parameters<typeof startCodex>[0]> = {}
-) {
-  const dir = mkdtempSync(join(tmpdir(), 'codex-run-'))
-  const recordPath = join(dir, 'record.jsonl')
-  const logPath = join(dir, 'raw.jsonl')
-  const run = startCodex({
-    binPath: FAKE,
-    cwd: dir,
-    env: {
-      PATH: process.env.PATH ?? '',
-      FAKE_CODEX_FIXTURE: join(FIX, fixture),
-      FAKE_CODEX_RECORD: recordPath,
-      ...extra
-    },
-    permissionMode: 'default',
-    logPath,
-    ...input
-  })
-  const events: AgentEvent[] = []
-  run.on((e) => events.push(e))
-  const recorded = () =>
-    readFileSync(recordPath, 'utf8')
-      .split('\n')
-      .filter(Boolean)
-      .map((l) => JSON.parse(l))
-      .filter((r) => r.stdin)
-      .map((r) => r.stdin)
-  return { run, events, recorded, logPath }
-}
-
-function next(
-  run: AgentRun,
-  match: (e: AgentEvent) => boolean,
-  ms = 5000
-): Promise<AgentEvent> {
-  return new Promise((ok, fail) => {
-    const timer = setTimeout(() => fail(new Error('timed out')), ms)
-    const off = run.on((e) => {
-      if (match(e)) {
-        clearTimeout(timer)
-        off()
-        ok(e)
-      }
-    })
-  })
-}
-const blocked = (run: AgentRun) =>
-  next(run, (e) => e.type === 'blocked') as Promise<
-    Extract<AgentEvent, { type: 'blocked' }>
-  >
+beforeAll(prepareFake)
 
 describe('Codex run', () => {
   it('handshakes, starts a thread in workspace-write with the mode’s approval policy, never full access', async () => {
@@ -96,41 +38,6 @@ describe('Codex run', () => {
       expect(JSON.stringify(sent)).not.toMatch(/danger-full-access/u)
       await run.stop()
     }
-  })
-
-  it('accepts a change on Allow with the request’s own id', async () => {
-    const { run, recorded } = start('allow-decline-interrupt.jsonl')
-    run.send('create hello.txt')
-    const b = await blocked(run)
-    expect(run.respond(b.prompt.requestId, { kind: 'allow' })).toBe(true)
-    expect(run.respond(b.prompt.requestId, { kind: 'allow' })).toBe(false)
-    await next(run, (e) => e.type === 'turn_end')
-    expect(recorded()).toContainEqual({
-      id: Number(b.prompt.requestId),
-      result: { decision: 'accept' }
-    })
-    expect(run.cliSessionId).toBe('01a1245d-2907-72f3-9b06-3dc67f153940')
-    await run.stop()
-  })
-
-  it('declines on Deny', async () => {
-    const { run, recorded } = start('allow-decline-interrupt.jsonl')
-    run.send('1')
-    run.respond((await blocked(run)).prompt.requestId, { kind: 'allow' })
-    await next(run, (e) => e.type === 'turn_end')
-    run.send('2')
-    const b = await blocked(run)
-    run.respond(b.prompt.requestId, { kind: 'deny', reason: 'not this' })
-    const end = (await next(run, (e) => e.type === 'turn_end')) as Extract<
-      AgentEvent,
-      { type: 'turn_end' }
-    >
-    expect(recorded()).toContainEqual({
-      id: Number(b.prompt.requestId),
-      result: { decision: 'decline' }
-    })
-    expect(end.denials).toBe(1)
-    await run.stop()
   })
 
   it('interrupts the running turn by its id and lives on', async () => {
@@ -210,129 +117,6 @@ describe('Codex run', () => {
     )
   })
 
-  it('refuses a server request it does not model, at once, and the turn goes on', async () => {
-    const extra = JSON.stringify({
-      id: 900,
-      method: 'item/tool/call',
-      params: { tool: 'x' }
-    })
-    const { run, recorded } = start('allow-decline-interrupt.jsonl', {
-      FAKE_CODEX_EXTRA_REQUEST: extra
-    })
-    run.send('1')
-    const b = await blocked(run)
-    expect(recorded().find((m) => m.id === 900)?.error?.code).toBe(-32601)
-    run.respond(b.prompt.requestId, { kind: 'allow' })
-    await next(run, (e) => e.type === 'turn_end')
-    await run.stop()
-  })
-
-  it('answers a question by question id, and never logs a secret answer', async () => {
-    const extra = JSON.stringify({
-      id: 901,
-      method: 'item/tool/requestUserInput',
-      params: {
-        threadId: 't',
-        turnId: 'u',
-        itemId: 'i',
-        isBlocking: true,
-        questions: [
-          {
-            id: 'tok',
-            header: 'Token',
-            question: 'Paste it',
-            isOther: false,
-            isSecret: true,
-            options: null
-          }
-        ]
-      }
-    })
-    const { run, recorded, logPath } = start('allow-decline-interrupt.jsonl', {
-      FAKE_CODEX_EXTRA_REQUEST: extra
-    })
-    run.send('1')
-    const q = await blocked(run)
-    expect(q.prompt.kind).toBe('question')
-    run.respond(q.prompt.requestId, {
-      kind: 'answers',
-      answers: { tok: 's3cret-value' }
-    })
-    run.respond((await blocked(run)).prompt.requestId, { kind: 'allow' })
-    await next(run, (e) => e.type === 'turn_end')
-    await run.stop()
-    expect(recorded()).toContainEqual({
-      id: 901,
-      result: { answers: { tok: { answers: ['s3cret-value'] } } }
-    })
-    expect(readFileSync(logPath, 'utf8')).not.toMatch(/s3cret-value/u)
-  })
-
-  it('grants a permission request for this turn only, or nothing on Deny', async () => {
-    const extra = JSON.stringify({
-      id: 902,
-      method: 'item/permissions/requestApproval',
-      params: {
-        threadId: 't',
-        turnId: 'u',
-        itemId: 'i',
-        environmentId: null,
-        startedAtMs: 0,
-        cwd: '/p',
-        reason: 'install deps',
-        permissions: { network: { enabled: true }, fileSystem: null }
-      }
-    })
-    const { run, recorded } = start('allow-decline-interrupt.jsonl', {
-      FAKE_CODEX_EXTRA_REQUEST: extra
-    })
-    run.send('1')
-    const p = await blocked(run)
-    run.respond(p.prompt.requestId, { kind: 'allow' })
-    run.respond((await blocked(run)).prompt.requestId, { kind: 'allow' })
-    await next(run, (e) => e.type === 'turn_end')
-    await run.stop()
-    expect(recorded()).toContainEqual({
-      id: 902,
-      result: { permissions: { network: { enabled: true } }, scope: 'turn' }
-    })
-
-    const denied = start('allow-decline-interrupt.jsonl', {
-      FAKE_CODEX_EXTRA_REQUEST: extra
-    })
-    denied.run.send('1')
-    denied.run.respond((await blocked(denied.run)).prompt.requestId, {
-      kind: 'deny'
-    })
-    denied.run.respond((await blocked(denied.run)).prompt.requestId, {
-      kind: 'allow'
-    })
-    await next(denied.run, (e) => e.type === 'turn_end')
-    await denied.run.stop()
-    expect(denied.recorded()).toContainEqual({
-      id: 902,
-      result: { permissions: {}, scope: 'turn' }
-    })
-  })
-
-  it('clears a prompt Codex resolved itself, and a late Allow then answers false', async () => {
-    const { run, recorded } = start('allow-decline-interrupt.jsonl')
-    run.send('1')
-    const b = await blocked(run)
-    const answered = next(
-      run,
-      (e) => e.type === 'answered' && e.requestId === b.prompt.requestId
-    )
-    run.interrupt()
-    await answered
-    await next(run, (e) => e.type === 'turn_end')
-    expect(run.respond(b.prompt.requestId, { kind: 'allow' })).toBe(false)
-    expect(recorded().some((m) => m.id === Number(b.prompt.requestId))).toBe(
-      false
-    )
-    await run.stop()
-  })
-
   it('sends one turn/interrupt per turn however often Stop is pressed, and none when idle', async () => {
     const { run, recorded } = start('allow-decline-interrupt.jsonl')
     expect(run.interrupt()).toBe(false)
@@ -355,5 +139,29 @@ describe('Codex run', () => {
     await next(run, (e) => e.type === 'turn_end')
     await run.stop()
     expect(readFileSync(logPath, 'utf8')).toMatch(/turn\/completed/u)
+  })
+
+  it('a Stop while Codex is starting is a stop, not a failure', async () => {
+    const { run } = start('allow-decline-interrupt.jsonl', {
+      FAKE_CODEX_INIT_DELAY_MS: '200'
+    })
+    run.send('1')
+    const exit = next(run, (e) => e.type === 'exit')
+    await run.stop()
+    expect(await exit).toMatchObject({ type: 'exit', expected: true })
+    expect(((await exit) as { stderrTail: string }).stderrTail).not.toMatch(
+      /not running/u
+    )
+  })
+
+  it('takes one task at a time: a send while a turn runs is refused', async () => {
+    const { run, recorded } = start('allow-decline-interrupt.jsonl')
+    expect(run.send('1')).toBe(true)
+    expect(run.send('2')).toBe(false)
+    run.respond((await blocked(run)).prompt.requestId, { kind: 'allow' })
+    await next(run, (e) => e.type === 'turn_end')
+    expect(recorded().filter((m) => m.method === 'turn/start')).toHaveLength(1)
+    expect(run.send('3')).toBe(true)
+    await run.stop()
   })
 })

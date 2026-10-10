@@ -17,6 +17,33 @@ export const CODEX_APPROVAL: Record<
 
 type Json = Record<string, unknown>
 
+/** What Codex reads back for the owner's answer to `p` (approvals: accept/decline only). */
+function reply(p: PendingRequest, answer: AgentAnswer): Json {
+  if (p.kind === 'command' || p.kind === 'fileChange')
+    return { decision: answer.kind === 'allow' ? 'accept' : 'decline' }
+  if (p.kind === 'permissions') {
+    const asked = (p.params.permissions ?? {}) as Json
+    const granted = Object.fromEntries(
+      Object.entries(asked).filter(([, v]) => v !== null && v !== undefined)
+    )
+    return {
+      permissions: answer.kind === 'allow' ? granted : {},
+      scope: 'turn'
+    }
+  }
+  const given = answer.kind === 'answers' ? answer.answers : {}
+  const questions = Array.isArray(p.params.questions)
+    ? (p.params.questions as Json[])
+    : []
+  return {
+    answers: Object.fromEntries(
+      questions
+        .map((q) => (typeof q?.id === 'string' ? q.id : ''))
+        .filter((id) => id && given[id] !== undefined)
+        .map((id) => [id, { answers: [given[id]] }])
+    )
+  }
+}
 /** One `codex app-server` process (spec §3). Never throws: failures arrive as `exit`. */
 export function startCodex(input: StartInput): AgentRun {
   const listeners = new Set<(e: AgentEvent) => void>()
@@ -35,6 +62,7 @@ export function startCodex(input: StartInput): AgentRun {
   let turnId: string | null = null
   let ready = false
   let busy = false
+  let stopping = false
   // Stop was pressed for the turn in progress; sent once its id is known.
   let interruptWanted = false
   // The turn a `turn/interrupt` already went to — never a second one.
@@ -175,36 +203,11 @@ export function startCodex(input: StartInput): AgentRun {
       ready = true
       for (const text of queue.splice(0)) sendTurn(text)
     } catch (err) {
+      // A Stop during the handshake breaks it on purpose: that exit is a stop.
+      if (stopping) return
       await proc.fail(err instanceof Error ? err.message : String(err))
     }
   })()
-
-  function reply(p: PendingRequest, answer: AgentAnswer): Json {
-    if (p.kind === 'command' || p.kind === 'fileChange')
-      return { decision: answer.kind === 'allow' ? 'accept' : 'decline' }
-    if (p.kind === 'permissions') {
-      const asked = (p.params.permissions ?? {}) as Json
-      const granted = Object.fromEntries(
-        Object.entries(asked).filter(([, v]) => v != null)
-      )
-      return {
-        permissions: answer.kind === 'allow' ? granted : {},
-        scope: 'turn'
-      }
-    }
-    const given = answer.kind === 'answers' ? answer.answers : {}
-    const questions = Array.isArray(p.params.questions)
-      ? (p.params.questions as Json[])
-      : []
-    return {
-      answers: Object.fromEntries(
-        questions
-          .map((q) => (typeof q?.id === 'string' ? q.id : ''))
-          .filter((id) => id && given[id] !== undefined)
-          .map((id) => [id, { answers: [given[id]] }])
-      )
-    }
-  }
 
   return {
     get cliSessionId() {
@@ -221,7 +224,8 @@ export function startCodex(input: StartInput): AgentRun {
       return () => listeners.delete(listener)
     },
     send(text) {
-      if (!proc.alive) return false
+      // One turn at a time: a refused turn/start must never end another's turn.
+      if (!proc.alive || busy) return false
       busy = true
       if (ready) sendTurn(text)
       else queue.push(text)
@@ -242,6 +246,7 @@ export function startCodex(input: StartInput): AgentRun {
       return true
     },
     stop() {
+      stopping = true
       return proc.stop()
     }
   }
