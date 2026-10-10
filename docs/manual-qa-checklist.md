@@ -267,3 +267,20 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] While a permission prompt is open, from Terminal on the computer: `curl -i -X POST http://127.0.0.1:<port>/api/v1/agents/sessions/<id>/respond` (with a plausible body) gets `403` with code `PRESENCE_REQUIRED` — answering and stopping need the Exodus window or the paired phone, never a bare process on the machine. The same for the stop route.
 - [ ] Answering Allow / Deny from the Exodus window works; answering from the paired phone works.
 - [ ] From the paired phone, Continue in Terminal, Open folder… and changing a group's folder each fail with `403` — they are computer-side actions, desktop only.
+
+## Codex employees — spec 2026-10-10
+
+Needs codex-cli ≥ 0.162.1, logged in (`codex login status`).
+
+- [ ] Settings › Agents shows Codex Ready with its path, version and "ChatGPT"; with Codex logged out, Check says Not logged in.
+- [ ] Workforce: a Codex employee is offered once Codex is Ready (the default appears once; deleting it doesn't bring it back); the editor's permission levels read as Codex behaves; the model field suggests Codex's own models.
+- [ ] In a group with a new project: "create index.html with a hello page" — the card shows the Edit with its full diff; Allow — the file lands; Done.
+- [ ] Deny a file change: the step reports it was declined; no file written.
+- [ ] A command (e.g. `npm init -y`) asks with the full command and folder; Allow runs it.
+- [ ] Mode "Work freely inside the folder…": writes inside the folder don't ask; a network command (e.g. `curl`) asks to go beyond the sandbox, with what it asks for; Allow grants it for that turn only.
+- [ ] Mode "Never ask…": nothing asks; a network command fails inside the sandbox.
+- [ ] Stop during a long command: the card says Stopped; a follow-up step continues the same thread.
+- [ ] Quit mid-step, reopen: the card is Stopped; the next step resumes the thread (Codex remembers).
+- [ ] Continue in Terminal opens `codex resume <thread>` in the folder; the hand-off script deletes itself.
+- [ ] A Claude Code and a Codex employee given parallel steps in one git repo: one shared folder, one worktree.
+- [ ] If Codex asks a question with a secret, the field is a password field and the card doesn't show the value afterwards.
