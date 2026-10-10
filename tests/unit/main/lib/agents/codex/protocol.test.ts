@@ -171,7 +171,7 @@ describe('Codex protocol', () => {
       type: 'blocked',
       prompt: {
         kind: 'question',
-        questions: [{ id: 'q1', isSecret: true, isOther: false, options: [] }]
+        questions: [{ id: 'q1', isSecret: true, isOther: true, options: [] }]
       }
     })
   })
@@ -208,5 +208,115 @@ describe('Codex protocol', () => {
       p.parse(JSON.stringify({ method: 'thread/status/changed', params: {} }))
         .events
     ).toEqual([])
+  })
+
+  it('shows stdin input as input, and a set environmentId', () => {
+    const p = createCodexParser()
+    const out = p.parse(
+      JSON.stringify({
+        id: 1,
+        method: 'item/commandExecution/requestApproval',
+        params: {
+          kind: 'writeStdin',
+          command: 'rm -rf x',
+          environmentId: 'env-7'
+        }
+      })
+    )
+    const prompt = (
+      out.events[0] as {
+        prompt: { tool: string; summary: string; detail: string }
+      }
+    ).prompt
+    expect(prompt.tool).toBe('Stdin')
+    expect(prompt.summary).toBe('Input to a running command')
+    expect(prompt.detail).toMatch(
+      /^Sends this input to a command that is already running:\nrm -rf x/u
+    )
+    expect(prompt.detail).toMatch(/env-7/u)
+    const net = p.parse(
+      JSON.stringify({
+        id: 2,
+        method: 'item/commandExecution/requestApproval',
+        params: { networkApprovalContext: { host: 'x.com' } }
+      })
+    )
+    expect(
+      (net.events[0] as { prompt: { summary: string } }).prompt.summary
+    ).toBe('Network access to x.com')
+  })
+
+  it('shows the latest diff after patchUpdated, and forgets it when the item completes', () => {
+    const p = createCodexParser()
+    const ch = (d: string) => [
+      { path: 'a.txt', kind: { type: 'update' }, diff: d }
+    ]
+    const send = (o: unknown) => p.parse(JSON.stringify(o))
+    send({
+      method: 'item/started',
+      params: { item: { id: 'f', type: 'fileChange', changes: ch('FIRST') } }
+    })
+    send({
+      method: 'item/fileChange/patchUpdated',
+      params: { itemId: 'f', changes: ch('SECOND') }
+    })
+    const req = {
+      id: 3,
+      method: 'item/fileChange/requestApproval',
+      params: { itemId: 'f' }
+    }
+    const d = (send(req).events[0] as { prompt: { detail: string } }).prompt
+      .detail
+    expect(d).toMatch(/SECOND/u)
+    expect(d).not.toMatch(/FIRST/u)
+    send({
+      method: 'item/completed',
+      params: { item: { id: 'f', type: 'fileChange', status: 'completed' } }
+    })
+    expect(
+      (send(req).events[0] as { prompt: { detail: string } }).prompt.detail
+    ).toMatch(/wasn.t shown/u)
+  })
+
+  it('treats a question without options as free text', () => {
+    const out = createCodexParser().parse(
+      JSON.stringify({
+        id: 1,
+        method: 'item/tool/requestUserInput',
+        params: { questions: [{ id: 'q', question: 'Name?', options: null }] }
+      })
+    )
+    expect(out.events[0]).toMatchObject({
+      prompt: { questions: [{ isOther: true }] }
+    })
+  })
+
+  it('closes open steps at turn end and stays quiet on a retried error', () => {
+    const p = createCodexParser()
+    const send = (o: unknown) => p.parse(JSON.stringify(o))
+    send({
+      method: 'item/started',
+      params: { item: { id: 's', type: 'webSearch', query: 'q' } }
+    })
+    const out = send({
+      method: 'turn/completed',
+      params: { turn: { status: 'interrupted' } }
+    })
+    expect(out.events.map((e) => e.type)).toEqual(['step_end', 'turn_end'])
+    expect(out.events[0]).toMatchObject({ id: 's', isError: true })
+    expect(
+      send({ method: 'error', params: { message: 'x', willRetry: true } })
+        .events
+    ).toEqual([])
+  })
+
+  it('leaves no step open across the recorded interrupted turn', () => {
+    const { events } = replay('allow-decline-interrupt.jsonl')
+    const open = new Set<string>()
+    for (const e of events) {
+      if (e.type === 'step_start') open.add(e.id)
+      if (e.type === 'step_end') open.delete(e.id)
+    }
+    expect([...open]).toEqual([])
   })
 })

@@ -48,12 +48,10 @@ const META = new Set([
   'itemId',
   'startedAtMs',
   'approvalId',
-  'environmentId',
   'availableDecisions',
   'proposedExecpolicyAmendment',
   'proposedNetworkPolicyAmendments',
-  'commandActions',
-  'kind'
+  'commandActions'
 ])
 
 function rest(params: Json, consumed: string[]): string {
@@ -71,7 +69,11 @@ export function describeCommand(params: Json): string {
   const command = str(params.command) ?? '(no command given)'
   const cwd = str(params.cwd)
   const reason = str(params.reason)
-  return `${command}${cwd ? `\n\nin ${cwd}` : ''}${reason ? `\n\nReason: ${reason}` : ''}${rest(params, ['command', 'cwd', 'reason'])}`
+  const lead =
+    params.kind === 'writeStdin'
+      ? 'Sends this input to a command that is already running:\n'
+      : ''
+  return `${lead}${command}${cwd ? `\n\nin ${cwd}` : ''}${reason ? `\n\nReason: ${reason}` : ''}${rest(params, ['command', 'cwd', 'reason', 'kind'])}`
 }
 
 const KIND: Record<string, string> = {
@@ -149,7 +151,7 @@ function questionsOf(params: Json): AgentQuestion[] {
     question: str(q.question) ?? '',
     header: str(q.header) ?? undefined,
     multiSelect: false,
-    isOther: q.isOther === true,
+    isOther: q.isOther === true || q.options == null,
     isSecret: q.isSecret === true,
     options: (Array.isArray(q.options) ? q.options.filter(isObj) : []).map(
       (o) => ({
@@ -166,6 +168,7 @@ export function createCodexParser(): CodexParser {
   const fileChanges = new Map<string, FileChange[]>()
   let lastText = ''
   let declined = 0
+  const openSteps = new Set<string>()
 
   const notice = (text: string): AgentEvent => ({ type: 'notice', text })
 
@@ -184,8 +187,15 @@ export function createCodexParser(): CodexParser {
               prompt: {
                 kind: 'permission',
                 requestId,
-                tool: 'Bash',
-                summary: firstLine(str(params.command) ?? ''),
+                tool: params.kind === 'writeStdin' ? 'Stdin' : 'Bash',
+                summary:
+                  params.kind === 'writeStdin'
+                    ? 'Input to a running command'
+                    : str(params.command)
+                      ? firstLine(str(params.command)!)
+                      : isObj(params.networkApprovalContext)
+                        ? `Network access${str(params.networkApprovalContext.host) ? ` to ${str(params.networkApprovalContext.host)}` : ''}`
+                        : '',
                 detail: describeCommand(params)
               }
             }
@@ -315,6 +325,7 @@ export function createCodexParser(): CodexParser {
               item.changes.filter(isObj) as unknown as FileChange[]
             )
           const step = stepOf(item)
+          if (step) openSteps.add(str(item.id)!)
           return step
             ? { events: [{ type: 'step_start', id: str(item.id)!, ...step }] }
             : { events: [] }
@@ -327,7 +338,9 @@ export function createCodexParser(): CodexParser {
             lastText = text
             return { events: [{ type: 'text', text }] }
           }
+          fileChanges.delete(str(item.id)!)
           if (!stepOf(item)) return { events: [] }
+          openSteps.delete(str(item.id)!)
           if (item.status === 'declined') declined++
           return {
             events: [
@@ -343,6 +356,13 @@ export function createCodexParser(): CodexParser {
           const turn = isObj(params.turn) ? params.turn : {}
           const status = str(turn.status)
           const error = isObj(turn.error) ? str(turn.error.message) : null
+          const closing: AgentEvent[] = [...openSteps].map((sid) => ({
+            type: 'step_end',
+            id: sid,
+            isError: true
+          }))
+          openSteps.clear()
+          fileChanges.clear()
           const event: AgentEvent = {
             type: 'turn_end',
             ok: status === 'completed',
@@ -353,9 +373,19 @@ export function createCodexParser(): CodexParser {
           }
           lastText = ''
           declined = 0
-          return { events: [event] }
+          return { events: [...closing, event] }
+        }
+        case 'item/fileChange/patchUpdated': {
+          const iid = str(params.itemId)
+          if (iid && Array.isArray(params.changes))
+            fileChanges.set(
+              iid,
+              params.changes.filter(isObj) as unknown as FileChange[]
+            )
+          return { events: [] }
         }
         case 'error':
+          if (params.willRetry === true) return { events: [] }
           return {
             events: [
               notice(
