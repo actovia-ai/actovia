@@ -66,17 +66,55 @@ export async function findOnPath(
 const tail = (s: string, n = 600) =>
   (s.length > n ? '…' + s.slice(-n) : s).trim()
 
+/** Codex' phrases after "Logged in using ", as the CLI's 0.162.1 binary has them. */
+const CODEX_AUTH_LABELS = [
+  'API key',
+  'ChatGPT',
+  'personal access token',
+  'access token',
+  'workload identity',
+  'Amazon Bedrock'
+]
+
+/**
+ * How Codex is logged in, as a fixed label: the CLI's own line can carry part
+ * of a key ("Logged in using an API key - sk-proj-***ABCDE"), which must never
+ * reach the status, the UI or the phone.
+ */
+function codexAuthMethod(out: string): string | null {
+  const rest = out.match(/Logged in using ([^\n]*)/u)?.[1]
+  if (rest === undefined) return null
+  const phrase = rest
+    .split(' - ')[0]
+    .trim()
+    .replace(/^(?:an|a) /iu, '')
+    .trim()
+  const known = CODEX_AUTH_LABELS.find((label) =>
+    phrase.toLowerCase().startsWith(label.toLowerCase())
+  )
+  if (known) return known
+  const cleaned = phrase
+    .replaceAll(/[^\p{L}\p{N} -]/gu, '')
+    .slice(0, 40)
+    .trim()
+  return cleaned || null
+}
+
 /** `codex login status`: "Logged in using ChatGPT" (exit 0), "Not logged in" (exit 1). */
 export function parseCodexLoginStatus(
   code: number,
   out: string
 ): { loggedIn: boolean; authMethod: string | null } {
   const loggedIn = code === 0 && /Logged in/u.test(out)
-  const method = out.match(/Logged in using (.+)/u)?.[1]?.trim()
-  return { loggedIn, authMethod: loggedIn ? method || null : null }
+  return { loggedIn, authMethod: loggedIn ? codexAuthMethod(out) : null }
 }
 
-const MODEL_LIST_TIMEOUT_MS = 10_000
+const MODEL_LIST_TIMEOUT_MS = 5000
+const MAX_MODELS = 200
+
+/** A name Exodus may put on the CLI's command line (as the employee editor's rule). */
+const isCliModelName = (m: string) =>
+  /^[\w.:[\]-]+$/u.test(m) && !m.startsWith('-')
 
 /**
  * Codex' models, from a short-lived `codex app-server` (`model/list` spends no
@@ -119,18 +157,18 @@ export function listCodexModels(
         } else if (m?.id === 2) {
           const data = (m.result as { data?: unknown } | undefined)?.data
           if (m.error || !Array.isArray(data)) return finish(null)
-          finish(
-            (data as Array<Record<string, unknown>>)
-              .filter((e) => e && e.hidden !== true)
-              .map((e) =>
-                typeof e.model === 'string'
-                  ? e.model
-                  : typeof e.id === 'string'
-                    ? e.id
-                    : ''
-              )
-              .filter(Boolean)
-          )
+          // Only the first page: the server returns every model in one today.
+          const names = (data as Array<Record<string, unknown>>)
+            .filter((e) => e && e.hidden !== true)
+            .map((e) =>
+              typeof e.model === 'string'
+                ? e.model
+                : typeof e.id === 'string'
+                  ? e.id
+                  : ''
+            )
+            .filter((name) => isCliModelName(name))
+          finish([...new Set(names)].slice(0, MAX_MODELS))
         }
       },
       onExit() {

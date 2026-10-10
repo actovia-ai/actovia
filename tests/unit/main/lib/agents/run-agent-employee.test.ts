@@ -302,6 +302,7 @@ describe('runAgentEmployee', () => {
   it('resumes the employee’s last session in its own folder', async () => {
     resumable = {
       id: 'sess-old',
+      runtime: 'claude-code',
       cliSessionId: 'cli-old',
       cwd: '/x/notes/.exodus/worktrees/w',
       branch: 'exodus/w'
@@ -678,5 +679,39 @@ describe('runAgentEmployee', () => {
         deps(makeRun(happy))
       )
     ).rejects.toThrow(/not a coding-agent CLI/)
+  })
+
+  it('an employee switched to Codex starts afresh: the Claude Code session is not resumed, its process is stopped, not reused', async () => {
+    resumable = {
+      id: 'sess-old',
+      runtime: 'claude-code',
+      cliSessionId: 'cli-old',
+      cwd: '/x/notes',
+      branch: 'main'
+    }
+    sessions.set('sess-old', { ...resumable })
+    const claude = makeRun(happy)
+    const codex = makeRun(happy)
+    const starts: Array<{ cli: CliId; input: StartInput }> = []
+    const d = {
+      ...deps(codex),
+      start: (cli: CliId, input: StartInput) => {
+        starts.push({ cli, input })
+        return codex as unknown as AgentRun
+      }
+    }
+    d.registry.attach('p1:a1', 'sess-old', 'p1', 'c', claude as never)
+    await runAgentEmployee(
+      args({ agent: { ...(agent as object), runtime: 'codex' } }),
+      d
+    )
+    expect(claude.alive).toBe(false)
+    expect(claude.sent).toEqual([])
+    expect(starts).toHaveLength(1)
+    expect(starts[0].cli).toBe('codex')
+    expect(starts[0].input.resume).toBeNull()
+    const fresh = [...sessions.values()].find((r) => r.id !== 'sess-old')
+    expect(fresh?.runtime).toBe('codex')
+    expect(codex.sent).toHaveLength(1)
   })
 })

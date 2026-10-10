@@ -243,7 +243,10 @@ export async function runAgentEmployee(
     try {
       // The session row first: its id names the worktree and the log. It
       // points at this step's message from now on (stale cards, Terminal).
-      const previous = await findResumableSession(project.id, agent.id)
+      const found = await findResumableSession(project.id, agent.id)
+      // Another CLI's session (the employee was switched) is neither resumed nor reused.
+      const previous = found?.runtime === cli ? found : undefined
+      if (found && !previous) await deps.registry.stopSession(found.id)
       const session = previous
         ? await updateAgentSession(previous.id, {
             state: 'working',

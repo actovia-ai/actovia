@@ -151,6 +151,30 @@ describe('CLI check', () => {
       loggedIn: true,
       authMethod: 'API key'
     })
+    const key = parseCodexLoginStatus(
+      0,
+      'Logged in using an API key - sk-proj-***ABCDE'
+    )
+    expect(key).toEqual({ loggedIn: true, authMethod: 'API key' })
+    expect(JSON.stringify(key)).not.toMatch(/sk-|ABCDE/u)
+    expect(parseCodexLoginStatus(0, 'Logged in using ChatGPT')).toEqual({
+      loggedIn: true,
+      authMethod: 'ChatGPT'
+    })
+    expect(
+      parseCodexLoginStatus(0, 'Logged in using a personal access token - x')
+        .authMethod
+    ).toBe('personal access token')
+    expect(
+      parseCodexLoginStatus(0, 'Logged in using Amazon Bedrock (us-east-1)')
+        .authMethod
+    ).toBe('Amazon Bedrock')
+    expect(
+      parseCodexLoginStatus(
+        0,
+        'Logged in using some new way <x>; with far too many words in it to keep - secret'
+      ).authMethod
+    ).toBe('some new way x with far too many words i')
     expect(parseCodexLoginStatus(1, 'Not logged in')).toEqual({
       loggedIn: false,
       authMethod: null
@@ -198,7 +222,10 @@ describe('CLI check', () => {
   if (m.method === 'model/list') out({ id: m.id, result: { data: [
     { id: 'a', model: 'gpt-a', hidden: false },
     { id: 'b', model: 'gpt-b', hidden: true },
-    { id: 'gpt-c', hidden: false }
+    { id: 'gpt-c', hidden: false },
+    { id: 'd', model: 'gpt-a', hidden: false },
+    { id: 'e', model: '--yolo', hidden: false },
+    { id: 'f', model: 'gpt x; rm', hidden: false }
   ], nextCursor: null } })`)
     expect(await listCodexModels(bin, { PATH: '/usr/bin:/bin' })).toEqual([
       'gpt-a',
