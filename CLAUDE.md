@@ -1797,7 +1797,12 @@ Main process:
 - `src/main/lib/lock/` — app lock (PIN, gate, idle)
 - `src/main/lib/db/` — Drizzle schema + queries (PGlite)
 - `src/main/lib/search/` — pluggable full-text search (PGlite default,
-  optional Elasticsearch — see `resolveSearchProvider()`)
+  optional Elasticsearch — see `resolveSearchProvider()`). `GET
+  /api/v1/chat/search?query=` answers one row per chat
+  (`@exodus/shared/types/chat-search`, exodus-ios decodes the same): title
+  or message holding every word, newest match first, 30 chats, ≤ 3 plain-text
+  snippets each (`snippet.ts`; `chat-search-results.ts` folds both providers'
+  hits the same way). The desktop's Search chats dialog is cmdk over it
 - `src/main/lib/knowledge-base/` — optional LightRAG knowledge base: HTTP
   client, `resolveKnowledgeBase()` (never-throws), and the `kb-sync`
   index-status `reconcile.ts`

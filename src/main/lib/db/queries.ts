@@ -1,11 +1,20 @@
 import { ErrorCode, DatabaseError } from '@exodus/shared'
 import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
 import { chatHistoryCursor } from '@exodus/shared/utils/chat-history-cursor'
-import { and, asc, desc, eq, ilike, inArray, lt, or, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, inArray, lt, or, sql, type SQL } from 'drizzle-orm'
 
 import { logger } from '../logger'
 import { addLogSecrets } from '../logger/secret-mask'
+import {
+  buildChatSearchResults,
+  CHAT_SEARCH_LIMIT,
+  type ChatHit,
+  type MessageHit,
+  SNIPPETS_PER_CHAT
+} from '../search/chat-search-results'
 import { extractSearchableText } from '../search/extract-searchable-text'
+import { searchWords } from '../search/snippet'
 import { secretSafeWriteError, settingsColumnHasSecrets } from '../secrets'
 import {
   decryptSettingsRow,
@@ -257,39 +266,93 @@ export function escapeLikePattern(term: string): string {
   return term.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')
 }
 
+/** A timestamp as the ISO string drizzle reads the column as (stored as UTC). */
+const isoText = (value: SQL) =>
+  sql`to_char(${value}, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`
+
+/** `column ILIKE %word%` for every word, ANDed. */
+function containsEvery(column: SQL, words: string[]): SQL {
+  return sql.join(
+    words.map((word) => sql`${column} ILIKE ${`%${escapeLikePattern(word)}%`}`),
+    sql` AND `
+  )
+}
+
 /**
- * Strict substring matching via `pg_trgm` (not Postgres's built-in text
- * search), so CJK text — which the built-in parser doesn't segment into
- * words at all — is matched the same way as any other language: literal
- * character sequences, not "word" boundaries. A multi-word query requires
- * every word to appear somewhere in the message (AND), not necessarily
- * adjacent or in order.
+ * Chat search on PGlite (`GET /api/v1/chat/search`): strict substring
+ * matching via `pg_trgm` (not Postgres's built-in text search), so CJK text —
+ * which the built-in parser doesn't segment into words at all — is matched
+ * the same way as any other language. A message matches when its search text
+ * holds every word (AND, in any order); a chat when one of its messages does
+ * or its title holds every word. One query: the 30 chats with the newest
+ * match, their titles, and their 3 newest matching messages' search text —
+ * nothing else of a row leaves the database.
  */
-export async function fullTextSearchOnMessages(query: string) {
+export async function searchChats(query: string): Promise<ChatSearchResult[]> {
   try {
-    const words = query.trim().split(/\s+/).filter(Boolean)
+    const words = searchWords(query)
     if (words.length === 0) return []
 
-    const conditions = words.map((word) =>
-      ilike(message.searchText, `%${escapeLikePattern(word)}%`)
-    )
+    const result = await db.execute(sql`
+      WITH hit AS (
+        SELECT m.id, m."chatId", m.role, m."searchText", m."createdAt",
+          row_number() OVER (PARTITION BY m."chatId" ORDER BY m."createdAt" DESC) AS rank
+        FROM ${message} m
+        WHERE m.role IN ('user', 'assistant')
+          AND ${containsEvery(sql`m."searchText"`, words)}
+      ),
+      found AS (
+        SELECT c.id, c.title,
+          COALESCE(
+            (SELECT max(h."createdAt") FROM hit h WHERE h."chatId" = c.id),
+            (SELECT max(a."createdAt") FROM ${message} a WHERE a."chatId" = c.id),
+            c."createdAt"
+          ) AS "matchedAt"
+        FROM ${chat} c
+        WHERE EXISTS (SELECT 1 FROM hit h WHERE h."chatId" = c.id)
+          OR (${containsEvery(sql`c.title`, words)})
+        ORDER BY "matchedAt" DESC
+        LIMIT ${CHAT_SEARCH_LIMIT}
+      )
+      SELECT f.id AS "chatId", f.title,
+        ${isoText(sql`f."matchedAt"`)} AS "matchedAt",
+        h.id AS "messageId", h.role, h."searchText",
+        ${isoText(sql`h."createdAt"`)} AS "createdAt"
+      FROM found f
+      LEFT JOIN hit h ON h."chatId" = f.id AND h.rank <= ${SNIPPETS_PER_CHAT}
+    `)
+    // db.execute on pglite returns { rows }.
+    const rows = (
+      result as unknown as {
+        rows: Array<{
+          chatId: string
+          title: string
+          matchedAt: string
+          messageId: string | null
+          role: string | null
+          searchText: string | null
+          createdAt: string | null
+        }>
+      }
+    ).rows
 
-    const messages = await db
-      .select()
-      .from(message)
-      .where(and(...conditions))
-
-    const searchResults = await Promise.all(
-      messages.map(async (m) => {
-        const c = await getChatById({ id: m.chatId })
-        return {
-          ...m,
-          title: c.title
-        }
+    const messages: MessageHit[] = []
+    for (const row of rows) {
+      if (!row.messageId || !row.role || !row.createdAt) continue
+      messages.push({
+        id: row.messageId,
+        chatId: row.chatId,
+        role: row.role,
+        searchText: row.searchText,
+        createdAt: row.createdAt
       })
-    )
-
-    return searchResults
+    }
+    const chats = rows.map((row): ChatHit => ({
+      chatId: row.chatId,
+      title: row.title,
+      activityAt: row.matchedAt
+    }))
+    return buildChatSearchResults(chats, messages, words)
   } catch (error) {
     logDbError('Failed to complete full-text search', error)
     throw error
@@ -297,39 +360,62 @@ export async function fullTextSearchOnMessages(query: string) {
 }
 
 /**
- * Reorders `rows` to match `ids`'s order. `inArray()`'s WHERE clause gives
- * no ordering guarantee, so without this an external ranking (e.g.
- * Elasticsearch relevance order) is lost by the time results reach the
- * caller.
+ * The messages Elasticsearch matched, with their chats' titles — one query,
+ * only what a snippet needs.
  */
-export function orderByIds<T extends { id: string }>(
-  rows: T[],
+export async function getMessageHitsByIds(
   ids: string[]
-): T[] {
-  const rank = new Map(ids.map((id, i) => [id, i]))
-  return rows.toSorted((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0))
-}
-
-export async function getMessagesWithTitleByIds(
-  ids: string[]
-): Promise<Array<Message & { title: string }>> {
+): Promise<{ chats: ChatHit[]; messages: MessageHit[] }> {
   try {
-    if (ids.length === 0) return []
-    const messages = await db
-      .select()
-      .from(message)
-      .where(inArray(message.id, ids))
-
-    const withTitles = await Promise.all(
-      messages.map(async (m) => {
-        const c = await getChatById({ id: m.chatId })
-        return { ...m, title: c.title }
+    if (ids.length === 0) return { chats: [], messages: [] }
+    const rows = await db
+      .select({
+        id: message.id,
+        chatId: message.chatId,
+        role: message.role,
+        searchText: message.searchText,
+        createdAt: message.createdAt,
+        title: chat.title
       })
-    )
-
-    return orderByIds(withTitles, ids)
+      .from(message)
+      .innerJoin(chat, eq(chat.id, message.chatId))
+      .where(inArray(message.id, ids))
+    return {
+      chats: rows.map((r) => ({
+        chatId: r.chatId,
+        title: r.title,
+        activityAt: r.createdAt
+      })),
+      messages: rows
+    }
   } catch (error) {
     logDbError('Failed to get messages by ids', error)
+    throw error
+  }
+}
+
+/**
+ * The chats whose title holds every word, newest activity first — the half of
+ * a search Elasticsearch, which indexes messages only, cannot answer.
+ */
+export async function getChatsByTitle(words: string[]): Promise<ChatHit[]> {
+  try {
+    if (words.length === 0) return []
+    const activityAt = sql`COALESCE(max(${message.createdAt}), ${chat.createdAt})`
+    return await db
+      .select({
+        chatId: chat.id,
+        title: chat.title,
+        activityAt: sql<string>`${isoText(activityAt)}`
+      })
+      .from(chat)
+      .leftJoin(message, eq(message.chatId, chat.id))
+      .where(containsEvery(sql`${chat.title}`, words))
+      .groupBy(chat.id)
+      .orderBy(desc(activityAt))
+      .limit(CHAT_SEARCH_LIMIT)
+  } catch (error) {
+    logDbError('Failed to search chat titles', error)
     throw error
   }
 }

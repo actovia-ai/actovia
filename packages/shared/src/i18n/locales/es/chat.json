@@ -266,9 +266,12 @@
       "description": "Esto eliminará <strong>{{title}}</strong>."
     },
     "search": {
-      "placeholder": "Buscar chat…",
-      "ariaLabel": "Buscar mensajes del chat",
-      "noContents": "Sin contenido"
+      "title": "Buscar chats",
+      "description": "Encuentra un chat por su título o por lo que se dijo en él.",
+      "placeholder": "Buscar chats…",
+      "ariaLabel": "Buscar chats",
+      "recent": "Recientes",
+      "noResults": "Ningún chat coincide con «{{query}}»"
     }
   },
   "run": {

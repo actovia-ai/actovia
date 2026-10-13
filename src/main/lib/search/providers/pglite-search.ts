@@ -1,4 +1,4 @@
-import { fullTextSearchOnMessages } from '../../db/queries'
+import { searchChats } from '../../db/queries'
 import type { SearchProvider } from '../types'
 
 /**
@@ -15,7 +15,7 @@ export const pgliteSearchProvider: SearchProvider = {
   deleteByChatId: async () => {},
   deleteAll: async () => {},
   async search(query) {
-    return fullTextSearchOnMessages(query)
+    return searchChats(query)
   },
   // Always reachable — it's the local, unconditional baseline.
   ping: async () => {}

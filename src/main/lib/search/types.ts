@@ -1,6 +1,6 @@
-import type { Message } from '../db/schema'
+import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
 
-export type SearchHit = Message & { title: string }
+import type { Message } from '../db/schema'
 
 export interface SearchProvider {
   indexMessage(message: Message): Promise<void>
@@ -9,7 +9,8 @@ export interface SearchProvider {
   deleteByChatId(chatId: string): Promise<void>
   /** Clears the whole index — mirrors a full `resetAllData()` on the DB side. */
   deleteAll(): Promise<void>
-  search(query: string): Promise<SearchHit[]>
+  /** One row per chat, newest match first (`chat-search-results.ts`). */
+  search(query: string): Promise<ChatSearchResult[]>
   /**
    * Pure connectivity/health check — must not depend on the index existing
    * (so it works against a freshly-configured cluster before anything has

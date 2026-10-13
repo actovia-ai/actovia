@@ -266,9 +266,12 @@
       "description": "Dadurch wird <strong>{{title}}</strong> gelöscht."
     },
     "search": {
-      "placeholder": "Chat durchsuchen…",
-      "ariaLabel": "Chat-Nachrichten durchsuchen",
-      "noContents": "Keine Inhalte"
+      "title": "Chats durchsuchen",
+      "description": "Einen Chat über seinen Titel oder seinen Inhalt finden.",
+      "placeholder": "Chats durchsuchen…",
+      "ariaLabel": "Chats durchsuchen",
+      "recent": "Zuletzt",
+      "noResults": "Keine Chats zu „{{query}}“"
     }
   },
   "run": {

@@ -111,7 +111,7 @@ vi.mock('@main/lib/media/store', () => ({
 
 const { default: chat } = await import('@main/lib/server/routes/chat')
 const { saveMessages } = await import('@main/lib/db/queries')
-const { resolveSearchProvider } =
+const { resolveSearchProvider, searchWithFallback } =
   await import('@main/lib/search/resolve-search-provider')
 const saveMessagesMock = vi.mocked(saveMessages)
 const resolveSearchProviderMock = vi.mocked(resolveSearchProvider)
@@ -481,5 +481,49 @@ describe('DELETE /api/v1/chat/:id', () => {
     expect(res.status).toBe(200)
     expect(vi.mocked(deleteChatById)).toHaveBeenCalledWith({ id: CHAT_ID })
     expect(removeChatMediaMock).toHaveBeenCalledWith(CHAT_ID)
+  })
+})
+
+describe('GET /api/v1/chat/search', () => {
+  it('answers the one-row-per-chat results for the query, as they are', async () => {
+    const results = [
+      {
+        chatId: CHAT_ID,
+        title: 'Peking duck',
+        matchedAt: '2026-10-14T00:00:00.000Z',
+        snippets: [
+          {
+            messageId: 'm1',
+            role: 'assistant',
+            text: '…the best 北京烤鸭 in town',
+            createdAt: '2026-10-14T00:00:00.000Z'
+          }
+        ]
+      }
+    ]
+    vi.mocked(searchWithFallback).mockResolvedValueOnce(results as never)
+
+    const res = await buildApp().request(
+      `/search?query=${encodeURIComponent('北京 duck')}`
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual(results)
+    expect(vi.mocked(searchWithFallback)).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'settings-1' }),
+      '北京 duck'
+    )
+  })
+
+  it('passes a missing query on as empty', async () => {
+    vi.mocked(searchWithFallback).mockResolvedValueOnce([])
+
+    const res = await buildApp().request('/search')
+
+    expect(await res.json()).toEqual([])
+    expect(vi.mocked(searchWithFallback)).toHaveBeenLastCalledWith(
+      expect.anything(),
+      ''
+    )
   })
 })

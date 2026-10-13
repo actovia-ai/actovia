@@ -79,7 +79,9 @@ test.describe('Chat History & Search', () => {
     expect(data.length).toBeGreaterThanOrEqual(2)
   })
 
-  test('GET /api/v1/chat/search finds messages by keyword', async ({ api }) => {
+  test('GET /api/v1/chat/search finds a chat by a keyword in it', async ({
+    api
+  }) => {
     skipWithoutKey('OPENAI_API_KEY')
 
     const chatId = crypto.randomUUID()
@@ -91,8 +93,9 @@ test.describe('Chat History & Search', () => {
       text: `Remember this unique keyword: ${uniqueKeyword}`
     })
 
-    const { status, data } = await api.searchMessages(uniqueKeyword)
+    const { status, data } = await api.searchChats(uniqueKeyword)
     expect(status).toBe(200)
-    expect(data.length).toBeGreaterThanOrEqual(1)
+    const found = data.find((result) => result.chatId === chatId)
+    expect(found?.snippets[0]?.text).toContain(uniqueKeyword)
   })
 })

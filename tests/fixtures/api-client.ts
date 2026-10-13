@@ -5,6 +5,7 @@
  * The Hono server returns data directly (no { code, data } wrapper).
  * DELETE endpoints return plain text, not JSON.
  */
+import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
 import { test as base } from '@playwright/test'
 
 const BASE_URL = 'http://localhost:60223'
@@ -221,8 +222,8 @@ export class ApiClient {
 
   // ── Search ─────────────────────────────────────────────────────────────
 
-  async searchMessages(query: string) {
-    return this.get<Array<Record<string, unknown>>>(
+  async searchChats(query: string) {
+    return this.get<ChatSearchResult[]>(
       `/api/v1/chat/search?query=${encodeURIComponent(query)}`
     )
   }

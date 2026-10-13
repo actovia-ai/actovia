@@ -1,10 +1,16 @@
-import { SearchIcon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { useNavigate } from 'react-router'
 
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandShortcut
+} from '@/components/ui/command'
 import {
   Dialog,
   DialogContent,
@@ -12,85 +18,170 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
+import { useChatHistory } from '@/hooks/use-chat-history'
 import { useChatSearch } from '@/hooks/use-chat-search'
+import { splitHighlights } from '@/lib/highlight-words'
+import {
+  compactRelativeTime,
+  parseLocalishCreatedAt
+} from '@/lib/relative-time'
 import { isFullTextSearchVisibleAtom } from '@/stores/chat'
 
+/** How many of the newest chats an empty query lists. */
+const RECENT_CHATS = 8
+
+function Note({ children }: { children: string }) {
+  return (
+    <div className="text-muted-foreground px-3 py-10 text-center text-sm">
+      {children}
+    </div>
+  )
+}
+
+function Highlighted({ text, words }: { text: string; words: string[] }) {
+  return splitHighlights(text, words).map((part, i) =>
+    part.match ? (
+      <mark key={i} className="bg-primary/15 text-foreground rounded-xs">
+        {part.text}
+      </mark>
+    ) : (
+      part.text
+    )
+  )
+}
+
+function SearchRow({
+  chatId,
+  title,
+  snippet,
+  at,
+  words,
+  onOpen
+}: {
+  chatId: string
+  title: string
+  snippet?: string
+  at: Date
+  words: string[]
+  onOpen: (chatId: string) => void
+}) {
+  return (
+    <CommandItem
+      value={chatId}
+      onSelect={() => onOpen(chatId)}
+      className="items-start gap-3 px-3 py-2"
+    >
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <span className="text-foreground truncate text-sm">
+          <Highlighted text={title} words={words} />
+        </span>
+        {snippet && (
+          <span className="text-muted-foreground line-clamp-2 text-xs">
+            <Highlighted text={snippet} words={words} />
+          </span>
+        )}
+      </div>
+      {/* A shortcut slot, so the item's check mark gives up its place. */}
+      <CommandShortcut className="pt-0.5 tracking-normal tabular-nums">
+        {compactRelativeTime(at)}
+      </CommandShortcut>
+    </CommandItem>
+  )
+}
+
+/**
+ * Search chats: one row per chat — its title, the newest matching message's
+ * words around the match, and when it matched — with the query's words
+ * marked. ↑/↓ and Enter are cmdk's; the server does the filtering. With
+ * nothing typed it lists the newest chats.
+ */
 export function SearchDialog() {
   const { t } = useTranslation('chat')
-  const [isFullTextSearchVisible, setIsFullTextSearchVisible] = useAtom(
-    isFullTextSearchVisibleAtom
-  )
+  const navigate = useNavigate()
+  const [isOpen, setIsOpen] = useAtom(isFullTextSearchVisibleAtom)
   const [query, setQuery] = useState('')
-  const { data } = useChatSearch(query)
+  const { data: results, term, isSearching } = useChatSearch(query)
+  const { data: history } = useChatHistory()
 
-  const handleInputChange = (value: string) => {
-    setQuery(value)
+  const words = term.split(/\s+/u).filter(Boolean)
+  const typed = query.trim()
+  const recent = (history ?? []).slice(0, RECENT_CHATS)
+
+  const onOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) setQuery('')
+  }
+  const openChat = (chatId: string) => {
+    onOpenChange(false)
+    void navigate(`/chat/${chatId}`)
+  }
+
+  let list
+  if (typed) {
+    list =
+      results.length > 0
+        ? results.map((result) => (
+            <SearchRow
+              key={result.chatId}
+              chatId={result.chatId}
+              title={result.title}
+              snippet={result.snippets[0]?.text}
+              at={new Date(result.matchedAt)}
+              words={words}
+              onOpen={openChat}
+            />
+          ))
+        : !isSearching && (
+            <Note>{t('sidebar.search.noResults', { query: typed })}</Note>
+          )
+  } else if (recent.length > 0) {
+    list = (
+      <CommandGroup heading={t('sidebar.search.recent')} className="p-0">
+        {recent.map((chat) => (
+          <SearchRow
+            key={chat.id}
+            chatId={chat.id}
+            title={chat.title}
+            at={parseLocalishCreatedAt(chat.createdAt)}
+            words={[]}
+            onOpen={openChat}
+          />
+        ))}
+      </CommandGroup>
+    )
+  } else {
+    list = <Note>{t('sidebar.history.empty')}</Note>
   }
 
   return (
-    <Dialog
-      open={isFullTextSearchVisible}
-      onOpenChange={(oepn) => {
-        setIsFullTextSearchVisible(oepn)
-        setQuery('')
-      }}
-    >
-      <DialogContent className="gap-0 p-0 md:max-w-[680px] md:min-w-[680px]">
-        <DialogHeader>
-          <DialogTitle>
-            <div className="flex items-center gap-2 border-b px-3 py-1">
-              <HugeiconsIcon icon={SearchIcon} size={20} />
-              <input
-                placeholder={t('sidebar.search.placeholder')}
-                aria-label={t('sidebar.search.ariaLabel')}
-                autoFocus
-                onChange={(e) => handleInputChange(e.target.value)}
-                className="placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm font-normal outline-none disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-          </DialogTitle>
-          <DialogDescription aria-describedby={undefined} />
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        // Pinned near the top, so the input stays where it is as the list
+        // grows and shrinks; past the cap the list scrolls under it.
+        className="top-[10vh] flex max-h-[min(80vh,560px)] translate-y-0 flex-col gap-0 overflow-hidden p-0 md:max-w-[680px] md:min-w-[680px]"
+      >
+        <DialogHeader className="sr-only">
+          <DialogTitle>{t('sidebar.search.title')}</DialogTitle>
+          <DialogDescription>
+            {t('sidebar.search.description')}
+          </DialogDescription>
         </DialogHeader>
-
-        <ol className="flex flex-col gap-2 p-2 pt-0">
-          {data.length === 0 ? (
-            <div className="text-ring flex h-40 items-center justify-center">
-              {t('sidebar.search.noContents')}
-            </div>
-          ) : (
-            data.map((item) => (
-              <li key={item.id}>
-                <Link
-                  to={`/chat/${item.chatId}`}
-                  onClick={() => {
-                    setIsFullTextSearchVisible(false)
-                    setQuery('')
-                  }}
-                >
-                  <div className="hover:bg-accent relative flex flex-col rounded-lg px-4 py-3 transition-colors">
-                    <p className="text-primary-ink truncate text-sm">
-                      {item.title}
-                    </p>
-                    <p className="text-ring line-clamp-2 pt-1 text-xs">
-                      {(() => {
-                        const content = item.content
-                        if (typeof content === 'string') return content
-                        if (Array.isArray(content)) {
-                          const textBlock = content.find(
-                            (c): c is { type: 'text'; text: string } =>
-                              c.type === 'text' && c.text !== ''
-                          )
-                          return textBlock ? textBlock.text : ''
-                        }
-                        return ''
-                      })()}
-                    </p>
-                  </div>
-                </Link>
-              </li>
-            ))
-          )}
-        </ol>
+        <Command
+          shouldFilter={false}
+          className="min-h-0 flex-1 rounded-none bg-transparent p-1.5"
+        >
+          <CommandInput
+            value={query}
+            onValueChange={setQuery}
+            placeholder={t('sidebar.search.placeholder')}
+            aria-label={t('sidebar.search.ariaLabel')}
+            autoFocus
+          />
+          <CommandList className="max-h-none min-h-0 flex-1 pt-1.5">
+            {list}
+          </CommandList>
+        </Command>
       </DialogContent>
     </Dialog>
   )

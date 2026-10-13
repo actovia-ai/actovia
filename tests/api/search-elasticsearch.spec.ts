@@ -56,7 +56,7 @@ test.describe('Elasticsearch search', () => {
     await expect
       .poll(
         async () => {
-          const { data } = await api.searchMessages(uniqueKeyword)
+          const { data } = await api.searchChats(uniqueKeyword)
           return data.length
         },
         { timeout: 10_000 }

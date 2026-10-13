@@ -1,8 +1,10 @@
 import { Client } from '@elastic/elasticsearch'
 
-import { getMessagesWithTitleByIds } from '../../db/queries'
+import { getChatsByTitle, getMessageHitsByIds } from '../../db/queries'
 import type { Message } from '../../db/schema'
 import { logger } from '../../logger'
+import { buildChatSearchResults } from '../chat-search-results'
+import { searchWords } from '../snippet'
 import type { SearchProvider } from '../types'
 
 export interface ElasticsearchProviderConfig {
@@ -13,6 +15,8 @@ export interface ElasticsearchProviderConfig {
 }
 
 const DEFAULT_INDEX_NAME = 'exodus-messages'
+// Enough newest hits to fill 30 chats, a few messages each.
+const HIT_LIMIT = 300
 
 export function createElasticsearchProvider(
   config: ElasticsearchProviderConfig
@@ -97,17 +101,32 @@ export function createElasticsearchProvider(
     },
 
     async search(query: string) {
+      const words = searchWords(query)
+      if (words.length === 0) return []
+      // Every word, like PGlite's AND, and the newest hits: results are dated
+      // and ordered by their newest match, not ranked by relevance.
       const result = await client.search({
         index: indexName,
-        query: { match: { searchText: query } }
+        query: { match: { searchText: { query, operator: 'and' } } },
+        sort: [{ createdAt: { order: 'desc' } }],
+        size: HIT_LIMIT,
+        _source: false
       })
       const ids = result.hits.hits
         // Bracket access sidesteps no-underscore-dangle — `_id` is
         // Elasticsearch's own response field name, not ours to rename.
         .map((hit) => hit['_id'])
         .filter((id): id is string => typeof id === 'string')
-      if (ids.length === 0) return []
-      return getMessagesWithTitleByIds(ids)
+      // The index holds messages only; titles are matched in PGlite.
+      const [hits, titled] = await Promise.all([
+        getMessageHitsByIds(ids),
+        getChatsByTitle(words)
+      ])
+      return buildChatSearchResults(
+        [...hits.chats, ...titled],
+        hits.messages,
+        words
+      )
     },
 
     async ping() {

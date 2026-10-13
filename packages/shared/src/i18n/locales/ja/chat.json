@@ -256,9 +256,12 @@
       "description": "<strong>{{title}}</strong>を削除します。"
     },
     "search": {
+      "title": "チャットを検索",
+      "description": "タイトルや会話の内容からチャットを探します。",
       "placeholder": "チャットを検索…",
-      "ariaLabel": "チャットメッセージを検索",
-      "noContents": "該当する内容がありません"
+      "ariaLabel": "チャットを検索",
+      "recent": "最近",
+      "noResults": "「{{query}}」に一致するチャットはありません"
     }
   },
   "run": {

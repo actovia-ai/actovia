@@ -1,3 +1,5 @@
+import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
+
 import type { Settings } from '../db/schema'
 import { logger } from '../logger'
 import {
@@ -5,7 +7,7 @@ import {
   type ElasticsearchProviderConfig
 } from './providers/elasticsearch-search'
 import { pgliteSearchProvider } from './providers/pglite-search'
-import type { SearchHit, SearchProvider } from './types'
+import type { SearchProvider } from './types'
 
 export interface ResolvedSearchProvider {
   /** null when Elasticsearch isn't configured. */
@@ -82,7 +84,7 @@ export function resolveSearchProvider(
 export async function searchWithFallback(
   settings: Settings,
   query: string
-): Promise<SearchHit[]> {
+): Promise<ChatSearchResult[]> {
   const { elasticsearch, pglite } = resolveSearchProvider(settings)
 
   if (elasticsearch) {

@@ -10,7 +10,8 @@ const mockSearch = vi.fn()
 const mockDeleteByQuery = vi.fn()
 const mockInfo = vi.fn()
 const mockBulk = vi.fn()
-const mockGetMessagesWithTitleByIds = vi.fn()
+const mockGetMessageHitsByIds = vi.fn()
+const mockGetChatsByTitle = vi.fn()
 
 vi.mock('@elastic/elasticsearch', () => ({
   Client: vi.fn().mockImplementation(function () {
@@ -25,7 +26,8 @@ vi.mock('@elastic/elasticsearch', () => ({
 }))
 
 vi.mock('@main/lib/db/queries', () => ({
-  getMessagesWithTitleByIds: mockGetMessagesWithTitleByIds
+  getMessageHitsByIds: mockGetMessageHitsByIds,
+  getChatsByTitle: mockGetChatsByTitle
 }))
 
 const { createElasticsearchProvider } =
@@ -149,41 +151,76 @@ describe('createElasticsearchProvider', () => {
     )
   })
 
-  it('searches and re-fetches full rows by returned ids', async () => {
+  it('asks for every word among the newest hits, and answers one row per chat', async () => {
     mockSearch.mockResolvedValue({
       hits: { hits: [{ _id: 'msg-1' }, { _id: 'msg-2' }] }
     })
-    mockGetMessagesWithTitleByIds.mockResolvedValue([
-      { ...baseMessage, title: 'Chat One' }
+    mockGetMessageHitsByIds.mockResolvedValue({
+      chats: [
+        {
+          chatId: 'chat-1',
+          title: 'Chat One',
+          activityAt: baseMessage.createdAt
+        }
+      ],
+      messages: [{ ...baseMessage, searchText: '**hello** world' }]
+    })
+    mockGetChatsByTitle.mockResolvedValue([
+      {
+        chatId: 'chat-2',
+        title: 'Hello world',
+        activityAt: '2025-12-01T00:00:00.000Z'
+      }
     ])
 
     const provider = createElasticsearchProvider({
       url: 'http://localhost:9200'
     })
-    const results = await provider.search('hello')
+    const results = await provider.search('hello world')
 
     expect(mockSearch).toHaveBeenCalledWith({
       index: 'exodus-messages',
-      query: { match: { searchText: 'hello' } }
+      query: {
+        match: { searchText: { query: 'hello world', operator: 'and' } }
+      },
+      sort: [{ createdAt: { order: 'desc' } }],
+      size: 300,
+      _source: false
     })
-    expect(mockGetMessagesWithTitleByIds).toHaveBeenCalledWith([
-      'msg-1',
-      'msg-2'
+    expect(mockGetMessageHitsByIds).toHaveBeenCalledWith(['msg-1', 'msg-2'])
+    expect(mockGetChatsByTitle).toHaveBeenCalledWith(['hello', 'world'])
+    expect(results).toEqual([
+      {
+        chatId: 'chat-1',
+        title: 'Chat One',
+        matchedAt: '2026-01-01T00:00:00.000Z',
+        snippets: [
+          {
+            messageId: 'msg-1',
+            role: 'assistant',
+            text: 'hello world',
+            createdAt: '2026-01-01T00:00:00.000Z'
+          }
+        ]
+      },
+      {
+        chatId: 'chat-2',
+        title: 'Hello world',
+        matchedAt: '2025-12-01T00:00:00.000Z',
+        snippets: []
+      }
     ])
-    expect(results).toEqual([{ ...baseMessage, title: 'Chat One' }])
   })
 
-  it('returns an empty array without querying PGlite when there are no hits', async () => {
-    mockSearch.mockResolvedValue({ hits: { hits: [] } })
-    mockGetMessagesWithTitleByIds.mockClear()
+  it('answers [] for a blank query without asking the cluster', async () => {
+    mockSearch.mockClear()
 
     const provider = createElasticsearchProvider({
       url: 'http://localhost:9200'
     })
-    const results = await provider.search('nomatch')
 
-    expect(results).toEqual([])
-    expect(mockGetMessagesWithTitleByIds).not.toHaveBeenCalled()
+    expect(await provider.search('  ')).toEqual([])
+    expect(mockSearch).not.toHaveBeenCalled()
   })
 
   it('pings via client.info() rather than a query against the index', async () => {

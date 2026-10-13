@@ -256,9 +256,12 @@
       "description": "這將刪除 <strong>{{title}}</strong>。"
     },
     "search": {
-      "placeholder": "搜尋聊天...",
-      "ariaLabel": "搜尋聊天訊息",
-      "noContents": "沒有內容"
+      "title": "搜尋聊天",
+      "description": "依標題或對話內容搜尋聊天。",
+      "placeholder": "搜尋聊天…",
+      "ariaLabel": "搜尋聊天",
+      "recent": "最近",
+      "noResults": "沒有符合「{{query}}」的聊天"
     }
   },
   "run": {

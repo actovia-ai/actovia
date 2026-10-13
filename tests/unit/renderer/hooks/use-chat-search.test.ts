@@ -19,10 +19,14 @@ const { chatSearchKeys, useChatSearch } =
 
 const DEBOUNCE_MS = 300
 
-const hits = [{ id: 'm1', chatId: 'c1', title: 'Chat one', content: 'hello' }]
-const otherHits = [
-  { id: 'm2', chatId: 'c2', title: 'Chat two', content: 'world' }
-]
+const result = (chatId: string, title: string) => ({
+  chatId,
+  title,
+  matchedAt: '2026-10-14T00:00:00.000Z',
+  snippets: []
+})
+const hits = [result('c1', 'Chat one')]
+const otherHits = [result('c2', 'Chat two')]
 
 type Harness = ReturnType<typeof useChatSearch> & {
   setQuery: (value: string) => void
@@ -165,5 +169,33 @@ describe('useChatSearch', () => {
 
     expect(fetcherMock).toHaveBeenCalledTimes(1)
     expect(api().data).toEqual([])
+  })
+
+  it('names the term its rows answer, and says it is searching until the typed one is answered', async () => {
+    const pending = Promise.withResolvers<unknown>()
+    fetcherMock.mockReturnValue(pending.promise)
+    const { api, type, advance } = await mountSearch()
+
+    type('  duck ')
+    expect(api().isSearching).toBe(true)
+    expect(api().data).toEqual([])
+
+    await advance(DEBOUNCE_MS)
+    expect(fetcherMock).toHaveBeenCalledWith('/api/v1/chat/search?query=duck')
+    expect(api().isSearching).toBe(true)
+
+    await act(async () => {
+      pending.resolve(hits)
+      await pending.promise
+    })
+    await advance(0)
+    expect(api()).toMatchObject({
+      data: hits,
+      term: 'duck',
+      isSearching: false
+    })
+
+    type('')
+    expect(api()).toMatchObject({ data: [], term: '', isSearching: false })
   })
 })

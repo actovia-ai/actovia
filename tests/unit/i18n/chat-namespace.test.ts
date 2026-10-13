@@ -388,7 +388,11 @@ describe('chat namespace Phase 5 additions (en)', () => {
     expect(chat.sidebar.deleteDialog.description).toBe(
       'This will delete <strong>{{title}}</strong>.'
     )
-    expect(chat.sidebar.search.noContents).toBe('No contents')
+    expect(chat.sidebar.search).toMatchObject({
+      placeholder: 'Search chats…',
+      recent: 'Recent',
+      noResults: 'No chats match “{{query}}”'
+    })
   })
 
   it('has the extra toast keys for chat.tsx onError and stream-manager', () => {

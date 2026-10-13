@@ -266,9 +266,12 @@
       "description": "This will delete <strong>{{title}}</strong>."
     },
     "search": {
-      "placeholder": "Search Chat...",
-      "ariaLabel": "Search chat messages",
-      "noContents": "No contents"
+      "title": "Search chats",
+      "description": "Find a chat by its title or by what was said in it.",
+      "placeholder": "Search chats…",
+      "ariaLabel": "Search chats",
+      "recent": "Recent",
+      "noResults": "No chats match “{{query}}”"
     }
   },
   "run": {

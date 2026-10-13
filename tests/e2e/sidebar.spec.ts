@@ -62,7 +62,7 @@ test.describe('Sidebar', () => {
     await searchButton.waitFor({ state: 'visible', timeout: 10_000 })
     await searchButton.click()
 
-    await expect(mainWindow.getByPlaceholder('Search Chat...')).toBeVisible({
+    await expect(mainWindow.getByPlaceholder('Search chats…')).toBeVisible({
       timeout: 5_000
     })
   })

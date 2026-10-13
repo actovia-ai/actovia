@@ -266,9 +266,12 @@
       "description": "Cela supprimera <strong>{{title}}</strong>."
     },
     "search": {
-      "placeholder": "Rechercher une conversation…",
-      "ariaLabel": "Rechercher dans les messages de la conversation",
-      "noContents": "Aucun contenu"
+      "title": "Rechercher des conversations",
+      "description": "Retrouvez une conversation par son titre ou par ce qui s’y est dit.",
+      "placeholder": "Rechercher des conversations…",
+      "ariaLabel": "Rechercher des conversations",
+      "recent": "Récentes",
+      "noResults": "Aucune conversation ne correspond à « {{query}} »"
     }
   },
   "run": {

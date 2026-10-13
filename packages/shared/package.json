@@ -25,6 +25,7 @@
     "./types/entity": "./src/types/entity.ts",
     "./types/chat-page": "./src/types/chat-page.ts",
     "./types/chat-history": "./src/types/chat-history.ts",
+    "./types/chat-search": "./src/types/chat-search.ts",
     "./types/deep-research": "./src/types/deep-research.ts",
     "./types/computer-use": "./src/types/computer-use.ts",
     "./constants/systems": "./src/constants/systems.ts",
