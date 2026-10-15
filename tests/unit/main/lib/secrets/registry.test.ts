@@ -79,9 +79,7 @@ const byPath = new Map(all.map((l) => [l.path, l]))
 describe('settings secret registry', () => {
   it('walks the schema (sanity)', () => {
     expect(byPath.get('providers.openaiApiKey')?.type).toBe('string')
-    expect(byPath.get('fullTextSearch.elasticsearch.password')?.type).toBe(
-      'string'
-    )
+    expect(byPath.get('knowledgeBase.apiKey')?.type).toBe('string')
   })
 
   it('has a decision for every key-like field in the schema', () => {
@@ -135,7 +133,6 @@ describe('settings secret registry', () => {
         'providers.xAiApiKey',
         'googleCloud.googleApiKey',
         'webSearch.braveApiKey',
-        'fullTextSearch.elasticsearch.password',
         'knowledgeBase.apiKey',
         's3.accessKeyId',
         's3.secretAccessKey'

@@ -11,12 +11,6 @@ vi.mock('@main/lib/db/queries', () => ({
   getMessagesByChatId: mockGetMessagesByChatId
 }))
 
-const mockElasticsearchIndexMessage = vi.fn()
-const mockResolveSearchProvider = vi.fn()
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: mockResolveSearchProvider
-}))
-
 const mockTrackContextMessages = vi.fn()
 const mockCompactAfterTurn = vi.fn()
 vi.mock('@main/lib/ai/context-management', () => ({
@@ -65,47 +59,6 @@ const fakeModel = {
 const withOpenAiKey = (over: Record<string, unknown> = {}) => ({
   id: 'global',
   providers: { openaiApiKey: 'sk-from-settings', ...over }
-})
-
-describe('handlers.index-message', () => {
-  it('does nothing when elasticsearch is not configured', async () => {
-    mockGetSettings.mockResolvedValue({ id: 'global' })
-    mockResolveSearchProvider.mockReturnValue({ elasticsearch: null })
-
-    await handlers['index-message']({
-      id: 'msg-1',
-      chatId: 'chat-1',
-      role: 'user',
-      content: 'hello',
-      createdAt: new Date()
-    })
-
-    expect(mockElasticsearchIndexMessage).not.toHaveBeenCalled()
-  })
-
-  it('indexes the message with searchText computed when elasticsearch is configured', async () => {
-    mockGetSettings.mockResolvedValue({ id: 'global' })
-    mockResolveSearchProvider.mockReturnValue({
-      elasticsearch: { indexMessage: mockElasticsearchIndexMessage }
-    })
-    mockElasticsearchIndexMessage.mockResolvedValue(undefined)
-
-    await handlers['index-message']({
-      id: 'msg-1',
-      chatId: 'chat-1',
-      role: 'user',
-      content: 'hello',
-      createdAt: new Date('2026-01-01')
-    })
-
-    expect(mockElasticsearchIndexMessage).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'msg-1',
-        chatId: 'chat-1',
-        searchText: 'hello'
-      })
-    )
-  })
 })
 
 describe('handlers.lcm-post-turn', () => {

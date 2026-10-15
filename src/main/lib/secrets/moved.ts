@@ -6,8 +6,8 @@ import { getAtPath } from './tree'
 
 /**
  * Secrets a write cleared because their destination moved (ruling R1: a
- * stored key never follows a new host — a provider base URL, the Elasticsearch
- * or LightRAG URL, an MCP server's url / transport or command / args). Each is
+ * stored key never follows a new host — a provider base URL, the LightRAG
+ * URL, an MCP server's url / transport or command / args). Each is
  * listed in `GET /api/v1/settings/secrets-status` `needsReentry` beside the
  * decrypt failures, until a new value is saved for it (S3 review I2).
  *

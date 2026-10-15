@@ -5,10 +5,7 @@ import JSZip from 'jszip'
 
 import { createAutoBackup } from '../../backup'
 import { exportData, importData, resetAllData } from '../../db/queries'
-import type { Settings } from '../../db/schema'
-import { logger } from '../../logger'
 import { removeAllMedia } from '../../media/store'
-import { resolveSearchProvider } from '../../search/resolve-search-provider'
 import { forgetAllMovedSecrets } from '../../secrets/moved'
 import { importDataSchema } from '../schemas/db-io'
 import { Variables } from '../types'
@@ -38,22 +35,6 @@ const tableNames = [
  * `settings`, `mcp_server` or `paired_device` as if it were this machine's.
  */
 const importableTables = new Set(tableNames.filter((t) => t !== 'settings'))
-
-/**
- * Fire-and-forget: `resetAllData()` TRUNCATEs the `message` table, so the
- * Elasticsearch index has to be cleared wholesale to match. Never awaited — a
- * search-side failure must not fail the reset, which already succeeded.
- */
-function clearSearchIndexInBackground(settings: Settings): void {
-  const { elasticsearch } = resolveSearchProvider(settings)
-  if (!elasticsearch) return
-
-  elasticsearch.deleteAll().catch((error) => {
-    logger.error('search', 'Failed to clear the Elasticsearch index', {
-      error
-    })
-  })
-}
 
 async function createZipFromBlobs(
   files: { filename: string; arraybuffer: ArrayBuffer }[]
@@ -138,7 +119,6 @@ dbIo.post('/import-all', async (c) => {
 
   // Clear existing data
   await resetAllData()
-  clearSearchIndexInBackground(c.get('settings'))
 
   // Import each CSV found in the ZIP
   for (const [fileName, zipEntry] of Object.entries(zip.files)) {
@@ -159,7 +139,6 @@ dbIo.delete('/reset', async (c) => {
   await handleDatabaseOperation(() => resetAllData(), 'Failed to reset data')
   // A reset starts over: no "re-enter this key" prompt outlives it.
   forgetAllMovedSecrets()
-  clearSearchIndexInBackground(c.get('settings'))
   // The chats that referenced it are gone. (Not on /import-all: that restores
   // chats, possibly this machine's own, whose images are still on disk.)
   await removeAllMedia()

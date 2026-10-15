@@ -193,7 +193,7 @@ type AddressInputProps = Omit<React.ComponentProps<typeof Input>, 'form'> & {
 
 /**
  * A Settings address a stored key is sent to (a provider base URL, the Azure
- * endpoint, Elasticsearch, LightRAG): a `DestinationInput` guarded while that
+ * endpoint, LightRAG): a `DestinationInput` guarded while that
  * key is saved (shown as its mask).
  */
 export function AddressInput({

@@ -29,10 +29,9 @@ export interface MessageHit {
 const iso = (value: Date | string) => new Date(value).toISOString()
 
 /**
- * Folds the chats and messages a provider found into the response: one row
+ * Folds the chats and messages a search found into the response: one row
  * per chat, newest match first, at most 30, each with the snippets of its 3
- * newest matching messages. Shared by PGlite and Elasticsearch, so both answer
- * the same shape whatever order their hits arrive in.
+ * newest matching messages, whatever order the hits arrive in.
  */
 export function buildChatSearchResults(
   chats: ChatHit[],

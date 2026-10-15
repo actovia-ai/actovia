@@ -57,7 +57,6 @@ describe('settings namespace (en)', () => {
     expect(settings.nav.amazonS3.title).toBe('AWS S3')
     expect(settings.nav.mcpServers.title).toBe('MCP Servers')
     expect(settings.nav.skillsMarket.title).toBe('Skills Market')
-    expect(settings.nav.fullTextSearch.title).toBe('Full Text Search')
     expect(settings.nav.knowledgeBase.title).toBe('Knowledge Base')
     expect(settings.nav.builtinTools.title).toBe('Built-in Tools')
     expect(settings.nav.memory.title).toBe('Memory')
@@ -550,16 +549,6 @@ describe('settings namespace (en)', () => {
     })
   })
 
-  it('has the Full-Text Search tab keys', () => {
-    expect(settings.fullTextSearch.url).toMatchObject({
-      label: 'Elasticsearch URL'
-    })
-    expect(settings.fullTextSearch.toast).toMatchObject({
-      reindexed_one: 'Reindexed {{count}} message',
-      reindexed_other: 'Reindexed {{count}} messages'
-    })
-  })
-
   it('has the Logger tab keys', () => {
     expect(settings.logger.filters.allScopes).toBe('All')
     expect(settings.logger.pagination).toMatchObject({
@@ -729,41 +718,6 @@ describe('settings namespace tools.s3.alert.* renders correctly via Trans', () =
     const html = await renderReal(ObjectAclNotice)
     expect(html).toBe(
       '<strong>Object ACL</strong> — Each uploaded object is set to <code>public-read</code>. Your bucket must not have ACLs disabled (i.e., Object Ownership must be set to <em>ACLs enabled / Bucket owner preferred</em>).'
-    )
-  })
-})
-
-describe('settings namespace fullTextSearch.alert renders correctly via Trans', () => {
-  // Render the REAL exported component from full-text-search.tsx (not a
-  // hand-copied children array) — same rationale as the s3.tsx block above:
-  // a formatter reflow can insert/remove `{' '}` around wrapped JSX text,
-  // which shifts these numbered placeholders' positions.
-  it('alert — <strong> plus three <code>, correct positions', async () => {
-    const { createElement } = await import('react')
-    const { renderToStaticMarkup } = await import('react-dom/server')
-    const { I18nextProvider, initReactI18next } = await import('react-i18next')
-    const i18next = (await import('i18next')).default
-    const { SearchQualityNotice } =
-      await import('@/components/settings/settings-form/full-text-search')
-
-    const i18n = i18next.createInstance()
-    await i18n.use(initReactI18next).init({
-      lng: 'en',
-      resources: { en: { settings } },
-      ns: ['settings'],
-      defaultNS: 'settings',
-      interpolation: { escapeValue: false }
-    })
-
-    const html = renderToStaticMarkup(
-      createElement(
-        I18nextProvider,
-        { i18n },
-        createElement(SearchQualityNotice)
-      )
-    )
-    expect(html).toBe(
-      'Exodus&#x27;s built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not &quot;smart&quot; results</strong>: no relevance ranking, no typo tolerance, no stemming (searching &quot;run&quot; won&#x27;t find &quot;running&quot;). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Exodus only reads and writes documents to your cluster&#x27;s index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <code>ik</code>, <code>smartcn</code>, or the built-in <code>cjk</code>) on your cluster before pointing Exodus at it.'
     )
   })
 })

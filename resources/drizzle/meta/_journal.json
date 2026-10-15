@@ -113,6 +113,13 @@
       "when": 1791551603395,
       "tag": "0015_coding_agents",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792070762916,
+      "tag": "0016_drop_full_text_search",
+      "breakpoints": true
     }
   ]
 }

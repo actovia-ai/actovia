@@ -31,7 +31,6 @@ function recorder(
     model,
     lcm: { freshTailRuns: 6, contextWindowPercent: 75 },
     memoryCapture: true,
-    indexMessage: vi.fn(),
     ...over
   })
 }
@@ -68,8 +67,7 @@ beforeEach(() => {
 
 describe('RunRecorder', () => {
   it('persists the run_end messages with durationMs on the last assistant message and enqueues the jobs', async () => {
-    const indexMessage = vi.fn()
-    const r = recorder({ indexMessage })
+    const r = recorder()
     r.observe({
       type: 'run_end',
       runId: RUN_ID,
@@ -85,7 +83,6 @@ describe('RunRecorder', () => {
       ]
     )[0].messages
     expect(rows[0]).toMatchObject({ id: 'a1', runId: RUN_ID, durationMs: 1234 })
-    expect(indexMessage).toHaveBeenCalledWith(rows[0])
     // The run enters the chat's context as it is saved — a follow-up sent a
     // second later sees it — and only compaction is left to the queue. It
     // used to be tracked by the queued job, which a quick follow-up did not

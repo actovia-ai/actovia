@@ -7,7 +7,6 @@ import {
   KeyboardIcon,
   NetworkIcon,
   Scroll01Icon,
-  TextSearchIcon,
   ShoppingBagIcon,
   TelescopeIcon,
   UserIcon,
@@ -30,7 +29,6 @@ export enum SettingsLabel {
   AmazonS3 = 'AWS S3',
   McpServers = 'MCP Servers',
   SkillsMarket = 'Skills Market',
-  FullTextSearch = 'Full Text Search',
   KnowledgeBase = 'Knowledge Base',
   BuiltinTools = 'Built-in Tools',
   Memory = 'Memory',
@@ -70,7 +68,6 @@ export const NAV_TITLE_KEYS = {
   [SettingsLabel.AmazonS3]: 'nav.amazonS3.title',
   [SettingsLabel.McpServers]: 'nav.mcpServers.title',
   [SettingsLabel.SkillsMarket]: 'nav.skillsMarket.title',
-  [SettingsLabel.FullTextSearch]: 'nav.fullTextSearch.title',
   [SettingsLabel.KnowledgeBase]: 'nav.knowledgeBase.title',
   [SettingsLabel.BuiltinTools]: 'nav.builtinTools.title',
   [SettingsLabel.Memory]: 'nav.memory.title',
@@ -114,12 +111,11 @@ export const menus = {
       ]
     },
     {
-      // External, connection-backed capabilities: search backends, the
-      // knowledge base, the computer-use sandbox, MCP connectors, the skills
-      // marketplace — and the devices allowed to connect to this one.
+      // External, connection-backed capabilities: the knowledge base, the
+      // computer-use sandbox, MCP connectors, the skills marketplace — and
+      // the devices allowed to connect to this one.
       label: 'nav.group.integrations',
       items: [
-        { title: SettingsLabel.FullTextSearch, icon: TextSearchIcon },
         { title: SettingsLabel.KnowledgeBase, icon: NetworkIcon },
         { title: SettingsLabel.ComputerUse, icon: MousePointer2 },
         { title: SettingsLabel.McpServers, icon: HammerIcon },

@@ -97,11 +97,6 @@ vi.mock('@main/lib/jobs/worker', () => ({
 vi.mock('@main/lib/logger/trace-context', () => ({
   bindTraceAttributes: vi.fn()
 }))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null, pglite: {} })),
-  searchWithFallback: vi.fn(async () => [])
-}))
-
 const { default: chat } = await import('@main/lib/server/routes/chat')
 const { enqueueAndProcess } = await import('@main/lib/jobs/worker')
 const { SETTINGS_SECRET_PATHS } = await import('@main/lib/secrets/registry')

@@ -69,9 +69,6 @@ describe('the destination rule, as the form mirrors it', () => {
     expect(destinationSecretOf('providers.azureOpenAiEndpoint')).toBe(
       'providers.azureOpenaiApiKey'
     )
-    expect(destinationSecretOf('fullTextSearch.elasticsearch.url')).toBe(
-      'fullTextSearch.elasticsearch.password'
-    )
     expect(destinationSecretOf('knowledgeBase.url')).toBe(
       'knowledgeBase.apiKey'
     )

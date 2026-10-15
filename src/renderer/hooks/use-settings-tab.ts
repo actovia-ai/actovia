@@ -18,7 +18,6 @@ export const SETTINGS_TAB_SLUGS: Record<SettingsLabel, string> = {
   [SettingsLabel.AiProviders]: 'ai-providers',
   [SettingsLabel.BuiltinTools]: 'builtin-tools',
   [SettingsLabel.DeepResearch]: 'deep-research',
-  [SettingsLabel.FullTextSearch]: 'full-text-search',
   [SettingsLabel.KnowledgeBase]: 'knowledge-base',
   [SettingsLabel.ComputerUse]: 'computer-use',
   [SettingsLabel.McpServers]: 'mcp-servers',

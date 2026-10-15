@@ -5,7 +5,7 @@ import { atom } from 'jotai'
 
 import { Chat, DeepResearchMessage } from '@/types/db'
 
-export const isFullTextSearchVisibleAtom = atom(false)
+export const isSearchChatsVisibleAtom = atom(false)
 
 export const toBeDeletedChatAtom = atom<Chat | undefined>(undefined)
 

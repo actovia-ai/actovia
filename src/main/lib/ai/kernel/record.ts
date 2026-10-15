@@ -19,8 +19,6 @@ export interface RecorderDeps {
   lcm: { freshTailRuns: number; contextWindowPercent: number } | null
   /** Whether the memory-consolidation job runs after the run. */
   memoryCapture: boolean
-  /** Search indexing for one saved row (a no-op unless Elasticsearch is on). */
-  indexMessage: (row: ReturnType<typeof toDbRow>) => void
 }
 
 /**
@@ -28,7 +26,7 @@ export interface RecorderDeps {
  * and calls `persist()` from its `finally`: the messages that completed
  * (done, provider error midway, Stop) are saved with the run's duration
  * stamped on the last assistant message, then the post-run jobs — LCM
- * compaction, memory consolidation, search indexing — go on the queue
+ * compaction, memory consolidation — go on the queue
  * rather than running inline.
  */
 export class RunRecorder {
@@ -53,7 +51,7 @@ export class RunRecorder {
   async persist(): Promise<void> {
     if (this.persisted || this.done.length === 0) return
     this.persisted = true
-    const { chatId, model, lcm, memoryCapture, indexMessage } = this.deps
+    const { chatId, model, lcm, memoryCapture } = this.deps
 
     // "Worked for X seconds" reads the last assistant message of the run.
     for (let i = this.done.length - 1; i >= 0; i--) {
@@ -78,7 +76,6 @@ export class RunRecorder {
     await saveMessages({ messages: rows })
     // The run's numbered sources, for `recall` and the next run's numbering.
     await saveChatSources(sourcesOfRows(rows))
-    for (const row of rows) indexMessage(row)
 
     if (lcm) {
       // Into the context now, not from the queue: a follow-up sent a second

@@ -276,7 +276,7 @@ last assistant row, makes the rows' `createdAt` strictly increasing, saves them,
 (`chat_source`), and — with LCM on — tracks the rows into the chat's context **synchronously** (a follow-up sent a
 second later must see this run). Then it enqueues the background jobs on the pgmq queue: `lcm-post-turn`
 (compaction; it reads its key from settings when it runs), `memory-consolidate` (reads the conversation from the
-rows when it runs; no conversation sits in the queue) and, with Elasticsearch configured, `index-message` per row.
+rows when it runs; no conversation sits in the queue).
 The stream stays open until the rows are written, so a client that sees the stream end can read them.
 
 ### 4.5 What a client must do
@@ -494,7 +494,7 @@ model "The user declined access to <summary>." Allow is per call, never remember
 
 | Route                                    | Answer                                                                                   |
 | ---------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `GET /api/v1/chat/search?query=`         | full-text hits across chats (PGlite trigram; Elasticsearch when configured)              |
+| `GET /api/v1/chat/search?query=`         | one row per chat whose title or messages hold every word (PGlite)                        |
 | `PUT /api/v1/chat` `{ id, …fields }`     | updates a chat (title, project, `useProjectInstructions`)                                |
 | `DELETE /api/v1/chat/:id`                | deletes the chat, its rows, sources, summaries and media                                 |
 | `GET /api/v1/history[?limit=&before=]`   | the chat list, whole or a page at a time (below)                                         |

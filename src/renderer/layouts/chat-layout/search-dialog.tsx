@@ -25,7 +25,7 @@ import {
   compactRelativeTime,
   parseLocalishCreatedAt
 } from '@/lib/relative-time'
-import { isFullTextSearchVisibleAtom } from '@/stores/chat'
+import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
 /** How many of the newest chats an empty query lists. */
 const RECENT_CHATS = 8
@@ -98,7 +98,7 @@ function SearchRow({
 export function SearchDialog() {
   const { t } = useTranslation('chat')
   const navigate = useNavigate()
-  const [isOpen, setIsOpen] = useAtom(isFullTextSearchVisibleAtom)
+  const [isOpen, setIsOpen] = useAtom(isSearchChatsVisibleAtom)
   const [query, setQuery] = useState('')
   const { data: results, term, isSearching } = useChatSearch(query)
   const { data: history } = useChatHistory()

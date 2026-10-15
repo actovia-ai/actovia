@@ -4,23 +4,12 @@ import { LcmManager, trackContextMessages } from '../ai/context-management'
 import { runMemoryConsolidation } from '../ai/memory/manager'
 import { getKnowledgeDocById, setIndexStatus } from '../db/knowledge-queries'
 import { getMessagesByChatId, getSettings } from '../db/queries'
-import type { Message } from '../db/schema'
 import { runDiscoverRefresh } from '../discover/manager'
 import { contentHash } from '../knowledge-base/reconcile'
 import { resolveKnowledgeBase } from '../knowledge-base/resolve-knowledge-base'
 import { logger } from '../logger'
-import { extractSearchableText } from '../search/extract-searchable-text'
-import { resolveSearchProvider } from '../search/resolve-search-provider'
 import { jobApiKey } from './job-api-key'
 import type { KbSyncPayload, QueueName } from './types'
-
-interface IndexMessagePayload {
-  id: string
-  chatId: string
-  role: string
-  content: unknown
-  createdAt: Date
-}
 
 // No `apiKey` in a payload (ledger ruling R3): `jobApiKey` reads it from
 // settings when the job runs. A payload queued by an earlier build may still
@@ -58,18 +47,6 @@ async function keyFor(
 
 export const handlers: Record<QueueName, (payload: unknown) => Promise<void>> =
   {
-    'index-message': async (payload) => {
-      const row = payload as IndexMessagePayload
-      const settings = await getSettings()
-      const { elasticsearch } = resolveSearchProvider(settings)
-      if (!elasticsearch) return
-      const message = {
-        ...row,
-        searchText: extractSearchableText(row)
-      } as Message & { id: string; chatId: string; createdAt: Date }
-      await elasticsearch.indexMessage(message)
-    },
-
     'lcm-post-turn': async (payload) => {
       const p = payload as LcmPostTurnPayload
       // Tracking needs no key; skipping it with the key gone left the run out

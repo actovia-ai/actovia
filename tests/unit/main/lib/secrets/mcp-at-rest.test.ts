@@ -28,7 +28,7 @@ vi.mock('@main/lib/db/db', async () => {
   const { drizzle } = await import('drizzle-orm/pglite')
   const { createMigratedPglite } =
     await import('../../../helpers/migrated-pglite')
-  const pglite = await createMigratedPglite('0009')
+  const pglite = await createMigratedPglite('9999')
   return { pglite, db: drizzle(pglite) }
 })
 vi.mock('@main/lib/ai/mcp', () => ({
@@ -38,9 +38,6 @@ vi.mock('@main/lib/ai/mcp', () => ({
 }))
 vi.mock('@main/lib/ai/providers/list-models', () => ({
   listModelsByProvider: {}
-}))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null }))
 }))
 
 const { pglite, db } = await import('@main/lib/db/db')

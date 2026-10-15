@@ -19,8 +19,7 @@ vi.mock('@main/lib/db/db', async () => {
 
 const { pglite, db } = await import('@main/lib/db/db')
 const { chat, message } = await import('@main/lib/db/schema')
-const { getChatsByTitle, getMessageHitsByIds, searchChats } =
-  await import('@main/lib/db/queries')
+const { searchChats } = await import('@main/lib/db/queries')
 
 afterAll(async () => {
   await pglite.close()
@@ -152,25 +151,5 @@ describe('searchChats', () => {
     const results = await searchChats('duck')
     expect(results).toHaveLength(30)
     expect(results[0].matchedAt).toBe(at(31).toISOString())
-  })
-})
-
-describe('getMessageHitsByIds / getChatsByTitle', () => {
-  it("reads the hits' titles in the same query and finds chats by title", async () => {
-    const id = await addChat('Duck notes', at(1))
-    const m = await addMessage(id, 'roast it', 7)
-
-    const hits = await getMessageHitsByIds([m])
-    expect(hits.messages).toEqual([
-      expect.objectContaining({ id: m, chatId: id, searchText: 'roast it' })
-    ])
-    expect(hits.chats).toEqual([
-      expect.objectContaining({ chatId: id, title: 'Duck notes' })
-    ])
-
-    expect(await getChatsByTitle(['duck'])).toEqual([
-      { chatId: id, title: 'Duck notes', activityAt: at(7).toISOString() }
-    ])
-    expect(await getChatsByTitle(['goose'])).toEqual([])
   })
 })

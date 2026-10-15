@@ -76,11 +76,6 @@ vi.mock('@main/lib/jobs/worker', () => ({
   enqueueAndProcess: vi.fn(async () => {}),
   logEnqueueFailure: vi.fn()
 }))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null, pglite: {} })),
-  searchWithFallback: vi.fn(async () => [])
-}))
-
 // The kernel is scripted: each test says what the run yields or throws.
 const runAgent = vi.fn()
 vi.mock('@main/lib/ai/kernel/run', () => ({

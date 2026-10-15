@@ -21,7 +21,7 @@ import {
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
 import { cn } from '@/lib/utils'
-import { isFullTextSearchVisibleAtom } from '@/stores/chat'
+import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
 import { NavFooter } from './nav-footer'
 import { NavHistories } from './nav-histories'
@@ -30,7 +30,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation('chat')
   const isFullscreen = useIsFullscreen()
   const navigate = useNavigate()
-  const setIsFullTextSearchVisible = useSetAtom(isFullTextSearchVisibleAtom)
+  const setIsSearchChatsVisible = useSetAtom(isSearchChatsVisibleAtom)
 
   return (
     <Sidebar
@@ -72,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               data-testid={TEST_IDS.chatLayout.searchButton}
-              onClick={() => setIsFullTextSearchVisible(true)}
+              onClick={() => setIsSearchChatsVisible(true)}
             >
               <HugeiconsIcon icon={SearchIcon} />
               <span className="flex-1">{t('sidebar.searchChats')}</span>

@@ -25,16 +25,15 @@ vi.mock('@main/lib/db/db', async () => {
   return { pglite, db: drizzle(pglite) }
 })
 
-// `worker.ts` pulls in the real handlers (LLM/Elasticsearch/Electron) and the
+// `worker.ts` pulls in the real handlers (LLM/LightRAG/Electron) and the
 // file logger; both are irrelevant here and are stubbed. The queue SQL that
 // `processQueue` drives stays real.
 const mockHandler = vi.fn()
 vi.mock('@main/lib/jobs/handlers', () => ({
   handlers: {
-    'index-message': mockHandler,
+    'kb-sync': mockHandler,
     'lcm-post-turn': vi.fn(),
     'memory-consolidate': vi.fn(),
-    'kb-sync': vi.fn(),
     'discover-refresh': vi.fn()
   }
 }))
@@ -53,7 +52,7 @@ const {
 } = await import('@main/lib/jobs/queries')
 const { processQueue } = await import('@main/lib/jobs/worker')
 
-const QUEUE = 'index-message' as const
+const QUEUE = 'kb-sync' as const
 
 async function queueDepth(): Promise<number> {
   const result = await pglite.query<{ count: number }>(

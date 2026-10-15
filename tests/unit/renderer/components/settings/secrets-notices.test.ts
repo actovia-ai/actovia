@@ -68,7 +68,7 @@ describe('SecretsNotices', () => {
       encryption: 'on',
       needsReentry: [
         'providers.openaiApiKey',
-        'fullTextSearch.elasticsearch.password',
+        'knowledgeBase.apiKey',
         'mcp:github:env.GITHUB_TOKEN',
         'mcp:my:odd:name:url',
         'somethingNew.apiKey'
@@ -80,7 +80,7 @@ describe('SecretsNotices', () => {
     const items = [...notice.querySelectorAll('li')].map((li) => li.textContent)
     expect(items).toEqual([
       'secrets.fields.openaiApiKey',
-      'secrets.fields.elasticsearchPassword',
+      'secrets.fields.knowledgeBaseApiKey',
       'secrets.fields.mcp{"server":"github","field":"env.GITHUB_TOKEN"}',
       'secrets.fields.mcp{"server":"my:odd:name","field":"url"}',
       // A path this build has no name for still shows, as itself.

@@ -14,7 +14,6 @@ import { DataControls } from './settings-form/data-controls'
 import { DeepResearch } from './settings-form/deep-research'
 import { Devices } from './settings-form/devices'
 import { Discover } from './settings-form/discover'
-import { FullTextSearch } from './settings-form/full-text-search'
 import { General } from './settings-form/generals'
 import { KeyboardShortcuts } from './settings-form/keyboard-shortcuts'
 import { KnowledgeBase } from './settings-form/knowledge-base'
@@ -100,10 +99,6 @@ export function SettingsForm() {
         {activeTitle === SettingsLabel.SkillsMarket && <SkillsMarketSetting />}
 
         {activeTitle === SettingsLabel.McpServers && <McpServers />}
-
-        {activeTitle === SettingsLabel.FullTextSearch && (
-          <FullTextSearch form={form} />
-        )}
 
         {activeTitle === SettingsLabel.KnowledgeBase && (
           <KnowledgeBase form={form} />

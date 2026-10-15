@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router'
 import { useRouteHistory } from '@/hooks/use-route-history'
 import { useSettings } from '@/hooks/use-settings'
 import { closeSearchbar } from '@/lib/ipc'
-import { isFullTextSearchVisibleAtom } from '@/stores/chat'
+import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
 const isMac = navigator.platform.toUpperCase().includes('MAC')
 
@@ -164,7 +164,7 @@ const CHAT_HASH = /^#\/chat\/.+/u
  */
 export function useKeyboardShortcuts() {
   const navigate = useNavigate()
-  const setSearchVisible = useSetAtom(isFullTextSearchVisibleAtom)
+  const setSearchVisible = useSetAtom(isSearchChatsVisibleAtom)
   const { canGoBack, canGoForward, goBack, goForward } = useRouteHistory()
   const { data: settings } = useSettings()
   const disabled = useMemo(

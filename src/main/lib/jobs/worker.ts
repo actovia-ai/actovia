@@ -40,13 +40,10 @@ const MAX_READ_COUNT = 5
  * `purgeArchive`) is worth it.
  *
  * Known limitation — not every job type can actually trigger this
- * retry/give-up logic, because three of the four handlers in `./handlers`
- * wrap functions that catch and log their own errors internally and never
+ * retry/give-up logic, because some handlers in `./handlers` wrap
+ * functions that catch and log their own errors internally and never
  * rethrow:
  *
- * - `index-message` — full retry-on-failure. `elasticsearch.indexMessage`
- *   errors propagate, so a real failure is retried up to `MAX_READ_COUNT`
- *   times before being given up on.
  * - `lcm-post-turn` — half-and-half. `trackNewMessages` can throw and
  *   propagate (full retry-on-failure for that half), but `compactAfterTurn`
  *   swallows its own errors internally (best-effort only for that half) —
@@ -132,9 +129,7 @@ export async function enqueueAndProcess(
  *
  * Deliberately logs neither `error.message` nor the payload: a Drizzle
  * `DrizzleQueryError`'s message embeds the failing query *and its bound
- * parameters*, and job payloads carry `apiKey` (three of the four queues) and
- * full message content (`index-message`) — all of which would otherwise land in
- * plaintext in `~/.exodus/logs/*.jsonl`. `error.name` alone is safe and still
+ * parameters* — the job's payload — which would otherwise land in plaintext in `~/.exodus/logs/*.jsonl`. `error.name` alone is safe and still
  * distinguishes error types; the stack's frames (no message) say where.
  */
 export function logEnqueueFailure(queueName: QueueName, error: unknown): void {

@@ -81,10 +81,6 @@ export const SECRET_DESTINATIONS: Record<
     field: 'providers.xAiBaseUrl',
     fallback: 'https://api.x.ai/v1'
   },
-  'fullTextSearch.elasticsearch.password': {
-    field: 'fullTextSearch.elasticsearch.url',
-    fallback: null
-  },
   'knowledgeBase.apiKey': { field: 'knowledgeBase.url', fallback: null }
 }
 

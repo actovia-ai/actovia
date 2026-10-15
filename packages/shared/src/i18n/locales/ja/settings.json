@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "スキルマーケット"
     },
-    "fullTextSearch": {
-      "title": "全文検索"
-    },
     "knowledgeBase": {
       "title": "ナレッジベース"
     },
@@ -602,38 +599,6 @@
       "errorFallback": "データの削除に失敗しました。"
     }
   },
-  "fullTextSearch": {
-    "alert": "Exodusの組み込み検索は、中国語、日本語、韓国語を含むすべての言語に対応していますが、<strong>「スマート」な結果ではなく、完全一致のテキスト検索</strong>です。関連度によるランキング、タイプミスの許容、語幹処理は行われません(「run」で検索しても「running」はヒットしません)。より良い関連度ランキングと本格的な単語分割を利用するには、以下でセルフホストまたはクラウドのElasticsearchクラスターを設定してください。これは任意の設定です。組み込み検索を使い続ける場合はURLを空欄のままにしてください。Exodusはお使いのクラスターのインデックスに対してドキュメントの読み書きのみを行います — 中国語の(文字単位ではなく)本格的な単語レベルの分割を行うには、Exodusを接続する前にクラスター側で言語対応のアナライザー(例:<4>ik</4>、<6>smartcn</6>、または組み込みの<9>cjk</9>)を設定してください。",
-    "url": {
-      "label": "Elasticsearch URL",
-      "description": "組み込みのPGlite全文検索を使う場合は空欄のままにしてください。"
-    },
-    "username": {
-      "label": "ユーザー名"
-    },
-    "password": {
-      "label": "パスワード"
-    },
-    "optionalSecurityHint": "任意 — クラスターでセキュリティが有効になっている場合のみ必要です。",
-    "indexName": {
-      "label": "インデックス名",
-      "description": "空欄の場合は「exodus-messages」がデフォルトで使用されます。"
-    },
-    "connection": {
-      "label": "接続",
-      "description": "接続を確認するか、既存のすべてのチャット履歴をElasticsearchに再インデックスします。",
-      "testButton": "接続をテスト",
-      "testingLabel": "テスト中...",
-      "reindexButton": "履歴を再インデックス",
-      "reindexingLabel": "再インデックス中..."
-    },
-    "toast": {
-      "connected": "Elasticsearchに接続しました",
-      "connectFailed": "Elasticsearchへの接続に失敗しました",
-      "reindexed_other": "{{count}}件のメッセージを再インデックスしました",
-      "reindexFailed": "メッセージの再インデックスに失敗しました"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "すべて",
@@ -1094,7 +1059,6 @@
       "googleApiKey": "Google Maps API キー",
       "braveApiKey": "Brave Search API キー",
       "knowledgeBaseApiKey": "LightRAG API キー",
-      "elasticsearchPassword": "Elasticsearch のパスワード",
       "s3AccessKeyId": "Amazon S3 のアクセスキー ID",
       "s3SecretAccessKey": "Amazon S3 のシークレットアクセスキー",
       "mcp": "MCP サーバー「{{server}}」: {{field}}"

@@ -53,19 +53,15 @@ import {
   getMessagesByChatId,
   saveChat,
   saveMessages,
+  searchChats,
   updateChat,
   updateChatTitleById
 } from '../../db/queries'
-import { enqueueAndProcess, logEnqueueFailure } from '../../jobs/worker'
 import { logger } from '../../logger'
 import { stackFramesOf } from '../../logger/record'
 import { bindTraceAttributes } from '../../logger/trace-context'
 import { removeChatMedia } from '../../media/store'
 import { getChatWorkspaceDir } from '../../paths'
-import {
-  resolveSearchProvider,
-  searchWithFallback
-} from '../../search/resolve-search-provider'
 import {
   approvalDecisionSchema,
   chatPageQuerySchema,
@@ -103,9 +99,8 @@ function noticeOf(details: unknown): ToolNotice | null {
 
 chat.get('/search', async (c) => {
   const query = c.req.query('query') ?? ''
-  const settings = c.get('settings')
   const result = await handleDatabaseOperation(
-    () => searchWithFallback(settings, query),
+    () => searchChats(query),
     'Failed to search messages'
   )
   return successResponse(c, result)
@@ -306,19 +301,6 @@ chat.post('/', async (c) => {
     ...(await loadChatHistory(id)).filter((m) => m.id !== userMessage.id),
     userMessage
   ]
-  // `index-message` only feeds Elasticsearch — the built-in PGlite search reads
-  // the `message` table directly. Without ES there is no job to run, so don't
-  // queue (and have the worker read, resolve settings for, and clear) one per
-  // message.
-  const indexesMessages = resolveSearchProvider(setting).elasticsearch !== null
-  const indexMessage = (row: ReturnType<typeof toDbRow>) => {
-    if (!indexesMessages) return
-    enqueueAndProcess('index-message', row).catch((error) =>
-      logEnqueueFailure('index-message', error)
-    )
-  }
-  indexMessage(toDbRow(userMessage, id))
-
   // What the model is sent leaves out the runs a regenerate group keeps
   // from it: the answers not kept and, for a Regenerate, every other attempt
   // at its question (`excludedRuns`). With LCM the assembler reads the states
@@ -464,8 +446,7 @@ chat.post('/', async (c) => {
           contextWindowPercent: memoryConfig?.contextWindowPercent ?? 75
         }
       : null,
-    memoryCapture,
-    indexMessage
+    memoryCapture
   })
 
   // The run streams as SSE: every kernel event maps onto one wire event
@@ -642,17 +623,8 @@ chat.delete('/:id', async (c) => {
     'Failed to delete chat'
   )
 
-  // Best-effort, like the search index below: the chat is gone either way.
+  // Best-effort: the chat is gone either way.
   await removeChatMedia(id)
-
-  const { elasticsearch } = resolveSearchProvider(c.get('settings'))
-  if (elasticsearch) {
-    elasticsearch.deleteByChatId(id).catch((error) => {
-      logger.error('search', 'Failed to delete chat from Elasticsearch', {
-        error
-      })
-    })
-  }
 
   return deletionSuccessResponse(c, 'Chat')
 })

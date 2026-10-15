@@ -426,8 +426,8 @@ The `/api/v1/chat` route serves history a page at a time (spec `docs/superpowers
 
 The `/api/v1/chat` route includes `POST /api/v1/chat/:chatId/choose` (`{ runId }` → `{ attempts }`) — keeps one answer of a regenerate group (see Chat Flow); `404 RUN_NOT_FOUND` for a run not in a group of that chat, `409 ATTEMPT_LOCKED` once a later run exists (repeating the current choice always answers). Deliberately not in `PRESENCE_PATHS`: it only picks which of the user's own answers the model sees next, and exodus-ios calls it over the LAN.
 
-**Secrets leave the main process as masks only** (`src/main/lib/secrets/`): `GET /api/v1/settings` and the `/api/v1/mcp` responses turn every registry field (`registry.ts` — provider keys, Google / Brave / LightRAG keys, the Elasticsearch password, S3 credentials, the legacy `mcpServers` blob; `mcp_server.env` / `headers` values, everything under a secret-named `extraConfig` key, and secrets inside an MCP `url` / `args`: userinfo, secret-named query values, capability path segments, `--token` / `--api-key=` / `--header "Authorization: …"` values) into `"•••• " + last4` (`"••••"` under 12 characters). A posted mask means "unchanged": `updateSettings` / `updateSettingField` and the MCP create/update swap it back for the stored value (read through `current.ts`'s plaintext accessors — the seam at-rest encryption plugs into), `null` / `""` clear, anything else sets — so the desktop autosave and exodus-ios, which post whole sections/columns back, need no knowledge of masks. `getSettings()` / `c.get('settings')` stay plaintext inside main. A write that moves a secret's destination (`SECRET_DESTINATIONS`: a provider base URL / Azure endpoint, the Elasticsearch or LightRAG URL; for MCP the effective `url` / `transportType` for `headers` and the `extraConfig` secrets, `command` / `args` — and any edit to `env` itself (an entry added, removed or changed: `PATH`, `npm_config_registry`, `HOME`, `BASH_ENV`… each can swap the program), which counts as a new command — for `env` — a partial PUT that leaves the secrets out clears them too, `prepareMcpUpdate` in `at-rest.ts`) while the secret comes back as its mask, or is not re-sent, clears it — a stored key is never carried to a new host. Secret `args` go only to the command they were saved with: a new `command` refuses masked args, and a PUT that changes `command` without sending `args` writes `args: []` (none of the stored ones follow). A url / args / env / headers / secret `extraConfig` value (or anything on an MCP create) that holds `••••` without being the exact mask is a 400 "re-enter the secret" (`SECRET_REENTRY_REQUIRED`, `params.field` naming the column: `url` / `args` / `env` / `headers` / `extraConfig`) — a mask is never stored. At rest the values are `enc:v1:…` (see Security Considerations); `GET /api/v1/settings/secrets-status` answers `{ encryption: 'on' | 'unavailable', needsReentry: string[] }` for the Settings notices — `needsReentry` holds both the secrets that do not decrypt and those a destination move cleared (`moved.ts`), as plain names. A new schema field whose name `isSecretName()` flags (`…key`, secret, password, token, auth, bearer, credential, cookie, session, `pat` — word by word, so `path` / `author` / `keyboard` are not, nor the allowlisted `max-tokens` / `token-limit` / `session-name` / `session-timeout` / `signature-version` / `pass-through`; a value after a secret flag or under a secret name is masked whatever its shape — all digits (`-u root -p 98765432`, `DB_PASSWORD=12345678`) included) fails `registry.test.ts` until it is put in the registry or on its commented non-secret list.
-**The desktop Settings form and masks** (`components/settings/secret-fields.tsx`, `lib/secrets.ts`): every key input is a `SecretInput` — the mask shows as text with a "Saved" addon (and is named for a screen reader as "Saved key ending in abcd" / "No key saved", never read out as bullets); typing (or pasting) replaces the whole mask and deleting from it clears the key (`replaceMask`); an untouched mask posts back as "unchanged", so the per-field autosave is unaware of it. A field a saved secret is sent to is a `DestinationInput`, which says from focus until its edit is saved that changing it clears the secret: `AddressInput` for the provider base URLs, the Azure endpoint, the Elasticsearch and LightRAG URLs, and in the MCP form the url (clears the headers) and the command (with the args: clears the env and masked args). `buildSettingsSave` applies the same destination rule to the payload (`clearMovedSecrets`, a copy of `SECRET_DESTINATIONS` that `tests/unit/renderer/lib/secrets.test.ts` holds equal to main's, and the one shared `normalizeBaseUrl` from `@exodus/shared/utils/base-url`) and posts that key as `null`. The server records every secret a destination move cleared — settings keys and MCP `env` / `headers` / `extraConfig` values — in `needsReentry` until a new value is saved (`secrets/moved.ts`, names only, in `~/.exodus/secrets-reentry.json`, so the prompt survives a restart and reaches exodus-ios; a data reset clears it); the key input asks for it (`clearedSecretsAtom` only mirrors the move until that read lands), and the MCP server card and its form fields list theirs. The MCP form posts the `env` it shows (masks included — never `null`), and shows a `SECRET_REENTRY_REQUIRED` 400 under the field it names (the create/update hooks list that code in `meta.inlineCodes`, so it is not toasted too). Settings → General opens with the notices from `secrets-status` (`settings-form/secrets-notices.tsx`: keychain unavailable; each key to re-enter, by name, MCP servers included).
+**Secrets leave the main process as masks only** (`src/main/lib/secrets/`): `GET /api/v1/settings` and the `/api/v1/mcp` responses turn every registry field (`registry.ts` — provider keys, Google / Brave / LightRAG keys, S3 credentials, the legacy `mcpServers` blob; `mcp_server.env` / `headers` values, everything under a secret-named `extraConfig` key, and secrets inside an MCP `url` / `args`: userinfo, secret-named query values, capability path segments, `--token` / `--api-key=` / `--header "Authorization: …"` values) into `"•••• " + last4` (`"••••"` under 12 characters). A posted mask means "unchanged": `updateSettings` / `updateSettingField` and the MCP create/update swap it back for the stored value (read through `current.ts`'s plaintext accessors — the seam at-rest encryption plugs into), `null` / `""` clear, anything else sets — so the desktop autosave and exodus-ios, which post whole sections/columns back, need no knowledge of masks. `getSettings()` / `c.get('settings')` stay plaintext inside main. A write that moves a secret's destination (`SECRET_DESTINATIONS`: a provider base URL / Azure endpoint, the LightRAG URL; for MCP the effective `url` / `transportType` for `headers` and the `extraConfig` secrets, `command` / `args` — and any edit to `env` itself (an entry added, removed or changed: `PATH`, `npm_config_registry`, `HOME`, `BASH_ENV`… each can swap the program), which counts as a new command — for `env` — a partial PUT that leaves the secrets out clears them too, `prepareMcpUpdate` in `at-rest.ts`) while the secret comes back as its mask, or is not re-sent, clears it — a stored key is never carried to a new host. Secret `args` go only to the command they were saved with: a new `command` refuses masked args, and a PUT that changes `command` without sending `args` writes `args: []` (none of the stored ones follow). A url / args / env / headers / secret `extraConfig` value (or anything on an MCP create) that holds `••••` without being the exact mask is a 400 "re-enter the secret" (`SECRET_REENTRY_REQUIRED`, `params.field` naming the column: `url` / `args` / `env` / `headers` / `extraConfig`) — a mask is never stored. At rest the values are `enc:v1:…` (see Security Considerations); `GET /api/v1/settings/secrets-status` answers `{ encryption: 'on' | 'unavailable', needsReentry: string[] }` for the Settings notices — `needsReentry` holds both the secrets that do not decrypt and those a destination move cleared (`moved.ts`), as plain names. A new schema field whose name `isSecretName()` flags (`…key`, secret, password, token, auth, bearer, credential, cookie, session, `pat` — word by word, so `path` / `author` / `keyboard` are not, nor the allowlisted `max-tokens` / `token-limit` / `session-name` / `session-timeout` / `signature-version` / `pass-through`; a value after a secret flag or under a secret name is masked whatever its shape — all digits (`-u root -p 98765432`, `DB_PASSWORD=12345678`) included) fails `registry.test.ts` until it is put in the registry or on its commented non-secret list.
+**The desktop Settings form and masks** (`components/settings/secret-fields.tsx`, `lib/secrets.ts`): every key input is a `SecretInput` — the mask shows as text with a "Saved" addon (and is named for a screen reader as "Saved key ending in abcd" / "No key saved", never read out as bullets); typing (or pasting) replaces the whole mask and deleting from it clears the key (`replaceMask`); an untouched mask posts back as "unchanged", so the per-field autosave is unaware of it. A field a saved secret is sent to is a `DestinationInput`, which says from focus until its edit is saved that changing it clears the secret: `AddressInput` for the provider base URLs, the Azure endpoint, the LightRAG URL, and in the MCP form the url (clears the headers) and the command (with the args: clears the env and masked args). `buildSettingsSave` applies the same destination rule to the payload (`clearMovedSecrets`, a copy of `SECRET_DESTINATIONS` that `tests/unit/renderer/lib/secrets.test.ts` holds equal to main's, and the one shared `normalizeBaseUrl` from `@exodus/shared/utils/base-url`) and posts that key as `null`. The server records every secret a destination move cleared — settings keys and MCP `env` / `headers` / `extraConfig` values — in `needsReentry` until a new value is saved (`secrets/moved.ts`, names only, in `~/.exodus/secrets-reentry.json`, so the prompt survives a restart and reaches exodus-ios; a data reset clears it); the key input asks for it (`clearedSecretsAtom` only mirrors the move until that read lands), and the MCP server card and its form fields list theirs. The MCP form posts the `env` it shows (masks included — never `null`), and shows a `SECRET_REENTRY_REQUIRED` 400 under the field it names (the create/update hooks list that code in `meta.inlineCodes`, so it is not toasted too). Settings → General opens with the notices from `secrets-status` (`settings-form/secrets-notices.tsx`: keychain unavailable; each key to re-enter, by name, MCP servers included).
 
 **Middleware Pipeline** (order in `app.ts`):
 
@@ -671,8 +671,7 @@ either client's chat code, and keep it true in the same change.
 4. However the run ends — done, a provider error midway, or Stop (which
    cancels the response stream) — `RunRecorder.persist()` saves the messages
    that completed and enqueues background jobs (LCM compaction, memory
-   consolidation, and search indexing only when Elasticsearch is configured)
-   onto the pgmq-backed job queue (`src/main/lib/jobs/`) rather than running
+   consolidation) onto the pgmq-backed job queue (`src/main/lib/jobs/`) rather than running
    them inline
 
 **Tool Architecture** (`src/main/lib/ai/calling-tools/`):
@@ -1512,13 +1511,13 @@ audit that applied it is in the commit history (`style(motion): …`).
   `opacity`; a `width`/`padding`/`grid-template-rows` transition needs a
   reason in a comment. `prefers-reduced-motion` in `globals.css` removes
   movement and keeps opacity/colour at 150 ms — do not add a second rule
+  that zeroes everything.
 - **A scrim dims, it never blurs.** The dialog / alert dialog / sheet /
   drawer overlays are `bg-black/30` alone: the main window is transparent over
   vibrancy, and a `backdrop-filter` there blurs the pane but leaves the
   sidebar's text sharp with a glow round it, its material undimmed
   (2026-10-15). `tests/unit/renderer/components/ui/overlay-scrim.test.ts`
   holds it against the shadcn generator.
-  that zeroes everything.
 - **Colour:** the light neutral base is `oklch(0.985)` (page) / `0.995`
   (card, popover) / `0.975` (sidebar) — never pure white; dark is `0.145`.
   No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces and no
@@ -1802,13 +1801,15 @@ Main process:
 - `src/main/lib/ai/memory/` — personalization memory (consolidation + recall)
 - `src/main/lib/lock/` — app lock (PIN, gate, idle)
 - `src/main/lib/db/` — Drizzle schema + queries (PGlite)
-- `src/main/lib/search/` — pluggable full-text search (PGlite default,
-  optional Elasticsearch — see `resolveSearchProvider()`). `GET
+- `src/main/lib/search/` — chat search, PGlite only (`searchChats()` in
+  `db/queries.ts`; there is no other backend — migration 0016 drops the
+  retired one's `settings.fullTextSearch` column and launch drops its
+  `index-message` queue). `GET
   /api/v1/chat/search?query=` answers one row per chat
   (`@exodus/shared/types/chat-search`, exodus-ios decodes the same): title
   or message holding every word, newest match first, 30 chats, ≤ 3 plain-text
-  snippets each (`snippet.ts`; `chat-search-results.ts` folds both providers'
-  hits the same way). The desktop's Search chats dialog is cmdk over it
+  snippets each (`snippet.ts`; `chat-search-results.ts` folds the hits).
+  The desktop's Search chats dialog is cmdk over it
 - `src/main/lib/knowledge-base/` — optional LightRAG knowledge base: HTTP
   client, `resolveKnowledgeBase()` (never-throws), and the `kb-sync`
   index-status `reconcile.ts`
@@ -1821,7 +1822,7 @@ Main process:
   launch — payloads carry whole conversations. No payload carries an API key:
   the handler reads it from settings when it runs (`job-api-key.ts`), and
   launch strips one an earlier build queued. Decouples chat.ts's post-turn
-  side effects (search indexing, LCM compaction, memory consolidation,
+  side effects (LCM compaction, memory consolidation,
   `kb-sync`, `discover-refresh`) from the request/response cycle.
   `queries.ts`'s `enqueueJob` stamps the ambient `traceId` onto the payload
   (`__originTraceId`); `worker.ts` runs each handler in a `withTrace` linked
@@ -2112,10 +2113,6 @@ Docs:
 - `docs/pi-ai-review.md` — review of the pi-ai usage against the upstream
   README: what was fixed, and the migration to `@earendil-works/*` 0.85
   (done with the chat kernel, spec `2026-09-22-chat-kernel-design.md`)
-- `docs/elasticsearch-setup.md` — end-user guide for configuring a
-  self-hosted/cloud Elasticsearch cluster for Exodus's optional search
-  upgrade (Exodus is consumer-only — never creates the index/mapping
-  itself, see `src/main/lib/search/`)
 - `docs/lightrag-setup.md` — end-user guide for running the self-hosted
   LightRAG server that backs the optional knowledge base (Exodus is a
   client only, see `src/main/lib/knowledge-base/`)

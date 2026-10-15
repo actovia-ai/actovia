@@ -15,7 +15,6 @@ import {
   ProviderConfigSchema,
   ProvidersSchema,
   S3Schema,
-  FullTextSearchSchema,
   ToolsSchema,
   WebSearchSchema
 } from '@exodus/shared/schemas/settings-schema'
@@ -181,8 +180,6 @@ export const settings = pgTable('settings', {
   userAvatar: text('assistantAvatar').default(''),
   googleCloud: jsonb('googleCloud').$type<z.infer<typeof GoogleCloudSchema>>(),
   webSearch: jsonb('webSearch').$type<z.infer<typeof WebSearchSchema>>(),
-  fullTextSearch:
-    jsonb('fullTextSearch').$type<z.infer<typeof FullTextSearchSchema>>(),
   knowledgeBase:
     jsonb('knowledgeBase').$type<z.infer<typeof KnowledgeBaseSchema>>(),
   computerUse: jsonb('computerUse').$type<z.infer<typeof ComputerUseSchema>>(),

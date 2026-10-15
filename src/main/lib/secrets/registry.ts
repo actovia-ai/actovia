@@ -17,7 +17,6 @@ export const SETTINGS_SECRET_PATHS = [
   'providers.xAiApiKey',
   'googleCloud.googleApiKey',
   'webSearch.braveApiKey',
-  'fullTextSearch.elasticsearch.password',
   'knowledgeBase.apiKey',
   // Also carried, by design, in the `X-Amz-Credential` of every presigned
   // URL `POST /api/v1/s3/presigned-url` returns (the secret key is not).
@@ -130,10 +129,6 @@ export const SECRET_DESTINATIONS: Partial<
       }
     ])
   ),
-  'fullTextSearch.elasticsearch.password': {
-    field: 'fullTextSearch.elasticsearch.url',
-    fallback: null
-  },
   'knowledgeBase.apiKey': { field: 'knowledgeBase.url', fallback: null }
 }
 

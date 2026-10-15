@@ -5,13 +5,8 @@ import { Hono } from 'hono'
 
 import { listModelsByProvider } from '../../ai/providers/list-models'
 import { getAllMcpServers } from '../../db/mcp-queries'
-import {
-  getAllSearchableMessages,
-  getSettings,
-  updateSettings
-} from '../../db/queries'
+import { getSettings, updateSettings } from '../../db/queries'
 import { Settings as DBSettings } from '../../db/schema'
-import { resolveSearchProvider } from '../../search/resolve-search-provider'
 import { looksLikeMask, maskSettings, normalizeBaseUrl } from '../../secrets'
 import { pendingMovedSecrets } from '../../secrets/moved'
 import { PROVIDER_BASE_URL, PROVIDER_KEY_FIELD } from '../../secrets/registry'
@@ -61,52 +56,6 @@ settingsRouter.post('/', async (c) => {
   )
 
   return successResponse(c, updatedSettings)
-})
-
-settingsRouter.post('/full-text-search/test-connection', async (c) => {
-  const settings = c.get('settings')
-  const { elasticsearch } = resolveSearchProvider(settings)
-  if (!elasticsearch) {
-    throw new ValidationError(
-      ErrorCode.VALIDATION_FAILED,
-      'Elasticsearch is not configured'
-    )
-  }
-
-  try {
-    // ping() (not search()) so a freshly-configured cluster — with no index
-    // created yet — reports as reachable instead of failing with
-    // index_not_found_exception before anything has ever been indexed.
-    await elasticsearch.ping()
-    return successResponse(c, { ok: true })
-  } catch (error) {
-    throw new ValidationError(
-      ErrorCode.VALIDATION_FAILED,
-      error instanceof Error
-        ? `Failed to connect to Elasticsearch: ${error.message}`
-        : 'Failed to connect to Elasticsearch'
-    )
-  }
-})
-
-settingsRouter.post('/full-text-search/reindex', async (c) => {
-  const settings = c.get('settings')
-  const { elasticsearch } = resolveSearchProvider(settings)
-  if (!elasticsearch) {
-    throw new ValidationError(
-      ErrorCode.VALIDATION_FAILED,
-      'Elasticsearch is not configured'
-    )
-  }
-
-  const rows = await handleDatabaseOperation(
-    () => getAllSearchableMessages(),
-    'Failed to load messages for reindexing'
-  )
-
-  await elasticsearch.bulkIndexMessages(rows)
-
-  return successResponse(c, { count: rows.length })
 })
 
 settingsRouter.post('/models', async (c) => {

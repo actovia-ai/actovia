@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "스킬 마켓"
     },
-    "fullTextSearch": {
-      "title": "전문 검색"
-    },
     "knowledgeBase": {
       "title": "지식 베이스"
     },
@@ -602,38 +599,6 @@
       "errorFallback": "데이터 삭제에 실패했습니다."
     }
   },
-  "fullTextSearch": {
-    "alert": "Exodus의 내장 검색은 중국어, 일본어, 한국어를 포함한 모든 언어에서 작동하지만 — <strong>\"스마트\" 검색이 아니라 정확히 일치하는 텍스트만 찾습니다</strong>: 관련도 순위, 오타 허용, 어간 추출이 없습니다(예: \"run\"으로 검색하면 \"running\"은 찾지 못합니다). 더 나은 관련도 순위와 실제 단어 분리를 원한다면 아래에서 자체 호스팅 또는 클라우드 Elasticsearch 클러스터를 구성하세요. 이 설정은 선택 사항이며, URL을 비워 두면 계속 내장 검색을 사용합니다. Exodus는 클러스터의 인덱스에서 문서를 읽고 쓰기만 합니다 — (문자 단위가 아닌) 실제 단어 단위의 중국어 분리를 위해서는 Exodus를 연결하기 전에 클러스터에 언어 인식 분석기(예: <4>ik</4>, <6>smartcn</6>, 또는 내장된 <9>cjk</9>)를 구성하세요.",
-    "url": {
-      "label": "Elasticsearch URL",
-      "description": "비워 두면 내장된 PGlite 전문 검색을 사용합니다."
-    },
-    "username": {
-      "label": "사용자 이름"
-    },
-    "password": {
-      "label": "비밀번호"
-    },
-    "optionalSecurityHint": "선택 사항 — 클러스터에 보안이 활성화된 경우에만 필요합니다.",
-    "indexName": {
-      "label": "인덱스 이름",
-      "description": "비워 두면 기본값 \"exodus-messages\"가 사용됩니다."
-    },
-    "connection": {
-      "label": "연결",
-      "description": "연결 상태를 테스트하거나 기존 채팅 기록 전체를 Elasticsearch에 재색인합니다.",
-      "testButton": "연결 테스트",
-      "testingLabel": "테스트 중...",
-      "reindexButton": "기록 재색인",
-      "reindexingLabel": "재색인 중..."
-    },
-    "toast": {
-      "connected": "Elasticsearch에 연결되었습니다",
-      "connectFailed": "Elasticsearch 연결에 실패했습니다",
-      "reindexed_other": "메시지 {{count}}개를 재색인했습니다",
-      "reindexFailed": "메시지 재색인에 실패했습니다"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "전체",
@@ -1094,7 +1059,6 @@
       "googleApiKey": "Google Maps API 키",
       "braveApiKey": "Brave Search API 키",
       "knowledgeBaseApiKey": "LightRAG API 키",
-      "elasticsearchPassword": "Elasticsearch 비밀번호",
       "s3AccessKeyId": "Amazon S3 액세스 키 ID",
       "s3SecretAccessKey": "Amazon S3 비밀 액세스 키",
       "mcp": "MCP 서버 “{{server}}”: {{field}}"

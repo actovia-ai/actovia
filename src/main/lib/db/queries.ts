@@ -2,7 +2,7 @@ import { ErrorCode, DatabaseError } from '@exodus/shared'
 import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
 import { chatHistoryCursor } from '@exodus/shared/utils/chat-history-cursor'
-import { and, asc, desc, eq, inArray, lt, or, sql, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm'
 
 import { logger } from '../logger'
 import { addLogSecrets } from '../logger/secret-mask'
@@ -355,79 +355,6 @@ export async function searchChats(query: string): Promise<ChatSearchResult[]> {
     return buildChatSearchResults(chats, messages, words)
   } catch (error) {
     logDbError('Failed to complete full-text search', error)
-    throw error
-  }
-}
-
-/**
- * The messages Elasticsearch matched, with their chats' titles — one query,
- * only what a snippet needs.
- */
-export async function getMessageHitsByIds(
-  ids: string[]
-): Promise<{ chats: ChatHit[]; messages: MessageHit[] }> {
-  try {
-    if (ids.length === 0) return { chats: [], messages: [] }
-    const rows = await db
-      .select({
-        id: message.id,
-        chatId: message.chatId,
-        role: message.role,
-        searchText: message.searchText,
-        createdAt: message.createdAt,
-        title: chat.title
-      })
-      .from(message)
-      .innerJoin(chat, eq(chat.id, message.chatId))
-      .where(inArray(message.id, ids))
-    return {
-      chats: rows.map((r) => ({
-        chatId: r.chatId,
-        title: r.title,
-        activityAt: r.createdAt
-      })),
-      messages: rows
-    }
-  } catch (error) {
-    logDbError('Failed to get messages by ids', error)
-    throw error
-  }
-}
-
-/**
- * The chats whose title holds every word, newest activity first — the half of
- * a search Elasticsearch, which indexes messages only, cannot answer.
- */
-export async function getChatsByTitle(words: string[]): Promise<ChatHit[]> {
-  try {
-    if (words.length === 0) return []
-    const activityAt = sql`COALESCE(max(${message.createdAt}), ${chat.createdAt})`
-    return await db
-      .select({
-        chatId: chat.id,
-        title: chat.title,
-        activityAt: sql<string>`${isoText(activityAt)}`
-      })
-      .from(chat)
-      .leftJoin(message, eq(message.chatId, chat.id))
-      .where(containsEvery(sql`${chat.title}`, words))
-      .groupBy(chat.id)
-      .orderBy(desc(activityAt))
-      .limit(CHAT_SEARCH_LIMIT)
-  } catch (error) {
-    logDbError('Failed to search chat titles', error)
-    throw error
-  }
-}
-
-export async function getAllSearchableMessages(): Promise<Message[]> {
-  try {
-    return await db
-      .select()
-      .from(message)
-      .where(sql`${message.searchText} IS NOT NULL`)
-  } catch (error) {
-    logDbError('Failed to get searchable messages', error)
     throw error
   }
 }

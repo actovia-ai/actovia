@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "技能市集"
     },
-    "fullTextSearch": {
-      "title": "全文搜尋"
-    },
     "knowledgeBase": {
       "title": "知識庫"
     },
@@ -602,38 +599,6 @@
       "errorFallback": "資料刪除失敗。"
     }
   },
-  "fullTextSearch": {
-    "alert": "Exodus 內建的搜尋功能可跨所有語言運作，包括中文、日文及韓文——<strong>但僅比對完全相符的文字，並非「智慧」搜尋結果</strong>：沒有相關性排序、不容許錯字、也不做詞形還原（搜尋「run」不會找到「running」）。若需要更好的相關性排序與真正的斷詞功能，請在下方設定自架或雲端 Elasticsearch 叢集。此設定為選填；將 URL 留空即可繼續使用內建搜尋。Exodus 只會讀寫你叢集索引中的文件——若要取得真正以詞為單位的中文斷詞（而非以字為單位），請先在你的叢集上設定具語言感知能力的分析器（例如 <4>ik</4>、<6>smartcn</6>，或內建的 <9>cjk</9>），再讓 Exodus 連接至該叢集。",
-    "url": {
-      "label": "Elasticsearch URL",
-      "description": "留空則使用內建的 PGlite 全文搜尋。"
-    },
-    "username": {
-      "label": "使用者名稱"
-    },
-    "password": {
-      "label": "密碼"
-    },
-    "optionalSecurityHint": "選填——僅在你的叢集已啟用安全性驗證時才需要。",
-    "indexName": {
-      "label": "索引名稱",
-      "description": "若留空，預設為「exodus-messages」。"
-    },
-    "connection": {
-      "label": "連線",
-      "description": "測試連線，或將所有現有聊天紀錄重新索引至 Elasticsearch。",
-      "testButton": "測試連線",
-      "testingLabel": "測試中...",
-      "reindexButton": "重新索引紀錄",
-      "reindexingLabel": "重新索引中..."
-    },
-    "toast": {
-      "connected": "已連接至 Elasticsearch",
-      "connectFailed": "連接 Elasticsearch 失敗",
-      "reindexed_other": "已重新索引 {{count}} 則訊息",
-      "reindexFailed": "訊息重新索引失敗"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "全部",
@@ -1094,7 +1059,6 @@
       "googleApiKey": "Google Maps API 金鑰",
       "braveApiKey": "Brave Search API 金鑰",
       "knowledgeBaseApiKey": "LightRAG API 金鑰",
-      "elasticsearchPassword": "Elasticsearch 密碼",
       "s3AccessKeyId": "Amazon S3 存取金鑰 ID",
       "s3SecretAccessKey": "Amazon S3 秘密存取金鑰",
       "mcp": "MCP 伺服器「{{server}}」：{{field}}"

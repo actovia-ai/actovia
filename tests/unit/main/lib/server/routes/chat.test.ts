@@ -81,6 +81,7 @@ vi.mock('@main/lib/db/queries', () => ({
   getMessagesByChatId: vi.fn(async () => []),
   saveChat: vi.fn(async () => {}),
   saveMessages: vi.fn(async () => {}),
+  searchChats: vi.fn(async () => []),
   updateChat: vi.fn(async () => {}),
   updateChatTitleById: vi.fn(async () => {})
 }))
@@ -99,22 +100,14 @@ vi.mock('@main/lib/logger/trace-context', () => ({
   bindTraceAttributes: vi.fn()
 }))
 
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null, pglite: {} })),
-  searchWithFallback: vi.fn(async () => [])
-}))
-
 const removeChatMediaMock = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({
   removeChatMedia: (...args: unknown[]) => removeChatMediaMock(...args)
 }))
 
 const { default: chat } = await import('@main/lib/server/routes/chat')
-const { saveMessages } = await import('@main/lib/db/queries')
-const { resolveSearchProvider, searchWithFallback } =
-  await import('@main/lib/search/resolve-search-provider')
+const { saveMessages, searchChats } = await import('@main/lib/db/queries')
 const saveMessagesMock = vi.mocked(saveMessages)
-const resolveSearchProviderMock = vi.mocked(resolveSearchProvider)
 
 const FAKE_MODEL = { id: 'fake-model', cost: { input: 1, output: 2 } }
 const CHAT_ID = '11111111-1111-4111-8111-111111111111'
@@ -275,38 +268,6 @@ describe('POST /api/v1/chat', () => {
     expect(memoryCall?.[1]).toMatchObject({ model: FAKE_MODEL })
     expect(memoryCall?.[1]).not.toHaveProperty('chatModel')
     expect(memoryCall?.[1]).not.toHaveProperty('apiKey')
-  })
-
-  describe('index-message job', () => {
-    it('is not enqueued when Elasticsearch is not configured', async () => {
-      const response = await postChat({})
-      await response.text()
-
-      const queues = enqueueAndProcessMock.mock.calls.map((c) => c[0])
-      expect(queues).not.toContain('index-message')
-    })
-
-    it('is enqueued for the user message and each new message when Elasticsearch is configured', async () => {
-      resolveSearchProviderMock.mockReturnValue({
-        elasticsearch: {},
-        pglite: {}
-      } as never)
-
-      const response = await postChat({})
-      await response.text()
-
-      const indexed = enqueueAndProcessMock.mock.calls.filter(
-        (c) => c[0] === 'index-message'
-      )
-      expect(indexed.map((c) => (c[1] as { role: string }).role)).toEqual([
-        'user',
-        'assistant'
-      ])
-      resolveSearchProviderMock.mockReturnValue({
-        elasticsearch: null,
-        pglite: {}
-      } as never)
-    })
   })
 
   describe('saving the run', () => {
@@ -501,7 +462,7 @@ describe('GET /api/v1/chat/search', () => {
         ]
       }
     ]
-    vi.mocked(searchWithFallback).mockResolvedValueOnce(results as never)
+    vi.mocked(searchChats).mockResolvedValueOnce(results as never)
 
     const res = await buildApp().request(
       `/search?query=${encodeURIComponent('北京 duck')}`
@@ -509,21 +470,15 @@ describe('GET /api/v1/chat/search', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual(results)
-    expect(vi.mocked(searchWithFallback)).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'settings-1' }),
-      '北京 duck'
-    )
+    expect(vi.mocked(searchChats)).toHaveBeenCalledWith('北京 duck')
   })
 
   it('passes a missing query on as empty', async () => {
-    vi.mocked(searchWithFallback).mockResolvedValueOnce([])
+    vi.mocked(searchChats).mockResolvedValueOnce([])
 
     const res = await buildApp().request('/search')
 
     expect(await res.json()).toEqual([])
-    expect(vi.mocked(searchWithFallback)).toHaveBeenLastCalledWith(
-      expect.anything(),
-      ''
-    )
+    expect(vi.mocked(searchChats)).toHaveBeenLastCalledWith('')
   })
 })

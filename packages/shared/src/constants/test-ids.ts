@@ -82,10 +82,6 @@ export const TEST_IDS = {
     revokeButton: 'devices.revoke-button',
     resetButton: 'devices.reset-button'
   },
-  fullTextSearch: {
-    testConnectionButton: 'full-text-search.test-connection-button',
-    reindexButton: 'full-text-search.reindex-button'
-  },
   knowledgeBase: {
     testConnectionButton: 'knowledge-base.test-connection-button',
     reindexButton: 'knowledge-base.reindex-button',

@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "Marché de compétences"
     },
-    "fullTextSearch": {
-      "title": "Recherche en texte intégral"
-    },
     "knowledgeBase": {
       "title": "Base de connaissances"
     },
@@ -603,39 +600,6 @@
       "errorFallback": "Échec de la suppression des données."
     }
   },
-  "fullTextSearch": {
-    "alert": "La recherche intégrée d'Exodus fonctionne dans toutes les langues, y compris le chinois, le japonais et le coréen — <strong>elle ne renvoie que des correspondances de texte exact, pas des résultats « intelligents »</strong> : aucun classement par pertinence, aucune tolérance aux fautes de frappe, aucune racinisation (rechercher « run » ne trouvera pas « running »). Configurez ci-dessous un cluster Elasticsearch auto-hébergé ou dans le cloud pour un meilleur classement par pertinence et une véritable segmentation des mots. C'est optionnel ; laissez l'URL vide pour continuer à utiliser la recherche intégrée. Exodus ne fait que lire et écrire des documents dans l'index de votre cluster — pour une segmentation du chinois au niveau des mots (plutôt qu'au niveau des caractères), configurez un analyseur adapté à la langue (par ex. <4>ik</4>, <6>smartcn</6>, ou l'analyseur intégré <9>cjk</9>) sur votre cluster avant d'y connecter Exodus.",
-    "url": {
-      "label": "URL Elasticsearch",
-      "description": "Laissez vide pour utiliser la recherche en texte intégral PGlite intégrée."
-    },
-    "username": {
-      "label": "Nom d'utilisateur"
-    },
-    "password": {
-      "label": "Mot de passe"
-    },
-    "optionalSecurityHint": "Facultatif — requis uniquement si la sécurité est activée sur votre cluster.",
-    "indexName": {
-      "label": "Nom de l'index",
-      "description": "Par défaut « exodus-messages » si laissé vide."
-    },
-    "connection": {
-      "label": "Connexion",
-      "description": "Testez la connectivité, ou réindexez tout l'historique des conversations existant dans Elasticsearch.",
-      "testButton": "Tester la connexion",
-      "testingLabel": "Test en cours...",
-      "reindexButton": "Réindexer l'historique",
-      "reindexingLabel": "Réindexation en cours..."
-    },
-    "toast": {
-      "connected": "Connecté à Elasticsearch",
-      "connectFailed": "Échec de la connexion à Elasticsearch",
-      "reindexed_one": "{{count}} message réindexé",
-      "reindexed_other": "{{count}} messages réindexés",
-      "reindexFailed": "Échec de la réindexation des messages"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "Tous",
@@ -1100,7 +1064,6 @@
       "googleApiKey": "Clé API Google Maps",
       "braveApiKey": "Clé API Brave Search",
       "knowledgeBaseApiKey": "Clé API LightRAG",
-      "elasticsearchPassword": "Mot de passe Elasticsearch",
       "s3AccessKeyId": "ID de clé d’accès Amazon S3",
       "s3SecretAccessKey": "Clé d’accès secrète Amazon S3",
       "mcp": "Serveur MCP « {{server}} » : {{field}}"

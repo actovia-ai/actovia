@@ -17,10 +17,10 @@ const optionalUrl = z
   )
 
 // Stricter variant of `optionalUrl` that also requires an explicit http(s)
-// scheme. `optionalUrl` accepts scheme-less values like `localhost:9200`, which
-// the Elasticsearch client rejects at construction time ("Invalid protocol") —
-// so that field has to be caught at save time instead. Deliberately NOT applied
-// to the other provider URL fields, whose looser behavior is relied upon.
+// scheme — `optionalUrl` accepts scheme-less values like `localhost:9621`,
+// which a client building requests from it cannot use. Deliberately NOT
+// applied to the other provider URL fields, whose looser behavior is relied
+// upon.
 const optionalHttpUrl = optionalUrl.refine(
   (val) => val == null || val === '' || /^https?:\/\//.test(val),
   { message: 'Must start with http:// or https://' }
@@ -131,17 +131,6 @@ export const WebSearchSchema = z.object({
   // results — broader recall (forums, news clusters, URLs the grounding
   // threshold drops) at ~2x Brave API usage per search. Default on.
   deepRecall: z.boolean().nullish()
-})
-
-export const ElasticsearchSchema = z.object({
-  url: optionalHttpUrl,
-  username: z.string().nullish(),
-  password: z.string().nullish(),
-  indexName: z.string().nullish() // defaults to 'exodus-messages' if unset
-})
-
-export const FullTextSearchSchema = z.object({
-  elasticsearch: ElasticsearchSchema.nullish()
 })
 
 export const KnowledgeBaseSchema = z.object({
@@ -302,7 +291,6 @@ export const SettingsSchema = z.object({
   userAvatar: z.string().nullish(),
   googleCloud: GoogleCloudSchema.nullish(),
   webSearch: WebSearchSchema.nullish(),
-  fullTextSearch: FullTextSearchSchema.nullish(),
   knowledgeBase: KnowledgeBaseSchema.nullish(),
   computerUse: ComputerUseSchema.nullish(),
   agents: AgentsSettingsSchema.nullish(),

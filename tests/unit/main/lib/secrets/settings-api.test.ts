@@ -16,15 +16,12 @@ vi.mock('@main/lib/db/db', async () => {
   const { drizzle } = await import('drizzle-orm/pglite')
   const { createMigratedPglite } =
     await import('../../../helpers/migrated-pglite')
-  const pglite = await createMigratedPglite('0009')
+  const pglite = await createMigratedPglite('9999')
   return { pglite, db: drizzle(pglite) }
 })
 const listOpenAiModels = vi.hoisted(() => vi.fn(async () => []))
 vi.mock('@main/lib/ai/providers/list-models', () => ({
   listModelsByProvider: { 'OpenAI GPT': listOpenAiModels }
-}))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null }))
 }))
 
 const { pglite } = await import('@main/lib/db/db')

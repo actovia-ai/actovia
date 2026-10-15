@@ -4,8 +4,7 @@ Exodus's knowledge base is **optional** and powered by a **self-hosted
 [LightRAG](https://github.com/HKUDS/LightRAG) server that you run**. Exodus is a
 client only: it pushes your documents into LightRAG and asks it for relevant
 context at query time. It never runs, upgrades, or manages LightRAG, and never
-creates its storage or schema — same posture as the optional Elasticsearch
-integration (`docs/elasticsearch-setup.md`).
+creates its storage or schema.
 
 When no server URL is configured, the knowledge base is completely inert — no
 tool, no behavior change.

@@ -16,8 +16,6 @@ const FIELD_NAMES: Record<string, ParseKeys<'settings'>> = {
   'providers.xAiApiKey': 'secrets.fields.xAiApiKey',
   'googleCloud.googleApiKey': 'secrets.fields.googleApiKey',
   'webSearch.braveApiKey': 'secrets.fields.braveApiKey',
-  'fullTextSearch.elasticsearch.password':
-    'secrets.fields.elasticsearchPassword',
   'knowledgeBase.apiKey': 'secrets.fields.knowledgeBaseApiKey',
   's3.accessKeyId': 'secrets.fields.s3AccessKeyId',
   's3.secretAccessKey': 'secrets.fields.s3SecretAccessKey'

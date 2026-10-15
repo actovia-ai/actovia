@@ -15,7 +15,7 @@
 - [ ] 用**打包版**测一遍(`bun run package` 产出的 `out/…/Exodus.app`),再用 dev 抽查;两者行为应一致。打包版才能测:图标、Dock、菜单栏名字、开机启动、更新面板、Touch ID
 - [ ] 先在 Settings → Data Controls → **Back Up Now** 做一次备份,记下时间
 - [ ] **破坏性测试**(第 16 节的 Import / Delete All Data、第 14 节的 Reset all)放到最后做,或退出 app 后用 `EXODUS_HOME=~/exodus-qa` 启动一个空白数据目录单独测(同一时间只能开一个 Exodus)
-- [ ] 准备好:至少两家模型的 key(建议 Anthropic + OpenAI),Brave Search key,Google API key(地图),可选:Ollama 本地模型、Elasticsearch、LightRAG、S3、一台装了 exodus-ios 的 iPhone
+- [ ] 准备好:至少两家模型的 key(建议 Anthropic + OpenAI),Brave Search key,Google API key(地图),可选:Ollama 本地模型、LightRAG、S3、一台装了 exodus-ios 的 iPhone
 - [ ] 准备素材:一张 PNG、一张 JPG、一张大图(>5 MB)、一张 HEIC、一个 PDF、一个很长的文本
 
 ---
@@ -178,7 +178,6 @@
 - [ ] **P2** 参数里写了 token:表单提示「参数对其他程序可见」,建议改用环境变量
 - [ ] **P2** 改 MCP 的 URL / command:提示会清掉已保存的 header / env;保存后要求重新输入
 - [ ] **P1** **Skills Market**:搜索、看排行榜(All time / Trending / Hot)、Curated、详情页(安全审计、README、文件)→ 安装 → Installed 里能开关 / 卸载 → 对话里任务匹配时模型会读这个 skill
-- [ ] **P2** Full Text Search(Elasticsearch):Test Connection → Reindex History → ⌘⇧F 搜索走 ES
 - [ ] **P2** Knowledge Base(LightRAG):添加文档 → 状态从索引中变成完成 → 对话里问文档内容能答上
 - [ ] **P2** AWS S3:填凭据后相关上传能用;公开读的提示显示正常
 

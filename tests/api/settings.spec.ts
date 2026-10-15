@@ -115,27 +115,4 @@ test.describe('Settings API', () => {
     expect(ws.braveApiKey).toBe(process.env.BRAVE_API_KEY)
     expect(ws.maxResults).toBe(10)
   })
-
-  test('POST /api/v1/settings updates full text search config', async ({
-    api
-  }) => {
-    await api.updateSettings({
-      fullTextSearch: {
-        elasticsearch: {
-          url: process.env.ELASTIC_URL,
-          username: process.env.ELASTIC_USERNAME,
-          password: process.env.ELASTIC_PASSWORD
-        }
-      }
-    })
-
-    const { data } = await api.getSettings()
-    const fullTextSearch = data.fullTextSearch as {
-      elasticsearch: Record<string, string>
-    }
-    expect(fullTextSearch.elasticsearch.url).toBe(process.env.ELASTIC_URL)
-    expect(fullTextSearch.elasticsearch.username).toBe(
-      process.env.ELASTIC_USERNAME
-    )
-  })
 })

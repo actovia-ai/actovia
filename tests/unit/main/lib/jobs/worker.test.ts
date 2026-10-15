@@ -14,13 +14,12 @@ vi.mock('@main/lib/jobs/queries', () => ({
   enqueueJob: mockEnqueueJob
 }))
 
-const mockIndexMessageHandler = vi.fn()
+const mockKbSyncHandler = vi.fn()
 vi.mock('@main/lib/jobs/handlers', () => ({
   handlers: {
-    'index-message': mockIndexMessageHandler,
+    'kb-sync': mockKbSyncHandler,
     'lcm-post-turn': vi.fn(),
     'memory-consolidate': vi.fn(),
-    'kb-sync': vi.fn(),
     'discover-refresh': vi.fn()
   }
 }))
@@ -44,14 +43,17 @@ beforeEach(() => {
 describe('processQueue', () => {
   it('deletes — never archives — a message after its handler succeeds', async () => {
     mockReadBatch.mockResolvedValueOnce([
-      { msgId: 1, readCt: 0, message: { id: 'msg-1' } }
+      { msgId: 1, readCt: 0, message: { op: 'delete', lightragDocId: 'doc-1' } }
     ])
-    mockIndexMessageHandler.mockResolvedValue(undefined)
+    mockKbSyncHandler.mockResolvedValue(undefined)
 
-    await processQueue('index-message')
+    await processQueue('kb-sync')
 
-    expect(mockIndexMessageHandler).toHaveBeenCalledWith({ id: 'msg-1' })
-    expect(mockDeleteMessage).toHaveBeenCalledWith('index-message', 1)
+    expect(mockKbSyncHandler).toHaveBeenCalledWith({
+      op: 'delete',
+      lightragDocId: 'doc-1'
+    })
+    expect(mockDeleteMessage).toHaveBeenCalledWith('kb-sync', 1)
     expect(mockArchiveMessage).not.toHaveBeenCalled()
   })
 
@@ -59,9 +61,9 @@ describe('processQueue', () => {
     mockReadBatch.mockResolvedValueOnce([
       { msgId: 2, readCt: 1, message: { id: 'msg-2' } }
     ])
-    mockIndexMessageHandler.mockRejectedValueOnce(new Error('boom'))
+    mockKbSyncHandler.mockRejectedValueOnce(new Error('boom'))
 
-    await processQueue('index-message')
+    await processQueue('kb-sync')
 
     expect(mockArchiveMessage).not.toHaveBeenCalled()
     expect(mockDeleteMessage).not.toHaveBeenCalled()
@@ -71,9 +73,9 @@ describe('processQueue', () => {
     mockReadBatch.mockResolvedValueOnce([
       { msgId: 4, readCt: 4, message: { id: 'msg-4' } }
     ])
-    mockIndexMessageHandler.mockRejectedValueOnce(new Error('boom'))
+    mockKbSyncHandler.mockRejectedValueOnce(new Error('boom'))
 
-    await processQueue('index-message')
+    await processQueue('kb-sync')
 
     expect(mockArchiveMessage).not.toHaveBeenCalled()
     expect(mockDeleteMessage).not.toHaveBeenCalled()
@@ -83,11 +85,11 @@ describe('processQueue', () => {
     mockReadBatch.mockResolvedValueOnce([
       { msgId: 3, readCt: 5, message: { id: 'msg-3' } }
     ])
-    mockIndexMessageHandler.mockRejectedValueOnce(new Error('boom'))
+    mockKbSyncHandler.mockRejectedValueOnce(new Error('boom'))
 
-    await processQueue('index-message')
+    await processQueue('kb-sync')
 
-    expect(mockArchiveMessage).toHaveBeenCalledWith('index-message', 3)
+    expect(mockArchiveMessage).toHaveBeenCalledWith('kb-sync', 3)
   })
 
   it('keeps processing the batch when the give-up archive itself fails', async () => {
@@ -95,20 +97,20 @@ describe('processQueue', () => {
       { msgId: 10, readCt: 5, message: { id: 'msg-10' } },
       { msgId: 11, readCt: 0, message: { id: 'msg-11' } }
     ])
-    mockIndexMessageHandler.mockRejectedValueOnce(new Error('boom'))
-    mockIndexMessageHandler.mockResolvedValue(undefined)
+    mockKbSyncHandler.mockRejectedValueOnce(new Error('boom'))
+    mockKbSyncHandler.mockResolvedValue(undefined)
     mockArchiveMessage.mockRejectedValueOnce(new Error('archive exploded'))
 
-    await expect(processQueue('index-message')).resolves.toBeUndefined()
+    await expect(processQueue('kb-sync')).resolves.toBeUndefined()
 
     // The second message still got handled and cleared off the queue.
-    expect(mockIndexMessageHandler).toHaveBeenCalledWith({ id: 'msg-11' })
-    expect(mockDeleteMessage).toHaveBeenCalledWith('index-message', 11)
+    expect(mockKbSyncHandler).toHaveBeenCalledWith({ id: 'msg-11' })
+    expect(mockDeleteMessage).toHaveBeenCalledWith('kb-sync', 11)
   })
 
   it('processes an empty batch without error', async () => {
     mockReadBatch.mockResolvedValueOnce([])
-    await expect(processQueue('index-message')).resolves.toBeUndefined()
+    await expect(processQueue('kb-sync')).resolves.toBeUndefined()
   })
 })
 
@@ -118,11 +120,12 @@ describe('enqueueAndProcess', () => {
     mockReadBatch.mockResolvedValueOnce([])
 
     await expect(
-      enqueueAndProcess('index-message', { id: 'msg-1' })
+      enqueueAndProcess('kb-sync', { op: 'delete', lightragDocId: 'doc-1' })
     ).resolves.toBeUndefined()
 
-    expect(mockEnqueueJob).toHaveBeenCalledWith('index-message', {
-      id: 'msg-1'
+    expect(mockEnqueueJob).toHaveBeenCalledWith('kb-sync', {
+      op: 'delete',
+      lightragDocId: 'doc-1'
     })
   })
 })
@@ -155,12 +158,12 @@ describe('logEnqueueFailure', () => {
   })
 
   it('falls back to typeof for non-Error rejections', () => {
-    logEnqueueFailure('index-message', 'plain string rejection')
+    logEnqueueFailure('kb-sync', 'plain string rejection')
 
     expect(logger.error).toHaveBeenCalledWith(
       'jobs',
-      'Failed to enqueue index-message job',
-      { queueName: 'index-message', errorName: 'string' }
+      'Failed to enqueue kb-sync job',
+      { queueName: 'kb-sync', errorName: 'string' }
     )
   })
 })

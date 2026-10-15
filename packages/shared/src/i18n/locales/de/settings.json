@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "Skills-Markt"
     },
-    "fullTextSearch": {
-      "title": "Volltextsuche"
-    },
     "knowledgeBase": {
       "title": "Wissensdatenbank"
     },
@@ -603,39 +600,6 @@
       "errorFallback": "Daten konnten nicht gelöscht werden."
     }
   },
-  "fullTextSearch": {
-    "alert": "Die integrierte Suche von Exodus funktioniert über alle Sprachen hinweg, einschließlich Chinesisch, Japanisch und Koreanisch — <strong>sie liefert exakte Textübereinstimmungen, keine „intelligenten“ Ergebnisse</strong>: kein Relevanz-Ranking, keine Tippfehlertoleranz, kein Stemming (die Suche nach „run“ findet „running“ nicht). Konfigurieren Sie unten einen selbst gehosteten oder Cloud-Elasticsearch-Cluster für ein besseres Relevanz-Ranking und echte Wortsegmentierung. Dies ist optional; lassen Sie die URL leer, um weiterhin die integrierte Suche zu verwenden. Exodus liest und schreibt Dokumente ausschließlich in den Index Ihres Clusters — konfigurieren Sie für eine echte wortbasierte chinesische Segmentierung (statt zeichenbasiert) auf Ihrem Cluster einen sprachbewussten Analyzer (z. B. <4>ik</4>, <6>smartcn</6> oder den integrierten <9>cjk</9>), bevor Sie Exodus darauf verweisen.",
-    "url": {
-      "label": "Elasticsearch-URL",
-      "description": "Leer lassen, um die integrierte PGlite-Volltextsuche zu verwenden."
-    },
-    "username": {
-      "label": "Benutzername"
-    },
-    "password": {
-      "label": "Passwort"
-    },
-    "optionalSecurityHint": "Optional — nur erforderlich, wenn für Ihren Cluster Sicherheit aktiviert ist.",
-    "indexName": {
-      "label": "Indexname",
-      "description": "Standardmäßig „exodus-messages“, wenn leer gelassen."
-    },
-    "connection": {
-      "label": "Verbindung",
-      "description": "Verbindung testen oder den gesamten bestehenden Chat-Verlauf in Elasticsearch neu indizieren.",
-      "testButton": "Verbindung testen",
-      "testingLabel": "Wird getestet...",
-      "reindexButton": "Verlauf neu indizieren",
-      "reindexingLabel": "Wird neu indiziert..."
-    },
-    "toast": {
-      "connected": "Mit Elasticsearch verbunden",
-      "connectFailed": "Verbindung zu Elasticsearch fehlgeschlagen",
-      "reindexed_one": "{{count}} Nachricht neu indiziert",
-      "reindexed_other": "{{count}} Nachrichten neu indiziert",
-      "reindexFailed": "Neuindizierung der Nachrichten fehlgeschlagen"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "Alle",
@@ -1100,7 +1064,6 @@
       "googleApiKey": "Google-Maps-API-Schlüssel",
       "braveApiKey": "Brave-Search-API-Schlüssel",
       "knowledgeBaseApiKey": "LightRAG-API-Schlüssel",
-      "elasticsearchPassword": "Elasticsearch-Passwort",
       "s3AccessKeyId": "Amazon-S3-Zugriffsschlüssel-ID",
       "s3SecretAccessKey": "Geheimer Amazon-S3-Zugriffsschlüssel",
       "mcp": "MCP-Server „{{server}}“: {{field}}"

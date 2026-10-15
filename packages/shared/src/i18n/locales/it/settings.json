@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "Mercato delle skill"
     },
-    "fullTextSearch": {
-      "title": "Ricerca full text"
-    },
     "knowledgeBase": {
       "title": "Knowledge Base"
     },
@@ -603,39 +600,6 @@
       "errorFallback": "Impossibile eliminare i dati."
     }
   },
-  "fullTextSearch": {
-    "alert": "La ricerca integrata di Exodus funziona con tutte le lingue, incluse cinese, giapponese e coreano — <strong>trova corrispondenze di testo esatte, non risultati \"intelligenti\"</strong>: nessuna classificazione per rilevanza, nessuna tolleranza per gli errori di battitura, nessuno stemming (cercare \"corri\" non troverà \"correndo\"). Configura qui sotto un cluster Elasticsearch self-hosted o cloud per una migliore classificazione per rilevanza e una segmentazione reale delle parole. Questo è facoltativo; lascia l'URL vuoto per continuare a usare la ricerca integrata. Exodus legge e scrive solo documenti nell'indice del tuo cluster — per una segmentazione cinese reale a livello di parola (anziché di carattere), configura un analizzatore linguistico dedicato (es. <4>ik</4>, <6>smartcn</6>, oppure quello integrato <9>cjk</9>) sul tuo cluster prima di puntarci Exodus.",
-    "url": {
-      "label": "URL di Elasticsearch",
-      "description": "Lascia vuoto per usare la ricerca full text integrata basata su PGlite."
-    },
-    "username": {
-      "label": "Nome utente"
-    },
-    "password": {
-      "label": "Password"
-    },
-    "optionalSecurityHint": "Facoltativo — richiesto solo se il tuo cluster ha la sicurezza abilitata.",
-    "indexName": {
-      "label": "Nome indice",
-      "description": "Il valore predefinito è \"exodus-messages\" se lasciato vuoto."
-    },
-    "connection": {
-      "label": "Connessione",
-      "description": "Verifica la connettività, oppure reindicizza tutta la cronologia chat esistente in Elasticsearch.",
-      "testButton": "Verifica connessione",
-      "testingLabel": "Verifica in corso...",
-      "reindexButton": "Reindicizza cronologia",
-      "reindexingLabel": "Reindicizzazione in corso..."
-    },
-    "toast": {
-      "connected": "Connesso a Elasticsearch",
-      "connectFailed": "Connessione a Elasticsearch non riuscita",
-      "reindexed_one": "Reindicizzato {{count}} messaggio",
-      "reindexed_other": "Reindicizzati {{count}} messaggi",
-      "reindexFailed": "Reindicizzazione dei messaggi non riuscita"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "Tutti",
@@ -1100,7 +1064,6 @@
       "googleApiKey": "Chiave API Google Maps",
       "braveApiKey": "Chiave API Brave Search",
       "knowledgeBaseApiKey": "Chiave API LightRAG",
-      "elasticsearchPassword": "Password di Elasticsearch",
       "s3AccessKeyId": "ID chiave di accesso Amazon S3",
       "s3SecretAccessKey": "Chiave di accesso segreta Amazon S3",
       "mcp": "Server MCP «{{server}}»: {{field}}"

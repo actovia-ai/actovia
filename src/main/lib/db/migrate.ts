@@ -48,6 +48,15 @@ export const runMigrate = async () => {
         })
       }
     }
+    // The retired search-index queue (2026-10-15): nothing reads it any
+    // more, so whatever was still waiting in it is dropped.
+    try {
+      await pglite.exec(
+        `SELECT pgmq.drop_queue(queue_name) FROM pgmq.list_queues() WHERE queue_name = 'index-message';`
+      )
+    } catch (error) {
+      logger.error('jobs', 'Failed to drop queue index-message', { error })
+    }
 
     const end = performance.now()
     logger.info('migration', 'Migrations completed', {

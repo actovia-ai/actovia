@@ -13,9 +13,6 @@ vi.mock('@main/lib/db/queries', () => ({
 vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null, pglite: {} }))
-}))
 const removeAllMedia = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({ removeAllMedia }))
 const forgetAllMovedSecrets = vi.fn()

@@ -96,11 +96,6 @@ vi.mock('@main/lib/jobs/worker', () => ({
 vi.mock('@main/lib/logger/trace-context', () => ({
   bindTraceAttributes: vi.fn()
 }))
-vi.mock('@main/lib/search/resolve-search-provider', () => ({
-  resolveSearchProvider: vi.fn(() => ({ elasticsearch: null, pglite: {} })),
-  searchWithFallback: vi.fn(async () => [])
-}))
-
 const { default: chat } = await import('@main/lib/server/routes/chat')
 const { registerFauxProvider } = await import('@main/lib/ai/kernel/faux')
 const { errorHandler, presenceGate } =

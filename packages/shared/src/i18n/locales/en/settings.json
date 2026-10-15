@@ -56,9 +56,6 @@
     "skillsMarket": {
       "title": "Skills Market"
     },
-    "fullTextSearch": {
-      "title": "Full Text Search"
-    },
     "knowledgeBase": {
       "title": "Knowledge Base"
     },
@@ -603,39 +600,6 @@
       "errorFallback": "Failed to delete data."
     }
   },
-  "fullTextSearch": {
-    "alert": "Exodus's built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not \"smart\" results</strong>: no relevance ranking, no typo tolerance, no stemming (searching \"run\" won't find \"running\"). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Exodus only reads and writes documents to your cluster's index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <4>ik</4>, <6>smartcn</6>, or the built-in <9>cjk</9>) on your cluster before pointing Exodus at it.",
-    "url": {
-      "label": "Elasticsearch URL",
-      "description": "Leave empty to use the built-in PGlite full-text search."
-    },
-    "username": {
-      "label": "Username"
-    },
-    "password": {
-      "label": "Password"
-    },
-    "optionalSecurityHint": "Optional — required only if your cluster has security enabled.",
-    "indexName": {
-      "label": "Index Name",
-      "description": "Defaults to \"exodus-messages\" if left empty."
-    },
-    "connection": {
-      "label": "Connection",
-      "description": "Test connectivity, or reindex all existing chat history into Elasticsearch.",
-      "testButton": "Test Connection",
-      "testingLabel": "Testing...",
-      "reindexButton": "Reindex History",
-      "reindexingLabel": "Reindexing..."
-    },
-    "toast": {
-      "connected": "Connected to Elasticsearch",
-      "connectFailed": "Failed to connect to Elasticsearch",
-      "reindexed_one": "Reindexed {{count}} message",
-      "reindexed_other": "Reindexed {{count}} messages",
-      "reindexFailed": "Failed to reindex messages"
-    }
-  },
   "logger": {
     "filters": {
       "allScopes": "All",
@@ -1100,7 +1064,6 @@
       "googleApiKey": "Google Maps API key",
       "braveApiKey": "Brave Search API key",
       "knowledgeBaseApiKey": "LightRAG API key",
-      "elasticsearchPassword": "Elasticsearch password",
       "s3AccessKeyId": "Amazon S3 access key ID",
       "s3SecretAccessKey": "Amazon S3 secret access key",
       "mcp": "MCP server “{{server}}”: {{field}}"

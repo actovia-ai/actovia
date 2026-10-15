@@ -39,7 +39,7 @@ vi.mock('@/components/ui/dialog', () => ({
 }))
 
 const { Provider, createStore } = await import('jotai')
-const { isFullTextSearchVisibleAtom } = await import('@/stores/chat')
+const { isSearchChatsVisibleAtom } = await import('@/stores/chat')
 const { SearchDialog } = await import('@/layouts/chat-layout/search-dialog')
 
 let host: HTMLDivElement
@@ -53,7 +53,7 @@ function Where() {
 
 function mount() {
   const store = createStore()
-  store.set(isFullTextSearchVisibleAtom, true)
+  store.set(isSearchChatsVisibleAtom, true)
   act(() => {
     root.render(
       createElement(
@@ -183,6 +183,6 @@ describe('SearchDialog', () => {
     press('Enter')
 
     expect(path).toBe('/chat/c2')
-    expect(store.get(isFullTextSearchVisibleAtom)).toBe(false)
+    expect(store.get(isSearchChatsVisibleAtom)).toBe(false)
   })
 })

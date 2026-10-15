@@ -52,8 +52,7 @@ export async function archiveMessage(
 /**
  * Removes a finished job for good. Success takes this path rather than
  * `archiveMessage`: nothing ever reads `pgmq.a_*`, and the payloads are heavy
- * (`memory-consolidate` carries the whole conversation, `index-message` a full
- * message row) and sensitive (`apiKey`), so archiving every one grew the
+ * (`memory-consolidate` carries the whole conversation) and sensitive (`apiKey`), so archiving every one grew the
  * database by a copy of each chat per turn. Same `::bigint` cast, same reason
  * — `delete` is overloaded on `bigint` / `bigint[]` too.
  */
