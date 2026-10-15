@@ -1512,6 +1512,12 @@ audit that applied it is in the commit history (`style(motion): …`).
   `opacity`; a `width`/`padding`/`grid-template-rows` transition needs a
   reason in a comment. `prefers-reduced-motion` in `globals.css` removes
   movement and keeps opacity/colour at 150 ms — do not add a second rule
+- **A scrim dims, it never blurs.** The dialog / alert dialog / sheet /
+  drawer overlays are `bg-black/30` alone: the main window is transparent over
+  vibrancy, and a `backdrop-filter` there blurs the pane but leaves the
+  sidebar's text sharp with a glow round it, its material undimmed
+  (2026-10-15). `tests/unit/renderer/components/ui/overlay-scrim.test.ts`
+  holds it against the shadcn generator.
   that zeroes everything.
 - **Colour:** the light neutral base is `oklch(0.985)` (page) / `0.995`
   (card, popover) / `0.975` (sidebar) — never pure white; dark is `0.145`.
