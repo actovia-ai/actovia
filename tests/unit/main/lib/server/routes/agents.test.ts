@@ -100,7 +100,7 @@ describe('agents routes', () => {
   it('GET /quota lists what each CLI last said of the quota', async () => {
     const res = await app.request('/quota')
     expect(res.status).toBe(200)
-    expect((await res.json()).data).toEqual([Q])
+    expect(await res.json()).toEqual([Q])
   })
 
   it('passes an answer to the live run', async () => {

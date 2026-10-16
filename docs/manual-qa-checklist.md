@@ -283,3 +283,5 @@ Needs codex-cli ≥ 0.162.1, logged in (`codex login status`).
 - [ ] Continue in Terminal opens `codex resume <thread>` in the folder; the hand-off script deletes itself.
 - [ ] A Claude Code and a Codex employee given parallel steps in one git repo: one shared folder, one worktree.
 - [ ] If Codex asks a question with a secret, the field is a password field and the card doesn't show the value afterwards.
+
+- [ ] P1 Quota-aware dealing: two Claude Code employees (opus, sonnet) and a plan with a hard and an easy step — the easy one goes to sonnet; each CLI member shows its quota line; with a weekly window over 90 % (or a limit reached) the PM downgrades or waits, says why with the numbers, and a waiting step shows in the Schedule tab and resumes after the reset

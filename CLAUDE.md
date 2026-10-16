@@ -991,6 +991,24 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);
   managed from the Schedule tab on the Dashboard page
   (`components/philharmonic/schedule/`)
+- **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
+  what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
+  Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a
+  minute) and its rolling updates — becomes a `quota` agent event and one `CliQuota` per CLI in
+  `src/main/lib/agents/quota.ts` (`~/.exodus/agent-quota.json`; a data reset removes it; `toMs` lives
+  in the pure `agents/epoch.ts`). The PM's roster names each CLI employee's model and its CLI's quota,
+  and its system message carries the active plan (`Active plan:`, a line per step: status, id, title,
+  assignee, note); it deals by difficulty, downgrades or calls `waitForQuota({ stepId, employeeId,
+  reason })` — which refuses a step outside the active plan and schedules or moves a one-off task
+  (`input.kind: 'quota-wait'`) at the reset + 2 min before it parks the step — and applies those
+  rules flexibly. Plan-first rule 1 has an exception: a round that continues the active plan (a
+  [Scheduled] quota-reset round, or the owner answering about it) does not call `createPlan`. Windows
+  are named for people by `quotaWindowLabel()` (5-hour / week / "<model> only: …").
+  `delegateTask` refuses only an employee its CLI has `rejected` without overage
+  (`blockedUntil(q, model, now)`: windows whose reset has passed are ignored; a rejection with no
+  window detail blocks for an hour after it was reported); a high or stale reading never blocks. The
+  members panel shows the line (`GET /api/v1/agents/quota`, `hooks/use-agent-quota.ts`,
+  `quotaParts()` in `lib/agent-quota.ts`)
 
 ### App Lock
 

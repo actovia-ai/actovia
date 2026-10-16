@@ -1,6 +1,6 @@
 # Quota-aware dealing — the PM picks the employee (and so the model) with the CLIs' limits in view
 
-Date: 2026-10-16 · Status: design agreed in chat (owner, 2026-10-16); spec for the owner's review
+Date: 2026-10-16 · Status: implemented 2026-10-16 (plan docs/superpowers/plans/2026-10-16-pm-quota-aware-dealing.md)
 Repo: `exodus`, branch `maintenance`
 Builds on: `2026-10-09-coding-agent-employees-design.md` (Claude Code employees) and
 `2026-10-10-codex-employees-design.md` (Codex employees). Everything there holds unless this spec
