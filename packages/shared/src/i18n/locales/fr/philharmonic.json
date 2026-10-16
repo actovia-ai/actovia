@@ -180,6 +180,34 @@
         "replyPlaceholder": "Répondre au PM…",
         "sendButton": "Envoyer"
       }
+    },
+    "decision": {
+      "toggle": "Processus de décision",
+      "delegations": "Délégué : {{count}}",
+      "waits": "Attentes : {{count}}",
+      "loading": "Chargement…",
+      "unavailable": "Le relevé de ce tour n'est pas disponible.",
+      "triggerUser": "Vous avez écrit",
+      "triggerScheduled": "Planifié",
+      "reports": "A lu les rapports de",
+      "thinking": "Réflexion",
+      "delegate": "A confié une étape à {{name}}",
+      "refused": "Non démarré — le quota de {{name}} est épuisé",
+      "wait": "A attendu le quota",
+      "plan": "A planifié {{count}} étapes",
+      "updateStep": "A marqué une étape {{status}}",
+      "appendStep": "A ajouté une étape",
+      "recruit": "A recruté {{name}}",
+      "report": "A rédigé un rapport",
+      "askUser": "Vous a demandé",
+      "search": "A cherché dans la base de connaissances",
+      "otherTool": "A appelé {{tool}}",
+      "failed": "échec",
+      "details": "Arguments et résultat",
+      "usage": "{{input}} en entrée · {{output}} en sortie · ${{cost}}",
+      "error": "Arrêté : {{message}}",
+      "interrupted": "Vous avez arrêté ce tour",
+      "formerEmployee": "ancien employé"
     }
   },
   "employees": {

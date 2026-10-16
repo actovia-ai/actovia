@@ -180,6 +180,34 @@
         "replyPlaceholder": "An PM antworten…",
         "sendButton": "Senden"
       }
+    },
+    "decision": {
+      "toggle": "Entscheidungsweg",
+      "delegations": "Delegiert: {{count}}",
+      "waits": "Gewartet: {{count}}",
+      "loading": "Wird geladen…",
+      "unavailable": "Die Aufzeichnung dieser Runde ist nicht verfügbar.",
+      "triggerUser": "Du hast geschrieben",
+      "triggerScheduled": "Geplant",
+      "reports": "Berichte gelesen von",
+      "thinking": "Denkt nach",
+      "delegate": "Einen Schritt an {{name}} gegeben",
+      "refused": "Nicht gestartet — das Kontingent von {{name}} ist aufgebraucht",
+      "wait": "Auf das Kontingent gewartet",
+      "plan": "{{count}} Schritte geplant",
+      "updateStep": "Einen Schritt als {{status}} markiert",
+      "appendStep": "Einen Schritt hinzugefügt",
+      "recruit": "{{name}} eingestellt",
+      "report": "Einen Bericht geschrieben",
+      "askUser": "Dich gefragt",
+      "search": "Die Wissensdatenbank durchsucht",
+      "otherTool": "{{tool}} aufgerufen",
+      "failed": "fehlgeschlagen",
+      "details": "Argumente und Ergebnis",
+      "usage": "{{input}} ein · {{output}} aus · ${{cost}}",
+      "error": "Angehalten: {{message}}",
+      "interrupted": "Du hast diese Runde angehalten",
+      "formerEmployee": "ehemaliger Mitarbeiter"
     }
   },
   "employees": {

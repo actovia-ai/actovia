@@ -125,5 +125,9 @@ test.describe('Sidebar', () => {
     expect(
       await mainWindow.getByTestId(TEST_IDS.philharmonic.membersToggle).count()
     ).toBeGreaterThanOrEqual(0)
+    // A PM message's decision process (no e2e reaches a PM message yet).
+    expect(
+      await mainWindow.getByTestId(TEST_IDS.philharmonic.decisionToggle).count()
+    ).toBeGreaterThanOrEqual(0)
   })
 })

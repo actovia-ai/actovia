@@ -66,6 +66,8 @@ export interface ConversationMessageData {
   content: string
   parts: Record<string, unknown>[] | null
   taskId: string | null
+  /** The PM round this message closed (a PM message, or its error / interrupted note). */
+  roundId: string | null
   createdAt: string
 }
 

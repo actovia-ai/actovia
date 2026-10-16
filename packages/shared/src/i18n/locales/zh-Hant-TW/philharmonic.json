@@ -179,6 +179,34 @@
         "replyPlaceholder": "回覆專案經理…",
         "sendButton": "傳送"
       }
+    },
+    "decision": {
+      "toggle": "決策過程",
+      "delegations": "已委派：{{count}}",
+      "waits": "已等待：{{count}}",
+      "loading": "載入中…",
+      "unavailable": "這一輪的紀錄無法檢視。",
+      "triggerUser": "你寫道",
+      "triggerScheduled": "排程",
+      "reports": "讀取了以下報告",
+      "thinking": "思考",
+      "delegate": "把一個步驟交給 {{name}}",
+      "refused": "未開始 — {{name}} 的額度已用完",
+      "wait": "等待額度",
+      "plan": "規劃了 {{count}} 個步驟",
+      "updateStep": "把一個步驟標為 {{status}}",
+      "appendStep": "新增了一個步驟",
+      "recruit": "招募了 {{name}}",
+      "report": "寫了一份報告",
+      "askUser": "問了你",
+      "search": "搜尋了知識庫",
+      "otherTool": "呼叫了 {{tool}}",
+      "failed": "失敗",
+      "details": "參數與結果",
+      "usage": "輸入 {{input}} · 輸出 {{output}} · ${{cost}}",
+      "error": "已停止：{{message}}",
+      "interrupted": "你停止了這一輪",
+      "formerEmployee": "前員工"
     }
   },
   "employees": {

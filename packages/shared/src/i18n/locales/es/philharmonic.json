@@ -180,6 +180,34 @@
         "replyPlaceholder": "Responder al PM…",
         "sendButton": "Enviar"
       }
+    },
+    "decision": {
+      "toggle": "Proceso de decisión",
+      "delegations": "Delegado: {{count}}",
+      "waits": "Esperas: {{count}}",
+      "loading": "Cargando…",
+      "unavailable": "El registro de esta ronda no está disponible.",
+      "triggerUser": "Escribiste",
+      "triggerScheduled": "Programado",
+      "reports": "Leyó informes de",
+      "thinking": "Pensando",
+      "delegate": "Encargó un paso a {{name}}",
+      "refused": "No iniciado: la cuota de {{name}} está agotada",
+      "wait": "Esperó a la cuota",
+      "plan": "Planificó {{count}} pasos",
+      "updateStep": "Marcó un paso como {{status}}",
+      "appendStep": "Añadió un paso",
+      "recruit": "Contrató a {{name}}",
+      "report": "Escribió un informe",
+      "askUser": "Te preguntó",
+      "search": "Buscó en la base de conocimiento",
+      "otherTool": "Llamó a {{tool}}",
+      "failed": "falló",
+      "details": "Argumentos y resultado",
+      "usage": "{{input}} de entrada · {{output}} de salida · ${{cost}}",
+      "error": "Detenido: {{message}}",
+      "interrupted": "Detuviste esta ronda",
+      "formerEmployee": "antiguo empleado"
     }
   },
   "employees": {

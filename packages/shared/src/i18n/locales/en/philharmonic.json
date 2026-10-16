@@ -180,6 +180,34 @@
         "replyPlaceholder": "Reply to PM…",
         "sendButton": "Send"
       }
+    },
+    "decision": {
+      "toggle": "Decision process",
+      "delegations": "Delegated: {{count}}",
+      "waits": "Waited: {{count}}",
+      "loading": "Loading…",
+      "unavailable": "The record of this round is not available.",
+      "triggerUser": "You wrote",
+      "triggerScheduled": "Scheduled",
+      "reports": "Read reports from",
+      "thinking": "Thinking",
+      "delegate": "Gave a step to {{name}}",
+      "refused": "Not started — {{name}}'s quota is used up",
+      "wait": "Waited for the quota",
+      "plan": "Planned {{count}} steps",
+      "updateStep": "Marked a step {{status}}",
+      "appendStep": "Added a step",
+      "recruit": "Recruited {{name}}",
+      "report": "Wrote a report",
+      "askUser": "Asked you",
+      "search": "Searched the knowledge base",
+      "otherTool": "Called {{tool}}",
+      "failed": "failed",
+      "details": "Arguments and result",
+      "usage": "{{input}} in · {{output}} out · ${{cost}}",
+      "error": "Stopped: {{message}}",
+      "interrupted": "You stopped this round",
+      "formerEmployee": "former employee"
     }
   },
   "employees": {

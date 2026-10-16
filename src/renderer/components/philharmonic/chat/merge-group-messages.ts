@@ -14,6 +14,7 @@ type AttachmentPart = {
   url: string
   contentType: string
 }
+type DecisionPart = { kind: 'decision'; delegations: number; waits: number }
 type ArtifactPart = {
   kind: 'artifact'
   artifactId: string
@@ -58,6 +59,7 @@ export function mergeGroupMessages({
     const artifacts = parts
       .filter(isPart<ArtifactPart>('artifact'))
       .map((p) => ({ artifactId: p.artifactId, title: p.title, code: p.code }))
+    const decision = parts.find(isPart<DecisionPart>('decision'))
     return {
       conversationId,
       messageId: h.id,
@@ -69,7 +71,11 @@ export function mergeGroupMessages({
       artifacts: artifacts.length > 0 ? artifacts : undefined,
       // The live map carries a card's updates after its message was saved
       // (a step under way, an unprompted turn), so it wins over the row.
-      agentCard: messageCard(agentCards, h.id, agentCardFromParts(parts))
+      agentCard: messageCard(agentCards, h.id, agentCardFromParts(parts)),
+      roundId: h.roundId,
+      decision: decision
+        ? { delegations: decision.delegations, waits: decision.waits }
+        : undefined
     }
   })
   const live: BubbleWithDate[] = bubbles.flatMap((b) => {

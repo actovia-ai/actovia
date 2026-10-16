@@ -180,6 +180,34 @@
         "replyPlaceholder": "Responder ao PM…",
         "sendButton": "Enviar"
       }
+    },
+    "decision": {
+      "toggle": "Processo de decisão",
+      "delegations": "Delegado: {{count}}",
+      "waits": "Esperas: {{count}}",
+      "loading": "Carregando…",
+      "unavailable": "O registro desta rodada não está disponível.",
+      "triggerUser": "Você escreveu",
+      "triggerScheduled": "Agendado",
+      "reports": "Leu relatórios de",
+      "thinking": "Pensando",
+      "delegate": "Passou uma etapa para {{name}}",
+      "refused": "Não iniciado — a cota de {{name}} acabou",
+      "wait": "Esperou pela cota",
+      "plan": "Planejou {{count}} etapas",
+      "updateStep": "Marcou uma etapa como {{status}}",
+      "appendStep": "Adicionou uma etapa",
+      "recruit": "Contratou {{name}}",
+      "report": "Escreveu um relatório",
+      "askUser": "Perguntou a você",
+      "search": "Pesquisou na base de conhecimento",
+      "otherTool": "Chamou {{tool}}",
+      "failed": "falhou",
+      "details": "Argumentos e resultado",
+      "usage": "{{input}} de entrada · {{output}} de saída · ${{cost}}",
+      "error": "Parado: {{message}}",
+      "interrupted": "Você parou esta rodada",
+      "formerEmployee": "ex-funcionário"
     }
   },
   "employees": {

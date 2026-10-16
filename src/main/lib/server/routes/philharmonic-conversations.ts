@@ -1,3 +1,4 @@
+import { NotFoundError } from '@exodus/shared/errors/app-error'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -17,6 +18,7 @@ import {
 } from '../../db/conversation-queries'
 import { getPhilharmonicCostRows } from '../../db/philharmonic-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
+import { listRoundEvents } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
 // src/main/lib/server/routes/philharmonic-conversations.ts
@@ -175,6 +177,23 @@ router.put('/conversations/:id', async (c) => {
 router.get('/conversations/:id/messages', async (c) => {
   const id = getRequiredParam(c, 'id')
   return successResponse(c, await getMessagesByConversationId(id))
+})
+
+// A PM round's decision trail, in order — what the disclosure under its message shows.
+router.get('/conversations/:id/rounds/:roundId', async (c) => {
+  const id = getRequiredParam(c, 'id')
+  const roundId = getRequiredParam(c, 'roundId')
+  const rows = await listRoundEvents(id, roundId)
+  if (!rows.length) throw new NotFoundError()
+  return successResponse(
+    c,
+    rows.map((r) => ({
+      seq: r.seq,
+      kind: r.kind,
+      payload: r.payload,
+      createdAt: r.createdAt.toISOString()
+    }))
+  )
 })
 
 // Send a user message → persist → kick the PM loop (fire-and-forget).

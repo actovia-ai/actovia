@@ -180,6 +180,34 @@
         "replyPlaceholder": "Rispondi al PM…",
         "sendButton": "Invia"
       }
+    },
+    "decision": {
+      "toggle": "Processo decisionale",
+      "delegations": "Delegati: {{count}}",
+      "waits": "Attese: {{count}}",
+      "loading": "Caricamento…",
+      "unavailable": "La registrazione di questo turno non è disponibile.",
+      "triggerUser": "Hai scritto",
+      "triggerScheduled": "Programmato",
+      "reports": "Ha letto i resoconti di",
+      "thinking": "Ragionamento",
+      "delegate": "Ha affidato un passo a {{name}}",
+      "refused": "Non avviato: la quota di {{name}} è esaurita",
+      "wait": "Ha atteso la quota",
+      "plan": "Ha pianificato {{count}} passi",
+      "updateStep": "Ha segnato un passo come {{status}}",
+      "appendStep": "Ha aggiunto un passo",
+      "recruit": "Ha assunto {{name}}",
+      "report": "Ha scritto un resoconto",
+      "askUser": "Ti ha chiesto",
+      "search": "Ha cercato nella knowledge base",
+      "otherTool": "Ha chiamato {{tool}}",
+      "failed": "non riuscito",
+      "details": "Argomenti e risultato",
+      "usage": "{{input}} in ingresso · {{output}} in uscita · ${{cost}}",
+      "error": "Interrotto: {{message}}",
+      "interrupted": "Hai interrotto questo turno",
+      "formerEmployee": "ex dipendente"
     }
   },
   "employees": {

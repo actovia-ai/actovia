@@ -140,7 +140,9 @@ export const TEST_IDS = {
   },
   philharmonic: {
     newGroup: 'philharmonic.new-group',
-    membersToggle: 'philharmonic.members-toggle'
+    membersToggle: 'philharmonic.members-toggle',
+    /** Under a PM message: opens the round's decision process. */
+    decisionToggle: 'philharmonic.decision-toggle'
   },
   providerModels: {
     refreshButton: 'provider-models.refresh-button',

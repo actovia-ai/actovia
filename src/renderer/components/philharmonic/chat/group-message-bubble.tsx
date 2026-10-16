@@ -15,6 +15,7 @@ import type { AgentData, TeamData } from '@/stores/philharmonic'
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { AgentCardView } from './agent-card'
 import { BubbleMarkdown } from './bubble-markdown'
+import { DecisionProcess } from './decision-process'
 
 interface ArtifactPart {
   artifactId: string
@@ -46,7 +47,17 @@ export interface BubbleModel {
   agentCard?: AgentCard
   /** A newer step of the card's session follows it in the group. */
   agentCardSuperseded?: boolean
+  /** The PM round this message closed; its decision process opens under it. */
+  roundId?: string | null
+  /** The round's counts, from the message's `{ kind: 'decision' }` part. */
+  decision?: { delegations: number; waits: number }
 }
+
+/** Scroll the transcript to a message (an employee's report the PM read). */
+const jumpToMessage = (messageId: string) =>
+  document
+    .querySelector(`[data-message-id="${CSS.escape(messageId)}"]`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
 export function GroupMessageBubble({
   bubble,
@@ -69,12 +80,27 @@ export function GroupMessageBubble({
       ? t('philharmonic:chat.roles.pm')
       : (agent?.name ?? t('philharmonic:chat.roles.employeeFallback'))
 
+  const decisionProcess = bubble.roundId && bubble.conversationId && (
+    <DecisionProcess
+      conversationId={bubble.conversationId}
+      roundId={bubble.roundId}
+      bubbleText={bubble.text}
+      counts={bubble.decision}
+      nameOf={(id) => agentsById[id]?.name}
+      onJumpTo={jumpToMessage}
+    />
+  )
+
   if (isSystem) {
     return (
-      <div className="flex justify-center py-2">
+      <div
+        data-message-id={bubble.messageId}
+        className="flex flex-col items-center gap-1 py-2"
+      >
         <span className="bg-muted text-muted-foreground rounded-full px-3 py-0.5 text-xs">
           {bubble.text}
         </span>
+        {decisionProcess}
       </div>
     )
   }
@@ -104,6 +130,7 @@ export function GroupMessageBubble({
 
   return (
     <div
+      data-message-id={bubble.messageId}
       className={cn('flex gap-2.5 px-1 py-1.5', isUser && 'flex-row-reverse')}
     >
       {isPm ? (
@@ -199,6 +226,7 @@ export function GroupMessageBubble({
               ))}
             </div>
           )}
+        {isPm && decisionProcess}
         {bubble.toolCards && bubble.toolCards.length > 0 && (
           <div className="flex flex-col gap-1.5">
             {bubble.toolCards.map((card) => (

@@ -179,6 +179,34 @@
         "replyPlaceholder": "PM에게 답장…",
         "sendButton": "전송"
       }
+    },
+    "decision": {
+      "toggle": "결정 과정",
+      "delegations": "위임: {{count}}",
+      "waits": "대기: {{count}}",
+      "loading": "불러오는 중…",
+      "unavailable": "이 라운드의 기록이 없습니다.",
+      "triggerUser": "내가 쓴 내용",
+      "triggerScheduled": "예약됨",
+      "reports": "보고서를 읽은 대상",
+      "thinking": "생각 중",
+      "delegate": "{{name}}에게 단계를 맡김",
+      "refused": "시작 안 됨 — {{name}}의 할당량이 소진됨",
+      "wait": "할당량을 기다림",
+      "plan": "단계 {{count}}개를 계획함",
+      "updateStep": "단계를 {{status}}(으)로 표시함",
+      "appendStep": "단계를 추가함",
+      "recruit": "{{name}}을(를) 채용함",
+      "report": "보고서를 작성함",
+      "askUser": "나에게 질문함",
+      "search": "지식 베이스를 검색함",
+      "otherTool": "{{tool}} 호출함",
+      "failed": "실패",
+      "details": "인수와 결과",
+      "usage": "입력 {{input}} · 출력 {{output}} · ${{cost}}",
+      "error": "중지됨: {{message}}",
+      "interrupted": "내가 이 라운드를 중지함",
+      "formerEmployee": "이전 직원"
     }
   },
   "employees": {
