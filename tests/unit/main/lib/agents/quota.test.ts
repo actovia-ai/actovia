@@ -14,6 +14,7 @@ const {
   listQuotas,
   recordQuota,
   resetQuotaStoreForTests,
+  quotaWindowLabel,
   toMs
 } = await import('@main/lib/agents/quota')
 const { getExodusHome } = await import('@main/lib/paths')
@@ -195,5 +196,27 @@ describe('formatQuotaForPm', () => {
       NOW
     )
     expect(line).toContain('opus only: seven_day_opus 100 % (LIMIT REACHED')
+  })
+})
+
+describe('quotaWindowLabel', () => {
+  it('names a window as the owner says it', () => {
+    expect(
+      quotaWindowLabel({ name: 'five_hour', usedPercent: 0, resetsAt: null })
+    ).toBe('5-hour')
+    expect(
+      quotaWindowLabel({ name: 'seven_day', usedPercent: 0, resetsAt: null })
+    ).toBe('week')
+    expect(
+      quotaWindowLabel({
+        name: 'seven_day_opus',
+        usedPercent: 0,
+        resetsAt: null,
+        model: 'opus'
+      })
+    ).toBe('opus only: seven_day_opus')
+    expect(
+      quotaWindowLabel({ name: 'primary', usedPercent: 0, resetsAt: null })
+    ).toBe('primary')
   })
 })

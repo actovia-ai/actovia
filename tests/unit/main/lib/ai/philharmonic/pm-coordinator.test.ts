@@ -307,7 +307,29 @@ describe('runPmCoordinator — the quota in view', () => {
       .map((c) => c.text)
       .join('')
 
-  async function runWith(reading: unknown) {
+  const activePlan = {
+    plan: { id: 'p1', status: 'active', summary: 'Ship the parser' },
+    steps: [
+      {
+        id: 's1',
+        ordinal: 1,
+        title: 'Refactor the parser',
+        status: 'pending',
+        assignedAgentId: 'opus-id',
+        note: "waiting for Ada's week quota — needs opus"
+      },
+      {
+        id: 's2',
+        ordinal: 2,
+        title: 'Fix the docs',
+        status: 'done',
+        assignedAgentId: null,
+        note: null
+      }
+    ]
+  }
+
+  async function runWith(reading: unknown, plan: unknown = activePlan) {
     quotaReading = reading
     getActiveAgents.mockResolvedValueOnce([
       {
@@ -328,6 +350,10 @@ describe('runPmCoordinator — the quota in view', () => {
       }
     ] as never)
     const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.getActivePlanByConversationId).mockReset()
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(
+      plan as never
+    )
     vi.mocked(plans.updateStep).mockReset()
     vi.mocked(plans.updateStep).mockImplementation(
       async (id, patch) =>
@@ -400,8 +426,11 @@ describe('runPmCoordinator — the quota in view', () => {
     expect(plans.updateStep).not.toHaveBeenCalledWith('s1', {
       status: 'running'
     })
-    expect(result).toMatch(/quota is used up .*seven_day 100 %/)
+    expect(result).toMatch(/quota is used up .*week 100 %/)
     expect(result).toMatch(/waitForQuota/)
+    expect(result).toContain(
+      'If you had marked the step running, set it back to pending, or call waitForQuota.'
+    )
   })
 
   it('waitForQuota parks the step and schedules one wake-up, moved on a second call', async () => {
@@ -456,5 +485,54 @@ describe('runPmCoordinator — the quota in view', () => {
     )
     expect(result).toMatch(/nothing blocks .* delegate/i)
     expect(createTask).not.toHaveBeenCalled()
+  })
+
+  it('waitForQuota refuses a step that is not in the active plan', async () => {
+    const { plans, tool } = await runWith(rejected)
+    const result = textOf(
+      await tool('waitForQuota').execute('w', {
+        stepId: 'nope',
+        employeeId: 'opus-id',
+        reason: 'needs opus'
+      })
+    )
+    expect(result).toBe("Refused: no step nope in this group's active plan.")
+    expect(createTask).not.toHaveBeenCalled()
+    expect(plans.updateStep).not.toHaveBeenCalled()
+  })
+
+  it('waitForQuota schedules the wake-up before it parks the step', async () => {
+    const { plans, tool } = await runWith(rejected)
+    createTask.mockRejectedValueOnce(new Error('db down'))
+    await expect(
+      tool('waitForQuota').execute('w', {
+        stepId: 's1',
+        employeeId: 'opus-id',
+        reason: 'needs opus'
+      })
+    ).rejects.toThrow('db down')
+    expect(plans.updateStep).not.toHaveBeenCalled()
+  })
+
+  it('shows the PM the active plan’s steps, so a wake-up round continues it', async () => {
+    const { system } = await runWith(rejected)
+    expect(system).toContain('Active plan: Ship the parser')
+    expect(system).toContain(
+      "- [pending] step 1 (id: s1): Refactor the parser — assigned: Ada — note: waiting for Ada's week quota — needs opus"
+    )
+    expect(system).toContain(
+      '- [done] step 2 (id: s2): Fix the docs — assigned: unassigned'
+    )
+    expect(system).toContain(
+      "Exception: while a plan is active and this message continues it — a [Scheduled] 'Quota reset' round, or the owner answering about the plan in flight — do not call createPlan; continue the active plan with updatePlanStep and delegateTask."
+    )
+  })
+
+  it('shows no plan block when no plan is active', async () => {
+    const { system } = await runWith(rejected, null)
+    expect(system).not.toContain('Active plan:')
+    expect(system).not.toMatch(/\(id: s1\)/)
+    const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
 })

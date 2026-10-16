@@ -112,6 +112,10 @@ const LABELS: Record<string, string> = {
   seven_day: 'week'
 }
 
+/** A window as the owner says it: `5-hour`, `week`, `opus only: …` (English: the model reads it). */
+export const quotaWindowLabel = (w: QuotaWindow): string =>
+  `${w.model ? `${w.model} only: ` : ''}${LABELS[w.name] ?? w.name}`
+
 function ago(ms: number): string {
   const min = Math.max(0, Math.round(ms / 60_000))
   if (min < 60) return `${min} min ago`
@@ -136,7 +140,7 @@ export function formatQuotaForPm(
   const name = CLI_NAMES[cli]
   if (!q) return `${name} quota: unknown (it has not reported any).`
   const parts = q.windows.map((w) => {
-    const label = `${w.model ? `${w.model} only: ` : ''}${LABELS[w.name] ?? w.name}`
+    const label = quotaWindowLabel(w)
     const limited =
       q.state === 'rejected' &&
       (w.name === q.rejectedWindow || w.usedPercent >= 100)

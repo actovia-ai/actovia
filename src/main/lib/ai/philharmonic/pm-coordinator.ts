@@ -7,7 +7,12 @@ import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
 import { cliOf, isCliId } from '../../agents/drivers'
-import { blockedUntil, formatQuotaForPm, getQuota } from '../../agents/quota'
+import {
+  blockedUntil,
+  formatQuotaForPm,
+  getQuota,
+  quotaWindowLabel
+} from '../../agents/quota'
 import { refreshQuotas } from '../../agents/quota-refresh'
 import {
   addMemberToConversation,
@@ -62,7 +67,7 @@ import { groupBeforeToolCall } from './sensitive-guard'
 const PM_SYSTEM_PROMPT = `You are the PM (project manager) of a virtual team working in a group chat.
 
 Plan-first discipline (mandatory):
-1. The FIRST tool call on every new user request MUST be createPlan. Lay out the whole execution as ordered steps with clear titles and intent. Even a one-step plan is fine.
+1. The FIRST tool call on every new user request MUST be createPlan. Lay out the whole execution as ordered steps with clear titles and intent. Even a one-step plan is fine. Exception: while a plan is active and this message continues it — a [Scheduled] 'Quota reset' round, or the owner answering about the plan in flight — do not call createPlan; continue the active plan with updatePlanStep and delegateTask.
 2. Before each delegation, call updatePlanStep(stepId, status="running").
 3. After each delegation, call updatePlanStep(stepId, status="done", output=<one-paragraph summary>). On failure, use status="failed". If you decide a step is no longer needed, use status="skipped".
 4. If you discover work the original plan missed, call appendPlanStep — don't free-form delegate outside the plan.
@@ -222,6 +227,20 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // when the previous one is completed/aborted.
   let activePlan = await getActivePlanByConversationId(conversationId)
   if (activePlan && activePlan.plan.status === 'completed') activePlan = null
+  // The plan in flight, as the PM must see it to continue it (a wake-up round
+  // after waitForQuota starts with nothing else in view).
+  const nameOf = (id: string | null) =>
+    (id && employees.find((e) => e.id === id)?.name) || 'unassigned'
+  const planText =
+    activePlan && activePlan.plan.status === 'active'
+      ? `Active plan: ${activePlan.plan.summary}\n` +
+        activePlan.steps
+          .map(
+            (st) =>
+              `- [${st.status}] step ${st.ordinal} (id: ${st.id}): ${st.title} — assigned: ${nameOf(st.assignedAgentId)}${st.note ? ` — note: ${st.note}` : ''}`
+          )
+          .join('\n')
+      : ''
 
   // The markdown mirror is a copy for the owner: a failed write is logged and
   // never fails the step or the tool that changed the plan.
@@ -253,10 +272,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     if (!emp || !isCliId(emp.runtime)) return null
     const w = blockedUntil(getQuota(emp.runtime), emp.model)
     if (!w) return null
-    const reset = w.resetsAt
-      ? formatWhen(new Date(w.resetsAt))
-      : 'an unknown time'
-    return `Not started: ${emp.name}'s ${CLI_NAMES[emp.runtime]} quota is used up (${w.name} ${Math.round(w.usedPercent)} %), resets ${reset}. Give the step to another employee, or call waitForQuota.`
+    const reset =
+      w.resetsAt !== null ? formatWhen(new Date(w.resetsAt)) : 'an unknown time'
+    return `Not started: ${emp.name}'s ${CLI_NAMES[emp.runtime]} quota is used up (${quotaWindowLabel(w)} ${Math.round(w.usedPercent)} %), resets ${reset}. Give the step to another employee, or call waitForQuota. If you had marked the step running, set it back to pending, or call waitForQuota.`
   }
 
   const tools: AgentTool[] = [
@@ -439,16 +457,15 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           : null
       if (!emp || !w)
         return 'Refused: nothing blocks that employee right now — delegate the step instead.'
+      const cur = await getActivePlanByConversationId(conversationId)
+      const planned =
+        cur && cur.plan.status === 'active'
+          ? cur.steps.find((st) => st.id === stepId)
+          : undefined
+      if (!planned)
+        return `Refused: no step ${stepId} in this group's active plan.`
       const runAt = quotaWaitRunAt(w.resetsAt, Date.now())
-      const note = `waiting for ${emp.name}'s ${w.name} quota — ${reason}`
-      const step = await updateStep(stepId, { status: 'pending', note })
-      emit({
-        type: 'plan_step_updated',
-        conversationId,
-        stepId,
-        patch: { status: step.status, note: step.note }
-      })
-      await mirrorActivePlan()
+      // The wake-up first: a step must never say it waits with none scheduled.
       // One wait per step: a second call moves the wake-up it already has.
       const existing = (await getUpcomingOneOffTasks()).find((t) => {
         const input = t.input as Record<string, unknown> | null
@@ -462,7 +479,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       else
         await createTask({
           conversationId,
-          title: `Quota reset — continue "${step.title}"`,
+          title: `Quota reset — continue "${planned.title}"`,
           description: `${reason}\nThe quota that stopped ${emp.name} should have reset. Read the quota lines, then continue the plan from step ${stepId}.`,
           status: 'pending',
           priority: 'medium',
@@ -473,6 +490,15 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           maxRetries: 1,
           retryCount: 0
         })
+      const note = `waiting for ${emp.name}'s ${quotaWindowLabel(w)} quota — ${reason}`
+      const step = await updateStep(stepId, { status: 'pending', note })
+      emit({
+        type: 'plan_step_updated',
+        conversationId,
+        stepId,
+        patch: { status: step.status, note: step.note }
+      })
+      await mirrorActivePlan()
       return `Step parked. You will be woken at ${formatWhen(runAt)}. End your turn now with one line for the owner saying what waits and why.`
     }),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
@@ -505,7 +531,8 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             content:
               PM_SYSTEM_PROMPT +
               `\n\nEmployees:\n${rosterText(employees, teamNameById)}` +
-              (quotaText ? `\n\nQuota:\n${quotaText}` : ''),
+              (quotaText ? `\n\nQuota:\n${quotaText}` : '') +
+              (planText ? `\n\n${planText}` : ''),
             toolsAdded: tools,
             timestamp: Date.now()
           },
