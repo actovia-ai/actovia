@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "아직 팀원이 없습니다",
         "description": "필요에 따라 PM이 팀원을 채용합니다."
+      },
+      "quota": {
+        "fiveHour": "5시간 {{percent}}%",
+        "sevenDay": "주간 {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "한도 도달 · {{time}}에 초기화"
       }
     },
     "conversationList": {

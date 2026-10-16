@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "チームメンバーはまだいません",
         "description": "必要に応じてPMがチームメンバーを採用します。"
+      },
+      "quota": {
+        "fiveHour": "5時間 {{percent}}%",
+        "sevenDay": "週 {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "上限に到達 · {{time}} にリセット"
       }
     },
     "conversationList": {

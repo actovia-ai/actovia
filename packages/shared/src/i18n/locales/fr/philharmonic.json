@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "Aucun coéquipier pour le moment",
         "description": "Le PM recrutera des coéquipiers selon les besoins."
+      },
+      "quota": {
+        "fiveHour": "5 h {{percent}} %",
+        "sevenDay": "semaine {{percent}} %",
+        "other": "{{name}} {{percent}} %",
+        "limited": "limite atteinte · réinitialisée {{time}}"
       }
     },
     "conversationList": {

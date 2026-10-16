@@ -1,4 +1,9 @@
-import type { AgentAnswer, CliId, CliStatus } from '@exodus/shared/types/agents'
+import type {
+  AgentAnswer,
+  CliId,
+  CliQuota,
+  CliStatus
+} from '@exodus/shared/types/agents'
 import { fetcher } from '@exodus/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
@@ -15,6 +20,7 @@ const post = async <T>(url: string, body?: Record<string, unknown>) =>
   })
 
 export const getClis = () => fetcher<CliStatus[]>(`${BASE}/clis`)
+export const getQuotas = () => fetcher<CliQuota[]>(`${BASE}/quota`)
 export const checkCli = (id: CliId) =>
   post<CliStatus>(`${BASE}/clis/${id}/check`)
 export const respondToAgent = (

@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "Ainda não há colegas de equipe",
         "description": "O PM recrutará colegas de equipe conforme necessário."
+      },
+      "quota": {
+        "fiveHour": "5 h {{percent}}%",
+        "sevenDay": "semana {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "limite atingido · reinicia {{time}}"
       }
     },
     "conversationList": {

@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "Noch keine Teammitglieder",
         "description": "Der PM rekrutiert bei Bedarf Teammitglieder."
+      },
+      "quota": {
+        "fiveHour": "5 Std. {{percent}} %",
+        "sevenDay": "Woche {{percent}} %",
+        "other": "{{name}} {{percent}} %",
+        "limited": "Limit erreicht · zurückgesetzt {{time}}"
       }
     },
     "conversationList": {

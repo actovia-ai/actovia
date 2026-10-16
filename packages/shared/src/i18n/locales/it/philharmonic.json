@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "Ancora nessun collega",
         "description": "Il PM recluterà colleghi secondo necessità."
+      },
+      "quota": {
+        "fiveHour": "5 h {{percent}}%",
+        "sevenDay": "settimana {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "limite raggiunto · si azzera {{time}}"
       }
     },
     "conversationList": {

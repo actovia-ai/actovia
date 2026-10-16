@@ -18,6 +18,7 @@ import { getCliStatus } from '../../agents/cli-check'
 import { ensureDefaultCliEmployees } from '../../agents/default-employees'
 import { DRIVERS, isCliId } from '../../agents/drivers'
 import { resetLoginShellEnv } from '../../agents/login-shell'
+import { listQuotas } from '../../agents/quota'
 import { agentRegistry } from '../../agents/registry'
 import {
   isCliSessionId,
@@ -59,6 +60,8 @@ const router = new Hono<{ Variables: Variables }>()
 router.get('/clis', async (c) =>
   successResponse(c, await Promise.all(CLI_IDS.map((id) => getCliStatus(id))))
 )
+
+router.get('/quota', (c) => successResponse(c, listQuotas()))
 
 router.post('/clis/:id/check', desktopOnly, async (c) => {
   const id = getRequiredParam(c, 'id') as CliId

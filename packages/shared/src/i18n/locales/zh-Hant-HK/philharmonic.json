@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "尚無隊友",
         "description": "項目經理會按需要招募隊友。"
+      },
+      "quota": {
+        "fiveHour": "5 小時 {{percent}}%",
+        "sevenDay": "本週 {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "已達上限 · {{time}} 重設"
       }
     },
     "conversationList": {

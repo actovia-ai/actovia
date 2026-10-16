@@ -41,6 +41,15 @@ vi.mock('@main/lib/agents/terminal', async (importActual) => ({
   writeResumeScript: (cwd: string, bin: string, args: string[]) =>
     writeResumeScript(cwd, bin, args)
 }))
+const Q = {
+  cli: 'claude-code',
+  state: 'allowed',
+  rejectedWindow: null,
+  overage: false,
+  asOf: 1,
+  windows: [{ name: 'five_hour', usedPercent: 5, resetsAt: 10 }]
+}
+vi.mock('@main/lib/agents/quota', () => ({ listQuotas: () => [Q] }))
 let cliSessionId = '3f2a9c1e-1111-4222-8333-444455556666'
 let runtime = 'claude-code'
 /** The session's current step's message. */
@@ -88,6 +97,12 @@ const post = (path: string, body?: unknown, env?: object) =>
   )
 
 describe('agents routes', () => {
+  it('GET /quota lists what each CLI last said of the quota', async () => {
+    const res = await app.request('/quota')
+    expect(res.status).toBe(200)
+    expect((await res.json()).data).toEqual([Q])
+  })
+
   it('passes an answer to the live run', async () => {
     live = { respond: respond.mockReturnValue(true), interrupt }
     const res = await post('/sessions/s1/respond', {

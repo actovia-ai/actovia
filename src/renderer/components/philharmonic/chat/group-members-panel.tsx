@@ -1,7 +1,11 @@
+import type { CliId } from '@exodus/shared/types/agents'
 import { useTranslation } from 'react-i18next'
 
+import { useAgentQuotas } from '@/hooks/use-agent-quota'
 import { useSettings } from '@/hooks/use-settings'
+import { quotaParts } from '@/lib/agent-quota'
 import { employeeModelLabel } from '@/lib/employee-model'
+import { useFormat } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
@@ -154,6 +158,36 @@ export function GroupMembersPanel({
   )
 }
 
+function QuotaLine({ cli }: { cli: CliId }) {
+  const { t } = useTranslation('philharmonic')
+  const { dateTime } = useFormat()
+  const { data } = useAgentQuotas()
+  const q = data?.find((x) => x.cli === cli)
+  if (!q) return null
+  const parts = quotaParts(q)
+  const limit = parts.find((p) => p.limited)
+  const text = parts
+    .map((p) =>
+      t(`chat.membersPanel.quota.${p.key}`, {
+        name: p.name,
+        percent: p.percent
+      })
+    )
+    .join(' · ')
+  return (
+    <div
+      className={cn(
+        'truncate text-xs',
+        limit ? 'text-destructive' : 'text-muted-foreground'
+      )}
+    >
+      {limit?.resetsAt
+        ? `${text} · ${t('chat.membersPanel.quota.limited', { time: dateTime(new Date(limit.resetsAt), { weekday: 'short', hour: '2-digit', minute: '2-digit' }) })}`
+        : text}
+    </div>
+  )
+}
+
 function MemberRow({
   member,
   team,
@@ -197,6 +231,9 @@ function MemberRow({
         <div className="text-muted-foreground truncate text-xs">
           {modelLabel === 'Default' ? t('employees.model.default') : modelLabel}
         </div>
+        {member.runtime !== 'exodus' && (
+          <QuotaLine cli={member.runtime as CliId} />
+        )}
         <div
           className={cn(
             'truncate text-xs',

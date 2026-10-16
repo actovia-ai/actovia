@@ -135,6 +135,12 @@
       "emptyState": {
         "title": "No teammates yet",
         "description": "The PM will recruit teammates as needed."
+      },
+      "quota": {
+        "fiveHour": "5h {{percent}}%",
+        "sevenDay": "week {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "limit reached · resets {{time}}"
       }
     },
     "conversationList": {
