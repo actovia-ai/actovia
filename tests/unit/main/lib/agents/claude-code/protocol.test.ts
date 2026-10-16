@@ -16,6 +16,9 @@ const lines = (name: string) =>
 const eventsOf = (name: string): AgentEvent[] =>
   lines(name).flatMap((l) => parseLine(l).events)
 
+const PROBE =
+  '{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1792450800,"rateLimitType":"seven_day","utilization":0.85,"overageStatus":"rejected","overageDisabledReason":"org_level_disabled","isUsingOverage":false,"surpassedThreshold":0.75,"unifiedWindows":{"five_hour":{"utilization":0.05,"resetsAt":1792159800},"seven_day":{"utilization":0.85,"resetsAt":1792450800}},"overageEnabled":false},"uuid":"u","session_id":"s"}'
+
 describe('Claude Code protocol', () => {
   it('maps the allow / write / bash / question run in order', () => {
     const types = eventsOf('allow-write-bash-question.jsonl').map((e) => e.type)
@@ -121,16 +124,59 @@ describe('Claude Code protocol', () => {
   })
 
   it('passes a rate-limit notice through only when not allowed', () => {
-    expect(
-      parseLine(
-        '{"type":"rate_limit_event","rate_limit_info":{"status":"allowed"}}'
-      ).events
-    ).toEqual([])
-    const [e] = parseLine(
+    const { events } = parseLine(
       '{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","resetsAt":1791555000,"rateLimitType":"five_hour"}}'
-    ).events
+    )
+    const e = events.find((x) => x.type === 'notice')
     expect(e).toMatchObject({ type: 'notice' })
     expect((e as { text: string }).text).toMatch(/rejected/)
+  })
+
+  it('turns every rate_limit_event into a quota reading (the 2026-10-16 probe)', () => {
+    const { events } = parseLine(PROBE)
+    const q = events.find((e) => e.type === 'quota')
+    expect(q).toMatchObject({
+      type: 'quota',
+      quota: {
+        cli: 'claude-code',
+        state: 'warning',
+        overage: false,
+        rejectedWindow: null,
+        windows: [
+          { name: 'five_hour', usedPercent: 5, resetsAt: 1792159800_000 },
+          { name: 'seven_day', usedPercent: 85, resetsAt: 1792450800_000 }
+        ]
+      }
+    })
+    // allowed_warning is not `allowed`: the card keeps its quiet notice line.
+    expect(events.some((e) => e.type === 'notice')).toBe(true)
+  })
+
+  it('an allowed reading is a quota event and no notice', () => {
+    const { events } = parseLine(
+      '{"type":"rate_limit_event","rate_limit_info":{"status":"allowed","unifiedWindows":{"five_hour":{"utilization":0.1,"resetsAt":1792159800}}}}'
+    )
+    expect(events.map((e) => e.type)).toEqual(['quota'])
+  })
+
+  it('keeps a window it does not know by name, a model’s own one marked', () => {
+    const { events } = parseLine(
+      '{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","rateLimitType":"seven_day_opus","utilization":1,"resetsAt":1792450800}}'
+    )
+    const q = events.find((e) => e.type === 'quota') as Extract<
+      AgentEvent,
+      { type: 'quota' }
+    >
+    expect(q.quota.state).toBe('rejected')
+    expect(q.quota.rejectedWindow).toBe('seven_day_opus')
+    expect(q.quota.windows).toEqual([
+      {
+        name: 'seven_day_opus',
+        usedPercent: 100,
+        resetsAt: 1792450800_000,
+        model: 'opus'
+      }
+    ])
   })
 
   it('summarises a tool input in one line', () => {

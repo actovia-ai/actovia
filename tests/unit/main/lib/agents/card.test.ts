@@ -29,6 +29,23 @@ const base = () =>
   })
 
 describe('agent card', () => {
+  it('a quota reading leaves the card as it is', () => {
+    const card = base()
+    expect(
+      applyAgentEvent(card, {
+        type: 'quota',
+        quota: {
+          cli: 'claude-code',
+          windows: [],
+          state: 'ok',
+          rejectedWindow: null,
+          overage: false,
+          asOf: 1
+        }
+      })
+    ).toBe(card)
+  })
+
   it('ends a recorded run done, with steps ticked, cost summed and the text kept', () => {
     const card = events('allow-write-bash-question.jsonl').reduce(
       (c, e) => applyAgentEvent(c, e),

@@ -1,7 +1,12 @@
 // src/main/lib/agents/claude-code/protocol.ts
-import type { AgentQuestion } from '@exodus/shared/types/agents'
+import type {
+  AgentQuestion,
+  CliQuota,
+  QuotaState
+} from '@exodus/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
+import { toMs } from '../epoch'
 
 export interface ParsedLine {
   events: AgentEvent[]
@@ -99,6 +104,48 @@ function questions(input: Json): AgentQuestion[] {
         description: str(o.description) ?? undefined
       }))
   }))
+}
+
+const STATES: Record<string, QuotaState> = {
+  allowed: 'ok',
+  allowed_warning: 'warning',
+  rejected: 'rejected'
+}
+
+/** A model's own window is named after it: `seven_day_opus` → `opus`. */
+const modelOfWindow = (name: string) =>
+  /^(?:five_hour|seven_day)_([a-z][\w-]*)$/u.exec(name)?.[1]
+
+/** `rate_limit_info` → the store's shape (spec 2026-10-16 §2). */
+export function quotaFromClaudeInfo(info: Json, now: number): CliQuota | null {
+  const status = str(info.status)
+  if (!status) return null
+  const windows: CliQuota['windows'] = []
+  const add = (name: string, utilization: unknown, resetsAt: unknown) => {
+    if (typeof utilization !== 'number') return
+    const model = modelOfWindow(name)
+    windows.push({
+      name,
+      usedPercent: Math.round(utilization * 1000) / 10,
+      resetsAt: typeof resetsAt === 'number' ? toMs(resetsAt) : null,
+      ...(model ? { model } : {})
+    })
+  }
+  if (isObj(info.unifiedWindows))
+    for (const [name, w] of Object.entries(info.unifiedWindows))
+      if (isObj(w)) add(name, w.utilization, w.resetsAt)
+  const type = str(info.rateLimitType)
+  if (type && !windows.some((w) => w.name === type))
+    add(type, info.utilization, info.resetsAt)
+  const state = STATES[status] ?? 'ok'
+  return {
+    cli: 'claude-code',
+    windows,
+    state,
+    rejectedWindow: state === 'rejected' ? type : null,
+    overage: info.overageEnabled === true && info.overageStatus !== 'rejected',
+    asOf: now
+  }
 }
 
 export function parseLine(line: string): ParsedLine {
@@ -232,19 +279,18 @@ export function parseLine(line: string): ParsedLine {
 
     case 'rate_limit_event': {
       const info = isObj(e.rate_limit_info) ? e.rate_limit_info : {}
-      if (info.status === 'allowed' || !str(info.status)) return { events: [] }
+      const quota = quotaFromClaudeInfo(info, Date.now())
+      const events: AgentEvent[] = quota ? [{ type: 'quota', quota }] : []
+      if (info.status === 'allowed' || !str(info.status)) return { events }
       const resets =
         typeof info.resetsAt === 'number'
-          ? ` · resets ${new Date(info.resetsAt * 1000).toLocaleString()}`
+          ? ` · resets ${new Date(toMs(info.resetsAt)).toLocaleString()}`
           : ''
-      return {
-        events: [
-          {
-            type: 'notice',
-            text: `Rate limit (${str(info.rateLimitType) ?? 'usage'}): ${str(info.status)}${resets}`
-          }
-        ]
-      }
+      events.push({
+        type: 'notice',
+        text: `Rate limit (${str(info.rateLimitType) ?? 'usage'}): ${str(info.status)}${resets}`
+      })
+      return { events }
     }
 
     default:

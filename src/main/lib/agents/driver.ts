@@ -1,6 +1,7 @@
 import type {
   AgentAnswer,
   AgentPrompt,
+  CliQuota,
   PermissionMode
 } from '@exodus/shared/types/agents'
 
@@ -21,6 +22,8 @@ export type AgentEvent =
   | { type: 'blocked'; prompt: AgentPrompt }
   | { type: 'answered'; requestId: string }
   | { type: 'notice'; text: string }
+  /** What the CLI said of the owner's quota; `merge`: a sparse update. */
+  | { type: 'quota'; quota: CliQuota; merge?: boolean }
   | {
       type: 'turn_end'
       ok: boolean

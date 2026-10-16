@@ -108,6 +108,9 @@ export function applyAgentEvent(card: AgentCard, e: AgentEvent): AgentCard {
           state === 'error' ? e.text || 'The turn ended with an error.' : null
       }
     }
+    case 'quota':
+      // Kept by the quota store; the card shows the CLI's notice line only.
+      return card
     case 'exit':
       if (card.state !== 'working' && card.state !== 'blocked') return card
       return {
