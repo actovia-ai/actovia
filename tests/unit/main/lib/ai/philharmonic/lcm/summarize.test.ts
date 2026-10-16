@@ -51,3 +51,24 @@ describe('summarizeMessages', () => {
     await expect(summarizeMessages(ARGS)).rejects.toThrow('no text')
   })
 })
+
+describe('summarizeMessages labels', () => {
+  it('labels an employee by name, not by id', async () => {
+    piCompleteSimple.mockResolvedValue({
+      content: [{ type: 'text', text: 's' }],
+      stopReason: 'stop'
+    })
+    await summarizeMessages({
+      ...(ARGS as object),
+      messages: [
+        { id: 'm2', role: 'employee', content: 'Done', agentId: 'a1' }
+      ],
+      agents: new Map([
+        ['a1', { name: 'CC', runtime: 'claude-code', model: 'opus' }]
+      ])
+    } as never)
+    const text = JSON.stringify(piCompleteSimple.mock.calls[0])
+    expect(text).toContain('- CC · Claude Code · opus: Done')
+    expect(text).not.toContain('Employee a1')
+  })
+})

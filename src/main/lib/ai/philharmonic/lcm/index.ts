@@ -10,6 +10,7 @@ import type { Message, Model } from '@earendil-works/pi-ai'
 import type { Attachment } from '@exodus/shared/types/chat'
 
 import { getMessagesByConversationId } from '../../../db/conversation-queries'
+import { getAllAgents } from '../../../db/philharmonic-queries'
 import type { ConversationMessage } from '../../../db/schema'
 import { logger } from '../../../logger'
 import {
@@ -18,6 +19,7 @@ import {
 } from '../../context-management/token-counter'
 import { bareImageData } from '../../utils/image-data'
 import { storedUsage } from '../../utils/usage'
+import { employeeLabel, type LabelledAgent } from './labels'
 import { getSessionSummary, upsertSessionSummary } from './queries'
 import { summarizeMessages } from './summarize'
 
@@ -82,7 +84,10 @@ function buildUserContent(
   return parts.length > 0 ? parts : [{ type: 'text', text: '' }]
 }
 
-function rowToLlmMessage(row: ConversationMessage): Message {
+function rowToLlmMessage(
+  row: ConversationMessage,
+  agents: Map<string, LabelledAgent>
+): Message {
   if (row.role === 'user') {
     const attachments = extractAttachments(row.parts)
     return {
@@ -95,11 +100,23 @@ function rowToLlmMessage(row: ConversationMessage): Message {
   // the multi-actor conversation reads as a continuous coordinator narrative.
   return {
     role: 'assistant',
-    content: [{ type: 'text', text: row.content }],
+    content: [
+      {
+        type: 'text',
+        text:
+          row.role === 'employee'
+            ? `${employeeLabel(agents.get(row.agentId ?? ''))} ${row.content}`
+            : row.content
+      }
+    ],
     // A Group's rows record no usage; pi needs one on every assistant message.
     usage: storedUsage(null),
     timestamp: new Date(row.createdAt).getTime()
   } as Message
+}
+
+async function loadAgents(): Promise<Map<string, LabelledAgent>> {
+  return new Map((await getAllAgents()).map((a) => [a.id, a]))
 }
 
 function summaryAsMessage(content: string, createdAt: Date): Message {
@@ -152,14 +169,16 @@ export class PhilharmonicLcm {
   async assembleContext(excludeMessageId?: string): Promise<Message[]> {
     const rows = await getMessagesByConversationId(this.conversationId)
     const filtered = rows.filter((r) => r.id !== excludeMessageId)
+    const agents = await loadAgents()
+    const toLlm = (r: ConversationMessage) => rowToLlmMessage(r, agents)
 
     if (!this.enabled) {
-      return filtered.map(rowToLlmMessage)
+      return filtered.map(toLlm)
     }
 
     const summary = await getSessionSummary(this.conversationId)
     if (!summary) {
-      return filtered.map(rowToLlmMessage)
+      return filtered.map(toLlm)
     }
 
     const boundary = filtered.findIndex(
@@ -168,13 +187,13 @@ export class PhilharmonicLcm {
     if (boundary === -1) {
       // Boundary message was deleted or excluded — fall back to full history
       // rather than risk dropping context.
-      return filtered.map(rowToLlmMessage)
+      return filtered.map(toLlm)
     }
 
     const tail = filtered.slice(boundary + 1)
     return [
       summaryAsMessage(summary.content, summary.updatedAt),
-      ...tail.map(rowToLlmMessage)
+      ...tail.map(toLlm)
     ]
   }
 
@@ -246,6 +265,7 @@ export class PhilharmonicLcm {
     const newContent = await summarizeMessages({
       messages: toAbsorb,
       previousSummary: summary?.content,
+      agents: await loadAgents(),
       model: this.model,
       apiKey: this.apiKey
     })

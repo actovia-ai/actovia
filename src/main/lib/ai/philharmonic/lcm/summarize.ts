@@ -3,6 +3,7 @@ import type { Message, Model } from '@earendil-works/pi-ai'
 
 import type { ConversationMessage } from '../../../db/schema'
 import { completeSimple } from '../../utils/complete'
+import { employeeLabel, type LabelledAgent } from './labels'
 
 const SYSTEM_PROMPT = `You are a context compactor for a Philharmonic Group chat (a virtual team managed by a PM with employees).
 
@@ -23,10 +24,15 @@ Do NOT speculate or restate generic process. Do NOT use lists. Output only the p
 export async function summarizeMessages(args: {
   messages: ConversationMessage[]
   previousSummary?: string
+  agents?: Map<string, LabelledAgent>
   model: Model<string>
   apiKey: string
 }): Promise<string> {
-  const transcript = formatTranscript(args.messages, args.previousSummary)
+  const transcript = formatTranscript(
+    args.messages,
+    args.previousSummary,
+    args.agents
+  )
   const promptMessage: Message = {
     role: 'user',
     content: [{ type: 'text', text: transcript }],
@@ -52,16 +58,21 @@ export async function summarizeMessages(args: {
   return summary
 }
 
-function roleLabel(m: ConversationMessage): string {
+function roleLabel(
+  m: ConversationMessage,
+  agents: Map<string, LabelledAgent>
+): string {
   if (m.role === 'user') return 'User'
   if (m.role === 'pm') return 'PM'
-  if (m.role === 'employee') return `Employee ${m.agentId ?? ''}`.trim()
+  if (m.role === 'employee')
+    return employeeLabel(agents.get(m.agentId ?? '')).slice(1, -1)
   return 'System'
 }
 
 function formatTranscript(
   messages: ConversationMessage[],
-  previousSummary?: string
+  previousSummary?: string,
+  agents: Map<string, LabelledAgent> = new Map()
 ): string {
   const lines: string[] = []
   if (previousSummary && previousSummary.trim().length > 0) {
@@ -71,7 +82,7 @@ function formatTranscript(
   }
   lines.push('Transcript to summarize:')
   for (const m of messages) {
-    const label = roleLabel(m)
+    const label = roleLabel(m, agents)
     const text = m.content.replace(/\s+/g, ' ').trim()
     if (text.length === 0) continue
     lines.push(`- ${label}: ${text}`)

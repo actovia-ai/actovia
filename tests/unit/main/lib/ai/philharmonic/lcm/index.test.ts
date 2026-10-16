@@ -21,7 +21,9 @@ const getMessagesByConversationId = vi.fn()
 const getSessionSummary = vi.fn()
 const upsertSessionSummary = vi.fn()
 const summarizeMessages = vi.fn()
+const getAllAgents = vi.fn()
 
+vi.mock('@main/lib/db/philharmonic-queries', () => ({ getAllAgents }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
   getMessagesByConversationId
 }))
@@ -65,9 +67,39 @@ beforeEach(() => {
   getSessionSummary.mockReset()
   upsertSessionSummary.mockReset()
   summarizeMessages.mockReset()
+  getAllAgents.mockReset()
+  getAllAgents.mockResolvedValue([])
 })
 
 describe('assembleContext', () => {
+  it('prefixes an employee row with its label', async () => {
+    getMessagesByConversationId.mockResolvedValue([
+      makeMessage({
+        id: 'e',
+        role: 'employee',
+        agentId: 'a1',
+        content: 'Done'
+      }),
+      makeMessage({
+        id: 'f',
+        role: 'employee',
+        agentId: 'gone',
+        content: 'Hi'
+      }),
+      makeMessage({ id: 'p', role: 'pm', content: 'ok' })
+    ])
+    getAllAgents.mockResolvedValue([
+      { id: 'a1', name: 'CC', runtime: 'claude-code', model: null }
+    ])
+    const lcm = new PhilharmonicLcm('c1', fakeModel, 'k', {
+      enabled: false
+    } as never)
+    const out = (await lcm.assembleContext()) as any[]
+    expect(out[0].content[0].text).toBe('[CC · Claude Code · CLI default] Done')
+    expect(out[1].content[0].text).toBe('[former employee] Hi')
+    expect(out[2].content[0].text).toBe('ok')
+  })
+
   it('returns every message untouched when disabled', async () => {
     const rows = [
       makeMessage({ id: 'a', role: 'user', content: 'hi' }),
