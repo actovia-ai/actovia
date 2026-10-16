@@ -2,6 +2,7 @@
 import type {
   AgentCard,
   CliId,
+  CliQuota,
   CliStatus,
   PermissionMode
 } from '@exodus/shared/types/agents'
@@ -34,6 +35,7 @@ import { DRIVERS, cliOf } from './drivers'
 import { loginShellEnv } from './login-shell'
 import { assertMetaDir } from './meta-files'
 import { prepareWorkDir, sessionLogPath, writeSessionMeta } from './projects'
+import { recordQuota } from './quota'
 import { type AgentRegistry, agentRegistry } from './registry'
 import { agentSettings } from './settings'
 
@@ -57,13 +59,16 @@ export interface RunAgentEmployeeDeps {
   registry: AgentRegistry
   cliStatus(cli: CliId): Promise<CliStatus>
   env(): Promise<Record<string, string>>
+  /** Every `quota` event of a process, for the life of the process (spec 2026-10-16 §3). */
+  recordQuota(q: CliQuota, merge: boolean): void
 }
 
 const defaultDeps: RunAgentEmployeeDeps = {
   start: (cli, input) => DRIVERS[cli].start(input),
   registry: agentRegistry,
   cliStatus: (cli) => getCliStatus(cli),
-  env: loginShellEnv
+  env: loginShellEnv,
+  recordQuota: (q, merge) => recordQuota(q, { merge })
 }
 
 const THROTTLE_MS = 40
@@ -333,6 +338,10 @@ export async function runAgentEmployee(
           conversationId,
           run
         )
+        // Its own listener: the step's listener comes and goes, the process stays.
+        run.on((e) => {
+          if (e.type === 'quota') deps.recordQuota(e.quota, e.merge === true)
+        })
       } else deps.registry.bindConversation(key, conversationId)
 
       const liveRun = run

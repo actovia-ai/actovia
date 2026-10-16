@@ -181,7 +181,8 @@ function deps(run: ReturnType<typeof makeRun>, starts: StartInput[] = []) {
       keepAliveMs: async () => 60_000
     }),
     cliStatus: ready,
-    env: async () => ({ PATH: '/bin' })
+    env: async () => ({ PATH: '/bin' }),
+    recordQuota: vi.fn()
   }
 }
 
@@ -508,6 +509,31 @@ describe('runAgentEmployee', () => {
         })
       ])
     )
+  })
+
+  it('hands every quota reading of the process to the store, the step’s or not', async () => {
+    const q = (asOf: number) => ({
+      cli: 'claude-code' as const,
+      windows: [],
+      state: 'ok' as const,
+      rejectedWindow: null,
+      overage: false,
+      asOf
+    })
+    const Q = q(1)
+    const Q2 = q(2)
+    const run = makeRun((r) => {
+      r.fire({ type: 'quota', quota: Q, merge: false })
+      happy(r)
+    })
+    const d = deps(run)
+    await runAgentEmployee(args(), d)
+    // After the step has resolved: no step listener is left to see it.
+    run.fire({ type: 'quota', quota: Q2, merge: true })
+    // Let the step's throttled card flush land here, not in the next test.
+    await new Promise((r) => setTimeout(r, 80))
+    expect(d.recordQuota).toHaveBeenNthCalledWith(1, Q, false)
+    expect(d.recordQuota).toHaveBeenNthCalledWith(2, Q2, true)
   })
 
   it('lets a reused process finish its unprompted turn before the next step speaks', async () => {
