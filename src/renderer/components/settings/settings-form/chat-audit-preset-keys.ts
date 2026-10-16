@@ -13,7 +13,8 @@ export const PRESET_KEYS = {
   errorsByModel: 'chatAudit.presets.errorsByModel',
   activityByHour: 'chatAudit.presets.activityByHour',
   searchText: 'chatAudit.presets.searchText',
-  logsBySeverity: 'chatAudit.presets.logsBySeverity'
+  logsBySeverity: 'chatAudit.presets.logsBySeverity',
+  pmDecisions: 'chatAudit.presets.pmDecisions'
 } as const
 
 export type PresetId = keyof typeof PRESET_KEYS

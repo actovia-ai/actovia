@@ -977,7 +977,7 @@
       "title": "쿼리",
       "run": "쿼리 실행",
       "running": "실행 중…",
-      "tables": "테이블: chats, messages, logs"
+      "tables": "테이블: chats, messages, logs, group_messages, pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}}행",

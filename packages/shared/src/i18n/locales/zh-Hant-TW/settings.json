@@ -977,7 +977,7 @@
       "title": "查詢",
       "run": "執行查詢",
       "running": "執行中…",
-      "tables": "資料表：chats、messages、logs"
+      "tables": "資料表：chats、messages、logs、group_messages、pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}} 列",

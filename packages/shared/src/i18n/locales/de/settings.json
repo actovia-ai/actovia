@@ -982,7 +982,7 @@
       "title": "Abfrage",
       "run": "Abfrage ausführen",
       "running": "Läuft…",
-      "tables": "Tabellen: chats, messages, logs"
+      "tables": "Tabellen: chats, messages, logs, group_messages, pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}} Zeile",

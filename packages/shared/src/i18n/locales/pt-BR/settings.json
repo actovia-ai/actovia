@@ -982,7 +982,7 @@
       "title": "Consulta",
       "run": "Executar consulta",
       "running": "Executando…",
-      "tables": "Tabelas: chats, messages, logs"
+      "tables": "Tabelas: chats, messages, logs, group_messages, pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}} linha",

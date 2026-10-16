@@ -271,7 +271,7 @@ Settings → Developer → Chat Audit is a read-only SQL console over a DuckDB
 snapshot of the user's data (`src/main/lib/analytics/`, route
 `/api/v1/analytics`, page `settings-form/chat-audit.tsx`). `snapshot.ts`
 copies `chat` / `message` (and Philharmonic's `conversation_message` and `pm_round_event` as
-`group_messages` / `pm_round_events`, secrets masked) out of PGlite via NDJSON into
+`group_messages` / `pm_round_events`, scrubbed with the current secrets — empty when they cannot be read; preset `pmDecisions`) out of PGlite via NDJSON into
 `~/.exodus/analytics/exodus.duckdb` (usage flattened to `*_tokens` /
 `cost_usd` columns, `content` kept as JSON) and copies
 `~/.exodus/logs/*.jsonl` into a `logs` table; `duckdb.ts` lazy-`import()`s
@@ -498,7 +498,7 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
   `comparing` | `chosen` | `folded` | `hidden` (null for an ordinary run).
   Written only by `src/main/lib/chat/attempts.ts`; on the wire as optional
   fields of `ChatUserMessage` (`GET /api/v1/chat/:id` returns them on every row)
-- Philharmonic: `agent`, `agent_memory`, `team`, `task`, `task_execution`, `task_execution_event`, `conversation_plan`, `plan_step`
+- Philharmonic: `agent`, `agent_memory`, `team`, `task`, `task_execution`, `task_execution_event`, `conversation_plan`, `plan_step`, `pm_round_event` (a PM round's decision trail)
 
 The full chat/message tables and indexes are defined in `src/main/lib/db/schema.ts`.
 
@@ -1018,6 +1018,20 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   window past its reset reads "reset at … (not re-read since)" to the PM and is never red in the
   members panel, which shows the line (`GET /api/v1/agents/quota`, `hooks/use-agent-quota.ts`,
   `quotaParts(q, now)` in `lib/agent-quota.ts`)
+- **Decision trail** (spec `docs/superpowers/specs/2026-10-17-pm-decision-trail-design.md`): every PM
+  round records, through `ai/philharmonic/round-recorder.ts`, its trigger, the employee reports it
+  read (ids and names), thinking, text, each tool call with its arguments and result, usage and any
+  error, masked (`maskLogText`), in `pm_round_event` (migration `0018_pm_round_event`, storage
+  `db/pm-round-queries.ts`). The recorder never throws into a round: a capture or append failure is
+  logged, and a cycle in a call's arguments is stored as `[circular]`. The PM's message — and its
+  error or interrupted system row — carries `roundId` and a `{ kind: 'decision', delegations, waits }`
+  part; the collapsed "Decision process" line takes its counts from that part, so nothing is fetched
+  until it is opened. `GET /api/v1/philharmonic/conversations/:id/rounds/:roundId` serves a round;
+  `components/philharmonic/chat/decision-process.tsx` draws it under the message (pure model
+  `lib/pm-round.ts`, hook `hooks/use-pm-round.ts`, service `services/philharmonic-rounds.ts`). A
+  report whose author is gone shows the current agent's name, or a translated "former employee". The
+  PM's context labels each employee report with its author (`ai/philharmonic/lcm/labels.ts`). Chat
+  Audit reads it as `group_messages` / `pm_round_events` and the `pmDecisions` preset
 
 ### App Lock
 

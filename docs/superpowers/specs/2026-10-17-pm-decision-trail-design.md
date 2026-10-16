@@ -1,6 +1,6 @@
 # The PM's decision trail — every round recorded, shown under its message, queryable in Chat Audit
 
-Date: 2026-10-17 · Status: design agreed in chat (owner, 2026-10-17); spec for the owner's review
+Date: 2026-10-17 · Status: implemented 2026-10-17 (plan docs/superpowers/plans/2026-10-17-pm-decision-trail.md)
 Repo: `exodus`, branch `maintenance`
 Builds on: `2026-10-16-pm-quota-aware-dealing-design.md` (the PM's roster, quota lines, `waitForQuota`)
 — the decisions it adds are the ones most worth auditing.

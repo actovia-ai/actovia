@@ -982,7 +982,7 @@
       "title": "Query",
       "run": "Esegui query",
       "running": "In esecuzione…",
-      "tables": "Tabelle: chats, messages, logs"
+      "tables": "Tabelle: chats, messages, logs, group_messages, pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}} riga",

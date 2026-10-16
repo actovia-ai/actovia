@@ -977,7 +977,7 @@
       "title": "クエリ",
       "run": "クエリを実行",
       "running": "実行中…",
-      "tables": "テーブル: chats, messages, logs"
+      "tables": "テーブル: chats, messages, logs, group_messages, pm_round_events"
     },
     "results": {
       "rowCount_one": "{{count}} 行",
