@@ -13,6 +13,9 @@ vi.mock('@main/lib/db/queries', () => ({
 vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }))
+vi.mock('@main/lib/agents/quota', () => ({
+  forgetAllQuotas: vi.fn(async () => {})
+}))
 const removeAllMedia = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({ removeAllMedia }))
 const forgetAllMovedSecrets = vi.fn()
@@ -34,6 +37,12 @@ function buildApp() {
 beforeEach(() => vi.clearAllMocks())
 
 describe('DELETE /api/v1/db-io/reset', () => {
+  it('forgets the CLIs’ quota readings', async () => {
+    const { forgetAllQuotas } = await import('@main/lib/agents/quota')
+    await buildApp().request('/reset', { method: 'DELETE' })
+    expect(forgetAllQuotas).toHaveBeenCalled()
+  })
+
   it('removes ~/.exodus/media after the data is reset', async () => {
     const res = await buildApp().request('/reset', { method: 'DELETE' })
 

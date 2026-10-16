@@ -3,6 +3,7 @@ import { DatabaseError, ValidationError } from '@exodus/shared/errors/app-error'
 import { Hono } from 'hono'
 import JSZip from 'jszip'
 
+import { forgetAllQuotas } from '../../agents/quota'
 import { createAutoBackup } from '../../backup'
 import { exportData, importData, resetAllData } from '../../db/queries'
 import { removeAllMedia } from '../../media/store'
@@ -142,6 +143,8 @@ dbIo.delete('/reset', async (c) => {
   // The chats that referenced it are gone. (Not on /import-all: that restores
   // chats, possibly this machine's own, whose images are still on disk.)
   await removeAllMedia()
+  // What the CLIs said of the quota is this machine's, and starts over too.
+  await forgetAllQuotas()
   return successResponse(c, { success: true })
 })
 

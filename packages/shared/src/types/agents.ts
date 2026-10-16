@@ -112,3 +112,29 @@ export interface AgentCard {
   /** Waiting for a free slot (the running limit, spec §3). */
   queued: boolean
 }
+
+/** One window of a CLI's quota, as the CLI reported it. Times in epoch ms. */
+export interface QuotaWindow {
+  /** `five_hour`, `seven_day`, a model's own window, Codex `primary` / `secondary` / `<limit> primary`. */
+  name: string
+  /** 0–100. */
+  usedPercent: number
+  resetsAt: number | null
+  /** Set when the window counts one model only (e.g. `opus`); absent for the account's windows. */
+  model?: string
+}
+
+/** The CLI's own verdict, never inferred from the percentages. */
+export type QuotaState = 'ok' | 'warning' | 'rejected'
+
+export interface CliQuota {
+  cli: CliId
+  windows: QuotaWindow[]
+  state: QuotaState
+  /** The window the CLI named when it rejected, when it named one. */
+  rejectedWindow: string | null
+  /** May the CLI run past the limit at a cost. */
+  overage: boolean
+  /** When this was reported (epoch ms). */
+  asOf: number
+}
