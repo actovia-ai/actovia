@@ -23,20 +23,33 @@ const defaultDeps: RefreshDeps = {
   now: () => Date.now()
 }
 
+/** When a Codex read last failed or said nothing: no new try for FRESH_MS. */
+let failedAt: number | null = null
+
+export function resetQuotaRefreshForTests() {
+  failedAt = null
+}
+
 /** Never throws: a CLI that cannot say keeps what it said last. */
 export async function refreshQuotas(
   clis: CliId[],
   deps: RefreshDeps = defaultDeps
 ) {
   if (!clis.includes('codex')) return
+  const now = deps.now()
   const last = getQuota('codex')
-  if (last && deps.now() - last.asOf < FRESH_MS) return
+  if (last && now - last.asOf < FRESH_MS) return
+  if (failedAt !== null && now - failedAt < FRESH_MS) return
   try {
     const status = await deps.status('codex')
     if (status.state !== 'ready' || !status.path) return
     const quota = await deps.read(status.path, await deps.env())
-    if (quota) recordQuota(quota)
+    if (quota) {
+      recordQuota(quota)
+      failedAt = null
+    } else failedAt = now
   } catch (error) {
+    failedAt = now
     logger.warn('agents', 'Codex quota read failed', { error })
   }
 }

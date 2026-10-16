@@ -122,6 +122,10 @@ export interface QuotaWindow {
   resetsAt: number | null
   /** Set when the window counts one model only (e.g. `opus`); absent for the account's windows. */
   model?: string
+  /** The CLI said this window stopped it (until `resetsAt`); kept when a later reading omits the window. */
+  rejected?: boolean
+  /** The window's length when the CLI says it (Codex `windowDurationMins`): 300 is the 5-hour, 10080 the week. */
+  durationMins?: number
 }
 
 /** The CLI's own verdict, never inferred from the percentages. */

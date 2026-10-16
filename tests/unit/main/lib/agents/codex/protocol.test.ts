@@ -450,16 +450,55 @@ describe('Codex quota', () => {
       asOf: 5
     })
     expect(q.windows).toEqual([
-      { name: 'primary', usedPercent: 12, resetsAt: 1792159800_000 },
-      { name: 'secondary', usedPercent: 64, resetsAt: 1792450800_000 },
+      {
+        name: 'primary',
+        usedPercent: 12,
+        resetsAt: 1792159800_000,
+        durationMins: 300
+      },
+      {
+        name: 'secondary',
+        usedPercent: 64,
+        resetsAt: 1792450800_000,
+        durationMins: 10080
+      },
       {
         name: 'GPT-5.6 Pro secondary',
         usedPercent: 100,
         resetsAt: 1792450800_000,
-        model: 'gpt-5.6-pro'
+        durationMins: 10080,
+        model: 'gpt-5.6-pro',
+        rejected: true
       }
     ])
     expect(q.rejectedWindow).toBe('GPT-5.6 Pro secondary')
+  })
+
+  it('marks the account windows rejected when ordinary usage is not allowed', () => {
+    const q = quotaFromCodex(
+      {
+        ordinaryUsageAllowed: false,
+        rateLimits: { ...READ.rateLimits },
+        rateLimitsByLimitId: {
+          'gpt-5.6-pro': {
+            ...READ.rateLimitsByLimitId['gpt-5.6-pro'],
+            rateLimitReachedType: null,
+            secondary: {
+              usedPercent: 40,
+              windowDurationMins: 10080,
+              resetsAt: 1792450800
+            }
+          }
+        }
+      },
+      1
+    )!
+    expect(q.state).toBe('rejected')
+    expect(q.windows.map((w) => [w.name, w.rejected === true])).toEqual([
+      ['primary', true],
+      ['secondary', true],
+      ['GPT-5.6 Pro secondary', false]
+    ])
   })
 
   it('is ok while nothing is reached, whatever the percentages', () => {

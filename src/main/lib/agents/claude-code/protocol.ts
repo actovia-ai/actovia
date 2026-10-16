@@ -138,6 +138,10 @@ export function quotaFromClaudeInfo(info: Json, now: number): CliQuota | null {
   if (type && !windows.some((w) => w.name === type))
     add(type, info.utilization, info.resetsAt)
   const state = STATES[status] ?? 'ok'
+  // The window it rejected on stays marked: a later reading of another model
+  // does not name it, and the store keeps it until its reset.
+  if (state === 'rejected' && type)
+    for (const w of windows) if (w.name === type) w.rejected = true
   return {
     cli: 'claude-code',
     windows,

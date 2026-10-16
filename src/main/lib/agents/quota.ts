@@ -20,6 +20,12 @@ let store: Map<CliId, CliQuota> | null = null
 
 export { toMs } from './epoch'
 
+const wellFormed = (w: unknown): w is QuotaWindow =>
+  typeof w === 'object' &&
+  w !== null &&
+  typeof (w as QuotaWindow).name === 'string' &&
+  Number.isFinite((w as QuotaWindow).usedPercent)
+
 function load(): Map<CliId, CliQuota> {
   if (store) return store
   store = new Map()
@@ -29,7 +35,7 @@ function load(): Map<CliId, CliQuota> {
       if (Array.isArray(rows))
         for (const q of rows as CliQuota[])
           if (q && typeof q.cli === 'string' && Array.isArray(q.windows))
-            store.set(q.cli, q)
+            store.set(q.cli, { ...q, windows: q.windows.filter(wellFormed) })
     }
   } catch (error) {
     logger.warn('agents', 'agent-quota.json unreadable; starting empty', {
@@ -50,14 +56,45 @@ function save() {
   }
 }
 
-/** `merge`: a sparse update (Codex's `updated`) keeps windows it does not name. */
-export function recordQuota(q: CliQuota, opts: { merge?: boolean } = {}) {
+/**
+ * `merge`: a sparse update (Codex's `updated`) keeps the windows it does not
+ * name, and the stored verdict (state, overage, rejected window, asOf) unless
+ * it reports a reached limit itself. A full reading replaces the record, but
+ * keeps a model's own window it does not mention while that window has not
+ * reset: Claude Code reports only the running model's windows, so a sonnet
+ * reading must not erase opus's rejection.
+ */
+export function recordQuota(
+  q: CliQuota,
+  opts: { merge?: boolean } = {},
+  now: number = Date.now()
+) {
   const prev = load().get(q.cli)
   let next = q
-  if (opts.merge && prev) {
+  if (prev && opts.merge) {
     const byName = new Map(prev.windows.map((w) => [w.name, w]))
     for (const w of q.windows) byName.set(w.name, w)
-    next = { ...q, windows: [...byName.values()] }
+    const windows = [...byName.values()]
+    next =
+      q.state === 'rejected'
+        ? { ...q, windows }
+        : {
+            ...q,
+            windows,
+            state: prev.state,
+            overage: prev.overage,
+            rejectedWindow: prev.rejectedWindow,
+            asOf: prev.asOf
+          }
+  } else if (prev) {
+    const named = new Set(q.windows.map((w) => w.name))
+    const kept = prev.windows.filter(
+      (w) =>
+        w.model &&
+        !named.has(w.name) &&
+        (w.resetsAt === null || w.resetsAt > now)
+    )
+    if (kept.length) next = { ...q, windows: [...q.windows, ...kept] }
   }
   load().set(q.cli, next)
   save()
@@ -83,24 +120,28 @@ const modelMatches = (windowModel: string, model: string | null | undefined) =>
 
 /**
  * The window that stops `model` from running now, or null. Only the CLI's own
- * `rejected` without overage blocks — a stale or high reading never does.
+ * rejection without overage blocks — a stale or high reading never does: a
+ * window it marked `rejected` (which may outlive the record's state, carried
+ * from an earlier reading), else the record's `rejected` state.
  */
 export function blockedUntil(
   q: CliQuota | null,
   model: string | null | undefined,
   now: number = Date.now()
 ): QuotaWindow | null {
-  if (!q || q.state !== 'rejected' || q.overage) return null
+  if (!q || q.overage) return null
   const live = (w: QuotaWindow) => w.resetsAt === null || w.resetsAt > now
   const applies = (w: QuotaWindow) =>
     live(w) && (!w.model || modelMatches(w.model, model))
+  const latest = (ws: QuotaWindow[]) =>
+    ws.reduce((a, b) => ((b.resetsAt ?? 0) > (a.resetsAt ?? 0) ? b : a))
+  const flagged = q.windows.filter((w) => w.rejected && applies(w))
+  if (flagged.length > 0) return latest(flagged)
+  if (q.state !== 'rejected') return null
   const named = q.windows.find((w) => w.name === q.rejectedWindow)
   if (named) return applies(named) ? named : null
   const full = q.windows.filter((w) => w.usedPercent >= 100 && applies(w))
-  if (full.length > 0)
-    return full.reduce((a, b) =>
-      (b.resetsAt ?? 0) > (a.resetsAt ?? 0) ? b : a
-    )
+  if (full.length > 0) return latest(full)
   // Rejected with no window detail: block, reset unknown, while it is fresh.
   return q.windows.length === 0 && now - q.asOf < NO_DETAIL_BLOCK_MS
     ? { name: 'limit', usedPercent: 100, resetsAt: null }
@@ -111,10 +152,35 @@ const LABELS: Record<string, string> = {
   five_hour: '5-hour',
   seven_day: 'week'
 }
+const DURATIONS: Record<number, string> = { 300: '5-hour', 10080: 'week' }
 
-/** A window as the owner says it: `5-hour`, `week`, `opus only: …` (English: the model reads it). */
-export const quotaWindowLabel = (w: QuotaWindow): string =>
-  `${w.model ? `${w.model} only: ` : ''}${LABELS[w.name] ?? w.name}`
+/**
+ * A window as the owner says it: `5-hour`, `week`, `opus only: week`
+ * (English: the model reads it). Codex names its windows `primary` /
+ * `secondary`; its length says which one it is.
+ */
+export function quotaWindowLabel(w: QuotaWindow): string {
+  const suffix = w.model ? `_${w.model.toLowerCase()}` : ''
+  const base =
+    suffix && w.name.toLowerCase().endsWith(suffix)
+      ? w.name.slice(0, -suffix.length)
+      : w.name
+  const label =
+    (w.durationMins !== undefined && DURATIONS[w.durationMins]) ||
+    LABELS[base] ||
+    w.name
+  return `${w.model ? `${w.model} only: ` : ''}${label}`
+}
+
+/** The CLI said this window stopped it (and it has not reset by `now`'s reckoning). */
+export const windowLimited = (q: CliQuota, w: QuotaWindow): boolean =>
+  !!w.rejected ||
+  (q.state === 'rejected' &&
+    (w.name === q.rejectedWindow || w.usedPercent >= 100))
+
+/** A window whose reset time has passed: what it last said no longer holds. */
+export const windowReset = (w: QuotaWindow, now: number): boolean =>
+  w.resetsAt !== null && w.resetsAt <= now
 
 function ago(ms: number): string {
   const min = Math.max(0, Math.round(ms / 60_000))
@@ -141,9 +207,9 @@ export function formatQuotaForPm(
   if (!q) return `${name} quota: unknown (it has not reported any).`
   const parts = q.windows.map((w) => {
     const label = quotaWindowLabel(w)
-    const limited =
-      q.state === 'rejected' &&
-      (w.name === q.rejectedWindow || w.usedPercent >= 100)
+    if (w.resetsAt !== null && windowReset(w, now))
+      return `${label}: reset at ${when(w.resetsAt)} (not re-read since)`
+    const limited = windowLimited(q, w)
     const flag = limited
       ? ` (LIMIT REACHED${w.resetsAt ? `, resets ${when(w.resetsAt)}` : ''})`
       : q.state === 'warning' && w.usedPercent >= 75

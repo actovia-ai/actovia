@@ -535,4 +535,79 @@ describe('runPmCoordinator — the quota in view', () => {
     const plans = await import('@main/lib/db/plan-queries')
     vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
+
+  it('tells the PM to wait only on LIMIT REACHED, and to run or downgrade at 90 %', async () => {
+    const { system } = await runWith(rejected)
+    expect(system).toContain(
+      "When a skilled hand's window says LIMIT REACHED, it cannot run: downgrade the step to an ordinary hand if one can do it well; otherwise call waitForQuota for it. At 90 % or more, or marked warning, it can still run: downgrade the step if an ordinary hand can do it well, else run it — never wait for it."
+    )
+  })
+
+  it('a step that leaves pending cancels its quota wake-up; a pending one keeps it', async () => {
+    const wakeUp = {
+      id: 't-wait',
+      conversationId: 'c1',
+      input: { kind: 'quota-wait', stepId: 's1', employeeId: 'opus-id' }
+    }
+    const other = {
+      id: 't-other',
+      conversationId: 'c2',
+      input: { kind: 'quota-wait', stepId: 's1', employeeId: 'opus-id' }
+    }
+    const { tool } = await runWith(rejected)
+    getUpcomingOneOffTasks.mockResolvedValue([wakeUp, other])
+    await tool('updatePlanStep').execute('u0', {
+      stepId: 's1',
+      status: 'pending',
+      note: 'still waiting'
+    })
+    expect(updateTask).not.toHaveBeenCalled()
+    await tool('updatePlanStep').execute('u1', {
+      stepId: 's1',
+      status: 'skipped'
+    })
+    expect(updateTask).toHaveBeenCalledWith('t-wait', { status: 'cancelled' })
+    expect(updateTask).not.toHaveBeenCalledWith('t-other', expect.anything())
+  })
+
+  it('delegating a waiting step cancels its quota wake-up', async () => {
+    const { tool } = await runWith({
+      cli: 'claude-code',
+      windows: [{ name: 'seven_day', usedPercent: 50, resetsAt: R }],
+      state: 'ok',
+      rejectedWindow: null,
+      overage: false,
+      asOf: Date.now()
+    })
+    getUpcomingOneOffTasks.mockResolvedValue([
+      {
+        id: 't-wait',
+        conversationId: 'c1',
+        input: { kind: 'quota-wait', stepId: 's1', employeeId: 'opus-id' }
+      }
+    ])
+    await tool('delegateTask').execute('d', {
+      employeeId: 'plain-id',
+      instructions: 'do it',
+      stepId: 's1'
+    })
+    expect(updateTask).toHaveBeenCalledWith('t-wait', { status: 'cancelled' })
+  })
+
+  it('a quota store that throws leaves every CLI line unknown and is logged', async () => {
+    const quota = await import('@main/lib/agents/quota')
+    const { logger } = await import('@main/lib/logger')
+    vi.mocked(quota.getQuota).mockImplementationOnce(() => {
+      throw new Error('store broken')
+    })
+    const { system } = await runWith(rejected)
+    expect(system).toContain(
+      'Claude Code quota: unknown (it has not reported any).'
+    )
+    expect(logger.warn).toHaveBeenCalledWith(
+      'philharmonic',
+      'quota lines not built',
+      expect.objectContaining({ error: expect.any(Error) })
+    )
+  })
 })

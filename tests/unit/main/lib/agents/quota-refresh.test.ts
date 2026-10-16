@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const recorded: unknown[] = []
 let stored: { asOf: number } | null = null
@@ -13,14 +13,17 @@ vi.mock('@main/lib/agents/cli-check', () => ({
 }))
 vi.mock('@main/lib/agents/login-shell', () => ({ loginShellEnv: vi.fn() }))
 vi.mock('@main/lib/logger', () => ({ logger: { warn: vi.fn() } }))
-const { refreshQuotas } = await import('@main/lib/agents/quota-refresh')
+const { refreshQuotas, resetQuotaRefreshForTests } =
+  await import('@main/lib/agents/quota-refresh')
 
-const deps = (read: () => Promise<unknown>) => ({
+const deps = (read: () => Promise<unknown>, now = 100_000) => ({
   status: async () => ({ state: 'ready', path: '/bin/codex' }) as never,
   env: async () => ({}),
   read: vi.fn(read) as never,
-  now: () => 100_000
+  now: () => now
 })
+
+beforeEach(() => resetQuotaRefreshForTests())
 
 describe('refreshQuotas', () => {
   it('asks Codex when its reading is older than a minute, never Claude Code', async () => {
@@ -48,5 +51,26 @@ describe('refreshQuotas', () => {
       })
     )
     expect(recorded).toEqual([])
+  })
+
+  it('after a failed or empty read, does not ask again for a minute', async () => {
+    recorded.length = 0
+    stored = null
+    for (const failing of [
+      async () => null,
+      async () => {
+        throw new Error('boom')
+      }
+    ]) {
+      resetQuotaRefreshForTests()
+      await refreshQuotas(['codex'], deps(failing, 100_000))
+      const soon = deps(async () => ({ cli: 'codex', asOf: 130_000 }), 130_000)
+      await refreshQuotas(['codex'], soon)
+      expect(soon.read).not.toHaveBeenCalled()
+      const later = deps(async () => ({ cli: 'codex', asOf: 160_001 }), 160_001)
+      await refreshQuotas(['codex'], later)
+      expect(later.read).toHaveBeenCalledTimes(1)
+    }
+    expect(recorded).toHaveLength(2)
   })
 })

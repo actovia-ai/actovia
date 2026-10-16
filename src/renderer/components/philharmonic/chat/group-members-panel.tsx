@@ -164,8 +164,9 @@ function QuotaLine({ cli }: { cli: CliId }) {
   const { data } = useAgentQuotas()
   const q = data?.find((x) => x.cli === cli)
   if (!q) return null
-  const parts = quotaParts(q)
-  const limit = parts.find((p) => p.limited)
+  // A window past its reset is not red: it is no longer what stops the CLI.
+  const parts = quotaParts(q, Date.now())
+  const limit = parts.find((p) => p.limited && !p.reset)
   const text = parts
     .map((p) =>
       t(`chat.membersPanel.quota.${p.key}`, {

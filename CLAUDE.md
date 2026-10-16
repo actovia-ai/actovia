@@ -994,7 +994,8 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
 - **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a
-  minute) and its rolling updates — becomes a `quota` agent event and one `CliQuota` per CLI in
+  minute, and not again for a minute after a failed or empty read) and its rolling updates (merged:
+  they keep the stored verdict unless they report a reached limit) — becomes a `quota` agent event and one `CliQuota` per CLI in
   `src/main/lib/agents/quota.ts` (`~/.exodus/agent-quota.json`; a data reset removes it; `toMs` lives
   in the pure `agents/epoch.ts`). The PM's roster names each CLI employee's model and its CLI's quota,
   and its system message carries the active plan (`Active plan:`, a line per step: status, id, title,
@@ -1003,12 +1004,19 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   (`input.kind: 'quota-wait'`) at the reset + 2 min before it parks the step — and applies those
   rules flexibly. Plan-first rule 1 has an exception: a round that continues the active plan (a
   [Scheduled] quota-reset round, or the owner answering about it) does not call `createPlan`. Windows
-  are named for people by `quotaWindowLabel()` (5-hour / week / "<model> only: …").
-  `delegateTask` refuses only an employee its CLI has `rejected` without overage
-  (`blockedUntil(q, model, now)`: windows whose reset has passed are ignored; a rejection with no
-  window detail blocks for an hour after it was reported); a high or stale reading never blocks. The
-  members panel shows the line (`GET /api/v1/agents/quota`, `hooks/use-agent-quota.ts`,
-  `quotaParts()` in `lib/agent-quota.ts`)
+  are named for people by `quotaWindowLabel()` (5-hour / week / "<model> only: week"; a Codex window
+  by its `durationMins`). The PM waits only on LIMIT REACHED; at 90 % or a warning it downgrades or
+  runs the step. A step that leaves `pending` (`updatePlanStep`, or delegated) cancels its
+  quota-wait task. The window a CLI rejected on is marked `rejected: true`, and a full reading keeps
+  a model's own window it does not mention until that window resets — Claude Code reports only the
+  running model's windows, so a sonnet reading never erases opus's rejection.
+  `delegateTask` refuses only an employee its CLI has rejected without overage
+  (`blockedUntil(q, model, now)`: a live `rejected` window that applies to the model, else the
+  record's `rejected` state; windows whose reset has passed are ignored; a rejection with no
+  window detail blocks for an hour after it was reported); a high or stale reading never blocks. A
+  window past its reset reads "reset at … (not re-read since)" to the PM and is never red in the
+  members panel, which shows the line (`GET /api/v1/agents/quota`, `hooks/use-agent-quota.ts`,
+  `quotaParts(q, now)` in `lib/agent-quota.ts`)
 
 ### App Lock
 

@@ -81,7 +81,7 @@ Use search_knowledge_base for company-specific facts before asking the user. Use
 
 Dealing the work (coding-agent employees run on the owner's own CLI subscriptions, which have quotas):
 - Deal by difficulty: hard or open-ended steps to the strongest suitable model, routine steps to an ordinary one — from the start, so the skilled hand's quota lasts.
-- Read the quota lines under Employees. When a skilled hand's window is at 90 % or more, or marked warning / LIMIT REACHED: downgrade the step to an ordinary hand if one can do it well; otherwise call waitForQuota for it. Weigh how far the reset is — a 5-hour window resets within hours, a weekly one may be days away.
+- Read the quota lines under Employees. When a skilled hand's window says LIMIT REACHED, it cannot run: downgrade the step to an ordinary hand if one can do it well; otherwise call waitForQuota for it. At 90 % or more, or marked warning, it can still run: downgrade the step if an ordinary hand can do it well, else run it — never wait for it. Weigh how far the reset is — a 5-hour window resets within hours, a weekly one may be days away.
 - These are rules of thumb: schedule flexibly. Run steps that do not need the waiting hand first, split a step so part goes to an ordinary hand, or give it to another CLI's employee, whenever that serves the work better.
 - Say every such decision in one line in the group, with the numbers and the reset time.
 
@@ -202,11 +202,21 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       employees.filter((e) => isCliId(e.runtime)).map((e) => e.runtime as CliId)
     )
   ]
-  await refreshQuotas(clisInPlay)
-  const now = Date.now()
-  const quotaText = clisInPlay
-    .map((cli) => formatQuotaForPm(getQuota(cli), cli, now))
-    .join('\n')
+  // A store that cannot be read must not stop the round: every line is unknown.
+  let quotaText: string
+  try {
+    await refreshQuotas(clisInPlay)
+    const now = Date.now()
+    quotaText = clisInPlay
+      .map((cli) => formatQuotaForPm(getQuota(cli), cli, now))
+      .join('\n')
+  } catch (error) {
+    logger.warn('philharmonic', 'quota lines not built', { error })
+    const now = Date.now()
+    quotaText = clisInPlay
+      .map((cli) => formatQuotaForPm(null, cli, now))
+      .join('\n')
+  }
 
   // PhilharmonicLcm hydrates the LLM history: when within budget it's a
   // straight conversion of every persisted message; when over, it replaces
@@ -277,6 +287,20 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     return `Not started: ${emp.name}'s ${CLI_NAMES[emp.runtime]} quota is used up (${quotaWindowLabel(w)} ${Math.round(w.usedPercent)} %), resets ${reset}. Give the step to another employee, or call waitForQuota. If you had marked the step running, set it back to pending, or call waitForQuota.`
   }
 
+  // A step that leaves `pending` (done, failed, running, delegated) no longer
+  // waits: its quota wake-up, if it has one, is cancelled.
+  const cancelQuotaWait = async (stepId: string) => {
+    const waiting = (await getUpcomingOneOffTasks()).filter((t) => {
+      const input = t.input as Record<string, unknown> | null
+      return (
+        t.conversationId === conversationId &&
+        input?.kind === 'quota-wait' &&
+        input?.stepId === stepId
+      )
+    })
+    for (const t of waiting) await updateTask(t.id, { status: 'cancelled' })
+  }
+
   const tools: AgentTool[] = [
     createCreatePlanTool(async ({ summary, steps }) => {
       // If the LLM tries to create a plan while one is still active (shouldn't
@@ -337,6 +361,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         }
       })
       await mirrorActivePlan()
+      if (status && updated.status !== 'pending') await cancelQuotaWait(stepId)
       return { stepId: updated.id }
     }),
     createAppendPlanStepTool(async ({ title, intent, assignedAgentId }) => {
@@ -365,6 +390,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         // A CLI that has rejected this employee's model starts no process.
         const blocked = quotaBlock(employeeId)
         if (blocked) return blocked
+        if (stepId) await cancelQuotaWait(stepId)
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
         if (stepId) {

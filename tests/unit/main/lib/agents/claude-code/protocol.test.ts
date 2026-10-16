@@ -174,8 +174,23 @@ describe('Claude Code protocol', () => {
         name: 'seven_day_opus',
         usedPercent: 100,
         resetsAt: 1792450800_000,
-        model: 'opus'
+        model: 'opus',
+        rejected: true
       }
+    ])
+  })
+
+  it('marks only the window it rejected on, not the others', () => {
+    const { events } = parseLine(
+      '{"type":"rate_limit_event","rate_limit_info":{"status":"rejected","rateLimitType":"five_hour","unifiedWindows":{"five_hour":{"utilization":1,"resetsAt":1792450800},"seven_day":{"utilization":0.4,"resetsAt":1792450900}}}}'
+    )
+    const q = events.find((e) => e.type === 'quota') as Extract<
+      AgentEvent,
+      { type: 'quota' }
+    >
+    expect(q.quota.windows.map((w) => [w.name, w.rejected === true])).toEqual([
+      ['five_hour', true],
+      ['seven_day', false]
     ])
   })
 

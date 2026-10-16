@@ -67,7 +67,98 @@ describe('quota store', () => {
     const q = getQuota('claude-code')!
     expect(q.windows.find((w) => w.name === 'five_hour')?.usedPercent).toBe(40)
     expect(q.windows.find((w) => w.name === 'seven_day')?.usedPercent).toBe(85)
-    expect(q.state).toBe('ok')
+    // A sparse update that reaches no limit keeps the stored verdict.
+    expect(q.state).toBe('warning')
+    expect(q.asOf).toBe(NOW)
+  })
+
+  it('a sparse update keeps a rejection unless it reports a reached limit itself', () => {
+    const codex = (over: Partial<CliQuota>): CliQuota => ({
+      ...claude(),
+      cli: 'codex',
+      ...over
+    })
+    recordQuota(
+      codex({
+        state: 'rejected',
+        rejectedWindow: 'secondary',
+        overage: true,
+        windows: [
+          { name: 'primary', usedPercent: 40, resetsAt: NOW + 1000 },
+          {
+            name: 'secondary',
+            usedPercent: 100,
+            resetsAt: NOW + 9000,
+            rejected: true
+          }
+        ]
+      })
+    )
+    recordQuota(
+      codex({
+        state: 'ok',
+        overage: false,
+        asOf: NOW + 5,
+        windows: [{ name: 'primary', usedPercent: 45, resetsAt: NOW + 1000 }]
+      }),
+      { merge: true }
+    )
+    let q = getQuota('codex')!
+    expect(q).toMatchObject({
+      state: 'rejected',
+      rejectedWindow: 'secondary',
+      overage: true,
+      asOf: NOW
+    })
+    expect(q.windows.find((w) => w.name === 'primary')?.usedPercent).toBe(45)
+    recordQuota(
+      codex({
+        state: 'rejected',
+        rejectedWindow: 'primary',
+        overage: false,
+        asOf: NOW + 7,
+        windows: [
+          {
+            name: 'primary',
+            usedPercent: 100,
+            resetsAt: NOW + 1000,
+            rejected: true
+          }
+        ]
+      }),
+      { merge: true }
+    )
+    q = getQuota('codex')!
+    expect(q).toMatchObject({
+      state: 'rejected',
+      rejectedWindow: 'primary',
+      overage: false,
+      asOf: NOW + 7
+    })
+    expect(q.windows).toHaveLength(2)
+  })
+
+  it('drops malformed windows from the file', () => {
+    writeFileSync(
+      file(),
+      JSON.stringify([
+        {
+          ...claude(),
+          windows: [
+            { name: 'five_hour', usedPercent: 5, resetsAt: null },
+            'junk',
+            null,
+            { name: 7, usedPercent: 5, resetsAt: null },
+            { name: 'seven_day', usedPercent: 'lots', resetsAt: null },
+            { name: 'x', usedPercent: null, resetsAt: null }
+          ]
+        }
+      ])
+    )
+    resetQuotaStoreForTests()
+    expect(getQuota('claude-code')?.windows.map((w) => w.name)).toEqual([
+      'five_hour'
+    ])
   })
 
   it('a missing or corrupt file is no records, never a throw', () => {
@@ -83,6 +174,70 @@ describe('quota store', () => {
     await forgetAllQuotas()
     expect(existsSync(file())).toBe(false)
     expect(listQuotas()).toEqual([])
+  })
+})
+
+describe('a model’s own rejection outlives a reading of another model', () => {
+  const opusRejected = claude({
+    state: 'rejected',
+    rejectedWindow: 'seven_day_opus',
+    windows: [
+      { name: 'five_hour', usedPercent: 20, resetsAt: NOW + 3600_000 },
+      { name: 'seven_day', usedPercent: 70, resetsAt: NOW + 86400_000 },
+      {
+        name: 'seven_day_opus',
+        usedPercent: 100,
+        resetsAt: NOW + 2 * 86400_000,
+        model: 'opus',
+        rejected: true
+      }
+    ]
+  })
+  const sonnetAllowed = claude({
+    state: 'ok',
+    asOf: NOW + 60_000,
+    windows: [
+      { name: 'five_hour', usedPercent: 25, resetsAt: NOW + 3600_000 },
+      { name: 'seven_day', usedPercent: 71, resetsAt: NOW + 86400_000 }
+    ]
+  })
+
+  it('a sonnet reading keeps the opus window; opus stays blocked, sonnet runs', () => {
+    recordQuota(opusRejected, {}, NOW)
+    recordQuota(sonnetAllowed, {}, NOW + 60_000)
+    const q = getQuota('claude-code')!
+    expect(q.state).toBe('ok')
+    expect(q.windows.find((w) => w.name === 'five_hour')?.usedPercent).toBe(25)
+    expect(blockedUntil(q, 'opus', NOW + 60_000)?.name).toBe('seven_day_opus')
+    expect(blockedUntil(q, 'claude-sonnet-4-6', NOW + 60_000)).toBeNull()
+    expect(blockedUntil(q, null, NOW + 60_000)).toBeNull()
+  })
+
+  it('after the opus reset it is gone', () => {
+    recordQuota(opusRejected, {}, NOW)
+    const after = NOW + 2 * 86400_000 + 1
+    expect(blockedUntil(getQuota('claude-code'), 'opus', after)).toBeNull()
+    recordQuota({ ...sonnetAllowed, asOf: after }, {}, after)
+    const q = getQuota('claude-code')!
+    expect(q.windows.some((w) => w.name === 'seven_day_opus')).toBe(false)
+    expect(blockedUntil(q, 'opus', after)).toBeNull()
+  })
+
+  it('a window marked rejected blocks even when the record is not, unless overage', () => {
+    const q = claude({
+      state: 'ok',
+      windows: [
+        {
+          name: 'seven_day_opus',
+          usedPercent: 100,
+          resetsAt: NOW + 1000,
+          model: 'opus',
+          rejected: true
+        }
+      ]
+    })
+    expect(blockedUntil(q, 'opus', NOW)?.name).toBe('seven_day_opus')
+    expect(blockedUntil({ ...q, overage: true }, 'opus', NOW)).toBeNull()
   })
 })
 
@@ -187,7 +342,7 @@ describe('formatQuotaForPm', () => {
           {
             name: 'seven_day_opus',
             usedPercent: 100,
-            resetsAt: NOW,
+            resetsAt: NOW + 1000,
             model: 'opus'
           }
         ]
@@ -195,7 +350,50 @@ describe('formatQuotaForPm', () => {
       'claude-code',
       NOW
     )
-    expect(line).toContain('opus only: seven_day_opus 100 % (LIMIT REACHED')
+    expect(line).toContain('opus only: week 100 % (LIMIT REACHED')
+  })
+
+  it('a window past its reset is shown as reset, never as LIMIT REACHED', () => {
+    const line = formatQuotaForPm(
+      claude({
+        state: 'rejected',
+        rejectedWindow: 'five_hour',
+        windows: [
+          {
+            name: 'five_hour',
+            usedPercent: 100,
+            resetsAt: NOW - 60_000,
+            rejected: true
+          },
+          { name: 'seven_day', usedPercent: 95, resetsAt: NOW + 86400_000 }
+        ]
+      }),
+      'claude-code',
+      NOW
+    )
+    expect(line).toMatch(/5-hour: reset at .* \(not re-read since\)/)
+    expect(line).not.toContain('LIMIT REACHED')
+    expect(line).toContain('week 95 %')
+  })
+
+  it('a carried-over rejected window says LIMIT REACHED in an ok record', () => {
+    const line = formatQuotaForPm(
+      claude({
+        state: 'ok',
+        windows: [
+          {
+            name: 'seven_day_opus',
+            usedPercent: 100,
+            resetsAt: NOW + 1000,
+            model: 'opus',
+            rejected: true
+          }
+        ]
+      }),
+      'claude-code',
+      NOW
+    )
+    expect(line).toContain('opus only: week 100 % (LIMIT REACHED')
   })
 })
 
@@ -214,9 +412,34 @@ describe('quotaWindowLabel', () => {
         resetsAt: null,
         model: 'opus'
       })
-    ).toBe('opus only: seven_day_opus')
+    ).toBe('opus only: week')
     expect(
       quotaWindowLabel({ name: 'primary', usedPercent: 0, resetsAt: null })
     ).toBe('primary')
+    expect(
+      quotaWindowLabel({
+        name: 'primary',
+        usedPercent: 0,
+        resetsAt: null,
+        durationMins: 300
+      })
+    ).toBe('5-hour')
+    expect(
+      quotaWindowLabel({
+        name: 'GPT-5.6 Pro secondary',
+        usedPercent: 0,
+        resetsAt: null,
+        durationMins: 10080,
+        model: 'gpt-5.6-pro'
+      })
+    ).toBe('gpt-5.6-pro only: week')
+    expect(
+      quotaWindowLabel({
+        name: 'secondary',
+        usedPercent: 0,
+        resetsAt: null,
+        durationMins: 60
+      })
+    ).toBe('secondary')
   })
 })

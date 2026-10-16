@@ -18,9 +18,11 @@ export function quotaFromCodex(body: Json, now: number): CliQuota | null {
   const windows: CliQuota['windows'] = []
   let reached = false
   let overage = false
+  const accountStopped = body.ordinaryUsageAllowed === false
   const take = (snap: unknown, prefix: string) => {
     if (!isObj(snap)) return
-    if (snap.rateLimitReachedType != null) reached = true
+    const bucketReached = snap.rateLimitReachedType != null
+    if (bucketReached) reached = true
     if (isObj(snap.credits))
       overage ||=
         snap.credits.hasCredits === true || snap.credits.unlimited === true
@@ -28,11 +30,17 @@ export function quotaFromCodex(body: Json, now: number): CliQuota | null {
     for (const k of ['primary', 'secondary'] as const) {
       const w = snap[k]
       if (!isObj(w) || typeof w.usedPercent !== 'number') continue
+      const rejected =
+        (bucketReached && w.usedPercent >= 100) || (!prefix && accountStopped)
       windows.push({
         name: prefix ? `${prefix} ${k}` : k,
         usedPercent: w.usedPercent,
         resetsAt: typeof w.resetsAt === 'number' ? toMs(w.resetsAt) : null,
-        ...(prefix && model ? { model } : {})
+        ...(typeof w.windowDurationMins === 'number'
+          ? { durationMins: w.windowDurationMins }
+          : {}),
+        ...(prefix && model ? { model } : {}),
+        ...(rejected ? { rejected: true } : {})
       })
     }
   }
@@ -43,10 +51,8 @@ export function quotaFromCodex(body: Json, now: number): CliQuota | null {
       if (!isObj(snap) || id === (main && str(main.limitId))) continue
       take(snap, str(snap.limitName) ?? id)
     }
-  if (!windows.length && !reached && body.ordinaryUsageAllowed !== false)
-    return null
-  const state =
-    reached || body.ordinaryUsageAllowed === false ? 'rejected' : 'ok'
+  if (!windows.length && !reached && !accountStopped) return null
+  const state = reached || accountStopped ? 'rejected' : 'ok'
   return {
     cli: 'codex',
     windows,
