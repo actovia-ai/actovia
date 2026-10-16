@@ -975,7 +975,8 @@
       "errorsByModel": "Erros por modelo",
       "activityByHour": "Atividade por hora (UTC)",
       "searchText": "Buscar no texto das mensagens",
-      "logsBySeverity": "Entradas de log por escopo e severidade"
+      "logsBySeverity": "Entradas de log por escopo e severidade",
+      "pmDecisions": "Decisões do PM por grupo"
     },
     "query": {
       "title": "Consulta",

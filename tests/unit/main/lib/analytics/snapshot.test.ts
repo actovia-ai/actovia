@@ -46,7 +46,81 @@ const usage = {
   }
 }
 
+const GROUP_SECRET = 'sk-group-LEAKED-secret-4d3c2b1a'
+const ROUND = '11111111-1111-4111-8111-111111111111'
+const CONV = '22222222-2222-4222-8222-222222222222'
+
 const source = async () => ({
+  groupMessages: [
+    {
+      id: 'g1',
+      conversationId: CONV,
+      role: 'employee',
+      agentId: 'a1',
+      taskId: 't1',
+      roundId: null,
+      content: `report with ${GROUP_SECRET} inside`,
+      createdAt: now
+    },
+    {
+      id: 'g2',
+      conversationId: CONV,
+      role: 'pm',
+      agentId: null,
+      taskId: null,
+      roundId: ROUND,
+      content: 'delegated',
+      createdAt: now
+    }
+  ],
+  roundEvents: [
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 0,
+      kind: 'input',
+      payload: { text: 'go' },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 1,
+      kind: 'tool_call',
+      payload: {
+        toolCallId: 'c1',
+        name: 'delegateTask',
+        args: { instructions: `use ${GROUP_SECRET}` }
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 2,
+      kind: 'tool_result',
+      payload: {
+        toolCallId: 'c1',
+        name: 'delegateTask',
+        text: 'Started task t1',
+        isError: false
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 3,
+      kind: 'usage',
+      payload: {
+        inputTokens: 900,
+        outputTokens: 70,
+        cacheReadTokens: 5,
+        costUsd: 0.0123
+      },
+      createdAt: now
+    }
+  ],
   chats: [
     {
       id: 'c1',
@@ -318,5 +392,43 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
       (await runQuery('select count(*) as n from messages')).rows[0].n
     ).toBe(3)
     expect(JSON.stringify(vi.mocked(logger.warn).mock.calls)).toMatch(/logs/u)
+  }, 60_000)
+
+  it('copies group messages and PM round events, masked, and answers pmDecisions', async () => {
+    const { buildSnapshot } = await import('@main/lib/analytics/snapshot')
+    const { runQuery } = await import('@main/lib/analytics/duckdb')
+    const { maskSecret } = await import('@main/lib/secrets/mask')
+    await buildSnapshot({ source, secrets: async () => [GROUP_SECRET] })
+
+    expect(
+      (await runQuery('select count(*) as n from group_messages')).rows[0].n
+    ).toBe(2)
+    const msgs = await runQuery(
+      "select text from group_messages where role = 'employee'"
+    )
+    expect(JSON.stringify(msgs.rows)).not.toContain('LEAKED')
+    expect(msgs.rows[0].text).toContain(maskSecret(GROUP_SECRET)!)
+
+    const ev = await runQuery(
+      'select tool_name, payload::varchar as p from pm_round_events order by seq'
+    )
+    expect(ev.rows).toHaveLength(4)
+    expect(JSON.stringify(ev.rows)).not.toContain('LEAKED')
+    expect(ev.rows[1].tool_name).toBe('delegateTask')
+    expect(ev.rows[0].tool_name).toBeNull()
+
+    const preset = CHAT_AUDIT_PRESETS.find((p) => p.id === 'pmDecisions')
+    expect(preset).toBeDefined()
+    const out = await runQuery(preset!.sql)
+    expect(out.rows).toHaveLength(1)
+    expect(out.rows[0]).toMatchObject({
+      round_id: ROUND,
+      delegations: 1,
+      refused: 0,
+      waits: 0,
+      input_tokens: 900,
+      output_tokens: 70,
+      cost_usd: 0.0123
+    })
   }, 60_000)
 })

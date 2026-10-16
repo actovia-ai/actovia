@@ -975,7 +975,8 @@
       "errorsByModel": "Fehler pro Modell",
       "activityByHour": "Aktivität nach Stunde (UTC)",
       "searchText": "Nachrichtentext durchsuchen",
-      "logsBySeverity": "Logeinträge nach Bereich & Schweregrad"
+      "logsBySeverity": "Logeinträge nach Bereich & Schweregrad",
+      "pmDecisions": "PM-Entscheidungen nach Gruppe"
     },
     "query": {
       "title": "Abfrage",

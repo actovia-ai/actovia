@@ -11,7 +11,7 @@ import {
 import type { SnapshotMeta } from '@exodus/shared/types/analytics'
 
 import { db } from '../db/db'
-import { chat, message } from '../db/schema'
+import { chat, conversationMessage, message, pmRoundEvent } from '../db/schema'
 import { logger } from '../logger'
 import { getAnalyticsDbPath, getAnalyticsDir, getLogsDir } from '../paths'
 import { scrubSecrets } from '../secrets/scrub'
@@ -54,9 +54,31 @@ export interface MessageSource {
   content: unknown
 }
 
+export interface GroupMessageSource {
+  id: string
+  conversationId: string
+  role: string
+  agentId: string | null
+  taskId: string | null
+  roundId: string | null
+  content: string
+  createdAt: Date
+}
+
+export interface RoundEventSource {
+  conversationId: string
+  roundId: string
+  seq: number
+  kind: string
+  payload: Record<string, unknown>
+  createdAt: Date
+}
+
 export interface SourceRows {
   chats: ChatSource[]
   messages: MessageSource[]
+  groupMessages: GroupMessageSource[]
+  roundEvents: RoundEventSource[]
 }
 
 // ─── Row mappers (pure, unit-tested) ─────────────────────────────────────────
@@ -65,6 +87,8 @@ export interface SourceRows {
 // autocomplete and this loader can never disagree.
 export const CHAT_COLUMNS = CHAT_AUDIT_SCHEMA.chats
 export const MESSAGE_COLUMNS = CHAT_AUDIT_SCHEMA.messages
+export const GROUP_MESSAGE_COLUMNS = CHAT_AUDIT_SCHEMA.group_messages
+export const PM_ROUND_EVENT_COLUMNS = CHAT_AUDIT_SCHEMA.pm_round_events
 export const LOG_COLUMNS = CHAT_AUDIT_SCHEMA.logs
 
 export function toChatRow(c: ChatSource) {
@@ -101,6 +125,39 @@ export function toMessageRow(m: MessageSource) {
     duration_ms: m.durationMs,
     created_at: m.createdAt.toISOString(),
     content: m.content ?? null
+  }
+}
+
+export function toGroupMessageRow(
+  m: GroupMessageSource,
+  secrets: readonly string[]
+) {
+  return {
+    id: m.id,
+    conversation_id: m.conversationId,
+    role: m.role,
+    agent_id: m.agentId,
+    task_id: m.taskId,
+    round_id: m.roundId,
+    text: scrubSecrets(m.content, secrets),
+    created_at: m.createdAt.toISOString()
+  }
+}
+
+export function toRoundEventRow(
+  e: RoundEventSource,
+  secrets: readonly string[]
+) {
+  return {
+    conversation_id: e.conversationId,
+    round_id: e.roundId,
+    seq: e.seq,
+    kind: e.kind,
+    tool_name: typeof e.payload.name === 'string' ? e.payload.name : null,
+    payload: JSON.parse(
+      scrubSecrets(JSON.stringify(e.payload), secrets)
+    ) as unknown,
+    created_at: e.createdAt.toISOString()
   }
 }
 
@@ -148,7 +205,7 @@ export function logsTableSql(stagedFile: string): string {
 // ─── Source ──────────────────────────────────────────────────────────────────
 
 async function readSource(): Promise<SourceRows> {
-  const [chats, messages] = await Promise.all([
+  const [chats, messages, groupMessages, roundEvents] = await Promise.all([
     db
       .select({
         id: chat.id,
@@ -177,9 +234,31 @@ async function readSource(): Promise<SourceRows> {
         createdAt: message.createdAt,
         content: message.content
       })
-      .from(message)
+      .from(message),
+    db
+      .select({
+        id: conversationMessage.id,
+        conversationId: conversationMessage.conversationId,
+        role: conversationMessage.role,
+        agentId: conversationMessage.agentId,
+        taskId: conversationMessage.taskId,
+        roundId: conversationMessage.roundId,
+        content: conversationMessage.content,
+        createdAt: conversationMessage.createdAt
+      })
+      .from(conversationMessage),
+    db
+      .select({
+        conversationId: pmRoundEvent.conversationId,
+        roundId: pmRoundEvent.roundId,
+        seq: pmRoundEvent.seq,
+        kind: pmRoundEvent.kind,
+        payload: pmRoundEvent.payload,
+        createdAt: pmRoundEvent.createdAt
+      })
+      .from(pmRoundEvent)
   ])
-  return { chats, messages }
+  return { chats, messages, groupMessages, roundEvents }
 }
 
 // ─── Build / status ──────────────────────────────────────────────────────────
@@ -251,11 +330,34 @@ export async function buildSnapshot(
   await mkdir(tmp, { recursive: true })
 
   const rows = await (opts.source ?? readSource)()
+  // The logs and the group tables are masked with the current secrets. With
+  // none readable, the logs table is skipped and the group tables are left
+  // empty — never copied unscrubbed (re-review S2 N3).
+  let secrets: string[] | null = null
+  try {
+    secrets = await (opts.secrets ?? currentSecrets)()
+  } catch (err) {
+    logger.warn('analytics', 'logs table skipped: secrets unreadable', {
+      error: err instanceof Error ? err.name : 'unknown'
+    })
+  }
   const staged = {
     chats: { file: join(tmp, 'chats.ndjson'), rows: rows.chats.map(toChatRow) },
     messages: {
       file: join(tmp, 'messages.ndjson'),
       rows: rows.messages.map(toMessageRow)
+    },
+    groupMessages: {
+      file: join(tmp, 'group_messages.ndjson'),
+      rows: secrets
+        ? rows.groupMessages.map((m) => toGroupMessageRow(m, secrets))
+        : []
+    },
+    roundEvents: {
+      file: join(tmp, 'pm_round_events.ndjson'),
+      rows: secrets
+        ? rows.roundEvents.map((e) => toRoundEventRow(e, secrets))
+        : []
     }
   }
   await Promise.all(
@@ -266,17 +368,6 @@ export async function buildSnapshot(
   const stagedLogs = join(tmp, 'logs.ndjson')
   let logsIncluded = false
   try {
-    // The logs table is optional (re-review S2 N3): without the current
-    // secrets to scrub with, the rebuild goes on without it — never with an
-    // unscrubbed copy.
-    let secrets: string[] | null = null
-    try {
-      secrets = await (opts.secrets ?? currentSecrets)()
-    } catch (err) {
-      logger.warn('analytics', 'logs table skipped: secrets unreadable', {
-        error: err instanceof Error ? err.name : 'unknown'
-      })
-    }
     const haveLogs =
       secrets !== null && (await stageLogs(logsDir, stagedLogs, secrets))
     await withReadWrite(async (conn) => {
@@ -294,6 +385,22 @@ export async function buildSnapshot(
           staged.messages.file,
           MESSAGE_COLUMNS,
           staged.messages.rows.length
+        )
+      )
+      await conn.run(
+        loadTableSql(
+          'group_messages',
+          staged.groupMessages.file,
+          GROUP_MESSAGE_COLUMNS,
+          staged.groupMessages.rows.length
+        )
+      )
+      await conn.run(
+        loadTableSql(
+          'pm_round_events',
+          staged.roundEvents.file,
+          PM_ROUND_EVENT_COLUMNS,
+          staged.roundEvents.rows.length
         )
       )
       // A snapshot built before projects were removed still has their table.

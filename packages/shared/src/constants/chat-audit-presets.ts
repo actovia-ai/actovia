@@ -1,7 +1,8 @@
 /**
  * Preset queries for Settings → Developer → Chat Audit. Labels are i18n keys
  * (`settings:chatAudit.presets.<id>`); the SQL is DuckDB dialect against the
- * snapshot tables `chats`, `messages` and `logs` (see
+ * snapshot tables `chats`, `messages`, `logs`, `group_messages` and
+ * `pm_round_events` (see
  * src/main/lib/analytics/snapshot.ts for the columns). Every preset is
  * executed against a fixture snapshot in the unit tests.
  */
@@ -108,5 +109,16 @@ LIMIT 50`
 FROM logs
 GROUP BY ALL
 ORDER BY entries DESC`
+  },
+  {
+    id: 'pmDecisions',
+    sql: `SELECT conversation_id, round_id, min(created_at) AS started_at,
+  count(*) FILTER (WHERE kind = 'tool_call' AND tool_name = 'delegateTask') AS delegations,
+  count(*) FILTER (WHERE kind = 'tool_result' AND tool_name = 'delegateTask' AND (payload->>'text') LIKE 'Not started:%') AS refused,
+  count(*) FILTER (WHERE kind = 'tool_call' AND tool_name = 'waitForQuota') AS waits,
+  max(CAST(payload->>'inputTokens' AS BIGINT)) FILTER (WHERE kind = 'usage') AS input_tokens,
+  max(CAST(payload->>'outputTokens' AS BIGINT)) FILTER (WHERE kind = 'usage') AS output_tokens,
+  max(CAST(payload->>'costUsd' AS DOUBLE)) FILTER (WHERE kind = 'usage') AS cost_usd
+FROM pm_round_events GROUP BY ALL ORDER BY started_at DESC`
   }
 ]

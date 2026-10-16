@@ -970,7 +970,8 @@
       "errorsByModel": "各模型的錯誤",
       "activityByHour": "各小時活動 (UTC)",
       "searchText": "搜尋訊息內容",
-      "logsBySeverity": "各範圍與嚴重程度的記錄數"
+      "logsBySeverity": "各範圍與嚴重程度的記錄數",
+      "pmDecisions": "各群組的 PM 決策"
     },
     "query": {
       "title": "查詢",

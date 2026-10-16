@@ -975,7 +975,8 @@
       "errorsByModel": "Errors by model",
       "activityByHour": "Activity by hour (UTC)",
       "searchText": "Search message text",
-      "logsBySeverity": "Log entries by scope & severity"
+      "logsBySeverity": "Log entries by scope & severity",
+      "pmDecisions": "PM decisions by group"
     },
     "query": {
       "title": "Query",

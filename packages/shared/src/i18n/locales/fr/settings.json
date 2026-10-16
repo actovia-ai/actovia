@@ -975,7 +975,8 @@
       "errorsByModel": "Erreurs par modèle",
       "activityByHour": "Activité par heure (UTC)",
       "searchText": "Rechercher dans les messages",
-      "logsBySeverity": "Entrées de journal par périmètre et gravité"
+      "logsBySeverity": "Entrées de journal par périmètre et gravité",
+      "pmDecisions": "Décisions du PM par groupe"
     },
     "query": {
       "title": "Requête",

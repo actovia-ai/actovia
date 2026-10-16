@@ -35,6 +35,27 @@ export const CHAT_AUDIT_SCHEMA = {
     created_at: 'TIMESTAMP',
     content: 'JSON'
   },
+  /** Philharmonic Group transcripts; `text` has every current secret masked. */
+  group_messages: {
+    id: 'VARCHAR',
+    conversation_id: 'VARCHAR',
+    role: 'VARCHAR',
+    agent_id: 'VARCHAR',
+    task_id: 'VARCHAR',
+    round_id: 'VARCHAR',
+    text: 'VARCHAR',
+    created_at: 'TIMESTAMP'
+  },
+  /** One PM round's decision trail, in `seq` order; `payload` is masked. */
+  pm_round_events: {
+    conversation_id: 'VARCHAR',
+    round_id: 'VARCHAR',
+    seq: 'INTEGER',
+    kind: 'VARCHAR',
+    tool_name: 'VARCHAR',
+    payload: 'JSON',
+    created_at: 'TIMESTAMP'
+  },
   /** A view over ~/.exodus/logs/*.jsonl; typed so ragged `attributes` never break inference. */
   logs: {
     timestamp: 'TIMESTAMP',

@@ -975,7 +975,8 @@
       "errorsByModel": "Errori per modello",
       "activityByHour": "Attività per ora (UTC)",
       "searchText": "Cerca nel testo dei messaggi",
-      "logsBySeverity": "Voci di log per ambito e gravità"
+      "logsBySeverity": "Voci di log per ambito e gravità",
+      "pmDecisions": "Decisioni del PM per gruppo"
     },
     "query": {
       "title": "Query",

@@ -970,7 +970,8 @@
       "errorsByModel": "모델별 오류",
       "activityByHour": "시간대별 활동 (UTC)",
       "searchText": "메시지 본문 검색",
-      "logsBySeverity": "범위·심각도별 로그 항목"
+      "logsBySeverity": "범위·심각도별 로그 항목",
+      "pmDecisions": "그룹별 PM 결정"
     },
     "query": {
       "title": "쿼리",

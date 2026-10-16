@@ -970,7 +970,8 @@
       "errorsByModel": "モデル別エラー",
       "activityByHour": "時間帯別アクティビティ (UTC)",
       "searchText": "メッセージ本文を検索",
-      "logsBySeverity": "スコープ・重大度別ログ件数"
+      "logsBySeverity": "スコープ・重大度別ログ件数",
+      "pmDecisions": "グループ別PMの判断"
     },
     "query": {
       "title": "クエリ",

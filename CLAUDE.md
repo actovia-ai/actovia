@@ -270,7 +270,8 @@ same `CommandLine` the detail page uses); it stacks in a narrow window. Spec:
 Settings → Developer → Chat Audit is a read-only SQL console over a DuckDB
 snapshot of the user's data (`src/main/lib/analytics/`, route
 `/api/v1/analytics`, page `settings-form/chat-audit.tsx`). `snapshot.ts`
-copies `chat` / `message` out of PGlite via NDJSON into
+copies `chat` / `message` (and Philharmonic's `conversation_message` and `pm_round_event` as
+`group_messages` / `pm_round_events`, secrets masked) out of PGlite via NDJSON into
 `~/.exodus/analytics/exodus.duckdb` (usage flattened to `*_tokens` /
 `cost_usd` columns, `content` kept as JSON) and copies
 `~/.exodus/logs/*.jsonl` into a `logs` table; `duckdb.ts` lazy-`import()`s
