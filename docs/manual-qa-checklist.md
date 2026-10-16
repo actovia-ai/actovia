@@ -230,3 +230,56 @@
 - [ ] **P2** 系统开了「减弱动态效果」:动画变成淡入淡出,没有移动
 - [ ] **P2** 机器负载高(同时开 iOS 模拟器等)时流式输出仍然可用
 - [ ] **P2** 全程 Settings → Logger 里没有意料之外的 `error`
+
+---
+
+## Coding agents (Claude Code employees) — spec 2026-10-09
+
+Needs Claude Code ≥ 2.1.294 installed and logged in.
+
+- [ ] Settings › Agents shows Claude Code Ready with its path, version and "claude.ai"; Check re-runs it.
+- [ ] With `claude` renamed away, Check says Not installed; restored, Ready again.
+- [ ] Workforce: a new employee "Claude Code (Haiku)", runs on Claude Code, model haiku, permissions "Ask before changes".
+- [ ] A group with that employee and **no folder**: asking it to build something — the PM says the folder is missing (no CLI is started).
+- [ ] New project… "notes-prototype": `~/Exodus Projects/notes-prototype/.exodus/` exists, with `project.json`.
+- [ ] "Build a single-page notes app in plain HTML": a card appears, steps tick, a Write asks — Allow — the file lands in the project; the card ends Done and the PM summarises.
+- [ ] A second request in the same group: the card continues the same session (the agent remembers the first).
+- [ ] Deny with a reason ("call it app.html"): the agent follows the reason.
+- [ ] A request that makes it ask a question (AskUserQuestion): the rows answer it.
+- [ ] A permission prompt for a long, multi-line Bash command shows the full command, multi-line and scrollable — nothing cut off.
+- [ ] Stop on the card mid-step: the card says Stopped; the group carries on.
+- [ ] Stop the whole group mid-step: the agent is interrupted too.
+- [ ] Quit Exodus mid-step, reopen: the step shows Stopped; a new request resumes the session.
+- [ ] Crash mid-step (kill the Exodus main process with `kill -9` while a step runs), reopen: the card shows Stopped, not Running.
+- [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Exodus resumes.
+- [ ] While Terminal is open, `~/.exodus/run/terminal/` holds a one-off resume script; after Terminal starts it, the script is gone (it deletes itself).
+- [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.exodus/worktrees/…` on an `exodus/…` branch; the branch chip and Worktree switch show.
+- [ ] Open folder… on `~`: refused with the reason.
+- [ ] The folder chip shows the group's folder; move or rename that folder on disk — the chip shows it as missing, and asking the agent says so instead of starting the CLI.
+- [ ] Settings › Agents › projects folder set to `~/.exodus` (or a folder inside it): refused with the reason; the previous value stays.
+- [ ] With the window in the background, a permission prompt raises a notification "… is waiting for you".
+- [ ] Settings › Agents → Agents at once = 1, two parallel steps: the second card says "Waiting for a free slot" until the first ends.
+- [ ] An Exodus employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.
+
+### Who may answer (presence)
+
+- [ ] While a permission prompt is open, from Terminal on the computer: `curl -i -X POST http://127.0.0.1:<port>/api/v1/agents/sessions/<id>/respond` (with a plausible body) gets `403` with code `PRESENCE_REQUIRED` — answering and stopping need the Exodus window or the paired phone, never a bare process on the machine. The same for the stop route.
+- [ ] Answering Allow / Deny from the Exodus window works; answering from the paired phone works.
+- [ ] From the paired phone, Continue in Terminal, Open folder… and changing a group's folder each fail with `403` — they are computer-side actions, desktop only.
+
+## Codex employees — spec 2026-10-10
+
+Needs codex-cli ≥ 0.162.1, logged in (`codex login status`).
+
+- [ ] Settings › Agents shows Codex Ready with its path, version and "ChatGPT"; with Codex logged out, Check says Not logged in.
+- [ ] Workforce: a Codex employee is offered once Codex is Ready (the default appears once; deleting it doesn't bring it back); the editor's permission levels read as Codex behaves; the model field suggests Codex's own models.
+- [ ] In a group with a new project: "create index.html with a hello page" — the card shows the Edit with its full diff; Allow — the file lands; Done.
+- [ ] Deny a file change: the step reports it was declined; no file written.
+- [ ] A command (e.g. `npm init -y`) asks with the full command and folder; Allow runs it.
+- [ ] Mode "Work freely inside the folder…": writes inside the folder don't ask; a network command (e.g. `curl`) asks to go beyond the sandbox, with what it asks for; Allow grants it for that turn only.
+- [ ] Mode "Never ask…": nothing asks; a network command fails inside the sandbox.
+- [ ] Stop during a long command: the card says Stopped; a follow-up step continues the same thread.
+- [ ] Quit mid-step, reopen: the card is Stopped; the next step resumes the thread (Codex remembers).
+- [ ] Continue in Terminal opens `codex resume <thread>` in the folder; the hand-off script deletes itself.
+- [ ] A Claude Code and a Codex employee given parallel steps in one git repo: one shared folder, one worktree.
+- [ ] If Codex asks a question with a secret, the field is a password field and the card doesn't show the value afterwards.

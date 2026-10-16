@@ -2,9 +2,11 @@
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'
+import { CLI_NAMES } from '@exodus/shared/types/agents'
 import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
+import { cliOf } from '../../agents/drivers'
 import {
   addMemberToConversation,
   createConversationMessage,
@@ -22,6 +24,7 @@ import { getSettings } from '../../db/queries'
 import { getAllTeams } from '../../db/team-queries'
 import { mainT } from '../../i18n'
 import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-base'
+import { logger } from '../../logger'
 import { notifyIfBackground } from '../../philharmonic-notifications'
 import { searchKnowledgeBase } from '../calling-tools/search-knowledge-base'
 import { streamFn } from '../kernel/models'
@@ -142,6 +145,15 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     getConversationById(conversationId)
   ])
   const conversationTitle = conversationRow?.title ?? 'Group'
+  // Who the PM may delegate to; a recruit joins it (see createDelegateTaskTool).
+  const roster = employees.map((e) => ({
+    id: e.id,
+    name: e.name,
+    description:
+      e.runtime === 'exodus'
+        ? e.description
+        : `${e.description ?? ''} [Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
+  }))
   const teamNameById = new Map(allTeams.map((t) => [t.id, t.name]))
 
   // PhilharmonicLcm hydrates the LLM history: when within budget it's a
@@ -164,11 +176,24 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   let activePlan = await getActivePlanByConversationId(conversationId)
   if (activePlan && activePlan.plan.status === 'completed') activePlan = null
 
-  // Rewrite the markdown mirror; safe to call after any mutation.
-  const mirrorActivePlan = async () => {
-    const cur = await getActivePlanByConversationId(conversationId)
-    if (cur) await writePlanMirror(conversationId, cur.plan, cur.steps)
+  // The markdown mirror is a copy for the owner: a failed write is logged and
+  // never fails the step or the tool that changed the plan.
+  const mirror = async (write: () => Promise<unknown>) => {
+    try {
+      await write()
+    } catch (error) {
+      logger.warn('philharmonic', 'plan mirror failed', {
+        conversationId,
+        message: error instanceof Error ? error.message : String(error)
+      })
+    }
   }
+  // Rewrite the markdown mirror; safe to call after any mutation.
+  const mirrorActivePlan = () =>
+    mirror(async () => {
+      const cur = await getActivePlanByConversationId(conversationId)
+      if (cur) await writePlanMirror(conversationId, cur.plan, cur.steps)
+    })
 
   // P1-7: createReport pushes here; attached as message parts at turn end so
   // ArtifactCard can render on history reload, not just from the live stream.
@@ -201,7 +226,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         conversationId,
         plan: toPlanDto(created.plan, created.steps)
       })
-      await writePlanMirror(conversationId, created.plan, created.steps)
+      await mirror(() =>
+        writePlanMirror(conversationId, created.plan, created.steps)
+      )
       return {
         planId: created.plan.id,
         steps: created.steps.map((s) => ({
@@ -255,11 +282,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       return { stepId: step.id, ordinal: step.ordinal }
     }),
     createDelegateTaskTool(
-      employees.map((e) => ({
-        id: e.id,
-        name: e.name,
-        description: e.description
-      })),
+      roster,
       async ({ employeeId, instructions, stepId }) => {
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
@@ -289,7 +312,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           retryCount: 0
         })
         try {
-          const output = await runDelegatedTask({
+          const { output, messageId } = await runDelegatedTask({
             taskId: childTask.id,
             agentId: employeeId,
             conversationId,
@@ -297,14 +320,16 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             emit,
             signal
           })
-          // Persist the employee's final output as a chat bubble.
-          await createConversationMessage({
-            conversationId,
-            role: 'employee',
-            agentId: employeeId,
-            content: output,
-            taskId: childTask.id
-          })
+          // Persist the employee's final output as a chat bubble — a coding
+          // agent's step saved its own as it began (its card lives there).
+          if (!messageId)
+            await createConversationMessage({
+              conversationId,
+              role: 'employee',
+              agentId: employeeId,
+              content: output,
+              taskId: childTask.id
+            })
           if (stepId) {
             // Step status moves to "done" only when the PM later calls
             // updatePlanStep — we don't auto-close, so the PM can choose
@@ -340,6 +365,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       const emp = await autoCreateEmployee({ role, skills, name })
       await addMemberToConversation(conversationId, emp.id)
       emit({ type: 'member_joined', conversationId, agentId: emp.id })
+      roster.push({ id: emp.id, name: emp.name, description: null })
       return { id: emp.id, name: emp.name }
     }),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),

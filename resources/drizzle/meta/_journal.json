@@ -120,6 +120,13 @@
       "when": 1792070762916,
       "tag": "0016_drop_full_text_search",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792144349160,
+      "tag": "0017_codex_runtime",
+      "breakpoints": true
     }
   ]
 }

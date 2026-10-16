@@ -1,3 +1,4 @@
+import type { AgentCard } from '@exodus/shared/types/agents'
 import {
   Tick02Icon,
   Loading03Icon,
@@ -8,11 +9,12 @@ import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
-import { Markdown } from '@/components/markdown/markdown'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
+import { AgentCardView } from './agent-card'
+import { BubbleMarkdown } from './bubble-markdown'
 
 interface ArtifactPart {
   artifactId: string
@@ -40,6 +42,10 @@ export interface BubbleModel {
   }>
   /** P1-7: rendered ArtifactCard(s) for the PM's final deliverable. */
   artifacts?: ArtifactPart[]
+  /** A coding agent's run; shown in place of the text for employee messages. */
+  agentCard?: AgentCard
+  /** A newer step of the card's session follows it in the group. */
+  agentCardSuperseded?: boolean
 }
 
 export function GroupMessageBubble({
@@ -150,20 +156,30 @@ export function GroupMessageBubble({
             )}
           </div>
         )}
-        {bubble.text.length > 0 && (
-          <div
-            className={cn(
-              'px-3.5 py-2.5 text-sm leading-relaxed',
-              isUser
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-foreground'
-            )}
-            style={{
-              borderRadius: isUser ? '16px 6px 16px 16px' : '6px 16px 16px 16px'
-            }}
-          >
-            <Markdown src={bubble.text} />
-          </div>
+        {bubble.role === 'employee' && bubble.agentCard ? (
+          <AgentCardView
+            card={bubble.agentCard}
+            messageId={bubble.messageId}
+            superseded={bubble.agentCardSuperseded ?? false}
+          />
+        ) : (
+          bubble.text.length > 0 && (
+            <div
+              className={cn(
+                'px-3.5 py-2.5 text-sm leading-relaxed',
+                isUser
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-foreground'
+              )}
+              style={{
+                borderRadius: isUser
+                  ? '16px 6px 16px 16px'
+                  : '6px 16px 16px 16px'
+              }}
+            >
+              <BubbleMarkdown text={bubble.text} />
+            </div>
+          )
         )}
         {bubble.artifacts &&
           bubble.artifacts.length > 0 &&

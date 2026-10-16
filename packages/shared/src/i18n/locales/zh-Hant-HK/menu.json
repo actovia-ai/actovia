@@ -16,7 +16,8 @@
   },
   "notification": {
     "philharmonicGroupError": "群組「{{title}}」發生錯誤",
-    "philharmonicGroupFinished": "群組「{{title}}」已完成"
+    "philharmonicGroupFinished": "群組「{{title}}」已完成",
+    "agentWaiting": "{{name}} 正在等你"
   },
   "attachment": {
     "saveImageAs": "將圖片另存為…",

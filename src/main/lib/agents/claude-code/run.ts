@@ -1,14 +1,9 @@
 // src/main/lib/agents/claude-code/run.ts
-import { spawn } from 'child_process'
-import { constants, createWriteStream, openSync } from 'fs'
-import { createInterface } from 'readline'
-
 import type { AgentAnswer } from '@exodus/shared/types/agents'
 
 import type { AgentEvent, AgentRun, StartInput } from '../driver'
+import { superviseProcess } from '../process'
 import { parseLine } from './protocol'
-
-const STDERR_KEEP = 4096
 
 export function buildArgs(input: StartInput): string[] {
   const args = [
@@ -33,142 +28,65 @@ export function buildArgs(input: StartInput): string[] {
 export function startClaudeCode(input: StartInput): AgentRun {
   const listeners = new Set<(e: AgentEvent) => void>()
   const pending = new Map<string, Record<string, unknown>>()
-  // Never follow a symlink at the log path (an agent can plant one in its
-  // own cwd); logging is optional, so a failure disables it, not the run.
-  let log: ReturnType<typeof createWriteStream> | null = null
-  try {
-    const fd = openSync(
-      input.logPath,
-      constants.O_WRONLY |
-        constants.O_APPEND |
-        constants.O_CREAT |
-        constants.O_NOFOLLOW,
-      0o600
-    )
-    log = createWriteStream(input.logPath, { fd, autoClose: true })
-    // Logging must never break the run.
-    log.on('error', () => {})
-  } catch {
-    log = null
-  }
   let cliSessionId: string | null = null
-  let alive = true
   let busy = false
-  let stopping = false
   let interruptRequested = false
   let interrupts = 0
-  let stderr = ''
 
   const emit = (e: AgentEvent) => {
     for (const l of Array.from(listeners)) l(e)
   }
 
-  const child = spawn(input.binPath, buildArgs(input), {
+  const proc = superviseProcess({
+    binPath: input.binPath,
+    args: buildArgs(input),
     cwd: input.cwd,
     env: input.env,
-    stdio: ['pipe', 'pipe', 'pipe']
-  })
-
-  const write = (o: unknown): boolean => {
-    if (!alive || !child.stdin.writable) return false
-    child.stdin.write(JSON.stringify(o) + '\n')
-    return true
-  }
-
-  // A dead child surfaces as `exit`; a write to it must not throw.
-  child.stdin.on('error', () => {})
-  child.stdout.on('error', () => {})
-  child.stderr.on('error', () => {})
-
-  const lines = createInterface({ input: child.stdout })
-  let childExited = false
-  let finished = false
-  let stdoutClosed = false
-  let finishNow = () => {}
-  lines.on('close', () => {
-    stdoutClosed = true
-    finishNow()
-  })
-  lines.on('line', (line) => {
-    if (finished) return
-    log?.write(line + '\n')
-    const { events, control } = parseLine(line)
-    if (control) pending.set(control.requestId, control.input)
-    for (const e of events) {
-      if (e.type === 'init') {
-        cliSessionId = e.cliSessionId
-        busy = true
-      }
-      if (e.type === 'turn_end') {
-        busy = false
-        pending.clear()
-        if (interruptRequested) {
-          interruptRequested = false
-          emit({ ...e, interrupted: true })
-          continue
+    logPath: input.logPath,
+    onLine(line) {
+      const { events, control } = parseLine(line)
+      if (control) pending.set(control.requestId, control.input)
+      for (const e of events) {
+        if (e.type === 'init') {
+          cliSessionId = e.cliSessionId
+          busy = true
         }
+        if (e.type === 'turn_end') {
+          busy = false
+          pending.clear()
+          if (interruptRequested) {
+            interruptRequested = false
+            emit({ ...e, interrupted: true })
+            continue
+          }
+        }
+        emit(e)
       }
-      emit(e)
+    },
+    onExit(info) {
+      pending.clear()
+      busy = false
+      emit({ type: 'exit', ...info })
     }
   })
-
-  child.stderr.on('data', (d: Buffer) => {
-    stderr = (stderr + d.toString()).slice(-STDERR_KEEP)
-  })
-
-  let exitCode: number | null = null
-  let exitMessage: string | undefined
-  let settle: () => void = () => {}
-  const settled = new Promise<void>((r) => (settle = r))
-  // `exit` is the last event: it waits for stdout to drain (so no line is lost
-  // and no event follows it), but not for a grandchild holding the pipe open.
-  const finish = () => {
-    if (finished) return
-    finished = true
-    pending.clear()
-    log?.end()
-    emit({
-      type: 'exit',
-      code: exitCode,
-      stderrTail: (exitMessage ?? stderr).trim(),
-      expected: stopping
-    })
-    settle()
-  }
-  const onChildGone = (code: number | null, message?: string) => {
-    if (childExited) return
-    childExited = true
-    alive = false
-    busy = false
-    exitCode = code
-    exitMessage = message
-    if (message !== undefined) return finish()
-    if (stdoutClosed) return finish()
-    const timer = setTimeout(finish, 1500)
-    finishNow = () => {
-      clearTimeout(timer)
-      finish()
-    }
-  }
-  child.on('error', (err) => onChildGone(null, err.message))
-  child.on('exit', (code) => onChildGone(code))
 
   return {
     get cliSessionId() {
       return cliSessionId
     },
     get alive() {
-      return alive
+      return proc.alive
     },
     get busy() {
-      return busy
+      // A gone child is not busy, though its last lines may still drain.
+      return busy && proc.alive
     },
     on(listener) {
       listeners.add(listener)
       return () => listeners.delete(listener)
     },
     send(text) {
-      const ok = write({
+      const ok = proc.write({
         type: 'user',
         message: { role: 'user', content: text }
       })
@@ -177,7 +95,7 @@ export function startClaudeCode(input: StartInput): AgentRun {
     },
     respond(requestId, answer: AgentAnswer) {
       const original = pending.get(requestId)
-      if (!original || !alive) return false
+      if (!original || !proc.alive) return false
       const response =
         answer.kind === 'deny'
           ? {
@@ -187,11 +105,20 @@ export function startClaudeCode(input: StartInput): AgentRun {
           : answer.kind === 'answers'
             ? {
                 behavior: 'allow',
-                updatedInput: { ...original, answers: answer.answers }
+                updatedInput: {
+                  ...original,
+                  // One string per question, picks joined as Claude Code asks.
+                  answers: Object.fromEntries(
+                    Object.entries(answer.answers).map(([k, v]) => [
+                      k,
+                      Array.isArray(v) ? v.join(', ') : v
+                    ])
+                  )
+                }
               }
             : { behavior: 'allow', updatedInput: original }
       if (
-        !write({
+        !proc.write({
           type: 'control_response',
           response: { subtype: 'success', request_id: requestId, response }
         })
@@ -204,23 +131,14 @@ export function startClaudeCode(input: StartInput): AgentRun {
     interrupt() {
       if (!busy) return false
       interruptRequested = true
-      return write({
+      return proc.write({
         type: 'control_request',
         request_id: `interrupt-${++interrupts}`,
         request: { subtype: 'interrupt' }
       })
     },
     stop() {
-      if (childExited) return settled
-      stopping = true
-      child.stdin.end()
-      const term = setTimeout(() => !childExited && child.kill('SIGTERM'), 1500)
-      const kill = setTimeout(() => !childExited && child.kill('SIGKILL'), 3000)
-      void settled.then(() => {
-        clearTimeout(term)
-        clearTimeout(kill)
-      })
-      return settled
+      return proc.stop()
     }
   }
 }

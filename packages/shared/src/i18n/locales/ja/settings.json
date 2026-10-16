@@ -77,6 +77,9 @@
     "computerUse": {
       "title": "Computer Use"
     },
+    "agents": {
+      "title": "エージェント"
+    },
     "dataControls": {
       "title": "データ管理"
     },

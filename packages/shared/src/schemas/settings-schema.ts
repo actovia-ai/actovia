@@ -161,7 +161,9 @@ export const AgentsSettingsSchema = z.object({
   keepAliveMinutes: formNumber(z.number().int().gte(0).lte(120)).nullish(),
   worktrees: z.boolean().default(true),
   /** A path the owner set by hand, per CLI id; empty = look it up. */
-  cliPaths: z.record(z.string(), z.string()).default({})
+  cliPaths: z.record(z.string(), z.string()).default({}),
+  /** Per CLI: its default employee was added once; never again (the owner may delete it). Server-owned. */
+  defaultEmployeesCreated: z.record(z.string(), z.boolean()).optional()
 })
 export type AgentsSettings = z.infer<typeof AgentsSettingsSchema>
 

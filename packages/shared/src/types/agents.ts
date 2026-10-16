@@ -1,12 +1,15 @@
 /** Who runs an employee's turn: Exodus' own loop, or a CLI on the owner's machine. */
-export const AGENT_RUNTIMES = ['exodus', 'claude-code'] as const
+export const AGENT_RUNTIMES = ['exodus', 'claude-code', 'codex'] as const
 export type AgentRuntime = (typeof AGENT_RUNTIMES)[number]
 
-/** The CLIs Exodus can drive. Codex joins in phase 2. */
-export const CLI_IDS = ['claude-code'] as const
+/** The CLIs Exodus can drive. */
+export const CLI_IDS = ['claude-code', 'codex'] as const
 export type CliId = (typeof CLI_IDS)[number]
 
-export const CLI_NAMES: Record<CliId, string> = { 'claude-code': 'Claude Code' }
+export const CLI_NAMES: Record<CliId, string> = {
+  'claude-code': 'Claude Code',
+  codex: 'Codex'
+}
 
 /** Offered permission modes; `bypassPermissions` is deliberately absent. */
 export const PERMISSION_MODES = ['default', 'acceptEdits', 'auto'] as const
@@ -28,6 +31,8 @@ export interface CliStatus {
   authMethod: string | null
   /** The CLI's own words when not ready (an error, stderr's tail). */
   detail: string | null
+  /** Model ids the CLI reported; null when unknown. */
+  models: string[] | null
   checkedAt: number
 }
 
@@ -49,6 +54,12 @@ export interface AgentCardStep {
 }
 
 export interface AgentQuestion {
+  /** Codex keys answers by id; Claude Code leaves it unset (answers keyed by question text). */
+  id?: string
+  /** Free text is offered as an extra choice (Codex); Claude Code always offers it. */
+  isOther?: boolean
+  /** The answer is a secret: never stored in the card, the DB or a log. */
+  isSecret?: boolean
   question: string
   header?: string
   multiSelect: boolean
@@ -70,7 +81,8 @@ export type AgentPrompt =
 export type AgentAnswer =
   | { kind: 'allow' }
   | { kind: 'deny'; reason?: string }
-  | { kind: 'answers'; answers: Record<string, string> }
+  /** Codex takes one answer per pick (a list); Claude Code one string per question. */
+  | { kind: 'answers'; answers: Record<string, string | string[]> }
 
 /** What an employee message shows for a CLI run; also its persisted `parts[0]`. */
 export interface AgentCard {

@@ -77,6 +77,18 @@
     "attachmentPreview": {
       "removeAria": "移除 {{name}}"
     },
+    "folder": {
+      "none": "沒有資料夾",
+      "recent": "最近",
+      "new": "新增專案…",
+      "namePlaceholder": "輸入專案名稱後按 Enter",
+      "open": "開啟資料夾…",
+      "worktree": "工作樹",
+      "failed": "無法變更資料夾",
+      "listFailed": "無法載入最近的專案",
+      "refused": "無法使用此資料夾",
+      "missing": "{{name}} — 找不到資料夾；請用「開啟資料夾…」重新選擇"
+    },
     "uploader": {
       "attachAria": "附加圖片",
       "s3FallbackTitle": "S3 上傳失敗，改用內嵌資料",
@@ -193,6 +205,32 @@
         "memory": "記憶（唯讀）",
         "noMemory": "尚無累積的記憶"
       }
+    },
+    "runtime": {
+      "label": "執行於",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "模型",
+      "default": "預設(App 的模型)",
+      "cliDefault": "CLI 的預設值",
+      "cliHint": "使用 CLI 的名稱:opus、sonnet、haiku,或完整的模型 ID。"
+    },
+    "permission": {
+      "label": "權限",
+      "hint": "不需詢問你即可執行的操作。其他一律會先詢問。",
+      "default": "變更前先詢問",
+      "acceptEdits": "可自由編輯檔案,執行指令前詢問",
+      "auto": "自動(由 CLI 判斷何者安全)",
+      "codex": {
+        "default": "每次執行指令和修改檔案前都先詢問",
+        "acceptEdits": "在資料夾內自由工作;超出資料夾時先詢問",
+        "auto": "從不詢問;僅限資料夾內,無網路",
+        "hint": "Codex 一律在限定於群組資料夾的沙箱中運作。"
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "附加到每項任務的指示"
     }
   },
   "teams": {
@@ -283,6 +321,76 @@
       "deleteEmployeeFailed": "無法刪除此員工",
       "saveTeamFailed": "無法儲存此團隊",
       "deleteTeamFailed": "無法刪除此團隊"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "程式碼代理是由你安裝並已登入的 CLI 所執行的 Philharmonic 員工。Exodus 會在群組的資料夾中啟動 CLI、顯示它在做什麼，並在它每次提問時停下來等你回應。",
+      "clisTitle": "在這台 Mac 上",
+      "runTitle": "執行方式",
+      "projectsDir": {
+        "label": "專案資料夾",
+        "description": "新專案會建立在這裡，每個專案的筆記與記錄也都保存在這裡，即使工作是在你開啟的資料夾中進行。",
+        "choose": "選擇…"
+      },
+      "maxRunning": {
+        "label": "同時執行的代理數",
+        "description": "其餘步驟會等待空位。每個代理都會使用你的電腦與方案。"
+      },
+      "keepAlive": {
+        "label": "讓代理保持待命（分鐘）",
+        "description": "一個步驟結束後，行程會等待這段時間，讓下一個步驟立即開始。0 表示立即停止。"
+      },
+      "worktrees": {
+        "label": "獨立的 worktree",
+        "description": "當兩個代理同時在同一個 git 儲存庫中工作時，各自會有自己的 worktree 與分支。合併由你決定。"
+      },
+      "safety": "程式碼代理以自己的權限在你指定的資料夾中執行。Exodus 絕不會代你回答它們的問題，或核准它們的操作。"
+    },
+    "cli": {
+      "check": "檢查",
+      "notFound": "在這台 Mac 上找不到",
+      "state": {
+        "ready": "就緒",
+        "notInstalled": "未安裝",
+        "broken": "已損毀",
+        "tooOld": "版本過舊",
+        "loggedOut": "未登入"
+      },
+      "hint": {
+        "install": "安裝後按「檢查」。",
+        "reinstall": "啟動程式存在，但它要啟動的程式不見了，請重新安裝。",
+        "update": "更新到最新版本後按「檢查」。",
+        "login": "在「終端機」中執行一次並登入，然後按「檢查」。"
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} 正在等你"
+    },
+    "card": {
+      "state": {
+        "queued": "等待空位",
+        "working": "工作中",
+        "waiting": "等待你回覆",
+        "done": "完成",
+        "stopped": "已停止",
+        "failed": "失敗"
+      },
+      "moreSteps_other": "較早的 {{count}} 個步驟",
+      "wantsTo": "{{name}} 想使用 {{tool}}",
+      "reasonPlaceholder": "告訴它原因（選填，拒絕時傳送）",
+      "allow": "允許",
+      "deny": "拒絕",
+      "other": "其他…",
+      "secretPlaceholder": "機密:會傳送給代理,不會儲存",
+      "submit": "回答",
+      "answerFailed": "你的回答未能送達",
+      "stop": "停止",
+      "continueInTerminal": "在終端機繼續",
+      "terminalFailed": "無法開啟終端機",
+      "stopFailed": "無法停止",
+      "folderFailed": "無法開啟資料夾",
+      "inTerminal": "已在終端機繼續 — Exodus 會在下一步重新接手。"
     }
   }
 }

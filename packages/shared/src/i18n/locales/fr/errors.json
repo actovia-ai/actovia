@@ -67,7 +67,9 @@
     "APP_LOCKED": "L'application est verrouillée.",
     "APPROVAL_NOT_FOUND": "Cette demande n’attend plus de réponse.",
     "RUN_NOT_FOUND": "Cette réponse ne fait plus partie de ce chat.",
-    "ATTEMPT_LOCKED": "La conversation a continué : cette réponse ne peut plus être échangée."
+    "ATTEMPT_LOCKED": "La conversation a continué : cette réponse ne peut plus être échangée.",
+    "AGENT_PROMPT_GONE": "Cette demande a déjà reçu une réponse, ou Claude Code a continué.",
+    "AGENT_NOT_RUNNING": "Claude Code n'est pas en cours d'exécution pour cette étape."
   },
   "routeBoundary": {
     "title": "Une erreur est survenue",

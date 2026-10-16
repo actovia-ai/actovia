@@ -13,7 +13,17 @@ app.post('/api/v1/chat/approval', (c) => c.text('answered'))
 app.get('/api/v1/devices', (c) => c.text('devices'))
 app.post('/api/v1/devices/pairing', (c) => c.text('pairing open'))
 app.post('/api/v1/chat', (c) => c.text('chat'))
+app.all('/api/v1/agents/*', (c) => c.text('agents'))
+app.all('/api/v1/projects/*', (c) => c.text('projects'))
+app.all('/api/v1/philharmonic/agents/*', (c) => c.text('employees'))
+app.all('/api/v1/philharmonic/agents', (c) => c.text('employees'))
+app.all('/api/v1/projects', (c) => c.text('projects'))
 app.get('/api/v1/devices-and-more', (c) => c.text('not devices'))
+app.all('/api/v1/philharmonic/conversations/*', (c) => c.text('groups'))
+app.all('/api/v1/philharmonic/tasks', (c) => c.text('tasks'))
+app.all('/api/v1/philharmonic/tasks/*', (c) => c.text('tasks'))
+app.all('/api/v1/philharmonic/teams', (c) => c.text('teams'))
+app.all('/api/v1/philharmonic/teams/*', (c) => c.text('teams'))
 
 const withToken = { headers: { [PRESENCE_HEADER]: getPresenceToken() } }
 
@@ -55,6 +65,57 @@ describe('presenceGate', () => {
       200
     )
     expect((await app.request('/api/v1/devices-and-more')).status).toBe(200)
+  })
+
+  it.each([
+    ['POST', '/api/v1/agents/sessions/s1/respond'],
+    ['POST', '/api/v1/agents/sessions/s1/interrupt'],
+    ['POST', '/api/v1/agents/clis/claude-code/check'],
+    ['POST', '/api/v1/projects'],
+    ['PUT', '/api/v1/projects/conversations/c1'],
+    ['PATCH', '/api/v1/projects/p1'],
+    ['POST', '/api/v1/philharmonic/agents'],
+    ['PUT', '/api/v1/philharmonic/agents/a1'],
+    ['DELETE', '/api/v1/philharmonic/agents/a1'],
+    // A group message or an answer to the PM can set an `auto` agent to work.
+    ['POST', '/api/v1/philharmonic/conversations/c1/messages'],
+    ['POST', '/api/v1/philharmonic/conversations/c1/respond'],
+    // Another door to the PM: a scheduled task's run is a PM run…
+    ['POST', '/api/v1/philharmonic/tasks'],
+    ['PATCH', '/api/v1/philharmonic/tasks/t1'],
+    // …and a team's prompt reaches its members.
+    ['POST', '/api/v1/philharmonic/teams'],
+    ['PUT', '/api/v1/philharmonic/teams/t1'],
+    ['DELETE', '/api/v1/philharmonic/teams/t1'],
+    // Deleting a group deletes its scheduled tasks.
+    ['DELETE', '/api/v1/philharmonic/conversations/c1']
+  ])('%s %s needs the window token on loopback', async (method, path) => {
+    const res = await app.request(path, { method })
+    expect(res.status).toBe(403)
+    expect((await res.json()).error.code).toBe('PRESENCE_REQUIRED')
+    expect((await app.request(path, { method, ...withToken })).status).toBe(200)
+    expect(
+      (await app.request(path, { method }, { listener: 'lan' })).status
+    ).toBe(200)
+  })
+
+  it('a group’s other routes and its history read stay as they were', async () => {
+    for (const [method, path] of [
+      ['GET', '/api/v1/philharmonic/conversations/c1/messages'],
+      ['POST', '/api/v1/philharmonic/conversations/c1/interrupt'],
+      ['POST', '/api/v1/philharmonic/conversations'],
+      ['PUT', '/api/v1/philharmonic/conversations/c1'],
+      ['GET', '/api/v1/philharmonic/tasks/upcoming'],
+      ['GET', '/api/v1/philharmonic/tasks/recurring'],
+      ['GET', '/api/v1/philharmonic/teams']
+    ])
+      expect((await app.request(path, { method })).status, path).toBe(200)
+  })
+
+  it('reads of agents and projects stay open', async () => {
+    expect((await app.request('/api/v1/agents/clis')).status).toBe(200)
+    expect((await app.request('/api/v1/projects')).status).toBe(200)
+    expect((await app.request('/api/v1/philharmonic/agents')).status).toBe(200)
   })
 
   it('the token is stable for the launch and compared exactly', () => {

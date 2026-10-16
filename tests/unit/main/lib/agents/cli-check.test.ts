@@ -1,5 +1,5 @@
 // tests/unit/main/lib/agents/cli-check.test.ts
-import { chmodSync, mkdtempSync, writeFileSync } from 'fs'
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -7,6 +7,8 @@ import {
   checkCli,
   compareVersions,
   findOnPath,
+  listCodexModels,
+  parseCodexLoginStatus,
   type CheckDeps
 } from '@main/lib/agents/cli-check'
 import { describe, expect, it, vi } from 'vitest'
@@ -14,9 +16,9 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@main/lib/db/queries', () => ({ getSettings: vi.fn() }))
 vi.mock('@main/lib/logger', () => ({ logger: { warn: vi.fn() } }))
 
-function fakeBin(script: string): string {
+function fakeBin(script: string, name = 'claude'): string {
   const dir = mkdtempSync(join(tmpdir(), 'fake-cli-'))
-  const file = join(dir, 'claude')
+  const file = join(dir, name)
   writeFileSync(file, `#!/bin/sh\n${script}\n`)
   chmodSync(file, 0o755)
   return dir
@@ -27,10 +29,39 @@ const GOOD = `case "$1" in
   auth) echo '{"loggedIn": true, "authMethod": "claude.ai", "apiProvider": "firstParty"}';;
 esac`
 
-function deps(dir: string, override: string | null = null): CheckDeps {
+const codexBin = (version: string, login: string, loginExit = 0) =>
+  fakeBin(
+    `case "$1" in --version) echo "codex-cli ${version}";; login) echo "${login}" >&2; exit ${loginExit};; esac`,
+    'codex'
+  )
+
+/** A Node script standing in for `codex app-server`, answering by `reply(msg)`. */
+function fakeAppServer(reply: string): string {
+  const dir = mkdtempSync(join(tmpdir(), 'fake-app-server-'))
+  const file = join(dir, 'codex')
+  writeFileSync(
+    file,
+    `#!${process.execPath}
+const out = (o) => process.stdout.write(JSON.stringify(o) + '\\n')
+require('readline').createInterface({ input: process.stdin }).on('line', (l) => {
+  const m = JSON.parse(l)
+  ${reply}
+})
+`
+  )
+  chmodSync(file, 0o755)
+  return file
+}
+
+function deps(
+  dir: string,
+  override: string | null = null,
+  listModels: CheckDeps['listModels'] = () => Promise.resolve(null)
+): CheckDeps {
   const real = {
     env: async () => ({ PATH: `${dir}:/usr/bin:/bin` }),
-    overridePath: async () => override
+    overridePath: async () => override,
+    listModels
   }
   return {
     ...real,
@@ -108,4 +139,145 @@ describe('CLI check', () => {
     )
     expect(s.state).toBe('ready')
   })
+
+  it('a ready Claude Code reports no models', async () => {
+    const dir = fakeBin(GOOD)
+    const s = await checkCli('claude-code', deps(dir))
+    expect(s.models).toBeNull()
+  })
+
+  it('reads codex login status', () => {
+    expect(parseCodexLoginStatus(0, 'Logged in using API key')).toEqual({
+      loggedIn: true,
+      authMethod: 'API key'
+    })
+    const key = parseCodexLoginStatus(
+      0,
+      'Logged in using an API key - sk-proj-***ABCDE'
+    )
+    expect(key).toEqual({ loggedIn: true, authMethod: 'API key' })
+    expect(JSON.stringify(key)).not.toMatch(/sk-|ABCDE/u)
+    expect(parseCodexLoginStatus(0, 'Logged in using ChatGPT')).toEqual({
+      loggedIn: true,
+      authMethod: 'ChatGPT'
+    })
+    expect(
+      parseCodexLoginStatus(0, 'Logged in using a personal access token - x')
+        .authMethod
+    ).toBe('personal access token')
+    expect(
+      parseCodexLoginStatus(0, 'Logged in using Amazon Bedrock (us-east-1)')
+        .authMethod
+    ).toBe('Amazon Bedrock')
+    expect(
+      parseCodexLoginStatus(
+        0,
+        'Logged in using some new way <x>; with far too many words in it to keep - secret'
+      ).authMethod
+    ).toBe('some new way x with far too many words i')
+    expect(parseCodexLoginStatus(1, 'Not logged in')).toEqual({
+      loggedIn: false,
+      authMethod: null
+    })
+    expect(parseCodexLoginStatus(0, 'Not logged in')).toMatchObject({
+      loggedIn: false
+    })
+  })
+
+  it('Codex is ready when new enough and logged in, with its models', async () => {
+    const dir = codexBin('0.162.1', 'Logged in using ChatGPT')
+    const asked: string[] = []
+    const s = await checkCli(
+      'codex',
+      deps(dir, null, (id, path) => {
+        asked.push(`${id} ${path}`)
+        return Promise.resolve(['gpt-x'])
+      })
+    )
+    expect(s).toMatchObject({
+      state: 'ready',
+      version: '0.162.1',
+      authMethod: 'ChatGPT',
+      path: join(dir, 'codex'),
+      models: ['gpt-x']
+    })
+    expect(asked).toEqual([`codex ${join(dir, 'codex')}`])
+  })
+
+  it('Codex below 0.162.1 is too old', async () => {
+    const dir = codexBin('0.150.0', 'Logged in using ChatGPT')
+    expect((await checkCli('codex', deps(dir))).state).toBe('too_old')
+  })
+
+  it('Codex logged out says so, in its own words', async () => {
+    const dir = codexBin('0.162.1', 'Not logged in', 1)
+    const s = await checkCli('codex', deps(dir))
+    expect(s).toMatchObject({ state: 'logged_out', models: null })
+    expect(s.detail).toMatch(/Not logged in/u)
+  })
+
+  it('a failed Codex login status never shows part of a key', async () => {
+    const dir = codexBin(
+      '0.162.1',
+      'Logged in using an API key - sk-proj-***ABCD',
+      1
+    )
+    const s = await checkCli('codex', deps(dir))
+    expect(s.state).toBe('logged_out')
+    expect(s.detail).toBe('Logged in using API key')
+    expect(s.detail).not.toMatch(/sk-proj|ABCD/u)
+  })
+
+  it('lists Codex models from a short-lived app-server, hidden ones left out', async () => {
+    const bin = fakeAppServer(`
+  if (m.method === 'initialize') out({ id: m.id, result: {} })
+  if (m.method === 'model/list') out({ id: m.id, result: { data: [
+    { id: 'a', model: 'gpt-a', hidden: false },
+    { id: 'b', model: 'gpt-b', hidden: true },
+    { id: 'gpt-c', hidden: false },
+    { id: 'd', model: 'gpt-a', hidden: false },
+    { id: 'e', model: '--yolo', hidden: false },
+    { id: 'f', model: 'gpt x; rm', hidden: false }
+  ], nextCursor: null } })`)
+    expect(await listCodexModels(bin, { PATH: '/usr/bin:/bin' })).toEqual([
+      'gpt-a',
+      'gpt-c'
+    ])
+  })
+
+  it('a refused or silent model list is unknown, never a failure', async () => {
+    const refusing = fakeAppServer(`
+  if (m.method === 'initialize') out({ id: m.id, result: {} })
+  if (m.method === 'model/list') out({ id: m.id, error: { message: 'no' } })`)
+    expect(await listCodexModels(refusing, {})).toBeNull()
+    expect(await listCodexModels('/nonexistent/codex', {})).toBeNull()
+  })
+
+  it('a silent app-server times out to null and is ended, not left running', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fake-app-server-'))
+    const pidFile = join(dir, 'pid')
+    const file = join(dir, 'codex')
+    // Ignores stdin's end and SIGTERM is its only way out.
+    writeFileSync(
+      file,
+      `#!${process.execPath}\nrequire('fs').writeFileSync(${JSON.stringify(pidFile)}, String(process.pid))\nsetInterval(() => {}, 1000)\n`
+    )
+    chmodSync(file, 0o755)
+    expect(await listCodexModels(file, {}, 1500)).toBeNull()
+    const pid = Number(readFileSync(pidFile, 'utf8'))
+    const alive = () => {
+      try {
+        process.kill(pid, 0)
+        return true
+      } catch {
+        return false
+      }
+    }
+    const until = Date.now() + 5000
+    while (alive() && Date.now() < until)
+      await new Promise((r) => {
+        setTimeout(r, 100)
+      })
+    expect(alive()).toBe(false)
+  }, 10_000)
 })

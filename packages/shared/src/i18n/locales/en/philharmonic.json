@@ -77,6 +77,18 @@
     "attachmentPreview": {
       "removeAria": "Remove {{name}}"
     },
+    "folder": {
+      "none": "No folder",
+      "recent": "Recent",
+      "new": "New project…",
+      "namePlaceholder": "Project name, then Enter",
+      "open": "Open folder…",
+      "worktree": "Worktree",
+      "failed": "Could not change the folder",
+      "listFailed": "Could not load recent projects",
+      "refused": "This folder can't be used",
+      "missing": "{{name}} — folder missing; choose it again with Open folder…"
+    },
     "uploader": {
       "attachAria": "Attach images",
       "s3FallbackTitle": "S3 upload failed, using inline data",
@@ -194,6 +206,32 @@
         "memory": "Memory (read-only)",
         "noMemory": "No accumulated memory yet"
       }
+    },
+    "runtime": {
+      "label": "Runs on",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Model",
+      "default": "Default (the app's model)",
+      "cliDefault": "The CLI's default",
+      "cliHint": "As the CLI names it: opus, sonnet, haiku, or a full model id."
+    },
+    "permission": {
+      "label": "Permissions",
+      "hint": "What it may do without asking you. It always asks for anything else.",
+      "default": "Ask before changes",
+      "acceptEdits": "Edit files freely, ask before commands",
+      "auto": "Auto (the CLI decides what is safe)",
+      "codex": {
+        "default": "Ask before every command and file change",
+        "acceptEdits": "Work freely inside the folder; ask to go beyond it",
+        "auto": "Never ask; only inside the folder, no network",
+        "hint": "Codex always works in a sandbox limited to the group's folder."
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "Instructions added to every task"
     }
   },
   "teams": {
@@ -287,6 +325,77 @@
       "deleteEmployeeFailed": "Could not delete the employee",
       "saveTeamFailed": "Could not save the team",
       "deleteTeamFailed": "Could not delete the team"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Exodus starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
+      "clisTitle": "On this Mac",
+      "runTitle": "How they run",
+      "projectsDir": {
+        "label": "Projects folder",
+        "description": "New projects are created here, and every project keeps its notes and logs here — even when the work happens in a folder you opened.",
+        "choose": "Choose…"
+      },
+      "maxRunning": {
+        "label": "Agents at once",
+        "description": "More steps wait for a free slot. Each one uses your machine and your plan."
+      },
+      "keepAlive": {
+        "label": "Keep an agent ready (minutes)",
+        "description": "After a step, its process waits this long so the next step starts at once. 0 stops it right away."
+      },
+      "worktrees": {
+        "label": "Separate worktrees",
+        "description": "When two agents work in the same git repository at once, each gets its own worktree and branch. Merging is up to you."
+      },
+      "safety": "Coding agents run with their own permissions, in the folder you give them. Exodus never answers their questions or approves their actions for you."
+    },
+    "cli": {
+      "check": "Check",
+      "notFound": "Not found on this Mac",
+      "state": {
+        "ready": "Ready",
+        "notInstalled": "Not installed",
+        "broken": "Broken",
+        "tooOld": "Too old",
+        "loggedOut": "Not logged in"
+      },
+      "hint": {
+        "install": "Install it, then press Check.",
+        "reinstall": "Its launcher is there but the program it starts is missing — reinstall it.",
+        "update": "Update it to the latest version, then press Check.",
+        "login": "Run it once in Terminal and log in, then press Check."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} is waiting for you"
+    },
+    "card": {
+      "state": {
+        "queued": "Waiting for a free slot",
+        "working": "Working",
+        "waiting": "Waiting for you",
+        "done": "Done",
+        "stopped": "Stopped",
+        "failed": "Failed"
+      },
+      "moreSteps_one": "{{count}} earlier step",
+      "moreSteps_other": "{{count}} earlier steps",
+      "wantsTo": "{{name}} wants to use {{tool}}",
+      "reasonPlaceholder": "Tell it why (optional, sent if you deny)",
+      "allow": "Allow",
+      "deny": "Deny",
+      "other": "Other…",
+      "secretPlaceholder": "Secret — sent to the agent, not saved",
+      "submit": "Answer",
+      "answerFailed": "Your answer didn't reach it",
+      "stop": "Stop",
+      "continueInTerminal": "Continue in Terminal",
+      "terminalFailed": "Could not open Terminal",
+      "stopFailed": "Couldn't stop it",
+      "folderFailed": "Couldn't open the folder",
+      "inTerminal": "Continued in Terminal — Exodus picks it up again on its next step."
     }
   }
 }

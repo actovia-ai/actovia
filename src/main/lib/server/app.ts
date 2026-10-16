@@ -18,6 +18,7 @@ import {
   presenceGate,
   traceMiddleware
 } from './middlewares'
+import agentsRouter from './routes/agents'
 import analyticsRouter from './routes/analytics'
 import artifactSandboxRouter from './routes/artifact-sandbox'
 import artifactsRouter from './routes/artifacts'
@@ -42,6 +43,7 @@ import mediaRouter from './routes/media'
 import memoryRouter from './routes/memory'
 import pairRouter from './routes/pair'
 import philharmonicRouter, { emitToAll } from './routes/philharmonic'
+import projectsRouter from './routes/projects'
 import s3UploaderRouter from './routes/s3-uploader'
 import settingsRouter from './routes/settings'
 import skillsRouter from './routes/skills'
@@ -143,6 +145,8 @@ export function createApp() {
   v1.route('/pair', pairRouter)
   v1.route('/devices', devicesRouter)
   v1.route('/workspace', workspaceRouter)
+  v1.route('/agents', agentsRouter)
+  v1.route('/projects', projectsRouter)
   app.route('/api/v1', v1)
 
   // Ping

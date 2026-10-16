@@ -20,6 +20,7 @@ export const SETTINGS_TAB_SLUGS: Record<SettingsLabel, string> = {
   [SettingsLabel.DeepResearch]: 'deep-research',
   [SettingsLabel.KnowledgeBase]: 'knowledge-base',
   [SettingsLabel.ComputerUse]: 'computer-use',
+  [SettingsLabel.Agents]: 'agents',
   [SettingsLabel.McpServers]: 'mcp-servers',
   [SettingsLabel.SkillsMarket]: 'skills-market',
   [SettingsLabel.DataControls]: 'data-controls',

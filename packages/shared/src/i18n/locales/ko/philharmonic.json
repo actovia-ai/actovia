@@ -77,6 +77,18 @@
     "attachmentPreview": {
       "removeAria": "{{name}} 제거"
     },
+    "folder": {
+      "none": "폴더 없음",
+      "recent": "최근",
+      "new": "새 프로젝트…",
+      "namePlaceholder": "프로젝트 이름 입력 후 Enter",
+      "open": "폴더 열기…",
+      "worktree": "워크트리",
+      "failed": "폴더를 변경할 수 없습니다",
+      "listFailed": "최근 프로젝트를 불러올 수 없습니다",
+      "refused": "이 폴더는 사용할 수 없습니다",
+      "missing": "{{name}} — 폴더를 찾을 수 없습니다. '폴더 열기…'로 다시 선택하세요"
+    },
     "uploader": {
       "attachAria": "이미지 첨부",
       "s3FallbackTitle": "S3 업로드에 실패하여 인라인 데이터로 대체합니다",
@@ -193,6 +205,32 @@
         "memory": "메모리 (읽기 전용)",
         "noMemory": "아직 축적된 메모리가 없습니다"
       }
+    },
+    "runtime": {
+      "label": "실행 환경",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "모델",
+      "default": "기본값(앱의 모델)",
+      "cliDefault": "CLI의 기본값",
+      "cliHint": "CLI에서 부르는 이름으로 입력하세요: opus, sonnet, haiku 또는 전체 모델 ID."
+    },
+    "permission": {
+      "label": "권한",
+      "hint": "묻지 않고 할 수 있는 일입니다. 그 외에는 항상 먼저 묻습니다.",
+      "default": "변경 전에 묻기",
+      "acceptEdits": "파일은 자유롭게 편집, 명령 전에 묻기",
+      "auto": "자동(CLI가 안전한 것을 판단)",
+      "codex": {
+        "default": "모든 명령과 파일 변경 전에 확인",
+        "acceptEdits": "폴더 안에서는 자유롭게 작업하고, 벗어날 때는 확인",
+        "auto": "확인 없음. 폴더 안에서만, 네트워크 없이",
+        "hint": "Codex는 항상 그룹 폴더로 제한된 샌드박스에서 작업합니다."
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "모든 작업에 추가되는 지침"
     }
   },
   "teams": {
@@ -283,6 +321,76 @@
       "deleteEmployeeFailed": "직원을 삭제할 수 없습니다",
       "saveTeamFailed": "팀을 저장할 수 없습니다",
       "deleteTeamFailed": "팀을 삭제할 수 없습니다"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "코딩 에이전트는 직접 설치하고 로그인한 CLI가 실행하는 Philharmonic 직원입니다. Exodus는 그룹의 폴더에서 CLI를 시작하고, 하는 일을 보여 주며, 질문할 때마다 멈추고 당신의 답을 기다립니다.",
+      "clisTitle": "이 Mac",
+      "runTitle": "실행 방식",
+      "projectsDir": {
+        "label": "프로젝트 폴더",
+        "description": "새 프로젝트는 여기에 만들어지며, 열어 둔 폴더에서 작업하더라도 모든 프로젝트의 메모와 로그는 여기에 보관됩니다.",
+        "choose": "선택…"
+      },
+      "maxRunning": {
+        "label": "동시 실행 에이전트 수",
+        "description": "나머지 단계는 빈 자리가 날 때까지 기다립니다. 각 에이전트는 내 기기와 요금제를 사용합니다."
+      },
+      "keepAlive": {
+        "label": "에이전트 대기 유지(분)",
+        "description": "한 단계가 끝난 뒤 다음 단계가 바로 시작되도록 프로세스를 이 시간 동안 대기시킵니다. 0이면 즉시 종료합니다."
+      },
+      "worktrees": {
+        "label": "워크트리 분리",
+        "description": "두 에이전트가 같은 git 저장소에서 동시에 작업하면 각자 별도의 워크트리와 브랜치를 받습니다. 병합은 직접 하셔야 합니다."
+      },
+      "safety": "코딩 에이전트는 지정한 폴더에서 자체 권한으로 실행됩니다. Exodus는 에이전트의 질문에 대신 답하거나 작업을 대신 승인하지 않습니다."
+    },
+    "cli": {
+      "check": "확인",
+      "notFound": "이 Mac에서 찾을 수 없음",
+      "state": {
+        "ready": "준비됨",
+        "notInstalled": "설치되지 않음",
+        "broken": "손상됨",
+        "tooOld": "버전이 너무 낮음",
+        "loggedOut": "로그인되지 않음"
+      },
+      "hint": {
+        "install": "설치한 다음 확인을 누르세요.",
+        "reinstall": "실행 파일은 있지만 그것이 시작하는 프로그램이 없습니다. 다시 설치하세요.",
+        "update": "최신 버전으로 업데이트한 다음 확인을 누르세요.",
+        "login": "터미널에서 한 번 실행해 로그인한 다음 확인을 누르세요."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} 님이 기다리고 있습니다"
+    },
+    "card": {
+      "state": {
+        "queued": "빈 자리를 기다리는 중",
+        "working": "작업 중",
+        "waiting": "응답을 기다리는 중",
+        "done": "완료",
+        "stopped": "중지됨",
+        "failed": "실패"
+      },
+      "moreSteps_other": "이전 단계 {{count}}개",
+      "wantsTo": "{{name}}에서 {{tool}}을(를) 사용하려고 합니다",
+      "reasonPlaceholder": "이유 알려주기(선택, 거부할 때 전송)",
+      "allow": "허용",
+      "deny": "거부",
+      "other": "기타…",
+      "secretPlaceholder": "비밀 값 — 에이전트에 전송되며 저장되지 않음",
+      "submit": "답변",
+      "answerFailed": "답변이 전달되지 않았습니다",
+      "stop": "중지",
+      "continueInTerminal": "터미널에서 계속",
+      "terminalFailed": "터미널을 열 수 없습니다",
+      "stopFailed": "중지할 수 없습니다",
+      "folderFailed": "폴더를 열 수 없습니다",
+      "inTerminal": "터미널에서 계속 중 — 다음 단계에서 Exodus가 다시 이어받습니다."
     }
   }
 }

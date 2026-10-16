@@ -3,10 +3,12 @@ import { ValidationError } from '@exodus/shared/errors/app-error'
 import { AiProviders } from '@exodus/shared/types/ai'
 import { Hono } from 'hono'
 
+import { assertProjectsDirAllowed } from '../../agents/projects-dir'
 import { listModelsByProvider } from '../../ai/providers/list-models'
 import { getAllMcpServers } from '../../db/mcp-queries'
 import { getSettings, updateSettings } from '../../db/queries'
 import { Settings as DBSettings } from '../../db/schema'
+import { isPresenceToken, PRESENCE_HEADER } from '../../presence'
 import { looksLikeMask, maskSettings, normalizeBaseUrl } from '../../secrets'
 import { pendingMovedSecrets } from '../../secrets/moved'
 import { PROVIDER_BASE_URL, PROVIDER_KEY_FIELD } from '../../secrets/registry'
@@ -15,7 +17,7 @@ import {
   listModelsRequestSchema,
   updateSettingsSchema
 } from '../schemas/settings'
-import { Variables } from '../types'
+import { listenerOf, Variables } from '../types'
 import {
   handleDatabaseOperation,
   successResponse,
@@ -47,6 +49,36 @@ settingsRouter.post('/', async (c) => {
     await c.req.json(),
     'Invalid setting configuration'
   )
+
+  // `agents.cliPaths` names a binary Exodus executes and `agents.projectsDir`
+  // where it works: only the Exodus window may change them, never a paired
+  // phone or a process on loopback without the presence token.
+  const fromWindow =
+    listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))
+  if (fromWindow) {
+    const dir = payload.agents?.projectsDir
+    if (dir) await assertProjectsDirAllowed(dir)
+  } else if (payload.agents !== undefined) {
+    const stored = (await getSettings()).agents
+    payload.agents =
+      payload.agents && typeof payload.agents === 'object'
+        ? {
+            ...payload.agents,
+            cliPaths: stored?.cliPaths as never,
+            projectsDir: stored?.projectsDir
+          }
+        : (stored as never)
+  }
+
+  // Whether each CLI's default employee was added is the server's to
+  // record (default-employees.ts): a whole-section save never changes it.
+  if (payload.agents && typeof payload.agents === 'object') {
+    const stored = (await getSettings()).agents
+    payload.agents = {
+      ...payload.agents,
+      defaultEmployeesCreated: stored?.defaultEmployeesCreated
+    } as never
+  }
 
   // A posted mask means "unchanged" — `updateSettings` swaps it back for the
   // stored key. The answer is the driver's write result (no row data in it).

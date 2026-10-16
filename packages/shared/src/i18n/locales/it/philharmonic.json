@@ -77,6 +77,18 @@
     "attachmentPreview": {
       "removeAria": "Rimuovi {{name}}"
     },
+    "folder": {
+      "none": "Nessuna cartella",
+      "recent": "Recenti",
+      "new": "Nuovo progetto…",
+      "namePlaceholder": "Nome del progetto, poi Invio",
+      "open": "Apri cartella…",
+      "worktree": "Worktree",
+      "failed": "Impossibile cambiare la cartella",
+      "listFailed": "Impossibile caricare i progetti recenti",
+      "refused": "Questa cartella non può essere usata",
+      "missing": "{{name}} — cartella mancante; sceglila di nuovo con Apri cartella…"
+    },
     "uploader": {
       "attachAria": "Allega immagini",
       "s3FallbackTitle": "Caricamento su S3 non riuscito, verranno usati dati incorporati",
@@ -194,6 +206,32 @@
         "memory": "Memoria (sola lettura)",
         "noMemory": "Nessuna memoria accumulata ancora"
       }
+    },
+    "runtime": {
+      "label": "Viene eseguito su",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Modello",
+      "default": "Predefinito (il modello dell'app)",
+      "cliDefault": "Il predefinito della CLI",
+      "cliHint": "Come lo chiama la CLI: opus, sonnet, haiku o un ID modello completo."
+    },
+    "permission": {
+      "label": "Permessi",
+      "hint": "Ciò che può fare senza chiederti. Per tutto il resto chiede sempre.",
+      "default": "Chiedi prima delle modifiche",
+      "acceptEdits": "Modifica i file liberamente, chiedi prima dei comandi",
+      "auto": "Auto (la CLI decide cosa è sicuro)",
+      "codex": {
+        "default": "Chiedere prima di ogni comando e modifica ai file",
+        "acceptEdits": "Lavorare liberamente nella cartella; chiedere per uscirne",
+        "auto": "Non chiedere mai; solo nella cartella, senza rete",
+        "hint": "Codex lavora sempre in una sandbox limitata alla cartella del gruppo."
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "Istruzioni aggiunte a ogni attività"
     }
   },
   "teams": {
@@ -287,6 +325,77 @@
       "deleteEmployeeFailed": "Impossibile eliminare il dipendente",
       "saveTeamFailed": "Impossibile salvare il team",
       "deleteTeamFailed": "Impossibile eliminare il team"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Gli agenti di programmazione sono dipendenti di Philharmonic eseguiti da una CLI che hai installato e a cui hai effettuato l'accesso. Exodus la avvia nella cartella di un gruppo, mostra cosa fa e si ferma per te ogni volta che ti fa una domanda.",
+      "clisTitle": "Su questo Mac",
+      "runTitle": "Come vengono eseguiti",
+      "projectsDir": {
+        "label": "Cartella dei progetti",
+        "description": "I nuovi progetti vengono creati qui, e ogni progetto conserva qui note e log, anche quando il lavoro avviene in una cartella che hai aperto.",
+        "choose": "Scegli…"
+      },
+      "maxRunning": {
+        "label": "Agenti contemporanei",
+        "description": "I passaggi successivi attendono uno slot libero. Ognuno usa il tuo computer e il tuo piano."
+      },
+      "keepAlive": {
+        "label": "Tieni pronto un agente (minuti)",
+        "description": "Dopo un passaggio, il suo processo attende questo tempo così il passaggio successivo parte subito. 0 lo ferma subito."
+      },
+      "worktrees": {
+        "label": "Worktree separati",
+        "description": "Quando due agenti lavorano insieme nello stesso repository git, ognuno ottiene il proprio worktree e ramo. L'unione spetta a te."
+      },
+      "safety": "Gli agenti di programmazione girano con i propri permessi, nella cartella che indichi. Exodus non risponde mai alle loro domande né approva le loro azioni al posto tuo."
+    },
+    "cli": {
+      "check": "Verifica",
+      "notFound": "Non trovato su questo Mac",
+      "state": {
+        "ready": "Pronto",
+        "notInstalled": "Non installato",
+        "broken": "Danneggiato",
+        "tooOld": "Troppo vecchio",
+        "loggedOut": "Accesso non effettuato"
+      },
+      "hint": {
+        "install": "Installalo, poi premi Verifica.",
+        "reinstall": "Il suo launcher c'è, ma il programma che avvia manca — reinstallalo.",
+        "update": "Aggiornalo all'ultima versione, poi premi Verifica.",
+        "login": "Eseguilo una volta nel Terminale ed effettua l'accesso, poi premi Verifica."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} ti sta aspettando"
+    },
+    "card": {
+      "state": {
+        "queued": "In attesa di un posto libero",
+        "working": "Al lavoro",
+        "waiting": "Ti aspetta",
+        "done": "Fatto",
+        "stopped": "Interrotto",
+        "failed": "Non riuscito"
+      },
+      "moreSteps_one": "{{count}} passaggio precedente",
+      "moreSteps_other": "{{count}} passaggi precedenti",
+      "wantsTo": "{{name}} vuole usare {{tool}}",
+      "reasonPlaceholder": "Spiegagli perché (facoltativo, inviato se rifiuti)",
+      "allow": "Consenti",
+      "deny": "Rifiuta",
+      "other": "Altro…",
+      "secretPlaceholder": "Segreto: inviato all'agente, non salvato",
+      "submit": "Rispondi",
+      "answerFailed": "La tua risposta non è arrivata",
+      "stop": "Interrompi",
+      "continueInTerminal": "Continua nel Terminale",
+      "terminalFailed": "Impossibile aprire il Terminale",
+      "stopFailed": "Impossibile interromperlo",
+      "folderFailed": "Impossibile aprire la cartella",
+      "inTerminal": "Continuato nel Terminale — Exodus riprende al passaggio successivo."
     }
   }
 }

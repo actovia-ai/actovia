@@ -371,6 +371,8 @@ function QuestionnaireSubmit({
 }
 
 export {
+  CHOICE_ROW,
+  ChoiceIndicator,
   Questionnaire,
   QuestionnaireActions,
   QuestionnaireChoice,

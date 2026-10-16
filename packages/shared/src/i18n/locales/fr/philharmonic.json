@@ -77,6 +77,18 @@
     "attachmentPreview": {
       "removeAria": "Supprimer {{name}}"
     },
+    "folder": {
+      "none": "Aucun dossier",
+      "recent": "Récents",
+      "new": "Nouveau projet…",
+      "namePlaceholder": "Nom du projet, puis Entrée",
+      "open": "Ouvrir un dossier…",
+      "worktree": "Worktree",
+      "failed": "Impossible de changer le dossier",
+      "listFailed": "Impossible de charger les projets récents",
+      "refused": "Ce dossier ne peut pas être utilisé",
+      "missing": "{{name}} — dossier introuvable ; choisissez-le de nouveau avec Ouvrir un dossier…"
+    },
     "uploader": {
       "attachAria": "Joindre des images",
       "s3FallbackTitle": "Échec du téléversement S3, utilisation de données intégrées",
@@ -194,6 +206,32 @@
         "memory": "Mémoire (lecture seule)",
         "noMemory": "Aucune mémoire accumulée pour le moment"
       }
+    },
+    "runtime": {
+      "label": "Fonctionne sur",
+      "exodus": "Exodus"
+    },
+    "model": {
+      "label": "Modèle",
+      "default": "Par défaut (le modèle de l'app)",
+      "cliDefault": "Le défaut de la CLI",
+      "cliHint": "Comme la CLI le nomme : opus, sonnet, haiku ou un identifiant de modèle complet."
+    },
+    "permission": {
+      "label": "Autorisations",
+      "hint": "Ce qu'il peut faire sans vous demander. Il demande toujours pour le reste.",
+      "default": "Demander avant les modifications",
+      "acceptEdits": "Modifier les fichiers librement, demander avant les commandes",
+      "auto": "Auto (la CLI décide de ce qui est sûr)",
+      "codex": {
+        "default": "Demander avant chaque commande et modification de fichier",
+        "acceptEdits": "Travailler librement dans le dossier ; demander pour en sortir",
+        "auto": "Ne jamais demander ; uniquement dans le dossier, sans réseau",
+        "hint": "Codex travaille toujours dans un bac à sable limité au dossier du groupe."
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "Instructions ajoutées à chaque tâche"
     }
   },
   "teams": {
@@ -287,6 +325,77 @@
       "deleteEmployeeFailed": "Impossible de supprimer l'employé",
       "saveTeamFailed": "Impossible d'enregistrer l'équipe",
       "deleteTeamFailed": "Impossible de supprimer l'équipe"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Les agents de code sont des employés de Philharmonic exécutés par une CLI que vous avez installée et dans laquelle vous êtes connecté. Exodus la lance dans le dossier d'un groupe, montre ce qu'elle fait et s'arrête pour vous dès qu'elle pose une question.",
+      "clisTitle": "Sur ce Mac",
+      "runTitle": "Comment ils s'exécutent",
+      "projectsDir": {
+        "label": "Dossier des projets",
+        "description": "Les nouveaux projets sont créés ici, et chaque projet y garde ses notes et ses journaux, même quand le travail se fait dans un dossier que vous avez ouvert.",
+        "choose": "Choisir…"
+      },
+      "maxRunning": {
+        "label": "Agents simultanés",
+        "description": "Les autres étapes attendent qu'une place se libère. Chacune utilise votre machine et votre abonnement."
+      },
+      "keepAlive": {
+        "label": "Garder un agent prêt (minutes)",
+        "description": "Après une étape, son processus attend ce délai pour que l'étape suivante démarre aussitôt. 0 l'arrête immédiatement."
+      },
+      "worktrees": {
+        "label": "Worktrees séparés",
+        "description": "Quand deux agents travaillent en même temps dans le même dépôt git, chacun reçoit son propre worktree et sa propre branche. La fusion vous revient."
+      },
+      "safety": "Les agents de code s'exécutent avec leurs propres autorisations, dans le dossier que vous leur donnez. Exodus ne répond jamais à leurs questions et n'approuve jamais leurs actions à votre place."
+    },
+    "cli": {
+      "check": "Vérifier",
+      "notFound": "Introuvable sur ce Mac",
+      "state": {
+        "ready": "Prêt",
+        "notInstalled": "Non installé",
+        "broken": "Défectueux",
+        "tooOld": "Trop ancien",
+        "loggedOut": "Non connecté"
+      },
+      "hint": {
+        "install": "Installez-le, puis appuyez sur Vérifier.",
+        "reinstall": "Son lanceur est présent, mais le programme qu'il démarre est introuvable — réinstallez-le.",
+        "update": "Mettez-le à jour vers la dernière version, puis appuyez sur Vérifier.",
+        "login": "Lancez-le une fois dans Terminal et connectez-vous, puis appuyez sur Vérifier."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} vous attend"
+    },
+    "card": {
+      "state": {
+        "queued": "En attente d’une place libre",
+        "working": "En cours",
+        "waiting": "Vous attend",
+        "done": "Terminé",
+        "stopped": "Arrêté",
+        "failed": "Échec"
+      },
+      "moreSteps_one": "{{count}} étape précédente",
+      "moreSteps_other": "{{count}} étapes précédentes",
+      "wantsTo": "{{name}} veut utiliser {{tool}}",
+      "reasonPlaceholder": "Dites-lui pourquoi (facultatif, envoyé si vous refusez)",
+      "allow": "Autoriser",
+      "deny": "Refuser",
+      "other": "Autre…",
+      "secretPlaceholder": "Secret : envoyé à l'agent, non enregistré",
+      "submit": "Répondre",
+      "answerFailed": "Votre réponse ne lui est pas parvenue",
+      "stop": "Arrêter",
+      "continueInTerminal": "Continuer dans le Terminal",
+      "terminalFailed": "Impossible d’ouvrir le Terminal",
+      "stopFailed": "Impossible de l’arrêter",
+      "folderFailed": "Impossible d’ouvrir le dossier",
+      "inTerminal": "Poursuivi dans le Terminal — Exodus reprend à sa prochaine étape."
     }
   }
 }

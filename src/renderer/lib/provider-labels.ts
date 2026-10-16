@@ -36,15 +36,31 @@ export function configuredProvider(
 }
 
 /**
- * Whether the configured provider can answer: a key is saved (the renderer
- * sees it as a mask, a non-empty string), or it needs none (Ollama).
+ * Whether the provider can answer: a key is saved (the renderer sees it as a
+ * mask, a non-empty string), or it needs none (Ollama).
  */
-export function hasProviderKey(settings: Settings | undefined): boolean {
-  const provider = configuredProvider(settings)
+export function providerHasKey(
+  settings: Settings | undefined,
+  provider: AiProviders | null
+): boolean {
   if (!provider) return false
   const field = PROVIDER_KEY_FIELDS[provider]
   if (!field) return true
   return !!settings?.providers?.[field]
+}
+
+/** Whether the configured provider can answer. */
+export function hasProviderKey(settings: Settings | undefined): boolean {
+  return providerHasKey(settings, configuredProvider(settings))
+}
+
+/** Every provider that can answer and whose catalog was fetched. */
+export function configuredProviders(
+  settings: Settings | undefined
+): AiProviders[] {
+  return (Object.values(AiProviders) as AiProviders[]).filter(
+    (p) => providerHasKey(settings, p) && modelCatalog(settings, p).length > 0
+  )
 }
 
 /** The catalog the Settings picker lists for the provider; empty until a Refresh fetched it. */

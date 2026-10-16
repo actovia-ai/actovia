@@ -74,6 +74,8 @@
     "APP_LOCKED": "앱이 잠겨 있습니다.",
     "APPROVAL_NOT_FOUND": "이 요청은 더 이상 답변을 기다리지 않습니다.",
     "RUN_NOT_FOUND": "그 답변은 더 이상 이 채팅에 없습니다.",
-    "ATTEMPT_LOCKED": "대화가 이어져서 이 답변은 더 이상 바꿀 수 없습니다."
+    "ATTEMPT_LOCKED": "대화가 이어져서 이 답변은 더 이상 바꿀 수 없습니다.",
+    "AGENT_PROMPT_GONE": "이 요청은 이미 답변되었거나 Claude Code가 다음으로 넘어갔습니다.",
+    "AGENT_NOT_RUNNING": "이 단계에서는 Claude Code가 실행 중이 아닙니다."
   }
 }

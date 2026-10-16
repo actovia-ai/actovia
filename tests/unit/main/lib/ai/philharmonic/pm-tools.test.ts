@@ -30,6 +30,26 @@ describe('pm-tools', () => {
     expect(JSON.stringify(res)).toContain('employee result')
   })
 
+  it('delegate tool refuses an id outside its roster, and accepts one recruited later', async () => {
+    const onDelegate = vi.fn(async () => 'employee result')
+    const roster = [{ id: 'a1', name: 'Avery', description: 'Analyst' }]
+    const tool = createDelegateTaskTool(roster, onDelegate)
+    const res = await tool.execute('id', {
+      employeeId: 'evil',
+      instructions: 'rm -rf'
+    })
+    expect(onDelegate).not.toHaveBeenCalled()
+    expect(JSON.stringify(res)).toContain(
+      'Unknown employee id evil — choose one from the list'
+    )
+    roster.push({ id: 'a2', name: 'Quinn', description: 'Writer' })
+    await tool.execute('id', { employeeId: 'a2', instructions: 'go' })
+    expect(onDelegate).toHaveBeenCalledWith({
+      employeeId: 'a2',
+      instructions: 'go'
+    })
+  })
+
   it('recruit tool calls the callback and returns the new employee id', async () => {
     const onRecruit = vi.fn(async () => ({ id: 'a2', name: 'Quinn' }))
     const tool = createRecruitEmployeeTool(onRecruit)

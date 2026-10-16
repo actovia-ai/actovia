@@ -129,3 +129,21 @@ export async function updateConversationMessageParts(
     .set({ parts })
     .where(eq(conversationMessage.id, id))
 }
+
+export async function updateConversationMessageContent(
+  id: string,
+  content: string
+): Promise<void> {
+  await db
+    .update(conversationMessage)
+    .set({ content })
+    .where(eq(conversationMessage.id, id))
+}
+
+export async function getConversationMessageById(id: string) {
+  const [row] = await db
+    .select()
+    .from(conversationMessage)
+    .where(eq(conversationMessage.id, id))
+  return row
+}

@@ -33,4 +33,11 @@ describe('agents settings schema', () => {
       })
     ).not.toThrow()
   })
+
+  it('records default employees per CLI', () => {
+    const parsed = AgentsSettingsSchema.parse({
+      defaultEmployeesCreated: { 'claude-code': true }
+    })
+    expect(parsed.defaultEmployeesCreated).toEqual({ 'claude-code': true })
+  })
 })

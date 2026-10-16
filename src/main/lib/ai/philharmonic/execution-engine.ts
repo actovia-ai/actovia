@@ -1,5 +1,9 @@
 // src/main/lib/ai/philharmonic/execution-engine.ts
 import {
+  runAgentEmployee,
+  type DelegatedOutput
+} from '../../agents/run-agent-employee'
+import {
   createTaskExecution,
   getAgentById,
   getTaskById,
@@ -12,13 +16,17 @@ import { rememberTaskOutcome } from './agent-memory'
 import { runEmployeeLoop, type SseEmitter } from './employee-loop'
 import { DEFAULT_POLICY, withRetry } from './retry'
 
+export type { DelegatedOutput }
+
 /**
  * Run one delegated employee task end-to-end: mark running, create the
  * execution row, run the employee loop (with transient-failure retry), mark
  * completed/failed. Returns the employee's final text output for the PM
- * to review.
+ * to review — for a CLI employee also the message its step saved (the
+ * card lives in it).
  *
- * Retry behavior:
+ * Retry behavior (Exodus' own loop only — a CLI step is never retried: a
+ * second run would redo the work):
  * - Transient errors (network / 429 / 5xx / rate-limit phrasing) retry with
  *   decorrelated jitter up to `task.maxRetries + 1` attempts total.
  * - Permanent errors throw immediately.
@@ -33,10 +41,14 @@ export async function runDelegatedTask(args: {
   instructions: string
   emit: SseEmitter
   signal?: AbortSignal
-}): Promise<string> {
+}): Promise<DelegatedOutput> {
   const { taskId, agentId, conversationId, instructions, emit, signal } = args
   const agent = await getAgentById(agentId)
-  if (!agent) throw new Error(`Agent ${agentId} not found`)
+  // Only an active employee runs — never one the PM model named on its own say-so.
+  if (!agent?.isActive) {
+    await updateTask(taskId, { status: 'failed' })
+    throw new Error(`Employee ${agent?.name ?? agentId} is not active`)
+  }
 
   const taskRow = await getTaskById(taskId)
   // task.maxRetries is the number of retries beyond the first attempt.
@@ -53,42 +65,62 @@ export async function runDelegatedTask(args: {
   })
 
   try {
-    const output = await withRetry(
-      () =>
-        runEmployeeLoop({
-          agent,
-          instructions,
-          executionId: execution.id,
-          conversationId,
-          emit,
-          signal
-        }),
-      {
-        policy,
-        signal,
-        onRetry: async (attempt, delayMs, err) => {
-          const message = err instanceof Error ? err.message : String(err)
-          logger.warn('philharmonic', 'delegation retry', {
+    const outcome: DelegatedOutput =
+      agent.runtime === 'exodus'
+        ? {
+            output: await withRetry(
+              () =>
+                runEmployeeLoop({
+                  agent,
+                  instructions,
+                  executionId: execution.id,
+                  conversationId,
+                  emit,
+                  signal
+                }),
+              {
+                policy,
+                signal,
+                onRetry: async (attempt, delayMs, err) => {
+                  const message =
+                    err instanceof Error ? err.message : String(err)
+                  logger.warn('philharmonic', 'delegation retry', {
+                    taskId,
+                    attempt,
+                    delayMs,
+                    message
+                  })
+                  const retryCount = await incrementTaskRetryCount(
+                    taskId
+                  ).catch(() => 0)
+                  emit({
+                    type: 'delegation_retry',
+                    conversationId,
+                    taskId,
+                    agentId,
+                    attempt: retryCount,
+                    delayMs,
+                    error: message
+                  })
+                }
+              }
+            )
+          }
+        : await runAgentEmployee({
+            agent,
+            instructions,
             taskId,
-            attempt,
-            delayMs,
-            message
-          })
-          const retryCount = await incrementTaskRetryCount(taskId).catch(
-            () => 0
-          )
-          emit({
-            type: 'delegation_retry',
             conversationId,
-            taskId,
-            agentId,
-            attempt: retryCount,
-            delayMs,
-            error: message
+            emit,
+            signal
           })
-        }
-      }
-    )
+    const output = outcome.output
+    // Exodus' loop closes its own execution row; a CLI run leaves it to us.
+    if (agent.runtime !== 'exodus')
+      await updateTaskExecution(execution.id, {
+        status: 'completed',
+        completedAt: new Date()
+      })
 
     await updateTask(taskId, {
       status: 'completed',
@@ -96,7 +128,7 @@ export async function runDelegatedTask(args: {
       completedAt: new Date()
     })
     await rememberTaskOutcome(agentId, conversationId, instructions, output)
-    return output
+    return outcome
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     await updateTaskExecution(execution.id, {

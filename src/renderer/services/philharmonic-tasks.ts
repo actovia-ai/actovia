@@ -1,6 +1,7 @@
 // src/renderer/services/philharmonic-tasks.ts
 import { fetcher } from '@exodus/shared/utils/http'
 
+import { presenceHeaders } from '@/lib/presence'
 import type { TaskData } from '@/stores/philharmonic'
 
 const BASE = '/api/v1/philharmonic'
@@ -11,7 +12,8 @@ export const getUpcomingTasks = () =>
 export const getRecurringTasks = () =>
   fetcher<TaskData[]>(`${BASE}/tasks/recurring`)
 
-export const createScheduledTask = (data: {
+// A scheduled task's run is a PM run: loopback needs the window's token.
+export const createScheduledTask = async (data: {
   title: string
   description?: string
   conversationId: string
@@ -19,10 +21,15 @@ export const createScheduledTask = (data: {
   cronExpression?: string | null
   runAt?: string | null
 }) =>
-  fetcher<TaskData>(`${BASE}/tasks`, { method: 'POST', body: data as never })
+  fetcher<TaskData>(`${BASE}/tasks`, {
+    method: 'POST',
+    body: data as never,
+    headers: await presenceHeaders()
+  })
 
-export const cancelScheduledTask = (id: string) =>
+export const cancelScheduledTask = async (id: string) =>
   fetcher<TaskData>(`${BASE}/tasks/${id}`, {
     method: 'PATCH',
-    body: { status: 'cancelled' } as never
+    body: { status: 'cancelled' } as never,
+    headers: await presenceHeaders()
   })

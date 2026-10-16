@@ -8,6 +8,7 @@ import { useSettingsAutosave } from '@/hooks/use-settings-autosave'
 import { useSettingsTab } from '@/hooks/use-settings-tab'
 import { cn } from '@/lib/utils'
 
+import { Agents } from './settings-form/agents'
 import { ChatAudit } from './settings-form/chat-audit'
 import { ComputerUse } from './settings-form/computer-use'
 import { DataControls } from './settings-form/data-controls'
@@ -103,6 +104,8 @@ export function SettingsForm() {
         {activeTitle === SettingsLabel.KnowledgeBase && (
           <KnowledgeBase form={form} />
         )}
+
+        {activeTitle === SettingsLabel.Agents && <Agents form={form} />}
 
         {activeTitle === SettingsLabel.ComputerUse && (
           <ComputerUse form={form} />

@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
+import { useSettings } from '@/hooks/use-settings'
+import { employeeModelLabel } from '@/lib/employee-model'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
@@ -163,7 +165,9 @@ function MemberRow({
   activity: string | undefined
 }) {
   const { t } = useTranslation('philharmonic')
+  const { data: settings } = useSettings()
   const busy = activity !== undefined
+  const modelLabel = employeeModelLabel(member, settings)
   return (
     <div
       className={cn(
@@ -189,6 +193,9 @@ function MemberRow({
       <div className="min-w-0 flex-1">
         <div className="text-foreground truncate text-sm font-medium">
           {member.name}
+        </div>
+        <div className="text-muted-foreground truncate text-xs">
+          {modelLabel === 'Default' ? t('employees.model.default') : modelLabel}
         </div>
         <div
           className={cn(
