@@ -8,6 +8,7 @@ import {
 import { Hono } from 'hono'
 import { z } from 'zod'
 
+import { isCliModel } from '../../agents/driver'
 import { cliOf } from '../../agents/drivers'
 import { listInstalledSkills } from '../../ai/skills/skills-manager'
 import {
@@ -59,9 +60,6 @@ const employeeSchema = z.object({
  * A CLI employee's model goes on the CLI's command line (`--model <it>`):
  * a model name, never something the CLI could read as a flag.
  */
-const isCliModel = (model: string) =>
-  /^[\w.:[\]-]+$/u.test(model) && !model.startsWith('-')
-
 function assertCliModel(
   runtime: AgentRuntime | null | undefined,
   model: string | null | undefined
@@ -108,11 +106,16 @@ philharmonicCrud.put('/agents/:id', async (c) => {
     await c.req.json(),
     'Invalid employee data'
   )
-  if (data.model != null)
+  // The model that will run is the one sent or the one stored, whichever
+  // runtime ends up set: an Exodus employee's stored model was never checked,
+  // and switching it to a CLI without a model would hand that to argv.
+  if (data.runtime !== undefined || data.model !== undefined) {
+    const stored = await getAgentById(id)
     assertCliModel(
-      data.runtime ?? ((await getAgentById(id))?.runtime as AgentRuntime),
-      data.model
+      data.runtime ?? (stored?.runtime as AgentRuntime),
+      data.model !== undefined ? data.model : stored?.model
     )
+  }
   return successResponse(
     c,
     await handleDatabaseOperation(

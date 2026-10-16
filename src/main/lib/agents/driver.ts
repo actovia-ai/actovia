@@ -4,6 +4,14 @@ import type {
   PermissionMode
 } from '@exodus/shared/types/agents'
 
+/**
+ * A model name safe to hand a CLI: a word of model-id characters that cannot
+ * be read as a flag. The route refuses anything else for a CLI employee, and
+ * `claude`'s argv drops it, should one reach it anyway.
+ */
+export const isCliModel = (model: string) =>
+  /^[\w.:[\]-]+$/u.test(model) && !model.startsWith('-')
+
 export type AgentEvent =
   | { type: 'init'; cliSessionId: string; model: string | null }
   | { type: 'text_delta'; delta: string }

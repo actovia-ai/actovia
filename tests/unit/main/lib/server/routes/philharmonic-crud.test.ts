@@ -7,7 +7,9 @@ vi.mock('@main/lib/db/db', () => ({ db: {}, pglite: {} }))
 vi.mock('electron', () => ({}))
 const createAgent = vi.fn(async (d: unknown) => d)
 const updateAgent = vi.fn(async (_id: string, d: unknown) => d)
-let stored = { runtime: 'claude-code' }
+let stored: { runtime: string; model?: string | null } = {
+  runtime: 'claude-code'
+}
 vi.mock('@main/lib/db/philharmonic-queries', () => ({
   createAgent: (d: unknown) => createAgent(d),
   updateAgent: (id: string, d: unknown) => updateAgent(id, d),
@@ -101,5 +103,18 @@ describe('a CLI employee’s model', () => {
     expect(
       (await send('POST', '/agents', { name: 'E', model: '-anything-' })).status
     ).toBe(201)
+  })
+
+  it('checks the stored model when an edit switches the runtime to a CLI', async () => {
+    stored = { runtime: 'exodus', model: '--dangerously-skip-permissions' }
+    expect(
+      (await send('PUT', '/agents/a1', { runtime: 'claude-code' })).status
+    ).toBe(400)
+    expect(updateAgent).not.toHaveBeenCalled()
+    // Clearing the model with the switch, as the editor does, is fine.
+    expect(
+      (await send('PUT', '/agents/a1', { runtime: 'claude-code', model: null }))
+        .status
+    ).toBe(200)
   })
 })

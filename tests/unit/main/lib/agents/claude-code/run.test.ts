@@ -68,6 +68,19 @@ function next(
 }
 
 describe('Claude Code run', () => {
+  it('never passes a model that could be read as a flag', () => {
+    const args = buildArgs({
+      binPath: 'claude',
+      cwd: '/p',
+      env: {},
+      permissionMode: 'default',
+      model: '--dangerously-skip-permissions',
+      logPath: '/l'
+    })
+    expect(args).not.toContain('--model')
+    expect(args).not.toContain('--dangerously-skip-permissions')
+  })
+
   it('builds the stream-json command line, never with bypassPermissions', () => {
     const args = buildArgs({
       binPath: 'claude',

@@ -1,7 +1,12 @@
 // src/main/lib/agents/claude-code/run.ts
 import type { AgentAnswer } from '@exodus/shared/types/agents'
 
-import type { AgentEvent, AgentRun, StartInput } from '../driver'
+import {
+  isCliModel,
+  type AgentEvent,
+  type AgentRun,
+  type StartInput
+} from '../driver'
 import { superviseProcess } from '../process'
 import { parseLine } from './protocol'
 
@@ -19,7 +24,7 @@ export function buildArgs(input: StartInput): string[] {
     '--permission-mode',
     input.permissionMode
   ]
-  if (input.model) args.push('--model', input.model)
+  if (input.model && isCliModel(input.model)) args.push('--model', input.model)
   if (input.resume) args.push('--resume', input.resume)
   return args
 }
