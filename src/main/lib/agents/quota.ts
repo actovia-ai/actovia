@@ -75,6 +75,9 @@ export function resetQuotaStoreForTests() {
   store = null
 }
 
+/** A rejection that names no window blocks this long after it was reported. */
+const NO_DETAIL_BLOCK_MS = 60 * 60_000
+
 const modelMatches = (windowModel: string, model: string | null | undefined) =>
   !!model && model.toLowerCase().includes(windowModel.toLowerCase())
 
@@ -84,21 +87,24 @@ const modelMatches = (windowModel: string, model: string | null | undefined) =>
  */
 export function blockedUntil(
   q: CliQuota | null,
-  model: string | null | undefined
+  model: string | null | undefined,
+  now: number = Date.now()
 ): QuotaWindow | null {
   if (!q || q.state !== 'rejected' || q.overage) return null
-  const applies = (w: QuotaWindow) => !w.model || modelMatches(w.model, model)
+  const live = (w: QuotaWindow) => w.resetsAt === null || w.resetsAt > now
+  const applies = (w: QuotaWindow) =>
+    live(w) && (!w.model || modelMatches(w.model, model))
   const named = q.windows.find((w) => w.name === q.rejectedWindow)
   if (named) return applies(named) ? named : null
   const full = q.windows.filter((w) => w.usedPercent >= 100 && applies(w))
-  if (full.length)
+  if (full.length > 0)
     return full.reduce((a, b) =>
       (b.resetsAt ?? 0) > (a.resetsAt ?? 0) ? b : a
     )
-  // Rejected with no window detail: block, reset unknown.
-  return q.windows.length
-    ? null
-    : { name: 'limit', usedPercent: 100, resetsAt: null }
+  // Rejected with no window detail: block, reset unknown, while it is fresh.
+  return q.windows.length === 0 && now - q.asOf < NO_DETAIL_BLOCK_MS
+    ? { name: 'limit', usedPercent: 100, resetsAt: null }
+    : null
 }
 
 const LABELS: Record<string, string> = {

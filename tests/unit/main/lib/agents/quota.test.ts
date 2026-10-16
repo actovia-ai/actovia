@@ -87,10 +87,10 @@ describe('quota store', () => {
 
 describe('blockedUntil', () => {
   it('nothing blocks without a record, while not rejected, or with overage', () => {
-    expect(blockedUntil(null, 'opus')).toBeNull()
-    expect(blockedUntil(claude(), 'opus')).toBeNull()
+    expect(blockedUntil(null, 'opus', NOW)).toBeNull()
+    expect(blockedUntil(claude(), 'opus', NOW)).toBeNull()
     expect(
-      blockedUntil(claude({ state: 'rejected', overage: true }), 'opus')
+      blockedUntil(claude({ state: 'rejected', overage: true }), 'opus', NOW)
     ).toBeNull()
   })
 
@@ -100,8 +100,8 @@ describe('blockedUntil', () => {
       rejectedWindow: 'seven_day',
       windows: [{ name: 'seven_day', usedPercent: 100, resetsAt: NOW + 1000 }]
     })
-    expect(blockedUntil(q, 'sonnet')?.name).toBe('seven_day')
-    expect(blockedUntil(q, null)?.resetsAt).toBe(NOW + 1000)
+    expect(blockedUntil(q, 'sonnet', NOW)?.name).toBe('seven_day')
+    expect(blockedUntil(q, null, NOW)?.resetsAt).toBe(NOW + 1000)
   })
 
   it('a model’s own window blocks only that model', () => {
@@ -118,19 +118,43 @@ describe('blockedUntil', () => {
         }
       ]
     })
-    expect(blockedUntil(q, 'claude-opus-4-8')?.name).toBe('seven_day_opus')
-    expect(blockedUntil(q, 'opus')?.resetsAt).toBe(NOW + 9000)
-    expect(blockedUntil(q, 'sonnet')).toBeNull()
-    expect(blockedUntil(q, null)).toBeNull()
+    expect(blockedUntil(q, 'claude-opus-4-8', NOW)?.name).toBe('seven_day_opus')
+    expect(blockedUntil(q, 'opus', NOW)?.resetsAt).toBe(NOW + 9000)
+    expect(blockedUntil(q, 'sonnet', NOW)).toBeNull()
+    expect(blockedUntil(q, null, NOW)).toBeNull()
   })
 
   it('a rejection with no window detail still blocks, reset unknown', () => {
     const q = claude({ state: 'rejected', rejectedWindow: null, windows: [] })
-    expect(blockedUntil(q, 'opus')).toEqual({
+    expect(blockedUntil(q, 'opus', NOW)).toEqual({
       name: 'limit',
       usedPercent: 100,
       resetsAt: null
     })
+  })
+
+  it('a window whose reset has passed no longer blocks', () => {
+    const q = claude({
+      state: 'rejected',
+      rejectedWindow: 'seven_day',
+      windows: [{ name: 'seven_day', usedPercent: 100, resetsAt: NOW - 1000 }]
+    })
+    expect(blockedUntil(q, 'opus', NOW)).toBeNull()
+  })
+
+  it('a rejectedWindow missing from the windows falls back to a full one', () => {
+    const q = claude({
+      state: 'rejected',
+      rejectedWindow: 'seven_day_gone',
+      windows: [{ name: 'seven_day', usedPercent: 100, resetsAt: NOW + 1000 }]
+    })
+    expect(blockedUntil(q, 'opus', NOW)?.name).toBe('seven_day')
+  })
+
+  it('a no-detail rejection blocks for an hour, then is stale', () => {
+    const q = claude({ state: 'rejected', rejectedWindow: null, windows: [] })
+    expect(blockedUntil(q, 'opus', NOW + 10 * 60_000)?.name).toBe('limit')
+    expect(blockedUntil(q, 'opus', NOW + 61 * 60_000)).toBeNull()
   })
 })
 
