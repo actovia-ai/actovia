@@ -111,6 +111,22 @@ vi.mock('@main/lib/ai/philharmonic/plan-mirror', () => ({
   writePlanMirror: vi.fn(async () => '/tmp/plan.md')
 }))
 
+// The round recorder (Task 2) is a spy here: the coordinator only feeds it.
+const recorder = {
+  roundId: 'r1',
+  input: vi.fn(),
+  reports: vi.fn(),
+  onEvent: vi.fn(),
+  error: vi.fn(),
+  finish: vi.fn(async () => ({ delegations: 2, waits: 1 }))
+}
+const createRoundRecorder = vi.fn((_c: string, _r: string) => recorder)
+vi.mock('@main/lib/ai/philharmonic/round-recorder', () => ({
+  createRoundRecorder
+}))
+const lastRoundStartedAt = vi.fn(async (): Promise<Date | null> => null)
+vi.mock('@main/lib/db/pm-round-queries', () => ({ lastRoundStartedAt }))
+
 function fakeStream(events: unknown[]) {
   return {
     async *[Symbol.asyncIterator]() {
@@ -608,6 +624,203 @@ describe('runPmCoordinator — the quota in view', () => {
       'philharmonic',
       'quota lines not built',
       expect.objectContaining({ error: expect.any(Error) })
+    )
+  })
+})
+
+describe('runPmCoordinator — the decision trail', () => {
+  const reset = () => {
+    agentLoopMock.mockReset()
+    createConversationMessage.mockClear()
+    getMessagesByConversationId.mockReset()
+    getMessagesByConversationId.mockResolvedValue([])
+    lastRoundStartedAt.mockReset()
+    lastRoundStartedAt.mockResolvedValue(null)
+    for (const f of [
+      recorder.input,
+      recorder.reports,
+      recorder.onEvent,
+      recorder.error,
+      recorder.finish,
+      createRoundRecorder
+    ])
+      f.mockClear()
+  }
+  const endEvent = {
+    type: 'message_end',
+    message: {
+      role: 'assistant',
+      content: [{ type: 'text', text: 'All done.' }],
+      usage: { input: 1, output: 1 }
+    }
+  }
+
+  it('records the input, every loop event in order, and the PM row carries the round id and its counts', async () => {
+    reset()
+    const events = [
+      { type: 'agent_start' },
+      {
+        type: 'message_update',
+        message: { role: 'assistant', content: [{ type: 'text', text: 'Al' }] }
+      },
+      endEvent
+    ]
+    agentLoopMock.mockReturnValue(fakeStream(events))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'build a report',
+      emit: vi.fn()
+    })
+    expect(createRoundRecorder).toHaveBeenCalledWith('c1', expect.any(String))
+    expect(recorder.input).toHaveBeenCalledWith('user', 'build a report')
+    expect(recorder.onEvent.mock.calls.map((c) => c[0])).toEqual(events)
+    expect(recorder.finish).toHaveBeenCalledTimes(1)
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'pm',
+        roundId: 'r1',
+        parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
+      })
+    )
+  })
+
+  it('a scheduled round says so', async () => {
+    reset()
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'Daily report',
+      trigger: 'scheduled',
+      emit: vi.fn()
+    })
+    expect(recorder.input).toHaveBeenCalledWith('scheduled', 'Daily report')
+  })
+
+  it('records the reports since the last round began — reading that before the new input', async () => {
+    reset()
+    const since = new Date('2026-10-17T10:00:00Z')
+    lastRoundStartedAt.mockImplementation(() => {
+      expect(recorder.input).not.toHaveBeenCalled()
+      return Promise.resolve(since)
+    })
+    getMessagesByConversationId.mockResolvedValue([
+      {
+        id: 'old',
+        role: 'employee',
+        agentId: 'a1',
+        createdAt: new Date('2026-10-17T09:00:00Z')
+      },
+      {
+        id: 'new',
+        role: 'employee',
+        agentId: 'a1',
+        createdAt: new Date('2026-10-17T11:00:00Z')
+      },
+      {
+        id: 'gone',
+        role: 'employee',
+        agentId: 'zz',
+        createdAt: new Date('2026-10-17T11:30:00Z')
+      },
+      {
+        id: 'pm',
+        role: 'pm',
+        agentId: null,
+        createdAt: new Date('2026-10-17T11:40:00Z')
+      }
+    ] as never)
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go on',
+      emit: vi.fn()
+    })
+    expect(lastRoundStartedAt).toHaveBeenCalledWith('c1')
+    expect(recorder.reports).toHaveBeenCalledWith([
+      { messageId: 'new', agentId: 'a1', name: 'Avery' },
+      { messageId: 'gone', agentId: 'zz', name: 'former employee' }
+    ])
+  })
+
+  it('a provider error is recorded, the round finished, and the error row carries the round id', async () => {
+    reset()
+    agentLoopMock.mockReturnValue(
+      fakeStream([
+        {
+          type: 'message_end',
+          message: {
+            role: 'assistant',
+            content: [],
+            stopReason: 'error',
+            errorMessage: 'rate limited'
+          }
+        }
+      ])
+    )
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'x',
+      emit: vi.fn()
+    })
+    expect(recorder.error).toHaveBeenCalledWith('rate limited', false)
+    expect(recorder.finish).toHaveBeenCalledTimes(1)
+    expect(recorder.error.mock.invocationCallOrder[0]).toBeLessThan(
+      recorder.finish.mock.invocationCallOrder[0]
+    )
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'system',
+        content: '⚠️ PM error: rate limited',
+        roundId: 'r1',
+        parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
+      })
+    )
+  })
+
+  it('an abort is recorded as aborted, and the interrupted row carries the round id', async () => {
+    reset()
+    const ctl = new AbortController()
+    ctl.abort()
+    agentLoopMock.mockReturnValue({
+      // oxlint-disable-next-line require-yield
+      async *[Symbol.asyncIterator]() {
+        const e = new Error('aborted')
+        e.name = 'AbortError'
+        throw e
+      }
+    })
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'x',
+      emit: vi.fn(),
+      signal: ctl.signal
+    })
+    expect(recorder.error).toHaveBeenCalledWith('aborted', true)
+    expect(recorder.finish).toHaveBeenCalledTimes(1)
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'system',
+        content: '⚠️ PM run was interrupted by the user.',
+        roundId: 'r1',
+        parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
+      })
+    )
+  })
+
+  it('a recorder that throws never fails the round', async () => {
+    reset()
+    recorder.input.mockImplementationOnce(() => {
+      throw new Error('boom')
+    })
+    getMessagesByConversationId.mockRejectedValueOnce(new Error('db down'))
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'x',
+      emit: vi.fn()
+    })
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'pm', content: 'All done.' })
     )
   })
 })

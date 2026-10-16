@@ -61,7 +61,8 @@ describe('runScheduledRound', () => {
     expect(runPmCoordinator).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: 'c1',
-        userText: expect.stringContaining('Daily report')
+        userText: expect.stringContaining('Daily report'),
+        trigger: 'scheduled'
       })
     )
   })

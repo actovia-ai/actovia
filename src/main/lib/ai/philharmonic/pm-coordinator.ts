@@ -17,7 +17,8 @@ import { refreshQuotas } from '../../agents/quota-refresh'
 import {
   addMemberToConversation,
   createConversationMessage,
-  getConversationById
+  getConversationById,
+  getMessagesByConversationId
 } from '../../db/conversation-queries'
 import {
   createTask,
@@ -32,6 +33,7 @@ import {
   updatePlanStatus,
   updateStep
 } from '../../db/plan-queries'
+import { lastRoundStartedAt } from '../../db/pm-round-queries'
 import { getSettings } from '../../db/queries'
 import { getAllTeams } from '../../db/team-queries'
 import { mainT } from '../../i18n'
@@ -62,6 +64,7 @@ import {
 } from './pm-tools'
 import { autoCreateEmployee } from './recruit'
 import { createReportTool, type PendingArtifact } from './report-tools'
+import { createRoundRecorder } from './round-recorder'
 import { groupBeforeToolCall } from './sensitive-guard'
 
 const PM_SYSTEM_PROMPT = `You are the PM (project manager) of a virtual team working in a group chat.
@@ -159,6 +162,8 @@ export interface RunPmArgs {
   excludeMessageId?: string
   emit: SseEmitter
   signal?: AbortSignal
+  /** What started the round, for its decision trail. */
+  trigger?: 'user' | 'scheduled'
 }
 
 export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
@@ -544,6 +549,55 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   const messageId = uuidV4()
   emit({ type: 'message_start', conversationId, messageId, role: 'pm' })
 
+  // The round's decision trail (spec 2026-10-17): passive capture, never in
+  // the round's way — the recorder logs its own failures, and `safe` is a
+  // second net around every call into it.
+  const recorder = createRoundRecorder(conversationId, uuidV4())
+  const safe = (f: () => void) => {
+    try {
+      f()
+    } catch (error) {
+      logger.warn('philharmonic', 'decision trail capture failed', {
+        conversationId,
+        error
+      })
+    }
+  }
+  // The reports this round reads: employee rows since the last round began.
+  // That moment is read before this round's own input is written, which
+  // would otherwise be the newest.
+  let since: Date | null = null
+  try {
+    since = await lastRoundStartedAt(conversationId)
+  } catch (error) {
+    logger.warn('philharmonic', 'decision trail reports failed', {
+      conversationId,
+      error
+    })
+  }
+  safe(() => recorder.input(args.trigger ?? 'user', userText))
+  try {
+    const names = new Map(employees.map((e) => [e.id, e.name]))
+    const rows = await getMessagesByConversationId(conversationId)
+    const read = rows.filter(
+      (r) => r.role === 'employee' && (!since || r.createdAt > since)
+    )
+    safe(() =>
+      recorder.reports(
+        read.map((r) => ({
+          messageId: r.id,
+          agentId: r.agentId,
+          name: (r.agentId && names.get(r.agentId)) || 'former employee'
+        }))
+      )
+    )
+  } catch (error) {
+    logger.warn('philharmonic', 'decision trail reports failed', {
+      conversationId,
+      error
+    })
+  }
+
   let finalText = ''
   try {
     const stream = agentLoop(
@@ -593,6 +647,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     )
 
     for await (const event of stream) {
+      safe(() => recorder.onEvent(event))
       if (event.type === 'message_update') {
         const msg = event.message as Message
         if (msg.role !== 'assistant') continue
@@ -632,6 +687,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       signal?.aborted === true
     const message = err instanceof Error ? err.message : String(err)
 
+    safe(() => recorder.error(message, isAbort))
+    const counts = await recorder.finish()
+    const decision = { kind: 'decision' as const, ...counts }
+
     if (isAbort) {
       // Mark every still-running step on the active plan as failed so the
       // plan card reflects the interruption. We don't transition the plan
@@ -668,7 +727,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       await createConversationMessage({
         conversationId,
         role: 'system',
-        content: '⚠️ PM run was interrupted by the user.'
+        content: '⚠️ PM run was interrupted by the user.',
+        roundId: recorder.roundId,
+        parts: [decision]
       })
       emit({ type: 'message_end', conversationId, messageId })
       emit({ type: 'pm_ended', conversationId, reason: 'aborted' })
@@ -679,7 +740,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     await createConversationMessage({
       conversationId,
       role: 'system',
-      content: `⚠️ PM error: ${message}`
+      content: `⚠️ PM error: ${message}`,
+      roundId: recorder.roundId,
+      parts: [decision]
     })
     emit({ type: 'message_end', conversationId, messageId })
     notifyIfBackground({
@@ -707,11 +770,15 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           code: a.code
         }))
       : null
+  // The collapsed decision disclosure reads its counts from this part, so a
+  // closed one fetches nothing.
+  const counts = await recorder.finish()
   await createConversationMessage({
     conversationId,
     role: 'pm',
     content: finalText,
-    parts: artifactParts
+    roundId: recorder.roundId,
+    parts: [...(artifactParts ?? []), { kind: 'decision', ...counts }]
   })
   emit({ type: 'message_end', conversationId, messageId })
 

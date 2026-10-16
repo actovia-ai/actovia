@@ -54,6 +54,7 @@ export async function runScheduledRound(
     await runPmCoordinator({
       conversationId: template.conversationId,
       userText: `${template.title}\n\n${template.description ?? ''}`.trim(),
+      trigger: 'scheduled',
       emit
     })
     await updateTask(taskId, { lastRunStatus: 'completed' })
