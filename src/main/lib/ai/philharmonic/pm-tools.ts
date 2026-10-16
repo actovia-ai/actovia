@@ -102,3 +102,45 @@ export function createRecruitEmployeeTool(
     }
   } as AgentTool
 }
+
+/** Park a step until the quota that blocks its employee resets (spec 2026-10-16 §5). */
+export function createWaitForQuotaTool(
+  onWait: (p: {
+    stepId: string
+    employeeId: string
+    reason: string
+  }) => Promise<string>
+): AgentTool {
+  return {
+    name: 'waitForQuota',
+    label: 'Wait for Quota',
+    description:
+      'The step needs an employee whose quota is used up and no other employee can do it well: leave the step pending and get woken when the quota resets. Then end your turn with one line saying what you are waiting for. Do not use it while the employee can still run, or when another employee could do the step.',
+    parameters: Type.Object({
+      stepId: Type.String({ description: 'the plan step that waits' }),
+      employeeId: Type.String({
+        description: 'the employee the step waits for'
+      }),
+      reason: Type.String({
+        description:
+          'one line for the owner: what waits for what, and why not someone else'
+      })
+    }),
+    execute: async (
+      _id: string,
+      p: { stepId: string; employeeId: string; reason: string }
+    ) => {
+      const result = await onWait(p)
+      return {
+        content: [{ type: 'text' as const, text: result }],
+        details: { ...p, result }
+      }
+    }
+  } as AgentTool
+}
+
+/** Two minutes after the reset (a past one counts as now); an unknown reset is checked again in an hour. */
+export const quotaWaitRunAt = (resetsAt: number | null, now: number) =>
+  new Date(
+    resetsAt !== null ? Math.max(resetsAt, now) + 2 * 60_000 : now + 60 * 60_000
+  )

@@ -2,17 +2,24 @@
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+import { CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
 import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
-import { cliOf } from '../../agents/drivers'
+import { cliOf, isCliId } from '../../agents/drivers'
+import { blockedUntil, formatQuotaForPm, getQuota } from '../../agents/quota'
+import { refreshQuotas } from '../../agents/quota-refresh'
 import {
   addMemberToConversation,
   createConversationMessage,
   getConversationById
 } from '../../db/conversation-queries'
-import { createTask, getActiveAgents } from '../../db/philharmonic-queries'
+import {
+  createTask,
+  getActiveAgents,
+  getUpcomingOneOffTasks,
+  updateTask
+} from '../../db/philharmonic-queries'
 import {
   appendStepToPlan,
   createPlanWithSteps,
@@ -42,7 +49,12 @@ import {
   createCreatePlanTool,
   createUpdatePlanStepTool
 } from './plan-tools'
-import { createDelegateTaskTool, createRecruitEmployeeTool } from './pm-tools'
+import {
+  createDelegateTaskTool,
+  createRecruitEmployeeTool,
+  createWaitForQuotaTool,
+  quotaWaitRunAt
+} from './pm-tools'
 import { autoCreateEmployee } from './recruit'
 import { createReportTool, type PendingArtifact } from './report-tools'
 import { groupBeforeToolCall } from './sensitive-guard'
@@ -61,6 +73,13 @@ Execution loop:
 - When every step is done, write ONE final message that summarizes the outcome. Do not call any tool in that final turn.
 
 Use search_knowledge_base for company-specific facts before asking the user. Use askUser only when truly blocked.
+
+Dealing the work (coding-agent employees run on the owner's own CLI subscriptions, which have quotas):
+- Deal by difficulty: hard or open-ended steps to the strongest suitable model, routine steps to an ordinary one — from the start, so the skilled hand's quota lasts.
+- Read the quota lines under Employees. When a skilled hand's window is at 90 % or more, or marked warning / LIMIT REACHED: downgrade the step to an ordinary hand if one can do it well; otherwise call waitForQuota for it. Weigh how far the reset is — a 5-hour window resets within hours, a weekly one may be days away.
+- These are rules of thumb: schedule flexibly. Run steps that do not need the waiting hand first, split a step so part goes to an ordinary hand, or give it to another CLI's employee, whenever that serves the work better.
+- Say every such decision in one line in the group, with the numbers and the reset time.
+
 Delegate to one employee at a time.`
 
 function rosterText(
@@ -68,6 +87,8 @@ function rosterText(
     name: string
     teamId: string | null
     description: string | null
+    runtime: string
+    model: string | null
   }[],
   teamNameById: Map<string, string>
 ): string {
@@ -75,10 +96,23 @@ function rosterText(
   return agents
     .map((a) => {
       const teamName = a.teamId ? teamNameById.get(a.teamId) : null
-      return `- ${a.name}${teamName ? ` [${teamName}]` : ''}: ${a.description ?? 'no description'}`
+      const cli =
+        a.runtime !== 'exodus'
+          ? ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})`
+          : ''
+      return `- ${a.name}${cli}${teamName ? ` [${teamName}]` : ''}: ${a.description ?? 'no description'}`
     })
     .join('\n')
 }
+
+/** The owner's local time, as the PM reads it (English: the model reads it). */
+const formatWhen = (d: Date) =>
+  d.toLocaleString('en-US', {
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
 
 type UserContentPart =
   | { type: 'text'; text: string }
@@ -152,9 +186,22 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     description:
       e.runtime === 'exodus'
         ? e.description
-        : `${e.description ?? ''} [Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
+        : `${e.description ?? ''} [Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} (model: ${e.model || 'CLI default'}) on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
   }))
   const teamNameById = new Map(allTeams.map((t) => [t.id, t.name]))
+
+  // The quota of every CLI an employee runs on, read fresh where it can be
+  // without spending any (spec 2026-10-16 §4): the PM deals with it in view.
+  const clisInPlay = [
+    ...new Set(
+      employees.filter((e) => isCliId(e.runtime)).map((e) => e.runtime as CliId)
+    )
+  ]
+  await refreshQuotas(clisInPlay)
+  const now = Date.now()
+  const quotaText = clisInPlay
+    .map((cli) => formatQuotaForPm(getQuota(cli), cli, now))
+    .join('\n')
 
   // PhilharmonicLcm hydrates the LLM history: when within budget it's a
   // straight conversion of every persisted message; when over, it replaces
@@ -198,6 +245,19 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // P1-7: createReport pushes here; attached as message parts at turn end so
   // ArtifactCard can render on history reload, not just from the live stream.
   const pendingArtifacts: PendingArtifact[] = []
+
+  // The window that stops an employee's CLI from running it now, as the
+  // delegateTask refusal the PM reads; null when nothing blocks it.
+  const quotaBlock = (employeeId: string): string | null => {
+    const emp = employees.find((e) => e.id === employeeId)
+    if (!emp || !isCliId(emp.runtime)) return null
+    const w = blockedUntil(getQuota(emp.runtime), emp.model)
+    if (!w) return null
+    const reset = w.resetsAt
+      ? formatWhen(new Date(w.resetsAt))
+      : 'an unknown time'
+    return `Not started: ${emp.name}'s ${CLI_NAMES[emp.runtime]} quota is used up (${w.name} ${Math.round(w.usedPercent)} %), resets ${reset}. Give the step to another employee, or call waitForQuota.`
+  }
 
   const tools: AgentTool[] = [
     createCreatePlanTool(async ({ summary, steps }) => {
@@ -284,6 +344,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     createDelegateTaskTool(
       roster,
       async ({ employeeId, instructions, stepId }) => {
+        // A CLI that has rejected this employee's model starts no process.
+        const blocked = quotaBlock(employeeId)
+        if (blocked) return blocked
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
         if (stepId) {
@@ -368,6 +431,50 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       roster.push({ id: emp.id, name: emp.name, description: null })
       return { id: emp.id, name: emp.name }
     }),
+    createWaitForQuotaTool(async ({ stepId, employeeId, reason }) => {
+      const emp = employees.find((e) => e.id === employeeId)
+      const w =
+        emp && isCliId(emp.runtime)
+          ? blockedUntil(getQuota(emp.runtime), emp.model)
+          : null
+      if (!emp || !w)
+        return 'Refused: nothing blocks that employee right now — delegate the step instead.'
+      const runAt = quotaWaitRunAt(w.resetsAt, Date.now())
+      const note = `waiting for ${emp.name}'s ${w.name} quota — ${reason}`
+      const step = await updateStep(stepId, { status: 'pending', note })
+      emit({
+        type: 'plan_step_updated',
+        conversationId,
+        stepId,
+        patch: { status: step.status, note: step.note }
+      })
+      await mirrorActivePlan()
+      // One wait per step: a second call moves the wake-up it already has.
+      const existing = (await getUpcomingOneOffTasks()).find((t) => {
+        const input = t.input as Record<string, unknown> | null
+        return (
+          t.conversationId === conversationId &&
+          input?.kind === 'quota-wait' &&
+          input?.stepId === stepId
+        )
+      })
+      if (existing) await updateTask(existing.id, { runAt })
+      else
+        await createTask({
+          conversationId,
+          title: `Quota reset — continue "${step.title}"`,
+          description: `${reason}\nThe quota that stopped ${emp.name} should have reset. Read the quota lines, then continue the plan from step ${stepId}.`,
+          status: 'pending',
+          priority: 'medium',
+          assignedAgentId: null,
+          input: { kind: 'quota-wait', stepId, employeeId },
+          output: null,
+          runAt,
+          maxRetries: 1,
+          retryCount: 0
+        })
+      return `Step parked. You will be woken at ${formatWhen(runAt)}. End your turn now with one line for the owner saying what waits and why.`
+    }),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {
@@ -397,7 +504,8 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             role: 'system',
             content:
               PM_SYSTEM_PROMPT +
-              `\n\nEmployees:\n${rosterText(employees, teamNameById)}`,
+              `\n\nEmployees:\n${rosterText(employees, teamNameById)}` +
+              (quotaText ? `\n\nQuota:\n${quotaText}` : ''),
             toolsAdded: tools,
             timestamp: Date.now()
           },

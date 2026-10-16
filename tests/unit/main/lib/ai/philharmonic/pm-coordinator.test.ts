@@ -63,10 +63,31 @@ const getActiveAgents = vi.fn(async () => [
 ])
 const createConversationMessage = vi.fn(async (d) => ({ id: 'm', ...d }))
 const getMessagesByConversationId = vi.fn(async () => [])
+const createTask = vi.fn(async (d) => ({ id: 't1', ...d }))
+const getUpcomingOneOffTasks = vi.fn(async (): Promise<unknown[]> => [])
+const updateTask = vi.fn(async (id: string, d: unknown) => ({
+  id,
+  ...(d as object)
+}))
 vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getActiveAgents,
-  createTask: vi.fn(async (d) => ({ id: 't1', ...d }))
+  createTask,
+  getUpcomingOneOffTasks,
+  updateTask
 }))
+const refreshQuotas = vi.fn(async () => {})
+vi.mock('@main/lib/agents/quota-refresh', () => ({ refreshQuotas }))
+// What the store holds for each test; blockedUntil / formatQuotaForPm are the real ones.
+let quotaReading: unknown = null
+vi.mock('@main/lib/agents/quota', async () => {
+  const actual = await vi.importActual<typeof import('@main/lib/agents/quota')>(
+    '@main/lib/agents/quota'
+  )
+  return {
+    ...actual,
+    getQuota: vi.fn(() => quotaReading)
+  }
+})
 vi.mock('@main/lib/logger', () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
 }))
@@ -263,5 +284,177 @@ describe('runPmCoordinator — the plan mirror', () => {
       expect.objectContaining({ message: 'meta dir refused' })
     )
     vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
+  })
+})
+
+describe('runPmCoordinator — the quota in view', () => {
+  type CapturedTool = {
+    name: string
+    description: string
+    execute: (id: string, p: unknown) => Promise<unknown>
+  }
+  const R = Date.now() + 3 * 24 * 3_600_000
+  const rejected = {
+    cli: 'claude-code',
+    windows: [{ name: 'seven_day', usedPercent: 100, resetsAt: R }],
+    state: 'rejected',
+    rejectedWindow: 'seven_day',
+    overage: false,
+    asOf: Date.now()
+  }
+  const textOf = (res: unknown) =>
+    (res as { content: Array<{ text: string }> }).content
+      .map((c) => c.text)
+      .join('')
+
+  async function runWith(reading: unknown) {
+    quotaReading = reading
+    getActiveAgents.mockResolvedValueOnce([
+      {
+        id: 'opus-id',
+        name: 'Ada',
+        description: 'Hard problems',
+        isActive: true,
+        runtime: 'claude-code',
+        model: 'opus'
+      },
+      {
+        id: 'plain-id',
+        name: 'Ben',
+        description: 'Routine work',
+        isActive: true,
+        runtime: 'claude-code',
+        model: null
+      }
+    ] as never)
+    const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.updateStep).mockReset()
+    vi.mocked(plans.updateStep).mockImplementation(
+      async (id, patch) =>
+        ({
+          id,
+          title: 'Refactor the parser',
+          status: patch.status ?? 'running',
+          output: null,
+          note: patch.note ?? null,
+          startedAt: null,
+          completedAt: null
+        }) as never
+    )
+    const { runDelegatedTask } =
+      await import('@main/lib/ai/philharmonic/execution-engine')
+    vi.mocked(runDelegatedTask).mockClear()
+    refreshQuotas.mockClear()
+    createTask.mockClear()
+    updateTask.mockClear()
+    getUpcomingOneOffTasks.mockReset()
+    getUpcomingOneOffTasks.mockResolvedValue([])
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'build it',
+      emit: vi.fn()
+    }).catch(() => {})
+    const system = agentLoopMock.mock.calls[0][1].messages[0]
+    const tools = system.toolsAdded as CapturedTool[]
+    return {
+      plans,
+      runDelegatedTask,
+      system: system.content as string,
+      tool: (name: string) => tools.find((t) => t.name === name)!
+    }
+  }
+
+  it('tells the PM each CLI employee’s model and its CLI’s quota, and how to deal', async () => {
+    const { system } = await runWith({
+      cli: 'claude-code',
+      windows: [
+        { name: 'five_hour', usedPercent: 5, resetsAt: Date.now() + 3_600_000 },
+        { name: 'seven_day', usedPercent: 85, resetsAt: R }
+      ],
+      state: 'warning',
+      rejectedWindow: null,
+      overage: false,
+      asOf: Date.now()
+    })
+    expect(system).toContain('model: opus')
+    expect(system).toContain('model: CLI default')
+    expect(system).toMatch(
+      /Claude Code quota \(as of .*\): .*week 85 % \(warning\)/
+    )
+    expect(system).toContain('schedule flexibly')
+    expect(refreshQuotas).toHaveBeenCalledWith(['claude-code'])
+  })
+
+  it('does not start an employee its CLI has rejected; tells the PM the reset', async () => {
+    const { plans, runDelegatedTask, tool } = await runWith(rejected)
+    const result = textOf(
+      await tool('delegateTask').execute('x', {
+        employeeId: 'opus-id',
+        instructions: 'x',
+        stepId: 's1'
+      })
+    )
+    expect(runDelegatedTask).not.toHaveBeenCalled()
+    expect(plans.updateStep).not.toHaveBeenCalledWith('s1', {
+      status: 'running'
+    })
+    expect(result).toMatch(/quota is used up .*seven_day 100 %/)
+    expect(result).toMatch(/waitForQuota/)
+  })
+
+  it('waitForQuota parks the step and schedules one wake-up, moved on a second call', async () => {
+    const { plans, tool } = await runWith(rejected)
+    const wait = tool('waitForQuota')
+    const args = { stepId: 's1', employeeId: 'opus-id', reason: 'needs opus' }
+    await wait.execute('w1', args)
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'c1',
+        status: 'pending',
+        runAt: new Date(R + 120_000),
+        input: { kind: 'quota-wait', stepId: 's1', employeeId: 'opus-id' }
+      })
+    )
+    expect(plans.updateStep).toHaveBeenCalledWith(
+      's1',
+      expect.objectContaining({
+        status: 'pending',
+        note: expect.stringContaining('waiting for')
+      })
+    )
+    getUpcomingOneOffTasks.mockResolvedValue([
+      {
+        id: 't-wait',
+        conversationId: 'c1',
+        input: { kind: 'quota-wait', stepId: 's1', employeeId: 'opus-id' }
+      }
+    ])
+    await wait.execute('w2', args)
+    expect(updateTask).toHaveBeenCalledWith('t-wait', {
+      runAt: new Date(R + 120_000)
+    })
+    expect(createTask).toHaveBeenCalledTimes(1)
+  })
+
+  it('waitForQuota refuses when nothing blocks the employee', async () => {
+    const { tool } = await runWith({
+      cli: 'claude-code',
+      windows: [{ name: 'seven_day', usedPercent: 85, resetsAt: R }],
+      state: 'warning',
+      rejectedWindow: null,
+      overage: false,
+      asOf: Date.now()
+    })
+    const result = textOf(
+      await tool('waitForQuota').execute('w', {
+        stepId: 's1',
+        employeeId: 'opus-id',
+        reason: 'needs opus'
+      })
+    )
+    expect(result).toMatch(/nothing blocks .* delegate/i)
+    expect(createTask).not.toHaveBeenCalled()
   })
 })

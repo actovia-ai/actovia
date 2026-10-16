@@ -8,8 +8,12 @@ vi.mock('@earendil-works/pi-ai', () => ({
   }
 }))
 
-const { createDelegateTaskTool, createRecruitEmployeeTool } =
-  await import('@main/lib/ai/philharmonic/pm-tools')
+const {
+  createDelegateTaskTool,
+  createRecruitEmployeeTool,
+  createWaitForQuotaTool,
+  quotaWaitRunAt
+} = await import('@main/lib/ai/philharmonic/pm-tools')
 
 describe('pm-tools', () => {
   it('delegate tool lists the roster and calls the callback', async () => {
@@ -56,5 +60,29 @@ describe('pm-tools', () => {
     const res = await tool.execute('id', { role: 'Writer', skills: [] })
     expect(onRecruit).toHaveBeenCalled()
     expect(JSON.stringify(res)).toContain('a2')
+  })
+
+  it('wait tool passes step, employee and reason through', async () => {
+    const onWait = vi.fn(async () => 'waiting until Tue 07:02')
+    const tool = createWaitForQuotaTool(onWait)
+    expect(tool.name).toBe('waitForQuota')
+    const res = await tool.execute('id', {
+      stepId: 's1',
+      employeeId: 'a1',
+      reason: 'needs opus'
+    })
+    expect(onWait).toHaveBeenCalledWith({
+      stepId: 's1',
+      employeeId: 'a1',
+      reason: 'needs opus'
+    })
+    expect(JSON.stringify(res)).toContain('waiting until')
+  })
+
+  it('a wait wakes two minutes after the reset; an unknown reset is checked in an hour', () => {
+    expect(quotaWaitRunAt(1000, 0)).toEqual(new Date(121_000))
+    expect(quotaWaitRunAt(null, 0)).toEqual(new Date(3_600_000))
+    // a reset already past
+    expect(quotaWaitRunAt(0, 5000)).toEqual(new Date(125_000))
   })
 })
