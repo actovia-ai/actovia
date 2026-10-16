@@ -20,6 +20,7 @@ import {
 } from '@exodus/shared/schemas/settings-schema'
 import type { Attempt } from '@exodus/shared/types/chat'
 import type { DiscoverGroup } from '@exodus/shared/types/discover'
+import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
 import { WebSearchResult } from '@exodus/shared/types/web-search'
 import { sql, type InferSelectModel } from 'drizzle-orm'
 import {
@@ -405,6 +406,7 @@ export const conversationMessage = pgTable(
     content: text('content').notNull().default(''),
     parts: jsonb('parts').$type<Record<string, unknown>[]>(), // tool-call cards etc.
     taskId: uuid('taskId'),
+    roundId: uuid('roundId'),
     createdAt: timestamp('createdAt').defaultNow().notNull()
   },
   (table) => [
@@ -416,6 +418,31 @@ export const conversationMessage = pgTable(
 )
 
 export type ConversationMessage = InferSelectModel<typeof conversationMessage>
+
+// One PM round's decision trail (spec 2026-10-17): what it read, thought,
+// called and was answered, in order. Masked before it is written.
+export const pmRoundEvent = pgTable(
+  'pm_round_event',
+  {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    conversationId: uuid('conversationId')
+      .notNull()
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    roundId: uuid('roundId').notNull(),
+    seq: integer('seq').notNull(),
+    kind: text('kind').$type<PmRoundEventKind>().notNull(),
+    payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp('createdAt').defaultNow().notNull()
+  },
+  (table) => [
+    index('pm_round_event_round_idx').on(
+      table.conversationId,
+      table.roundId,
+      table.seq
+    )
+  ]
+)
+export type PmRoundEvent = InferSelectModel<typeof pmRoundEvent>
 
 export const agentSessionStateEnum = pgEnum('agent_session_state', [
   'working',
