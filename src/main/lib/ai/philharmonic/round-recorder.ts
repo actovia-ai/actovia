@@ -54,16 +54,27 @@ export function resultText(result: unknown): string {
       .join('')
     if (text) return text
   }
-  return JSON.stringify(result)
+  try {
+    return JSON.stringify(result) ?? String(result)
+  } catch {
+    return String(result)
+  }
 }
 
-function maskDeep(v: unknown, mask: (t: string) => string): unknown {
+function maskDeep(
+  v: unknown,
+  mask: (t: string) => string,
+  seen: WeakSet<object> = new WeakSet()
+): unknown {
   if (typeof v === 'string') return mask(v)
-  if (Array.isArray(v)) return v.map((x) => maskDeep(x, mask))
-  if (isObj(v))
+  if (typeof v === 'object' && v !== null) {
+    if (seen.has(v)) return '[circular]'
+    seen.add(v)
+    if (Array.isArray(v)) return v.map((x) => maskDeep(x, mask, seen))
     return Object.fromEntries(
-      Object.entries(v).map(([k, x]) => [k, maskDeep(x, mask)])
+      Object.entries(v).map(([k, x]) => [k, maskDeep(x, mask, seen)])
     )
+  }
   return v
 }
 
@@ -83,24 +94,32 @@ export function createRoundRecorder(
   }
   const counts = { delegations: 0, waits: 0 }
 
-  const write = (kind: PmRoundEventKind, payload: Json) => {
-    const row = {
+  const captureFailed = (error: unknown) =>
+    logger.warn('philharmonic', 'decision trail capture failed', {
       conversationId,
       roundId,
-      seq: seq++,
-      kind,
-      payload: maskDeep(payload, deps.mask) as Json
-    }
-    chain = chain.then(() =>
-      deps.append(row).catch((error) =>
-        logger.warn('philharmonic', 'decision trail write failed', {
-          conversationId,
-          roundId,
-          kind,
-          error
-        })
+      error
+    })
+
+  const write = (kind: PmRoundEventKind, payload: Json) => {
+    try {
+      const masked = maskDeep(payload, deps.mask) as Json
+      const row = { conversationId, roundId, seq: seq++, kind, payload: masked }
+      chain = chain.then(() =>
+        Promise.resolve()
+          .then(() => deps.append(row))
+          .catch((error) =>
+            logger.warn('philharmonic', 'decision trail write failed', {
+              conversationId,
+              roundId,
+              kind,
+              error
+            })
+          )
       )
-    )
+    } catch (error) {
+      captureFailed(error)
+    }
   }
 
   return {
@@ -110,78 +129,90 @@ export function createRoundRecorder(
       if (messages.length) write('reports', { messages })
     },
     onEvent(event) {
-      if (!isObj(event)) return
-      if (
-        event.type === 'message_end' &&
-        isObj(event.message) &&
-        event.message.role === 'assistant'
-      ) {
-        const msg = event.message
-        for (const part of Array.isArray(msg.content) ? msg.content : []) {
-          if (!isObj(part)) continue
-          if (
-            part.type === 'thinking' &&
-            typeof part.thinking === 'string' &&
-            part.thinking.trim()
-          )
-            write('thinking', { text: part.thinking })
-          else if (
-            part.type === 'text' &&
-            typeof part.text === 'string' &&
-            part.text.trim()
-          )
-            write('text', { text: part.text })
-        }
-        const u = isObj(msg.usage) ? msg.usage : null
-        if (u) {
-          usage.seen = true
-          usage.inputTokens += typeof u.input === 'number' ? u.input : 0
-          usage.outputTokens += typeof u.output === 'number' ? u.output : 0
-          usage.cacheReadTokens +=
-            typeof u.cacheRead === 'number' ? u.cacheRead : 0
-          usage.costUsd +=
-            isObj(u.cost) && typeof u.cost.total === 'number' ? u.cost.total : 0
-        }
-      } else if (event.type === 'tool_execution_start') {
-        write('tool_call', {
-          toolCallId: event.toolCallId,
-          name: event.toolName,
-          args: event.args ?? {}
-        })
-      } else if (event.type === 'tool_execution_end') {
-        const text = resultText(event.result)
-        const ok = event.isError !== true
-        if (
-          ok &&
-          event.toolName === 'delegateTask' &&
-          !text.startsWith('Not started:')
-        )
-          counts.delegations++
-        if (
-          ok &&
-          event.toolName === 'waitForQuota' &&
-          !text.startsWith('Refused')
-        )
-          counts.waits++
-        write('tool_result', {
-          toolCallId: event.toolCallId,
-          name: event.toolName,
-          text,
-          isError: !ok
-        })
+      try {
+        handle(event)
+      } catch (error) {
+        captureFailed(error)
       }
     },
     error: (message, aborted) => write('error', { message, aborted }),
     async finish() {
-      if (usage.seen) {
-        const { seen: _seen, ...rest } = usage
-        write('usage', {
-          ...rest,
-          costUsd: Math.round(rest.costUsd * 1e6) / 1e6
-        })
+      try {
+        if (usage.seen) {
+          const { seen: _seen, ...rest } = usage
+          write('usage', {
+            ...rest,
+            costUsd: Math.round(rest.costUsd * 1e6) / 1e6
+          })
+        }
+      } catch (error) {
+        captureFailed(error)
       }
-      await chain
+      await chain.catch(() => {})
       return { ...counts }
+    }
+  }
+
+  function handle(event: unknown) {
+    if (!isObj(event)) return
+    if (
+      event.type === 'message_end' &&
+      isObj(event.message) &&
+      event.message.role === 'assistant'
+    ) {
+      const msg = event.message
+      for (const part of Array.isArray(msg.content) ? msg.content : []) {
+        if (!isObj(part)) continue
+        if (
+          part.type === 'thinking' &&
+          typeof part.thinking === 'string' &&
+          part.thinking.trim()
+        )
+          write('thinking', { text: part.thinking })
+        else if (
+          part.type === 'text' &&
+          typeof part.text === 'string' &&
+          part.text.trim()
+        )
+          write('text', { text: part.text })
+      }
+      const u = isObj(msg.usage) ? msg.usage : null
+      if (u) {
+        usage.seen = true
+        usage.inputTokens += typeof u.input === 'number' ? u.input : 0
+        usage.outputTokens += typeof u.output === 'number' ? u.output : 0
+        usage.cacheReadTokens +=
+          typeof u.cacheRead === 'number' ? u.cacheRead : 0
+        usage.costUsd +=
+          isObj(u.cost) && typeof u.cost.total === 'number' ? u.cost.total : 0
+      }
+    } else if (event.type === 'tool_execution_start') {
+      write('tool_call', {
+        toolCallId: event.toolCallId,
+        name: event.toolName,
+        args: event.args ?? {}
+      })
+    } else if (event.type === 'tool_execution_end') {
+      const text = resultText(event.result)
+      const ok = event.isError !== true
+      if (
+        ok &&
+        event.toolName === 'delegateTask' &&
+        !text.startsWith('Not started:')
+      )
+        counts.delegations++
+      if (
+        ok &&
+        event.toolName === 'waitForQuota' &&
+        !text.startsWith('Refused')
+      )
+        counts.waits++
+      write('tool_result', {
+        toolCallId: event.toolCallId,
+        name: event.toolName,
+        text,
+        isError: !ok
+      })
     }
   }
 }

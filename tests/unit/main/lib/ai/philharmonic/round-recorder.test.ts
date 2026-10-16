@@ -157,7 +157,70 @@ describe('round recorder', () => {
   })
 })
 
+describe('a recording failure never reaches the round', () => {
+  it('a throwing mask does not throw and finish resolves', async () => {
+    const r = createRoundRecorder('c1', 'r1', {
+      append: async () => {},
+      mask: () => {
+        throw new Error('mask broke')
+      }
+    })
+    expect(() => r.input('user', 'x')).not.toThrow()
+    expect(() =>
+      r.onEvent({
+        type: 'tool_execution_start',
+        toolCallId: 't',
+        toolName: 'x',
+        args: { a: 'b' }
+      })
+    ).not.toThrow()
+    await expect(r.finish()).resolves.toEqual({ delegations: 0, waits: 0 })
+  })
+
+  it('cyclic args are recorded with [circular]', async () => {
+    const { r, rows } = rec()
+    const args: Record<string, unknown> = { a: 1 }
+    args.self = args
+    r.onEvent({
+      type: 'tool_execution_start',
+      toolCallId: 't',
+      toolName: 'x',
+      args
+    })
+    await r.finish()
+    expect(rows[0].payload).toEqual({
+      toolCallId: 't',
+      name: 'x',
+      args: { a: 1, self: '[circular]' }
+    })
+  })
+
+  it('a synchronous throw in append keeps later events and finish resolves', async () => {
+    const rows: string[] = []
+    let n = 0
+    const r = createRoundRecorder('c1', 'r1', {
+      append: ((e: { kind: string }) => {
+        if (n++ === 0) throw new Error('sync boom')
+        rows.push(e.kind)
+        return Promise.resolve()
+      }) as never,
+      mask: (t) => t
+    })
+    r.input('user', 'x')
+    r.error('y', false)
+    await expect(r.finish()).resolves.toEqual({ delegations: 0, waits: 0 })
+    expect(rows).toEqual(['error'])
+  })
+})
+
 describe('resultText', () => {
+  it('does not throw on a BigInt or circular result', () => {
+    expect(typeof resultText({ n: 1n })).toBe('string')
+    const c: Record<string, unknown> = {}
+    c.c = c
+    expect(typeof resultText(c)).toBe('string')
+  })
+
   it('reads text parts, a string, or JSON for anything else', () => {
     expect(resultText('plain')).toBe('plain')
     expect(
