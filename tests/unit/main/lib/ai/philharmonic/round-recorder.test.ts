@@ -195,6 +195,19 @@ describe('a recording failure never reaches the round', () => {
     })
   })
 
+  it('a shared non-cyclic reference is recorded in full both times', async () => {
+    const { r, rows } = rec()
+    const x = { v: 1 }
+    r.onEvent({
+      type: 'tool_execution_start',
+      toolCallId: 't',
+      toolName: 'x',
+      args: { a: x, b: x }
+    })
+    await r.finish()
+    expect(rows[0].payload.args).toEqual({ a: { v: 1 }, b: { v: 1 } })
+  })
+
   it('a synchronous throw in append keeps later events and finish resolves', async () => {
     const rows: string[] = []
     let n = 0

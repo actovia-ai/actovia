@@ -70,10 +70,14 @@ function maskDeep(
   if (typeof v === 'object' && v !== null) {
     if (seen.has(v)) return '[circular]'
     seen.add(v)
-    if (Array.isArray(v)) return v.map((x) => maskDeep(x, mask, seen))
-    return Object.fromEntries(
-      Object.entries(v).map(([k, x]) => [k, maskDeep(x, mask, seen)])
-    )
+    try {
+      if (Array.isArray(v)) return v.map((x) => maskDeep(x, mask, seen))
+      return Object.fromEntries(
+        Object.entries(v).map(([k, x]) => [k, maskDeep(x, mask, seen)])
+      )
+    } finally {
+      seen.delete(v)
+    }
   }
   return v
 }
@@ -94,12 +98,17 @@ export function createRoundRecorder(
   }
   const counts = { delegations: 0, waits: 0 }
 
-  const captureFailed = (error: unknown) =>
-    logger.warn('philharmonic', 'decision trail capture failed', {
-      conversationId,
-      roundId,
-      error
-    })
+  const captureFailed = (error: unknown) => {
+    try {
+      logger.warn('philharmonic', 'decision trail capture failed', {
+        conversationId,
+        roundId,
+        error
+      })
+    } catch {
+      // a broken logger must not reach the round either
+    }
+  }
 
   const write = (kind: PmRoundEventKind, payload: Json) => {
     try {
