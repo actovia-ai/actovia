@@ -32,12 +32,16 @@ const keyOf = (w: QuotaWindow): QuotaPart['key'] =>
 export function quotaParts(q: CliQuota, now: number = Date.now()): QuotaPart[] {
   return q.windows.map((w) => {
     const reset = w.resetsAt !== null && w.resetsAt <= now
+    // Mirrors main's noResetStale(): no reset time is believed for an hour.
+    const stale =
+      w.resetsAt === null && now - (w.seenAt ?? q.asOf) >= 60 * 60_000
     return {
       key: keyOf(w),
       name: w.model ?? w.name,
       percent: Math.round(w.usedPercent),
       limited:
         !reset &&
+        !stale &&
         (!!w.rejected ||
           (q.state === 'rejected' &&
             (w.name === q.rejectedWindow || w.usedPercent >= 100))),

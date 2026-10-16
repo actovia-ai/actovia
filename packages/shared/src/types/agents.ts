@@ -124,6 +124,8 @@ export interface QuotaWindow {
   model?: string
   /** The CLI said this window stopped it (until `resetsAt`); kept when a later reading omits the window. */
   rejected?: boolean
+  /** When a window with no `resetsAt` was first read (epoch ms), kept as it is carried onto later readings that omit it; absent means the record's `asOf`. Such a window is believed for an hour from this. */
+  seenAt?: number
   /** The window's length when the CLI says it (Codex `windowDurationMins`): 300 is the 5-hour, 10080 the week. */
   durationMins?: number
 }

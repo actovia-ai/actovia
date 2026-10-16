@@ -241,6 +241,60 @@ describe('a model’s own rejection outlives a reading of another model', () => 
   })
 })
 
+describe('a rejected model window with no reset time', () => {
+  const MIN = 60_000
+  const T = NOW
+  const opusNoReset = claude({
+    state: 'rejected',
+    rejectedWindow: 'seven_day_opus',
+    asOf: T,
+    windows: [
+      { name: 'five_hour', usedPercent: 20, resetsAt: T + 3600_000 },
+      {
+        name: 'seven_day_opus',
+        usedPercent: 100,
+        resetsAt: null,
+        model: 'opus',
+        rejected: true
+      }
+    ]
+  })
+  const sonnetAt = (min: number) =>
+    claude({
+      state: 'ok',
+      asOf: T + min * MIN,
+      windows: [
+        { name: 'five_hour', usedPercent: 25, resetsAt: T + 3600_000 * 5 }
+      ]
+    })
+
+  it('blocks for an hour after the reading that carried it, not forever', () => {
+    recordQuota(opusNoReset, {}, T)
+    recordQuota(sonnetAt(10), {}, T + 10 * MIN)
+    const q = getQuota('claude-code')!
+    expect(blockedUntil(q, 'opus', T + 10 * MIN)?.name).toBe('seven_day_opus')
+    expect(blockedUntil(q, 'opus', T + 61 * MIN)).toBeNull()
+  })
+
+  it('a carried window keeps its own origin across later readings', () => {
+    recordQuota(opusNoReset, {}, T)
+    recordQuota(sonnetAt(10), {}, T + 10 * MIN)
+    recordQuota(sonnetAt(30), {}, T + 30 * MIN)
+    const q = getQuota('claude-code')!
+    expect(q.windows.find((w) => w.model === 'opus')?.seenAt).toBe(T)
+    expect(blockedUntil(q, 'opus', T + 30 * MIN)?.name).toBe('seven_day_opus')
+    expect(blockedUntil(q, 'opus', T + 61 * MIN)).toBeNull()
+  })
+
+  it('is dropped from the record once an hour has passed since it was seen', () => {
+    recordQuota(opusNoReset, {}, T)
+    recordQuota(sonnetAt(61), {}, T + 61 * MIN)
+    expect(
+      getQuota('claude-code')!.windows.some((w) => w.model === 'opus')
+    ).toBe(false)
+  })
+})
+
 describe('blockedUntil', () => {
   it('nothing blocks without a record, while not rejected, or with overage', () => {
     expect(blockedUntil(null, 'opus', NOW)).toBeNull()

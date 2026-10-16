@@ -88,12 +88,20 @@ export function recordQuota(
           }
   } else if (prev) {
     const named = new Set(q.windows.map((w) => w.name))
-    const kept = prev.windows.filter(
-      (w) =>
-        w.model &&
-        !named.has(w.name) &&
-        (w.resetsAt === null || w.resetsAt > now)
-    )
+    // A carried window with no reset time keeps the origin it was first seen
+    // at (`seenAt`), so carrying it never renews its hour.
+    const kept = prev.windows
+      .filter(
+        (w) =>
+          w.model &&
+          !named.has(w.name) &&
+          (w.resetsAt === null
+            ? now - (w.seenAt ?? prev.asOf) < NO_DETAIL_BLOCK_MS
+            : w.resetsAt > now)
+      )
+      .map((w) =>
+        w.resetsAt === null ? { ...w, seenAt: w.seenAt ?? prev.asOf } : w
+      )
     if (kept.length) next = { ...q, windows: [...q.windows, ...kept] }
   }
   load().set(q.cli, next)
@@ -112,8 +120,12 @@ export function resetQuotaStoreForTests() {
   store = null
 }
 
-/** A rejection that names no window blocks this long after it was reported. */
+/** A rejection that names no window, or no reset time, blocks this long after it was reported. */
 const NO_DETAIL_BLOCK_MS = 60 * 60_000
+
+/** A window with no reset time is only believed for an hour after it was seen. */
+export const noResetStale = (w: QuotaWindow, asOf: number, now: number) =>
+  w.resetsAt === null && now - (w.seenAt ?? asOf) >= NO_DETAIL_BLOCK_MS
 
 const modelMatches = (windowModel: string, model: string | null | undefined) =>
   !!model && model.toLowerCase().includes(windowModel.toLowerCase())
@@ -130,7 +142,8 @@ export function blockedUntil(
   now: number = Date.now()
 ): QuotaWindow | null {
   if (!q || q.overage) return null
-  const live = (w: QuotaWindow) => w.resetsAt === null || w.resetsAt > now
+  const live = (w: QuotaWindow) =>
+    w.resetsAt === null ? !noResetStale(w, q.asOf, now) : w.resetsAt > now
   const applies = (w: QuotaWindow) =>
     live(w) && (!w.model || modelMatches(w.model, model))
   const latest = (ws: QuotaWindow[]) =>
@@ -209,7 +222,7 @@ export function formatQuotaForPm(
     const label = quotaWindowLabel(w)
     if (w.resetsAt !== null && windowReset(w, now))
       return `${label}: reset at ${when(w.resetsAt)} (not re-read since)`
-    const limited = windowLimited(q, w)
+    const limited = windowLimited(q, w) && !noResetStale(w, q.asOf, now)
     const flag = limited
       ? ` (LIMIT REACHED${w.resetsAt ? `, resets ${when(w.resetsAt)}` : ''})`
       : q.state === 'warning' && w.usedPercent >= 75
