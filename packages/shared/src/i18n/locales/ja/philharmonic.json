@@ -190,10 +190,10 @@
       "triggerScheduled": "スケジュール",
       "reports": "報告を読んだ相手",
       "thinking": "思考",
-      "delegate": "{{name}} にステップを任せた",
+      "delegate": "{{who}} にステップを任せた",
       "refused": "未開始 — {{name}} のクォータを使い切っています",
-      "wait": "クォータを待った",
-      "plan": "{{count}} 個のステップを計画した",
+      "wait": "{{name}} のクォータを待った — {{reason}}",
+      "plan": "計画したステップ：{{count}}",
       "updateStep": "ステップを {{status}} にした",
       "appendStep": "ステップを追加した",
       "recruit": "{{name}} を採用した",
@@ -206,7 +206,17 @@
       "usage": "入力 {{input}} · 出力 {{output}} · ${{cost}}",
       "error": "停止: {{message}}",
       "interrupted": "あなたがこのラウンドを停止しました",
-      "formerEmployee": "元社員"
+      "formerEmployee": "元社員",
+      "waitRefused": "待たなかった — {{reason}}",
+      "wakeAt": "{{time}} に再開",
+      "cliDefault": "CLI の既定",
+      "status": {
+        "pending": "保留中",
+        "running": "実行中",
+        "done": "完了",
+        "skipped": "スキップ",
+        "failed": "失敗"
+      }
     }
   },
   "employees": {

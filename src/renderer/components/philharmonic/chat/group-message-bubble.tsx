@@ -86,7 +86,7 @@ export function GroupMessageBubble({
       roundId={bubble.roundId}
       bubbleText={bubble.text}
       counts={bubble.decision}
-      nameOf={(id) => agentsById[id]?.name}
+      agentOf={(id) => agentsById[id]}
       onJumpTo={jumpToMessage}
     />
   )

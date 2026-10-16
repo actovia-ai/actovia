@@ -190,10 +190,10 @@
       "triggerScheduled": "예약됨",
       "reports": "보고서를 읽은 대상",
       "thinking": "생각 중",
-      "delegate": "{{name}}에게 단계를 맡김",
+      "delegate": "{{who}}에게 단계를 맡김",
       "refused": "시작 안 됨 — {{name}}의 할당량이 소진됨",
-      "wait": "할당량을 기다림",
-      "plan": "단계 {{count}}개를 계획함",
+      "wait": "{{name}}의 할당량을 기다림 — {{reason}}",
+      "plan": "계획한 단계: {{count}}",
       "updateStep": "단계를 {{status}}(으)로 표시함",
       "appendStep": "단계를 추가함",
       "recruit": "{{name}}을(를) 채용함",
@@ -206,7 +206,17 @@
       "usage": "입력 {{input}} · 출력 {{output}} · ${{cost}}",
       "error": "중지됨: {{message}}",
       "interrupted": "내가 이 라운드를 중지함",
-      "formerEmployee": "이전 직원"
+      "formerEmployee": "이전 직원",
+      "waitRefused": "기다리지 않음 — {{reason}}",
+      "wakeAt": "{{time}}에 재개",
+      "cliDefault": "CLI 기본값",
+      "status": {
+        "pending": "대기",
+        "running": "진행 중",
+        "done": "완료",
+        "skipped": "건너뜀",
+        "failed": "실패"
+      }
     }
   },
   "employees": {

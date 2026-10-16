@@ -191,10 +191,10 @@
       "triggerScheduled": "Agendado",
       "reports": "Leu relatórios de",
       "thinking": "Pensando",
-      "delegate": "Passou uma etapa para {{name}}",
+      "delegate": "Passou uma etapa para {{who}}",
       "refused": "Não iniciado — a cota de {{name}} acabou",
-      "wait": "Esperou pela cota",
-      "plan": "Planejou {{count}} etapas",
+      "wait": "Esperou pela cota de {{name}} — {{reason}}",
+      "plan": "Etapas planejadas: {{count}}",
       "updateStep": "Marcou uma etapa como {{status}}",
       "appendStep": "Adicionou uma etapa",
       "recruit": "Contratou {{name}}",
@@ -207,7 +207,17 @@
       "usage": "{{input}} de entrada · {{output}} de saída · ${{cost}}",
       "error": "Parado: {{message}}",
       "interrupted": "Você parou esta rodada",
-      "formerEmployee": "ex-funcionário"
+      "formerEmployee": "ex-funcionário",
+      "waitRefused": "Não esperou — {{reason}}",
+      "wakeAt": "retomada às {{time}}",
+      "cliDefault": "padrão da CLI",
+      "status": {
+        "pending": "pendente",
+        "running": "em andamento",
+        "done": "concluída",
+        "skipped": "ignorada",
+        "failed": "com falha"
+      }
     }
   },
   "employees": {

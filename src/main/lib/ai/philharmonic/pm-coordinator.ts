@@ -579,8 +579,12 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   try {
     const names = new Map(employees.map((e) => [e.id, e.name]))
     const rows = await getMessagesByConversationId(conversationId)
+    // A group whose rounds predate the trail has no `input` event: its
+    // newest PM message stands for the last round, so its first recorded
+    // round does not list every report the group ever had.
+    const from = since ?? newestPmMessageAt(rows)
     const read = rows.filter(
-      (r) => r.role === 'employee' && (!since || r.createdAt > since)
+      (r) => r.role === 'employee' && (!from || r.createdAt > from)
     )
     safe(() =>
       recorder.reports(
@@ -817,4 +821,14 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   lcm.trackAndCompact().catch(() => {})
 
   emit({ type: 'pm_ended', conversationId, reason: 'done' })
+}
+
+/** The `createdAt` of the newest `pm` row, or null when the PM never spoke. */
+function newestPmMessageAt(
+  rows: { role: string; createdAt: Date }[]
+): Date | null {
+  let at: Date | null = null
+  for (const r of rows)
+    if (r.role === 'pm' && (!at || r.createdAt > at)) at = r.createdAt
+  return at
 }

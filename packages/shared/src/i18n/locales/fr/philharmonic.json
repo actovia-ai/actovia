@@ -191,10 +191,10 @@
       "triggerScheduled": "Planifié",
       "reports": "A lu les rapports de",
       "thinking": "Réflexion",
-      "delegate": "A confié une étape à {{name}}",
+      "delegate": "A confié une étape à {{who}}",
       "refused": "Non démarré — le quota de {{name}} est épuisé",
-      "wait": "A attendu le quota",
-      "plan": "A planifié {{count}} étapes",
+      "wait": "A attendu le quota de {{name}} — {{reason}}",
+      "plan": "Étapes planifiées : {{count}}",
       "updateStep": "A marqué une étape {{status}}",
       "appendStep": "A ajouté une étape",
       "recruit": "A recruté {{name}}",
@@ -207,7 +207,17 @@
       "usage": "{{input}} en entrée · {{output}} en sortie · ${{cost}}",
       "error": "Arrêté : {{message}}",
       "interrupted": "Vous avez arrêté ce tour",
-      "formerEmployee": "ancien employé"
+      "formerEmployee": "ancien employé",
+      "waitRefused": "N'a pas attendu — {{reason}}",
+      "wakeAt": "réveil à {{time}}",
+      "cliDefault": "par défaut de la CLI",
+      "status": {
+        "pending": "en attente",
+        "running": "en cours",
+        "done": "terminée",
+        "skipped": "ignorée",
+        "failed": "en échec"
+      }
     }
   },
   "employees": {

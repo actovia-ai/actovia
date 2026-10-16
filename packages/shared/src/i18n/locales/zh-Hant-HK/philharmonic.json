@@ -190,10 +190,10 @@
       "triggerScheduled": "排程",
       "reports": "讀取了以下報告",
       "thinking": "思考",
-      "delegate": "把一個步驟交給 {{name}}",
+      "delegate": "把一個步驟交給 {{who}}",
       "refused": "未開始 — {{name}} 的額度已用完",
-      "wait": "等候額度",
-      "plan": "規劃了 {{count}} 個步驟",
+      "wait": "等候 {{name}} 的額度 — {{reason}}",
+      "plan": "規劃的步驟：{{count}}",
       "updateStep": "把一個步驟標為 {{status}}",
       "appendStep": "加入了一個步驟",
       "recruit": "招募了 {{name}}",
@@ -206,7 +206,17 @@
       "usage": "輸入 {{input}} · 輸出 {{output}} · ${{cost}}",
       "error": "已停止：{{message}}",
       "interrupted": "你停止了這一輪",
-      "formerEmployee": "前員工"
+      "formerEmployee": "前員工",
+      "waitRefused": "沒有等候 — {{reason}}",
+      "wakeAt": "於 {{time}} 喚醒",
+      "cliDefault": "CLI 預設",
+      "status": {
+        "pending": "待處理",
+        "running": "進行中",
+        "done": "完成",
+        "skipped": "略過",
+        "failed": "失敗"
+      }
     }
   },
   "employees": {

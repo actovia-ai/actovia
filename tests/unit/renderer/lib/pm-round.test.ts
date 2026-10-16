@@ -4,7 +4,12 @@ import type {
 } from '@exodus/shared/types/pm-round'
 import { describe, expect, it } from 'vitest'
 
-import { describeRound, roundCounts } from '@/lib/pm-round'
+import {
+  describeRound,
+  roundCounts,
+  waitRefusalReason,
+  wakeTimeOf
+} from '@/lib/pm-round'
 
 let seq = 0
 const ev = (
@@ -100,6 +105,26 @@ describe('describeRound', () => {
     ])
   })
 
+  it('a waitForQuota whose result starts with "Refused" is refused', () => {
+    const lines = describeRound(
+      [
+        call('t1', 'waitForQuota', {}),
+        result('t1', 'waitForQuota', 'Refused: no step s9 in the plan.'),
+        call('t2', 'waitForQuota', {}),
+        result(
+          't2',
+          'waitForQuota',
+          'Step parked. You will be woken at Tue 07:00.'
+        )
+      ],
+      ''
+    )
+    expect(lines.map((l) => l.kind === 'call' && l.refused)).toEqual([
+      true,
+      false
+    ])
+  })
+
   it('drops the last text line when it is the bubble’s own text', () => {
     const lines = describeRound(
       [
@@ -133,5 +158,24 @@ describe('roundCounts', () => {
         call('t5', 'createPlan')
       ])
     ).toEqual({ delegations: 1, waits: 1 })
+  })
+})
+
+describe('waitRefusalReason / wakeTimeOf', () => {
+  it('reads the reason after "Refused: "', () => {
+    expect(waitRefusalReason('Refused: no step s9 in the plan.')).toBe(
+      'no step s9 in the plan.'
+    )
+    expect(waitRefusalReason(null)).toBe('')
+  })
+
+  it('reads the wake time between "woken at " and the next "."', () => {
+    expect(
+      wakeTimeOf(
+        'Step parked. You will be woken at Tue 07:00. End your turn now.'
+      )
+    ).toBe('Tue 07:00')
+    expect(wakeTimeOf('Step parked.')).toBeNull()
+    expect(wakeTimeOf(null)).toBeNull()
   })
 })

@@ -59,7 +59,10 @@ const round: PmRoundEventDto[] = [
   ev('tool_call', {
     toolCallId: 't1',
     name: 'delegateTask',
-    args: { employeeId: 'a1', instructions: 'Do it' }
+    args: {
+      employeeId: 'a1',
+      instructions: 'Build the landing page with the hero and the pricing table'
+    }
   }),
   ev('tool_result', {
     toolCallId: 't1',
@@ -81,13 +84,51 @@ const round: PmRoundEventDto[] = [
   ev('tool_call', {
     toolCallId: 't3',
     name: 'waitForQuota',
-    args: { stepId: 's1', employeeId: 'a1', reason: 'r' }
+    args: { stepId: 's1', employeeId: 'a1', reason: 'the week is used up' }
   }),
   ev('tool_result', {
     toolCallId: 't3',
     name: 'waitForQuota',
-    text: 'Waiting until 14:00',
+    text: 'Step parked. You will be woken at Tue 07:00. End your turn now with one line for the owner saying what waits and why.',
     isError: false
+  }),
+  ev('tool_call', {
+    toolCallId: 't4',
+    name: 'waitForQuota',
+    args: { stepId: 's2', employeeId: 'a2', reason: 'just in case' }
+  }),
+  ev('tool_result', {
+    toolCallId: 't4',
+    name: 'waitForQuota',
+    text: 'Refused: nothing blocks that employee right now — delegate the step instead.',
+    isError: false
+  }),
+  ev('tool_call', {
+    toolCallId: 't5',
+    name: 'delegateTask',
+    args: { employeeId: 'a2', instructions: 'Write the copy' }
+  }),
+  ev('tool_result', {
+    toolCallId: 't5',
+    name: 'delegateTask',
+    text: 'Written.',
+    isError: false
+  }),
+  ev('tool_call', {
+    toolCallId: 't6',
+    name: 'updatePlanStep',
+    args: { stepId: 's1', status: 'done' }
+  }),
+  ev('tool_result', {
+    toolCallId: 't6',
+    name: 'updatePlanStep',
+    text: '{"stepId":"s1"}',
+    isError: false
+  }),
+  ev('tool_call', {
+    toolCallId: 't7',
+    name: 'createPlan',
+    args: { steps: [{ title: 'a' }, { title: 'b' }, { title: 'c' }] }
   }),
   ev('usage', {
     inputTokens: 1200,
@@ -96,6 +137,15 @@ const round: PmRoundEventDto[] = [
     costUsd: 0.0123
   })
 ]
+
+const agents: Record<
+  string,
+  { name: string; runtime: string; model: string | null }
+> = {
+  a1: { name: 'Ada', runtime: 'claude-code', model: 'sonnet' },
+  a2: { name: 'Bea', runtime: 'exodus', model: 'gpt-5' },
+  a3: { name: 'Cy', runtime: 'codex', model: null }
+}
 
 const roots: HTMLElement[] = []
 afterEach(() => {
@@ -114,7 +164,7 @@ async function mount(counts?: { delegations: number; waits: number }) {
         roundId: 'r1',
         bubbleText: 'All done.',
         counts,
-        nameOf: (id: string) => (id === 'a1' ? 'Claude Code' : undefined),
+        agentOf: (id: string) => agents[id],
         onJumpTo
       })
     )
@@ -161,20 +211,84 @@ describe('DecisionProcess', () => {
     const text = host.textContent ?? ''
     expect(text).toContain('You wrote')
     expect(text).toContain('Build the site')
-    expect(text).toContain('Gave a step to Claude Code')
-    expect(text).toContain("Not started — Claude Code's quota is used up")
-    expect(text).toContain('Waited for the quota')
-    expect(text).toContain('Waiting until 14:00')
+    // A CLI employee reads with its CLI and model; an Exodus one by name.
+    expect(text).toContain('Gave a step to Ada · Claude Code · sonnet')
+    expect(text).toContain('Gave a step to Bea')
+    expect(text).not.toContain('Bea · ')
+    expect(text).toContain("Not started — Ada's quota is used up")
+    expect(text).toContain(
+      "Waited for Ada's quota — the week is used up · woken at Tue 07:00"
+    )
+    expect(text).toContain(
+      "Didn't wait — nothing blocks that employee right now — delegate the step instead."
+    )
+    expect(text).not.toContain("Waited for Bea's quota")
+    expect(text).toContain('Marked a step done')
+    expect(text).toContain('Planned steps: 3')
     expect(text).toContain('1,200 in · 300 out · $0.0123')
+    // The instructions are one clamped line under the delegation.
+    const instructions = [...host.querySelectorAll('span')].find(
+      (el) =>
+        el.textContent ===
+        'Build the landing page with the hero and the pricing table'
+    )!
+    expect(instructions.className).toContain('truncate')
     // The placeholder name is never shown as stored.
     expect(text).toContain('Read reports from')
     const buttons = [...host.querySelectorAll('button')]
     // A placeholder name of an agent that still exists reads as its name now.
-    expect(buttons.some((b) => b.textContent === 'Claude Code')).toBe(true)
+    expect(buttons.some((b) => b.textContent === 'Ada')).toBe(true)
     const report = buttons.find((b) => b.textContent === 'former employee')!
     expect(report).toBeTruthy()
     report.click()
     expect(onJumpTo).toHaveBeenCalledWith('m9')
+  })
+
+  it('a CLI employee with no model reads as the CLI default; a wait without a wake time has none', async () => {
+    getPmRound.mockResolvedValue([
+      ev('tool_call', {
+        toolCallId: 'x1',
+        name: 'delegateTask',
+        args: { employeeId: 'a3', instructions: 'Fix it' }
+      }),
+      ev('tool_call', {
+        toolCallId: 'x2',
+        name: 'waitForQuota',
+        args: { stepId: 's1', employeeId: 'a3', reason: 'limit reached' }
+      }),
+      ev('tool_result', {
+        toolCallId: 'x2',
+        name: 'waitForQuota',
+        text: 'Step parked.',
+        isError: false
+      })
+    ])
+    const { host } = await mount()
+    await open(host)
+    const text = host.textContent ?? ''
+    expect(text).toContain('Gave a step to Cy · Codex · CLI default')
+    expect(text).toContain("Waited for Cy's quota — limit reached")
+    expect(text).not.toContain('woken at')
+  })
+
+  it("a call's details are mounted only once opened, and stay mounted", async () => {
+    getPmRound.mockResolvedValue(round)
+    const { host } = await mount()
+    await open(host)
+    const result = 'Written.'
+    expect(host.textContent).not.toContain(result)
+    const details = [...host.querySelectorAll('button')].filter(
+      (b) => b.textContent === 'Arguments and result'
+    )
+    expect(details.length).toBeGreaterThan(0)
+    await act(async () => {
+      details.forEach((b) => b.click())
+    })
+    expect(host.textContent).toContain(result)
+    await act(async () => {
+      details.forEach((b) => b.click())
+    })
+    expect(host.textContent).toContain(result)
   })
 
   it('a round with no record shows that it is not available', async () => {

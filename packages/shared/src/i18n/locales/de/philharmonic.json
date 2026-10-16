@@ -191,10 +191,10 @@
       "triggerScheduled": "Geplant",
       "reports": "Berichte gelesen von",
       "thinking": "Denkt nach",
-      "delegate": "Einen Schritt an {{name}} gegeben",
+      "delegate": "Einen Schritt an {{who}} gegeben",
       "refused": "Nicht gestartet — das Kontingent von {{name}} ist aufgebraucht",
-      "wait": "Auf das Kontingent gewartet",
-      "plan": "{{count}} Schritte geplant",
+      "wait": "Auf das Kontingent von {{name}} gewartet — {{reason}}",
+      "plan": "Geplante Schritte: {{count}}",
       "updateStep": "Einen Schritt als {{status}} markiert",
       "appendStep": "Einen Schritt hinzugefügt",
       "recruit": "{{name}} eingestellt",
@@ -207,7 +207,17 @@
       "usage": "{{input}} ein · {{output}} aus · ${{cost}}",
       "error": "Angehalten: {{message}}",
       "interrupted": "Du hast diese Runde angehalten",
-      "formerEmployee": "ehemaliger Mitarbeiter"
+      "formerEmployee": "ehemaliger Mitarbeiter",
+      "waitRefused": "Nicht gewartet — {{reason}}",
+      "wakeAt": "geweckt um {{time}}",
+      "cliDefault": "CLI-Standard",
+      "status": {
+        "pending": "ausstehend",
+        "running": "laufend",
+        "done": "erledigt",
+        "skipped": "übersprungen",
+        "failed": "fehlgeschlagen"
+      }
     }
   },
   "employees": {

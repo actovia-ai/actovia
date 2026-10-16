@@ -742,6 +742,75 @@ describe('runPmCoordinator — the decision trail', () => {
     ])
   })
 
+  it('a group older than the trail reads only the reports after its newest PM message', async () => {
+    reset()
+    getMessagesByConversationId.mockResolvedValue([
+      {
+        id: 'e1',
+        role: 'employee',
+        agentId: 'a1',
+        createdAt: new Date('2026-10-01T09:00:00Z')
+      },
+      {
+        id: 'p1',
+        role: 'pm',
+        agentId: null,
+        createdAt: new Date('2026-10-01T10:00:00Z')
+      },
+      {
+        id: 'e2',
+        role: 'employee',
+        agentId: 'a1',
+        createdAt: new Date('2026-10-01T11:00:00Z')
+      }
+    ] as never)
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go on',
+      emit: vi.fn()
+    })
+    expect(recorder.reports).toHaveBeenCalledWith([
+      { messageId: 'e2', agentId: 'a1', name: 'Avery' }
+    ])
+  })
+
+  it('a group whose PM never spoke reads every report', async () => {
+    reset()
+    getMessagesByConversationId.mockResolvedValue([
+      {
+        id: 'e1',
+        role: 'employee',
+        agentId: 'a1',
+        createdAt: new Date('2026-10-01T09:00:00Z')
+      }
+    ] as never)
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go on',
+      emit: vi.fn()
+    })
+    expect(recorder.reports).toHaveBeenCalledWith([
+      { messageId: 'e1', agentId: 'a1', name: 'Avery' }
+    ])
+  })
+
+  it('a trail read that fails still runs the round and records its input', async () => {
+    reset()
+    lastRoundStartedAt.mockRejectedValueOnce(new Error('db down'))
+    agentLoopMock.mockReturnValue(fakeStream([endEvent]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'carry on',
+      emit: vi.fn()
+    })
+    expect(recorder.input).toHaveBeenCalledWith('user', 'carry on')
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'pm', content: 'All done.' })
+    )
+  })
+
   it('a provider error is recorded, the round finished, and the error row carries the round id', async () => {
     reset()
     agentLoopMock.mockReturnValue(

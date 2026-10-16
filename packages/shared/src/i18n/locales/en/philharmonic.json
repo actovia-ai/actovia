@@ -191,10 +191,10 @@
       "triggerScheduled": "Scheduled",
       "reports": "Read reports from",
       "thinking": "Thinking",
-      "delegate": "Gave a step to {{name}}",
+      "delegate": "Gave a step to {{who}}",
       "refused": "Not started — {{name}}'s quota is used up",
-      "wait": "Waited for the quota",
-      "plan": "Planned {{count}} steps",
+      "wait": "Waited for {{name}}'s quota — {{reason}}",
+      "plan": "Planned steps: {{count}}",
       "updateStep": "Marked a step {{status}}",
       "appendStep": "Added a step",
       "recruit": "Recruited {{name}}",
@@ -207,7 +207,17 @@
       "usage": "{{input}} in · {{output}} out · ${{cost}}",
       "error": "Stopped: {{message}}",
       "interrupted": "You stopped this round",
-      "formerEmployee": "former employee"
+      "formerEmployee": "former employee",
+      "waitRefused": "Didn't wait — {{reason}}",
+      "wakeAt": "woken at {{time}}",
+      "cliDefault": "CLI default",
+      "status": {
+        "pending": "pending",
+        "running": "running",
+        "done": "done",
+        "skipped": "skipped",
+        "failed": "failed"
+      }
     }
   },
   "employees": {

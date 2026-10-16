@@ -1,4 +1,5 @@
 import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { CLI_IDS, CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { TFunction } from 'i18next'
@@ -8,7 +9,13 @@ import { useTranslation } from 'react-i18next'
 import { Reveal } from '@/components/motion/morph'
 import { usePmRound } from '@/hooks/use-pm-round'
 import { useFormat } from '@/lib/format'
-import { describeRound, roundCounts, type RoundLine } from '@/lib/pm-round'
+import {
+  describeRound,
+  roundCounts,
+  waitRefusalReason,
+  wakeTimeOf,
+  type RoundLine
+} from '@/lib/pm-round'
 import { cn } from '@/lib/utils'
 
 /** What the round recorder stores for a report whose employee it could not name. */
@@ -17,6 +24,26 @@ const STORED_PLACEHOLDER = 'former employee'
 type Counts = { delegations: number; waits: number }
 type CallLine = Extract<RoundLine, { kind: 'call' }>
 
+/** What the disclosure needs of an employee: its name, and for a CLI one the CLI and model. */
+export interface DecisionAgent {
+  name: string
+  runtime: string
+  model: string | null
+}
+
+const STEP_STATUSES = [
+  'pending',
+  'running',
+  'done',
+  'skipped',
+  'failed'
+] as const
+type StepStatus = (typeof STEP_STATUSES)[number]
+const isCliRuntime = (runtime: string): runtime is CliId =>
+  (CLI_IDS as readonly string[]).includes(runtime)
+const isStepStatus = (v: string): v is StepStatus =>
+  (STEP_STATUSES as readonly string[]).includes(v)
+
 export interface DecisionProcessProps {
   conversationId: string
   roundId: string
@@ -24,7 +51,7 @@ export interface DecisionProcessProps {
   bubbleText: string
   /** The message's `{ kind: 'decision' }` part. */
   counts?: Counts
-  nameOf(agentId: string): string | undefined
+  agentOf(agentId: string): DecisionAgent | undefined
   onJumpTo(messageId: string): void
 }
 
@@ -43,24 +70,41 @@ const asString = (v: unknown) => (typeof v === 'string' ? v : '')
 function callSentence(
   line: CallLine,
   t: TFunction<'philharmonic'>,
-  employee: (id: string) => string
+  employee: (id: string) => string,
+  delegate: (id: string) => string
 ): string {
   const a = line.args
   switch (line.tool) {
     case 'delegateTask': {
-      const name = employee(asString(a.employeeId))
+      const id = asString(a.employeeId)
       return line.refused
-        ? t('chat.decision.refused', { name })
-        : t('chat.decision.delegate', { name })
+        ? t('chat.decision.refused', { name: employee(id) })
+        : t('chat.decision.delegate', { who: delegate(id) })
     }
-    case 'waitForQuota':
-      return t('chat.decision.wait')
+    case 'waitForQuota': {
+      if (line.refused)
+        return t('chat.decision.waitRefused', {
+          reason: waitRefusalReason(line.result)
+        })
+      const wait = t('chat.decision.wait', {
+        name: employee(asString(a.employeeId)),
+        reason: asString(a.reason)
+      })
+      const at = wakeTimeOf(line.result)
+      return at ? `${wait} · ${t('chat.decision.wakeAt', { time: at })}` : wait
+    }
     case 'createPlan':
       return t('chat.decision.plan', {
         count: Array.isArray(a.steps) ? a.steps.length : 0
       })
-    case 'updatePlanStep':
-      return t('chat.decision.updateStep', { status: asString(a.status) })
+    case 'updatePlanStep': {
+      const status = asString(a.status)
+      return t('chat.decision.updateStep', {
+        status: isStepStatus(status)
+          ? t(`chat.decision.status.${status}`)
+          : status
+      })
+    }
     case 'appendPlanStep':
       return t('chat.decision.appendStep')
     case 'recruitEmployee':
@@ -89,11 +133,17 @@ function Folded({
   children: React.ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  // Mounted on first open, then kept: a long thinking block or a call's
+  // arguments cost nothing until asked for, and folding still animates.
+  const [opened, setOpened] = useState(false)
   return (
     <div className="flex flex-col gap-1">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          setOpened(true)
+          setOpen((o) => !o)
+        }}
         aria-expanded={open}
         className={cn(
           'hover:text-foreground flex items-center gap-1 self-start text-left',
@@ -103,7 +153,7 @@ function Folded({
         <Chevron open={open} />
         {label}
       </button>
-      <Reveal open={open}>{children}</Reveal>
+      <Reveal open={open}>{opened ? children : null}</Reveal>
     </div>
   )
 }
@@ -116,17 +166,29 @@ const Pre = ({ children }: { children: React.ReactNode }) => (
 
 function Line({
   line,
-  nameOf,
+  agentOf,
   onJumpTo
 }: {
   line: RoundLine
-  nameOf: (agentId: string) => string | undefined
+  agentOf: (agentId: string) => DecisionAgent | undefined
   onJumpTo: (messageId: string) => void
 }) {
   const { t } = useTranslation('philharmonic')
   const fmt = useFormat()
+  const nameOf = (id: string) => agentOf(id)?.name
   const employee = (id: string) =>
     nameOf(id) ?? t('chat.decision.formerEmployee')
+  // "Name · CLI · model" for a coding-agent CLI, the name alone otherwise.
+  const delegate = (id: string) => {
+    const agent = agentOf(id)
+    if (!agent) return t('chat.decision.formerEmployee')
+    if (!isCliRuntime(agent.runtime)) return agent.name
+    return [
+      agent.name,
+      CLI_NAMES[agent.runtime],
+      agent.model ?? t('chat.decision.cliDefault')
+    ].join(' · ')
+  }
 
   switch (line.kind) {
     case 'trigger':
@@ -180,12 +242,16 @@ function Line({
           )}
         >
           <span className={cn(!line.isError && 'text-foreground')}>
-            {callSentence(line, t, employee)}
+            {callSentence(line, t, employee, delegate)}
             {line.isError && ` · ${t('chat.decision.failed')}`}
           </span>
-          {line.tool === 'waitForQuota' && line.result && (
-            <span>{line.result}</span>
-          )}
+          {line.tool === 'delegateTask' &&
+            !line.refused &&
+            asString(line.args.instructions) && (
+              <span className="truncate">
+                {asString(line.args.instructions)}
+              </span>
+            )}
           <Folded label={t('chat.decision.details')}>
             <div className="flex flex-col gap-1">
               <Pre>{JSON.stringify(line.args, null, 2)}</Pre>
@@ -225,7 +291,7 @@ export function DecisionProcess({
   roundId,
   bubbleText,
   counts,
-  nameOf,
+  agentOf,
   onJumpTo
 }: DecisionProcessProps) {
   const { t } = useTranslation('philharmonic')
@@ -266,7 +332,7 @@ export function DecisionProcess({
             <span>{t('chat.decision.loading')}</span>
           ) : (
             lines.map((line, i) => (
-              <Line key={i} line={line} nameOf={nameOf} onJumpTo={onJumpTo} />
+              <Line key={i} line={line} agentOf={agentOf} onJumpTo={onJumpTo} />
             ))
           )}
         </div>

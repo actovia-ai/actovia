@@ -191,10 +191,10 @@
       "triggerScheduled": "Programado",
       "reports": "Leyó informes de",
       "thinking": "Pensando",
-      "delegate": "Encargó un paso a {{name}}",
+      "delegate": "Encargó un paso a {{who}}",
       "refused": "No iniciado: la cuota de {{name}} está agotada",
-      "wait": "Esperó a la cuota",
-      "plan": "Planificó {{count}} pasos",
+      "wait": "Esperó a la cuota de {{name}}: {{reason}}",
+      "plan": "Pasos planificados: {{count}}",
       "updateStep": "Marcó un paso como {{status}}",
       "appendStep": "Añadió un paso",
       "recruit": "Contrató a {{name}}",
@@ -207,7 +207,17 @@
       "usage": "{{input}} de entrada · {{output}} de salida · ${{cost}}",
       "error": "Detenido: {{message}}",
       "interrupted": "Detuviste esta ronda",
-      "formerEmployee": "antiguo empleado"
+      "formerEmployee": "antiguo empleado",
+      "waitRefused": "No esperó: {{reason}}",
+      "wakeAt": "se reanuda a las {{time}}",
+      "cliDefault": "predeterminado de la CLI",
+      "status": {
+        "pending": "pendiente",
+        "running": "en curso",
+        "done": "hecho",
+        "skipped": "omitido",
+        "failed": "fallido"
+      }
     }
   },
   "employees": {

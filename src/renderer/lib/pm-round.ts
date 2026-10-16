@@ -31,11 +31,27 @@ export type RoundLine =
 const str = (v: unknown) => (typeof v === 'string' ? v : '')
 const num = (v: unknown) => (typeof v === 'number' ? v : 0)
 
-/** A delegation the quota guard turned away (pm-coordinator's onDelegate). */
-const isRefusedDelegation = (tool: string, result: string | null) =>
-  tool === 'delegateTask' &&
+/**
+ * A call the coordinator turned away: a delegation the quota guard stopped
+ * ("Not started: …", pm-coordinator's onDelegate), or a `waitForQuota` it
+ * refused ("Refused: …").
+ */
+const isRefused = (tool: string, result: string | null) =>
   result !== null &&
-  result.startsWith('Not started:')
+  ((tool === 'delegateTask' && result.startsWith('Not started:')) ||
+    (tool === 'waitForQuota' && result.startsWith('Refused')))
+
+/** Why a `waitForQuota` was refused: its result after "Refused: ". */
+export function waitRefusalReason(result: string | null): string {
+  if (!result) return ''
+  return result.replace(/^Refused:?\s*/u, '')
+}
+
+/** When a scheduled wait wakes the PM: the text after "woken at ", up to the next ".". */
+export function wakeTimeOf(result: string | null): string | null {
+  const m = result?.match(/woken at ([^.]*)\./u)
+  return m ? m[1].trim() || null : null
+}
 
 /** A round as the disclosure draws it: each call paired with its result; a trailing text equal to the bubble left out. */
 export function describeRound(
@@ -89,7 +105,7 @@ export function describeRound(
               : {},
           result,
           isError: r?.isError ?? false,
-          refused: isRefusedDelegation(tool, result)
+          refused: isRefused(tool, result)
         })
         break
       }
@@ -132,8 +148,7 @@ export function roundCounts(events: PmRoundEventDto[]): {
   for (const line of describeRound(events, '')) {
     if (line.kind !== 'call') continue
     if (line.tool === 'delegateTask' && !line.refused) delegations++
-    if (line.tool === 'waitForQuota' && !line.result?.startsWith('Refused'))
-      waits++
+    if (line.tool === 'waitForQuota' && !line.refused) waits++
   }
   return { delegations, waits }
 }
