@@ -1,12 +1,64 @@
 // src/main/lib/agents/codex/protocol.ts
-import type { AgentQuestion } from '@exodus/shared/types/agents'
+import type { AgentQuestion, CliQuota } from '@exodus/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
+import { toMs } from '../epoch'
 
 type Json = Record<string, unknown>
 const isObj = (v: unknown): v is Json =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 const str = (v: unknown): string | null => (typeof v === 'string' ? v : null)
+
+/**
+ * `account/rateLimits/read`'s result, or an `updated` notification's params
+ * (a sparse snapshot — spec 2026-10-16 §2). A bucket of its own (a model with
+ * its own quota) gets its windows prefixed with its name and marked with its model.
+ */
+export function quotaFromCodex(body: Json, now: number): CliQuota | null {
+  const windows: CliQuota['windows'] = []
+  let reached = false
+  let overage = false
+  const take = (snap: unknown, prefix: string) => {
+    if (!isObj(snap)) return
+    if (snap.rateLimitReachedType != null) reached = true
+    if (isObj(snap.credits))
+      overage ||=
+        snap.credits.hasCredits === true || snap.credits.unlimited === true
+    const model = str(snap.normalModelSlug) ?? undefined
+    for (const k of ['primary', 'secondary'] as const) {
+      const w = snap[k]
+      if (!isObj(w) || typeof w.usedPercent !== 'number') continue
+      windows.push({
+        name: prefix ? `${prefix} ${k}` : k,
+        usedPercent: w.usedPercent,
+        resetsAt: typeof w.resetsAt === 'number' ? toMs(w.resetsAt) : null,
+        ...(prefix && model ? { model } : {})
+      })
+    }
+  }
+  const main = isObj(body.rateLimits) ? body.rateLimits : null
+  take(main, '')
+  if (isObj(body.rateLimitsByLimitId))
+    for (const [id, snap] of Object.entries(body.rateLimitsByLimitId)) {
+      if (!isObj(snap) || id === (main && str(main.limitId))) continue
+      take(snap, str(snap.limitName) ?? id)
+    }
+  if (!windows.length && !reached && body.ordinaryUsageAllowed !== false)
+    return null
+  const state =
+    reached || body.ordinaryUsageAllowed === false ? 'rejected' : 'ok'
+  return {
+    cli: 'codex',
+    windows,
+    state,
+    rejectedWindow:
+      state === 'rejected'
+        ? (windows.find((w) => w.usedPercent >= 100)?.name ?? null)
+        : null,
+    overage,
+    asOf: now
+  }
+}
 
 export type PendingKind = 'command' | 'fileChange' | 'permissions' | 'userInput'
 export interface PendingRequest {
@@ -449,19 +501,19 @@ export function createCodexParser(nonce: string): CodexParser {
           }
         case 'account/rateLimits/updated': {
           const limits = isObj(params.rateLimits) ? params.rateLimits : {}
+          const quota = quotaFromCodex({ rateLimits: limits }, Date.now())
+          const events: AgentEvent[] = quota
+            ? [{ type: 'quota', quota, merge: true }]
+            : []
           const full = ['primary', 'secondary'].some(
             (k) =>
               isObj(limits[k]) &&
               typeof (limits[k] as Json).usedPercent === 'number' &&
               ((limits[k] as Json).usedPercent as number) >= 100
           )
-          return full
-            ? {
-                events: [
-                  notice(`Rate limit reached: ${JSON.stringify(limits)}`)
-                ]
-              }
-            : { events: [] }
+          if (full)
+            events.push(notice(`Rate limit reached: ${JSON.stringify(limits)}`))
+          return { events }
         }
         default:
           return { events: [] }

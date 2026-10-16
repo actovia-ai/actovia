@@ -6,7 +6,8 @@ import {
   createCodexParser,
   describeCommand,
   describeFileChange,
-  describePermissions
+  describePermissions,
+  quotaFromCodex
 } from '@main/lib/agents/codex/protocol'
 import type { AgentEvent } from '@main/lib/agents/driver'
 import { describe, expect, it } from 'vitest'
@@ -399,5 +400,103 @@ describe('Codex protocol', () => {
       if (e.type === 'step_end') open.delete(e.id)
     }
     expect([...open]).toEqual([])
+  })
+})
+
+describe('Codex quota', () => {
+  const READ = {
+    ordinaryUsageAllowed: true,
+    rateLimits: {
+      limitId: 'codex',
+      limitName: null,
+      normalModelSlug: null,
+      primary: {
+        usedPercent: 12,
+        windowDurationMins: 300,
+        resetsAt: 1792159800
+      },
+      secondary: {
+        usedPercent: 64,
+        windowDurationMins: 10080,
+        resetsAt: 1792450800
+      },
+      credits: { hasCredits: false, unlimited: false, balance: null },
+      rateLimitReachedType: null
+    },
+    rateLimitsByLimitId: {
+      codex: null,
+      'gpt-5.6-pro': {
+        limitId: 'gpt-5.6-pro',
+        limitName: 'GPT-5.6 Pro',
+        normalModelSlug: 'gpt-5.6-pro',
+        primary: null,
+        secondary: {
+          usedPercent: 100,
+          windowDurationMins: 10080,
+          resetsAt: 1792450800
+        },
+        credits: null,
+        rateLimitReachedType: 'rate_limit_reached'
+      }
+    }
+  }
+
+  it('reads the account windows and a per-model bucket (account/rateLimits/read)', () => {
+    const q = quotaFromCodex(READ, 5)!
+    expect(q).toMatchObject({
+      cli: 'codex',
+      state: 'rejected',
+      overage: false,
+      asOf: 5
+    })
+    expect(q.windows).toEqual([
+      { name: 'primary', usedPercent: 12, resetsAt: 1792159800_000 },
+      { name: 'secondary', usedPercent: 64, resetsAt: 1792450800_000 },
+      {
+        name: 'GPT-5.6 Pro secondary',
+        usedPercent: 100,
+        resetsAt: 1792450800_000,
+        model: 'gpt-5.6-pro'
+      }
+    ])
+    expect(q.rejectedWindow).toBe('GPT-5.6 Pro secondary')
+  })
+
+  it('is ok while nothing is reached, whatever the percentages', () => {
+    const q = quotaFromCodex(
+      {
+        rateLimits: {
+          ...READ.rateLimits,
+          primary: { usedPercent: 99, windowDurationMins: 300, resetsAt: 1 }
+        }
+      },
+      1
+    )!
+    expect(q.state).toBe('ok')
+  })
+
+  it('a rolling update becomes a merge quota event', () => {
+    const parser = createCodexParser('n')
+    const { events } = parser.parse(
+      JSON.stringify({
+        method: 'account/rateLimits/updated',
+        params: {
+          rateLimits: {
+            primary: {
+              usedPercent: 30,
+              windowDurationMins: 300,
+              resetsAt: 1792159800
+            }
+          }
+        }
+      })
+    )
+    expect(events).toMatchObject([
+      {
+        type: 'quota',
+        merge: true,
+        quota: { cli: 'codex', windows: [{ name: 'primary', usedPercent: 30 }] }
+      }
+    ])
   })
 })

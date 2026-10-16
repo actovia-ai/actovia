@@ -5,8 +5,9 @@ import { access, constants, unlink } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import type { CliId, CliStatus } from '@exodus/shared/types/agents'
+import type { CliId, CliQuota, CliStatus } from '@exodus/shared/types/agents'
 
+import { quotaFromCodex } from './codex/protocol'
 import { loginShellEnv } from './login-shell'
 import { superviseProcess } from './process'
 import { agentSettings } from './settings'
@@ -128,25 +129,27 @@ const isCliModelName = (m: string) =>
   /^[\w.:[\]-]+$/u.test(m) && !m.startsWith('-')
 
 /**
- * Codex' models, from a short-lived `codex app-server` (`model/list` spends no
- * quota) run outside any project folder. The process always ends: on the
- * answer, a failure or the timeout; any of the latter two gives null.
+ * One question to a short-lived `codex app-server` run outside any project
+ * folder (the model list and the quota spend none). The process always ends:
+ * on the answer, a failure or the timeout; any of the latter two gives null.
  */
-export function listCodexModels(
+function askAppServer<T>(
   path: string,
   env: Record<string, string>,
-  timeoutMs = MODEL_LIST_TIMEOUT_MS
-): Promise<string[] | null> {
+  method: string,
+  pick: (result: unknown) => T | null,
+  timeoutMs: number
+): Promise<T | null> {
   const logPath = join(tmpdir(), `exodus-codex-models-${randomUUID()}.log`)
   return new Promise((resolve) => {
     let settled = false
     let timer: ReturnType<typeof setTimeout> | undefined
-    const finish = (models: string[] | null) => {
+    const finish = (answer: T | null) => {
       if (settled) return
       settled = true
       clearTimeout(timer)
       void proc.stop().then(() => unlink(logPath).catch(() => {}))
-      resolve(models)
+      resolve(answer)
     }
     const proc = superviseProcess({
       binPath: path,
@@ -164,22 +167,10 @@ export function listCodexModels(
         if (m?.id === 1) {
           if (m.error) return finish(null)
           proc.write({ method: 'initialized' })
-          proc.write({ id: 2, method: 'model/list', params: {} })
+          proc.write({ id: 2, method, params: {} })
         } else if (m?.id === 2) {
-          const data = (m.result as { data?: unknown } | undefined)?.data
-          if (m.error || !Array.isArray(data)) return finish(null)
-          // Only the first page: the server returns every model in one today.
-          const names = (data as Array<Record<string, unknown>>)
-            .filter((e) => e && e.hidden !== true)
-            .map((e) =>
-              typeof e.model === 'string'
-                ? e.model
-                : typeof e.id === 'string'
-                  ? e.id
-                  : ''
-            )
-            .filter((name) => isCliModelName(name))
-          finish([...new Set(names)].slice(0, MAX_MODELS))
+          if (m.error) return finish(null)
+          finish(pick(m.result))
         }
       },
       onExit() {
@@ -196,6 +187,50 @@ export function listCodexModels(
       }
     })
   })
+}
+
+function pickModels(result: unknown): string[] | null {
+  const data = (result as { data?: unknown } | undefined)?.data
+  if (!Array.isArray(data)) return null
+  // Only the first page: the server returns every model in one today.
+  const names = (data as Array<Record<string, unknown>>)
+    .filter((e) => e && e.hidden !== true)
+    .map((e) =>
+      typeof e.model === 'string'
+        ? e.model
+        : typeof e.id === 'string'
+          ? e.id
+          : ''
+    )
+    .filter((name) => isCliModelName(name))
+  return [...new Set(names)].slice(0, MAX_MODELS)
+}
+
+/** Codex' models, from a short-lived app-server (`model/list` spends no quota). */
+export function listCodexModels(
+  path: string,
+  env: Record<string, string>,
+  timeoutMs = MODEL_LIST_TIMEOUT_MS
+): Promise<string[] | null> {
+  return askAppServer(path, env, 'model/list', pickModels, timeoutMs)
+}
+
+/** The owner's Codex quota (`account/rateLimits/read` spends none); null when it cannot say. */
+export function readCodexQuota(
+  path: string,
+  env: Record<string, string>,
+  timeoutMs = MODEL_LIST_TIMEOUT_MS
+): Promise<CliQuota | null> {
+  return askAppServer(
+    path,
+    env,
+    'account/rateLimits/read',
+    (r) =>
+      r && typeof r === 'object'
+        ? quotaFromCodex(r as Record<string, unknown>, Date.now())
+        : null,
+    timeoutMs
+  )
 }
 
 const defaultDeps: CheckDeps = {

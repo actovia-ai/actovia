@@ -9,6 +9,7 @@ import {
   findOnPath,
   listCodexModels,
   parseCodexLoginStatus,
+  readCodexQuota,
   type CheckDeps
 } from '@main/lib/agents/cli-check'
 import { describe, expect, it, vi } from 'vitest'
@@ -251,6 +252,22 @@ describe('CLI check', () => {
   if (m.method === 'model/list') out({ id: m.id, error: { message: 'no' } })`)
     expect(await listCodexModels(refusing, {})).toBeNull()
     expect(await listCodexModels('/nonexistent/codex', {})).toBeNull()
+  })
+
+  it('reads the quota from a short-lived app-server, null when refused or silent', async () => {
+    const ok = fakeAppServer(`
+  if (m.method === 'initialize') out({ id: m.id, result: {} })
+  if (m.method === 'account/rateLimits/read') out({ id: m.id, result: { ordinaryUsageAllowed: true, rateLimits: { primary: { usedPercent: 7, windowDurationMins: 300, resetsAt: 1792159800 } } } })`)
+    expect(await readCodexQuota(ok, {})).toMatchObject({
+      cli: 'codex',
+      state: 'ok',
+      windows: [{ name: 'primary', usedPercent: 7, resetsAt: 1792159800_000 }]
+    })
+    const refusing = fakeAppServer(`
+  if (m.method === 'initialize') out({ id: m.id, result: {} })
+  if (m.method === 'account/rateLimits/read') out({ id: m.id, error: { code: -32603, message: 'failed to fetch codex rate limits' } })`)
+    expect(await readCodexQuota(refusing, {})).toBeNull()
+    expect(await readCodexQuota('/nonexistent/codex', {})).toBeNull()
   })
 
   it('a silent app-server times out to null and is ended, not left running', async () => {
