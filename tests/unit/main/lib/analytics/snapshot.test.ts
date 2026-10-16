@@ -111,6 +111,56 @@ const source = async () => ({
       conversationId: CONV,
       roundId: ROUND,
       seq: 3,
+      kind: 'tool_call',
+      payload: {
+        toolCallId: 'c2',
+        name: 'waitForQuota',
+        args: { stepId: 's1', employeeId: 'a1', reason: 'week used up' }
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 4,
+      kind: 'tool_result',
+      payload: {
+        toolCallId: 'c2',
+        name: 'waitForQuota',
+        text: 'Step parked. You will be woken at Tue 07:00.',
+        isError: false
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 5,
+      kind: 'tool_call',
+      payload: {
+        toolCallId: 'c3',
+        name: 'waitForQuota',
+        args: { stepId: 's2', employeeId: 'a1', reason: 'again' }
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 6,
+      kind: 'tool_result',
+      payload: {
+        toolCallId: 'c3',
+        name: 'waitForQuota',
+        text: "Refused: no step s2 in this group's active plan.",
+        isError: false
+      },
+      createdAt: now
+    },
+    {
+      conversationId: CONV,
+      roundId: ROUND,
+      seq: 7,
       kind: 'usage',
       payload: {
         inputTokens: 900,
@@ -392,6 +442,13 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
       (await runQuery('select count(*) as n from messages')).rows[0].n
     ).toBe(3)
     expect(JSON.stringify(vi.mocked(logger.warn).mock.calls)).toMatch(/logs/u)
+    // The group tables are there, and empty: nothing is copied unmasked.
+    expect(
+      (await runQuery('select count(*) as n from group_messages')).rows[0].n
+    ).toBe(0)
+    expect(
+      (await runQuery('select count(*) as n from pm_round_events')).rows[0].n
+    ).toBe(0)
   }, 60_000)
 
   it('copies group messages and PM round events, masked, and answers pmDecisions', async () => {
@@ -412,7 +469,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
     const ev = await runQuery(
       'select tool_name, payload::varchar as p from pm_round_events order by seq'
     )
-    expect(ev.rows).toHaveLength(4)
+    expect(ev.rows).toHaveLength(8)
     expect(JSON.stringify(ev.rows)).not.toContain('LEAKED')
     expect(ev.rows[1].tool_name).toBe('delegateTask')
     expect(ev.rows[0].tool_name).toBeNull()
@@ -425,7 +482,8 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
       round_id: ROUND,
       delegations: 1,
       refused: 0,
-      waits: 0,
+      // A refused wait waited for nothing.
+      waits: 1,
       input_tokens: 900,
       output_tokens: 70,
       cost_usd: 0.0123
