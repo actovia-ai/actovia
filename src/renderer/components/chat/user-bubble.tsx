@@ -10,8 +10,8 @@ import { AnswerTitle } from '@/components/chat/interactive/answer-title'
 import Markdown from '@/components/markdown/markdown'
 import { cn } from '@/lib/utils'
 
-/** The bubble's line: `text-sm` (0.875rem) at `leading-relaxed` (1.625). */
-const LINE_REM = 0.875 * 1.625
+/** The bubble's line: `text-base` (1rem) at `leading-relaxed` (1.625). */
+const LINE_REM = 1 * 1.625
 /** A message taller than this many lines is shown clipped to them. */
 const CAP_LINES = 10
 const CAP_REM = LINE_REM * CAP_LINES
@@ -75,7 +75,7 @@ export const UserBubble = memo(function UserBubble({ text }: { text: string }) {
     <div
       data-askable=""
       data-answer={answer?.block}
-      className="bg-bubble text-foreground max-w-[75%] rounded-2xl rounded-br-sm px-4 py-2.5 text-sm leading-relaxed wrap-break-word"
+      className="bg-bubble text-foreground max-w-[75%] rounded-2xl rounded-br-sm px-4 py-2.5 text-base leading-relaxed wrap-break-word"
     >
       <div
         ref={contentRef}

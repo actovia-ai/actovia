@@ -64,84 +64,6 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* ── CJK type ─────────────────────────────────────────────────────────────
- * The system stack named no CJK face, so Chromium chose one per text run by
- * system fallback, from the run's own characters: a run with a
- * Simplified-only character (说, 记, 该) got Hiragino Sans GB, one whose
- * characters Japanese shares too got Hiragino Kaku Gothic — two faces of
- * different size and weight. An answer's paragraphs differed, and typing
- * changed the face of text already in the composer (中文 in one face, then
- * 中文说 in another once 说 joined the run): the line jumped. One named face
- * per UI language, before the generic family: Latin text keeps the system
- * font (the Latin faces ahead of it cover every Latin letter), CJK text never
- * reaches system fallback. `<html lang>` picks the regional face (`i18n.ts`
- * sets it at boot).
- *
- * PingFang through `@font-face` + `local()`: Chromium maps weight 300 (the
- * app's `font-light`) to PingFang's Thin, a hairline beside SF's Light; here
- * each weight band takes the PingFang face that matches SF's. Off macOS the
- * `local()`s fail and the stack goes on to the next family. */
-@font-face {
-  font-family: 'Exodus CJK SC';
-  src: local('PingFangSC-Light'), local('PingFang SC Light');
-  font-weight: 1 350;
-}
-@font-face {
-  font-family: 'Exodus CJK SC';
-  src: local('PingFangSC-Regular'), local('PingFang SC Regular');
-  font-weight: 351 450;
-}
-@font-face {
-  font-family: 'Exodus CJK SC';
-  src: local('PingFangSC-Medium'), local('PingFang SC Medium');
-  font-weight: 451 550;
-}
-@font-face {
-  font-family: 'Exodus CJK SC';
-  src: local('PingFangSC-Semibold'), local('PingFang SC Semibold');
-  font-weight: 551 1000;
-}
-@font-face {
-  font-family: 'Exodus CJK TC';
-  src: local('PingFangTC-Light'), local('PingFang TC Light');
-  font-weight: 1 350;
-}
-@font-face {
-  font-family: 'Exodus CJK TC';
-  src: local('PingFangTC-Regular'), local('PingFang TC Regular');
-  font-weight: 351 450;
-}
-@font-face {
-  font-family: 'Exodus CJK TC';
-  src: local('PingFangTC-Medium'), local('PingFang TC Medium');
-  font-weight: 451 550;
-}
-@font-face {
-  font-family: 'Exodus CJK TC';
-  src: local('PingFangTC-Semibold'), local('PingFang TC Semibold');
-  font-weight: 551 1000;
-}
-@font-face {
-  font-family: 'Exodus CJK HK';
-  src: local('PingFangHK-Light'), local('PingFang HK Light');
-  font-weight: 1 350;
-}
-@font-face {
-  font-family: 'Exodus CJK HK';
-  src: local('PingFangHK-Regular'), local('PingFang HK Regular');
-  font-weight: 351 450;
-}
-@font-face {
-  font-family: 'Exodus CJK HK';
-  src: local('PingFangHK-Medium'), local('PingFang HK Medium');
-  font-weight: 451 550;
-}
-@font-face {
-  font-family: 'Exodus CJK HK';
-  src: local('PingFangHK-Semibold'), local('PingFang HK Semibold');
-  font-weight: 551 1000;
-}
-
 /* The type scale, set by the 14px body (`text-sm`; the Markdown answer too):
  * 2xs 11 — the floor: badges, counters, keyboard hints, uppercase labels
  * xs  12 — captions and meta under the body
@@ -154,45 +76,6 @@
   --text-2xs--line-height: calc(1 / 0.6875);
   --text-ui: 0.8125rem;
   --text-ui--line-height: calc(1.25 / 0.8125);
-}
-
-@theme {
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
-    'Noto Sans', Arial, var(--font-cjk), sans-serif, 'Apple Color Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
-    'Courier New', var(--font-cjk), monospace;
-}
-
-/* Simplified Chinese unless the UI language says otherwise: there is no
- * Simplified UI locale, so people who write Simplified run the app in
- * English. (On `html`: the colour tests read the first `:root` block.) */
-html {
-  --font-cjk:
-    'Exodus CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI',
-    'Microsoft YaHei', 'Noto Sans CJK SC', 'Source Han Sans SC';
-}
-html:lang(zh-Hant-TW) {
-  --font-cjk:
-    'Exodus CJK TC', 'PingFang TC', 'Microsoft JhengHei UI',
-    'Microsoft JhengHei', 'Noto Sans CJK TC', 'Source Han Sans TC';
-}
-html:lang(zh-Hant-HK) {
-  --font-cjk:
-    'Exodus CJK HK', 'PingFang HK', 'Microsoft JhengHei UI',
-    'Microsoft JhengHei', 'Noto Sans CJK HK', 'Source Han Sans HC';
-}
-html:lang(ja) {
-  --font-cjk:
-    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans GB',
-    'Yu Gothic UI', Meiryo, 'Noto Sans CJK JP', 'Source Han Sans JP';
-}
-html:lang(ko) {
-  --font-cjk:
-    'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans CJK KR',
-    'Source Han Sans K';
 }
 
 :root {
@@ -797,11 +680,8 @@ html:lang(ko) {
      of a message are flush. No per-adjacency special-casing — that's what
      made the old rhythm feel uneven and cramped. */
 
-  /* The body at 14px (owner, 2026-10-06: down from 16); the headings in em so
-     they keep their ratio to it wherever the Markdown is drawn. */
   .markdown {
     --md-gap: 1.15em;
-    @apply text-foreground text-[0.875rem]/[1.7];
   }
 
   .markdown > :first-child {

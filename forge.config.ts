@@ -39,6 +39,12 @@ const config: ForgeConfig = {
       NSDownloadsFolderUsageDescription:
         "Application requests access to the user's Downloads folder."
     },
+    // TODO(signing): the owner has applied for the Apple Developer Program
+    // (2026-10-19). Setting `osxSign` makes the postPackage ad-hoc re-sign
+    // step stand down, so until a Developer ID identity, hardened runtime,
+    // entitlements and `osxNotarize` are wired here and in release.yml
+    // (CLAUDE.md "Updates and code signing"), packaging needs that identity.
+    osxSign: {},
     // @electron-forge/plugin-vite normally sets `ignore` itself, excluding
     // everything except `.vite/**` on the assumption the whole app is
     // bundled into it. That breaks `@electric-sql/pglite` (and its two

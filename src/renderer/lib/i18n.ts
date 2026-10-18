@@ -11,8 +11,7 @@ export function getBootLocale(): string {
 }
 
 const bootLocale = getBootLocale()
-// `<LocaleBridge>` sets `lang` only when the language changes: at boot the
-// page had none, and `lang` picks the regional CJK face (globals.css).
+// Set the document language before React mounts; LocaleBridge keeps it current.
 if (typeof document !== 'undefined') document.documentElement.lang = bootLocale
 
 const created = createI18n(bootLocale, { isRenderer: true })
