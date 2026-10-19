@@ -133,8 +133,12 @@ const config: ForgeConfig = {
     // The Linux executable follows `executableName` ("Actovia"), but these two
     // makers default `bin` to package.json's `name` ("exodus") and fail with
     // "could not find the Electron app binary" — Linux paths are case-sensitive.
-    new MakerRpm({ options: { bin: APP_DISPLAY_NAME } }),
-    new MakerDeb({ options: { bin: APP_DISPLAY_NAME } })
+    new MakerRpm({
+      options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }
+    }),
+    new MakerDeb({
+      options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }
+    })
   ],
   // Manual publishing to GitHub Releases — the prerequisite for the free
   // update.electronjs.org auto-update service (see lib/auto-updater.ts, which

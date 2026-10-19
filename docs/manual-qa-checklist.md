@@ -1,4 +1,4 @@
-# Exodus 人工验收清单
+# Actovia 人工验收清单
 
 一份按功能走一遍的手测清单(Philharmonic 除外)。每一项是「做什么 → 应该看到什么」;
 没写预期的,预期就是「正常工作、无报错、无闪烁、无布局错位」。
@@ -12,9 +12,9 @@
 
 ## 0. 准备
 
-- [ ] 用**打包版**测一遍(`bun run package` 产出的 `out/…/Exodus.app`),再用 dev 抽查;两者行为应一致。打包版才能测:图标、Dock、菜单栏名字、开机启动、更新面板、Touch ID
+- [ ] 用**打包版**测一遍(`bun run package` 产出的 `out/…/Actovia.app`),再用 dev 抽查;两者行为应一致。打包版才能测:图标、Dock、菜单栏名字、开机启动、更新面板、Touch ID
 - [ ] 先在 Settings → Data Controls → **Back Up Now** 做一次备份,记下时间
-- [ ] **破坏性测试**(第 16 节的 Import / Delete All Data、第 14 节的 Reset all)放到最后做,或退出 app 后用 `EXODUS_HOME=~/exodus-qa` 启动一个空白数据目录单独测(同一时间只能开一个 Exodus)
+- [ ] **破坏性测试**(第 16 节的 Import / Delete All Data、第 14 节的 Reset all)放到最后做,或退出 app 后用 `EXODUS_HOME=~/exodus-qa` 启动一个空白数据目录单独测(同一时间只能开一个 Actovia)
 - [ ] 准备好:至少两家模型的 key(建议 Anthropic + OpenAI),Brave Search key,Google API key(地图),可选:Ollama 本地模型、LightRAG、S3、一台装了 exodus-ios 的 iPhone
 - [ ] 准备素材:一张 PNG、一张 JPG、一张大图(>5 MB)、一张 HEIC、一个 PDF、一个很长的文本
 
@@ -23,14 +23,14 @@
 ## 1. 启动、窗口与系统集成
 
 - [ ] **P0** 冷启动:开机画面 Ody 走进来 → 主界面替换它,没有白屏闪一下
-- [ ] **P0** 重复启动第二个 Exodus:不会开第二个进程,已有窗口被拉到前台
+- [ ] **P0** 重复启动第二个 Actovia:不会开第二个进程,已有窗口被拉到前台
 - [ ] **P1** 关闭窗口(红点)只是隐藏;点 Dock 图标重新出现,状态(当前对话、滚动位置)还在
 - [ ] **P1** ⌘Q 退出后重开:最后的对话、设置都在
 - [ ] **P1** 菜单栏图标(Ody 的头)在亮色 / 暗色菜单栏下都清楚
 - [ ] **P1** 左键点菜单栏图标:Quick Chat 在**鼠标所在的屏幕**弹出;再点一次收起
-- [ ] **P1** 右键菜单栏图标:Show App / Hide App 随窗口状态切换;Quit Exodus 能退出
+- [ ] **P1** 右键菜单栏图标:Show App / Hide App 随窗口状态切换;Quit Actovia 能退出
 - [ ] **P1** 原生菜单:File → New Chat(⌘N)、Settings…(⌘,)、Lock Now(⌘L);Edit → Find(⌘F);都能用,从 Settings 页和 Philharmonic 页也能用
-- [ ] **P2** Settings → General → Run on startup 打开 → 重启电脑 / 注销后 Exodus 自己启动
+- [ ] **P2** Settings → General → Run on startup 打开 → 重启电脑 / 注销后 Actovia 自己启动
 - [ ] **P2** Settings → General → Menu bar 关掉 → 菜单栏图标消失;再打开 → 回来
 - [ ] **P2** 窗口拉到很窄(< 768 px)和很宽(> 1600 px):侧栏、输入框、消息列都不溢出,没有横向滚动条
 - [ ] **P2** 多显示器:把窗口拖到副屏,再唤起 Quick Chat,出现在鼠标所在屏
@@ -92,7 +92,7 @@
 - [ ] **P0** **带图片的对话继续聊几轮**(这是 2026-09-30 修的 bug):每一轮都正常,不再报 `invalid base64 data`;用 Anthropic 和 OpenAI 各测一次
 - [ ] **P1** 发送前删除某个附件;一次发多张图
 - [ ] **P2** 大图、HEIC、PDF:要么正常处理,要么给出清楚的提示,不会卡住或静默失败
-- [ ] **P1** **选中提问**:在回答里选中一段文字 → 出现「Ask Exodus」按钮(暗色下不透明)→ 点击 → 引用出现在输入框上方 → 输入问题发送
+- [ ] **P1** **选中提问**:在回答里选中一段文字 → 出现「Ask Actovia」按钮(暗色下不透明)→ 点击 → 引用出现在输入框上方 → 输入问题发送
 - [ ] **P1** 用户消息里显示为引用块 + 问题;在自己的消息气泡里选中文字也能提问
 - [ ] **P1** 引用存在但问题为空时,回车不发送;点 × 能移除引用
 - [ ] **P1** **Quick Chat**:从菜单栏唤起 → 输入 → 回车 → 主窗口弹出并开新对话发送。分别在主窗口停在首页、在某个对话里、在 Settings 页时各测一次
@@ -218,7 +218,7 @@
 - [ ] **P1** **Profile**:头像上传、活动热力图、常用模型统计
 - [ ] **P1** **Discover**:开启并有 Brave key → 首页出现基于记忆的新闻 → Refresh 可用;调整主题数 / 每个主题的文章数
 - [ ] **P2** **Keyboard Shortcuts** 页列出的每个快捷键都真的能用:⌘N、⌘,、⌘B、⌘L、⌘⌥I、⌘⇧R、⌘F、⌘⇧F、Esc、⌘W、⌘⇧E、Enter、⇧Enter
-- [ ] **P2** **Computer Use**:在允许列表里加一个 app(如备忘录)→ 让模型「在备忘录里写一行字」→ 卡片逐步显示截图 → ⌥⇧⎋ 能立刻中止;Exodus 自己不会出现在可选列表里
+- [ ] **P2** **Computer Use**:在允许列表里加一个 app(如备忘录)→ 让模型「在备忘录里写一行字」→ 卡片逐步显示截图 → ⌥⇧⎋ 能立刻中止;Actovia 自己不会出现在可选列表里
 - [ ] **P2** **Chat Audit**:Rebuild snapshot → 运行每个预设查询都有结果 → 自己写一条 SQL(⌘↩ 运行)→ 读文件类语句(`read_text`)被拒绝
 - [ ] **P2** **Logger**:按级别、scope、traceId 过滤;展开一条错误能看到映射到源码行号的堆栈
 - [ ] **P2** **About**:版本号正确;Check for Updates(ad-hoc 签名的版本显示为「去下载页」的手动模式)
@@ -249,9 +249,9 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] A permission prompt for a long, multi-line Bash command shows the full command, multi-line and scrollable — nothing cut off.
 - [ ] Stop on the card mid-step: the card says Stopped; the group carries on.
 - [ ] Stop the whole group mid-step: the agent is interrupted too.
-- [ ] Quit Exodus mid-step, reopen: the step shows Stopped; a new request resumes the session.
+- [ ] Quit Actovia mid-step, reopen: the step shows Stopped; a new request resumes the session.
 - [ ] Crash mid-step (kill the Exodus main process with `kill -9` while a step runs), reopen: the card shows Stopped, not Running.
-- [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Exodus resumes.
+- [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Actovia resumes.
 - [ ] While Terminal is open, `~/.exodus/run/terminal/` holds a one-off resume script; after Terminal starts it, the script is gone (it deletes itself).
 - [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.exodus/worktrees/…` on an `exodus/…` branch; the branch chip and Worktree switch show.
 - [ ] Open folder… on `~`: refused with the reason.
@@ -259,12 +259,12 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] Settings › Agents › projects folder set to `~/.exodus` (or a folder inside it): refused with the reason; the previous value stays.
 - [ ] With the window in the background, a permission prompt raises a notification "… is waiting for you".
 - [ ] Settings › Agents → Agents at once = 1, two parallel steps: the second card says "Waiting for a free slot" until the first ends.
-- [ ] An Exodus employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.
+- [ ] An Actovia employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.
 
 ### Who may answer (presence)
 
-- [ ] While a permission prompt is open, from Terminal on the computer: `curl -i -X POST http://127.0.0.1:<port>/api/v1/agents/sessions/<id>/respond` (with a plausible body) gets `403` with code `PRESENCE_REQUIRED` — answering and stopping need the Exodus window or the paired phone, never a bare process on the machine. The same for the stop route.
-- [ ] Answering Allow / Deny from the Exodus window works; answering from the paired phone works.
+- [ ] While a permission prompt is open, from Terminal on the computer: `curl -i -X POST http://127.0.0.1:<port>/api/v1/agents/sessions/<id>/respond` (with a plausible body) gets `403` with code `PRESENCE_REQUIRED` — answering and stopping need the Actovia window or the paired phone, never a bare process on the machine. The same for the stop route.
+- [ ] Answering Allow / Deny from the Actovia window works; answering from the paired phone works.
 - [ ] From the paired phone, Continue in Terminal, Open folder… and changing a group's folder each fail with `403` — they are computer-side actions, desktop only.
 
 ## Codex employees — spec 2026-10-10

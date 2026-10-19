@@ -4,7 +4,7 @@
   "private": true,
   "description": "ChatBot featuring MCP, Immersive Editor, RAG, AI Agents, Deep Research, and other modern capabilities.",
   "keywords": [],
-  "homepage": "https://exodus.yancey.app",
+  "homepage": "https://actovia.yancey.app",
   "license": "MIT",
   "author": {
     "name": "YanceyOfficial",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/exodus-ai-org/exodus.git"
+    "url": "git+https://github.com/actovia-ai/actovia.git"
   },
   "workspaces": [
     "packages/*"

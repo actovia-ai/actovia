@@ -1,4 +1,4 @@
-// Ody the Traveller — the Exodus mascot, bindle on its shoulder, glancing
+// Ody the Traveller — the Actovia mascot, bindle on its shoulder, glancing
 // toward the way out. The menu bar glyph is Ody's head alone.
 //
 // Every icon, splash and web asset is generated from these functions by

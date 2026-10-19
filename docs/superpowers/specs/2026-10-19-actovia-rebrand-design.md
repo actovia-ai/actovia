@@ -84,7 +84,7 @@ a file name and stays.
 
 Updates for existing installs: the update feed follows the forge publisher, now `actovia-ai/actovia`.
 Installed builds still ask for `exodus-ai-org/exodus`; GitHub redirects a renamed org's repositories
-while the old name is not reused, so they find the new releases — **never re-create `exodus-ai-org`**.
+while the old name is not reused, so they find the new releases. The owner decides whether to claim `exodus-ai-org` as an empty placeholder (it stops a squatter from publishing "updates" to installed builds, at the cost of those builds no longer finding new releases).
 In-place updates (signed builds) keep the folder name `Exodus.app` with Actovia inside; manual-mode
 users who drag in `Actovia.app` should delete `Exodus.app` (release notes say so).
 

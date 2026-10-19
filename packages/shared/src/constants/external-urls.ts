@@ -9,9 +9,9 @@
  * navigates to.
  */
 
-// Exodus brand
-export const EXODUS_WEBSITE = 'https://exodus.yancey.app'
-export const EXODUS_REPO = 'https://github.com/exodus-ai-org/exodus'
+// Actovia brand
+export const EXODUS_WEBSITE = 'https://actovia.yancey.app'
+export const EXODUS_REPO = 'https://github.com/actovia-ai/actovia'
 export const EXODUS_TWITTER = 'https://x.com/YanceyOfficial'
 
 // skills.sh (Agent Skills registry). The main process reaches it through the
@@ -28,9 +28,9 @@ export function githubRepoUrl(ownerRepo: string): string {
   return `https://github.com/${ownerRepo}`
 }
 
-// exodus-cli — the terminal counterpart of the Skills Market page.
-export const EXODUS_CLI_NPM = 'https://www.npmjs.com/package/exodus-cli'
-export const EXODUS_CLI_REPO = 'https://github.com/exodus-ai-org/cli'
+// actovia-cli — the terminal counterpart of the Skills Market page.
+export const EXODUS_CLI_NPM = 'https://www.npmjs.com/package/actovia-cli'
+export const EXODUS_CLI_REPO = 'https://github.com/actovia-ai/cli'
 
 // Documentation
 export const BRAVE_SEARCH_DOCS =

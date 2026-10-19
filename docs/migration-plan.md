@@ -1048,7 +1048,7 @@ renders the real UI without console errors.
 - **Package metadata.** `package.json` is at 1.14.0 (universal-client's last
   release) with `homepage` / `repository` set, so `update-electron-app` (which
   derives the repo from `repository`) and `PublisherGithub` point at
-  `exodus-ai-org/exodus`.
+  `actovia-ai/actovia`.
 - **Release-build checks.** `bun run make` on macOS arm64 produced a valid DMG
   and a ZIP (`hdiutil verify` OK; `Exodus.app` is version 1.14.0, bundle id
   `app.yancey.exodus`). With `STRIP_TEST_IDS=1` all 50 of our own `data-testid`

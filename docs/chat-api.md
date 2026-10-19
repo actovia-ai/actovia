@@ -1,6 +1,6 @@
 # The chat API — technical specification
 
-The chat API is the core of Exodus: every conversation, on the desktop and on exodus-ios, goes through it, and
+The chat API is the core of Actovia: every conversation, on the desktop and on exodus-ios, goes through it, and
 everything the product does with a model — tools, memory, search, regenerate, approvals — meets in it. This
 document is the contract. It says what each endpoint takes and answers, what the server does with a message and in
 what order, what the model is sent and why, and what a client must do with what it receives. It is written to be
@@ -476,7 +476,7 @@ full record. Clients open chats with pages.
 
 ## 9. Approvals
 
-A tool call that would read a secret outside Exodus — `~/.ssh`, cloud credentials, browser profiles, `.env*` /
+A tool call that would read a secret outside Actovia — `~/.ssh`, cloud credentials, browser profiles, `.env*` /
 `*.pem` outside the chat workspace, a `terminal` command that prints a token, an MCP call whose arguments name any
 of these — is **paused** (`kernel/approval.ts`). The stream sends `approval_required` with a `summary` (the path or
 command, never contents; bidi and control characters made visible; cut from the end at 8 000 characters, with
@@ -487,7 +487,7 @@ The answer is `POST /api/v1/chat/approval` `{ runId, toolCallId, decision: "allo
 idempotent (the first answer stands), `404 APPROVAL_NOT_FOUND` once nothing waits, behind the presence gate on
 loopback (the model can reach loopback through `terminal`, and must not approve its own call). Any client may
 answer — the window or a paired phone. The stream then sends `approval_resolved`; anything but `allowed` gives the
-model "The user declined access to <summary>." Allow is per call, never remembered. Exodus's own data
+model "The user declined access to <summary>." Allow is per call, never remembered. Actovia's own data
 (`~/.exodus/lock.dat`, `tls/`, the database, backups, analytics) and its API ports are refused outright, never asked.
 
 ## 10. Other chat routes
@@ -555,7 +555,7 @@ call of every run. What the contract holds instead:
 - An earlier search is one line per source from the run after next; tool output is whole only in the run that made
   it; the fresh tail is six runs.
 - The past is the same bytes on every request, so a run's first call reads its prefix from cache when sent within the
-  cache's lifetime — each provider's default. Exodus sets no cache lifetime of its own (no `cacheRetention`): providers
+  cache's lifetime — each provider's default. Actovia sets no cache lifetime of its own (no `cacheRetention`): providers
   cache differently, and leveling that out is not worth it (owner, 2026-10-01).
 
 Re-measure against these numbers with Chat Audit and a page's size after any change to §5 or §8.

@@ -13,7 +13,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
-// Render every Exodus icon, the tray glyph, web assets and the boot splash
+// Render every Actovia icon, the tray glyph, web assets and the boot splash
 // from brand/art.mjs. Run with `bun run icons` after editing the art.
 //
 //   build/      icon.icns, icon.icon, icon-dock.png, icon.ico, icon.png, <n>x<n>.png
@@ -312,8 +312,8 @@ writeFileSync(
   out('brand/web/site.webmanifest'),
   `${JSON.stringify(
     {
-      name: 'Exodus',
-      short_name: 'Exodus',
+      name: 'Actovia',
+      short_name: 'Actovia',
       icons: [
         { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -340,7 +340,7 @@ await png(
   `<div style="width:1200px;height:630px;display:grid;place-items:center;background:linear-gradient(160deg,${a},${b});color:${m.PALETTE.text};font-family:Fredoka,sans-serif">
     <div style="display:grid;justify-items:center;gap:31px">
       <div style="width:220px;height:220px;filter:drop-shadow(0 14px 28px rgba(0,0,0,.18))">${svg(framed('s', m.icon, { inset: 0, shadow: false }), 220, 220, '0 0 1024 1024')}</div>
-      <div style="font-weight:600;font-size:104px;line-height:1;letter-spacing:-.01em">Exodus</div>
+      <div style="font-weight:600;font-size:104px;line-height:1;letter-spacing:-.01em">Actovia</div>
       <div style="font-weight:500;font-size:34px;opacity:.65">Every model, on your own machine</div>
     </div></div>`,
   1200,

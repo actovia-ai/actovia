@@ -1,25 +1,25 @@
-# Exodus
+# Actovia
 
-![Exodus](./screenshots/screenshots.jpg)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fexodus-ai-org%2Fexodus.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fexodus-ai-org%2Fexodus?ref=badge_shield)
+![Actovia](./screenshots/screenshots.jpg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Factovia-ai%2Factovia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Factovia-ai%2Factovia?ref=badge_shield)
 
-[![CodeQL](https://github.com/HyperChatBot/exodus/actions/workflows/github-code-scanning/codeql/badge.svg?branch=master)](https://github.com/HyperChatBot/exodus/actions/workflows/github-code-scanning/codeql)
-[![Release](https://github.com/exodus-ai-org/exodus/actions/workflows/release.yml/badge.svg)](https://github.com/exodus-ai-org/exodus/actions/workflows/release.yml)
+[![CodeQL](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql/badge.svg?branch=master)](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql)
+[![Release](https://github.com/actovia-ai/actovia/actions/workflows/release.yml/badge.svg)](https://github.com/actovia-ai/actovia/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Code Style](https://img.shields.io/badge/Code%20Style-oxfmt-blue)](https://oxc.rs/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/HyperChatBot/exodus/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/actovia-ai/actovia/pulls)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D22-brightgreen.svg)](https://nodejs.org/en/)
 [![Chat](https://img.shields.io/badge/Chat-Discord-blue?style=flat&logo=discord)](https://twitter/YanceyOfficial)
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/exodus-ai-org/exodus?utm_source=oss&utm_medium=github&utm_campaign=exodus-ai-org%2Fexodus&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/actovia-ai/actovia?utm_source=oss&utm_medium=github&utm_campaign=actovia-ai%2Factovia&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## Introduction
 
-Exodus is a high-performance, cross-platform AI chat application for desktop that is compatible with a variety of model providers. It runs a full local backend — an embedded Postgres database (PGlite + pgvector), a Hono HTTP server, and a durable job queue — so features like retrieval, memory consolidation, and multi-agent runs happen on your machine.
+Actovia (formerly Exodus) is a high-performance, cross-platform AI chat application for desktop that is compatible with a variety of model providers. It runs a full local backend — an embedded Postgres database (PGlite + pgvector), a Hono HTTP server, and a durable job queue — so features like retrieval, memory consolidation, and multi-agent runs happen on your machine.
 
 ## LLM Providers
 
 > [!NOTE]
-> Exodus tracks provider model lists as they change; the table below reflects the current defaults. Any provider's model list can also be extended in settings.
+> Actovia tracks provider model lists as they change; the table below reflects the current defaults. Any provider's model list can also be extended in settings.
 
 | Provider         | Chat Models                                                                   | Reasoning Models                   |
 | ---------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
@@ -42,7 +42,7 @@ Analyzes your query and research parameters (breadth and depth), generates follo
 
 ### Knowledge Base (RAG)
 
-An optional retrieval layer backed by a self-hosted [LightRAG](https://github.com/HKUDS/LightRAG) server (Exodus is a client only — see `docs/lightrag-setup.md`). Documents you add in settings are indexed into LightRAG; retrieval is context-only, and Exodus's own model writes the answer.
+An optional retrieval layer backed by a self-hosted [LightRAG](https://github.com/HKUDS/LightRAG) server (Actovia is a client only — see `docs/lightrag-setup.md`). Documents you add in settings are indexed into LightRAG; retrieval is context-only, and Actovia's own model writes the answer.
 
 ### Philharmonic — multi-agent Groups
 
@@ -93,22 +93,22 @@ Model Context Protocol servers can be configured in settings to expose external 
 
 Built on Electron for a consistent experience across macOS, Windows, and Linux. Computer Use is macOS-only.
 
-## Getting Started with Exodus
+## Getting Started with Actovia
 
-You can download Exodus from our [homepage](https://exodus.yancey.app) or manually from [GitHub Releases](https://github.com/HyperChatBot/exodus/releases/).
+You can download Actovia from our [homepage](https://actovia.yancey.app) or manually from [GitHub Releases](https://github.com/actovia-ai/actovia/releases/).
 
-We always keep the developer tools (e.g., <kbd>Command</kbd> + <kbd>Option</kbd> + <kbd>I</kbd>) open in the production environment. In Exodus, everything is transparent and controllable.
+We always keep the developer tools (e.g., <kbd>Command</kbd> + <kbd>Option</kbd> + <kbd>I</kbd>) open in the production environment. In Actovia, everything is transparent and controllable.
 
 ### macOS
 
-Since Exodus is not available on the App Store, you may encounter the following issue when you open it for the first time. Please follow the steps below to resolve it:
+Since Actovia is not available on the App Store, you may encounter the following issue when you open it for the first time. Please follow the steps below to resolve it:
 
 ![cant-be-open-in-macos](./screenshots/cannot-be-open-in-macos.png)
 
-1. Move `Exodus.app` to the `/Applications` directory.
-2. Open your terminal app and execute the command `chmod +x /Applications/Exodus.app/Contents/MacOS/Exodus`.
+1. Move `Actovia.app` to the `/Applications` directory.
+2. Open your terminal app and execute the command `chmod +x /Applications/Actovia.app/Contents/MacOS/Actovia`.
 
-## Developing Exodus
+## Developing Actovia
 
 ### Prerequisites
 
@@ -133,19 +133,19 @@ We have chosen [Electron](https://www.electronjs.org/) as our cross-platform fra
 | `bun run fmt:check`         | Check formatting without modifying files                              |
 | `bun run i18n:check`        | Verify translation catalogs are complete across all locales           |
 
-Development builds use your real data directory, `~/.exodus` — see [CLAUDE.md](./CLAUDE.md) for the details, and don't run two Exodus processes on it at once.
+Development builds use your real data directory, `~/.exodus` — see [CLAUDE.md](./CLAUDE.md) for the details, and don't run two Actovia processes on it at once.
 
 ## Contributing
 
-The main purpose of this repository is to continue to evolve Exodus, making it faster and easier to use. The development of Exodus happens in the open on GitHub, and we are grateful to the community for contributing bug fixes and improvements. Read below to learn how you can take part in improving Exodus.
+The main purpose of this repository is to continue to evolve Actovia, making it faster and easier to use. The development of Actovia happens in the open on GitHub, and we are grateful to the community for contributing bug fixes and improvements. Read below to learn how you can take part in improving Actovia.
 
 ### [Code of Conduct](./CODE_OF_CONDUCT.md)
 
-Exodus has adopted a Code of Conduct that we expect project participants to adhere to. Please read the [full text](./CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
+Actovia has adopted a Code of Conduct that we expect project participants to adhere to. Please read the [full text](./CODE_OF_CONDUCT.md) so that you can understand what actions will and will not be tolerated.
 
 ### [Contributing Guide](./CONTRIBUTING.md)
 
-Read our [contributing guide](./CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Exodus.
+Read our [contributing guide](./CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes to Actovia.
 
 ### Good Issues
 
@@ -153,7 +153,7 @@ Please make sure to read the [Issue Reporting Checklist](./.github/ISSUE_TEMPLAT
 
 ## Discussions
 
-If you have any questions or feedback about Exodus, please visit our [official discussion forum](https://github.com/orgs/HyperChatBot/discussions/71) to start a conversation with our team or other users. We are committed to making Exodus the best possible chat application, and your feedback plays a crucial role in achieving this goal.
+If you have any questions or feedback about Actovia, please visit our [official discussion forum](https://github.com/actovia-ai/actovia/discussions) to start a conversation with our team or other users. We are committed to making Actovia the best possible chat application, and your feedback plays a crucial role in achieving this goal.
 
 ## Acknowledgements
 
@@ -162,6 +162,6 @@ If you have any questions or feedback about Exodus, please visit our [official d
 
 ## License
 
-Exodus is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+Actovia is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fexodus-ai-org%2Fexodus.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fexodus-ai-org%2Fexodus?ref=badge_large)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Factovia-ai%2Factovia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Factovia-ai%2Factovia?ref=badge_large)

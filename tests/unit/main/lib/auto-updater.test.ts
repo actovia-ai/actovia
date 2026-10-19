@@ -246,7 +246,7 @@ describe('manual mode (an ad-hoc build that cannot validate its own updates)', (
     expect(netFetch).toHaveBeenCalledTimes(1)
     const [url, init] = netFetch.mock.calls[0]
     expect(url).toBe(
-      `https://update.electronjs.org/exodus-ai-org/exodus/darwin-${process.arch}/1.15.0`
+      `https://update.electronjs.org/actovia-ai/actovia/darwin-${process.arch}/1.15.0`
     )
     expect(init.headers['User-Agent']).toMatch(/^exodus\/1\.15\.0/)
     expect(updaterGetState()).toMatchObject({
@@ -279,7 +279,7 @@ describe('manual mode (an ad-hoc build that cannot validate its own updates)', (
     updaterDownload()
 
     expect(openExternalSafely).toHaveBeenCalledWith(
-      'https://github.com/exodus-ai-org/exodus/releases/latest'
+      'https://github.com/actovia-ai/actovia/releases/latest'
     )
   })
 

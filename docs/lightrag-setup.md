@@ -1,7 +1,7 @@
 # LightRAG Knowledge Base — Setup
 
-Exodus's knowledge base is **optional** and powered by a **self-hosted
-[LightRAG](https://github.com/HKUDS/LightRAG) server that you run**. Exodus is a
+Actovia's knowledge base is **optional** and powered by a **self-hosted
+[LightRAG](https://github.com/HKUDS/LightRAG) server that you run**. Actovia is a
 client only: it pushes your documents into LightRAG and asks it for relevant
 context at query time. It never runs, upgrades, or manages LightRAG, and never
 creates its storage or schema.
@@ -28,7 +28,7 @@ Create `.env` next to it:
 
 ```bash
 PORT=9621
-LIGHTRAG_API_KEY=change-me-to-a-long-secret   # Exodus sends this as X-API-Key
+LIGHTRAG_API_KEY=change-me-to-a-long-secret   # Actovia sends this as X-API-Key
 SUMMARY_LANGUAGE=English                        # language for entity summaries
 
 # LLM used for entity/relationship extraction during ingestion
@@ -58,9 +58,9 @@ Ingestion costs LLM tokens on your `LLM_BINDING_API_KEY` (LightRAG runs entity
 extraction over each document), and runs in the background — expect seconds to
 minutes per document.
 
-## 2. Point Exodus at it
+## 2. Point Actovia at it
 
-In Exodus open **Settings → Knowledge Base**:
+In Actovia open **Settings → Knowledge Base**:
 
 1. **Server URL** — `http://localhost:9621`
 2. **API Key** — the `LIGHTRAG_API_KEY` from your `.env`
@@ -82,7 +82,7 @@ index-status badge:
 | Failed        | Sync or processing failed; hover for the error, then edit/re-save or use **Reindex all** |
 | Needs reindex | Content changed but the sync stalled; use **Reindex all**                                |
 
-Editing a document re-indexes it (LightRAG documents are immutable, so Exodus
+Editing a document re-indexes it (LightRAG documents are immutable, so Actovia
 deletes and re-inserts). Deleting removes it from LightRAG too.
 
 **Reindex all** re-pushes every document — use it after first configuring the
@@ -92,7 +92,7 @@ server, or after wiping `rag_storage`.
 
 Retrieval is a tool the model calls when a question looks like the knowledge
 base might cover it (`searchKnowledgeBase`, toggleable under Settings → Built-in
-Tools). LightRAG returns the retrieved context; **Exodus's own chat model
+Tools). LightRAG returns the retrieved context; **Actovia's own chat model
 writes the answer.** It's available in both the main chat and Philharmonic
 Groups. If LightRAG is unreachable, the tool reports that and the conversation
 continues normally.

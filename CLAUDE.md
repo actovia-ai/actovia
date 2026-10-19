@@ -4,7 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Exodus is a cross-platform desktop AI chat application built with Electron, React, and Node.js. The toolchain is electron-forge + Vite (via `@electron-forge/plugin-vite`) + bun, with a `packages/shared` workspace package (`@exodus/shared`). It features multi-provider LLM support, a knowledge base (RAG), Deep Research, Philharmonic (multi-agent Groups), MCP (Model Context Protocol) routes, an app lock, lossless context management (LCM), and a memory/personalization layer.
+Actovia (formerly Exodus) is a cross-platform desktop AI chat application built with Electron, React, and Node.js. The toolchain is electron-forge + Vite (via `@electron-forge/plugin-vite`) + bun, with a `packages/shared` workspace package (`@exodus/shared`). It features multi-provider LLM support, a knowledge base (RAG), Deep Research, Philharmonic (multi-agent Groups), MCP (Model Context Protocol) routes, an app lock, lossless context management (LCM), and a memory/personalization layer.
+
+### Naming
+
+The product is **Actovia** (formerly Exodus, renamed 2026-10-19). Visible names
+come from `APP_DISPLAY_NAME` (`packages/shared/src/constants/brand.ts`) and the
+i18n catalogs; the repo is `actovia-ai/actovia`, the site `actovia.yancey.app`,
+the CLI `actovia-cli` (command `actovia`). Internal identifiers that hold data
+or pair devices **keep the old name** — renaming them would orphan user data:
+`package.json` `name: "exodus"` / `productName: "Exodus"` (they derive the
+Keychain item "Exodus Safe Storage", Electron `userData` and the
+single-instance lock — **never call `app.setName` or change `productName`**; a
+unit test guards it), the bundle ids, `~/.exodus` and every `EXODUS_*`
+variable, the Windows `Exodus.exe`, the LAN certificate subject `CN=Exodus`
+(devices pin its fingerprint), the `exodus://` and `exodus-artifact://`
+schemes, the `exodus-*` fences and `x-exodus-presence`, the DB enum value
+`'exodus'`, the `exodus-color-tone` localStorage key, `~/Exodus Projects`, the
+`exodus-input` helper, and code names such as `@exodus/shared`,
+`EXODUS_REPO` or `brand/Exodus.icon`. Spec:
+`docs/superpowers/specs/2026-10-19-actovia-rebrand-design.md`.
 
 ## Project Constraints (read first)
 
@@ -158,7 +177,7 @@ Exodus is the successor of the older `universal-client` app and shares its
   anything.
 - **Server ports** (`packages/shared/src/constants/systems.ts`): `SERVER_PORT =
   60223` is plaintext HTTP bound to loopback only (`127.0.0.1` and `::1`) — the
-  renderer, exodus-cli, `tests/api` and the iOS Simulator; nothing on the LAN
+  renderer, actovia-cli, `tests/api` and the iOS Simulator; nothing on the LAN
   can reach it. `LAN_SERVER_PORT = 63129` is what `exodus-ios` on a device
   connects to. Don't change either without updating the clients.
 - **E2E**: `playwright.config.ts` points `$HOME` at a scratch dir
@@ -229,11 +248,11 @@ quality reasons). `src/main/lib/ai/skills/`:
 
 - `skills-sh-client.ts` — list / search / detail / audit against the BFF relay
   `SKILLS_SH_BFF_URL` (`https://skills-md.yancey.app`, the same relay
-  `exodus-cli` uses; `EXODUS_SKILLS_BFF_URL` overrides it).
+  `actovia-cli` uses; `EXODUS_SKILLS_BFF_URL` overrides it).
 - `skills-store.ts` — installs a skill's `files[]` under
   `~/.exodus/skills/<slug>/` and records it in `~/.exodus/skills/.lock.json`
   (files first, lockfile last; paths that escape the slug dir are refused).
-  Same directory and lockfile shape as `exodus-cli`, so skills installed by
+  Same directory and lockfile shape as `actovia-cli`, so skills installed by
   either are visible to both.
 - `skills-manager.ts` — the seam chat + Philharmonic consume:
   `listInstalledSkills()`; for chat, `getActiveSkillsIndex()` — one line per
@@ -257,10 +276,10 @@ badge, installs on the right; no icon tiles, no mono outside commands and file
 paths): Discover (search; All time / Trending / Hot leaderboards, same-repo
 rows collapsed behind "+N more"; Curated — `curated.tsx`, publishers sorted by
 installs, each opening to its skills with the registry's featured pick
-badged) → detail page (security audit card, the copyable `exodus skills
+badged) → detail page (security audit card, the copyable `actovia skills
 install <id>` command, README card, bundled files) → install / toggle /
 uninstall; an Installed tab. The page header is one short band: the intro on
-the left and, on the right, a compact terminal block for `exodus-cli`
+the left and, on the right, a compact terminal block for `actovia-cli`
 (`cli-notice.tsx`: package-manager tabs + two copyable commands, built from the
 same `CommandLine` the detail page uses); it stacks in a narrow window. Spec:
 `docs/superpowers/specs/2026-09-19-skills-sh-market-design.md`.
@@ -439,7 +458,7 @@ The `/api/v1/chat` route includes `POST /api/v1/chat/:chatId/choose` (`{ runId }
    takes it — URLSession does over HTTPS by itself — else gzip; never an
    event stream (each frame must leave at once). A chat's history measured
    2.4 MB raw, 360 KB brotli, 725 KB gzip (2026-10-01)
-1. Origin gate (`createOriginGate`) — a request must carry no `Origin` (exodus-ios, exodus-cli, `tests/api`, and the packaged renderer: a `file://` page in Electron sends none) or, in a dev build only, exactly the Vite renderer's; anything else — a website, another loopback port, `null`, an extension, the artifact sandbox — gets `403`, as does a request on the loopback listener addressed by a public `Host` (DNS rebinding). Runs before CORS so a refused origin gets no `Access-Control-Allow-Origin`. Which listener took a request is in the bindings (`listenerOf(c)` in `server/types.ts`)
+1. Origin gate (`createOriginGate`) — a request must carry no `Origin` (exodus-ios, actovia-cli, `tests/api`, and the packaged renderer: a `file://` page in Electron sends none) or, in a dev build only, exactly the Vite renderer's; anything else — a website, another loopback port, `null`, an extension, the artifact sandbox — gets `403`, as does a request on the loopback listener addressed by a public `Host` (DNS rebinding). Runs before CORS so a refused origin gets no `Access-Control-Allow-Origin`. Which listener took a request is in the bindings (`listenerOf(c)` in `server/types.ts`)
 2. CORS middleware (`hono/cors`)
 3. Auth gate (`authGate`) — on the LAN listener a request needs `Authorization: Bearer <token>` of a paired device (`401` otherwise), except `POST /api/v1/pair`, which the pairing window guards; `/api/v1/devices*` is refused there outright (`403`). Loopback passes straight through. Ahead of the lock gate so an unauthenticated request learns nothing, not even that the app is locked
 4. Lock gate (`lockGate`) — rejects all `/api/*` with `423` while the app is locked. `POST /api/v1/lock/unlock` is mounted just before it (after `authGate`), so a paired device can unlock the app from the phone
@@ -1182,7 +1201,7 @@ Their windows live in `src/main/lib/window.ts`.
   itself and toasts both outcomes directly, instead of going through a `useMutation`.
 - Defaults suit a LOCAL API: `retry: 1` at 500 ms, no focus/reconnect refetch, `networkMode:
   'always'`; `refetchOnWindowFocus: true` is opted in per query whose data an outside writer
-  (exodus-ios, exodus-cli, the phone) can change: chat history,
+  (exodus-ios, actovia-cli, the phone) can change: chat history,
   devices, installed skills, the three logs reads, the Discover feed, and the Ollama probe
   (`use-chat-history.ts`, `use-devices.ts`, `use-installed-skills.ts`,
   `use-logs.ts`, `use-discover-feed.ts`, `use-ollama-status.ts`, and the secrets status —
