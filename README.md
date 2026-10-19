@@ -9,7 +9,7 @@
 [![Code Style](https://img.shields.io/badge/Code%20Style-oxfmt-blue)](https://oxc.rs/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/actovia-ai/actovia/pulls)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D22-brightgreen.svg)](https://nodejs.org/en/)
-[![Chat](https://img.shields.io/badge/Chat-Discord-blue?style=flat&logo=discord)](https://twitter/YanceyOfficial)
+[![Chat](https://img.shields.io/badge/Chat-Discord-blue?style=flat&logo=discord)](https://discord.gg/G7sM9AEMj)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/actovia-ai/actovia?utm_source=oss&utm_medium=github&utm_campaign=actovia-ai%2Factovia&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## Introduction

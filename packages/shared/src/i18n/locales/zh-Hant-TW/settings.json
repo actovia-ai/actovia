@@ -914,19 +914,19 @@
       },
       "cli": {
         "title": "從終端機安裝",
-        "description": "同一個技能，由 actovia-cli 安裝到此應用程式讀取的同一資料夾。"
+        "description": "同一個技能，由 Actovia CLI 安裝到此應用程式讀取的同一資料夾。"
       }
     },
     "installedTab": {
       "empty": "尚未安裝任何技能",
-      "emptyHint": "前往「探索」尋找技能，或在終端機執行 actovia-cli。",
+      "emptyHint": "前往「探索」尋找技能，或在終端機執行 Actovia CLI。",
       "installedAt": "安裝於 {{date}}",
       "legacy": "舊版",
       "uninstallTitle": "要解除安裝「{{name}}」嗎？",
       "uninstallDescription": "其檔案會從技能資料夾移除。您可以隨時重新安裝。"
     },
     "cli": {
-      "title": "偏好終端機？試試 <cli>actovia-cli</cli>"
+      "title": "偏好終端機？試試 <cli>Actovia CLI</cli>"
     },
     "toast": {
       "installedTitle": "已安裝「{{name}}」",

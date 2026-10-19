@@ -67,7 +67,7 @@ export const toggleSkill = (slug: string, isActive: boolean) =>
     body: { isActive }
   })
 
-/** The actovia-cli equivalent of the Install button, shown on every detail page. */
+/** The the Actovia CLI equivalent of the Install button, shown on every detail page. */
 export function cliInstallCommand(id: string): string {
   return `actovia skills install ${id}`
 }

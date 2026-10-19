@@ -18,7 +18,7 @@ _via_, "the way of acting".
 | Depth                  | **Everything a person sees** becomes Actovia. **Internal identifiers that hold data or pair devices stay**: bundle ids `app.yancey.exodus` / `app.yancey.exodus.ios`, `~/.exodus`, `EXODUS_*` env vars, the macOS Keychain item, localStorage keys, the `exodus://` and `exodus-artifact://` schemes, the `exodus-*` fence names and `x-exodus-presence` header (the desktop–iOS–model protocol), the iOS app group / keychain service / widget kinds, the DB enum value `'exodus'`, test ids |
 | Code names             | **Kept**: `@exodus/shared`, `getExodusHome`, `ExodusIos`, `ExodusApp`, … — no one sees them                                                                                                                                                                                                                                                                                                                                                                                                   |
 | History                | **Kept as written**: CHANGELOG, dated specs/plans, commit messages                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| CLI package / command  | **New npm package `actovia-cli`** (npm has no rename; `actovia-cli` is free), command **`actovia`** — no `exodus` alias: nobody uses the CLI yet. The owner unpublishes `exodus-cli` after the first `actovia-cli` publish, and the copy installed on the owner's Mac is removed now                                                                                                                                                                                                          |
+| CLI package / command  | **Scoped npm package `@actovia-ai/cli`** (npm has no rename; owner, 2026-10-20: npm org `actovia-ai`, scoped package), command **`actovia`** — no `exodus` alias: nobody uses the CLI yet. The owner unpublishes `exodus-cli` after the first `@actovia-ai/cli` publish, and the copy installed on the owner's Mac is removed now                                                                                                                                                             |
 | Remotes, push, folders | Remotes → `actovia-ai`; one push of every master at the end; local folders take the GitHub names                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ### Non-goals
@@ -109,7 +109,7 @@ users who drag in `Actovia.app` should delete `Exodus.app` (release notes say so
   disk): macOS `open -a`, Windows `Programs\Exodus\Exodus.exe` (unchanged, §2), Linux launcher `exodus`
   (from package.json `name`, unchanged).
 - Release lookups → `actovia-ai/cli`.
-- package.json `name: "actovia-cli"`, `bin: { actovia }` (→ `dist/index.js`); the program name in help is `actovia`; release assets `actovia-<platform>-<arch>[.exe]` (`scripts/build-binaries.sh`, `updater.ts`); the updater asks the registry for `actovia-cli` and GitHub for `actovia-ai/cli`; README install lines `npm i -g actovia-cli`.
+- package.json `name: "@actovia-ai/cli"` (+ `publishConfig.access: public`), `bin: { actovia }` (→ `dist/index.js`); the program name in help is `actovia`; release assets `actovia-<platform>-<arch>[.exe]` (`scripts/build-binaries.sh`, `updater.ts`); the updater asks the registry for `@actovia-ai/cli` and GitHub for `actovia-ai/cli`; README install lines `npm i -g @actovia-ai/cli`.
 
 ## 5. Homepage
 
@@ -141,7 +141,7 @@ next cleanup.
 2. A grep gate per repo: no "exodus" left outside history, the kept-identifier list and code names.
 3. **Before pushing, ask the owner**: pushing the desktop master runs the release workflow — with
    `osxSign: {}` committed and no Developer ID in CI yet, the macOS build may fail; pushing the CLI's
-   main publishes `actovia-cli` to npm.
+   main publishes `@actovia-ai/cli` to npm.
 4. Rename the local folders (`~/Code/exodus` → `~/Code/actovia`; `exodus` → `actovia`, `exodus-ios` →
    `ios`, `skills.sh-bff` → `skills.md-bff`); fix scripts and docs that point at `../exodus` /
    `../exodus-ios`; move Claude's project memory to the new path's key.

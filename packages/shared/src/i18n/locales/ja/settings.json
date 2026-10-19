@@ -914,19 +914,19 @@
       },
       "cli": {
         "title": "ターミナルからインストール",
-        "description": "同じスキルを actovia-cli が、このアプリが読み込む同じフォルダにインストールします。"
+        "description": "同じスキルを Actovia CLI が、このアプリが読み込む同じフォルダにインストールします。"
       }
     },
     "installedTab": {
       "empty": "インストール済みのスキルはまだありません",
-      "emptyHint": "「探す」で見つけるか、ターミナルで actovia-cli を実行してください。",
+      "emptyHint": "「探す」で見つけるか、ターミナルで Actovia CLI を実行してください。",
       "installedAt": "{{date}} にインストール",
       "legacy": "旧形式",
       "uninstallTitle": "「{{name}}」をアンインストールしますか？",
       "uninstallDescription": "ファイルはスキルフォルダから削除されます。いつでも再インストールできます。"
     },
     "cli": {
-      "title": "ターミナル派なら <cli>actovia-cli</cli>"
+      "title": "ターミナル派なら <cli>Actovia CLI</cli>"
     },
     "toast": {
       "installedTitle": "「{{name}}」をインストールしました",

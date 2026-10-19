@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Install from the terminal",
-        "description": "The same skill, installed by actovia-cli into the same folder this app reads."
+        "description": "The same skill, installed by the Actovia CLI into the same folder this app reads."
       }
     },
     "installedTab": {
       "empty": "No skills installed yet",
-      "emptyHint": "Open Discover to find one, or run actovia-cli in your terminal.",
+      "emptyHint": "Open Discover to find one, or run the `actovia` CLI in your terminal.",
       "installedAt": "Installed {{date}}",
       "legacy": "Legacy",
       "uninstallTitle": "Uninstall “{{name}}”?",
       "uninstallDescription": "Its files are removed from the skills folder. You can install it again at any time."
     },
     "cli": {
-      "title": "Prefer the terminal? Use <cli>actovia-cli</cli>"
+      "title": "Prefer the terminal? Use <cli>the Actovia CLI</cli>"
     },
     "toast": {
       "installedTitle": "“{{name}}” installed",

@@ -9,9 +9,9 @@ import { CommandLine } from './command-line'
 // How each package manager installs a global binary. The tab labels are the
 // tools' own names, not copy.
 const INSTALL_COMMANDS = {
-  npm: 'npm i -g actovia-cli',
-  pnpm: 'pnpm add -g actovia-cli',
-  bun: 'bun add -g actovia-cli'
+  npm: 'npm i -g @actovia-ai/cli',
+  pnpm: 'pnpm add -g @actovia-ai/cli',
+  bun: 'bun add -g @actovia-ai/cli'
 } as const
 type PackageManager = keyof typeof INSTALL_COMMANDS
 const PACKAGE_MANAGERS = Object.keys(INSTALL_COMMANDS) as PackageManager[]

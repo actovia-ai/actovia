@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Installa dal terminale",
-        "description": "La stessa skill, installata da actovia-cli nella stessa cartella letta da questa app."
+        "description": "La stessa skill, installata da Actovia CLI nella stessa cartella letta da questa app."
       }
     },
     "installedTab": {
       "empty": "Nessuna skill installata",
-      "emptyHint": "Apri Scopri per trovarne una, oppure esegui actovia-cli nel terminale.",
+      "emptyHint": "Apri Scopri per trovarne una, oppure esegui Actovia CLI nel terminale.",
       "installedAt": "Installata {{date}}",
       "legacy": "Legacy",
       "uninstallTitle": "Disinstallare “{{name}}”?",
       "uninstallDescription": "I suoi file vengono rimossi dalla cartella delle skill. Potrai reinstallarla in qualsiasi momento."
     },
     "cli": {
-      "title": "Preferisci il terminale? Usa <cli>actovia-cli</cli>"
+      "title": "Preferisci il terminale? Usa <cli>Actovia CLI</cli>"
     },
     "toast": {
       "installedTitle": "“{{name}}” installata",

@@ -785,7 +785,9 @@ describe('settings namespace Phase 5 additions (en)', () => {
     expect(settings.skillsMarket.sourceNotice).toContain(
       '<registry>skills.sh</registry>'
     )
-    expect(settings.skillsMarket.cli.title).toContain('<cli>actovia-cli</cli>')
+    expect(settings.skillsMarket.cli.title).toContain(
+      '<cli>the Actovia CLI</cli>'
+    )
   })
 
   it('has the new top-level toast.* keys (useSettings / useSettingsAutosave)', () => {
@@ -862,7 +864,7 @@ describe('skillsMarket <Trans> notices render the real components', () => {
       await import('@exodus/shared/constants/external-urls')
     const html = await renderReal(CliTitle)
     expect(html).toBe(
-      `Prefer the terminal? Use <a href="${EXODUS_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">actovia-cli</a>`
+      `Prefer the terminal? Use <a href="${EXODUS_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">the Actovia CLI</a>`
     )
   })
 })

@@ -914,19 +914,19 @@
       },
       "cli": {
         "title": "터미널에서 설치",
-        "description": "같은 스킬을 actovia-cli가 이 앱이 읽는 같은 폴더에 설치합니다."
+        "description": "같은 스킬을 Actovia CLI가 이 앱이 읽는 같은 폴더에 설치합니다."
       }
     },
     "installedTab": {
       "empty": "아직 설치된 스킬이 없습니다",
-      "emptyHint": "둘러보기에서 찾거나 터미널에서 actovia-cli를 실행하세요.",
+      "emptyHint": "둘러보기에서 찾거나 터미널에서 Actovia CLI를 실행하세요.",
       "installedAt": "{{date}} 설치",
       "legacy": "레거시",
       "uninstallTitle": "“{{name}}”을(를) 제거할까요?",
       "uninstallDescription": "파일이 스킬 폴더에서 삭제됩니다. 언제든지 다시 설치할 수 있습니다."
     },
     "cli": {
-      "title": "터미널이 더 편하다면 <cli>actovia-cli</cli>"
+      "title": "터미널이 더 편하다면 <cli>Actovia CLI</cli>"
     },
     "toast": {
       "installedTitle": "“{{name}}” 설치됨",

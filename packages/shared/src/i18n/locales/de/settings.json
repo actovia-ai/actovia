@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Über das Terminal installieren",
-        "description": "Derselbe Skill, von actovia-cli in denselben Ordner installiert, den diese App liest."
+        "description": "Derselbe Skill, von Actovia CLI in denselben Ordner installiert, den diese App liest."
       }
     },
     "installedTab": {
       "empty": "Noch keine Skills installiert",
-      "emptyHint": "Öffnen Sie „Entdecken“, um einen zu finden, oder führen Sie actovia-cli im Terminal aus.",
+      "emptyHint": "Öffnen Sie „Entdecken“, um einen zu finden, oder führen Sie Actovia CLI im Terminal aus.",
       "installedAt": "Installiert {{date}}",
       "legacy": "Alt",
       "uninstallTitle": "„{{name}}“ deinstallieren?",
       "uninstallDescription": "Die Dateien werden aus dem Skills-Ordner entfernt. Sie können den Skill jederzeit erneut installieren."
     },
     "cli": {
-      "title": "Lieber im Terminal? <cli>actovia-cli</cli> nutzen"
+      "title": "Lieber im Terminal? <cli>Actovia CLI</cli> nutzen"
     },
     "toast": {
       "installedTitle": "„{{name}}“ installiert",

@@ -15,7 +15,7 @@ export const EXODUS_REPO = 'https://github.com/actovia-ai/actovia'
 export const EXODUS_TWITTER = 'https://x.com/YanceyOfficial'
 
 // skills.sh (Agent Skills registry). The main process reaches it through the
-// same BFF relay actovia-cli uses; `EXODUS_SKILLS_BFF_URL` overrides the relay.
+// same BFF relay the Actovia CLI uses; `EXODUS_SKILLS_BFF_URL` overrides the relay.
 export const SKILLS_SH_HOMEPAGE = 'https://www.skills.sh'
 export const SKILLS_SH_BFF_URL = 'https://skills-md.yancey.app'
 /** Public page of a skill; `id` is `owner/repo/slug`. */
@@ -28,8 +28,8 @@ export function githubRepoUrl(ownerRepo: string): string {
   return `https://github.com/${ownerRepo}`
 }
 
-// actovia-cli — the terminal counterpart of the Skills Market page.
-export const EXODUS_CLI_NPM = 'https://www.npmjs.com/package/actovia-cli'
+// The Actovia CLI — the terminal counterpart of the Skills Market page.
+export const EXODUS_CLI_NPM = 'https://www.npmjs.com/package/@actovia-ai/cli'
 export const EXODUS_CLI_REPO = 'https://github.com/actovia-ai/cli'
 
 // Documentation
