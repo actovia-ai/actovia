@@ -33,6 +33,7 @@
     "typecheck:shared": "tsc --noEmit -p packages/shared/tsconfig.json --composite false",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:staged": "vitest related --run --passWithNoTests $(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.tsx' '*.mts')",
     "i18n:check": "bun run scripts/i18n-check.ts",
     "i18n:status": "bun run scripts/i18n-status.ts",
     "prepare": "husky",
