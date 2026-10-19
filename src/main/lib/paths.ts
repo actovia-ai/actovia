@@ -6,10 +6,10 @@ import { app } from 'electron'
 
 /**
  * `~/.exodus` — packaged and unpackaged (dev) builds alike, so a dev build
- * sees the same chats, settings and memories as the real app. Exodus is the
+ * sees the same chats, settings and memories as the real app. Actovia is the
  * successor of `universal-client`, which uses this same directory.
  *
- * PGlite is single-process: never run two Exodus processes (a dev build, the
+ * PGlite is single-process: never run two Actovia processes (a dev build, the
  * packaged app, universal-client) against one data directory at the same
  * time — the database can be corrupted. Backups live in `~/.exodus/backups`.
  *

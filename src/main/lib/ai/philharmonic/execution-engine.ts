@@ -25,7 +25,7 @@ export type { DelegatedOutput }
  * to review — for a CLI employee also the message its step saved (the
  * card lives in it).
  *
- * Retry behavior (Exodus' own loop only — a CLI step is never retried: a
+ * Retry behavior (Actovia' own loop only — a CLI step is never retried: a
  * second run would redo the work):
  * - Transient errors (network / 429 / 5xx / rate-limit phrasing) retry with
  *   decorrelated jitter up to `task.maxRetries + 1` attempts total.
@@ -115,7 +115,7 @@ export async function runDelegatedTask(args: {
             signal
           })
     const output = outcome.output
-    // Exodus' loop closes its own execution row; a CLI run leaves it to us.
+    // Actovia' loop closes its own execution row; a CLI run leaves it to us.
     if (agent.runtime !== 'exodus')
       await updateTaskExecution(execution.id, {
         status: 'completed',

@@ -21,7 +21,7 @@ function referenceLine(n: number, source: WebSearchResult): string {
 /**
  * An answer as it leaves the app (Copy): its 【N-source】 markers written as
  * [n] and its sources listed under it, the way the Deep Research PDF does
- * (`prepareMarkdownForPdf`) — a marker means nothing outside Exodus.
+ * (`prepareMarkdownForPdf`) — a marker means nothing outside Actovia.
  *
  * Sources are numbered in the order the answer first cites them; a source is
  * its link, so two ranks of one page share a number. A number no source

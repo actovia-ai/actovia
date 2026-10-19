@@ -47,10 +47,10 @@ Sources of truth, in the order to read them:
 
 The API is served twice from the main process (`src/main/lib/server/app.ts`):
 
-| Listener | Address                                    | Who                                                              | Auth                                               |
-| -------- | ------------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------- |
-| Loopback | `http://127.0.0.1:60223` and `[::1]`       | the desktop renderer, exodus-cli, `tests/api`, the iOS Simulator | none (a local process can read `~/.exodus` anyway) |
-| LAN      | `https://<host>:63129` (`LAN_SERVER_PORT`) | exodus-ios on a device                                           | `Authorization: Bearer <device token>`             |
+| Listener | Address                                    | Who                                                               | Auth                                               |
+| -------- | ------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------- |
+| Loopback | `http://127.0.0.1:60223` and `[::1]`       | the desktop renderer, actovia-cli, `tests/api`, the iOS Simulator | none (a local process can read `~/.exodus` anyway) |
+| LAN      | `https://<host>:63129` (`LAN_SERVER_PORT`) | exodus-ios on a device                                            | `Authorization: Bearer <device token>`             |
 
 The LAN listener exists only while a device is paired or a pairing window is open. Its certificate is pinned by the
 device. Ports are `SERVER_PORT` / `LAN_SERVER_PORT` in `packages/shared/src/constants/systems.ts`.

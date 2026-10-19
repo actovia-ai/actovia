@@ -221,7 +221,7 @@ export async function runComputerSession(
       return finish('failed', errText(err))
     }
 
-    // Never Exodus's own window, allowlisted or not (see self.ts): a session
+    // Never Actovia's own window, allowlisted or not (see self.ts): a session
     // there could click "Allow once" on its own approval prompt.
     if (isSelfTarget(target)) {
       return finish('failed', SELF_TARGET_MESSAGE)

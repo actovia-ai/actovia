@@ -125,8 +125,8 @@ router.post('/sessions/:id/terminal', desktopOnly, async (c) => {
     )
   const status = await getCliStatus(cli)
   if (!status.path) throw new ConflictError(ErrorCode.AGENT_NOT_RUNNING)
-  // Never two drivers on one session: Exodus lets go first — and only then is
-  // the script written, in Exodus' own data where no agent can edit it.
+  // Never two drivers on one session: Actovia lets go first — and only then is
+  // the script written, in Actovia' own data where no agent can edit it.
   await agentRegistry.stopSession(session.id)
   const scriptPath = await writeResumeScript(
     session.cwd,

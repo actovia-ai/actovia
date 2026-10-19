@@ -54,7 +54,7 @@ export type MapItineraryDetails = {
   notice?: ToolNotice
 }
 
-/** The URL of a Places photo through Exodus's own proxy
+/** The URL of a Places photo through Actovia's own proxy
  *  (`GET /api/v1/maps/photo`): the main process adds the user's key, so the
  *  key never reaches the renderer or an `<img src>`. `null` without a name. */
 export function buildPlacePhotoUrl(

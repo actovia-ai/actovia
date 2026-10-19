@@ -140,7 +140,7 @@ export async function* runAgent(input: RunInput): AsyncIterable<KernelEvent> {
           reason: `The ${toolCall.name} tool is disabled in settings.`
         }
       }
-      // Secrets outside Exodus: the user decides (see approval.ts).
+      // Secrets outside Actovia: the user decides (see approval.ts).
       const target = await sensitiveTarget(
         toolCall.name,
         args,

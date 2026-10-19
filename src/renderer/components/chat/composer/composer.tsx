@@ -198,7 +198,7 @@ function InputBox({
       borderRadius={PILL_RADIUS}
       // Steps aside while recording: the voice glow wears the same colours,
       // and only the change from the idle beam to one that moves with the
-      // voice says Exodus is listening.
+      // voice says Actovia is listening.
       active={voiceStream === null}
       className={cn(
         'mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',

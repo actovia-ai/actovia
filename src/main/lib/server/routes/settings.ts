@@ -50,8 +50,8 @@ settingsRouter.post('/', async (c) => {
     'Invalid setting configuration'
   )
 
-  // `agents.cliPaths` names a binary Exodus executes and `agents.projectsDir`
-  // where it works: only the Exodus window may change them, never a paired
+  // `agents.cliPaths` names a binary Actovia executes and `agents.projectsDir`
+  // where it works: only the Actovia window may change them, never a paired
   // phone or a process on loopback without the presence token.
   const fromWindow =
     listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))

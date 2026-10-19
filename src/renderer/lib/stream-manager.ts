@@ -176,7 +176,7 @@ async function consumeStream(stream: ActiveStream, response: Response) {
             (old) => ({ ...old, [event.runId]: event.memories })
           )
         } else if (event.type === 'approval_required') {
-          // A tool call waits for the user (a secret outside Exodus): the
+          // A tool call waits for the user (a secret outside Actovia): the
           // run's foot shows the card. Someone looking at another chat is
           // told where to answer.
           recordApprovalRequired(queryClient, stream.chatId, event)

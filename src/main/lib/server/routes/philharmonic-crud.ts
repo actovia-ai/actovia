@@ -107,7 +107,7 @@ philharmonicCrud.put('/agents/:id', async (c) => {
     'Invalid employee data'
   )
   // The model that will run is the one sent or the one stored, whichever
-  // runtime ends up set: an Exodus employee's stored model was never checked,
+  // runtime ends up set: an Actovia employee's stored model was never checked,
   // and switching it to a CLI without a model would hand that to argv.
   if (data.runtime !== undefined || data.model !== undefined) {
     const stored = await getAgentById(id)

@@ -12,14 +12,14 @@ import {
 /**
  * `web_fetch` (and anything else that fetches a model-chosen URL from this
  * process, such as deep research's own page fetch, if it grows one) must
- * never be able to reach Exodus's own API — a page the model asks to fetch
+ * never be able to reach Actovia's own API — a page the model asks to fetch
  * could otherwise read back settings, masked keys, or anything else the
  * loopback or LAN listener serves.
  *
  * The rule is narrower than `safe-fetch.ts`'s "must be public" (used for
  * images): only a URL whose host resolves to loopback, an unspecified
  * address, or one of this machine's own network interfaces — AND whose port
- * is one of the two Exodus listens on (`SERVER_PORT`, `LAN_SERVER_PORT`) —
+ * is one of the two Actovia listens on (`SERVER_PORT`, `LAN_SERVER_PORT`) —
  * is refused. Everything else on `localhost`, a LAN IP or a private address
  * (another local dev server, an intranet host) stays reachable — that is a
  * supported `web_fetch` use case, not the threat this guards against.
@@ -65,7 +65,7 @@ function isThisMachine(ip: string): boolean {
   return ownInterfaceAddresses().some((own) => sameAddress(own, ip))
 }
 
-/** Whether `url`'s port is one of the two Exodus's API listens on. */
+/** Whether `url`'s port is one of the two Actovia's API listens on. */
 export function isGuardedPort(url: URL): boolean {
   const port = url.port ? Number(url.port) : defaultPortFor(url.protocol)
   return GUARDED_PORTS.has(port)
@@ -91,7 +91,7 @@ export function assertAddressesNotExodusApi(
  * unspecified address, or one of its own interfaces) AND its port is
  * `SERVER_PORT` or `LAN_SERVER_PORT`, by throwing `LocalApiTargetError`.
  * Resolves (does nothing) otherwise, including when `url`'s host cannot be
- * resolved at all — there is no address to reach Exodus's API at either
+ * resolved at all — there is no address to reach Actovia's API at either
  * way, and the real fetch this guards will fail on its own for the same
  * reason.
  */

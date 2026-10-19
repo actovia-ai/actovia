@@ -64,7 +64,7 @@ router.get('/conversations/:id', async (c) => {
   const project = conversation?.projectId
     ? ((await getProjectById(conversation.projectId)) ?? null)
     : null
-  // An opened folder can be moved or deleted behind Exodus' back (spec §10).
+  // An opened folder can be moved or deleted behind Actovia' back (spec §10).
   const missing = project ? !existsSync(project.workDir) : false
   return successResponse(c, {
     project,

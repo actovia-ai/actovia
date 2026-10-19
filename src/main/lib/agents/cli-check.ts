@@ -124,7 +124,7 @@ export function parseCodexLoginStatus(
 const MODEL_LIST_TIMEOUT_MS = 5000
 const MAX_MODELS = 200
 
-/** A name Exodus may put on the CLI's command line (as the employee editor's rule). */
+/** A name Actovia may put on the CLI's command line (as the employee editor's rule). */
 const isCliModelName = (m: string) =>
   /^[\w.:[\]-]+$/u.test(m) && !m.startsWith('-')
 

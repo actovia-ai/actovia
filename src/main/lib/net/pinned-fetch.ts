@@ -22,7 +22,7 @@ import { resolveAddresses, UnsafeUrlError } from './safe-fetch'
  *
  * Unlike `fetchPublicHttps`, a private or loopback address is allowed (a local
  * dev server, an intranet page is a supported `web_fetch` use) — only
- * Exodus's own two ports on this machine are refused.
+ * Actovia's own two ports on this machine are refused.
  *
  * Never follows a redirect: a 3xx comes back as it is, with its body
  * discarded unread, for the caller to check the next hop. The body is capped

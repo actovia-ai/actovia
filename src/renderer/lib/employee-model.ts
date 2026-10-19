@@ -23,7 +23,7 @@ export function cliModelSuggestions(
   return cli === 'claude-code' ? ['opus', 'sonnet', 'haiku'] : []
 }
 
-/** The models an Exodus employee can be pinned to: every listed provider's catalog. */
+/** The models an Actovia employee can be pinned to: every listed provider's catalog. */
 export function exodusModelOptions(settings: Settings | undefined) {
   return configuredProviders(settings).flatMap((provider) => {
     const catalog = modelCatalog(settings, provider)

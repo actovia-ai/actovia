@@ -47,7 +47,7 @@ export function superviseProcess(opts: {
   onExit(info: ExitInfo): void
 }): Supervised {
   // Never follow a symlink at the log path, nor append through a hard link
-  // (an agent can plant either in its own cwd to make Exodus write elsewhere);
+  // (an agent can plant either in its own cwd to make Actovia write elsewhere);
   // logging is optional, so a refusal disables it, not the run.
   let log: ReturnType<typeof createWriteStream> | null = null
   let fd: number | null = null
@@ -102,7 +102,7 @@ export function superviseProcess(opts: {
   })
   lines.on('line', (line) => {
     if (finished) return
-    // Only stdout is logged: what Exodus writes (the owner's answers) never is.
+    // Only stdout is logged: what Actovia writes (the owner's answers) never is.
     log?.write(line + '\n')
     opts.onLine(line)
   })

@@ -18,7 +18,7 @@ export type AttachmentKind = 'image' | 'file'
 
 export interface AttachmentRequest {
   /**
-   * Where the bytes are: a base64 `data:` URL (a sent image), Exodus's own
+   * Where the bytes are: a base64 `data:` URL (a sent image), Actovia's own
    * media route (a generated image), or an `https:` image (a search result).
    */
   url: string

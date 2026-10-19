@@ -1,14 +1,14 @@
 import { app, BrowserWindow } from 'electron'
 
 /**
- * Exodus never drives itself with Computer Use, whatever the allowlist says:
- * a session pointed at Exodus's own window could press "Allow once" on a
+ * Actovia never drives itself with Computer Use, whatever the allowlist says:
+ * a session pointed at Actovia's own window could press "Allow once" on a
  * paused tool call (the approval gate) or change its own settings, with no
  * human in the loop. Both allowlist checks — the tool's exact-name gate and
  * the session's re-check of the resolved window — refuse a target that is
- * Exodus, and the Settings app picker never offers it.
+ * Actovia, and the Settings app picker never offers it.
  *
- * Exodus is recognised by its bundle id (the packaged `app.yancey.exodus`;
+ * Actovia is recognised by its bundle id (the packaged `app.yancey.exodus`;
  * in a dev run the prebuilt Electron.app, `com.github.Electron`) and by the
  * CGWindowIDs of its own windows. Not by name: "Exodus" is also the name of
  * unrelated apps. The helper does not report a window's owner pid, so the
@@ -54,7 +54,7 @@ export function selfIdentity(): SelfIdentity {
   return override ?? currentIdentity()
 }
 
-/** Whether a bundle id / window is Exodus itself. */
+/** Whether a bundle id / window is Actovia itself. */
 export function isSelfTarget(target: {
   bundleId?: string
   cgWindowId?: number

@@ -1,8 +1,8 @@
-/** Who runs an employee's turn: Exodus' own loop, or a CLI on the owner's machine. */
+/** Who runs an employee's turn: Actovia' own loop, or a CLI on the owner's machine. */
 export const AGENT_RUNTIMES = ['exodus', 'claude-code', 'codex'] as const
 export type AgentRuntime = (typeof AGENT_RUNTIMES)[number]
 
-/** The CLIs Exodus can drive. */
+/** The CLIs Actovia can drive. */
 export const CLI_IDS = ['claude-code', 'codex'] as const
 export type CliId = (typeof CLI_IDS)[number]
 

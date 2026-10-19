@@ -9,16 +9,16 @@ import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 import { GREP_SKIP_DIRS } from '../calling-tools/grep-skip-dirs'
 
 /**
- * The approval gate for secrets outside Exodus (spec 2026-09-25 §2.5).
+ * The approval gate for secrets outside Actovia (spec 2026-09-25 §2.5).
  *
- * Exodus's own secrets are defended without exception elsewhere (encrypted at
+ * Actovia's own secrets are defended without exception elsewhere (encrypted at
  * rest, masked by the API). Secrets elsewhere on the machine — SSH keys, cloud
  * credentials, `.env` files — are sometimes exactly what a task needs, so a
  * tool call that touches one is paused and the user decides: `sensitiveTarget`
  * says which calls, `pending-approvals.ts` holds each paused call until a decision
  * (`POST /api/v1/chat/approval`), a timeout or Stop settles it.
  *
- * Some of Exodus's own files are never the user's decision, and a call that
+ * Some of Actovia's own files are never the user's decision, and a call that
  * touches them is refused without asking: `~/.exodus/lock.dat` (the PIN
  * secret), `~/.exodus/tls/` (the LAN certificate's key), and the raw data —
  * `~/.exodus/database` (PGlite), `~/.exodus/backups` (its archives) and
@@ -38,7 +38,7 @@ import { GREP_SKIP_DIRS } from '../calling-tools/grep-skip-dirs'
  * mentions `.ssh` in an `echo` is asked about (an accepted false positive).
  *
  * `call_mcp_tool` is gated the same way: every string in its `arguments` is
- * checked as a path and as a command, and a URL at Exodus's own API ports is
+ * checked as a path and as a command, and a URL at Actovia's own API ports is
  * refused — an MCP filesystem or fetch server is otherwise a side door past
  * both rules.
  */
@@ -153,7 +153,7 @@ const HOME_SECRET_ROOTS = [
  */
 const HOME_CREDENTIAL_NAME_DIRS = ['.config', '.cargo', '.terraform.d']
 
-/** Exodus's own files no tool ever touches (relative to `~/.exodus`). */
+/** Actovia's own files no tool ever touches (relative to `~/.exodus`). */
 const EXODUS_REFUSED = ['lock.dat', 'tls', 'database', 'backups', 'analytics']
 
 /** Keychains outside home. */
@@ -401,7 +401,7 @@ function isCredentialNamed(path: string, roots: Roots, env: MatchEnv): boolean {
 }
 
 /**
- * How one absolute path is classified: `refuse` (Exodus's own lock/TLS
+ * How one absolute path is classified: `refuse` (Actovia's own lock/TLS
  * secrets), `ask` (a credential location, or a secret-named file outside the
  * workspace), or null. Both the path as written and its symlink-resolved form
  * are checked, so a link in the workspace pointing at `~/.ssh/id_rsa` is
@@ -1005,7 +1005,7 @@ const MAX_MCP_LEAVES = 500
 const TOO_MANY_LEAVES = Symbol('too-many-leaves')
 
 /**
- * A URL (or `host:port`) at one of the ports Exodus's own API listens on —
+ * A URL (or `host:port`) at one of the ports Actovia's own API listens on —
  * leading zeros included: WHATWG `new URL` reads `:060223` as 60223 and the
  * request reaches the API (re-review m2).
  */
@@ -1015,7 +1015,7 @@ const OWN_API_PORT = new RegExp(
   'u'
 )
 
-/** Whether a string leaf names Exodus's own API port. */
+/** Whether a string leaf names Actovia's own API port. */
 function leafAtOwnApi(leaf: string): boolean {
   const trimmed = leaf.trim()
   if (OWN_API_PORT.test(trimmed)) return true
@@ -1080,7 +1080,7 @@ function leafAsPath(leaf: string, home: string): string | null {
  * the gate never sees. Every string leaf of `arguments` is checked — as a
  * whole path (a recursive read, since a server may walk a directory), with
  * the terminal heuristic (paths and credential commands inside it), and for a
- * URL at Exodus's own API ports, which is refused. The summary names the
+ * URL at Actovia's own API ports, which is refused. The summary names the
  * server and tool, then what matched.
  */
 async function matchMcpCall(
@@ -1142,8 +1142,8 @@ export interface ApprovalTarget extends SensitiveTarget {
 }
 
 /**
- * Whether a tool call touches a secret outside Exodus (`ask`), one of
- * Exodus's own that is never handed out (`refuse`), or neither (null).
+ * Whether a tool call touches a secret outside Actovia (`ask`), one of
+ * Actovia's own that is never handed out (`refuse`), or neither (null).
  * `workspaceDir` is the chat's workspace: secret-named files inside it are
  * the model's own and pass. Pure apart from `realpath` on the paths it is
  * given; `env` is for tests.
@@ -1215,7 +1215,7 @@ export function groupRefusedReason(summary: string): string {
   return `Access to ${forModel(summary)} is not available in a Group run.`
 }
 
-/** What the model reads for Exodus's own files (lock, TLS key, database,
+/** What the model reads for Actovia's own files (lock, TLS key, database,
  *  backups) and API. */
 export function refusedReason(summary: string): string {
   return `Access to ${forModel(summary)} is refused: it touches Actovia's own secrets, data files or API, which tools never reach.`

@@ -44,7 +44,7 @@ const fail = (message: string): never => {
   throw new ValidationError(ErrorCode.VALIDATION_FAILED, message)
 }
 
-/** Spec §4 / §7.3: a real folder, never `~`, `/`, or Exodus' own data. */
+/** Spec §4 / §7.3: a real folder, never `~`, `/`, or Actovia' own data. */
 export async function assertWorkableFolder(folder: string): Promise<string> {
   let real: string
   try {

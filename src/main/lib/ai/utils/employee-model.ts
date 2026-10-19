@@ -5,7 +5,7 @@ import type { Agent, Settings } from '../../db/schema'
 import { getModelFromProvider } from './model-util'
 
 /**
- * The model an Exodus employee runs on: its own provider + model when set,
+ * The model an Actovia employee runs on: its own provider + model when set,
  * else the app's (spec §8.1). Its own choice never falls back silently — a
  * provider without a key, or a model gone, fails the step with the reason.
  */

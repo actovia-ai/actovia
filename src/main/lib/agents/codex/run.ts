@@ -7,7 +7,7 @@ import type { AgentEvent, AgentRun, StartInput } from '../driver'
 import { superviseProcess } from '../process'
 import { createCodexParser, type PendingRequest } from './protocol'
 
-/** Spec §4: Exodus' modes by meaning; the sandbox is always workspace-write. */
+/** Spec §4: Actovia' modes by meaning; the sandbox is always workspace-write. */
 export const CODEX_APPROVAL: Record<
   PermissionMode,
   'untrusted' | 'on-request' | 'never'
@@ -58,7 +58,7 @@ interface ThreadResponse {
   sandbox?: { type?: unknown; networkAccess?: unknown } | null
 }
 
-/** What Codex reports it will do that Exodus did not ask for, in its own words. */
+/** What Codex reports it will do that Actovia did not ask for, in its own words. */
 function overrides(r: ThreadResponse, approvalPolicy: string): string[] {
   const out: string[] = []
   if (r.approvalPolicy !== approvalPolicy)

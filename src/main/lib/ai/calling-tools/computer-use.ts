@@ -49,7 +49,7 @@ export const computerUse: AgentTool<typeof schema> = {
         }
       }
 
-      // Never Exodus itself, whatever the allowlist says: it could click its
+      // Never Actovia itself, whatever the allowlist says: it could click its
       // own approval prompt. The session re-checks the resolved window too.
       if (isSelfTarget({ bundleId: target })) {
         return {

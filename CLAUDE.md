@@ -38,7 +38,7 @@ you must uphold.
   `bun run typecheck` → `bun run i18n:check` → `bun run test` must pass. _The
   husky pre-commit hook runs lint-staged (oxlint + oxfmt on staged files),
   typecheck, i18n:check and `bun run test:staged` — `vitest related` over the
-  staged `.ts`/`.tsx`/`.mts` files, so only the tests that import them; run the
+  staged `.ts`/`.tsx`/`.mts` files, so only the tests that import them (with git's hook variables such as `GIT_INDEX_FILE` cleared, or tests that run `git` act on this repo's index); run the
   full `bun run test` yourself before a change that spans many modules._ Do not `--no-verify` except for one known,
   standing cause: a flaky PGlite WASM teardown (`RuntimeError: Aborted()`
   during an `invoke_viiiiii`/wasm abort in `@electric-sql/pglite`) under

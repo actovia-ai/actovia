@@ -643,7 +643,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
               (m as Message).role === 'assistant' ||
               (m as Message).role === 'toolResult'
           ),
-        // Secrets outside Exodus: refused in a Group run (sensitive-guard.ts).
+        // Secrets outside Actovia: refused in a Group run (sensitive-guard.ts).
         beforeToolCall: groupBeforeToolCall(conversationId)
       },
       signal,

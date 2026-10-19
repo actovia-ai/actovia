@@ -18,7 +18,7 @@ let appsCache: { at: number; apps: InstalledApp[] } | null = null
 // GET /api/v1/computer-use/apps — installed applications for the allowlist picker.
 router.get('/apps', async (c) => {
   if (!appsCache || Date.now() - appsCache.at > APPS_TTL_MS) {
-    // Exodus itself is never a Computer Use target (computer/self.ts).
+    // Actovia itself is never a Computer Use target (computer/self.ts).
     const apps = await getHelper().listApps()
     appsCache = {
       at: Date.now(),

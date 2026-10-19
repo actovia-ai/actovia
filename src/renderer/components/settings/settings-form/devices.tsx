@@ -86,7 +86,7 @@ function DeviceRow({
 }
 
 /**
- * Settings → Integrations → Devices. Nothing on the LAN can use Exodus until a
+ * Settings → Integrations → Devices. Nothing on the LAN can use Actovia until a
  * device has been paired from this page: "Pair a device" opens a two-minute
  * window and shows its QR code (see src/main/lib/lan/). The page polls while a
  * window is open — that is how it learns the phone has paired.

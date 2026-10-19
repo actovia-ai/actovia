@@ -85,7 +85,7 @@ export const handlers: Record<QueueName, (payload: unknown) => Promise<void>> =
         try {
           await kb.deleteDoc(p.lightragDocId)
         } catch {
-          // The doc is already gone from Exodus; an orphan in LightRAG is
+          // The doc is already gone from Actovia; an orphan in LightRAG is
           // harmless and Reindex all never recreates it. Nothing to retry.
         }
         return

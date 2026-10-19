@@ -25,7 +25,7 @@ export const isCliSessionId = (s: string) => /^[0-9a-f-]{8,64}$/iu.test(s)
 export const resumeScript = (cwd: string, binPath: string, args: string[]) =>
   `#!/bin/sh\nrm -f -- "$0"\ncd ${shellQuote(cwd)} && exec ${[binPath, ...args].map((word) => shellQuote(word)).join(' ')}\n`
 
-/** Exodus' own data, out of every agent's reach (assertWorkableFolder refuses it and its ancestors). */
+/** Actovia' own data, out of every agent's reach (assertWorkableFolder refuses it and its ancestors). */
 export const terminalDir = () => join(getExodusHome(), 'run', 'terminal')
 
 async function assertPrivateDir(dir: string): Promise<void> {

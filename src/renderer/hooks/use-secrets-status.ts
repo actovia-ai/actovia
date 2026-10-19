@@ -12,7 +12,7 @@ export function useSecretsStatus() {
     // Bare call: React Query would hand the service its context.
     queryFn: () => getSecretsStatus(),
     // A key can be re-entered from exodus-ios or exodus-cli, and the keychain
-    // can be unlocked while Exodus is in the background.
+    // can be unlocked while Actovia is in the background.
     refetchOnWindowFocus: true
   })
   return { data }

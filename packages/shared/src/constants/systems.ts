@@ -1,4 +1,4 @@
-// Plaintext HTTP, bound to loopback only: the renderer, exodus-cli, the API
+// Plaintext HTTP, bound to loopback only: the renderer, actovia-cli, the API
 // tests and the iOS Simulator. Nothing on the LAN can reach it.
 export const SERVER_PORT = 60223
 

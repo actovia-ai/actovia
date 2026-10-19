@@ -24,7 +24,7 @@ const BRAVE_API_BASE = 'https://api.search.brave.com/res/v1'
 
 // A page webFetch loads directly (not through Jina) may redirect; each hop
 // is re-checked against assertNotExodusApi (see loadDocumentBuiltin) so a
-// redirect can't land on Exodus's own API even when the original URL didn't.
+// redirect can't land on Actovia's own API even when the original URL didn't.
 const MAX_BUILTIN_REDIRECTS = 5
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
 
@@ -111,7 +111,7 @@ function htmlToMarkdown(html: string) {
  * Built-in loader: cheerio + turndown (HTML) or LangChain (PDF). Fetches
  * directly from this process (unlike the Jina loader, which asks Jina's
  * servers to fetch on our behalf), so it is the one loader that must not be
- * allowed to reach Exodus's own API — `fetchFollowingLocalGuard` checks the
+ * allowed to reach Actovia's own API — `fetchFollowingLocalGuard` checks the
  * initial URL and every redirect hop.
  */
 export async function loadDocumentBuiltin(link: string, signal?: AbortSignal) {

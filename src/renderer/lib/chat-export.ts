@@ -28,7 +28,7 @@ interface Run {
 /**
  * The chat as a Markdown document (spec 2026-10-08 §4): `# title`, then each
  * run as a **You:** paragraph (its pictures as a count), the tools it called
- * as quoted lines, and an **Exodus:** paragraph — the answer's text blocks
+ * as quoted lines, and an **Actovia:** paragraph — the answer's text blocks
  * joined, through the same rules Copy uses: a block's words instead of its
  * JSON (`withBlockText`), citation markers as [n] with the sources listed
  * under it (`withReferences`, against the sources found up to that run).

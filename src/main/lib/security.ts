@@ -57,7 +57,7 @@ export function isInAppNavigation(current: string, target: string): boolean {
 }
 
 /**
- * Whether a permission request comes from Exodus's own pages (the microphone
+ * Whether a permission request comes from Actovia's own pages (the microphone
  * for voice input, the clipboard) rather than from a frame it embeds —
  * CodeSandbox, TradingView, diagrams.net. Electron grants every request by
  * default, third-party frames included.
@@ -86,7 +86,7 @@ export function hardenRenderers(devServerUrl: string | undefined): void {
       openExternalSafely(url)
     })
 
-    // Every window, sub-apps included: nothing in Exodus opens a child
+    // Every window, sub-apps included: nothing in Actovia opens a child
     // BrowserWindow from the renderer, so a new window is always a link.
     contents.setWindowOpenHandler(({ url }) => {
       openExternalSafely(url)

@@ -194,7 +194,7 @@ export const TEST_IDS = {
     regenerate: 'chat.regenerate',
     /**
      * At the foot of a run whose tool call waits for the user's approval (a
-     * secret outside Exodus): the card, its two answers, and the settled
+     * secret outside Actovia): the card, its two answers, and the settled
      * state (`data-state`: allowed | denied | timed_out | stopped | expired).
      */
     approval: {

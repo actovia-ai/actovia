@@ -54,7 +54,7 @@ function ApprovalSummary({ approval }: { approval: RunApproval }) {
 }
 
 /**
- * The foot of a run whose tool call touched a secret outside Exodus (an SSH
+ * The foot of a run whose tool call touched a secret outside Actovia (an SSH
  * key, cloud credentials, a `.env` elsewhere): what it wants to read, with
  * Allow once / Deny — at the foot rather than in the timeline, so it shows
  * even while the timeline is folded. Once settled, one quiet line says how.

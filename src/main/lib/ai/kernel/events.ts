@@ -20,7 +20,7 @@ import type {
  *   completed (what the recorder persists) and the wall-clock duration
  * - `error` — after `run_end`, when the run ended in a provider failure
  * - `approval_required` / `approval_resolved` — a call that touches a secret
- *   outside Exodus (`approval.ts`) is paused between its `tool_start` and
+ *   outside Actovia (`approval.ts`) is paused between its `tool_start` and
  *   `tool_end` until the user, the timeout or Stop settles it
  */
 export type KernelEvent =

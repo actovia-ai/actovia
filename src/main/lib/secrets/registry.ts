@@ -1,7 +1,7 @@
 import { AiProviders } from '@exodus/shared/types/ai'
 
 /**
- * Every secret Exodus stores (spec 2026-09-25 §2.2). A registry field leaves
+ * Every secret Actovia stores (spec 2026-09-25 §2.2). A registry field leaves
  * the main process only as a mask (`mask.ts`); S2 encrypts exactly these at
  * rest. `tests/unit/main/lib/secrets/registry.test.ts` walks the settings
  * schema and fails on any field whose name matches `isSecretName` that

@@ -25,7 +25,7 @@ export function useOllamaStatus(baseUrl: string | null | undefined) {
     queryKey: ollamaStatusKeys.baseUrl(baseUrl ?? ''),
     queryFn: () => pingOllama(baseUrl!),
     enabled: !!baseUrl,
-    // Ollama is usually started in another app: coming back to Exodus is the
+    // Ollama is usually started in another app: coming back to Actovia is the
     // moment to ask again. Off app-wide (settings autosave), but this writes
     // nothing to settings.
     refetchOnWindowFocus: true

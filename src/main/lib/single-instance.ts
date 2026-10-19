@@ -4,7 +4,7 @@ import { join } from 'path'
 import { app } from 'electron'
 
 /**
- * One Exodus process per data directory.
+ * One Actovia process per data directory.
  *
  * PGlite has no cross-process lock: a second process on the same
  * `~/.exodus/database` corrupts it. The second instance did fail — but only at

@@ -29,7 +29,7 @@ import { mediaContentType, resolveMediaFile } from './media/store'
 /**
  * Save / Copy for an attachment in the chat (see `ATTACHMENT_CHANNELS`).
  *
- * The page only says which attachment: its URL — a `data:` URL, Exodus's own
+ * The page only says which attachment: its URL — a `data:` URL, Actovia's own
  * media route, or an `https:` image — and its name. Main never writes where
  * the page says: the path always comes from the native save dialog the user
  * answered. A media URL is read off disk through `resolveMediaFile` (the same

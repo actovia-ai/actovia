@@ -139,7 +139,7 @@ export type ChatSseEvent =
   // question, `run-memory.ts`), sent once right after the stream opens
   // (before any kernel event), and only when it chose something.
   | { type: 'memories_used'; runId: string; memories: UsedMemory[] }
-  // A tool call that touches a secret outside Exodus is paused until the
+  // A tool call that touches a secret outside Actovia is paused until the
   // user answers (`POST /api/v1/chat/approval`). `summary` is the path or
   // command, never file contents; `expiresAt` (epoch ms) is when it is
   // declined unanswered. Unknown to exodus-ios so far, which ignores it.

@@ -17,7 +17,7 @@ import {
  * the PM coordinator), which run on `agentLoop` rather than the chat kernel.
  * A Group run has no chat window to show an approval card in — and a
  * scheduled one has nobody at all — so a call the chat would ask about is
- * refused here, with a result the model reads; Exodus's own lock/TLS secrets
+ * refused here, with a result the model reads; Actovia's own lock/TLS secrets
  * are refused as everywhere. The Group's workspace is
  * `~/.exodus/groups/<conversationId>`.
  */

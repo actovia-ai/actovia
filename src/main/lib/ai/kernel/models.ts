@@ -18,7 +18,7 @@ import { loggingThrows } from './log-throws'
 /**
  * The process's one `Models` collection. pi 0.85 routes every request by
  * `model.provider` to a registered provider, which resolves auth and owns the
- * stream; there is no global registry any more. Exodus passes the API key
+ * stream; there is no global registry any more. Actovia passes the API key
  * from Settings explicitly on each request (`options.apiKey` wins over
  * anything a provider would resolve from the environment), so nothing here
  * reads env vars in practice.

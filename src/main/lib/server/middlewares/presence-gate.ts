@@ -9,7 +9,7 @@ import { listenerOf } from '../types'
  * includes a `curl` the model runs with the `terminal` tool, which could
  * otherwise approve its own paused call, or open a pairing window, read its
  * code and pair itself a device that approves over the LAN. So on loopback
- * these need the presence token only Exodus's own window holds (IPC, see
+ * these need the presence token only Actovia's own window holds (IPC, see
  * `presence.ts`); on the LAN listener `authGate` has already required a
  * paired device's token, which is what the user in person holds there.
  */

@@ -15,7 +15,7 @@ export const EXODUS_REPO = 'https://github.com/actovia-ai/actovia'
 export const EXODUS_TWITTER = 'https://x.com/YanceyOfficial'
 
 // skills.sh (Agent Skills registry). The main process reaches it through the
-// same BFF relay exodus-cli uses; `EXODUS_SKILLS_BFF_URL` overrides the relay.
+// same BFF relay actovia-cli uses; `EXODUS_SKILLS_BFF_URL` overrides the relay.
 export const SKILLS_SH_HOMEPAGE = 'https://www.skills.sh'
 export const SKILLS_SH_BFF_URL = 'https://skills-md.yancey.app'
 /** Public page of a skill; `id` is `owner/repo/slug`. */
