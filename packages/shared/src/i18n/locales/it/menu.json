@@ -9,6 +9,11 @@
   "view": "Visualizza",
   "window": "Finestra",
   "learnMore": "Scopri di più",
+  "app": {
+    "about": "Informazioni su {{name}}",
+    "hide": "Nascondi {{name}}",
+    "quit": "Esci da {{name}}"
+  },
   "tray": {
     "showApp": "Mostra app",
     "hideApp": "Nascondi app",

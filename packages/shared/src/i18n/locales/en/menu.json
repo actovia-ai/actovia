@@ -9,6 +9,11 @@
   "view": "View",
   "window": "Window",
   "learnMore": "Learn More",
+  "app": {
+    "about": "About {{name}}",
+    "hide": "Hide {{name}}",
+    "quit": "Quit {{name}}"
+  },
   "tray": {
     "showApp": "Show App",
     "hideApp": "Hide App",

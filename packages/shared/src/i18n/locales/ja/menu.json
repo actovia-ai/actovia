@@ -9,6 +9,11 @@
   "view": "表示",
   "window": "ウィンドウ",
   "learnMore": "詳細を見る",
+  "app": {
+    "about": "{{name}}について",
+    "hide": "{{name}}を隠す",
+    "quit": "{{name}}を終了"
+  },
   "tray": {
     "showApp": "アプリを表示",
     "hideApp": "アプリを隠す",

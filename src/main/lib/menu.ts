@@ -1,5 +1,6 @@
+import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
 import { EXODUS_WEBSITE } from '@exodus/shared/constants/external-urls'
-import { app, Menu, MenuItemConstructorOptions, shell } from 'electron'
+import { Menu, MenuItemConstructorOptions, shell } from 'electron'
 
 import { mainT } from './i18n'
 import { getLockManager } from './lock/lock-manager'
@@ -26,9 +27,14 @@ export function buildMenu(): MenuItemConstructorOptions[] {
     ...(isMac
       ? [
           {
-            label: app.name,
+            label: APP_DISPLAY_NAME,
             submenu: [
-              { role: 'about' },
+              {
+                role: 'about',
+                label: mainT('menu:app.about', 'About {{name}}', {
+                  name: APP_DISPLAY_NAME
+                })
+              },
               { type: 'separator' },
               {
                 label: mainT('menu:settings', 'Settings…'),
@@ -38,11 +44,21 @@ export function buildMenu(): MenuItemConstructorOptions[] {
               { type: 'separator' },
               { role: 'services' },
               { type: 'separator' },
-              { role: 'hide' },
+              {
+                role: 'hide',
+                label: mainT('menu:app.hide', 'Hide {{name}}', {
+                  name: APP_DISPLAY_NAME
+                })
+              },
               { role: 'hideOthers' },
               { role: 'unhide' },
               { type: 'separator' },
-              { role: 'quit' }
+              {
+                role: 'quit',
+                label: mainT('menu:app.quit', 'Quit {{name}}', {
+                  name: APP_DISPLAY_NAME
+                })
+              }
             ]
           }
         ]

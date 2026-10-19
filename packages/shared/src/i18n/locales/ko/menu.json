@@ -9,6 +9,11 @@
   "view": "보기",
   "window": "윈도우",
   "learnMore": "더 알아보기",
+  "app": {
+    "about": "{{name}} 정보",
+    "hide": "{{name}} 가리기",
+    "quit": "{{name}} 종료"
+  },
   "tray": {
     "showApp": "앱 표시",
     "hideApp": "앱 숨기기",

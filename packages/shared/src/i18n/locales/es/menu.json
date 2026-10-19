@@ -9,6 +9,11 @@
   "view": "Ver",
   "window": "Ventana",
   "learnMore": "Más información",
+  "app": {
+    "about": "Acerca de {{name}}",
+    "hide": "Ocultar {{name}}",
+    "quit": "Salir de {{name}}"
+  },
   "tray": {
     "showApp": "Mostrar aplicación",
     "hideApp": "Ocultar aplicación",

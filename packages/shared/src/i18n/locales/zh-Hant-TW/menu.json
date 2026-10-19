@@ -9,6 +9,11 @@
   "view": "檢視",
   "window": "視窗",
   "learnMore": "了解更多",
+  "app": {
+    "about": "關於 {{name}}",
+    "hide": "隱藏 {{name}}",
+    "quit": "結束 {{name}}"
+  },
   "tray": {
     "showApp": "顯示應用程式",
     "hideApp": "隱藏應用程式",

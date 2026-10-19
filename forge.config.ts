@@ -14,6 +14,9 @@ import { PublisherGitHub } from '@electron-forge/publisher-github'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
 
+// Relative: Forge loads this file itself, without the Vite aliases.
+import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
+
 const config: ForgeConfig = {
   packagerConfig: {
     // Unpack DuckDB from the asar: AutoUnpackNativesPlugin only extracts
@@ -23,6 +26,12 @@ const config: ForgeConfig = {
     asar: { unpack: '**/node_modules/@duckdb/**' },
     icon: './build/icon',
     extraResource: ['./resources'],
+    // The bundle a person sees is Actovia; package.json's productName stays
+    // "Exodus" (the runtime name: Keychain item, userData, single-instance
+    // lock). Windows keeps Exodus.exe: a Squirrel update would otherwise leave
+    // an Exodus.lnk pointing at a missing exe.
+    name: APP_DISPLAY_NAME,
+    executableName: process.platform === 'win32' ? 'Exodus' : APP_DISPLAY_NAME,
     appBundleId: 'app.yancey.exodus',
     appCategoryType: 'public.app-category.utilities',
     // macOS permission prompts' purpose strings (carried over from
@@ -121,13 +130,11 @@ const config: ForgeConfig = {
     // `*-darwin-*.zip`); the DMG is what people download.
     new MakerZIP({}, ['darwin']),
     new MakerDMG({}, ['darwin']),
-    // The packager names the Linux executable after `productName` ("Exodus"),
-    // but these two makers default `bin` to package.json's `name` ("exodus")
-    // and fail with "could not find the Electron app binary" — Linux paths are
-    // case-sensitive (macOS and Windows aren't, which is why only the Linux
-    // release job caught it). The /usr/bin launcher they install stays `exodus`.
-    new MakerRpm({ options: { bin: 'Exodus' } }),
-    new MakerDeb({ options: { bin: 'Exodus' } })
+    // The Linux executable follows `executableName` ("Actovia"), but these two
+    // makers default `bin` to package.json's `name` ("exodus") and fail with
+    // "could not find the Electron app binary" — Linux paths are case-sensitive.
+    new MakerRpm({ options: { bin: APP_DISPLAY_NAME } }),
+    new MakerDeb({ options: { bin: APP_DISPLAY_NAME } })
   ],
   // Manual publishing to GitHub Releases — the prerequisite for the free
   // update.electronjs.org auto-update service (see lib/auto-updater.ts, which
@@ -138,8 +145,8 @@ const config: ForgeConfig = {
   publishers: [
     new PublisherGitHub({
       repository: {
-        owner: 'exodus-ai-org',
-        name: 'exodus'
+        owner: 'actovia-ai',
+        name: 'actovia'
       }
     })
   ],

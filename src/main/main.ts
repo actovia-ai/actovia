@@ -4,6 +4,7 @@
 import './lib/remote-debugging-guard'
 import { join } from 'path'
 
+import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
 import { app, BrowserWindow, globalShortcut, powerMonitor } from 'electron'
 import started from 'electron-squirrel-startup'
 
@@ -49,6 +50,17 @@ declare const MAIN_WINDOW_VITE_NAME: string
 
 // Before `ready`: a scheme can only be made privileged up front.
 registerArtifactScheme()
+
+// The runtime name stays "Exodus" (Keychain item, userData, lock); only what a
+// person sees says Actovia.
+app.setAboutPanelOptions({
+  applicationName: APP_DISPLAY_NAME,
+  applicationVersion: app.getVersion()
+})
+app.userAgentFallback = app.userAgentFallback.replace(
+  /\bExodus\//,
+  `${APP_DISPLAY_NAME}/`
+)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {

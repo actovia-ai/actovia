@@ -9,6 +9,11 @@
   "view": "Visualizar",
   "window": "Janela",
   "learnMore": "Saiba Mais",
+  "app": {
+    "about": "Sobre o {{name}}",
+    "hide": "Ocultar {{name}}",
+    "quit": "Sair do {{name}}"
+  },
   "tray": {
     "showApp": "Mostrar Aplicativo",
     "hideApp": "Ocultar Aplicativo",
