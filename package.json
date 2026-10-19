@@ -84,7 +84,7 @@
     "electron-squirrel-startup": "^1.0.1",
     "embla-carousel-react": "^8.6.0",
     "hono": "^4.13.13",
-    "i18next": "^26.4.2",
+    "i18next": "^26.4.6",
     "i18next-resources-to-backend": "^1.2.3",
     "input-otp": "^1.5.0",
     "jszip": "^3.10.2",
