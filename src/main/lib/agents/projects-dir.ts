@@ -35,9 +35,9 @@ export async function assertProjectsDirAllowed(dir: string): Promise<void> {
   if (target === home)
     fail('Your home folder is too broad — choose a folder inside it')
   if (target === data || target.startsWith(data + sep))
-    fail("Exodus' own data folder cannot be used")
+    fail("Actovia's own data folder cannot be used")
   if (home.startsWith(target + sep) || data.startsWith(target + sep))
     fail(
-      "This folder contains your home folder or Exodus' data — choose a folder inside it"
+      "This folder contains your home folder or Actovia's data — choose a folder inside it"
     )
 }

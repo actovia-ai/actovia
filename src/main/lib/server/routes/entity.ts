@@ -29,7 +29,7 @@ const MAX_BYTES = 512 * 1024
 // Wikimedia's API policy asks every client for a User-Agent that names it
 // and says where to find its maker.
 const USER_AGENT =
-  'Exodus/1 (https://github.com/YanceyOfficial/exodus) entity-panel'
+  'Actovia/1 (https://github.com/YanceyOfficial/exodus) entity-panel'
 
 interface WikipediaSummary {
   title?: string

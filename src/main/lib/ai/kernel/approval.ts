@@ -1103,7 +1103,7 @@ async function matchMcpCall(
   if (holdsOwnApiPortNumber(inner)) {
     return {
       kind: 'refuse',
-      summary: `${label}: Exodus's own API — port ${SERVER_PORT} / ${LAN_SERVER_PORT}`
+      summary: `${label}: Actovia's own API — port ${SERVER_PORT} / ${LAN_SERVER_PORT}`
     }
   }
   const hits: SensitiveTarget[] = []
@@ -1111,7 +1111,7 @@ async function matchMcpCall(
     if (leafAtOwnApi(leaf)) {
       return {
         kind: 'refuse',
-        summary: `${label}: Exodus's own API — ${commandText(leaf)}`
+        summary: `${label}: Actovia's own API — ${commandText(leaf)}`
       }
     }
     const path = leafAsPath(leaf, env.home)
@@ -1218,5 +1218,5 @@ export function groupRefusedReason(summary: string): string {
 /** What the model reads for Exodus's own files (lock, TLS key, database,
  *  backups) and API. */
 export function refusedReason(summary: string): string {
-  return `Access to ${forModel(summary)} is refused: it touches Exodus's own secrets, data files or API, which tools never reach.`
+  return `Access to ${forModel(summary)} is refused: it touches Actovia's own secrets, data files or API, which tools never reach.`
 }

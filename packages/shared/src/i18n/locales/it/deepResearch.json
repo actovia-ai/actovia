@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Avvio della ricerca approfondita...",
-      "description": "Il processo di ricerca approfondita potrebbe richiedere del tempo. Sentiti libero di chattare con Exodus in altre conversazioni. Exodus ti avviserà non appena il report finale sarà pronto."
+      "description": "Il processo di ricerca approfondita potrebbe richiedere del tempo. Sentiti libero di chattare con Actovia in altre conversazioni. Actovia ti avviserà non appena il report finale sarà pronto."
     },
     "learnings_one": "Ricerca approfondita su {{count}} elemento dalle risorse web precedenti",
     "learnings_other": "Ricerca approfondita su {{count}} elementi dalle risorse web precedenti",

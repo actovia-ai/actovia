@@ -1,3 +1,4 @@
+import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
 import { migrate } from 'drizzle-orm/pglite/migrator'
 import { Notification } from 'electron'
 
@@ -68,7 +69,7 @@ export const runMigrate = async () => {
       cause: error instanceof Error ? String(error.cause) : undefined
     })
     new Notification({
-      title: 'Exodus',
+      title: APP_DISPLAY_NAME,
       body:
         error instanceof Error ? error.message : 'Failed to migrate database.'
     }).show()

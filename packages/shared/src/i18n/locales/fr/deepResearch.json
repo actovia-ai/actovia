@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Début de la recherche approfondie...",
-      "description": "Le processus de recherche approfondie peut prendre du temps. N'hésitez pas à discuter avec Exodus dans d'autres conversations. Exodus vous préviendra dès que le rapport final sera prêt."
+      "description": "Le processus de recherche approfondie peut prendre du temps. N'hésitez pas à discuter avec Actovia dans d'autres conversations. Actovia vous préviendra dès que le rapport final sera prêt."
     },
     "learnings_one": "{{count}} élément analysé en profondeur à partir des ressources web précédentes",
     "learnings_other": "{{count}} éléments analysés en profondeur à partir des ressources web précédentes",

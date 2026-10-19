@@ -8,7 +8,7 @@
     "title": "Sperre & Datenschutz",
     "thirdParty": "Ein Aktienchart im Chat ist eine Einbettung von TradingView: TradingView sieht das Symbol und Ihre IP-Adresse, wie bei jedem eingebetteten Chart.",
     "enroll": {
-      "description": "Legen Sie eine 6-stellige PIN fest, um Exodus zu sperren. Während die App gesperrt ist, sind die Oberfläche und die lokale API nicht zugänglich, Hintergrundaufgaben laufen jedoch weiter.",
+      "description": "Legen Sie eine 6-stellige PIN fest, um Actovia zu sperren. Während die App gesperrt ist, sind die Oberfläche und die lokale API nicht zugänglich, Hintergrundaufgaben laufen jedoch weiter.",
       "enterLabel": "Geben Sie eine 6-stellige PIN ein",
       "confirmLabel": "Bestätigen Sie Ihre PIN",
       "startOver": "Von vorne beginnen"
@@ -29,7 +29,7 @@
       "description": "Die App-Sperre deaktivieren. Erfordert Ihre aktuelle PIN.",
       "button": "Entfernen",
       "dialogTitle": "Sperre entfernen?",
-      "dialogDescription": "Geben Sie Ihre aktuelle PIN zur Bestätigung ein. Exodus fragt beim Öffnen dann keine PIN mehr ab.",
+      "dialogDescription": "Geben Sie Ihre aktuelle PIN zur Bestätigung ein. Actovia fragt beim Öffnen dann keine PIN mehr ab.",
       "confirmButton": "Sperre entfernen"
     },
     "toast": {

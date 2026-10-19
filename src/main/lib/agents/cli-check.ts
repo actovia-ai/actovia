@@ -182,7 +182,7 @@ function askAppServer<T>(
       id: 1,
       method: 'initialize',
       params: {
-        clientInfo: { name: 'exodus', title: 'Exodus', version: '1' },
+        clientInfo: { name: 'exodus', title: 'Actovia', version: '1' },
         capabilities: null
       }
     })

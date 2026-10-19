@@ -101,7 +101,7 @@ describe('webFetch', () => {
       'http://127.0.0.1:63129/api/v1/pair'
     ])('refuses %s without ever loading it', async (url) => {
       await expect(webFetch().execute('c1', { url })).rejects.toThrow(
-        'Exodus cannot fetch its own API.'
+        'Actovia cannot fetch its own API.'
       )
       expect(loadDocument).not.toHaveBeenCalled()
     })

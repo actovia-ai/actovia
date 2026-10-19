@@ -53,7 +53,7 @@ export function isEncryptedSecret(value: unknown): value is string {
 export class SecretEncryptionError extends Error {
   constructor() {
     super(
-      'Could not encrypt the secret: the system keychain refused access. Allow Exodus in the keychain prompt (or unlock the keychain) and save again.'
+      'Could not encrypt the secret: the system keychain refused access. Allow Actovia in the keychain prompt (or unlock the keychain) and save again.'
     )
     this.name = 'SecretEncryptionError'
   }

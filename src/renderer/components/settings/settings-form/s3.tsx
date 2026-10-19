@@ -19,7 +19,7 @@ import { SettingsRow, SettingsSection } from '../settings-row'
 export function EncodingNotice() {
   return (
     <Trans ns="settings" i18nKey="tools.s3.alert.encoding">
-      By default, Exodus encodes attachments as <strong>base64</strong> inline
+      By default, Actovia encodes attachments as <strong>base64</strong> inline
       in the prompt. For large files or vision-heavy workflows, uploading to S3
       and passing a URL is more efficient and reliable.
     </Trans>
@@ -49,8 +49,8 @@ export function CorsNotice() {
   return (
     <Trans ns="settings" i18nKey="tools.s3.alert.cors">
       <strong>CORS</strong> — Add a CORS rule allowing <code>PUT</code> from{' '}
-      <code>*</code> (or your app origin) so Exodus can upload directly from the
-      desktop.
+      <code>*</code> (or your app origin) so Actovia can upload directly from
+      the desktop.
     </Trans>
   )
 }

@@ -8,7 +8,7 @@
     "title": "Bloqueio e Privacidade",
     "thirdParty": "Um gráfico de ações em um chat é um embed do TradingView: o TradingView vê o símbolo e seu endereço IP, como em qualquer gráfico incorporado.",
     "enroll": {
-      "description": "Defina um PIN de 6 dígitos para bloquear o Exodus. Enquanto bloqueado, a interface e a API local ficam inacessíveis, mas as tarefas em segundo plano continuam em execução.",
+      "description": "Defina um PIN de 6 dígitos para bloquear o Actovia. Enquanto bloqueado, a interface e a API local ficam inacessíveis, mas as tarefas em segundo plano continuam em execução.",
       "enterLabel": "Digite um PIN de 6 dígitos",
       "confirmLabel": "Confirme seu PIN",
       "startOver": "Recomeçar"
@@ -29,7 +29,7 @@
       "description": "Desativar o bloqueio do app. Requer seu PIN atual.",
       "button": "Remover",
       "dialogTitle": "Remover bloqueio?",
-      "dialogDescription": "Digite seu PIN atual para confirmar. O Exodus não vai mais exigir um PIN para abrir.",
+      "dialogDescription": "Digite seu PIN atual para confirmar. O Actovia não vai mais exigir um PIN para abrir.",
       "confirmButton": "Remover bloqueio"
     },
     "toast": {

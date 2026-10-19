@@ -156,7 +156,7 @@ export function describeFileChange(
             `${KIND[c.kind.type] ?? c.kind.type} ${c.path}${c.kind.move_path ? ` → ${c.kind.move_path}` : ''}\n${c.diff}`
         )
         .join('\n\n')
-    : 'The change wasn’t shown to Exodus — Deny unless you expected it.'
+    : 'The change wasn’t shown to Actovia — Deny unless you expected it.'
   return `${body}${grantRoot ? `\n\nAlso asks to allow writes under ${grantRoot}.` : ''}${reason ? `\n\nReason: ${reason}` : ''}${rest(params, ['reason', 'grantRoot'])}`
 }
 
@@ -261,7 +261,7 @@ export function createCodexParser(nonce: string): CodexParser {
       return {
         events: [
           notice(
-            `Codex asked for “${method}” on another thread; Exodus declined it.`
+            `Codex asked for “${method}” on another thread; Actovia declined it.`
           )
         ],
         refusal: refused
@@ -270,7 +270,7 @@ export function createCodexParser(nonce: string): CodexParser {
               rpcId,
               error: {
                 code: -32601,
-                message: `Exodus does not handle ${method} for another thread`
+                message: `Actovia does not handle ${method} for another thread`
               }
             }
       }
@@ -351,7 +351,7 @@ export function createCodexParser(nonce: string): CodexParser {
         return {
           events: [
             notice(
-              'Codex asked something on behalf of an MCP server, which Exodus can’t answer — continue in Terminal.'
+              'Codex asked something on behalf of an MCP server, which Actovia can’t answer — continue in Terminal.'
             )
           ],
           refusal: { rpcId, result: { action: 'decline', content: null } }
@@ -360,12 +360,15 @@ export function createCodexParser(nonce: string): CodexParser {
         return {
           events: [
             notice(
-              `Codex asked for “${method}”, which Exodus can’t answer — continue in Terminal.`
+              `Codex asked for “${method}”, which Actovia can’t answer — continue in Terminal.`
             )
           ],
           refusal: {
             rpcId,
-            error: { code: -32601, message: `Exodus does not handle ${method}` }
+            error: {
+              code: -32601,
+              message: `Actovia does not handle ${method}`
+            }
           }
         }
     }

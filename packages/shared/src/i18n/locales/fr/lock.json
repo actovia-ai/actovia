@@ -8,7 +8,7 @@
     "title": "Verrouillage et confidentialité",
     "thirdParty": "Un graphique boursier dans une conversation est une intégration TradingView : TradingView voit le symbole et votre adresse IP, comme pour tout graphique intégré.",
     "enroll": {
-      "description": "Définissez un code PIN à 6 chiffres pour verrouiller Exodus. Lorsque l'application est verrouillée, l'interface et l'API locale sont inaccessibles, mais les tâches en arrière-plan continuent de s'exécuter.",
+      "description": "Définissez un code PIN à 6 chiffres pour verrouiller Actovia. Lorsque l'application est verrouillée, l'interface et l'API locale sont inaccessibles, mais les tâches en arrière-plan continuent de s'exécuter.",
       "enterLabel": "Saisissez un code PIN à 6 chiffres",
       "confirmLabel": "Confirmez votre code PIN",
       "startOver": "Recommencer"
@@ -29,7 +29,7 @@
       "description": "Désactiver le verrouillage de l'application. Nécessite votre code PIN actuel.",
       "button": "Supprimer",
       "dialogTitle": "Supprimer le verrouillage ?",
-      "dialogDescription": "Saisissez votre code PIN actuel pour confirmer. Exodus ne demandera plus de code PIN à l'ouverture.",
+      "dialogDescription": "Saisissez votre code PIN actuel pour confirmer. Actovia ne demandera plus de code PIN à l'ouverture.",
       "confirmButton": "Supprimer le verrouillage"
     },
     "toast": {

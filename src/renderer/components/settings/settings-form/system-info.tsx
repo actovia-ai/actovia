@@ -1,3 +1,4 @@
+import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
 import {
   EXODUS_REPO,
   EXODUS_TWITTER,
@@ -60,7 +61,9 @@ function AboutHeader() {
         draggable={false}
       />
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-xl font-semibold tracking-tight">Exodus</h2>
+        <h2 className="text-xl font-semibold tracking-tight">
+          {APP_DISPLAY_NAME}
+        </h2>
         <Value>v{version}</Value>
       </div>
     </div>
@@ -128,13 +131,13 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
 
       <SettingsSection title={t('about.sections.links')}>
         <SettingsRow label={t('about.github')}>
-          <ExternalLink href={EXODUS_REPO}>exodus-ai-org/exodus</ExternalLink>
+          <ExternalLink href={EXODUS_REPO}>actovia-ai/actovia</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.twitter')}>
           <ExternalLink href={EXODUS_TWITTER}>@YanceyOfficial</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.website')}>
-          <ExternalLink href={EXODUS_WEBSITE}>exodus.yancey.app</ExternalLink>
+          <ExternalLink href={EXODUS_WEBSITE}>actovia.yancey.app</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.license')}>
           <Value>MIT</Value>

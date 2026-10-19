@@ -68,4 +68,4 @@ export function isSelfTarget(target: {
 }
 
 export const SELF_TARGET_MESSAGE =
-  'Exodus cannot control its own window with Computer Use.'
+  'Actovia cannot control its own window with Computer Use.'

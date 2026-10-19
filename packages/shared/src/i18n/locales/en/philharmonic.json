@@ -253,7 +253,7 @@
     },
     "runtime": {
       "label": "Runs on",
-      "exodus": "Exodus"
+      "exodus": "Actovia"
     },
     "model": {
       "label": "Model",
@@ -373,7 +373,7 @@
   },
   "agents": {
     "settings": {
-      "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Exodus starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
+      "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Actovia starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
       "clisTitle": "On this Mac",
       "runTitle": "How they run",
       "projectsDir": {
@@ -393,7 +393,7 @@
         "label": "Separate worktrees",
         "description": "When two agents work in the same git repository at once, each gets its own worktree and branch. Merging is up to you."
       },
-      "safety": "Coding agents run with their own permissions, in the folder you give them. Exodus never answers their questions or approves their actions for you."
+      "safety": "Coding agents run with their own permissions, in the folder you give them. Actovia never answers their questions or approves their actions for you."
     },
     "cli": {
       "check": "Check",
@@ -439,7 +439,7 @@
       "terminalFailed": "Could not open Terminal",
       "stopFailed": "Couldn't stop it",
       "folderFailed": "Couldn't open the folder",
-      "inTerminal": "Continued in Terminal — Exodus picks it up again on its next step."
+      "inTerminal": "Continued in Terminal — Actovia picks it up again on its next step."
     }
   }
 }

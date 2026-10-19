@@ -2,7 +2,7 @@
   "general": {
     "language": {
       "label": "言語",
-      "description": "Exodusのインターフェースで使用する言語です。",
+      "description": "Actoviaのインターフェースで使用する言語です。",
       "auto": "自動(システムから検出)"
     },
     "theme": {
@@ -27,11 +27,11 @@
     },
     "runOnStartup": {
       "label": "起動時に実行",
-      "description": "ログイン時にExodusを自動的に起動します"
+      "description": "ログイン時にActoviaを自動的に起動します"
     },
     "menuBar": {
       "label": "メニューバー",
-      "description": "メニューバーにExodusを表示します"
+      "description": "メニューバーにActoviaを表示します"
     }
   },
   "nav": {
@@ -209,7 +209,7 @@
     },
     "baseStyle": {
       "label": "基本のスタイルとトーン",
-      "description": "Exodusがあなたに応答する際のスタイルとトーンを設定します",
+      "description": "Actoviaがあなたに応答する際のスタイルとトーンを設定します",
       "options": {
         "default": "デフォルト",
         "professional": "プロフェッショナル",
@@ -235,7 +235,7 @@
     },
     "nickname": {
       "label": "ニックネーム",
-      "placeholder": "Exodusにどう呼んでほしいですか?"
+      "placeholder": "Actoviaにどう呼んでほしいですか?"
     },
     "occupation": {
       "label": "職業",
@@ -524,10 +524,10 @@
     },
     "s3": {
       "alert": {
-        "encoding": "デフォルトでは、Exodusは添付ファイルをプロンプト内に<strong>base64</strong>としてインライン埋め込みします。大きなファイルや画像を多用するワークフローでは、S3にアップロードしてURLを渡す方が効率的で信頼性が高くなります。",
+        "encoding": "デフォルトでは、Actoviaは添付ファイルをプロンプト内に<strong>base64</strong>としてインライン埋め込みします。大きなファイルや画像を多用するワークフローでは、S3にアップロードしてURLを渡す方が効率的で信頼性が高くなります。",
         "requirementsHeading": "<strong>設定前に必要な要件:</strong>",
         "publicReadAccess": "<strong>パブリック読み取りアクセス</strong> — AWSはデフォルトでパブリックアクセスをブロックしています。バケットの「すべてのパブリックアクセスをブロック」を無効にし、AIプロバイダーが認証情報なしでURLを取得できるよう、<2>s3:GetObject</2>を<4>*</4>に付与するバケットポリシーを設定する必要があります。",
-        "cors": "<strong>CORS</strong> — Exodusがデスクトップから直接アップロードできるよう、<5>*</5>(またはアプリのオリジン)からの<2>PUT</2>を許可するCORSルールを追加してください。",
+        "cors": "<strong>CORS</strong> — Actoviaがデスクトップから直接アップロードできるよう、<5>*</5>(またはアプリのオリジン)からの<2>PUT</2>を許可するCORSルールを追加してください。",
         "iamCredentials": "<strong>IAM認証情報</strong> — アクセスキーID/シークレットアクセスキーは、設定したバケットに対して少なくとも<2>s3:PutObject</2>と<5>s3:PutObjectAcl</5>の権限を持つIAMユーザーまたはロールに属している必要があります。",
         "objectAcl": "<strong>オブジェクトACL</strong> — アップロードされた各オブジェクトは<3>public-read</3>に設定されます。バケットのACLは無効化されていない必要があります(つまり、オブジェクト所有者の設定を<6>ACL有効 / バケット所有者を優先</6>にする必要があります)。"
       },
@@ -914,19 +914,19 @@
       },
       "cli": {
         "title": "ターミナルからインストール",
-        "description": "同じスキルを exodus-cli が、このアプリが読み込む同じフォルダにインストールします。"
+        "description": "同じスキルを actovia-cli が、このアプリが読み込む同じフォルダにインストールします。"
       }
     },
     "installedTab": {
       "empty": "インストール済みのスキルはまだありません",
-      "emptyHint": "「探す」で見つけるか、ターミナルで exodus-cli を実行してください。",
+      "emptyHint": "「探す」で見つけるか、ターミナルで actovia-cli を実行してください。",
       "installedAt": "{{date}} にインストール",
       "legacy": "旧形式",
       "uninstallTitle": "「{{name}}」をアンインストールしますか？",
       "uninstallDescription": "ファイルはスキルフォルダから削除されます。いつでも再インストールできます。"
     },
     "cli": {
-      "title": "ターミナル派なら <cli>exodus-cli</cli>"
+      "title": "ターミナル派なら <cli>actovia-cli</cli>"
     },
     "toast": {
       "installedTitle": "「{{name}}」をインストールしました",
@@ -996,18 +996,18 @@
   },
   "devices": {
     "heading": "ペアリング済みのデバイス",
-    "description": "ローカルネットワーク経由で Exodus を利用できるスマートフォンやタブレットです。デバイスは最初にここでペアリングする必要があります。ペアリングするまで、Exodus はネットワークから一切アクセスできません。",
+    "description": "ローカルネットワーク経由で Actovia を利用できるスマートフォンやタブレットです。デバイスは最初にここでペアリングする必要があります。ペアリングするまで、Actovia はネットワークから一切アクセスできません。",
     "empty": "ペアリング済みのデバイスはありません",
     "emptyHint": "ペアリングしたデバイスはここに表示されます。いつでも取り消せます。",
     "pair": "デバイスをペアリング",
     "pairCard": {
       "title": "iPhone または iPad を接続",
-      "description": "ペアリングを始めると QR コードが 2 分間表示されます。デバイスの Exodus アプリでスキャンしてください。"
+      "description": "ペアリングを始めると QR コードが 2 分間表示されます。デバイスの Actovia アプリでスキャンしてください。"
     },
     "pairing": {
-      "title": "iPhone の Exodus でスキャン",
+      "title": "iPhone の Actovia でスキャン",
       "steps": {
-        "open": "iPhone または iPad で Exodus を開く",
+        "open": "iPhone または iPad で Actovia を開く",
         "navigate": "<strong>設定 → コンピュータとペアリング</strong>に進む",
         "scan": "このコードをスキャンする"
       },

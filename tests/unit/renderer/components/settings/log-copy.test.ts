@@ -21,7 +21,7 @@ describe('formatLogForAi', () => {
   it('lays the line out for a model: message, stack, the rest as JSON', () => {
     const text = formatLogForAi(record)
     expect(text.split('\n')[0]).toBe(
-      'Exodus log line — ERROR at 2026-10-09T08:16:31.640Z (scope: chat)'
+      'Actovia log line — ERROR at 2026-10-09T08:16:31.640Z (scope: chat)'
     )
     expect(text).toContain(
       'Stack trace:\n```\nTypeError: x\n    at a (src/a.ts:1:2)\n```'

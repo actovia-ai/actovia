@@ -402,8 +402,8 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
       <SettingsIntro>
         <p>
           <Trans ns="knowledgeBase" i18nKey="alert">
-            Exodus's knowledge base is optional and powered by a{' '}
-            <strong>self-hosted LightRAG server that you run</strong> — Exodus
+            Actovia's knowledge base is optional and powered by a{' '}
+            <strong>self-hosted LightRAG server that you run</strong> — Actovia
             only connects to it, pushing your documents and asking for relevant
             context; it never runs, upgrades, or manages LightRAG itself. Leave
             the URL empty to keep the knowledge base disabled. Retrieval is

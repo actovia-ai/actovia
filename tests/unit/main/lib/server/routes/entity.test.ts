@@ -68,7 +68,7 @@ describe('GET /api/v1/entity/:title', () => {
     expect(url).toBe(
       'https://en.wikipedia.org/api/rest_v1/page/summary/Marie_Curie'
     )
-    expect(options.headers['User-Agent']).toMatch(/^Exodus\//u)
+    expect(options.headers['User-Agent']).toMatch(/^Actovia\//u)
     expect(options.headers.Accept).toBe('application/json')
     expect(options.maxBytes).toBe(512 * 1024)
   })

@@ -1,5 +1,5 @@
 {
-  "alert": "A base de conhecimento do Exodus é opcional e é alimentada por um <strong>servidor LightRAG autogerenciado que você mesmo executa</strong> — o Exodus apenas se conecta a ele, enviando seus documentos e solicitando o contexto relevante; ele nunca executa, atualiza ou gerencia o LightRAG. Deixe a URL vazia para manter a base de conhecimento desativada. A recuperação é somente de contexto: o LightRAG encontra os trechos relevantes, mas o modelo de chat configurado sempre escreve a resposta. O modelo de embedding fica <strong>bloqueado assim que você inserir um documento</strong> — alterá-lo depois exige apagar o armazenamento do LightRAG e readicionar todos os documentos, então escolha um que pretenda manter.",
+  "alert": "A base de conhecimento do Actovia é opcional e é alimentada por um <strong>servidor LightRAG autogerenciado que você mesmo executa</strong> — o Actovia apenas se conecta a ele, enviando seus documentos e solicitando o contexto relevante; ele nunca executa, atualiza ou gerencia o LightRAG. Deixe a URL vazia para manter a base de conhecimento desativada. A recuperação é somente de contexto: o LightRAG encontra os trechos relevantes, mas o modelo de chat configurado sempre escreve a resposta. O modelo de embedding fica <strong>bloqueado assim que você inserir um documento</strong> — alterá-lo depois exige apagar o armazenamento do LightRAG e readicionar todos os documentos, então escolha um que pretenda manter.",
   "serverUrl": {
     "label": "URL do Servidor",
     "description": "Seu servidor LightRAG autogerenciado. Deixe vazio para desativar a base de conhecimento."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Conexão",
-    "description": "Verifique se o Exodus consegue acessar seu servidor LightRAG.",
+    "description": "Verifique se o Actovia consegue acessar seu servidor LightRAG.",
     "testingLabel": "Testando…",
     "testButton": "Testar Conexão"
   },

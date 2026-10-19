@@ -102,7 +102,7 @@ export function createOriginGate(opts: { devOrigin?: string }) {
           type: 'error',
           error: {
             code: 'FORBIDDEN_ORIGIN',
-            message: 'This origin may not call the Exodus API.'
+            message: 'This origin may not call the Actovia API.'
           }
         },
         403

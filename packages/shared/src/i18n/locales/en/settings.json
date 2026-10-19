@@ -2,7 +2,7 @@
   "general": {
     "language": {
       "label": "Language",
-      "description": "The language Exodus's interface is shown in.",
+      "description": "The language Actovia's interface is shown in.",
       "auto": "Auto (detect from system)"
     },
     "theme": {
@@ -27,11 +27,11 @@
     },
     "runOnStartup": {
       "label": "Run on startup",
-      "description": "Automatically start Exodus when you log in"
+      "description": "Automatically start Actovia when you log in"
     },
     "menuBar": {
       "label": "Menu bar",
-      "description": "Show Exodus in the menu bar"
+      "description": "Show Actovia in the menu bar"
     }
   },
   "nav": {
@@ -209,7 +209,7 @@
     },
     "baseStyle": {
       "label": "Base style and tone",
-      "description": "Set the style and tone of how Exodus responds to you",
+      "description": "Set the style and tone of how Actovia responds to you",
       "options": {
         "default": "Default",
         "professional": "Professional",
@@ -235,7 +235,7 @@
     },
     "nickname": {
       "label": "Nickname",
-      "placeholder": "What should Exodus call you?"
+      "placeholder": "What should Actovia call you?"
     },
     "occupation": {
       "label": "Occupation",
@@ -524,10 +524,10 @@
     },
     "s3": {
       "alert": {
-        "encoding": "By default, Exodus encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.",
+        "encoding": "By default, Actovia encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.",
         "requirementsHeading": "<strong>Requirements before configuring:</strong>",
         "publicReadAccess": "<strong>Public read access</strong> — AWS blocks public access by default. You must disable \"Block all public access\" on the bucket and attach a bucket policy granting <2>s3:GetObject</2> to <4>*</4>, so the AI provider can fetch the URL without credentials.",
-        "cors": "<strong>CORS</strong> — Add a CORS rule allowing <2>PUT</2> from <5>*</5> (or your app origin) so Exodus can upload directly from the desktop.",
+        "cors": "<strong>CORS</strong> — Add a CORS rule allowing <2>PUT</2> from <5>*</5> (or your app origin) so Actovia can upload directly from the desktop.",
         "iamCredentials": "<strong>IAM credentials</strong> — The Access Key ID / Secret Access Key must belong to an IAM user or role with at least <2>s3:PutObject</2> and <5>s3:PutObjectAcl</5> permissions on the configured bucket.",
         "objectAcl": "<strong>Object ACL</strong> — Each uploaded object is set to <3>public-read</3>. Your bucket must not have ACLs disabled (i.e., Object Ownership must be set to <6>ACLs enabled / Bucket owner preferred</6>)."
       },
@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Install from the terminal",
-        "description": "The same skill, installed by exodus-cli into the same folder this app reads."
+        "description": "The same skill, installed by actovia-cli into the same folder this app reads."
       }
     },
     "installedTab": {
       "empty": "No skills installed yet",
-      "emptyHint": "Open Discover to find one, or run exodus-cli in your terminal.",
+      "emptyHint": "Open Discover to find one, or run actovia-cli in your terminal.",
       "installedAt": "Installed {{date}}",
       "legacy": "Legacy",
       "uninstallTitle": "Uninstall “{{name}}”?",
       "uninstallDescription": "Its files are removed from the skills folder. You can install it again at any time."
     },
     "cli": {
-      "title": "Prefer the terminal? Use <cli>exodus-cli</cli>"
+      "title": "Prefer the terminal? Use <cli>actovia-cli</cli>"
     },
     "toast": {
       "installedTitle": "“{{name}}” installed",
@@ -1001,18 +1001,18 @@
   },
   "devices": {
     "heading": "Paired devices",
-    "description": "Phones and tablets that may use Exodus over your local network. A device has to be paired here first; until one is, Exodus is not reachable from the network at all.",
+    "description": "Phones and tablets that may use Actovia over your local network. A device has to be paired here first; until one is, Actovia is not reachable from the network at all.",
     "empty": "No paired devices",
     "emptyHint": "Devices you pair show up here. You can revoke one at any time.",
     "pair": "Pair a device",
     "pairCard": {
       "title": "Connect an iPhone or iPad",
-      "description": "Pairing shows a QR code for two minutes. Scan it with the Exodus app on the device."
+      "description": "Pairing shows a QR code for two minutes. Scan it with the Actovia app on the device."
     },
     "pairing": {
-      "title": "Scan with Exodus on your iPhone",
+      "title": "Scan with Actovia on your iPhone",
       "steps": {
-        "open": "Open Exodus on your iPhone or iPad",
+        "open": "Open Actovia on your iPhone or iPad",
         "navigate": "Go to <strong>Settings → Pair with computer</strong>",
         "scan": "Scan this code"
       },

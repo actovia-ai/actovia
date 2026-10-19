@@ -33,7 +33,7 @@ import {
 
 export class LocalApiTargetError extends Error {
   constructor() {
-    super('Exodus cannot fetch its own API.')
+    super('Actovia cannot fetch its own API.')
     this.name = 'LocalApiTargetError'
   }
 }

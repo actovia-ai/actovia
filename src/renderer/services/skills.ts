@@ -67,7 +67,7 @@ export const toggleSkill = (slug: string, isActive: boolean) =>
     body: { isActive }
   })
 
-/** The exodus-cli equivalent of the Install button, shown on every detail page. */
+/** The actovia-cli equivalent of the Install button, shown on every detail page. */
 export function cliInstallCommand(id: string): string {
-  return `exodus skills install ${id}`
+  return `actovia skills install ${id}`
 }

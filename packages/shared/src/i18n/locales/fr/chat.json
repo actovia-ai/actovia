@@ -225,7 +225,7 @@
   },
   "export": {
     "you": "Vous",
-    "assistant": "Exodus",
+    "assistant": "Actovia",
     "pictures_one": "{{count}} image jointe",
     "pictures_other": "{{count}} images jointes",
     "tool": "Outil : {{name}}"
@@ -295,7 +295,7 @@
     "label_other": "{{count}} mémoires utilisées · {{keys}}",
     "intro": "Ces souvenirs ont guidé cette réponse.",
     "wrong": "Erroné ?",
-    "fixHint": "Un souvenir est erroné ? Cliquez sur « Erroné ? » et corrigez-le dans le chat — Exodus le met à jour.",
+    "fixHint": "Un souvenir est erroné ? Cliquez sur « Erroné ? » et corrigez-le dans le chat — Actovia le met à jour.",
     "openSettings": "Ouvrir dans les réglages",
     "deleted": "Supprimée",
     "prefill": "La mémoire « {{key}} » est inexacte : "
@@ -348,7 +348,7 @@
     "position": "{{current}}/{{total}}"
   },
   "ask": {
-    "button": "Demander à Exodus",
+    "button": "Demander à Actovia",
     "remove": "Retirer la citation"
   },
   "health": {

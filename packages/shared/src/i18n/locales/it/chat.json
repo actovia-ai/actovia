@@ -225,7 +225,7 @@
   },
   "export": {
     "you": "Tu",
-    "assistant": "Exodus",
+    "assistant": "Actovia",
     "pictures_one": "{{count}} immagine allegata",
     "pictures_other": "{{count}} immagini allegate",
     "tool": "Strumento: {{name}}"
@@ -295,7 +295,7 @@
     "label_other": "Usate {{count}} memorie · {{keys}}",
     "intro": "Questi ricordi hanno guidato la risposta.",
     "wrong": "Sbagliata?",
-    "fixHint": "Una memoria è sbagliata? Fai clic su «Sbagliata?» e correggila in chat: Exodus la aggiorna.",
+    "fixHint": "Una memoria è sbagliata? Fai clic su «Sbagliata?» e correggila in chat: Actovia la aggiorna.",
     "openSettings": "Apri nelle Impostazioni",
     "deleted": "Eliminata",
     "prefill": "La memoria su '{{key}}' è sbagliata: "
@@ -348,7 +348,7 @@
     "position": "{{current}}/{{total}}"
   },
   "ask": {
-    "button": "Chiedi a Exodus",
+    "button": "Chiedi a Actovia",
     "remove": "Rimuovi citazione"
   },
   "health": {

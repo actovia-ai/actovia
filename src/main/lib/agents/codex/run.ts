@@ -218,7 +218,7 @@ export function startCodex(input: StartInput): AgentRun {
   void (async () => {
     try {
       await request('initialize', {
-        clientInfo: { name: 'exodus', title: 'Exodus', version: '1' },
+        clientInfo: { name: 'exodus', title: 'Actovia', version: '1' },
         capabilities: null
       })
       proc.write({ method: 'initialized' })
@@ -235,10 +235,10 @@ export function startCodex(input: StartInput): AgentRun {
         // A managed (enterprise) config wins over thread params: never run under it.
         emit({
           type: 'notice',
-          text: `Codex reported ${overridden.join(', ')} — not what Exodus asked for. A managed or enterprise Codex configuration overrides it, so Exodus won’t run this step.`
+          text: `Codex reported ${overridden.join(', ')} — not what Actovia asked for. A managed or enterprise Codex configuration overrides it, so Actovia won’t run this step.`
         })
         throw new Error(
-          `Codex overrode Exodus’ approval settings: ${overridden.join(', ')}`
+          `Codex overrode Actovia’s approval settings: ${overridden.join(', ')}`
         )
       }
       parser.setThread(

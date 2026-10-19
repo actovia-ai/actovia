@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Start deep researching...",
-      "description": "The deep research process may take a while. Feel free to chat with Exodus in other conversations. Exodus will notify you as soon as the final report is ready."
+      "description": "The deep research process may take a while. Feel free to chat with Actovia in other conversations. Actovia will notify you as soon as the final report is ready."
     },
     "learnings_one": "Deep researched {{count}} item from the previous web resources",
     "learnings_other": "Deep researched {{count}} items from the previous web resources",

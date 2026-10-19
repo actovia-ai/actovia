@@ -252,7 +252,7 @@
     },
     "runtime": {
       "label": "執行於",
-      "exodus": "Exodus"
+      "exodus": "Actovia"
     },
     "model": {
       "label": "模型",
@@ -369,7 +369,7 @@
   },
   "agents": {
     "settings": {
-      "intro": "程式碼代理是由你安裝並已登入的 CLI 所執行的 Philharmonic 員工。Exodus 會在群組的資料夾中啟動 CLI、顯示它在做什麼，並在它每次提問時停下來等你回應。",
+      "intro": "程式碼代理是由你安裝並已登入的 CLI 所執行的 Philharmonic 員工。Actovia 會在群組的資料夾中啟動 CLI、顯示它在做什麼，並在它每次提問時停下來等你回應。",
       "clisTitle": "在這台 Mac 上",
       "runTitle": "執行方式",
       "projectsDir": {
@@ -389,7 +389,7 @@
         "label": "獨立的 worktree",
         "description": "當兩個代理同時在同一個 git 儲存庫中工作時，各自會有自己的 worktree 與分支。合併由你決定。"
       },
-      "safety": "程式碼代理以自己的權限在你指定的資料夾中執行。Exodus 絕不會代你回答它們的問題，或核准它們的操作。"
+      "safety": "程式碼代理以自己的權限在你指定的資料夾中執行。Actovia 絕不會代你回答它們的問題，或核准它們的操作。"
     },
     "cli": {
       "check": "檢查",
@@ -434,7 +434,7 @@
       "terminalFailed": "無法開啟終端機",
       "stopFailed": "無法停止",
       "folderFailed": "無法開啟資料夾",
-      "inTerminal": "已在終端機繼續 — Exodus 會在下一步重新接手。"
+      "inTerminal": "已在終端機繼續 — Actovia 會在下一步重新接手。"
     }
   }
 }

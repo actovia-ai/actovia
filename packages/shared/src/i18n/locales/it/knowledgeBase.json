@@ -1,5 +1,5 @@
 {
-  "alert": "La knowledge base di Exodus è opzionale ed è basata su un <strong>server LightRAG self-hosted gestito da te</strong>: Exodus si limita a connettersi a esso, inviando i tuoi documenti e richiedendo il contesto pertinente; non esegue, aggiorna o gestisce mai LightRAG in prima persona. Lascia l'URL vuoto per mantenere la knowledge base disattivata. Il recupero è solo contestuale: LightRAG individua i passaggi pertinenti, ma il modello di chat configurato scrive sempre la risposta. Il modello di embedding viene <strong>bloccato non appena importi un documento</strong>: cambiarlo in seguito richiede di cancellare l'archiviazione di LightRAG e riaggiungere ogni documento, quindi sceglline uno che vuoi mantenere.",
+  "alert": "La knowledge base di Actovia è opzionale ed è basata su un <strong>server LightRAG self-hosted gestito da te</strong>: Actovia si limita a connettersi a esso, inviando i tuoi documenti e richiedendo il contesto pertinente; non esegue, aggiorna o gestisce mai LightRAG in prima persona. Lascia l'URL vuoto per mantenere la knowledge base disattivata. Il recupero è solo contestuale: LightRAG individua i passaggi pertinenti, ma il modello di chat configurato scrive sempre la risposta. Il modello di embedding viene <strong>bloccato non appena importi un documento</strong>: cambiarlo in seguito richiede di cancellare l'archiviazione di LightRAG e riaggiungere ogni documento, quindi sceglline uno che vuoi mantenere.",
   "serverUrl": {
     "label": "URL del server",
     "description": "Il tuo server LightRAG self-hosted. Lascia vuoto per disattivare la knowledge base."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Connessione",
-    "description": "Verifica che Exodus possa raggiungere il tuo server LightRAG.",
+    "description": "Verifica che Actovia possa raggiungere il tuo server LightRAG.",
     "testingLabel": "Verifica in corso…",
     "testButton": "Verifica connessione"
   },

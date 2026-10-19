@@ -8,7 +8,7 @@
     "title": "잠금 및 개인정보 보호",
     "thirdParty": "채팅의 주가 차트는 TradingView 임베드입니다. 다른 임베드 차트와 마찬가지로 TradingView는 종목 기호와 IP 주소를 알게 됩니다.",
     "enroll": {
-      "description": "Exodus를 잠글 6자리 PIN을 설정하세요. 잠긴 동안에는 UI와 로컬 API에 접근할 수 없지만 백그라운드 작업은 계속 실행됩니다.",
+      "description": "Actovia를 잠글 6자리 PIN을 설정하세요. 잠긴 동안에는 UI와 로컬 API에 접근할 수 없지만 백그라운드 작업은 계속 실행됩니다.",
       "enterLabel": "6자리 PIN 입력",
       "confirmLabel": "PIN 확인",
       "startOver": "처음부터 다시"
@@ -29,7 +29,7 @@
       "description": "앱 잠금을 끕니다. 현재 PIN이 필요합니다.",
       "button": "제거",
       "dialogTitle": "잠금을 제거하시겠습니까?",
-      "dialogDescription": "확인을 위해 현재 PIN을 입력하세요. 이후 Exodus를 열 때 PIN이 필요하지 않습니다.",
+      "dialogDescription": "확인을 위해 현재 PIN을 입력하세요. 이후 Actovia를 열 때 PIN이 필요하지 않습니다.",
       "confirmButton": "잠금 제거"
     },
     "toast": {

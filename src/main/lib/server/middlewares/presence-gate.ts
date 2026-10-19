@@ -62,7 +62,7 @@ export async function presenceGate(c: Context, next: Next) {
       type: 'error',
       error: {
         code: 'PRESENCE_REQUIRED',
-        message: 'Only the Exodus window can do this.'
+        message: 'Only the Actovia window can do this.'
       }
     },
     403

@@ -8,7 +8,7 @@
     "title": "Lock & Privacy",
     "thirdParty": "A stock chart in a chat is TradingView's own embed: TradingView sees the symbol and your IP address, as any embedded chart would.",
     "enroll": {
-      "description": "Set a 6-digit PIN to lock Exodus. While locked, the UI and the local API are inaccessible, but background tasks keep running.",
+      "description": "Set a 6-digit PIN to lock Actovia. While locked, the UI and the local API are inaccessible, but background tasks keep running.",
       "enterLabel": "Enter a 6-digit PIN",
       "confirmLabel": "Confirm your PIN",
       "startOver": "Start over"
@@ -29,7 +29,7 @@
       "description": "Turn off the app lock. Requires your current PIN.",
       "button": "Remove",
       "dialogTitle": "Remove lock?",
-      "dialogDescription": "Enter your current PIN to confirm. Exodus will no longer require a PIN to open.",
+      "dialogDescription": "Enter your current PIN to confirm. Actovia will no longer require a PIN to open.",
       "confirmButton": "Remove lock"
     },
     "toast": {

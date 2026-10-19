@@ -217,7 +217,7 @@
   },
   "export": {
     "you": "你",
-    "assistant": "Exodus",
+    "assistant": "Actovia",
     "pictures_other": "附加 {{count}} 張圖片",
     "tool": "工具：{{name}}"
   },
@@ -284,7 +284,7 @@
     "label_other": "使用了 {{count}} 項記憶 · {{keys}}",
     "intro": "這個回答參考了這些記憶。",
     "wrong": "有誤？",
-    "fixHint": "記憶有誤？點擊「有誤」在對話中修正，Exodus 會更新這條記憶。",
+    "fixHint": "記憶有誤？點擊「有誤」在對話中修正，Actovia 會更新這條記憶。",
     "openSettings": "在設定中開啟",
     "deleted": "已刪除",
     "prefill": "關於「{{key}}」的記憶有誤："
@@ -335,7 +335,7 @@
     "position": "{{current}}/{{total}}"
   },
   "ask": {
-    "button": "問 Exodus",
+    "button": "問 Actovia",
     "remove": "移除引用"
   },
   "health": {

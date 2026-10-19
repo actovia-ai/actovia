@@ -237,7 +237,7 @@ export function parseLine(line: string): ParsedLine {
           events: [
             {
               type: 'notice',
-              text: `Claude Code asked for “${String(req.subtype)}”, which Exodus cannot answer — continue in Terminal.`
+              text: `Claude Code asked for “${String(req.subtype)}”, which Actovia cannot answer — continue in Terminal.`
             }
           ]
         }

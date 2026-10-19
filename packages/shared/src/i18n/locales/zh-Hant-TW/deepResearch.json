@@ -16,7 +16,7 @@
   "messages": {
     "start": {
       "title": "開始進行深度研究...",
-      "description": "深度研究過程可能需要一些時間。你可以自由在其他對話中與 Exodus 聊天。最終報告完成後 Exodus 會立即通知你。"
+      "description": "深度研究過程可能需要一些時間。你可以自由在其他對話中與 Actovia 聊天。最終報告完成後 Actovia 會立即通知你。"
     },
     "learnings_other": "已從先前的網路資源中深度研究出 {{count}} 項內容",
     "queriesDeeper_other": "已針對先前的研究產生 {{count}} 個搜尋查詢",

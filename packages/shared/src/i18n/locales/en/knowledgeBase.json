@@ -1,5 +1,5 @@
 {
-  "alert": "Exodus's knowledge base is optional and powered by a <strong>self-hosted LightRAG server that you run</strong> — Exodus only connects to it, pushing your documents and asking for relevant context; it never runs, upgrades, or manages LightRAG itself. Leave the URL empty to keep the knowledge base disabled. Retrieval is context-only: LightRAG finds relevant passages, but your configured chat model always writes the answer. The embedding model is <strong>locked once you ingest a document</strong> — changing it later requires wiping LightRAG's storage and re-adding every document, so pick one you'll keep.",
+  "alert": "Actovia's knowledge base is optional and powered by a <strong>self-hosted LightRAG server that you run</strong> — Actovia only connects to it, pushing your documents and asking for relevant context; it never runs, upgrades, or manages LightRAG itself. Leave the URL empty to keep the knowledge base disabled. Retrieval is context-only: LightRAG finds relevant passages, but your configured chat model always writes the answer. The embedding model is <strong>locked once you ingest a document</strong> — changing it later requires wiping LightRAG's storage and re-adding every document, so pick one you'll keep.",
   "serverUrl": {
     "label": "Server URL",
     "description": "Your self-hosted LightRAG server. Leave empty to disable the knowledge base."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Connection",
-    "description": "Verify Exodus can reach your LightRAG server.",
+    "description": "Verify Actovia can reach your LightRAG server.",
     "testingLabel": "Testing…",
     "testButton": "Test Connection"
   },

@@ -56,6 +56,6 @@ test.describe('Single instance', () => {
     expect(electronApp.windows()).toHaveLength(1)
     await expect(mainWindow.locator('#root')).toBeVisible()
     const ping = await fetch('http://localhost:60223/')
-    expect(await ping.text()).toContain('Exodus is running')
+    expect(await ping.text()).toContain('Actovia is running')
   })
 })

@@ -2,7 +2,7 @@
   "general": {
     "language": {
       "label": "Sprache",
-      "description": "Die Sprache, in der die Oberfläche von Exodus angezeigt wird.",
+      "description": "Die Sprache, in der die Oberfläche von Actovia angezeigt wird.",
       "auto": "Automatisch (vom System erkennen)"
     },
     "theme": {
@@ -27,11 +27,11 @@
     },
     "runOnStartup": {
       "label": "Beim Start ausführen",
-      "description": "Exodus automatisch starten, wenn Sie sich anmelden"
+      "description": "Actovia automatisch starten, wenn Sie sich anmelden"
     },
     "menuBar": {
       "label": "Menüleiste",
-      "description": "Exodus in der Menüleiste anzeigen"
+      "description": "Actovia in der Menüleiste anzeigen"
     }
   },
   "nav": {
@@ -209,7 +209,7 @@
     },
     "baseStyle": {
       "label": "Grundstil und Ton",
-      "description": "Legen Sie fest, in welchem Stil und Ton Exodus Ihnen antwortet",
+      "description": "Legen Sie fest, in welchem Stil und Ton Actovia Ihnen antwortet",
       "options": {
         "default": "Standard",
         "professional": "Professionell",
@@ -235,7 +235,7 @@
     },
     "nickname": {
       "label": "Spitzname",
-      "placeholder": "Wie soll Exodus Sie nennen?"
+      "placeholder": "Wie soll Actovia Sie nennen?"
     },
     "occupation": {
       "label": "Beruf",
@@ -524,10 +524,10 @@
     },
     "s3": {
       "alert": {
-        "encoding": "Standardmäßig kodiert Exodus Anhänge als <strong>Base64</strong> direkt im Prompt. Bei großen Dateien oder Workflows mit vielen Bildern ist ein Upload zu S3 mit Übergabe einer URL effizienter und zuverlässiger.",
+        "encoding": "Standardmäßig kodiert Actovia Anhänge als <strong>Base64</strong> direkt im Prompt. Bei großen Dateien oder Workflows mit vielen Bildern ist ein Upload zu S3 mit Übergabe einer URL effizienter und zuverlässiger.",
         "requirementsHeading": "<strong>Voraussetzungen vor der Konfiguration:</strong>",
         "publicReadAccess": "<strong>Öffentlicher Lesezugriff</strong> — AWS blockiert öffentlichen Zugriff standardmäßig. Sie müssen „Block all public access“ für den Bucket deaktivieren und eine Bucket-Richtlinie hinzufügen, die <2>s3:GetObject</2> für <4>*</4> gewährt, damit der KI-Anbieter die URL ohne Zugangsdaten abrufen kann.",
-        "cors": "<strong>CORS</strong> — Fügen Sie eine CORS-Regel hinzu, die <2>PUT</2> von <5>*</5> (oder dem Ursprung Ihrer App) erlaubt, damit Exodus direkt vom Desktop aus hochladen kann.",
+        "cors": "<strong>CORS</strong> — Fügen Sie eine CORS-Regel hinzu, die <2>PUT</2> von <5>*</5> (oder dem Ursprung Ihrer App) erlaubt, damit Actovia direkt vom Desktop aus hochladen kann.",
         "iamCredentials": "<strong>IAM-Zugangsdaten</strong> — Die Access Key ID / der Secret Access Key müssen zu einem IAM-Benutzer oder einer IAM-Rolle gehören, die mindestens die Berechtigungen <2>s3:PutObject</2> und <5>s3:PutObjectAcl</5> für den konfigurierten Bucket besitzt.",
         "objectAcl": "<strong>Objekt-ACL</strong> — Jedes hochgeladene Objekt wird auf <3>public-read</3> gesetzt. In Ihrem Bucket dürfen ACLs nicht deaktiviert sein (d. h. Object Ownership muss auf <6>ACLs enabled / Bucket owner preferred</6> gesetzt sein)."
       },
@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Über das Terminal installieren",
-        "description": "Derselbe Skill, von exodus-cli in denselben Ordner installiert, den diese App liest."
+        "description": "Derselbe Skill, von actovia-cli in denselben Ordner installiert, den diese App liest."
       }
     },
     "installedTab": {
       "empty": "Noch keine Skills installiert",
-      "emptyHint": "Öffnen Sie „Entdecken“, um einen zu finden, oder führen Sie exodus-cli im Terminal aus.",
+      "emptyHint": "Öffnen Sie „Entdecken“, um einen zu finden, oder führen Sie actovia-cli im Terminal aus.",
       "installedAt": "Installiert {{date}}",
       "legacy": "Alt",
       "uninstallTitle": "„{{name}}“ deinstallieren?",
       "uninstallDescription": "Die Dateien werden aus dem Skills-Ordner entfernt. Sie können den Skill jederzeit erneut installieren."
     },
     "cli": {
-      "title": "Lieber im Terminal? <cli>exodus-cli</cli> nutzen"
+      "title": "Lieber im Terminal? <cli>actovia-cli</cli> nutzen"
     },
     "toast": {
       "installedTitle": "„{{name}}“ installiert",
@@ -1001,18 +1001,18 @@
   },
   "devices": {
     "heading": "Gekoppelte Geräte",
-    "description": "Smartphones und Tablets, die Exodus über Ihr lokales Netzwerk nutzen dürfen. Ein Gerät muss zuerst hier gekoppelt werden; solange keines gekoppelt ist, ist Exodus aus dem Netzwerk überhaupt nicht erreichbar.",
+    "description": "Smartphones und Tablets, die Actovia über Ihr lokales Netzwerk nutzen dürfen. Ein Gerät muss zuerst hier gekoppelt werden; solange keines gekoppelt ist, ist Actovia aus dem Netzwerk überhaupt nicht erreichbar.",
     "empty": "Keine gekoppelten Geräte",
     "emptyHint": "Gekoppelte Geräte erscheinen hier. Sie können den Zugriff jederzeit widerrufen.",
     "pair": "Gerät koppeln",
     "pairCard": {
       "title": "iPhone oder iPad verbinden",
-      "description": "Beim Koppeln wird zwei Minuten lang ein QR-Code angezeigt. Scannen Sie ihn mit der Exodus-App auf dem Gerät."
+      "description": "Beim Koppeln wird zwei Minuten lang ein QR-Code angezeigt. Scannen Sie ihn mit der Actovia-App auf dem Gerät."
     },
     "pairing": {
-      "title": "Mit Exodus auf Ihrem iPhone scannen",
+      "title": "Mit Actovia auf Ihrem iPhone scannen",
       "steps": {
-        "open": "Öffnen Sie Exodus auf Ihrem iPhone oder iPad",
+        "open": "Öffnen Sie Actovia auf Ihrem iPhone oder iPad",
         "navigate": "Gehen Sie zu <strong>Einstellungen → Mit Computer koppeln</strong>",
         "scan": "Scannen Sie diesen Code"
       },

@@ -82,7 +82,7 @@ test.describe('Settings — Skills Market', () => {
     ).toBeVisible()
     await expect(
       mainWindow.getByTestId(TEST_IDS.skillsMarket.cliCommand)
-    ).toContainText('exodus skills install ')
+    ).toContainText('actovia skills install ')
     await expect(
       mainWindow.getByTestId(TEST_IDS.skillsMarket.copyCommandButton)
     ).toBeVisible()

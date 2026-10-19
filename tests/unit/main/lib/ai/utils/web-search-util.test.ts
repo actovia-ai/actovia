@@ -384,7 +384,7 @@ describe('loadDocumentBuiltin — cannot reach Exodus’s own API', () => {
 
     await expect(
       loadDocumentBuiltin('https://public.example/start')
-    ).rejects.toThrow('Exodus cannot fetch its own API.')
+    ).rejects.toThrow('Actovia cannot fetch its own API.')
   })
 
   it('refuses the initial URL itself when it targets the API directly', async () => {

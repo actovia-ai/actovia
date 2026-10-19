@@ -8,7 +8,7 @@
     "title": "鎖定與私隱",
     "thirdParty": "對話入面嘅股票圖表係 TradingView 嘅嵌入內容：同所有嵌入圖表一樣，TradingView 會見到股票代號同你嘅 IP 地址。",
     "enroll": {
-      "description": "設定 6 位數 PIN 碼以鎖定 Exodus。鎖定期間，介面及本機 API 均無法存取，但背景任務仍會繼續執行。",
+      "description": "設定 6 位數 PIN 碼以鎖定 Actovia。鎖定期間，介面及本機 API 均無法存取，但背景任務仍會繼續執行。",
       "enterLabel": "輸入 6 位數 PIN 碼",
       "confirmLabel": "確認你的 PIN 碼",
       "startOver": "重新開始"
@@ -29,7 +29,7 @@
       "description": "關閉應用程式鎖定，需要輸入目前的 PIN 碼。",
       "button": "移除",
       "dialogTitle": "移除鎖定？",
-      "dialogDescription": "輸入你目前的 PIN 碼以確認，Exodus 將不再需要 PIN 碼即可開啟。",
+      "dialogDescription": "輸入你目前的 PIN 碼以確認，Actovia 將不再需要 PIN 碼即可開啟。",
       "confirmButton": "移除鎖定"
     },
     "toast": {

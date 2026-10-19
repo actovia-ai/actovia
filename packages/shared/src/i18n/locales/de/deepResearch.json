@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Deep Research wird gestartet...",
-      "description": "Der Deep-Research-Prozess kann eine Weile dauern. Chatten Sie gerne in anderen Unterhaltungen mit Exodus weiter. Exodus benachrichtigt Sie, sobald der Abschlussbericht fertig ist."
+      "description": "Der Deep-Research-Prozess kann eine Weile dauern. Chatten Sie gerne in anderen Unterhaltungen mit Actovia weiter. Actovia benachrichtigt Sie, sobald der Abschlussbericht fertig ist."
     },
     "learnings_one": "Aus den vorherigen Webressourcen wurde {{count}} Erkenntnis recherchiert",
     "learnings_other": "Aus den vorherigen Webressourcen wurden {{count}} Erkenntnisse recherchiert",

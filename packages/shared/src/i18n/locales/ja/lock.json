@@ -8,7 +8,7 @@
     "title": "ロックとプライバシー",
     "thirdParty": "チャット内の株価チャートは TradingView の埋め込みです。埋め込みチャートの常として、TradingView にはシンボルとあなたの IP アドレスが伝わります。",
     "enroll": {
-      "description": "Exodusをロックするための6桁のPINを設定します。ロック中はUIとローカルAPIにアクセスできませんが、バックグラウンドのタスクは引き続き実行されます。",
+      "description": "Actoviaをロックするための6桁のPINを設定します。ロック中はUIとローカルAPIにアクセスできませんが、バックグラウンドのタスクは引き続き実行されます。",
       "enterLabel": "6桁のPINを入力してください",
       "confirmLabel": "PINを再入力してください",
       "startOver": "やり直す"
@@ -29,7 +29,7 @@
       "description": "アプリのロックをオフにします。現在のPINが必要です。",
       "button": "解除",
       "dialogTitle": "ロックを解除しますか?",
-      "dialogDescription": "確認のため現在のPINを入力してください。以降、Exodusを開く際にPINは不要になります。",
+      "dialogDescription": "確認のため現在のPINを入力してください。以降、Actoviaを開く際にPINは不要になります。",
       "confirmButton": "ロックを解除"
     },
     "toast": {

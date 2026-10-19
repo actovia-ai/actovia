@@ -36,7 +36,7 @@ export async function authGate(c: Context, next: Next) {
       c,
       401,
       'UNAUTHORIZED',
-      'Pair this device from Exodus on your computer.'
+      'Pair this device from Actovia on your computer.'
     )
   }
   // Pairing and revoking happen at the computer, never from another device.

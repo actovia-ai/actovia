@@ -30,7 +30,7 @@ async function refused(url: string): Promise<boolean> {
     return false
   } catch (e) {
     expect(e).toBeInstanceOf(LocalApiTargetError)
-    expect((e as Error).message).toBe('Exodus cannot fetch its own API.')
+    expect((e as Error).message).toBe('Actovia cannot fetch its own API.')
     return true
   }
 }

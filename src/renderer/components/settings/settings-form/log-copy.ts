@@ -11,7 +11,7 @@ import { splitLogStacks } from './log-attributes'
 export function formatLogForAi(record: LogRecord): string {
   const { stack, componentStack, rest } = splitLogStacks(record.attributes)
   const lines = [
-    `Exodus log line — ${record.severityText} at ${record.timestamp} (scope: ${record.scope.name})`,
+    `Actovia log line — ${record.severityText} at ${record.timestamp} (scope: ${record.scope.name})`,
     '',
     'Message:',
     fence(record.body)

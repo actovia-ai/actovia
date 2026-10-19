@@ -1,5 +1,5 @@
 {
-  "alert": "La base de conocimientos de Exodus es opcional y funciona con un <strong>servidor de LightRAG autoalojado que usted mismo ejecuta</strong>; Exodus solo se conecta a él: envía sus documentos y solicita el contexto relevante, pero nunca ejecuta, actualiza ni administra LightRAG. Deje la URL vacía para mantener la base de conocimientos desactivada. La recuperación es solo de contexto: LightRAG encuentra los pasajes relevantes, pero su modelo de chat configurado siempre redacta la respuesta. El modelo de embeddings queda <strong>bloqueado una vez que ingiere un documento</strong>: cambiarlo más adelante requiere borrar el almacenamiento de LightRAG y volver a agregar cada documento, así que elija uno que vaya a mantener.",
+  "alert": "La base de conocimientos de Actovia es opcional y funciona con un <strong>servidor de LightRAG autoalojado que usted mismo ejecuta</strong>; Actovia solo se conecta a él: envía sus documentos y solicita el contexto relevante, pero nunca ejecuta, actualiza ni administra LightRAG. Deje la URL vacía para mantener la base de conocimientos desactivada. La recuperación es solo de contexto: LightRAG encuentra los pasajes relevantes, pero su modelo de chat configurado siempre redacta la respuesta. El modelo de embeddings queda <strong>bloqueado una vez que ingiere un documento</strong>: cambiarlo más adelante requiere borrar el almacenamiento de LightRAG y volver a agregar cada documento, así que elija uno que vaya a mantener.",
   "serverUrl": {
     "label": "URL del servidor",
     "description": "Su servidor de LightRAG autoalojado. Déjelo vacío para desactivar la base de conocimientos."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Conexión",
-    "description": "Verifique que Exodus pueda conectarse con su servidor de LightRAG.",
+    "description": "Verifique que Actovia pueda conectarse con su servidor de LightRAG.",
     "testingLabel": "Probando…",
     "testButton": "Probar conexión"
   },

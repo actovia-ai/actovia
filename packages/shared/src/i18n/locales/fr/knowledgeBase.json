@@ -1,5 +1,5 @@
 {
-  "alert": "La base de connaissances d'Exodus est optionnelle et fonctionne grâce à un <strong>serveur LightRAG auto-hébergé que vous gérez</strong> — Exodus se contente de s'y connecter, en envoyant vos documents et en demandant le contexte pertinent ; il ne fait jamais fonctionner, ne met à jour et ne gère LightRAG lui-même. Laissez l'URL vide pour garder la base de connaissances désactivée. La récupération se limite au contexte : LightRAG trouve les passages pertinents, mais c'est toujours votre modèle de conversation configuré qui rédige la réponse. Le modèle d'embedding est <strong>verrouillé dès qu'un document est ingéré</strong> — le changer par la suite nécessite d'effacer le stockage de LightRAG et de réajouter chaque document, alors choisissez-en un que vous conserverez.",
+  "alert": "La base de connaissances d'Actovia est optionnelle et fonctionne grâce à un <strong>serveur LightRAG auto-hébergé que vous gérez</strong> — Actovia se contente de s'y connecter, en envoyant vos documents et en demandant le contexte pertinent ; il ne fait jamais fonctionner, ne met à jour et ne gère LightRAG lui-même. Laissez l'URL vide pour garder la base de connaissances désactivée. La récupération se limite au contexte : LightRAG trouve les passages pertinents, mais c'est toujours votre modèle de conversation configuré qui rédige la réponse. Le modèle d'embedding est <strong>verrouillé dès qu'un document est ingéré</strong> — le changer par la suite nécessite d'effacer le stockage de LightRAG et de réajouter chaque document, alors choisissez-en un que vous conserverez.",
   "serverUrl": {
     "label": "URL du serveur",
     "description": "Votre serveur LightRAG auto-hébergé. Laissez vide pour désactiver la base de connaissances."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Connexion",
-    "description": "Vérifiez qu'Exodus peut atteindre votre serveur LightRAG.",
+    "description": "Vérifiez qu'Actovia peut atteindre votre serveur LightRAG.",
     "testingLabel": "Test en cours…",
     "testButton": "Tester la connexion"
   },

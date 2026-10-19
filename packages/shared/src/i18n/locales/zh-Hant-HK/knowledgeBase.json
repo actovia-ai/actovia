@@ -1,5 +1,5 @@
 {
-  "alert": "Exodus 的知識庫屬於選用功能，由<strong>你自行架設的自架 LightRAG 伺服器</strong>提供支援——Exodus 只會連接該伺服器，推送你的文件並要求提供相關內容，不會自行執行、升級或管理 LightRAG。將 URL 留空即可保持知識庫停用。檢索僅提供內容脈絡：LightRAG 負責找出相關段落，但答案一律由你設定的聊天模型撰寫。嵌入模型在<strong>你匯入第一份文件後即會鎖定</strong>——之後若要更換，需要清除 LightRAG 的儲存資料並重新加入所有文件，因此請一開始就選定會持續使用的模型。",
+  "alert": "Actovia 的知識庫屬於選用功能，由<strong>你自行架設的自架 LightRAG 伺服器</strong>提供支援——Actovia 只會連接該伺服器，推送你的文件並要求提供相關內容，不會自行執行、升級或管理 LightRAG。將 URL 留空即可保持知識庫停用。檢索僅提供內容脈絡：LightRAG 負責找出相關段落，但答案一律由你設定的聊天模型撰寫。嵌入模型在<strong>你匯入第一份文件後即會鎖定</strong>——之後若要更換，需要清除 LightRAG 的儲存資料並重新加入所有文件，因此請一開始就選定會持續使用的模型。",
   "serverUrl": {
     "label": "伺服器 URL",
     "description": "你自行架設的 LightRAG 伺服器。留空則停用知識庫。"
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "連線",
-    "description": "確認 Exodus 能否連接你的 LightRAG 伺服器。",
+    "description": "確認 Actovia 能否連接你的 LightRAG 伺服器。",
     "testingLabel": "測試中…",
     "testButton": "測試連線"
   },

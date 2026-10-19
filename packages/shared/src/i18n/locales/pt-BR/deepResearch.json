@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Iniciando pesquisa aprofundada...",
-      "description": "O processo de pesquisa aprofundada pode levar um tempo. Sinta-se à vontade para conversar com o Exodus em outras conversas. O Exodus vai avisar você assim que o relatório final estiver pronto."
+      "description": "O processo de pesquisa aprofundada pode levar um tempo. Sinta-se à vontade para conversar com o Actovia em outras conversas. O Actovia vai avisar você assim que o relatório final estiver pronto."
     },
     "learnings_one": "{{count}} item pesquisado a fundo a partir dos recursos da web anteriores",
     "learnings_other": "{{count}} itens pesquisados a fundo a partir dos recursos da web anteriores",

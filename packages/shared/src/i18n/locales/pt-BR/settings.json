@@ -2,7 +2,7 @@
   "general": {
     "language": {
       "label": "Idioma",
-      "description": "O idioma em que a interface do Exodus é exibida.",
+      "description": "O idioma em que a interface do Actovia é exibida.",
       "auto": "Automático (detectar do sistema)"
     },
     "theme": {
@@ -27,11 +27,11 @@
     },
     "runOnStartup": {
       "label": "Executar na inicialização",
-      "description": "Iniciar o Exodus automaticamente ao fazer login"
+      "description": "Iniciar o Actovia automaticamente ao fazer login"
     },
     "menuBar": {
       "label": "Barra de menus",
-      "description": "Mostrar o Exodus na barra de menus"
+      "description": "Mostrar o Actovia na barra de menus"
     }
   },
   "nav": {
@@ -209,7 +209,7 @@
     },
     "baseStyle": {
       "label": "Estilo e tom base",
-      "description": "Defina o estilo e o tom de como o Exodus responde a você",
+      "description": "Defina o estilo e o tom de como o Actovia responde a você",
       "options": {
         "default": "Padrão",
         "professional": "Profissional",
@@ -235,7 +235,7 @@
     },
     "nickname": {
       "label": "Apelido",
-      "placeholder": "Como o Exodus deve chamar você?"
+      "placeholder": "Como o Actovia deve chamar você?"
     },
     "occupation": {
       "label": "Ocupação",
@@ -524,10 +524,10 @@
     },
     "s3": {
       "alert": {
-        "encoding": "Por padrão, o Exodus codifica anexos como <strong>base64</strong> embutido no prompt. Para arquivos grandes ou fluxos de trabalho intensivos em visão, enviar para o S3 e passar uma URL é mais eficiente e confiável.",
+        "encoding": "Por padrão, o Actovia codifica anexos como <strong>base64</strong> embutido no prompt. Para arquivos grandes ou fluxos de trabalho intensivos em visão, enviar para o S3 e passar uma URL é mais eficiente e confiável.",
         "requirementsHeading": "<strong>Requisitos antes de configurar:</strong>",
         "publicReadAccess": "<strong>Acesso público de leitura</strong> — a AWS bloqueia o acesso público por padrão. Você deve desativar \"Bloquear todo o acesso público\" no bucket e anexar uma política de bucket concedendo <2>s3:GetObject</2> a <4>*</4>, para que o provedor de IA possa buscar a URL sem credenciais.",
-        "cors": "<strong>CORS</strong> — Adicione uma regra de CORS permitindo <2>PUT</2> a partir de <5>*</5> (ou da origem do seu app) para que o Exodus possa enviar diretamente do desktop.",
+        "cors": "<strong>CORS</strong> — Adicione uma regra de CORS permitindo <2>PUT</2> a partir de <5>*</5> (ou da origem do seu app) para que o Actovia possa enviar diretamente do desktop.",
         "iamCredentials": "<strong>Credenciais do IAM</strong> — o Access Key ID / Secret Access Key deve pertencer a um usuário ou função do IAM com, no mínimo, permissões <2>s3:PutObject</2> e <5>s3:PutObjectAcl</5> no bucket configurado.",
         "objectAcl": "<strong>ACL do Objeto</strong> — cada objeto enviado é definido como <3>public-read</3>. Seu bucket não pode ter as ACLs desativadas (ou seja, a Propriedade do Objeto deve estar definida como <6>ACLs habilitadas / Proprietário do bucket preferencial</6>)."
       },
@@ -919,19 +919,19 @@
       },
       "cli": {
         "title": "Instalar pelo terminal",
-        "description": "A mesma skill, instalada pelo exodus-cli na mesma pasta que este app lê."
+        "description": "A mesma skill, instalada pelo actovia-cli na mesma pasta que este app lê."
       }
     },
     "installedTab": {
       "empty": "Nenhuma skill instalada ainda",
-      "emptyHint": "Abra Descobrir para encontrar uma ou execute o exodus-cli no terminal.",
+      "emptyHint": "Abra Descobrir para encontrar uma ou execute o actovia-cli no terminal.",
       "installedAt": "Instalada em {{date}}",
       "legacy": "Legado",
       "uninstallTitle": "Desinstalar “{{name}}”?",
       "uninstallDescription": "Os arquivos são removidos da pasta de skills. Você pode instalá-la novamente a qualquer momento."
     },
     "cli": {
-      "title": "Prefere o terminal? Use o <cli>exodus-cli</cli>"
+      "title": "Prefere o terminal? Use o <cli>actovia-cli</cli>"
     },
     "toast": {
       "installedTitle": "“{{name}}” instalada",
@@ -1001,18 +1001,18 @@
   },
   "devices": {
     "heading": "Dispositivos pareados",
-    "description": "Celulares e tablets que podem usar o Exodus pela sua rede local. O dispositivo precisa ser pareado aqui primeiro; até que haja algum pareado, o Exodus não fica acessível pela rede de forma alguma.",
+    "description": "Celulares e tablets que podem usar o Actovia pela sua rede local. O dispositivo precisa ser pareado aqui primeiro; até que haja algum pareado, o Actovia não fica acessível pela rede de forma alguma.",
     "empty": "Nenhum dispositivo pareado",
     "emptyHint": "Os dispositivos que você parear aparecem aqui. Você pode revogar qualquer um a qualquer momento.",
     "pair": "Parear um dispositivo",
     "pairCard": {
       "title": "Conecte um iPhone ou iPad",
-      "description": "O pareamento mostra um QR code por dois minutos. Escaneie-o com o app Exodus no dispositivo."
+      "description": "O pareamento mostra um QR code por dois minutos. Escaneie-o com o app Actovia no dispositivo."
     },
     "pairing": {
-      "title": "Escaneie com o Exodus no seu iPhone",
+      "title": "Escaneie com o Actovia no seu iPhone",
       "steps": {
-        "open": "Abra o Exodus no seu iPhone ou iPad",
+        "open": "Abra o Actovia no seu iPhone ou iPad",
         "navigate": "Vá em <strong>Ajustes → Parear com o computador</strong>",
         "scan": "Escaneie este código"
       },

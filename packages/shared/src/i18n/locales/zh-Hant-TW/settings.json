@@ -2,7 +2,7 @@
   "general": {
     "language": {
       "label": "語言",
-      "description": "Exodus 介面顯示所使用的語言。",
+      "description": "Actovia 介面顯示所使用的語言。",
       "auto": "自動（依系統偵測）"
     },
     "theme": {
@@ -27,11 +27,11 @@
     },
     "runOnStartup": {
       "label": "開機時啟動",
-      "description": "登入時自動啟動 Exodus"
+      "description": "登入時自動啟動 Actovia"
     },
     "menuBar": {
       "label": "選單列",
-      "description": "在選單列中顯示 Exodus"
+      "description": "在選單列中顯示 Actovia"
     }
   },
   "nav": {
@@ -209,7 +209,7 @@
     },
     "baseStyle": {
       "label": "基本風格與語氣",
-      "description": "設定 Exodus 回覆你時的風格與語氣",
+      "description": "設定 Actovia 回覆你時的風格與語氣",
       "options": {
         "default": "預設",
         "professional": "專業",
@@ -235,7 +235,7 @@
     },
     "nickname": {
       "label": "暱稱",
-      "placeholder": "Exodus 應該怎麼稱呼你？"
+      "placeholder": "Actovia 應該怎麼稱呼你？"
     },
     "occupation": {
       "label": "職業",
@@ -524,10 +524,10 @@
     },
     "s3": {
       "alert": {
-        "encoding": "預設情況下，Exodus 會將附件以 <strong>base64</strong> 編碼方式內嵌於提示詞中。若檔案較大或工作流程大量使用圖像，改用上傳至 S3 並傳遞 URL 的方式會更有效率、更可靠。",
+        "encoding": "預設情況下，Actovia 會將附件以 <strong>base64</strong> 編碼方式內嵌於提示詞中。若檔案較大或工作流程大量使用圖像，改用上傳至 S3 並傳遞 URL 的方式會更有效率、更可靠。",
         "requirementsHeading": "<strong>設定前的必要條件：</strong>",
         "publicReadAccess": "<strong>公開讀取權限</strong>——AWS 預設會封鎖公開存取。你必須關閉儲存桶的「封鎖所有公開存取」，並附加一則儲存桶政策，將 <2>s3:GetObject</2> 授予 <4>*</4>，讓 AI 供應商無需憑證即可擷取該 URL。",
-        "cors": "<strong>CORS</strong>——新增一則 CORS 規則，允許來自 <5>*</5>（或你的應用程式來源）的 <2>PUT</2> 請求，讓 Exodus 能直接從桌面應用程式上傳。",
+        "cors": "<strong>CORS</strong>——新增一則 CORS 規則，允許來自 <5>*</5>（或你的應用程式來源）的 <2>PUT</2> 請求，讓 Actovia 能直接從桌面應用程式上傳。",
         "iamCredentials": "<strong>IAM 憑證</strong>——存取金鑰 ID／私密存取金鑰必須屬於一個對指定儲存桶至少擁有 <2>s3:PutObject</2> 與 <5>s3:PutObjectAcl</5> 權限的 IAM 使用者或角色。",
         "objectAcl": "<strong>物件 ACL</strong>——每個上傳的物件都會被設定為 <3>public-read</3>。你的儲存桶不可停用 ACL（即物件擁有權須設定為 <6>已啟用 ACL／偏好儲存桶擁有者</6>）。"
       },
@@ -914,19 +914,19 @@
       },
       "cli": {
         "title": "從終端機安裝",
-        "description": "同一個技能，由 exodus-cli 安裝到此應用程式讀取的同一資料夾。"
+        "description": "同一個技能，由 actovia-cli 安裝到此應用程式讀取的同一資料夾。"
       }
     },
     "installedTab": {
       "empty": "尚未安裝任何技能",
-      "emptyHint": "前往「探索」尋找技能，或在終端機執行 exodus-cli。",
+      "emptyHint": "前往「探索」尋找技能，或在終端機執行 actovia-cli。",
       "installedAt": "安裝於 {{date}}",
       "legacy": "舊版",
       "uninstallTitle": "要解除安裝「{{name}}」嗎？",
       "uninstallDescription": "其檔案會從技能資料夾移除。您可以隨時重新安裝。"
     },
     "cli": {
-      "title": "偏好終端機？試試 <cli>exodus-cli</cli>"
+      "title": "偏好終端機？試試 <cli>actovia-cli</cli>"
     },
     "toast": {
       "installedTitle": "已安裝「{{name}}」",
@@ -996,18 +996,18 @@
   },
   "devices": {
     "heading": "已配對的裝置",
-    "description": "可透過區域網路使用 Exodus 的手機與平板。裝置必須先在這裡配對；在配對任何裝置之前，網路上完全無法連線到 Exodus。",
+    "description": "可透過區域網路使用 Actovia 的手機與平板。裝置必須先在這裡配對；在配對任何裝置之前，網路上完全無法連線到 Actovia。",
     "empty": "尚未配對任何裝置",
     "emptyHint": "已配對的裝置會顯示在這裡，你可以隨時撤銷。",
     "pair": "配對裝置",
     "pairCard": {
       "title": "連接 iPhone 或 iPad",
-      "description": "配對時會顯示 QR Code 兩分鐘，請用裝置上的 Exodus App 掃描。"
+      "description": "配對時會顯示 QR Code 兩分鐘，請用裝置上的 Actovia App 掃描。"
     },
     "pairing": {
-      "title": "使用 iPhone 上的 Exodus 掃描",
+      "title": "使用 iPhone 上的 Actovia 掃描",
       "steps": {
-        "open": "在 iPhone 或 iPad 上開啟 Exodus",
+        "open": "在 iPhone 或 iPad 上開啟 Actovia",
         "navigate": "前往<strong>設定 → 與電腦配對</strong>",
         "scan": "掃描此 QR Code"
       },

@@ -26,7 +26,7 @@ describe('settings namespace (en)', () => {
   it('keeps the pre-existing general.language keys untouched', () => {
     expect(settings.general.language.label).toBe('Language')
     expect(settings.general.language.description).toBe(
-      "The language Exodus's interface is shown in."
+      "The language Actovia's interface is shown in."
     )
     expect(settings.general.language.auto).toBe('Auto (detect from system)')
   })
@@ -41,11 +41,11 @@ describe('settings namespace (en)', () => {
     expect(settings.general.theme.dark).toBe('Dark')
     expect(settings.general.runOnStartup.label).toBe('Run on startup')
     expect(settings.general.runOnStartup.description).toBe(
-      'Automatically start Exodus when you log in'
+      'Automatically start Actovia when you log in'
     )
     expect(settings.general.menuBar.label).toBe('Menu bar')
     expect(settings.general.menuBar.description).toBe(
-      'Show Exodus in the menu bar'
+      'Show Actovia in the menu bar'
     )
   })
 
@@ -188,7 +188,7 @@ describe('settings namespace (en)', () => {
   it('has the Personality tab keys', () => {
     expect(settings.personality.baseStyle.label).toBe('Base style and tone')
     expect(settings.personality.baseStyle.description).toBe(
-      'Set the style and tone of how Exodus responds to you'
+      'Set the style and tone of how Actovia responds to you'
     )
     expect(settings.personality.baseStyle.options).toMatchObject({
       default: 'Default',
@@ -216,7 +216,7 @@ describe('settings namespace (en)', () => {
     )
     expect(settings.personality.nickname.label).toBe('Nickname')
     expect(settings.personality.nickname.placeholder).toBe(
-      'What should Exodus call you?'
+      'What should Actovia call you?'
     )
     expect(settings.personality.occupation.label).toBe('Occupation')
     expect(settings.personality.occupation.placeholder).toBe(
@@ -674,7 +674,7 @@ describe('settings namespace tools.s3.alert.* renders correctly via Trans', () =
       await import('@/components/settings/settings-form/s3')
     const html = await renderReal(EncodingNotice)
     expect(html).toBe(
-      'By default, Exodus encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.'
+      'By default, Actovia encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.'
     )
   })
 
@@ -699,7 +699,7 @@ describe('settings namespace tools.s3.alert.* renders correctly via Trans', () =
       await import('@/components/settings/settings-form/s3')
     const html = await renderReal(CorsNotice)
     expect(html).toBe(
-      '<strong>CORS</strong> — Add a CORS rule allowing <code>PUT</code> from <code>*</code> (or your app origin) so Exodus can upload directly from the desktop.'
+      '<strong>CORS</strong> — Add a CORS rule allowing <code>PUT</code> from <code>*</code> (or your app origin) so Actovia can upload directly from the desktop.'
     )
   })
 
@@ -785,7 +785,7 @@ describe('settings namespace Phase 5 additions (en)', () => {
     expect(settings.skillsMarket.sourceNotice).toContain(
       '<registry>skills.sh</registry>'
     )
-    expect(settings.skillsMarket.cli.title).toContain('<cli>exodus-cli</cli>')
+    expect(settings.skillsMarket.cli.title).toContain('<cli>actovia-cli</cli>')
   })
 
   it('has the new top-level toast.* keys (useSettings / useSettingsAutosave)', () => {
@@ -862,7 +862,7 @@ describe('skillsMarket <Trans> notices render the real components', () => {
       await import('@exodus/shared/constants/external-urls')
     const html = await renderReal(CliTitle)
     expect(html).toBe(
-      `Prefer the terminal? Use <a href="${EXODUS_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">exodus-cli</a>`
+      `Prefer the terminal? Use <a href="${EXODUS_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">actovia-cli</a>`
     )
   })
 })

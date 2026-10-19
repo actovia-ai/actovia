@@ -1,5 +1,5 @@
 {
-  "alert": "Die Wissensdatenbank von Exodus ist optional und wird von einem <strong>selbst gehosteten LightRAG-Server betrieben</strong> — Exodus verbindet sich lediglich damit, überträgt Ihre Dokumente und fragt nach relevantem Kontext; es führt LightRAG niemals selbst aus, aktualisiert oder verwaltet es nicht. Lassen Sie die URL leer, um die Wissensdatenbank deaktiviert zu lassen. Der Abruf liefert nur Kontext: LightRAG findet relevante Textstellen, aber Ihr konfiguriertes Chat-Modell verfasst immer die Antwort. Das Embedding-Modell wird <strong>festgelegt, sobald Sie ein Dokument aufnehmen</strong> — eine spätere Änderung erfordert das Löschen des LightRAG-Speichers und das erneute Hinzufügen aller Dokumente. Wählen Sie daher eines, bei dem Sie bleiben möchten.",
+  "alert": "Die Wissensdatenbank von Actovia ist optional und wird von einem <strong>selbst gehosteten LightRAG-Server betrieben</strong> — Actovia verbindet sich lediglich damit, überträgt Ihre Dokumente und fragt nach relevantem Kontext; es führt LightRAG niemals selbst aus, aktualisiert oder verwaltet es nicht. Lassen Sie die URL leer, um die Wissensdatenbank deaktiviert zu lassen. Der Abruf liefert nur Kontext: LightRAG findet relevante Textstellen, aber Ihr konfiguriertes Chat-Modell verfasst immer die Antwort. Das Embedding-Modell wird <strong>festgelegt, sobald Sie ein Dokument aufnehmen</strong> — eine spätere Änderung erfordert das Löschen des LightRAG-Speichers und das erneute Hinzufügen aller Dokumente. Wählen Sie daher eines, bei dem Sie bleiben möchten.",
   "serverUrl": {
     "label": "Server-URL",
     "description": "Ihr selbst gehosteter LightRAG-Server. Leer lassen, um die Wissensdatenbank zu deaktivieren."
@@ -30,7 +30,7 @@
   },
   "connection": {
     "label": "Verbindung",
-    "description": "Überprüfen Sie, ob Exodus Ihren LightRAG-Server erreichen kann.",
+    "description": "Überprüfen Sie, ob Actovia Ihren LightRAG-Server erreichen kann.",
     "testingLabel": "Wird getestet…",
     "testButton": "Verbindung testen"
   },

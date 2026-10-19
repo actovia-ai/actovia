@@ -217,7 +217,7 @@
   },
   "export": {
     "you": "나",
-    "assistant": "Exodus",
+    "assistant": "Actovia",
     "pictures_other": "사진 {{count}}장 첨부",
     "tool": "도구: {{name}}"
   },
@@ -284,7 +284,7 @@
     "label_other": "메모리 {{count}}개 사용 · {{keys}}",
     "intro": "이 답변은 이 기억들을 바탕으로 했습니다.",
     "wrong": "틀렸나요?",
-    "fixHint": "기억이 틀렸나요? '틀렸나요?'를 클릭해 채팅에서 고치면 Exodus가 기억을 업데이트합니다.",
+    "fixHint": "기억이 틀렸나요? '틀렸나요?'를 클릭해 채팅에서 고치면 Actovia가 기억을 업데이트합니다.",
     "openSettings": "설정에서 열기",
     "deleted": "삭제됨",
     "prefill": "'{{key}}'에 대한 메모리가 잘못되었습니다: "
@@ -335,7 +335,7 @@
     "position": "{{current}}/{{total}}"
   },
   "ask": {
-    "button": "Exodus에 질문",
+    "button": "Actovia에 질문",
     "remove": "인용 제거"
   },
   "health": {

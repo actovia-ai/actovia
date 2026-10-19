@@ -17,7 +17,7 @@
   "tray": {
     "showApp": "アプリを表示",
     "hideApp": "アプリを隠す",
-    "quitExodus": "Exodusを終了"
+    "quitExodus": "Actoviaを終了"
   },
   "notification": {
     "philharmonicGroupError": "グループ「{{title}}」でエラーが発生しました",

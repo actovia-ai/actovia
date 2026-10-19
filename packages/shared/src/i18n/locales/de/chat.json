@@ -225,7 +225,7 @@
   },
   "export": {
     "you": "Du",
-    "assistant": "Exodus",
+    "assistant": "Actovia",
     "pictures_one": "{{count}} Bild angehängt",
     "pictures_other": "{{count}} Bilder angehängt",
     "tool": "Tool: {{name}}"
@@ -295,7 +295,7 @@
     "label_other": "{{count}} Gedächtniseinträge verwendet · {{keys}}",
     "intro": "Diese Erinnerungen haben die Antwort geprägt.",
     "wrong": "Falsch?",
-    "fixHint": "Stimmt eine Erinnerung nicht? Klicken Sie auf „Falsch?“ und korrigieren Sie sie im Chat – Exodus aktualisiert sie.",
+    "fixHint": "Stimmt eine Erinnerung nicht? Klicken Sie auf „Falsch?“ und korrigieren Sie sie im Chat – Actovia aktualisiert sie.",
     "openSettings": "In den Einstellungen öffnen",
     "deleted": "Gelöscht",
     "prefill": "Der Gedächtniseintrag zu „{{key}}“ ist falsch: "
@@ -348,7 +348,7 @@
     "position": "{{current}}/{{total}}"
   },
   "ask": {
-    "button": "Exodus fragen",
+    "button": "Actovia fragen",
     "remove": "Zitat entfernen"
   },
   "health": {

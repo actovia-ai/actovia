@@ -150,7 +150,7 @@ export function createApp() {
   app.route('/api/v1', v1)
 
   // Ping
-  app.get('/', (c) => c.text('Exodus is running.'))
+  app.get('/', (c) => c.text('Actovia is running.'))
 
   // Global error handler
   app.onError(errorHandler)

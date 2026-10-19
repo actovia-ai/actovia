@@ -17,7 +17,7 @@
   "tray": {
     "showApp": "Show App",
     "hideApp": "Hide App",
-    "quitExodus": "Quit Exodus"
+    "quitExodus": "Quit Actovia"
   },
   "notification": {
     "philharmonicGroupError": "Group \"{{title}}\" hit an error",

@@ -17,7 +17,7 @@
   "messages": {
     "start": {
       "title": "Iniciando investigación profunda...",
-      "description": "El proceso de investigación profunda puede tardar un rato. Puede seguir chateando con Exodus en otras conversaciones. Exodus le avisará en cuanto el informe final esté listo."
+      "description": "El proceso de investigación profunda puede tardar un rato. Puede seguir chateando con Actovia en otras conversaciones. Actovia le avisará en cuanto el informe final esté listo."
     },
     "learnings_one": "Se investigó {{count}} elemento a partir de los recursos web anteriores",
     "learnings_other": "Se investigaron {{count}} elementos a partir de los recursos web anteriores",

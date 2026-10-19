@@ -253,7 +253,7 @@
     },
     "runtime": {
       "label": "Se ejecuta en",
-      "exodus": "Exodus"
+      "exodus": "Actovia"
     },
     "model": {
       "label": "Modelo",
@@ -373,7 +373,7 @@
   },
   "agents": {
     "settings": {
-      "intro": "Los agentes de programación son empleados de Philharmonic que ejecuta una CLI que instalaste y en la que iniciaste sesión. Exodus la inicia en la carpeta de un grupo, muestra lo que hace y se detiene para ti cada vez que te pregunta algo.",
+      "intro": "Los agentes de programación son empleados de Philharmonic que ejecuta una CLI que instalaste y en la que iniciaste sesión. Actovia la inicia en la carpeta de un grupo, muestra lo que hace y se detiene para ti cada vez que te pregunta algo.",
       "clisTitle": "En este Mac",
       "runTitle": "Cómo se ejecutan",
       "projectsDir": {
@@ -393,7 +393,7 @@
         "label": "Worktrees separados",
         "description": "Cuando dos agentes trabajan a la vez en el mismo repositorio git, cada uno recibe su propio worktree y rama. Fusionarlos depende de ti."
       },
-      "safety": "Los agentes de programación se ejecutan con sus propios permisos, en la carpeta que les das. Exodus nunca responde a sus preguntas ni aprueba sus acciones por ti."
+      "safety": "Los agentes de programación se ejecutan con sus propios permisos, en la carpeta que les das. Actovia nunca responde a sus preguntas ni aprueba sus acciones por ti."
     },
     "cli": {
       "check": "Comprobar",
@@ -439,7 +439,7 @@
       "terminalFailed": "No se pudo abrir Terminal",
       "stopFailed": "No se pudo detener",
       "folderFailed": "No se pudo abrir la carpeta",
-      "inTerminal": "Continuado en Terminal — Exodus lo retoma en su siguiente paso."
+      "inTerminal": "Continuado en Terminal — Actovia lo retoma en su siguiente paso."
     }
   }
 }

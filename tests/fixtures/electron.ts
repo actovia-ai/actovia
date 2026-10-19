@@ -52,7 +52,7 @@ async function assertPortFree(): Promise<void> {
     })
     const body = await res.text().catch(() => '')
     throw new Error(
-      `e2e fixture refuses to run: something already serves localhost:${SERVER_PORT} (${res.status} ${body.slice(0, 40)}). Quit the running Exodus (dev build or installed app) first.`
+      `e2e fixture refuses to run: something already serves localhost:${SERVER_PORT} (${res.status} ${body.slice(0, 40)}). Quit the running Actovia (dev build or installed app) first.`
     )
   } catch (err) {
     if (err instanceof Error && err.message.startsWith('e2e fixture refuses'))

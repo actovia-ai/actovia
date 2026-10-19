@@ -38,7 +38,7 @@ export function setupLockIPC(): void {
   ipcMain.handle(LOCK_CHANNELS.unlockTouchId, async () => {
     if (!touchIdAvailable()) return { ok: false }
     try {
-      await systemPreferences.promptTouchID('Unlock Exodus')
+      await systemPreferences.promptTouchID('Unlock Actovia')
       manager.completeUnlock()
       return { ok: true }
     } catch (err) {

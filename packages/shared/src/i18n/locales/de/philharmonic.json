@@ -253,7 +253,7 @@
     },
     "runtime": {
       "label": "Läuft auf",
-      "exodus": "Exodus"
+      "exodus": "Actovia"
     },
     "model": {
       "label": "Modell",
@@ -373,7 +373,7 @@
   },
   "agents": {
     "settings": {
-      "intro": "Coding-Agenten sind Philharmonic-Mitarbeiter, die von einer CLI ausgeführt werden, die du installiert und bei der du angemeldet bist. Exodus startet sie im Ordner einer Gruppe, zeigt, was sie tut, und hält an, sobald sie dich etwas fragt.",
+      "intro": "Coding-Agenten sind Philharmonic-Mitarbeiter, die von einer CLI ausgeführt werden, die du installiert und bei der du angemeldet bist. Actovia startet sie im Ordner einer Gruppe, zeigt, was sie tut, und hält an, sobald sie dich etwas fragt.",
       "clisTitle": "Auf diesem Mac",
       "runTitle": "So laufen sie",
       "projectsDir": {
@@ -393,7 +393,7 @@
         "label": "Separate Worktrees",
         "description": "Arbeiten zwei Agenten gleichzeitig im selben Git-Repository, erhält jeder einen eigenen Worktree und Branch. Das Zusammenführen liegt bei dir."
       },
-      "safety": "Coding-Agenten laufen mit ihren eigenen Berechtigungen in dem Ordner, den du ihnen gibst. Exodus beantwortet niemals ihre Fragen und genehmigt nie ihre Aktionen für dich."
+      "safety": "Coding-Agenten laufen mit ihren eigenen Berechtigungen in dem Ordner, den du ihnen gibst. Actovia beantwortet niemals ihre Fragen und genehmigt nie ihre Aktionen für dich."
     },
     "cli": {
       "check": "Prüfen",
@@ -439,7 +439,7 @@
       "terminalFailed": "Terminal konnte nicht geöffnet werden",
       "stopFailed": "Konnte es nicht stoppen",
       "folderFailed": "Ordner konnte nicht geöffnet werden",
-      "inTerminal": "Im Terminal fortgesetzt — Exodus übernimmt beim nächsten Schritt wieder."
+      "inTerminal": "Im Terminal fortgesetzt — Actovia übernimmt beim nächsten Schritt wieder."
     }
   }
 }

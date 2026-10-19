@@ -42,7 +42,7 @@ describe('menu namespace (en)', () => {
   it('has the 3 tray labels', () => {
     expect(menu.tray.showApp).toBe('Show App')
     expect(menu.tray.hideApp).toBe('Hide App')
-    expect(menu.tray.quitExodus).toBe('Quit Exodus')
+    expect(menu.tray.quitExodus).toBe('Quit Actovia')
   })
 
   it('has the 2 templated Philharmonic notification titles', () => {

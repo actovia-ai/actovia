@@ -58,11 +58,11 @@ export async function assertWorkableFolder(folder: string): Promise<string> {
     fail('Your home folder is too broad — choose a folder inside it')
   const data = await realpath(getExodusHome()).catch(() => getExodusHome())
   if (real === data || real.startsWith(data + sep))
-    fail("Exodus' own data folder cannot be used")
+    fail("Actovia's own data folder cannot be used")
   const home = await realpath(homedir())
   if (home.startsWith(real + sep) || data.startsWith(real + sep))
     fail(
-      "This folder contains your home folder or Exodus' data — choose a folder inside it"
+      "This folder contains your home folder or Actovia's data — choose a folder inside it"
     )
   return real
 }

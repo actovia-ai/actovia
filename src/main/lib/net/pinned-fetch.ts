@@ -174,7 +174,7 @@ export async function fetchPinned(
         method: 'GET',
         signal: combined,
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Exodus web_fetch)',
+          'User-Agent': 'Mozilla/5.0 (Actovia web_fetch)',
           'Accept-Encoding': 'gzip, deflate, br'
         },
         // Pinned: the socket connects to an address judged above, never to
