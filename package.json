@@ -135,7 +135,7 @@
     "@semantic-release/git": "^11.0.1",
     "@tanstack/react-query-devtools": "^5.104.1",
     "@types/electron-squirrel-startup": "^1.0.2",
-    "@types/google.maps": "^3.66.5",
+    "@types/google.maps": "^3.66.7",
     "@types/lodash-es": "^4.17.12",
     "@types/markdown-it": "^14.2.0",
     "@types/node": "^26.6.4",
