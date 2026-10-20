@@ -88,6 +88,33 @@ export class LockManager extends EventEmitter {
     return { ok: true }
   }
 
+  /**
+   * The PIN checked for something other than the lock screen (`actovia pair`'s
+   * pass, `routes/lock.ts`): the same lockout as `unlock`, and a correct PIN
+   * also unlocks a locked app — it is what the lock screen would have taken.
+   */
+  confirmPin(pin: string): UnlockResult {
+    if (!pinStore.hasPin())
+      return { ok: false, reason: 'no-pin', retryAfterMs: 0 }
+    if (this.retryAfterMs() > 0) {
+      return {
+        ok: false,
+        reason: 'locked-out',
+        retryAfterMs: this.retryAfterMs()
+      }
+    }
+    if (!pinStore.verify(pin)) {
+      this.recordWrongAttempt()
+      const retry = this.retryAfterMs()
+      return retry > 0
+        ? { ok: false, reason: 'locked-out', retryAfterMs: retry }
+        : { ok: false, reason: 'wrong-pin', retryAfterMs: 0 }
+    }
+    if (this.locked) this.completeUnlock()
+    else this.resetAttempts()
+    return { ok: true }
+  }
+
   completeUnlock(): void {
     this.locked = false
     this.wrongAttempts = 0

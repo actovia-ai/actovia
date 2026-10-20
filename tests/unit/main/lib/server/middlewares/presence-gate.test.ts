@@ -118,6 +118,34 @@ describe('presenceGate', () => {
     expect((await app.request('/api/v1/philharmonic/agents')).status).toBe(200)
   })
 
+  it('a CLI pass (from the PIN) opens the device routes and nothing else', async () => {
+    const { issueCliPass, clearCliPasses } = await import('@main/lib/cli-pass')
+    const pass = { headers: { [PRESENCE_HEADER]: issueCliPass().token } }
+    expect((await app.request('/api/v1/devices', pass)).status).toBe(200)
+    expect(
+      (
+        await app.request('/api/v1/devices/pairing', {
+          method: 'POST',
+          ...pass
+        })
+      ).status
+    ).toBe(200)
+    // Never a tool approval, an employee edit or a group message.
+    for (const [method, path] of [
+      ['POST', '/api/v1/chat/approval'],
+      ['POST', '/api/v1/agents/a1'],
+      ['POST', '/api/v1/philharmonic/conversations/c1/messages'],
+      ['GET', '/api/v1/devices-and-more']
+    ]) {
+      const res = await app.request(path, { method, ...pass })
+      expect(res.status, path).toBe(
+        path === '/api/v1/devices-and-more' ? 200 : 403
+      )
+    }
+    clearCliPasses()
+    expect((await app.request('/api/v1/devices', pass)).status).toBe(403)
+  })
+
   it('the token is stable for the launch and compared exactly', () => {
     expect(getPresenceToken()).toBe(getPresenceToken())
     expect(getPresenceToken()).toMatch(/^[\w-]{43}$/u)

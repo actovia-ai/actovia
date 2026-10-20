@@ -1,5 +1,6 @@
 import type { Context, Next } from 'hono'
 
+import { isCliPass } from '../../cli-pass'
 import { isPresenceToken, PRESENCE_HEADER } from '../../presence'
 import { listenerOf } from '../types'
 
@@ -56,7 +57,11 @@ export function needsPresenceFor(path: string, method: string): boolean {
 export async function presenceGate(c: Context, next: Next) {
   if (!needsPresenceFor(c.req.path, c.req.method)) return next()
   if (listenerOf(c) === 'lan') return next()
-  if (isPresenceToken(c.req.header(PRESENCE_HEADER))) return next()
+  const presented = c.req.header(PRESENCE_HEADER)
+  if (isPresenceToken(presented)) return next()
+  // `actovia pair` / `actovia devices`: a pass the CLI got with the app-lock
+  // PIN (cli-pass.ts) opens the device routes, nothing else.
+  if (isCliPass(presented, c.req.path)) return next()
   return c.json(
     {
       type: 'error',

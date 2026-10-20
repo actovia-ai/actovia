@@ -126,4 +126,42 @@ describe('LockManager', () => {
       retryAfterMs: 30000
     })
   })
+
+  it('confirmPin shares the lock screen lockout and unlocks a locked app', async () => {
+    const { LockManager } = await import('@main/lib/lock/lock-manager')
+    const m = new LockManager(() => 1_000_000)
+    pinStore.verify.mockReturnValue(false)
+    for (let i = 0; i < 4; i++)
+      expect(m.confirmPin('0000')).toEqual({
+        ok: false,
+        reason: 'wrong-pin',
+        retryAfterMs: 0
+      })
+    expect(m.confirmPin('0000')).toEqual({
+      ok: false,
+      reason: 'locked-out',
+      retryAfterMs: 30000
+    })
+    pinStore.verify.mockReturnValue(true)
+    // Locked out for the lock screen too.
+    expect(m.unlock('123456')).toMatchObject({
+      ok: false,
+      reason: 'locked-out'
+    })
+
+    const n = new LockManager()
+    n.lock('idle')
+    expect(n.confirmPin('123456')).toEqual({ ok: true })
+    expect(n.isLocked()).toBe(false)
+  })
+
+  it('confirmPin refuses when no PIN is set', async () => {
+    const { LockManager } = await import('@main/lib/lock/lock-manager')
+    pinStore.hasPin.mockReturnValue(false)
+    expect(new LockManager().confirmPin('1234')).toEqual({
+      ok: false,
+      reason: 'no-pin',
+      retryAfterMs: 0
+    })
+  })
 })

@@ -6,8 +6,9 @@ const isLocked = vi.fn(() => locked.value)
 const completeUnlock = vi.fn(() => {
   locked.value = false
 })
+const confirmPin = vi.fn()
 vi.mock('@main/lib/lock/lock-manager', () => ({
-  getLockManager: () => ({ isLocked, completeUnlock })
+  getLockManager: () => ({ isLocked, completeUnlock, confirmPin })
 }))
 
 const info = vi.fn()
@@ -16,6 +17,7 @@ vi.mock('@main/lib/logger', () => ({
 }))
 
 const { default: lockRouter } = await import('@main/lib/server/routes/lock')
+const { isCliPass, clearCliPasses } = await import('@main/lib/cli-pass')
 
 function makeApp(deviceId?: string) {
   const app = new Hono<{ Variables: { deviceId?: string } }>()
@@ -65,5 +67,65 @@ describe('POST /api/v1/lock/unlock', () => {
     expect(await res.json()).toEqual({ locked: false })
     expect(completeUnlock).not.toHaveBeenCalled()
     expect(info).not.toHaveBeenCalled()
+  })
+})
+
+describe('POST /api/v1/lock/cli-pass', () => {
+  const ask = (body: unknown, listener: 'loopback' | 'lan' = 'loopback') =>
+    makeApp().request(
+      '/api/v1/lock/cli-pass',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      },
+      { listener }
+    )
+
+  beforeEach(() => clearCliPasses())
+
+  it('trades the right PIN for a pass that opens the device routes', async () => {
+    confirmPin.mockReturnValue({ ok: true })
+    const res = await ask({ pin: '123456' })
+    expect(res.status).toBe(200)
+    const { token, expiresAt } = await res.json()
+    expect(confirmPin).toHaveBeenCalledWith('123456')
+    expect(isCliPass(token, '/api/v1/devices/pairing')).toBe(true)
+    expect(expiresAt).toBeGreaterThan(Date.now())
+  })
+
+  it.each([
+    ['wrong-pin', 401, 'WRONG_PIN'],
+    ['locked-out', 429, 'PIN_LOCKED_OUT'],
+    ['no-pin', 409, 'PIN_NOT_SET']
+  ] as const)(
+    'refuses %s with %i %s and issues nothing',
+    async (reason, status, code) => {
+      confirmPin.mockReturnValue({ ok: false, reason, retryAfterMs: 30000 })
+      const res = await ask({ pin: '0000' })
+      expect(res.status).toBe(status)
+      const body = await res.json()
+      expect(body.error.code).toBe(code)
+      expect(body.error.retryAfterMs).toBe(30000)
+      expect(body.token).toBeUndefined()
+    }
+  )
+
+  it('checks nothing without a PIN string', async () => {
+    for (const body of [
+      {},
+      { pin: 1234 },
+      { pin: '' },
+      { pin: 'x'.repeat(65) }
+    ]) {
+      expect((await ask(body)).status).toBe(400)
+    }
+    expect(confirmPin).not.toHaveBeenCalled()
+  })
+
+  it('is loopback only', async () => {
+    const res = await ask({ pin: '123456' }, 'lan')
+    expect(res.status).toBe(403)
+    expect(confirmPin).not.toHaveBeenCalled()
   })
 })
