@@ -19,7 +19,7 @@ the faux provider.
   Commit whole files you own via `$SCRATCH/commit-via-worktree.sh "<msg>" <files…>`; CLAUDE.md only by staging your
   hunk with `git apply --cached` and committing by hand through a temp worktree.
 - Gate per commit: `bun run fmt` (then `git status` for foreign changes) → `bun run lint` → `env
-  PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck` → `bun run i18n:check` → `bun run test`. Trailer
+  PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck` → `bun run i18n:check` → `bun run test`. Trailer
   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 - Never run `bun run package` from a worktree whose node_modules is a symlink; e2e only in the main tree and only if
   nothing answers on localhost:60223.

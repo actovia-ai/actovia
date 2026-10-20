@@ -18,11 +18,11 @@
 - `message.runId` is a `uuid`, indexed with `chatId`, equal to the run's user message id for every row of the run.
 - `memory.freshTailSize` means **runs** (default 6, range 2–24) after Task 5; the settings copy follows in all 10 locales.
 - Invariant (Task 5, property-tested): an assembled message list starts with a `user` message, and every `toolResult` has its `toolCall` earlier in the list.
-- The SSE wire format keeps every event shape; every message on the wire gains `runId`. exodus-ios changes nothing.
+- The SSE wire format keeps every event shape; every message on the wire gains `runId`. The iOS app changes nothing.
 - Philharmonic (`src/main/lib/ai/philharmonic/`) changes package names and the `agentLoop` call shape only — no behaviour changes.
 - New user-facing strings go in `packages/shared/src/i18n/locales/en/<ns>.json` and all 9 other locales in the same commit (`bun run i18n:check` gates it). No Chinese in the UI.
 - Pre-commit gate for every commit: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test`. Never repo-wide `bun run lint:fix`.
-- Tests live under `tests/unit/`, mirroring `src/`, importing via `@main/...`, `@/...`, `@exodus/shared/...`. Kernel tests use pi's `fauxProvider()`; no provider key anywhere in unit tests.
+- Tests live under `tests/unit/`, mirroring `src/`, importing via `@main/...`, `@/...`, `@actovia/shared/...`. Kernel tests use pi's `fauxProvider()`; no provider key anywhere in unit tests.
 - CLAUDE.md is updated in the same change as any architecture/route/directory change (Task 12, plus the `claude-md-freshness.test.ts` path check on every commit).
 - Every commit message ends with `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 
@@ -37,7 +37,7 @@
 - `src/main/lib/ai/kernel/events.ts` — `KernelEvent` union.
 - `src/main/lib/ai/kernel/run.ts` — `runAgent(input)`.
 - `src/main/lib/ai/kernel/record.ts` — `RunRecorder`.
-- `src/main/lib/ai/kernel/faux.ts` — `registerFauxProvider()` for tests and the `EXODUS_FAUX_PROVIDER=1` e2e switch.
+- `src/main/lib/ai/kernel/faux.ts` — `registerFauxProvider()` for tests and the `ACTOVIA_FAUX_PROVIDER=1` e2e switch.
 - `src/main/lib/ai/calling-tools/mcp-toolbox.ts` — `list_mcp_tools` + `call_mcp_tool`.
 - `packages/shared/src/constants/tool-names.ts` — `TOOL_NAMES`, `LEGACY_TOOL_NAMES`.
 - `resources/drizzle/0007_snake_case_tool_names.sql`, `resources/drizzle/0008_message_run_id.sql` (+ journal entries).
@@ -173,7 +173,7 @@ import { xaiProvider } from '@earendil-works/pi-ai/providers/xai'
 /**
  * The process's one `Models` collection. pi 0.85 routes every request by
  * `model.provider` to a registered provider, which resolves auth and owns the
- * stream; there is no global registry any more. Exodus passes the API key
+ * stream; there is no global registry any more. Actovia passes the API key
  * from Settings explicitly on each request (`options.apiKey` wins over
  * anything a provider would resolve from the environment), so nothing here
  * reads env vars in practice.
@@ -230,7 +230,7 @@ import { getKernelModels } from './models'
 /**
  * pi's scripted provider, registered on the kernel's collection. Unit tests
  * script replies with `setResponses([...])`; the Electron e2e (Task 11)
- * registers it at boot when `EXODUS_FAUX_PROVIDER=1`.
+ * registers it at boot when `ACTOVIA_FAUX_PROVIDER=1`.
  */
 export function registerFauxProvider(
   options?: RegisterFauxProviderOptions
@@ -401,7 +401,7 @@ import {
   LEGACY_TOOL_NAMES,
   TOOL_NAMES,
   toToolName
-} from '@exodus/shared/constants/tool-names'
+} from '@actovia/shared/constants/tool-names'
 import { describe, expect, it } from 'vitest'
 
 describe('tool names', () => {
@@ -486,7 +486,7 @@ Expected: PASS.
 In each of the 19 `src/main/lib/ai/calling-tools/*.ts`, the `name:` field takes the constant, e.g. `web-search.ts`:
 
 ```ts
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 // ...
 name: TOOL_NAMES.webSearch,
 ```
@@ -1632,11 +1632,17 @@ Run: `bun run test tests/unit/main/lib/ai/kernel/run.test.ts` → FAIL, module n
 
 - [ ] **Step 3: Write `events.ts` and `run.ts`**
 
-`events.ts` — the union above, importing `ChatAssistantMessage`, `ChatMessage`, `ChatToolResultMessage` from `@exodus/shared/types/chat`.
+`events.ts` — the union above, importing `ChatAssistantMessage`, `ChatMessage`, `ChatToolResultMessage` from `@actovia/shared/types/chat`.
 
 `run.ts`:
 
 ```ts
+import type {
+  ChatAssistantMessage,
+  ChatMessage,
+  ChatToolResultMessage,
+  ChatUserMessage
+} from '@actovia/shared/types/chat'
 import {
   Agent,
   type AgentEvent,
@@ -1649,12 +1655,6 @@ import type {
   Model,
   ThinkingLevel
 } from '@earendil-works/pi-ai'
-import type {
-  ChatAssistantMessage,
-  ChatMessage,
-  ChatToolResultMessage,
-  ChatUserMessage
-} from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
 import { logger } from '../../logger'
@@ -2056,11 +2056,11 @@ describe('RunRecorder', () => {
 - [ ] **Step 7: Write `record.ts`**
 
 ```ts
-import type { Model } from '@earendil-works/pi-ai'
 import type {
   ChatAssistantMessage,
   ChatMessage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
+import type { Model } from '@earendil-works/pi-ai'
 
 import { saveMessages } from '../../db/queries'
 import { enqueueAndProcess, logEnqueueFailure } from '../../jobs/worker'
@@ -2352,7 +2352,7 @@ function noticeOf(details: unknown): ToolNotice | null {
 }
 ```
 
-New imports in `chat.ts`: `TOOL_NAMES` from `@exodus/shared/constants/tool-names`, `runAgent` from `../../ai/kernel/run`, `RunRecorder` from `../../ai/kernel/record`, `withRunId` from `./chat-persistence`. The `tool_end` event in `run.ts` carries `toolCallId`/`toolName` on its message; read them from `event.message`. Delete from `chat.ts`: the `agentLoop`/`AgentMessage`/`Message` imports, `uuidV4`, `calculateCost`, `stripId` (keep `toDbRow`, `withRunId`), `EMPTY_TURN_MESSAGE`/`isEmptyAssistantTurn`/`extractToolErrorMessage` imports (now used by the kernel), `stampTurnDuration`, `persistTurn`, `toolMsgIds`, and the `effectiveReasoning` comment block (keep the three-line expression from Task 2). The user row save and `indexMessage(toDbRow(withRunId(userMessage, userMessage.id), id))` stay as they are.
+New imports in `chat.ts`: `TOOL_NAMES` from `@actovia/shared/constants/tool-names`, `runAgent` from `../../ai/kernel/run`, `RunRecorder` from `../../ai/kernel/record`, `withRunId` from `./chat-persistence`. The `tool_end` event in `run.ts` carries `toolCallId`/`toolName` on its message; read them from `event.message`. Delete from `chat.ts`: the `agentLoop`/`AgentMessage`/`Message` imports, `uuidV4`, `calculateCost`, `stripId` (keep `toDbRow`, `withRunId`), `EMPTY_TURN_MESSAGE`/`isEmptyAssistantTurn`/`extractToolErrorMessage` imports (now used by the kernel), `stampTurnDuration`, `persistTurn`, `toolMsgIds`, and the `effectiveReasoning` comment block (keep the three-line expression from Task 2). The user row save and `indexMessage(toDbRow(withRunId(userMessage, userMessage.id), id))` stay as they are.
 
 - [ ] **Step 3: Run the route tests**
 
@@ -2496,10 +2496,10 @@ describe('mcp toolbox', () => {
 - [ ] **Step 3: Write `mcp-toolbox.ts`**
 
 ```ts
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { McpTools } from '@actovia/shared/types/ai'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { McpTools } from '@exodus/shared/types/ai'
 
 /**
  * MCP servers are not bound tool by tool — a single server can expose 100+
@@ -2663,7 +2663,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 ```ts
 // @vitest-environment happy-dom
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import { groupIntoSegments } from '@/components/messages'
@@ -2819,13 +2819,13 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 
 **Files:**
 
-- Modify: `src/main/lib/server/app.ts` or `src/main/main.ts` (register the faux provider at boot when `EXODUS_FAUX_PROVIDER=1`), `src/main/lib/ai/utils/model-util.ts` (`getModelFromProvider` returns the faux model under the flag), `tests/fixtures/electron.ts` (pass the env through), `packages/shared/src/constants/test-ids.ts` (if a new element is needed — likely not)
+- Modify: `src/main/lib/server/app.ts` or `src/main/main.ts` (register the faux provider at boot when `ACTOVIA_FAUX_PROVIDER=1`), `src/main/lib/ai/utils/model-util.ts` (`getModelFromProvider` returns the faux model under the flag), `tests/fixtures/electron.ts` (pass the env through), `packages/shared/src/constants/test-ids.ts` (if a new element is needed — likely not)
 - Create: `tests/e2e/chat-faux-provider.spec.ts`
 - Create: `src/main/lib/ai/kernel/faux-boot.ts`
 
 **Interfaces:**
 
-- Produces: `bootFauxProviderIfRequested(): FauxProviderHandle | null` — registers the faux provider with a scripted two-step reply (tool call `weather` → text) that re-arms itself for every request, when `process.env.EXODUS_FAUX_PROVIDER === '1'`; `getModelFromProvider()` returns `{ model: handle.getModel(), apiKey: 'faux' }` while it is set.
+- Produces: `bootFauxProviderIfRequested(): FauxProviderHandle | null` — registers the faux provider with a scripted two-step reply (tool call `weather` → text) that re-arms itself for every request, when `process.env.ACTOVIA_FAUX_PROVIDER === '1'`; `getModelFromProvider()` returns `{ model: handle.getModel(), apiKey: 'faux' }` while it is set.
 
 - [ ] **Step 1: Write the failing e2e spec**
 
@@ -2839,8 +2839,8 @@ import { test } from '../fixtures/electron'
 
 test.describe('chat on the faux provider', () => {
   test.skip(
-    process.env.EXODUS_FAUX_PROVIDER !== '1',
-    'set EXODUS_FAUX_PROVIDER=1 (playwright.config.ts does for the electron project)'
+    process.env.ACTOVIA_FAUX_PROVIDER !== '1',
+    'set ACTOVIA_FAUX_PROVIDER=1 (playwright.config.ts does for the electron project)'
   )
 
   test('a send runs a tool call and renders one assistant message', async ({
@@ -2877,9 +2877,9 @@ import { registerFauxProvider } from './faux'
 
 let handle: FauxProviderHandle | null = null
 
-/** The Electron e2e's provider: scripted, keyless, on when EXODUS_FAUX_PROVIDER=1. */
+/** The Electron e2e's provider: scripted, keyless, on when ACTOVIA_FAUX_PROVIDER=1. */
 export function bootFauxProviderIfRequested(): FauxProviderHandle | null {
-  if (process.env.EXODUS_FAUX_PROVIDER !== '1') return null
+  if (process.env.ACTOVIA_FAUX_PROVIDER !== '1') return null
   handle = registerFauxProvider({
     provider: 'faux',
     models: [{ id: 'faux-1', name: 'Faux' }]
@@ -2898,7 +2898,7 @@ export function bootFauxProviderIfRequested(): FauxProviderHandle | null {
   handle.setResponses([factory])
   logger.warn(
     'app',
-    'Faux provider is on (EXODUS_FAUX_PROVIDER=1) — no real model is reachable'
+    'Faux provider is on (ACTOVIA_FAUX_PROVIDER=1) — no real model is reachable'
   )
   return handle
 }
@@ -2910,13 +2910,13 @@ export function fauxHandle(): FauxProviderHandle | null {
 
 Call `bootFauxProviderIfRequested()` where the server is created (`src/main/lib/server/app.ts`'s exported factory, before routes). `src/main/lib/ai/utils/model-util.ts`: at the top of `getModelFromProvider`, `const faux = fauxHandle(); if (faux) return { model: faux.getModel(), apiKey: 'faux' }`. The `weather` tool must be bound for the script to work — it is, by default (`enabled('weather')`); the real `weather` tool calls wttr.in, which the e2e must not do: under the flag, `bindCallingTools` swaps in a stub `weather` whose `execute` returns `{ content: [{ type: 'text', text: 'sunny' }], details: {} }` — put that stub in `faux-boot.ts` as `fauxWeatherTool` and check `fauxHandle()` in `tool-binding-util.ts`.
 
-`tests/fixtures/electron.ts:86` env: add `EXODUS_FAUX_PROVIDER: process.env.EXODUS_FAUX_PROVIDER ?? ''`. `playwright.config.ts`: set `EXODUS_FAUX_PROVIDER: '1'` in the electron project's `env` (or in `use`), so the whole electron suite boots faux — the existing key-gated specs stay skipped (`skipWithoutKey`), everything else is unaffected because they never reach a model.
+`tests/fixtures/electron.ts:86` env: add `ACTOVIA_FAUX_PROVIDER: process.env.ACTOVIA_FAUX_PROVIDER ?? ''`. `playwright.config.ts`: set `ACTOVIA_FAUX_PROVIDER: '1'` in the electron project's `env` (or in `use`), so the whole electron suite boots faux — the existing key-gated specs stay skipped (`skipWithoutKey`), everything else is unaffected because they never reach a model.
 
 - [ ] **Step 3: Run it**
 
 ```bash
 bun run package
-EXODUS_FAUX_PROVIDER=1 bun run test:e2e:electron -- tests/e2e/chat-faux-provider.spec.ts
+ACTOVIA_FAUX_PROVIDER=1 bun run test:e2e:electron -- tests/e2e/chat-faux-provider.spec.ts
 ```
 
 Expected: PASS. (The fixture refuses to run while a dev build answers on `localhost:60223` — quit it first.)
@@ -2943,7 +2943,7 @@ Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 - [ ] **Step 1: CLAUDE.md**
 
 - Project Overview / Chat Flow: rewrite steps 4–6 around `runAgent()` (`src/main/lib/ai/kernel/run.ts`), `RunRecorder` (`record.ts`), the `KernelEvent` union (`events.ts`), and that `chat.ts` is validate → build → `for await` → SSE.
-- New section **Chat kernel** under Architecture: `kernel/models.ts` (the `Models` collection; Ollama as a dynamic provider `ollama`; `streamFn`), `kernel/invariant.ts` (`dropBrokenRuns`), `kernel/faux.ts` + `faux-boot.ts` (`EXODUS_FAUX_PROVIDER=1`).
+- New section **Chat kernel** under Architecture: `kernel/models.ts` (the `Models` collection; Ollama as a dynamic provider `ollama`; `streamFn`), `kernel/invariant.ts` (`dropBrokenRuns`), `kernel/faux.ts` + `faux-boot.ts` (`ACTOVIA_FAUX_PROVIDER=1`).
 - Database Layer: `message.runId` (what it is, the backfill in 0008), the tool-name migration 0007.
 - Tools: the snake_case table from the spec; `packages/shared/src/constants/tool-names.ts` is the source of truth; the MCP toolbox (`list_mcp_tools`, `call_mcp_tool`, `mcpDirectory` in the system prompt); `MAX_TOOLS` is gone.
 - LCM: `freshTailSize` counts runs (default 6); assembly and compaction are run-aligned; `transform-messages.ts` no longer exists.
@@ -2974,7 +2974,7 @@ Expected: one tool-calling conversation each on Anthropic, OpenAI and Gemini pas
 
 - [ ] **Step 5: Backfill timing on the user's database**
 
-Before the branch is handed over: with the dev app **quit**, copy `~/.exodus/database` to the scratchpad, open it with PGlite in a node script and time `0007` + `0008` (`console.time`). Report the row count and the seconds in the hand-over note; if 0008's correlated subquery takes more than a few seconds, add `CREATE INDEX message_chat_created_idx ON "message" ("chatId","createdAt")` at the top of 0008 (drop it at the end if the schema has no such index).
+Before the branch is handed over: with the dev app **quit**, copy `~/.actovia/database` to the scratchpad, open it with PGlite in a node script and time `0007` + `0008` (`console.time`). Report the row count and the seconds in the hand-over note; if 0008's correlated subquery takes more than a few seconds, add `CREATE INDEX message_chat_created_idx ON "message" ("chatId","createdAt")` at the top of 0008 (drop it at the end if the schema has no such index).
 
 - [ ] **Step 6: Gate + commit**
 

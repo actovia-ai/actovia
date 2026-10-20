@@ -6,7 +6,7 @@ same day: **§A** (A1–A5; A6 declined, A7 waits for evidence), **§C1–C2** w
 (`chat_source` filled in lazily from the messages rather than by a migration backfill — the same code then covers a
 chat restored by an import; `recall`; aging; digest-fed compaction), **§C3–C4** and **§D** on both clients. Departures:
 the outline's jump is `through=<runId>` (everything back to that run, in one request) instead of `around`; a row over
-64 KB is cut per string to 8 KB and the client reads the whole row at once rather than when a card is expanded; exodus-ios
+64 KB is cut per string to 8 KB and the client reads the whole row at once rather than when a card is expanded; the iOS app
 has no outline, so it does not read `questions`. Open: A7.
 
 Origin: the phone will reach the computer over Tailscale, where a chat's history is seconds on a slow link; and the
@@ -30,7 +30,7 @@ One real chat (`83dddde7…`, 31 messages, 7 web searches, Claude Opus over 4 da
 The searches in this chat predate `SEARCH_LIMITS` (44–62 sources each); a search now brings ~10 sources / 8 k tokens.
 The cache misses do not: the prefix changes on every request (§A).
 
-Two code audits (2026-10-01) back the rest: which fields each client reads (desktop renderer and exodus-ios, per tool),
+Two code audits (2026-10-01) back the rest: which fields each client reads (desktop renderer and the iOS app, per tool),
 and everything the server derives from the posted history.
 
 ## Principles
@@ -40,7 +40,7 @@ and everything the server derives from the posted history.
 2. **Stable bytes.** Whatever is sent for a past run is a pure function of stored data, so two requests send the same
    bytes for it and the provider's prompt cache reads it at 0.1× instead of re-writing it at 1.25×.
 3. **The server owns history.** Clients send what is new; the server reads the rest from the database.
-4. **Both clients, one contract.** The desktop and exodus-ios move together; old clients keep working through the
+4. **Both clients, one contract.** The desktop and the iOS app move together; old clients keep working through the
    compatibility paths below until both have shipped.
 
 ---
@@ -84,7 +84,7 @@ call, and the input-side cost in units — the baseline above, kept as a regress
 ask for 1 hour (`cacheRetention: 'long'`, writes at 2×). Not done: each provider caches differently (Anthropic's
 breakpoints, OpenAI's and Gemini's automatic prefixes, different lifetimes and prices) and supports a longer lifetime
 differently or not at all, so a per-provider cache setting is one more thing the provider layer would have to level
-out. Exodus uses each provider's default lifetime; what it controls is a stable prefix (A1–A5).
+out. Actovia uses each provider's default lifetime; what it controls is a stable prefix (A1–A5).
 
 **A7. Follow-up: the start of the context.** When LCM back-fills older runs to a token budget, where the context begins
 can move from one request to the next, which also shifts the prefix. Pin it: the earliest included run changes only when

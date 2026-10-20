@@ -5,7 +5,7 @@ Status: design approved by the user in conversation (2026-09-23); spec written, 
 ## 1. Context and goal
 
 `src/renderer/services/` (20 files) are mostly plain async functions wrapping `fetcher()`
-(`@exodus/shared/utils/http`); 24 files call `useSWR` directly, some through a dedicated hook
+(`@actovia/shared/utils/http`); 24 files call `useSWR` directly, some through a dedicated hook
 (`hooks/use-settings.ts`), several inline in the component that needs the data
 (`settings-form/devices.tsx`, `settings-form/providers/ollama.tsx`, …). Side effects — a `sileo`
 toast, a `mutate(key)` cache-bust — live wherever the call happens: sometimes inside the service

@@ -8,7 +8,7 @@
 
 ## Context
 
-Exodus has no way for the AI to operate a computer. This spec is **V0** of
+Actovia has no way for the AI to operate a computer. This spec is **V0** of
 the staged "Computer Runtime" from `docs/computer-use-research.md` §6 — a
 screenshot-loop agent, window-scoped, driven by Claude, with a
 human-motor action space. It is deliberately the smallest thing that can
@@ -35,7 +35,7 @@ brainstorm:
 | Perception       | **Screenshot only.** No DOM, no accessibility tree in V0.                                                                                                                                                 |
 | Brain            | **Claude computer-use, ~1 FPS.** Plain function tool (no Anthropic beta tool type). Model from the existing provider config.                                                                              |
 | Tool shape       | A tool that runs its own **blocking session** (like `deepResearch` blocks the user's attention, but here `execute()` awaits the whole loop and streams progress via `onUpdate`).                          |
-| Native driver    | A small **bundled Swift helper** (`exodus-input`). Fallback: `cliclick` + `screencapture`.                                                                                                                |
+| Native driver    | A small **bundled Swift helper** (`actovia-input`). Fallback: `cliclick` + `screencapture`.                                                                                                               |
 
 ---
 
@@ -83,7 +83,7 @@ the loop. `maxSteps` is the backstop.
 | `src/main/lib/computer/capture.ts`              | screenshot a window → `{ data: base64, mimeType, width, height }` |
 | `src/main/lib/computer/hands.ts`                | motor primitives + atom→primitive decomposition; calls the helper |
 | `src/main/lib/computer/guard.ts`                | coordinate clamp/reject; abort flag; stuck detection              |
-| `src/main/lib/computer/helper.ts`               | spawn + speak JSON to `exodus-input`; a mock impl for tests       |
+| `src/main/lib/computer/helper.ts`               | spawn + speak JSON to `actovia-input`; a mock impl for tests      |
 | `src/main/lib/computer/session.ts`              | `runComputerSession()` — the loop                                 |
 | `src/main/lib/computer/ask-registry.ts`         | `computerAskRegistry` (mirrors `ask-user-registry.ts`)            |
 | `src/main/lib/ai/computer-use/agent.ts`         | `ComputerAgent` interface + `ClaudeComputerAgent`                 |
@@ -91,8 +91,8 @@ the loop. `maxSteps` is the backstop.
 | `src/main/lib/ai/computer-use/action-tools.ts`  | the inner tool schemas Claude sees                                |
 | `src/main/lib/ai/calling-tools/computer-use.ts` | the outer tool; validates `{task,target}`, delegates              |
 | `src/main/lib/server/routes/computer-use.ts`    | `POST /api/computer-use/abort`, `POST /api/computer-use/answer`   |
-| `resources/bin/exodus-input`                    | the prebuilt Swift helper (universal binary)                      |
-| `helper-src/exodus-input/`                      | Swift source for the helper                                       |
+| `resources/bin/actovia-input`                   | the prebuilt Swift helper (universal binary)                      |
+| `helper-src/actovia-input/`                     | Swift source for the helper                                       |
 
 Registered in `calling-tools/index.ts`, exported, added to `bindCallingTools`
 behind `settings.computerUse.enabled`. Route mounted in `app.ts`.
@@ -168,13 +168,13 @@ coordinates; `guard.ts` validates against `[0,0,w,h]` first.
 
 ```ts
 async function resolveTarget(appQuery: string): Promise<TargetWindow>
-// exodus-input list-windows → pick the frontmost window whose app or
+// actovia-input list-windows → pick the frontmost window whose app or
 // bundleId case-insensitively matches appQuery. Throws TargetNotFound.
 
 async function resolveOrLaunch(
   appQuery, helper, { launch, retries?, retryDelayMs? }
 ): Promise<TargetWindow>
-// resolveTarget, but on TargetNotFound when `launch` is set: exodus-input
+// resolveTarget, but on TargetNotFound when `launch` is set: actovia-input
 // activate --app appQuery (NSWorkspace.openApplication — launch if off, raise
 // if backgrounded), then poll resolveTarget. The session passes launch:true
 // only when appQuery is an exact allowlist entry.
@@ -194,7 +194,7 @@ substring `resolveTarget` match or a launch can't reach a non-allowlisted app).
 async function screenshotWindow(
   t: TargetWindow
 ): Promise<ComputerState['screenshot']>
-// exodus-input screenshot --window <id>  →  PNG bytes on stdout
+// actovia-input screenshot --window <id>  →  PNG bytes on stdout
 // downscale so the longer side ≤ 1400px (keeps ~1.5k tokens/frame); record
 // the scale factor so the guard can map Agent coords back to real pixels.
 ```
@@ -264,9 +264,9 @@ interface InputHelper {
   send(commands: HelperCommand[]): Promise<void> // batched CGEvents
 }
 
-const realHelper: InputHelper // spawns resources/bin/exodus-input
+const realHelper: InputHelper // spawns resources/bin/actovia-input
 const mockHelper: InputHelper // records commands, returns canned PNGs — tests
-// selected by `process.env.EXODUS_INPUT_MOCK` or a test hook
+// selected by `process.env.ACTOVIA_INPUT_MOCK` or a test hook
 ```
 
 `HelperCommand` is the primitive-level JSON: `{op:'move', x, y}`,
@@ -384,8 +384,8 @@ type.
 
 - **The target window is unoccluded and on the current Space.** The
   session opens / raises the target app once at start (`resolveOrLaunch`
-  → `exodus-input activate`), but does not re-focus it per step —
-  `exodus-input` posts `CGEvent`s at screen points, so another window
+  → `actovia-input activate`), but does not re-focus it per step —
+  `actovia-input` posts `CGEvent`s at screen points, so another window
   that moves in front of the target's rectangle mid-session receives the
   clicks. Keep the target visible for the session. (Phase 2: per-step
   re-activation.)
@@ -438,7 +438,7 @@ export const ComputerUseSchema = z.object({
 
 The allowlist editor is a multi-select `Combobox` of the machine's
 installed apps (`GET /api/computer-use/apps` → `useInstalledApps` →
-`exodus-input list-apps`, server-cached 60 s), each row with its icon.
+`actovia-input list-apps`, server-cached 60 s), each row with its icon.
 Selected apps show as removable chips. `targetAllowlist` stays
 `string[]` — the stored value is each app's display name, which is what
 `resolveTarget` / the allowlist re-check already match on. Input:
@@ -458,8 +458,8 @@ thumbnail optional.
 
 ## 6. The Swift helper
 
-`helper-src/exodus-input/` — a ~200-line Swift CLI, built to a universal
-binary at `resources/bin/exodus-input`.
+`helper-src/actovia-input/` — a ~200-line Swift CLI, built to a universal
+binary at `resources/bin/actovia-input`.
 
 | Subcommand                        | I/O                                                                                                                                                                                 |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -472,10 +472,10 @@ binary at `resources/bin/exodus-input`.
 Triggers the macOS TCC prompts (Screen Recording for `screenshot`,
 Accessibility for `input`) on first use. No runtime deps, no `brew`.
 
-**Build:** `swiftc -O helper-src/exodus-input/*.swift -o resources/bin/exodus-input`
+**Build:** `swiftc -O helper-src/actovia-input/*.swift -o resources/bin/actovia-input`
 for both arches + `lipo`, wired into `build:mac`. The prebuilt binary is
 committed (tiny, changes rarely) so `pnpm dev` works without a Swift
-toolchain. `EXODUS_INPUT_MOCK=1` bypasses it entirely.
+toolchain. `ACTOVIA_INPUT_MOCK=1` bypasses it entirely.
 
 **Fallback** (documented, not built): `cliclick` + `screencapture` — a
 `brew install cliclick` prerequisite, macOS-only, no clamping. Chosen
@@ -494,7 +494,7 @@ only if the Swift toolchain is unavailable in CI.
 · `src/renderer/services/computer-use.ts`
 · a `MessageCallingTools` panel case
 
-**New — helper:** `helper-src/exodus-input/*.swift` · `resources/bin/exodus-input`
+**New — helper:** `helper-src/actovia-input/*.swift` · `resources/bin/actovia-input`
 
 **Modified:** `calling-tools/index.ts` · `ai/utils/tool-binding-util.ts` ·
 `server/app.ts` · `shared/schemas/settings-schema.ts` · `db/schema.ts` ·
@@ -568,8 +568,8 @@ hand once after the branch lands.
 2. Grant the app **Screen Recording** (capture + window titles) and
    **Accessibility** (`CGEvent` input) in System Settings → Privacy &
    Security, then restart the app.
-3. Wipe the DB for the new migration tag: quit Exodus,
-   `rm -rf ~/.exodus/database`, relaunch.
+3. Wipe the DB for the new migration tag: quit Actovia,
+   `rm -rf ~/.actovia/database`, relaunch.
 4. Settings → Computer Use → enable; the allowlist is a picker of
    installed apps — add **Chess** (icon should show).
 

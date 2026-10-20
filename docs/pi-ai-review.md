@@ -1,6 +1,6 @@
 # pi-ai usage review (2026-09-19)
 
-Exodus's model layer is `@mariozechner/pi-ai` + `@mariozechner/pi-agent-core`
+Actovia's model layer is `@mariozechner/pi-ai` + `@mariozechner/pi-agent-core`
 0.73.1 (58 import sites). This is a review of that usage against the current
 upstream README
 (<https://github.com/earendil-works/pi/blob/main/packages/ai/README.md>), what
@@ -49,7 +49,7 @@ live, growing object, and relaying it whole per delta is O(n²). The chat route
 now coalesces `message_update` frames (`routes/chat-sse.ts`). Upstream's
 `AssistantMessageFrameEncoder` (0.85) is the principled version — deltas on the
 wire, one reducer on the client — and is the natural next step after a
-migration, since it changes the SSE contract `exodus-ios` also speaks.
+migration, since it changes the SSE contract the iOS app also speaks.
 
 ## The package is deprecated — migrated
 

@@ -2,7 +2,7 @@
 
 ## Context
 
-Exodus has a stub knowledge base today: a `knowledge_doc` table (title,
+Actovia has a stub knowledge base today: a `knowledge_doc` table (title,
 content, teamId) and `searchKnowledgeDocs()` — a naive case-insensitive
 substring match — surfaced only inside Philharmonic Groups via
 `createSearchKnowledgeBaseTool(allowedTeamIds)`. Retrieval is scoped to the
@@ -14,9 +14,9 @@ Background research on LightRAG (a self-hosted graph-augmented RAG server,
 HKUDS) is in `docs/lightrag-research.md`. Summary of what matters here:
 
 - LightRAG runs as a **separate service the user operates** (Docker image
-  `ghcr.io/HKUDS/LightRAG:latest`, default port `9621`). Exodus is a pure
+  `ghcr.io/HKUDS/LightRAG:latest`, default port `9621`). Actovia is a pure
   client — same posture as the optional Elasticsearch integration
-  (`docs/elasticsearch-setup.md`, "Exodus is consumer-only").
+  (`docs/elasticsearch-setup.md`, "Actovia is consumer-only").
 - Auth: `X-API-Key` header.
 - Ingestion is **asynchronous**: `POST /documents/text` returns a `track_id`;
   progress is polled via `GET /documents/track_status/{track_id}`. Processing a
@@ -31,7 +31,7 @@ HKUDS) is in `docs/lightrag-research.md`. Summary of what matters here:
 - Multi-tenancy is **per-instance** (`WORKSPACE` env, set at server start), not
   per-request. There is no reliable per-request scope filter.
 
-This design integrates LightRAG as Exodus's single knowledge base, used by both
+This design integrates LightRAG as Actovia's single knowledge base, used by both
 the main chat and Philharmonic, retiring the substring stub.
 
 ## Decisions (from brainstorming, 2026-09-04)
@@ -39,12 +39,12 @@ the main chat and Philharmonic, retiring the substring stub.
 1. **Unify into one LightRAG-backed KB.** Retire `searchKnowledgeDocs`. Both the
    main chat and Philharmonic Groups retrieve from the same KB via the same tool.
 2. **`knowledge_doc` stays the editable source-of-truth.** Users author docs in
-   Exodus; Exodus syncs them into LightRAG (the derived index) and tracks index
-   status. LightRAG never holds content Exodus can't reproduce.
+   Actovia; Actovia syncs them into LightRAG (the derived index) and tracks index
+   status. LightRAG never holds content Actovia can't reproduce.
 3. **No team scoping.** One shared KB. Every retrieval — main chat and every
    Group — sees the whole KB. `knowledge_doc.teamId` and `computeAllowedTeamIds`
    are removed.
-4. **Retrieval-only.** LightRAG retrieves; Exodus's configured chat model writes
+4. **Retrieval-only.** LightRAG retrieves; Actovia's configured chat model writes
    the answer, exactly as `searchKnowledgeBase` works today.
 5. **Management UI lives in Settings → Knowledge Base.** The Philharmonic
    "Knowledge Base" nav page is removed; its editor logic ports to Settings.
@@ -55,7 +55,7 @@ the main chat and Philharmonic, retiring the substring stub.
 
 - A configured LightRAG URL + API key makes a `searchKnowledgeBase` tool
   available in the main chat and in Philharmonic; the model decides when to call
-  it; results come from LightRAG and are answered by Exodus's model.
+  it; results come from LightRAG and are answered by Actovia's model.
 - Users add / edit / delete knowledge documents in Settings → Knowledge Base and
   see a per-document index status (Pending / Indexing / Indexed / Failed /
   Stale).
@@ -68,13 +68,13 @@ the main chat and Philharmonic, retiring the substring stub.
 
 - Running, upgrading, health-monitoring, or backing up LightRAG; configuring its
   LLM / embedding / rerank models or its storage backend. All the user's job.
-- No in-Exodus knowledge-graph visualization (LightRAG's `/webui` has one).
+- No in-Actovia knowledge-graph visualization (LightRAG's `/webui` has one).
 - No per-team / per-project / per-Group scoping of retrieval (decision 3). May
   be revisited if the product moves past single-user desktop.
 - No automatic per-turn context injection ("always retrieve") — tool-call-driven
   only. Possible later addition, out of scope here.
 - No file upload (`POST /documents/upload`) in this pass — documents are
-  title + text authored in Exodus. Upload can be added later against the same
+  title + text authored in Actovia. Upload can be added later against the same
   sync machinery.
 - No preservation of the existing `knowledge_doc` rows across the migration —
   a DB wipe is already required by prior in-flight work; `Reindex all` covers
@@ -443,7 +443,7 @@ State handling:
 - New `docs/lightrag-setup.md` — end-user guide: minimal `docker-compose.yml`,
   the `.env` keys that matter (`LIGHTRAG_API_KEY`, `LLM_BINDING*`,
   `EMBEDDING_BINDING*` + **the embedding-dimension lock warning**), pin the
-  image tag, then "In Exodus, open Settings → Knowledge Base and enter
+  image tag, then "In Actovia, open Settings → Knowledge Base and enter
   `http://localhost:9621` + your API key."
 - `CLAUDE.md`: rewrite the "Knowledge Base (RAG stub)" note; add
   `src/main/lib/knowledge-base/` to the `src/main/lib/` map; add `kb-sync` to
@@ -461,7 +461,7 @@ State handling:
 | `insertText` fails in job           | `indexStatus: 'failed'`, `indexError` set. Red "Failed" badge + tooltip. Auto-retried; `Reindex all` or re-save forces a retry after give-up.                                               |
 | `deleteDoc` 404                     | Ignored — desired end state reached.                                                                                                                                                        |
 | Process restart mid-ingest          | Row left `processing`; `reconcileKnowledgeIndexStatus` on the jobs cron settles it via `track_status`, or marks it `stale` after ~10 min.                                                   |
-| Embedding model changed in LightRAG | Not detectable by Exodus. Mitigated by the persistent Settings warning + `test-connection` showing the current model/dim.                                                                   |
+| Embedding model changed in LightRAG | Not detectable by Actovia. Mitigated by the persistent Settings warning + `test-connection` showing the current model/dim.                                                                  |
 
 ## Testing
 

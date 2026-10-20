@@ -1,7 +1,7 @@
 # The PM's decision trail — every round recorded, shown under its message, queryable in Chat Audit
 
 Date: 2026-10-17 · Status: implemented 2026-10-17 (plan docs/superpowers/plans/2026-10-17-pm-decision-trail.md)
-Repo: `exodus`, branch `maintenance`
+Repo: `actovia`, branch `maintenance`
 Builds on: `2026-10-16-pm-quota-aware-dealing-design.md` (the PM's roster, quota lines, `waitForQuota`)
 — the decisions it adds are the ones most worth auditing.
 
@@ -25,15 +25,15 @@ Today almost none of that survives a round (investigation of 2026-10-17):
 
 ### Decided by the owner (2026-10-17)
 
-| Decision          | Choice                                                                                                                                                                                                                              |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| What it is for    | **Both**: a readable decision timeline in the UI, backed by the full raw record queryable in Chat Audit                                                                                                                             |
-| Scope             | **The PM only** — the receiver of reports and the dealer. An employee's report _is_ its account of its work; it is linked, not re-recorded. CLI employees keep their own session logs; Exodus employees' own steps are out of scope |
-| Where it is shown | **In the group chat**, under each PM message, as an expandable "decision process"                                                                                                                                                   |
+| Decision          | Choice                                                                                                                                                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| What it is for    | **Both**: a readable decision timeline in the UI, backed by the full raw record queryable in Chat Audit                                                                                                                              |
+| Scope             | **The PM only** — the receiver of reports and the dealer. An employee's report _is_ its account of its work; it is linked, not re-recorded. CLI employees keep their own session logs; Actovia employees' own steps are out of scope |
+| Where it is shown | **In the group chat**, under each PM message, as an expandable "decision process"                                                                                                                                                    |
 
 ### Non-goals
 
-- Recording employees' internal steps (Exodus employees' tool calls, CLI employees' turns).
+- Recording employees' internal steps (Actovia employees' tool calls, CLI employees' turns).
 - iOS display.
 - A separate audit page, filters, export.
 - A retention policy: the trail lives and dies with its group.
@@ -81,7 +81,7 @@ first round).
 ## 4. The PM reads who reported
 
 `PhilharmonicLcm`'s row → message conversion prefixes an `employee` row's text with its author:
-`[<employee name> · <CLI name> · <model>]` for a CLI employee, `[<employee name>]` for an Exodus one
+`[<employee name> · <CLI name> · <model>]` for a CLI employee, `[<employee name>]` for an Actovia one
 (names from the agents table; a deleted employee reads `[former employee]`). The summary path
 (`lcm/summarize.ts`) uses the same label instead of `Employee <agentId>`.
 

@@ -14,8 +14,8 @@
 
 - [ ] 用**打包版**测一遍(`bun run package` 产出的 `out/…/Actovia.app`),再用 dev 抽查;两者行为应一致。打包版才能测:图标、Dock、菜单栏名字、开机启动、更新面板、Touch ID
 - [ ] 先在 Settings → Data Controls → **Back Up Now** 做一次备份,记下时间
-- [ ] **破坏性测试**(第 16 节的 Import / Delete All Data、第 14 节的 Reset all)放到最后做,或退出 app 后用 `EXODUS_HOME=~/exodus-qa` 启动一个空白数据目录单独测(同一时间只能开一个 Actovia)
-- [ ] 准备好:至少两家模型的 key(建议 Anthropic + OpenAI),Brave Search key,Google API key(地图),可选:Ollama 本地模型、LightRAG、S3、一台装了 exodus-ios 的 iPhone
+- [ ] **破坏性测试**(第 16 节的 Import / Delete All Data、第 14 节的 Reset all)放到最后做,或退出 app 后用 `ACTOVIA_HOME=~/actovia-qa` 启动一个空白数据目录单独测(同一时间只能开一个 Actovia)
+- [ ] 准备好:至少两家模型的 key(建议 Anthropic + OpenAI),Brave Search key,Google API key(地图),可选:Ollama 本地模型、LightRAG、S3、一台装了 iOS app 的 iPhone
 - [ ] 准备素材:一张 PNG、一张 JPG、一张大图(>5 MB)、一张 HEIC、一个 PDF、一个很长的文本
 
 ---
@@ -122,10 +122,10 @@
 - [ ] **P2** 没配 Google key 时地图卡片提示去设置里填
 - [ ] **P1** **Image Generation**:「画一只戴帽子的猫」→ 生成中的抖动动画 → 同一个框里出图,可以放大;重启 app 后图片仍在
 - [ ] **P1** **Create Artifact**:「做一个番茄钟网页」→ artifact 卡片 → 全屏打开能运行;在 Finder 中显示可用
-- [ ] **P1** **Terminal / 文件工具**:「在工作区建一个 hello.py 并运行」→ 终端卡片显示输出和退出码;文件在 `~/.exodus/workspace/<chatId>/` 下
+- [ ] **P1** **Terminal / 文件工具**:「在工作区建一个 hello.py 并运行」→ 终端卡片显示输出和退出码;文件在 `~/.actovia/workspace/<chatId>/` 下
 - [ ] **P1** **审批**:「读一下 ~/.ssh/config」→ 出现审批卡「Allow access to a secret?」,Allow 按钮前 0.6 秒不可点;Allow once → 继续;Deny → 模型说明被拒绝
 - [ ] **P2** 审批卡放着 10 分钟不管 → 显示超时;生成中点 Stop → 审批卡显示 Stopped
-- [ ] **P2** 读 `~/.exodus/database` 之类的路径:直接被拒绝,不弹审批
+- [ ] **P2** 读 `~/.actovia/database` 之类的路径:直接被拒绝,不弹审批
 - [ ] **P2** 在 Built-in Tools 关掉某个工具后,模型不再调用它
 - [ ] **P2** 工具失败(比如终端命令报错):显示为时间线里的一行,不是一大块红色错误卡
 
@@ -181,7 +181,7 @@
 - [ ] **P2** Knowledge Base(LightRAG):添加文档 → 状态从索引中变成完成 → 对话里问文档内容能答上
 - [ ] **P2** AWS S3:填凭据后相关上传能用;公开读的提示显示正常
 
-## 14. 设备配对(exodus-ios)
+## 14. 设备配对(iOS app)
 
 - [ ] **P1** Settings → Devices → 配对:出现二维码和倒计时 → iPhone 扫码 → 显示「Device paired」,设备出现在列表
 - [ ] **P1** 手机上聊天,桌面侧栏刷新后能看到;桌面上的对话在手机上也能看到
@@ -241,7 +241,7 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] With `claude` renamed away, Check says Not installed; restored, Ready again.
 - [ ] Workforce: a new employee "Claude Code (Haiku)", runs on Claude Code, model haiku, permissions "Ask before changes".
 - [ ] A group with that employee and **no folder**: asking it to build something — the PM says the folder is missing (no CLI is started).
-- [ ] New project… "notes-prototype": `~/Exodus Projects/notes-prototype/.exodus/` exists, with `project.json`.
+- [ ] New project… "notes-prototype": `~/Actovia Projects/notes-prototype/.actovia/` exists, with `project.json`.
 - [ ] "Build a single-page notes app in plain HTML": a card appears, steps tick, a Write asks — Allow — the file lands in the project; the card ends Done and the PM summarises.
 - [ ] A second request in the same group: the card continues the same session (the agent remembers the first).
 - [ ] Deny with a reason ("call it app.html"): the agent follows the reason.
@@ -250,13 +250,13 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] Stop on the card mid-step: the card says Stopped; the group carries on.
 - [ ] Stop the whole group mid-step: the agent is interrupted too.
 - [ ] Quit Actovia mid-step, reopen: the step shows Stopped; a new request resumes the session.
-- [ ] Crash mid-step (kill the Exodus main process with `kill -9` while a step runs), reopen: the card shows Stopped, not Running.
+- [ ] Crash mid-step (kill the Actovia main process with `kill -9` while a step runs), reopen: the card shows Stopped, not Running.
 - [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Actovia resumes.
-- [ ] While Terminal is open, `~/.exodus/run/terminal/` holds a one-off resume script; after Terminal starts it, the script is gone (it deletes itself).
-- [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.exodus/worktrees/…` on an `exodus/…` branch; the branch chip and Worktree switch show.
+- [ ] While Terminal is open, `~/.actovia/run/terminal/` holds a one-off resume script; after Terminal starts it, the script is gone (it deletes itself).
+- [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.actovia/worktrees/…` on an `actovia/…` branch; the branch chip and Worktree switch show.
 - [ ] Open folder… on `~`: refused with the reason.
 - [ ] The folder chip shows the group's folder; move or rename that folder on disk — the chip shows it as missing, and asking the agent says so instead of starting the CLI.
-- [ ] Settings › Agents › projects folder set to `~/.exodus` (or a folder inside it): refused with the reason; the previous value stays.
+- [ ] Settings › Agents › projects folder set to `~/.actovia` (or a folder inside it): refused with the reason; the previous value stays.
 - [ ] With the window in the background, a permission prompt raises a notification "… is waiting for you".
 - [ ] Settings › Agents → Agents at once = 1, two parallel steps: the second card says "Waiting for a free slot" until the first ends.
 - [ ] An Actovia employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.

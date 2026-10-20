@@ -155,7 +155,7 @@ This task rewrites the stale parts of CLAUDE.md and adds the Code Structure sect
 Edit CLAUDE.md so the following are correct (search the file for the old text; replace with the new):
 
 - Hono server port: `localhost:3000` → `localhost:60223` (constant `SERVER_PORT` in `src/shared/constants/systems.ts`). Fix every occurrence (Electron process model, renderer comms, frontend "API Communication").
-- DB location: `~/.app/Database` → `~/.exodus/database` (`src/main/lib/paths.ts` `getDatabaseDir`).
+- DB location: `~/.app/Database` → `~/.actovia/database` (`src/main/lib/paths.ts` `getDatabaseDir`).
 - AI stack: replace "Multi-Provider Support (via Vercel AI SDK v6)" and any `streamText()` references with: providers built on `@mariozechner/pi-ai` + `@mariozechner/pi-agent-core`; the chat route streams via `agentLoop` (`src/main/lib/server/routes/chat.ts`). Remove the `{ provider, chatModel, reasoningModel, embeddingModel }` Vercel snippet; describe the real provider shape (each provider file returns a `Model` via shared `resolveModel()` — see `src/main/lib/ai/providers/resolve-model.ts`).
 - Server routes: replace the bullet list with the 17 real routes registered in `src/main/lib/server/app.ts`: `/api/chat, /api/lcm, /api/history, /api/project, /api/settings, /api/audio, /api/db-io, /api/deep-research, /api/tools, /api/philharmonic, /api/s3, /api/skills, /api/mcp, /api/memory, /api/usage, /api/logs, /api/backup, /api/artifacts`. Delete `/api/setting`, `/api/workflow`, `/api/custom-uploader`.
 - Middleware pipeline: CORS → **lock gate (423 when locked)** → settings injection → error handler. Note MCP tools middleware is **archived**.
@@ -167,8 +167,8 @@ Edit CLAUDE.md so the following are correct (search the file for the old text; r
 
 Add concise subsections (verify paths exist):
 
-- **Philharmonic** (multi-agent "Groups"): `src/main/lib/ai/philharmonic/`, renderer `src/renderer/components/philharmonic/`, route `/api/philharmonic`, group workspaces under `~/.exodus/groups`.
-- **App Lock**: `src/main/lib/lock/` (`pin-manager`/`lock-manager`, `pin-store` scrypt+safeStorage, `idle-watcher`), the `423` lock-gate middleware, IPC-only unlock, secret at `~/.exodus/lock.dat`.
+- **Philharmonic** (multi-agent "Groups"): `src/main/lib/ai/philharmonic/`, renderer `src/renderer/components/philharmonic/`, route `/api/philharmonic`, group workspaces under `~/.actovia/groups`.
+- **App Lock**: `src/main/lib/lock/` (`pin-manager`/`lock-manager`, `pin-store` scrypt+safeStorage, `idle-watcher`), the `423` lock-gate middleware, IPC-only unlock, secret at `~/.actovia/lock.dat`.
 - **LCM (lossless context management)**: `src/main/lib/ai/context-management/`, route `/api/lcm`.
 - **Test-ID checkpoints**: `src/shared/constants/test-ids.ts` registry, the linkage test, release-only strip in `electron.vite.config.ts` (`STRIP_TEST_IDS=1`). (May already exist from the earlier convention task — keep/merge.)
 - **Sub-apps**: `src/renderer/sub-apps/searchbar`, `src/renderer/sub-apps/quick-chat`, `src/renderer/sub-apps/artifacts`.
@@ -194,7 +194,7 @@ Main process:
 - `src/main/lib/lock/` — app lock (PIN, gate, idle)
 - `src/main/lib/db/` — Drizzle schema + queries (PGlite)
 - `src/main/lib/ipc.ts` — main-process IPC handlers
-- `src/main/lib/paths.ts` — `~/.exodus` path helpers
+- `src/main/lib/paths.ts` — `~/.actovia` path helpers
 
 Preload:
 

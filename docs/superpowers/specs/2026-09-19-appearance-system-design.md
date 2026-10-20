@@ -7,7 +7,7 @@ Status: Withdrawn — superseded by the Color tone picker (see note below)
 
 ## Summary
 
-Exodus gets a Settings → **Appearance** page, modelled on the ChatGPT
+Actovia gets a Settings → **Appearance** page, modelled on the ChatGPT
 desktop app's Appearance settings (the user's reference screenshot): a theme
 mode switcher (System / Light / Dark), one card per colour scheme (**Light
 theme**, **Dark theme**) with a preset picker, three editable colours
@@ -25,7 +25,7 @@ entire app, including sub-apps (search bar, quick chat, artifacts).
 
 - A curated list of well-known presets (GitHub, Catppuccin, Dracula, Gruvbox,
   Nord, Solarized, Everforest, Ayu, Tokyo Night, One Dark, Rosé Pine) plus
-  the current look as **Exodus** (the default — a fresh install renders
+  the current look as **Actovia** (the default — a fresh install renders
   pixel-identically to today).
 - Per-scheme customisation: pick a preset, then override Accent /
   Background / Foreground individually with a hex field + native colour
@@ -64,7 +64,7 @@ const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/)
 
 export const AppearanceSchemeSchema = z.object({
   // A THEME_PRESETS id, or 'custom' once the user has imported a theme.
-  preset: z.string().default('exodus'),
+  preset: z.string().default('actovia'),
   // Overrides. null → take the preset's value.
   accent: hexColor.nullish(),
   background: hexColor.nullish(),
@@ -134,11 +134,11 @@ export const FONT_FAMILY_STACKS: Record<
   string
 >
 export const FONT_WEIGHTS: Record<'light' | 'regular' | 'medium', number> // 300 / 400 / 500
-export const APPEARANCE_CACHE_KEY = 'exodus-appearance'
+export const APPEARANCE_CACHE_KEY = 'actovia-appearance'
 export const CUSTOM_PRESET_ID = 'custom'
 ```
 
-Preset names are proper nouns (not translated); the `Exodus` preset's colours
+Preset names are proper nouns (not translated); the `Actovia` preset's colours
 are the hex equivalents of the current `globals.css` oklch tokens. A unit
 test asserts every preset's foreground/background pair meets WCAG AA (≥ 4.5)
 in both schemes, so no shipped preset is illegible.
@@ -153,12 +153,12 @@ candidates)`.
 `packages/shared/src/utils/appearance.ts`:
 
 - `resolveScheme(scheme, slot: 'light'|'dark') → SchemeColors` — preset
-  lookup (unknown id → `exodus`) with overrides applied.
+  lookup (unknown id → `actovia`) with overrides applied.
 - `derivePalette(colors, contrast) → Record<TokenName, string>` — every
   shadcn token. `isDark = relativeLuminance(background) < 0.4` picks one of
   two ramp tables (dark surfaces need larger steps than light ones); each
   entry is a mix ratio `t` between background and foreground. The ramps are
-  tuned so `Exodus` at contrast 50 reproduces today's tokens. Contrast maps
+  tuned so `Actovia` at contrast 50 reproduces today's tokens. Contrast maps
   to a multiplier `k = 0.5 + contrast / 100` applied to every surface,
   border and muted-foreground ratio (clamped to `[0, 1]`); `background`,
   `foreground` and `primary` are never scaled.
@@ -182,7 +182,7 @@ candidates)`.
 - `buildAppearanceCss(resolved) → string` — pure; emits
   `:root { …light tokens… }`, `.dark { …dark tokens… }` and
   `:root { --font-ui; --font-weight-base; --font-content; --font-weight-content }`.
-- `applyAppearance(resolved)` — upserts a `<style id="exodus-appearance">`
+- `applyAppearance(resolved)` — upserts a `<style id="actovia-appearance">`
   at the end of `<head>` (after the bundled globals.css, so equal-specificity
   rules win) and sets `data-translucent-sidebar` on `<html>`.
 - `readAppearanceCache()` / `writeAppearanceCache(raw)` — the raw
@@ -283,7 +283,7 @@ Unit (node, no DOM):
   endpoints/midpoint monotonicity, luminance of black/white, WCAG contrast of
   known pairs (black/white = 21), `contrastingForeground`.
 - `tests/unit/shared/utils/appearance.test.ts` — `resolveScheme` (preset,
-  overrides, unknown preset falls back), `derivePalette` (Exodus at 50
+  overrides, unknown preset falls back), `derivePalette` (Actovia at 50
   matches today's tokens within tolerance, higher contrast moves border
   further from background, dark detection, `primary-foreground` legible),
   `resolveAppearance(null)` defaults, font stack expansion (custom quoted),

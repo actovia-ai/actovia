@@ -65,7 +65,7 @@ here).
   unhandled-rejection pattern, then retry `pnpm test` once before
   reaching for `--no-verify`. If `pnpm test` instead shows "Invalid hook
   call"/"Cannot read properties of null (reading 'useMemo'/etc.)" with a
-  stack frame pointing outside this repo (e.g. containing `../exodus/`),
+  stack frame pointing outside this repo (e.g. containing `../actovia/`),
   that is NOT a defect in this plan's code — check
   `ls -la node_modules/node_modules` first; if a stray symlink exists
   there, remove it (`rm node_modules/node_modules`) and retest. See
@@ -115,7 +115,7 @@ here).
   "messages": {
     "start": {
       "title": "Start deep researching...",
-      "description": "The deep research process may take a while. Feel free to chat with Exodus in other conversations. Exodus will notify you as soon as the final report is ready."
+      "description": "The deep research process may take a while. Feel free to chat with Actovia in other conversations. Actovia will notify you as soon as the final report is ready."
     },
     "learnings_one": "Deep researched {{count}} item from the previous web resources",
     "learnings_other": "Deep researched {{count}} items from the previous web resources",
@@ -542,14 +542,14 @@ document.
 - [ ] **Step 1: Isolated committed-tree check**
 
 ```bash
-rm -rf /tmp/exodus-committed-check
-git archive HEAD | (mkdir -p /tmp/exodus-committed-check && tar -x -C /tmp/exodus-committed-check)
-ln -s /Users/yanceyleo/Code/exodus/universal-client/node_modules /tmp/exodus-committed-check/node_modules
-cd /tmp/exodus-committed-check
+rm -rf /tmp/actovia-committed-check
+git archive HEAD | (mkdir -p /tmp/actovia-committed-check && tar -x -C /tmp/actovia-committed-check)
+ln -s /Users/yanceyleo/Code/actovia/universal-client/node_modules /tmp/actovia-committed-check/node_modules
+cd /tmp/actovia-committed-check
 ./node_modules/.bin/tsc --noEmit -p tsconfig.node.json --composite false
 ./node_modules/.bin/tsc --noEmit -p tsconfig.web.json --composite false
-cd /Users/yanceyleo/Code/exodus/universal-client
-rm -rf /tmp/exodus-committed-check
+cd /Users/yanceyleo/Code/actovia/universal-client
+rm -rf /tmp/actovia-committed-check
 ```
 
 Expected: no errors.

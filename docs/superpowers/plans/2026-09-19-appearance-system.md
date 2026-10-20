@@ -16,10 +16,10 @@
 
 - Every new user-facing string is a key under `settings:appearance.*` (or `settings:nav.appearance.title`) in `packages/shared/src/i18n/locales/en/settings.json` **and in the other nine locales** (`zh-Hant-TW`, `zh-Hant-HK`, `ja`, `ko`, `fr`, `de`, `es`, `pt-BR`, `it`) — `bun run i18n:check` fails on a key missing from a `source: machine` locale.
 - No raw `data-testid="…"`; every id goes through `TEST_IDS` and must be applied in `src/renderer` and referenced from a file under `tests/`.
-- Unit tests live under `tests/unit/`, mirror `src/`/`packages/`, import via `@exodus/shared/...`, `@/...`, `@main/...`; Vitest runs in the **node** environment (no DOM).
+- Unit tests live under `tests/unit/`, mirror `src/`/`packages/`, import via `@actovia/shared/...`, `@/...`, `@main/...`; Vitest runs in the **node** environment (no DOM).
 - New `packages/shared` modules need an `exports` entry in `packages/shared/package.json`.
 - Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test`.
-- The `Exodus` preset at contrast 50 must reproduce today's tokens: light `bg #ffffff fg #0a0a0a accent #171717`, dark `bg #0a0a0a fg #fafafa accent #e5e5e5`.
+- The `Actovia` preset at contrast 50 must reproduce today's tokens: light `bg #ffffff fg #0a0a0a accent #171717`, dark `bg #0a0a0a fg #fafafa accent #e5e5e5`.
 - Theme **mode** stays in next-themes (`vite-ui-theme` localStorage key); never persist it in settings.
 
 ---
@@ -35,18 +35,18 @@
 
 **Interfaces:**
 
-- Produces: `AppearanceSchemeSchema`, `FontSettingSchema`, `ContentFontSettingSchema`, `AppearanceSchema`, types `Appearance`, `AppearanceScheme`, `FontSetting`, `ContentFontSetting`, `FontWeightId`, `FontFamilyId`; constants `THEME_PRESETS`, `DEFAULT_PRESET_ID = 'exodus'`, `CUSTOM_PRESET_ID = 'custom'`, `NAMED_ACCENTS`, `FONT_FAMILY_STACKS`, `FONT_WEIGHTS`, `APPEARANCE_CACHE_KEY`, `SchemeSlot`, `SchemeColors`, `ThemePreset`.
+- Produces: `AppearanceSchemeSchema`, `FontSettingSchema`, `ContentFontSettingSchema`, `AppearanceSchema`, types `Appearance`, `AppearanceScheme`, `FontSetting`, `ContentFontSetting`, `FontWeightId`, `FontFamilyId`; constants `THEME_PRESETS`, `DEFAULT_PRESET_ID = 'actovia'`, `CUSTOM_PRESET_ID = 'custom'`, `NAMED_ACCENTS`, `FONT_FAMILY_STACKS`, `FONT_WEIGHTS`, `APPEARANCE_CACHE_KEY`, `SchemeSlot`, `SchemeColors`, `ThemePreset`.
 
 - [ ] **Step 1: Write the failing schema tests** (append to `tests/unit/shared/schemas/settings-schema.test.ts`)
 
 ```ts
-import { AppearanceSchema } from '@exodus/shared/schemas/settings-schema'
+import { AppearanceSchema } from '@actovia/shared/schemas/settings-schema'
 
 describe('AppearanceSchema', () => {
   it('fills every default from an empty object', () => {
     const parsed = AppearanceSchema.parse({})
-    expect(parsed.light.preset).toBe('exodus')
-    expect(parsed.dark.preset).toBe('exodus')
+    expect(parsed.light.preset).toBe('actovia')
+    expect(parsed.dark.preset).toBe('actovia')
     expect(parsed.uiFont).toEqual({ family: 'system', weight: 'light' })
     expect(parsed.contentFont).toEqual({ family: 'ui', weight: 'light' })
     expect(parsed.translucentSidebar).toBe(true)
@@ -82,8 +82,8 @@ import {
   FONT_WEIGHTS,
   NAMED_ACCENTS,
   THEME_PRESETS
-} from '@exodus/shared/constants/appearance'
-import { contrastRatio } from '@exodus/shared/utils/color'
+} from '@actovia/shared/constants/appearance'
+import { contrastRatio } from '@actovia/shared/utils/color'
 import { describe, expect, it } from 'vitest'
 
 const HEX = /^#[0-9a-f]{6}$/
@@ -116,14 +116,14 @@ describe('THEME_PRESETS', () => {
     }
   })
 
-  it('the Exodus preset reproduces the pre-appearance globals.css tokens', () => {
-    const exodus = THEME_PRESETS.find((p) => p.id === DEFAULT_PRESET_ID)!
-    expect(exodus.light).toEqual({
+  it('the Actovia preset reproduces the pre-appearance globals.css tokens', () => {
+    const actovia = THEME_PRESETS.find((p) => p.id === DEFAULT_PRESET_ID)!
+    expect(actovia.light).toEqual({
       background: '#ffffff',
       foreground: '#0a0a0a',
       accent: '#171717'
     })
-    expect(exodus.dark).toEqual({
+    expect(actovia.dark).toEqual({
       background: '#0a0a0a',
       foreground: '#fafafa',
       accent: '#e5e5e5'
@@ -163,7 +163,7 @@ const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Expected #RRGGBB')
 
 export const AppearanceSchemeSchema = z.object({
   // A THEME_PRESETS id, or CUSTOM_PRESET_ID after an import.
-  preset: z.string().default('exodus'),
+  preset: z.string().default('actovia'),
   // Per-colour overrides. null → the preset's own value.
   accent: hexColor.nullish(),
   background: hexColor.nullish(),
@@ -232,20 +232,20 @@ export interface ThemePreset {
   dark: SchemeColors
 }
 
-export const DEFAULT_PRESET_ID = 'exodus'
+export const DEFAULT_PRESET_ID = 'actovia'
 /** `AppearanceScheme.preset` after an import: no preset is the base. */
 export const CUSTOM_PRESET_ID = 'custom'
 /** localStorage key holding the raw `Appearance` value for flash-free boot. */
-export const APPEARANCE_CACHE_KEY = 'exodus-appearance'
+export const APPEARANCE_CACHE_KEY = 'actovia-appearance'
 
 // Hex values are the canonical palettes' own numbers (GitHub Primer, Catppuccin
 // Latte/Mocha, Dracula/Alucard, Gruvbox, Nord, Solarized, Everforest, Ayu
 // Light/Mirage, Tokyo Night Day/Night, One Light/Dark, Rosé Pine Dawn/Main).
-// `exodus` is the pre-appearance globals.css look (Tailwind neutral scale).
+// `actovia` is the pre-appearance globals.css look (Tailwind neutral scale).
 export const THEME_PRESETS: readonly ThemePreset[] = [
   {
-    id: 'exodus',
-    name: 'Exodus',
+    id: 'actovia',
+    name: 'Actovia',
     light: { background: '#ffffff', foreground: '#0a0a0a', accent: '#171717' },
     dark: { background: '#0a0a0a', foreground: '#fafafa', accent: '#e5e5e5' }
   },
@@ -364,7 +364,7 @@ export const FONT_WEIGHTS = { light: 300, regular: 400, medium: 500 } as const
 
 - [ ] **Step 6: Register the exports** in `packages/shared/package.json` (`"./constants/appearance": "./src/constants/appearance.ts"`, `"./utils/color": "./src/utils/color.ts"`, `"./utils/appearance": "./src/utils/appearance.ts"`).
 
-- [ ] **Step 7: Run the schema test → PASS; constants test still fails on `@exodus/shared/utils/color`** (Task 2 supplies it). Commit the schema + constants: `git add packages/shared && git commit -m "feat(appearance): appearance settings schema, presets and font constants"`.
+- [ ] **Step 7: Run the schema test → PASS; constants test still fails on `@actovia/shared/utils/color`** (Task 2 supplies it). Commit the schema + constants: `git add packages/shared && git commit -m "feat(appearance): appearance settings schema, presets and font constants"`.
 
 ---
 
@@ -391,7 +391,7 @@ import {
   normalizeHex,
   parseHex,
   relativeLuminance
-} from '@exodus/shared/utils/color'
+} from '@actovia/shared/utils/color'
 import { describe, expect, it } from 'vitest'
 
 describe('hex parsing', () => {
@@ -612,11 +612,11 @@ import {
   resolveAppearance,
   resolveFontFamily,
   resolveScheme
-} from '@exodus/shared/utils/appearance'
-import { contrastRatio, relativeLuminance } from '@exodus/shared/utils/color'
+} from '@actovia/shared/utils/appearance'
+import { contrastRatio, relativeLuminance } from '@actovia/shared/utils/color'
 import { describe, expect, it } from 'vitest'
 
-const EXODUS_LIGHT = {
+const ACTOVIA_LIGHT = {
   background: '#ffffff',
   foreground: '#0a0a0a',
   accent: '#171717'
@@ -635,10 +635,10 @@ describe('resolveScheme', () => {
       resolveScheme({ preset: 'github', accent: '#ff0000' }, 'dark').accent
     ).toBe('#ff0000')
   })
-  it('falls back to Exodus for unknown presets, null and custom', () => {
-    expect(resolveScheme({ preset: 'nope' }, 'light')).toEqual(EXODUS_LIGHT)
-    expect(resolveScheme(null, 'light')).toEqual(EXODUS_LIGHT)
-    expect(resolveScheme({ preset: 'custom' }, 'light')).toEqual(EXODUS_LIGHT)
+  it('falls back to Actovia for unknown presets, null and custom', () => {
+    expect(resolveScheme({ preset: 'nope' }, 'light')).toEqual(ACTOVIA_LIGHT)
+    expect(resolveScheme(null, 'light')).toEqual(ACTOVIA_LIGHT)
+    expect(resolveScheme({ preset: 'custom' }, 'light')).toEqual(ACTOVIA_LIGHT)
   })
   it('reports customisation for custom preset or bg/fg overrides, not accent', () => {
     expect(isSchemeCustomized({ preset: 'github' })).toBe(false)
@@ -653,8 +653,8 @@ describe('resolveScheme', () => {
 })
 
 describe('derivePalette', () => {
-  it('reproduces the pre-appearance light tokens for Exodus at contrast 50', () => {
-    const p = derivePalette(EXODUS_LIGHT, 50)
+  it('reproduces the pre-appearance light tokens for Actovia at contrast 50', () => {
+    const p = derivePalette(ACTOVIA_LIGHT, 50)
     expect(p.background).toBe('#ffffff')
     expect(p.foreground).toBe('#0a0a0a')
     expect(p.card).toBe('#ffffff')
@@ -670,7 +670,7 @@ describe('derivePalette', () => {
     expect(p.destructive).toBe('#e7000b')
     expect(p['chart-2']).toBe('#737373')
   })
-  it('reproduces the pre-appearance dark tokens for Exodus at contrast 50', () => {
+  it('reproduces the pre-appearance dark tokens for Actovia at contrast 50', () => {
     const p = derivePalette(
       { background: '#0a0a0a', foreground: '#fafafa', accent: '#e5e5e5' },
       50
@@ -684,8 +684,8 @@ describe('derivePalette', () => {
     expect(p['primary-foreground']).toBe('#0a0a0a')
   })
   it('higher contrast pushes borders and muted text away from the background', () => {
-    const lo = derivePalette(EXODUS_LIGHT, 0)
-    const hi = derivePalette(EXODUS_LIGHT, 100)
+    const lo = derivePalette(ACTOVIA_LIGHT, 0)
+    const hi = derivePalette(ACTOVIA_LIGHT, 100)
     expect(relativeLuminance(hi.border)).toBeLessThan(
       relativeLuminance(lo.border)
     )
@@ -754,9 +754,9 @@ describe('resolveAppearance', () => {
 
 describe('import / export', () => {
   it('round-trips', () => {
-    const text = exportScheme(EXODUS_LIGHT, 'Exodus')
+    const text = exportScheme(ACTOVIA_LIGHT, 'Actovia')
     const parsed = parseSchemeImport(text)
-    expect(parsed).toEqual({ ok: true, colors: EXODUS_LIGHT, name: 'Exodus' })
+    expect(parsed).toEqual({ ok: true, colors: ACTOVIA_LIGHT, name: 'Actovia' })
   })
   it('normalises hex case and rejects incomplete or invalid documents', () => {
     expect(
@@ -875,7 +875,7 @@ export const PALETTE_TOKENS = [
 export type PaletteToken = (typeof PALETTE_TOKENS)[number]
 export type Palette = Record<PaletteToken, string>
 
-// Mix ratios background → foreground (OKLab). Tuned so the Exodus preset at
+// Mix ratios background → foreground (OKLab). Tuned so the Actovia preset at
 // contrast 50 (k = 1) lands on the pre-appearance globals.css oklch tokens.
 // Dark surfaces need larger steps than light ones to read as elevation.
 interface Ramp {
@@ -1119,12 +1119,12 @@ and import `AppearanceSchema` alongside the other schema imports at the top of `
 
 **Interfaces:**
 
-- Produces: `APPEARANCE_STYLE_ID = 'exodus-appearance'`, `buildAppearanceCss(resolved: ResolvedAppearance): string`, `applyAppearance(resolved): void`, `readAppearanceCache(): unknown`, `writeAppearanceCache(raw: unknown): void`, `bootAppearance(): void`, `subscribeAppearanceCache(cb: () => void): () => void`, `isMacRenderer(): boolean`; IPC `setWindowTranslucency(enabled: boolean, backgroundColor: string): Promise<void>`.
+- Produces: `APPEARANCE_STYLE_ID = 'actovia-appearance'`, `buildAppearanceCss(resolved: ResolvedAppearance): string`, `applyAppearance(resolved): void`, `readAppearanceCache(): unknown`, `writeAppearanceCache(raw: unknown): void`, `bootAppearance(): void`, `subscribeAppearanceCache(cb: () => void): () => void`, `isMacRenderer(): boolean`; IPC `setWindowTranslucency(enabled: boolean, backgroundColor: string): Promise<void>`.
 
 - [ ] **Step 1: Failing test** (`tests/unit/renderer/lib/appearance.test.ts`)
 
 ```ts
-import { resolveAppearance } from '@exodus/shared/utils/appearance'
+import { resolveAppearance } from '@actovia/shared/utils/appearance'
 import { describe, expect, it } from 'vitest'
 
 import { buildAppearanceCss } from '@/lib/appearance'
@@ -1168,15 +1168,15 @@ describe('buildAppearanceCss', () => {
 - [ ] **Step 3: Implement `src/renderer/lib/appearance.ts`**
 
 ```ts
-import { APPEARANCE_CACHE_KEY } from '@exodus/shared/constants/appearance'
+import { APPEARANCE_CACHE_KEY } from '@actovia/shared/constants/appearance'
 import {
   PALETTE_TOKENS,
   resolveAppearance,
   type Palette,
   type ResolvedAppearance
-} from '@exodus/shared/utils/appearance'
+} from '@actovia/shared/utils/appearance'
 
-export const APPEARANCE_STYLE_ID = 'exodus-appearance'
+export const APPEARANCE_STYLE_ID = 'actovia-appearance'
 
 function block(selector: string, palette: Palette): string {
   const lines = PALETTE_TOKENS.map((t) => `  --${t}: ${palette[t]};`)
@@ -1211,7 +1211,7 @@ export function isMacRenderer(): boolean {
   )
 }
 
-/** Upsert the `<style id=exodus-appearance>` at the END of <head> and set the html data attributes. */
+/** Upsert the `<style id=actovia-appearance>` at the END of <head> and set the html data attributes. */
 export function applyAppearance(resolved: ResolvedAppearance): void {
   if (typeof document === 'undefined') return
   const css = buildAppearanceCss(resolved)
@@ -1374,7 +1374,7 @@ safeHandle('set-window-translucency', (_, arg: unknown) => {
 - [ ] **Step 7: `src/renderer/components/appearance-provider.tsx`**
 
 ```tsx
-import { resolveAppearance } from '@exodus/shared/utils/appearance'
+import { resolveAppearance } from '@actovia/shared/utils/appearance'
 import { useTheme } from 'next-themes'
 import { useEffect } from 'react'
 
@@ -1439,7 +1439,7 @@ export function AppearanceProvider() {
 - [ ] **Step 3:** `theme-mode-switcher.tsx` = the existing `APPEARANCE_MODES` + `AppearanceSwitcher` body verbatim, exported as `ThemeModeSwitcher`. `appearance.tsx`:
 
 ```tsx
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { useTranslation } from 'react-i18next'
 
 import { SettingsRow, SettingsSection } from '../settings-row'
@@ -1546,9 +1546,9 @@ Route it in `settings-form.tsx` (`{activeTitle === SettingsLabel.Appearance && <
   },
   "importDialog": {
     "title": "Import theme",
-    "description": "Paste a theme copied from Exodus — a JSON object with accent, background and foreground colours.",
+    "description": "Paste a theme copied from Actovia — a JSON object with accent, background and foreground colours.",
     "placeholder": "{ \"accent\": \"#1f6feb\", \"background\": \"#0d1117\", \"foreground\": \"#e6edf3\" }",
-    "invalid": "That doesn't look like an Exodus theme.",
+    "invalid": "That doesn't look like an Actovia theme.",
     "confirm": "Import",
     "cancel": "Cancel"
   },
@@ -1597,8 +1597,8 @@ import {
   AppearanceSchema,
   type Appearance,
   type UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
-import { normalizeAppearance } from '@exodus/shared/utils/appearance'
+} from '@actovia/shared/schemas/settings-schema'
+import { normalizeAppearance } from '@actovia/shared/utils/appearance'
 import { useCallback, useMemo } from 'react'
 
 /**
@@ -1627,7 +1627,7 @@ export function useAppearanceForm(form: UseFormReturnType) {
 - [ ] **Step 4: `scheme-swatch.tsx`** — the "Aa" tile.
 
 ```tsx
-import type { SchemeColors } from '@exodus/shared/constants/appearance'
+import type { SchemeColors } from '@actovia/shared/constants/appearance'
 
 import { cn } from '@/lib/utils'
 
@@ -1659,7 +1659,10 @@ export function SchemeSwatch({
 - [ ] **Step 5: `color-field.tsx`**
 
 ```tsx
-import { contrastingForeground, normalizeHex } from '@exodus/shared/utils/color'
+import {
+  contrastingForeground,
+  normalizeHex
+} from '@actovia/shared/utils/color'
 import { useEffect, useState } from 'react'
 
 import {
@@ -1732,8 +1735,8 @@ import {
   CUSTOM_PRESET_ID,
   THEME_PRESETS,
   type SchemeSlot
-} from '@exodus/shared/constants/appearance'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+} from '@actovia/shared/constants/appearance'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -1798,9 +1801,9 @@ export function PresetSelect({
 - [ ] **Step 7: `theme-import-dialog.tsx`**
 
 ```tsx
-import type { SchemeColors } from '@exodus/shared/constants/appearance'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { parseSchemeImport } from '@exodus/shared/utils/appearance'
+import type { SchemeColors } from '@actovia/shared/constants/appearance'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { parseSchemeImport } from '@actovia/shared/utils/appearance'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -1900,15 +1903,15 @@ import {
   findPreset,
   type SchemeColors,
   type SchemeSlot
-} from '@exodus/shared/constants/appearance'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { AppearanceScheme } from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/constants/appearance'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { AppearanceScheme } from '@actovia/shared/schemas/settings-schema'
 import {
   exportScheme,
   isSchemeCustomized,
   resolveScheme
-} from '@exodus/shared/utils/appearance'
-import { contrastRatio } from '@exodus/shared/utils/color'
+} from '@actovia/shared/utils/appearance'
+import { contrastRatio } from '@actovia/shared/utils/color'
 import { ClipboardCopyIcon, DownloadIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -2230,7 +2233,7 @@ test.describe('Settings — Appearance', () => {
       .toBe('github')
 
     await mainWindow.evaluate(() =>
-      window.localStorage.removeItem('exodus-appearance')
+      window.localStorage.removeItem('actovia-appearance')
     )
     await mainWindow.reload()
     await expect.poll(() => cssVar(mainWindow, '--background')).toBe('#0d1117')
@@ -2349,7 +2352,7 @@ it('has the Appearance page keys', () => {
   expect(settings.appearance.fonts.families.ui).toBe('Same as UI font')
   expect(settings.appearance.window.contrast.label).toBe('Contrast')
   expect(settings.appearance.importDialog.invalid).toBe(
-    "That doesn't look like an Exodus theme."
+    "That doesn't look like an Actovia theme."
   )
 })
 ```

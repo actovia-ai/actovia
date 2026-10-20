@@ -348,8 +348,8 @@ import { TEST_IDS } from '@shared/constants/test-ids'
 
 import { electronTest as test, expect } from '../fixtures/electron'
 
-const LOCK_DAT = join(homedir(), '.exodus', 'lock.dat')
-const LOCK_CFG = join(homedir(), '.exodus', 'lock-config.json')
+const LOCK_DAT = join(homedir(), '.actovia', 'lock.dat')
+const LOCK_CFG = join(homedir(), '.actovia', 'lock-config.json')
 const API = 'http://localhost:60223'
 
 function cleanLockFiles() {
@@ -508,8 +508,8 @@ import { TEST_IDS } from '@shared/constants/test-ids'
 
 import { electronTest as test, expect } from '../fixtures/electron'
 
-const LOCK_DAT = join(homedir(), '.exodus', 'lock.dat')
-const LOCK_CFG = join(homedir(), '.exodus', 'lock-config.json')
+const LOCK_DAT = join(homedir(), '.actovia', 'lock.dat')
+const LOCK_CFG = join(homedir(), '.actovia', 'lock-config.json')
 
 function cleanLockFiles() {
   if (existsSync(LOCK_DAT)) rmSync(LOCK_DAT)
@@ -676,7 +676,7 @@ git commit -m "docs(testids): document the checkpoint co-gen convention"
 
 - **Spec coverage:** registry (T2), strip release-only (T6), linkage enforcement (T5), pilot lock retrofit + E2E (T3,T4), AI co-gen doc (T7), deps (T1). `data-testid` attribute + semantic ids ✓; durable-contract + no-raw-string enforced by T5 + documented in T7.
 - **Dangling test refs** are caught by TypeScript (the registry is typed), so the linkage test focuses on orphan/uncovered/raw-string — noted in the spec.
-- **E2E isolation:** both specs clean `~/.exodus/lock.dat` + `lock-config.json` before/after so they never pollute real state.
+- **E2E isolation:** both specs clean `~/.actovia/lock.dat` + `lock-config.json` before/after so they never pollute real state.
 - **Type consistency:** `TEST_IDS` accessors used in T3/T4/T5 all resolve to ids declared in T2/T3a (`pinInput`, `touchIdButton`, `enablePinInput`, `confirmPinInput`, `idleSelect`, `removeButton`, `removePinInput`). `PinInput.testId` prop defined in T3 is used in T3/T4. `flattenTestIds()` defined in T2 is used in T5.
 - **Risk:** OTPInput forwarding `data-testid` to its input is assumed; T4 Step 2 includes the fallback (wrap-div + `.locator('input')`) if it doesn't.
 - **Gating checks:** `pnpm test` (unit + linkage) + `pnpm typecheck` run in CI/pre-commit; E2E is a local/display step. The known flaky PGlite teardown may require `--no-verify` on commits.

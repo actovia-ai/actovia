@@ -4,7 +4,7 @@ Date: 2026-09-20
 Status: Approved by the user in chat; not yet implemented.
 Background: `docs/security-hardening.md` (open items 1 and 2), the audit on
 `perf/audit-hardening-pass`.
-Repositories: `exodus` (this one) and `exodus-ios`.
+Repositories: `actovia` (this one) and `ios`.
 
 ## Summary
 
@@ -16,7 +16,7 @@ because the second fix is worthless without the first:
    parent's CSP the local API (provider keys, the `terminal` tool). It moves to
    an origin of its own.
 2. **The API is unauthenticated on the LAN.** It listens on every interface so
-   exodus-ios can reach it, and anyone else on the network can too. The server
+   the iOS app can reach it, and anyone else on the network can too. The server
    splits into a loopback-only plaintext listener and an HTTPS LAN listener
    that requires a per-device token obtained by scanning a QR code; the
    certificate is self-signed and pinned by fingerprint. On the iPhone the token
@@ -30,17 +30,17 @@ because the second fix is worthless without the first:
   desktop's screen; pairing can be revoked per device, effective immediately.
 - Nothing sensitive (tokens, provider keys, chats) crosses the LAN in
   plaintext.
-- The renderer, exodus-cli, `tests/api` and the iOS simulator keep working
+- The renderer, @actovia-ai/cli, `tests/api` and the iOS simulator keep working
   unchanged, with no token to carry.
 - The LAN surface does not exist until the user pairs a device.
 
 ## Non-goals
 
 - Authenticating loopback clients. A process running as the user can read
-  `~/.exodus` directly; a local token would protect nothing.
+  `~/.actovia` directly; a local token would protect nothing.
 - Mutual TLS, certificate rotation, or a CA. One pinned self-signed
   certificate; replacing it means re-pairing, and only "Reset all" does it.
-- Reducing what a paired device may do. exodus-ios edits provider settings,
+- Reducing what a paired device may do. The iOS app edits provider settings,
   keys included, so it gets the whole API; TLS is what protects it in transit.
 - The smaller items in `docs/security-hardening.md` (`img-src *`, per-call tool
   confirmation, signing, `ping-ollama`) and the pi-ai migration.
@@ -55,18 +55,18 @@ listener a request arrived on is passed through the fetch bindings
 (`c.env.listener: 'loopback' | 'lan'`), so middleware can tell them apart
 without duplicating routes.
 
-|           | Loopback                                         | LAN                                                       |
-| --------- | ------------------------------------------------ | --------------------------------------------------------- |
-| Bind      | `127.0.0.1:60223` and `[::1]:60223`              | `0.0.0.0:63129` (`LAN_SERVER_PORT`)                       |
-| Transport | HTTP                                             | HTTPS, self-signed                                        |
-| Clients   | renderer, exodus-cli, `tests/api`, iOS simulator | exodus-ios on a device                                    |
-| Gate      | origin gate                                      | `authGate`: device token, except `POST /api/v1/pair`      |
-| Lifetime  | always                                           | only while a device is paired or a pairing window is open |
+|           | Loopback                                              | LAN                                                       |
+| --------- | ----------------------------------------------------- | --------------------------------------------------------- |
+| Bind      | `127.0.0.1:60223` and `[::1]:60223`                   | `0.0.0.0:63129` (`LAN_SERVER_PORT`)                       |
+| Transport | HTTP                                                  | HTTPS, self-signed                                        |
+| Clients   | renderer, @actovia-ai/cli, `tests/api`, iOS simulator | the iOS app on a device                                   |
+| Gate      | origin gate                                           | `authGate`: device token, except `POST /api/v1/pair`      |
+| Lifetime  | always                                                | only while a device is paired or a pairing window is open |
 
 The LAN listener starts when the first pairing window opens and stops when the
 last device is revoked and no window is open. There is no "allow LAN" setting:
 having a paired device is the setting. After upgrading, the LAN is therefore
-closed and an old exodus-ios build cannot connect until it is updated and
+closed and an old iOS app build cannot connect until it is updated and
 paired — both apps ship together.
 
 Middleware order becomes: origin gate → CORS → **auth gate** → lock gate → trace
@@ -85,11 +85,11 @@ listener only.
    _pairing window_: a one-time code (128 random bits, base64url), valid for
    two minutes, single use; starts the LAN listener if it is not running.
 2. The page shows a QR code encoding
-   `exodus://pair?h=<hosts>&p=63129&c=<code>&f=<fingerprint>&n=<name>` —
+   `actovia://pair?h=<hosts>&p=63129&c=<code>&f=<fingerprint>&n=<name>` —
    `hosts` is every non-internal IPv4 address plus the machine's `.local`
    name, comma-separated; `f` is the base64url SHA-256 of the certificate's
    DER; `n` is the computer's name, for display.
-3. exodus-ios connects over HTTPS pinned to `f` and calls
+3. The iOS app connects over HTTPS pinned to `f` and calls
    `POST /api/v1/pair { code, deviceName }`. The server checks the code, closes
    the window, inserts a device, and answers `{ deviceId, token }` — the only
    time the token (256 random bits, base64url) exists outside the device.
@@ -128,7 +128,7 @@ Module layout (main process), each with one job:
 
 `@peculiar/x509` (Node's `crypto` makes keys but cannot issue a certificate)
 generates an ECDSA P-256 key and a self-signed certificate valid for ten years,
-on first need. Files live in `~/.exodus/tls/`: `cert.pem`, and the private key
+on first need. Files live in `~/.actovia/tls/`: `cert.pem`, and the private key
 encrypted with Electron `safeStorage`, as `lock.dat` is. The fingerprint is the
 trust anchor: the client compares the leaf certificate's SHA-256 and checks
 neither a CA chain nor the host name, so an IP, a `.local` name or a tailnet
@@ -137,11 +137,11 @@ name all work. The certificate is never rotated silently.
 ### Artifact sandbox isolation
 
 - `protocol.registerSchemesAsPrivileged` (before `ready`) registers
-  `exodus-artifact` as standard, secure, fetch-capable. `protocol.handle`
+  `actovia-artifact` as standard, secure, fetch-capable. `protocol.handle`
   serves, read-only, files under the built renderer directory — the sandbox
   entry and the hashed chunks it shares with the main app — refusing any path
   that resolves outside it. In dev the same handler proxies to the Vite dev
-  server, so the sandbox's origin is `exodus-artifact://sandbox` in both modes.
+  server, so the sandbox's origin is `actovia-artifact://sandbox` in both modes.
   Lives in `src/main/lib/artifact-protocol.ts`.
 - `artifact-card.tsx` points the iframes at that origin. The `sandbox`
   attribute stays `allow-scripts allow-same-origin`: with a different origin
@@ -151,7 +151,7 @@ name all work. The certificate is never rotated silently.
   `event.origin`. The sandbox accepts messages only from `window.parent`.
 - CSP: the sandbox page drops `connect-src http://localhost:*` (it never
   fetched anything; code arrives by message). The main window's `frame-src`
-  gains `exodus-artifact:`.
+  gains `actovia-artifact:`.
 - Already in place and relied on: the origin gate refuses that origin, the
   permission handler denies it, the preload is not injected into subframes.
 
@@ -171,10 +171,10 @@ rendered with `qrcode.react`. Every string is a key in the `settings`
 namespace, authored for all ten locales in the same change. New interactive
 elements get `TEST_IDS.devices.*` and are referenced from the e2e spec.
 
-## exodus-ios
+## The iOS app
 
 - **PairingKit** (new): QR scanning (`DataScannerViewController`), parsing and
-  validating `exodus://pair`, the pair request, and a "paste pairing link"
+  validating `actovia://pair`, the pair request, and a "paste pairing link"
   entry for the simulator.
 - **Credential store**: token, fingerprint and host list in one Keychain item
   with access control `biometryCurrentSet` or device passcode,
@@ -216,13 +216,13 @@ certificate, Keychain policy, 401 → unpaired.
 
 ## Risks
 
-- **Dev-mode proxying.** Vite's HMR client, loaded from `exodus-artifact://`,
+- **Dev-mode proxying.** Vite's HMR client, loaded from `actovia-artifact://`,
   may fail to connect and trigger reloads. The sandbox page does not need HMR;
   if a short spike shows trouble, the dev handler strips the HMR client from
   the sandbox entry.
 - **`@hono/node-server` 2.x over HTTPS** (`createServer` / `serverOptions`) is
   documented for 1.x; confirmed first thing in implementation.
-- **Rollout.** Old exodus-ios builds stop connecting the moment the desktop
+- **Rollout.** Old iOS app builds stop connecting the moment the desktop
   updates. Accepted: one user, both apps released together.
 
 ## Documentation

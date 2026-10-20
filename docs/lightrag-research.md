@@ -8,15 +8,15 @@ _Date: 2026-09-04 · Status: superseded by the design spec + plan below_
 ## 0. TL;DR
 
 - **LightRAG stays a separate service the user runs themselves** (Docker, port
-  `9621`). Exodus is a **pure client**: it holds a base URL + API key, pushes
+  `9621`). Actovia is a **pure client**: it holds a base URL + API key, pushes
   documents, and asks for retrieved context. It never runs LightRAG, never owns
   its storage, never creates its schema — exactly the posture we already took
-  with Elasticsearch (`docs/elasticsearch-setup.md`, "Exodus is consumer-only").
+  with Elasticsearch (`docs/elasticsearch-setup.md`, "Actovia is consumer-only").
 - **Recommended retrieval mode:** call `POST /query/data` (or `/query` with
-  `only_need_context=true`) so **LightRAG does retrieval only** and _Exodus's_
+  `only_need_context=true`) so **LightRAG does retrieval only** and _Actovia's_
   configured chat model writes the final answer. This keeps answer quality,
   streaming, cost accounting, and personality consistent with the rest of
-  Exodus, and means the user does not have to configure LightRAG's own LLM well.
+  Actovia, and means the user does not have to configure LightRAG's own LLM well.
 - **When the AI hits the KB:** tool-call driven. Bind a `searchKnowledgeBase`
   tool (we already have one for Philharmonic — `kb-tools.ts`) whenever a KB is
   configured; the model decides when to call it. Optionally add an
@@ -71,7 +71,7 @@ Key `.env` settings:
 
 ```bash
 PORT=9621
-LIGHTRAG_API_KEY=some-long-secret          # -> Exodus sends as X-API-Key
+LIGHTRAG_API_KEY=some-long-secret          # -> Actovia sends as X-API-Key
 SUMMARY_LANGUAGE=Chinese                   # entity/relation summaries
 
 # LLM used for entity extraction + (if we let it) answer generation
@@ -152,11 +152,11 @@ GET  /health          -> liveness + (authed) config/queue diagnostics
 ### 2.4 Other surfaces (nice to know, not required)
 
 - **Web UI** at `/webui` — the user can manage documents and inspect the graph
-  without any Exodus UI. Lowers how much we must build.
+  without any Actovia UI. Lowers how much we must build.
 - **Ollama-compatible** `POST /api/chat` with model `lightrag:latest` and inline
   mode prefixes (`"/hybrid What is X?"`, `"/mix[bullet points] ..."`). Lets
   LightRAG appear as a "model" in an Ollama client. We _could_ surface it as a
-  pseudo-provider, but that fights our "Exodus generates the answer" stance.
+  pseudo-provider, but that fights our "Actovia generates the answer" stance.
 - **Auth:** `X-API-Key: <key>` header, or JWT via `POST /login`. API key is all
   we need; store it with `safeStorage` like other secrets.
 - **`WORKSPACE` env** logically isolates data between instances (separate dir /
@@ -165,7 +165,7 @@ GET  /health          -> liveness + (authed) config/queue diagnostics
 
 ---
 
-## 3. How Exodus connects
+## 3. How Actovia connects
 
 Mirror the Elasticsearch integration shape.
 
@@ -237,7 +237,7 @@ in main.)
 
 ---
 
-## 4. What Exodus needs to build
+## 4. What Actovia needs to build
 
 | #   | Work item                                                                                                                 | Size         | Notes                                                                                                                                                                                             |
 | --- | ------------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -260,9 +260,9 @@ its database, its graph schema, rerank model config, backups of `rag_storage`.
 
 1. **Phase 1 — connect + retrieve.** Items 1–3, 6, 7, 11 + a minimal settings
    page (item 4). No management UI: user adds documents via LightRAG's own
-   `/webui`. Exodus can already answer from the KB. Ship this first.
-2. **Phase 2 — manage from Exodus.** Item 5 (+ finish item 4). Add/upload/delete
-   docs and see indexing status without leaving Exodus.
+   `/webui`. Actovia can already answer from the KB. Ship this first.
+2. **Phase 2 — manage from Actovia.** Item 5 (+ finish item 4). Add/upload/delete
+   docs and see indexing status without leaving Actovia.
 3. **Phase 3 — scoping + polish.** Items 8, 9. Reconcile with Philharmonic teams,
    retire or repurpose `knowledge_doc`.
 
@@ -285,7 +285,7 @@ user turn
        └─ model emits tool_call { query: "..." }
             └─ main calls LightRAG POST /query/data  (retrieval only)
                  └─ tool result = formatted chunks + references
-                      └─ model writes the answer with Exodus's chat model
+                      └─ model writes the answer with Actovia's chat model
 ```
 
 ### 5.2 Retrieval-only, not answer-generation
@@ -294,13 +294,13 @@ Call `POST /query/data` (or `only_need_context=true`). We take LightRAG's
 **retrieved context + references** and feed them to our own model. Rationale:
 
 - Answer style, streaming, cost tracking, personality, and tool-chaining stay
-  in Exodus's loop.
+  in Actovia's loop.
 - The user doesn't need a well-configured `QUERY_LLM_MODEL` on LightRAG — only a
   cheap extraction model for ingestion.
 - We can cite `references[].file_path` in our UI consistently with other tools.
 
 Trade-off: we lose LightRAG's own answer-shaping prompt. Acceptable — that's the
-"Exodus uses the data" principle the user stated.
+"Actovia uses the data" principle the user stated.
 
 ### 5.3 Which surfaces get the tool
 
@@ -333,7 +333,7 @@ real — implement it as `searchKnowledgeBase` and update the prompt.
 ### 6.2 `vector` extension is already enabled
 
 `migrate.ts` runs `CREATE EXTENSION IF NOT EXISTS vector` but nothing uses it —
-there is no embedding column or embedding generation anywhere in Exodus. With
+there is no embedding column or embedding generation anywhere in Actovia. With
 LightRAG owning all vectors/graph, **we still don't need local pgvector**. Leave
 the extension (harmless) or drop it; not part of this work.
 
@@ -343,10 +343,10 @@ Today: `knowledge_doc` (title, content, teamId) + `searchKnowledgeDocs()` naive
 substring match, surfaced only in Philharmonic. Options:
 
 - **A. LightRAG owns documents.** Drop `knowledge_doc`. The management UI talks
-  to LightRAG directly (`/documents/*`). Simplest; matches "Exodus only
+  to LightRAG directly (`/documents/*`). Simplest; matches "Actovia only
   connects". Loses our rich-text editing / team column / offline listing.
 - **B. `knowledge_doc` stays as source-of-truth; LightRAG is the index.** User
-  edits docs in Exodus; on save we `POST /documents/text` with
+  edits docs in Actovia; on save we `POST /documents/text` with
   `file_source = knowledge_doc.id` and store the returned `doc_id`/`track_id`.
   Delete → `DELETE /documents/{doc_id}`. Keeps our editor + team column; costs a
   sync layer and re-index on every edit.
@@ -383,7 +383,7 @@ Possible answers, roughly in order of effort:
    _Recommended default._
 2. **Post-filter references** by `file_path` prefix after retrieval — leaks into
    the graph/entity context even if chunks are filtered. Fragile.
-3. **Workspace per scope** — Exodus manages N LightRAG workspaces (needs the
+3. **Workspace per scope** — Actovia manages N LightRAG workspaces (needs the
    server run with a backend that supports runtime workspace selection, or N
    containers). Heavy; probably over-engineering for desktop.
 
@@ -393,7 +393,7 @@ Lead with (1); document the limitation.
 
 `EMBEDDING_DIM` cannot change after the first ingest without wiping
 `rag_storage`. If the user later switches embedding models they re-index
-everything. Our setup doc must warn loudly. Exodus should surface
+everything. Our setup doc must warn loudly. Actovia should surface
 `/health`'s embedding info on the settings page so the user can see what they're
 committed to.
 
@@ -465,7 +465,7 @@ POST http://localhost:9621/query
 → {"response":"<assembled context text>","references":[{"reference_id":"1","file_path":"handbook.md"}]}
 ```
 
-Exodus then hands `response`/`chunks` + `references` to its own chat model as
+Actovia then hands `response`/`chunks` + `references` to its own chat model as
 the tool result.
 
 ### Delete

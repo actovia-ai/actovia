@@ -4,7 +4,7 @@
 
 **Goal:** The Philharmonic PM sees every CLI employee's model and the CLIs' reported quota, deals steps by difficulty, and when a skilled hand is out of quota it downgrades or waits for the reset (a one-off scheduled task) on its own.
 
-**Architecture:** The drivers turn what each CLI reports (Claude Code's `rate_limit_event`, Codex's `account/rateLimits/*`) into one `CliQuota` shape via a new `quota` agent event; `agents/quota.ts` keeps the latest record per CLI in memory and in `~/.exodus/agent-quota.json`. The PM coordinator reads it into its roster and system prompt, guards `delegateTask`, and gets a `waitForQuota` tool that schedules a one-off task the existing scheduler fires at the reset. The members panel shows one quota line per CLI member.
+**Architecture:** The drivers turn what each CLI reports (Claude Code's `rate_limit_event`, Codex's `account/rateLimits/*`) into one `CliQuota` shape via a new `quota` agent event; `agents/quota.ts` keeps the latest record per CLI in memory and in `~/.actovia/agent-quota.json`. The PM coordinator reads it into its roster and system prompt, guards `delegateTask`, and gets a `waitForQuota` tool that schedules a one-off task the existing scheduler fires at the reset. The members panel shows one quota line per CLI member.
 
 **Tech Stack:** TypeScript, Electron main (Hono, Drizzle/PGlite), pi-agent-core tools (TypeBox), React 19 + React Query, Vitest, i18next.
 
@@ -12,16 +12,16 @@
 
 ## Global Constraints
 
-- Branch `maintenance`; never push. Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test` (the husky hook runs it). Run typecheck as `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck` (shell PWD casing).
+- Branch `maintenance`; never push. Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test` (the husky hook runs it). Run typecheck as `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck` (shell PWD casing).
 - Data source: only what the CLIs report. No scraping of claude.ai / chatgpt.com.
 - The model stays on the employee (`agent.model`). No per-step model; no `model` argument on `delegateTask`.
 - A CLI's `state` is the CLI's own verdict, never inferred from percentages (Claude Code `status`; Codex `rateLimitReachedType` / `ordinaryUsageAllowed`).
 - A stale reading never blocks; only `state: 'rejected'` without overage blocks a delegation.
-- `~/.exodus/agent-quota.json`: not secret, machine-local, not in `db-io` export/import or backups; "reset all data" removes it.
+- `~/.actovia/agent-quota.json`: not secret, machine-local, not in `db-io` export/import or backups; "reset all data" removes it.
 - No migration.
 - New user-facing strings are catalog keys in `packages/shared/src/i18n/locales/<id>/philharmonic.json` for **all 10 locales** (`de en es fr it ja ko pt-BR zh-Hant-HK zh-Hant-TW`) in the same commit, authored by hand. Text the PM model reads is not user-facing and stays English in code.
-- Tests: `tests/unit/**` mirroring `src/`, imports via `@main/...` / `@/...` / `@exodus/shared/...`; a DOM test starts with `// @vitest-environment happy-dom`. Nothing talks to a real model or CLI.
-- Times are epoch **milliseconds** inside Exodus; CLIs give seconds — convert with `toMs()` (Task 1).
+- Tests: `tests/unit/**` mirroring `src/`, imports via `@main/...` / `@/...` / `@actovia/shared/...`; a DOM test starts with `// @vitest-environment happy-dom`. Nothing talks to a real model or CLI.
+- Times are epoch **milliseconds** inside Actovia; CLIs give seconds — convert with `toMs()` (Task 1).
 
 ## Review Focus
 
@@ -83,7 +83,7 @@ export interface CliQuota {
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
-import type { CliQuota } from '@exodus/shared/types/agents'
+import type { CliQuota } from '@actovia/shared/types/agents'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 const {
@@ -96,9 +96,9 @@ const {
   resetQuotaStoreForTests,
   toMs
 } = await import('@main/lib/agents/quota')
-const { getExodusHome } = await import('@main/lib/paths')
+const { getActoviaHome } = await import('@main/lib/paths')
 
-const file = () => join(getExodusHome(), 'agent-quota.json')
+const file = () => join(getActoviaHome(), 'agent-quota.json')
 const NOW = Date.UTC(2026, 9, 16, 10, 0)
 const claude = (over: Partial<CliQuota> = {}): CliQuota => ({
   cli: 'claude-code',
@@ -264,7 +264,7 @@ Expected: FAIL — `Cannot find module '@main/lib/agents/quota'`.
 
 ```ts
 // src/main/lib/agents/quota.ts — what each CLI last said of the owner's quota
-// (spec 2026-10-16 §3). Kept per CLI, in memory and in ~/.exodus/agent-quota.json:
+// (spec 2026-10-16 §3). Kept per CLI, in memory and in ~/.actovia/agent-quota.json:
 // Claude Code only reports during a run, so a restart must not forget it.
 import { existsSync, readFileSync } from 'fs'
 import { rm, writeFile } from 'fs/promises'
@@ -275,15 +275,15 @@ import {
   type CliId,
   type CliQuota,
   type QuotaWindow
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 
 import { logger } from '../logger'
-import { getExodusHome } from '../paths'
+import { getActoviaHome } from '../paths'
 
-const fileOf = () => join(getExodusHome(), 'agent-quota.json')
+const fileOf = () => join(getActoviaHome(), 'agent-quota.json')
 let store: Map<CliId, CliQuota> | null = null
 
-/** CLIs give epoch seconds; Exodus keeps ms. */
+/** CLIs give epoch seconds; Actovia keeps ms. */
 export const toMs = (n: number) => (n < 1e12 ? n * 1000 : n)
 
 function load(): Map<CliId, CliQuota> {
@@ -442,7 +442,7 @@ Run: `bunx vitest run tests/unit/main/lib/agents/quota.test.ts tests/unit/main/l
 
 ```bash
 git add packages/shared/src/types/agents.ts src/main/lib/agents/quota.ts src/main/lib/server/routes/db-io.ts tests/unit/main/lib/agents/quota.test.ts tests/unit/main/lib/server/routes/db-io.test.ts
-git commit -m "feat(agents): a quota store — what each CLI last said of the owner's quota, per CLI, in ~/.exodus/agent-quota.json; blockedUntil() is the CLI's own rejection only, a model's window blocks that model only; a reset forgets it"
+git commit -m "feat(agents): a quota store — what each CLI last said of the owner's quota, per CLI, in ~/.actovia/agent-quota.json; blockedUntil() is the CLI's own rejection only, a model's window blocks that model only; a reset forgets it"
 ```
 
 ---
@@ -522,7 +522,7 @@ Delete the old assertion `expect(parseLine('…"status":"allowed"}}').events).to
 Run: `bunx vitest run tests/unit/main/lib/agents/claude-code/protocol.test.ts`
 Expected: FAIL — no `quota` event.
 
-- [ ] **Step 3: Add the event** — in `src/main/lib/agents/driver.ts` import `CliQuota` from `@exodus/shared/types/agents` (extend the existing type import) and add to `AgentEvent`:
+- [ ] **Step 3: Add the event** — in `src/main/lib/agents/driver.ts` import `CliQuota` from `@actovia/shared/types/agents` (extend the existing type import) and add to `AgentEvent`:
 
 ```ts
   /** What the CLI said of the owner's quota; `merge`: a sparse update. */
@@ -561,7 +561,7 @@ it('a quota reading leaves the card as it is', () => {
 
 (Read `card.test.ts` first and use its own card-building helper in place of the comment.)
 
-- [ ] **Step 4: Parse it** — in `claude-code/protocol.ts` add `import type { CliQuota, QuotaState } from '@exodus/shared/types/agents'` and `import { toMs } from '../quota'`, add above `parseLine`:
+- [ ] **Step 4: Parse it** — in `claude-code/protocol.ts` add `import type { CliQuota, QuotaState } from '@actovia/shared/types/agents'` and `import { toMs } from '../quota'`, add above `parseLine`:
 
 ```ts
 const STATES: Record<string, QuotaState> = {
@@ -627,7 +627,7 @@ and replace the `case 'rate_limit_event'` body:
     }
 ```
 
-- [ ] **Step 5: Run the tests** — `bunx vitest run tests/unit/main/lib/agents/claude-code tests/unit/main/lib/agents/card.test.ts` → PASS. Then `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck:node` → no errors (any other exhaustive `switch` over `AgentEvent` that now fails gets a `case 'quota':` that does nothing, with a one-line comment).
+- [ ] **Step 5: Run the tests** — `bunx vitest run tests/unit/main/lib/agents/claude-code tests/unit/main/lib/agents/card.test.ts` → PASS. Then `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck:node` → no errors (any other exhaustive `switch` over `AgentEvent` that now fails gets a `case 'quota':` that does nothing, with a one-line comment).
 
 - [ ] **Step 6: Commit**
 
@@ -758,7 +758,7 @@ describe('Codex quota', () => {
 
 - [ ] **Step 2: Run to see it fail** — `bunx vitest run tests/unit/main/lib/agents/codex/protocol.test.ts` → FAIL (`quotaFromCodex` not exported).
 
-- [ ] **Step 3: Implement** — in `codex/protocol.ts` add `import type { CliQuota } from '@exodus/shared/types/agents'` and `import { toMs } from '../quota'`, then:
+- [ ] **Step 3: Implement** — in `codex/protocol.ts` add `import type { CliQuota } from '@actovia/shared/types/agents'` and `import { toMs } from '../quota'`, then:
 
 ```ts
 /**
@@ -952,7 +952,7 @@ Then `src/main/lib/agents/quota-refresh.ts`:
 ```ts
 // Read the quotas that can be read without spending any before the PM deals
 // (spec 2026-10-16 §3): Codex answers any time; Claude Code only reports in a run.
-import type { CliId, CliQuota, CliStatus } from '@exodus/shared/types/agents'
+import type { CliId, CliQuota, CliStatus } from '@actovia/shared/types/agents'
 
 import { logger } from '../logger'
 import { getCliStatus, readCodexQuota } from './cli-check'
@@ -1231,7 +1231,7 @@ const quotaText = clisInPlay
   .join('\n')
 ```
 
-and change the coding-agent suffix in `roster` to name the model: `[Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} (model: ${e.model || 'CLI default'}) on the owner's machine; …]`, and `rosterText` likewise for a CLI employee (add `runtime` and `model` to its parameter type and append ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})` after the name when `a.runtime !== 'exodus'`). The system content becomes:
+and change the coding-agent suffix in `roster` to name the model: `[Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} (model: ${e.model || 'CLI default'}) on the owner's machine; …]`, and `rosterText` likewise for a CLI employee (add `runtime` and `model` to its parameter type and append ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})` after the name when `a.runtime !== 'actovia'`). The system content becomes:
 
 ```ts
 PM_SYSTEM_PROMPT +
@@ -1301,7 +1301,7 @@ const quotaBlock = (employeeId: string): string | null => {
     }),
 ```
 
-Run: `bunx vitest run tests/unit/main/lib/ai/philharmonic` → PASS; `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck:node` → clean.
+Run: `bunx vitest run tests/unit/main/lib/ai/philharmonic` → PASS; `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck:node` → clean.
 
 - [ ] **Step 4: Commit**
 
@@ -1397,7 +1397,7 @@ describe('quotaParts', () => {
 Run → FAIL. Create `src/renderer/lib/agent-quota.ts`:
 
 ```ts
-import type { CliQuota } from '@exodus/shared/types/agents'
+import type { CliQuota } from '@actovia/shared/types/agents'
 
 export interface QuotaPart {
   key: 'fiveHour' | 'sevenDay' | 'other'
@@ -1471,7 +1471,7 @@ Run: `bun run i18n:check` → `i18n:check OK`.
 
 ```tsx
 {
-  member.runtime !== 'exodus' && <QuotaLine cli={cliOf(member.runtime)} />
+  member.runtime !== 'actovia' && <QuotaLine cli={cliOf(member.runtime)} />
 }
 ```
 
@@ -1509,7 +1509,7 @@ function QuotaLine({ cli }: { cli: CliId }) {
 }
 ```
 
-Imports: `useAgentQuotas` from `@/hooks/use-agent-quota`, `quotaParts` from `@/lib/agent-quota`, `useFormat` from `@/lib/format`, `CliId` from `@exodus/shared/types/agents`, and a renderer-safe `cliOf` — if the renderer has none, map with `member.runtime as CliId` (runtime is `'claude-code' | 'codex'` once it is not `'exodus'`; check `AgentData['runtime']`'s type). Run: `bunx vitest run tests/unit/i18n tests/unit/renderer` (the no-hardcoded-strings scan) and `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck:web` → clean.
+Imports: `useAgentQuotas` from `@/hooks/use-agent-quota`, `quotaParts` from `@/lib/agent-quota`, `useFormat` from `@/lib/format`, `CliId` from `@actovia/shared/types/agents`, and a renderer-safe `cliOf` — if the renderer has none, map with `member.runtime as CliId` (runtime is `'claude-code' | 'codex'` once it is not `'actovia'`; check `AgentData['runtime']`'s type). Run: `bunx vitest run tests/unit/i18n tests/unit/renderer` (the no-hardcoded-strings scan) and `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck:web` → clean.
 
 - [ ] **Step 6: Commit**
 
@@ -1535,7 +1535,7 @@ git commit -m "feat(philharmonic): a CLI member's quota under its model in the m
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` at most once a minute) and its
   rolling updates — becomes a `quota` agent event and one `CliQuota` per CLI in
-  `src/main/lib/agents/quota.ts` (`~/.exodus/agent-quota.json`; a data reset removes it). The PM's
+  `src/main/lib/agents/quota.ts` (`~/.actovia/agent-quota.json`; a data reset removes it). The PM's
   roster names each CLI employee's model and its CLI's quota; it deals by difficulty, downgrades
   or calls `waitForQuota` (a one-off task at the reset + 2 min, `input.kind: 'quota-wait'`) and
   schedules flexibly around those rules. `delegateTask` refuses only an employee its CLI has
@@ -1553,7 +1553,7 @@ git commit -m "feat(philharmonic): a CLI member's quota under its model in the m
 
 - [ ] **Step 4: Whole gate**
 
-Run: `bun run fmt && bun run lint && env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck && bun run i18n:check && bun run test`
+Run: `bun run fmt && bun run lint && env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck && bun run i18n:check && bun run test`
 Expected: all pass (the CLAUDE.md freshness test checks the new paths exist). A lone `RuntimeError: Aborted()` from PGlite teardown with every test passing is the known flake: re-run `bun run test` once.
 
 - [ ] **Step 5: Commit**

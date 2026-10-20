@@ -102,7 +102,7 @@ For Neutral: all chroma values become 0, hues become irrelevant.
 
 ### Startup Flash Prevention (FOUC)
 
-The tone is persisted server-side in the settings table, but also cached in `localStorage` (key: `'exodus-color-tone'`). On page load, a synchronous inline script in `index.html` reads localStorage and sets `data-tone` on `<html>` before React mounts — identical to how the theme class is applied. When settings load from the server, the tone is reconciled and localStorage is updated.
+The tone is persisted server-side in the settings table, but also cached in `localStorage` (key: `'actovia-color-tone'`). On page load, a synchronous inline script in `index.html` reads localStorage and sets `data-tone` on `<html>` before React mounts — identical to how the theme class is applied. When settings load from the server, the tone is reconciled and localStorage is updated.
 
 ### Sub-App Support
 

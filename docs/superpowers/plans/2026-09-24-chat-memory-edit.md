@@ -20,8 +20,8 @@ turn's foot with a `StatusStrip` shared with the LCM compaction card.
 ## Global Constraints
 
 - Branch `feat/react-query` (the owner's call); the tree is shared with other sessions — stage by name, never
-  `git add -A`, never touch files you did not change; `cd /Users/yanceyleo/Code/exodus/exodus` (capital C) before
-  bun/tsc (`env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck` if TS1149 appears).
+  `git add -A`, never touch files you did not change; `cd /Users/yanceyleo/Code/actovia/actovia` (capital C) before
+  bun/tsc (`env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck` if TS1149 appears).
 - Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test`.
   Never `--no-verify` except the documented PGlite WASM teardown flake after one clean retry.
 - Commit trailer: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
@@ -519,7 +519,7 @@ turn's foot with a `StatusStrip` shared with the LCM compaction card.
 
 - Create: `tests/e2e/chat-memory-edit.spec.ts`
 - Modify: the faux boot script if needed (`src/main/lib/ai/kernel/faux-boot.ts`) to script an `update_memory` call
-  (read how existing e2e specs script replies under `EXODUS_FAUX_PROVIDER=1`)
+  (read how existing e2e specs script replies under `ACTOVIA_FAUX_PROVIDER=1`)
 - Modify: `CLAUDE.md` (tool list + `update_memory`; Memory section: per-run usage log, `memories_used` SSE event,
   `/memory/usage`, `/memory/undo`; Chat render path: the run foot components; `StatusStrip`)
 
@@ -529,7 +529,7 @@ turn's foot with a `StatusStrip` shared with the LCM compaction card.
       `…usedMemories.trigger` if the scripted run used a memory, click `…wrong`, expect the composer to hold the prefill.
       Every new TEST_ID must be referenced here.
 - [ ] **Step 2:** `bun run package` then `bun run test:e2e:electron -- chat-memory-edit` (never with the owner's dev
-      app running on 60223 — the fixture refuses; the owner's installed Exodus.app IS running, so if the fixture refuses,
+      app running on 60223 — the fixture refuses; the owner's installed Actovia.app IS running, so if the fixture refuses,
       report it and stop rather than killing the app).
 - [ ] **Step 3:** CLAUDE.md edits; full gate.
 - [ ] **Step 4: Commit** `test(e2e): editing memory from the chat, and docs`.

@@ -5,7 +5,7 @@ Status: Approved (design), pending implementation plan
 
 ## Summary
 
-Add an iPhone-style lock to Exodus. When locked, the UI is inaccessible
+Add an iPhone-style lock to Actovia. When locked, the UI is inaccessible
 behind a PIN screen, **and the local HTTP API (`localhost:60223`) rejects all
 requests** — but background tasks keep running in the main process and the user
 still receives task notifications (OS-level + an on-screen feed). Unlock is a
@@ -37,9 +37,9 @@ of scope.
 ## Threat model
 
 In scope: a person with access to your **running, unlocked computer** who tries
-to read or operate Exodus, or hit its local API from another process/machine.
+to read or operate Actovia, or hit its local API from another process/machine.
 
-Out of scope: filesystem-level access (copying `~/.exodus/database`, deleting
+Out of scope: filesystem-level access (copying `~/.actovia/database`, deleting
 the lock record). Because data is not encrypted at rest, filesystem access
 bypasses the lock by design.
 
@@ -71,7 +71,7 @@ network and the API gate can be unconditional.
 - `src/main/lib/lock/pin-store.ts` — persistence. Hash = `scrypt(pin, salt)`
   (Node `crypto`, no new dependency), verified with `timingSafeEqual`. The
   record `{ salt, hash, version }` is serialized to JSON, wrapped with Electron
-  `safeStorage.encryptString`, and written to `~/.exodus/lock.dat`. Functions:
+  `safeStorage.encryptString`, and written to `~/.actovia/lock.dat`. Functions:
   `hasPin()`, `readRecord()`, `writeRecord()`, `verify(pin)`, `clear()`.
 - `src/main/lib/lock/idle-watcher.ts` — owns triggers. Tracks last-activity
   timestamp (updated by renderer `pingActivity`), runs an interval (~15s) and
@@ -143,7 +143,7 @@ network and the API gate can be unconditional.
 - `lock.onLaunch` (boolean)
 - `lock.onSystemSleep` (boolean)
 
-The PIN hash itself is **not** in settings — it lives only in `~/.exodus/lock.dat`.
+The PIN hash itself is **not** in settings — it lives only in `~/.actovia/lock.dat`.
 
 ## Security & error handling
 
@@ -154,7 +154,7 @@ The PIN hash itself is **not** in settings — it lives only in `~/.exodus/lock.
   the scrypt record unwrapped and log a warning. The runtime lock still
   functions; only the on-disk record's OS-encryption is lost.
 - **Forgotten PIN:** no in-app reset (an in-app reset would let an attacker at
-  your machine straight in). Recovery is deleting `~/.exodus/lock.dat` from the
+  your machine straight in). Recovery is deleting `~/.actovia/lock.dat` from the
   filesystem — consistent with the threat model (filesystem access is out of
   scope) and non-bricking (data is plaintext).
 - **API while locked:** every `/api/*` returns `423`. The renderer pauses/SWR

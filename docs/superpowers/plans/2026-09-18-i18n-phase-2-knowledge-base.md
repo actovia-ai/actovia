@@ -64,7 +64,7 @@ strings — the second of the 8 "the rest" namespaces.
   `http://localhost:9621` example placeholder, the `X-API-Key`/
   `LIGHTRAG_API_KEY` technical identifiers embedded inline in the API
   Key field's description (kept as literal text within the translated
-  sentence, same treatment as `exodus-messages` embedded in
+  sentence, same treatment as `actovia-messages` embedded in
   `fullTextSearch.indexName.description` from `settings-data-ops`), and
   the `"60"`/`"10"` numeric default placeholders (restating each
   description's own "Default N" text).
@@ -120,7 +120,7 @@ strings — the second of the 8 "the rest" namespaces.
 
 ```json
 {
-  "alert": "Exodus's knowledge base is optional and powered by a <strong>self-hosted LightRAG server that you run</strong> — Exodus only connects to it, pushing your documents and asking for relevant context; it never runs, upgrades, or manages LightRAG itself. Leave the URL empty to keep the knowledge base disabled. Retrieval is context-only: LightRAG finds relevant passages, but your configured chat model always writes the answer. The embedding model is <strong>locked once you ingest a document</strong> — changing it later requires wiping LightRAG's storage and re-adding every document, so pick one you'll keep.",
+  "alert": "Actovia's knowledge base is optional and powered by a <strong>self-hosted LightRAG server that you run</strong> — Actovia only connects to it, pushing your documents and asking for relevant context; it never runs, upgrades, or manages LightRAG itself. Leave the URL empty to keep the knowledge base disabled. Retrieval is context-only: LightRAG finds relevant passages, but your configured chat model always writes the answer. The embedding model is <strong>locked once you ingest a document</strong> — changing it later requires wiping LightRAG's storage and re-adding every document, so pick one you'll keep.",
   "serverUrl": {
     "label": "Server URL",
     "description": "Your self-hosted LightRAG server. Leave empty to disable the knowledge base."
@@ -151,7 +151,7 @@ strings — the second of the 8 "the rest" namespaces.
   },
   "connection": {
     "label": "Connection",
-    "description": "Verify Exodus can reach your LightRAG server.",
+    "description": "Verify Actovia can reach your LightRAG server.",
     "testingLabel": "Testing…",
     "testButton": "Test Connection"
   },
@@ -540,8 +540,8 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
         <AlertCircleIcon className="h-4 w-4" />
         <AlertDescription className="inline">
           <Trans ns="knowledgeBase" i18nKey="alert">
-            Exodus's knowledge base is optional and powered by a{' '}
-            <strong>self-hosted LightRAG server that you run</strong> — Exodus
+            Actovia's knowledge base is optional and powered by a{' '}
+            <strong>self-hosted LightRAG server that you run</strong> — Actovia
             only connects to it, pushing your documents and asking for relevant
             context; it never runs, upgrades, or manages LightRAG itself. Leave
             the URL empty to keep the knowledge base disabled. Retrieval is
@@ -906,14 +906,14 @@ document.
 - [ ] **Step 1: Isolated committed-tree check**
 
 ```bash
-rm -rf /tmp/exodus-committed-check
-git archive HEAD | (mkdir -p /tmp/exodus-committed-check && tar -x -C /tmp/exodus-committed-check)
-ln -s /Users/yanceyleo/Code/exodus/universal-client/node_modules /tmp/exodus-committed-check/node_modules
-cd /tmp/exodus-committed-check
+rm -rf /tmp/actovia-committed-check
+git archive HEAD | (mkdir -p /tmp/actovia-committed-check && tar -x -C /tmp/actovia-committed-check)
+ln -s /Users/yanceyleo/Code/actovia/universal-client/node_modules /tmp/actovia-committed-check/node_modules
+cd /tmp/actovia-committed-check
 ./node_modules/.bin/tsc --noEmit -p tsconfig.node.json --composite false
 ./node_modules/.bin/tsc --noEmit -p tsconfig.web.json --composite false
-cd /Users/yanceyleo/Code/exodus/universal-client
-rm -rf /tmp/exodus-committed-check
+cd /Users/yanceyleo/Code/actovia/universal-client
+rm -rf /tmp/actovia-committed-check
 ```
 
 Expected: no errors.

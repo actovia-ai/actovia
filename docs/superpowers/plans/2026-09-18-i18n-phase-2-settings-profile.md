@@ -263,7 +263,7 @@ Replace with:
   "personality": {
     "baseStyle": {
       "label": "Base style and tone",
-      "description": "Set the style and tone of how Exodus responds to you",
+      "description": "Set the style and tone of how Actovia responds to you",
       "options": {
         "default": "Default",
         "professional": "Professional",
@@ -289,7 +289,7 @@ Replace with:
     },
     "nickname": {
       "label": "Nickname",
-      "placeholder": "What should Exodus call you?"
+      "placeholder": "What should Actovia call you?"
     },
     "occupation": {
       "label": "Occupation",
@@ -322,7 +322,7 @@ Replace with:
   it('has the Personality tab keys', () => {
     expect(settings.personality.baseStyle.label).toBe('Base style and tone')
     expect(settings.personality.baseStyle.description).toBe(
-      'Set the style and tone of how Exodus responds to you'
+      'Set the style and tone of how Actovia responds to you'
     )
     expect(settings.personality.baseStyle.options).toMatchObject({
       default: 'Default',
@@ -350,7 +350,7 @@ Replace with:
     )
     expect(settings.personality.nickname.label).toBe('Nickname')
     expect(settings.personality.nickname.placeholder).toBe(
-      'What should Exodus call you?'
+      'What should Actovia call you?'
     )
     expect(settings.personality.occupation.label).toBe('Occupation')
     expect(settings.personality.occupation.placeholder).toBe(

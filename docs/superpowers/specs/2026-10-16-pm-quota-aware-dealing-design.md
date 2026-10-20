@@ -1,7 +1,7 @@
 # Quota-aware dealing — the PM picks the employee (and so the model) with the CLIs' limits in view
 
 Date: 2026-10-16 · Status: implemented 2026-10-16 (plan docs/superpowers/plans/2026-10-16-pm-quota-aware-dealing.md)
-Repo: `exodus`, branch `maintenance`
+Repo: `actovia`, branch `maintenance`
 Builds on: `2026-10-09-coding-agent-employees-design.md` (Claude Code employees) and
 `2026-10-10-codex-employees-design.md` (Codex employees). Everything there holds unless this spec
 says otherwise — in particular phase 1's "usage, limits, cost: reported as the CLI reports them",
@@ -117,7 +117,7 @@ type CliQuota = {
   `listCodexModels` (initialize → `account/rateLimits/read` → exit), cached 60 s. Its
   `account/rateLimits/updated` during a run becomes the same `quota` event, merged into the stored
   record per the protocol's note.
-- Persisted to `~/.exodus/agent-quota.json` (a Claude Code reading is only refreshed by the next
+- Persisted to `~/.actovia/agent-quota.json` (a Claude Code reading is only refreshed by the next
   run, so it must survive a restart). Not secret, machine-local, not part of `db-io` or backups; a
   data reset removes it.
 - A read never throws: a CLI that reports nothing (logged out, older version, offline) has no
@@ -205,6 +205,6 @@ guidance), `ai/philharmonic/pm-tools.ts` (`delegateTask` guard, `waitForQuota`),
 
 Coding agents produce things the PM cannot read as text — a Claude artifact or a prototype in the
 browser, a running app, a video. For the PM (or a reviewer employee) to look at them and sign off,
-Philharmonic needs computer use: open it, look, judge, give direction. Exodus has a window-scoped
+Philharmonic needs computer use: open it, look, judge, give direction. Actovia has a window-scoped
 Computer Use V0 for chat (`src/main/lib/computer/`); whether and how it extends to Philharmonic is
 its own research and spec, after this one.

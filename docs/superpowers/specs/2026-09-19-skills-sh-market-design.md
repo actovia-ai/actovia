@@ -5,18 +5,18 @@ Status: Approved (autonomous session), implemented in the same branch
 
 ## Summary
 
-Exodus's Skills Market moves off ClawHub (dropped for quality reasons; the
+Actovia's Skills Market moves off ClawHub (dropped for quality reasons; the
 settings tab has been a placeholder since the Forge migration) onto
 **skills.sh**, the open Agent Skills registry. The integration was already
-proven in `exodus-cli` (`../cli`): a small BFF relay
+proven in `@actovia-ai/cli` (`../cli`): a small BFF relay
 (`https://skills-md.yancey.app`, `/api/v1/skills…`) fronts skills.sh, skills
-install as plain files into `~/.exodus/skills/<slug>/` and are recorded in
-`~/.exodus/skills/.lock.json`. This design ports that client + store into the
+install as plain files into `~/.actovia/skills/<slug>/` and are recorded in
+`~/.actovia/skills/.lock.json`. This design ports that client + store into the
 main process behind the existing `skills-manager.ts` seam, adds a
 `/api/v1/skills` route, and rebuilds the Settings → Skills Market page as a
 GUI with the same flows as the CLI's TUI: browse (Trending / Hot / All time),
 search, open a detail page with the security audit and README, install,
-toggle, uninstall. Every detail page also shows the equivalent `exodus-cli`
+toggle, uninstall. Every detail page also shows the equivalent `@actovia-ai/cli`
 command, and the page ends with a callout recommending the CLI.
 
 ## Goals
@@ -29,10 +29,10 @@ command, and the page ends with a callout recommending the CLI.
 - Install / uninstall / toggle-active; installed skills are injected into the
   chat and Philharmonic system prompts again (the seam's three functions come
   back to life).
-- Byte-for-byte compatibility with `exodus-cli`: same directory, same
+- Byte-for-byte compatibility with `@actovia-ai/cli`: same directory, same
   lockfile shape (`source?: "skills.sh"` is the only field the CLI added), so
   a skill installed either way shows up in both.
-- Recommend `exodus-cli` in the UI: the exact `exodus skills install <id>`
+- Recommend `@actovia-ai/cli` in the UI: the exact `actovia skills install <id>`
   command on every detail page (copyable) and a footer notice with the
   install one-liner.
 
@@ -41,7 +41,7 @@ command, and the page ends with a callout recommending the CLI.
 - Local zip/folder installs (the old ClawHub UI had them; the CLI does not,
   and the `select-skill-path` IPC handler was never ported — the dangling
   renderer wrapper is removed).
-- A settings field for the BFF URL. `EXODUS_SKILLS_BFF_URL` (main process
+- A settings field for the BFF URL. `ACTOVIA_SKILLS_BFF_URL` (main process
   env) overrides the constant, exactly as in the CLI.
 - Skill authoring/publishing, ratings, or a second registry.
 
@@ -53,7 +53,7 @@ renderer (Settings → Skills Market)
                                                               │
 main process                                                  ▼
   server/routes/skills.ts ──▶ ai/skills/skills-sh-client.ts ──▶ skills.sh BFF
-                          ──▶ ai/skills/skills-store.ts     ──▶ ~/.exodus/skills
+                          ──▶ ai/skills/skills-store.ts     ──▶ ~/.actovia/skills
   ai/skills/skills-manager.ts (seam: chat + Philharmonic prompts) ──▶ store
 ```
 
@@ -97,13 +97,13 @@ One settings page, `max-w-3xl`, two tabs.
   audit** — a summary line ("4 of 5 checks passed") and one row per provider
   with a pass/warn/fail mark, risk level, summary and check date — this is
   the page's one bold element, since audit quality is why skills.sh replaced
-  ClawHub; the copyable `$ exodus skills install <id>` command box (skills.sh's "Try
+  ClawHub; the copyable `$ actovia skills install <id>` command box (skills.sh's "Try
   it now" treatment); the rendered README; a collapsible file list. Section
   headings are small tracked mono labels, as on skills.sh.
 - **Installed**: rows with the display name, slug, version (hash), source
   badge (skills.sh / Legacy), install date, an active switch and an uninstall
   button with a confirm dialog.
-- Footer notice on both tabs recommending `exodus-cli`.
+- Footer notice on both tabs recommending `@actovia-ai/cli`.
 
 Empty and error states give a next step ("Couldn't reach skills.sh. Check
 your connection, then retry.").

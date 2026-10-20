@@ -1,4 +1,4 @@
-# Computer Use — A Survey Toward Exodus's "Computer Runtime"
+# Computer Use — A Survey Toward Actovia's "Computer Runtime"
 
 **Date:** 2026-09-06 · **Status:** research / literature survey. No
 implementation commitment.
@@ -14,14 +14,14 @@ closed-loop control system on the model of Tesla FSD: the screen is a
 sensor, the model maintains a continuously-updated world state, a
 high-level agent sets goals, and a low-level controller drives
 mouse/keyboard from continuous visual feedback. This document checks that
-thesis against the literature and derives what Exodus can actually build.
+thesis against the literature and derives what Actovia can actually build.
 
 **Bottom line up front.** The blog was ~12–18 months early and the field
 has now converged on most of it — _video-native perception_,
 _observation control_, _GUI world models_, _brain/controller hierarchy_,
 and _the latency problem_ are all named, active research directions in 2026. **Nobody has shipped the full loop.** The hard parts (a reliable
 GUI world model; real-time streaming control) are exactly where research
-is currently stuck. Exodus cannot close those gaps — but it is unusually
+is currently stuck. Actovia cannot close those gaps — but it is unusually
 well-placed to be the _harness_: a shipping, multi-model, fully-traced
 operator environment. That is a systems-and-measurement contribution, and
 it is enough for a paper.
@@ -45,10 +45,10 @@ Five claims:
    later transfer to a physical robot.
 
 The thread converges these into an architecture — a **`Computer Runtime`**
-module Exodus owns, with the Agent layer swappable:
+module Actovia owns, with the Agent layer swappable:
 
 ```
-Exodus
+Actovia
  ├── Agent            (GPT-6 Astra / Claude 5 / Gemini CU / local — swappable)
  ├── Tools            (GraphRAG, Browser, Code, Computer)
  └── Computer Runtime
@@ -286,7 +286,7 @@ This is the blog restated by 2026 papers, sometimes almost verbatim:
 - Product per-task cost has already fallen **$0.50–1.50 (2024) →
   $0.05–0.15 (2026)** on the cloud side.
 
-**So "collocated inference" for Exodus is real and affordable:** an
+**So "collocated inference" for Actovia is real and affordable:** an
 INT4 grounding VLM on the homelab, reached over Tailscale (single-digit-ms
 RTT). Not a neighbourhood substation — a box in a closet — but the same
 architectural idea.
@@ -385,9 +385,9 @@ first-class capability, and current frontier models are bad at it
 
 ---
 
-## 6. What Exodus should build
+## 6. What Actovia should build
 
-**Exodus will not out-model the frontier labs.** It _can_ be the best
+**Actovia will not out-model the frontier labs.** It _can_ be the best
 open **operator harness**: model-agnostic, fully sandboxed, and — uniquely
 — **fully traced** (every episode is one `traceId` in the logging system
 shipped this week; every step a structured log line). When the next
@@ -424,7 +424,7 @@ that _environments and data_, not model weights, are the bottleneck.
 
 ## 7. If this becomes a paper
 
-Exodus's credible contribution is **systems + measurement**, not a new
+Actovia's credible contribution is **systems + measurement**, not a new
 model:
 
 1. **A model-agnostic, fully-traced operator harness** — architecture,
@@ -443,7 +443,7 @@ model:
    that decides _when to invoke the expensive model_, evaluated on
    over/under-observation (LivingScreen-style) and on cost.
 
-None of these need frontier compute. All of them need exactly what Exodus
+None of these need frontier compute. All of them need exactly what Actovia
 is: a real app, multiple models, real users, and good instrumentation.
 
 ---

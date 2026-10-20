@@ -1,8 +1,8 @@
-# Data Controls, Auto Backup & ~/.exodus Migration — Implementation Plan
+# Data Controls, Auto Backup & ~/.actovia Migration — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Migrate business data to `~/.exodus`, implement automatic daily backups, and complete the Data Controls settings page (import, export, delete, backup management).
+**Goal:** Migrate business data to `~/.actovia`, implement automatic daily backups, and complete the Data Controls settings page (import, export, delete, backup management).
 
 **Architecture:** Centralize all path logic in a new `paths.ts` module. Add a backup engine using PGlite's `dumpDataDir()` with `node-cron` scheduling. Extend db-io routes for import-all and reset. Rebuild the Data Controls UI with four sections: auto backup, export, import, delete.
 
@@ -36,36 +36,38 @@ describe('paths', () => {
     paths = await import('./paths')
   })
 
-  it('getExodusHome returns ~/.exodus', () => {
-    const home = paths.getExodusHome()
-    expect(home).toBe(join(paths.getHomedir(), '.exodus'))
+  it('getActoviaHome returns ~/.actovia', () => {
+    const home = paths.getActoviaHome()
+    expect(home).toBe(join(paths.getHomedir(), '.actovia'))
   })
 
-  it('getDatabaseDir returns ~/.exodus/database', () => {
+  it('getDatabaseDir returns ~/.actovia/database', () => {
     expect(paths.getDatabaseDir()).toBe(
-      join(paths.getHomedir(), '.exodus', 'database')
+      join(paths.getHomedir(), '.actovia', 'database')
     )
   })
 
-  it('getLogsDir returns ~/.exodus/logs', () => {
-    expect(paths.getLogsDir()).toBe(join(paths.getHomedir(), '.exodus', 'logs'))
+  it('getLogsDir returns ~/.actovia/logs', () => {
+    expect(paths.getLogsDir()).toBe(
+      join(paths.getHomedir(), '.actovia', 'logs')
+    )
   })
 
-  it('getSkillsDir returns ~/.exodus/skills', () => {
+  it('getSkillsDir returns ~/.actovia/skills', () => {
     expect(paths.getSkillsDir()).toBe(
-      join(paths.getHomedir(), '.exodus', 'skills')
+      join(paths.getHomedir(), '.actovia', 'skills')
     )
   })
 
-  it('getAutoBackupsDir returns ~/.exodus/backups/auto', () => {
+  it('getAutoBackupsDir returns ~/.actovia/backups/auto', () => {
     expect(paths.getAutoBackupsDir()).toBe(
-      join(paths.getHomedir(), '.exodus', 'backups', 'auto')
+      join(paths.getHomedir(), '.actovia', 'backups', 'auto')
     )
   })
 
-  it('getManualBackupsDir returns ~/.exodus/backups/manual', () => {
+  it('getManualBackupsDir returns ~/.actovia/backups/manual', () => {
     expect(paths.getManualBackupsDir()).toBe(
-      join(paths.getHomedir(), '.exodus', 'backups', 'manual')
+      join(paths.getHomedir(), '.actovia', 'backups', 'manual')
     )
   })
 })
@@ -87,26 +89,26 @@ import { join } from 'path'
 /** Exposed for testing only */
 export const getHomedir = homedir
 
-export function getExodusHome(): string {
-  return join(getHomedir(), '.exodus')
+export function getActoviaHome(): string {
+  return join(getHomedir(), '.actovia')
 }
 
 export function getDatabaseDir(): string {
-  return join(getExodusHome(), 'database')
+  return join(getActoviaHome(), 'database')
 }
 
 export function getLogsDir(): string {
-  const dir = join(getExodusHome(), 'logs')
+  const dir = join(getActoviaHome(), 'logs')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   return dir
 }
 
 export function getSkillsDir(): string {
-  return join(getExodusHome(), 'skills')
+  return join(getActoviaHome(), 'skills')
 }
 
 export function getBackupsDir(): string {
-  return join(getExodusHome(), 'backups')
+  return join(getActoviaHome(), 'backups')
 }
 
 export function getAutoBackupsDir(): string {
@@ -122,12 +124,12 @@ export function getManualBackupsDir(): string {
 }
 
 /**
- * Ensure the ~/.exodus root and all subdirectories exist.
+ * Ensure the ~/.actovia root and all subdirectories exist.
  * Called once at app startup before anything else.
  */
-export function ensureExodusDirs(): void {
+export function ensureActoviaDirs(): void {
   const dirs = [
-    getExodusHome(),
+    getActoviaHome(),
     getDatabaseDir(),
     getLogsDir(),
     getSkillsDir(),
@@ -149,7 +151,7 @@ Expected: PASS
 
 ```bash
 git add src/main/lib/paths.ts src/main/lib/paths.test.ts
-git commit -m "feat: add centralized paths module for ~/.exodus directory"
+git commit -m "feat: add centralized paths module for ~/.actovia directory"
 ```
 
 ---
@@ -279,7 +281,7 @@ git commit -m "refactor: migrate all path references to centralized paths module
 
 ---
 
-### Task 3: Add data migration logic (old location → ~/.exodus)
+### Task 3: Add data migration logic (old location → ~/.actovia)
 
 **Files:**
 
@@ -298,9 +300,9 @@ import { tmpdir } from 'os'
 
 // These tests use real filesystem in tmpdir
 describe('migrateFromLegacyLocation', () => {
-  const testHome = join(tmpdir(), 'exodus-test-' + Date.now())
-  const legacyDir = join(testHome, 'Library', 'Application Support', 'Exodus')
-  const newHome = join(testHome, '.exodus')
+  const testHome = join(tmpdir(), 'actovia-test-' + Date.now())
+  const legacyDir = join(testHome, 'Library', 'Application Support', 'Actovia')
+  const newHome = join(testHome, '.actovia')
 
   beforeEach(() => {
     // Clean up
@@ -336,20 +338,20 @@ import { app } from 'electron'
 
 /**
  * One-time migration: move database/, logs/, skills/ from
- * ~/Library/Application Support/Exodus/ to ~/.exodus/
+ * ~/Library/Application Support/Actovia/ to ~/.actovia/
  *
  * Only runs if data exists at old location but not at new location.
  * Uses renameSync for atomic same-disk move.
  */
 export function migrateFromLegacyLocation(): void {
-  const legacyBase = app.getPath('userData') // ~/Library/Application Support/Exodus
+  const legacyBase = app.getPath('userData') // ~/Library/Application Support/Actovia
   const subdirs = ['database', 'logs', 'skills']
 
-  ensureExodusDirs()
+  ensureActoviaDirs()
 
   for (const sub of subdirs) {
     const oldPath = join(legacyBase, sub)
-    const newPath = join(getExodusHome(), sub)
+    const newPath = join(getActoviaHome(), sub)
 
     // Only migrate if old exists and new doesn't (or new is empty dir we just created)
     if (existsSync(oldPath)) {
@@ -376,7 +378,7 @@ In `src/main/index.ts`, add before `runMigrate()`:
 import { migrateFromLegacyLocation } from './lib/paths'
 
 // Inside app.whenReady():
-// Migrate data from legacy location to ~/.exodus (one-time, idempotent)
+// Migrate data from legacy location to ~/.actovia (one-time, idempotent)
 migrateFromLegacyLocation()
 ```
 
@@ -389,7 +391,7 @@ Expected: PASS
 
 ```bash
 git add src/main/lib/paths.ts src/main/index.ts
-git commit -m "feat: add one-time data migration from legacy location to ~/.exodus"
+git commit -m "feat: add one-time data migration from legacy location to ~/.actovia"
 ```
 
 ---
@@ -936,7 +938,7 @@ export function useDbIo() {
       const blob = await exportDataService()
       downloadFile(
         blob,
-        `exodus-export-${new Date().toISOString().slice(0, 10)}.zip`
+        `actovia-export-${new Date().toISOString().slice(0, 10)}.zip`
       )
       sileo.success({ title: 'Data exported successfully' })
     } catch (e) {
@@ -1113,7 +1115,7 @@ export function DataControls() {
       {/* Automatic Backups */}
       <SettingsRow
         label="Automatic Backups"
-        description="Back up your data daily at 3:00 AM. Backups are stored locally in ~/.exodus/backups/."
+        description="Back up your data daily at 3:00 AM. Backups are stored locally in ~/.actovia/backups/."
       >
         <div className="flex items-center gap-3">
           <Switch
@@ -1334,13 +1336,13 @@ Run: `pnpm dev`
 
 Verify:
 
-1. App starts, `~/.exodus/` directory is created with subdirectories
+1. App starts, `~/.actovia/` directory is created with subdirectories
 2. If data existed in old location, it was migrated
 3. Settings → Data Controls page renders correctly
-4. "Back Up Now" creates a file in `~/.exodus/backups/auto/`
+4. "Back Up Now" creates a file in `~/.actovia/backups/auto/`
 5. Export downloads a ZIP file
 6. Import accepts a ZIP and restores data
 7. Delete requires typing "DELETE" and clears data
-8. Logs are written to `~/.exodus/logs/`
+8. Logs are written to `~/.actovia/logs/`
 
 - [ ] **Step 5: Final commit if any fixes needed**

@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Repo `/Users/yanceyleo/Code/exodus/exodus`, branch `maintenance`, work in place (the owner declined worktrees). Commit by explicit paths only (`git add <paths>` / `git commit -o`); never `git stash`, `reset`, `restore`, `checkout`; never push. Trailer on every commit: `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
+- Repo `/Users/yanceyleo/Code/actovia/actovia`, branch `maintenance`, work in place (the owner declined worktrees). Commit by explicit paths only (`git add <paths>` / `git commit -o`); never `git stash`, `reset`, `restore`, `checkout`; never push. Trailer on every commit: `Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>`.
 - The pre-commit hook runs lint-staged (fmt + lint), typecheck and `i18n:check`; run the task's own tests with `bun run test <file>` before each commit, and the whole suite (`bun run test`) once before the last task's commit. `bun run fmt` may touch only the files you own.
 - Strings: every new user-facing string is a key in `packages/shared/src/i18n/locales/en/<ns>.json`, translated in the same commit into the other nine locales (de, es, fr, it, ja, ko, pt-BR, zh-Hant-HK, zh-Hant-TW). Plural keys: en, de, es, fr, it, pt-BR carry `_one` and `_other`; ja, ko, zh-Hant-HK, zh-Hant-TW carry `_other` only (as `sourcesPanel.title_other` did).
 - Test ids: every interactive element added gets a `TEST_IDS` entry (`packages/shared/src/constants/test-ids.ts`), is applied in renderer source and referenced in a test under `tests/`; never a raw `data-testid="…"` string; never rename an existing id (`close-tab` stays `close-tab`).
@@ -583,7 +583,7 @@ Expected: the new cases FAIL (Mod+W navigates nowhere / `[` unbound); existing c
 Replace `src/renderer/hooks/use-keyboard-shortcuts.ts` from the imports through the end with:
 
 ```ts
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useHotkeys } from '@tanstack/react-hotkeys'
 import type { ParseKeys } from 'i18next'
 import { useSetAtom } from 'jotai'
@@ -832,7 +832,7 @@ export function useKeyboardShortcuts() {
 
 1. `git rm src/renderer/layouts/chat-layout/chat-tabs.tsx`.
 2. `packages/shared/src/types/chat.ts`: delete the line `export type ChatTab = { id: string; title: string }` (and the blank line after it).
-3. `src/renderer/stores/chat.ts`: the import becomes `import { Attachment } from '@exodus/shared/types/chat'`; delete `export type { ChatTab }` and `export const openTabsAtom = atom<ChatTab[]>([])`.
+3. `src/renderer/stores/chat.ts`: the import becomes `import { Attachment } from '@actovia/shared/types/chat'`; delete `export type { ChatTab }` and `export const openTabsAtom = atom<ChatTab[]>([])`.
 4. `src/renderer/layouts/chat-layout/nav-histories.tsx`: the store import becomes `import { renamedChatTitleAtom, toBeDeletedChatAtom } from '@/stores/chat'`; delete `const setOpenTabs = useSetAtom(openTabsAtom)`; the row's link becomes
    ```tsx
          <SidebarMenuButton
@@ -1018,7 +1018,7 @@ git commit -m "feat(chat): the tab strip is gone — a sidebar click just opens 
 
 **Interfaces:**
 
-- Consumes: `withBlockText` (`@exodus/shared/utils/interactive-plain-text`), `withReferences(markdown, sources, heading)` (`@/lib/citation-references`), `userMessageText` (`@/lib/user-message-text`), `TOOL_NAMES`.
+- Consumes: `withBlockText` (`@actovia/shared/utils/interactive-plain-text`), `withReferences(markdown, sources, heading)` (`@/lib/citation-references`), `userMessageText` (`@/lib/user-message-text`), `TOOL_NAMES`.
 - Produces: `ExportLabels { you: string; assistant: string; references: string; pictures(count: number): string; tool(name: string): string }`, `chatToMarkdown(title: string, messages: ChatMessage[], labels: ExportLabels): string`, `exportFileName(title: string): string`; main: `printDocument(markdown: string): string` (a whole HTML document).
 
 - [ ] **Step 1: Write the failing export tests**
@@ -1026,10 +1026,10 @@ git commit -m "feat(chat): the tab strip is gone — a sidebar click just opens 
 `tests/unit/renderer/lib/chat-export.test.ts`:
 
 ```ts
-// The chat as a document: each run as You / Exodus paragraphs, tool calls as
+// The chat as a document: each run as You / Actovia paragraphs, tool calls as
 // quoted lines, citations as numbered references resolved against the
 // sources found up to that run.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -1040,7 +1040,7 @@ import {
 
 const labels: ExportLabels = {
   you: 'You',
-  assistant: 'Exodus',
+  assistant: 'Actovia',
   references: 'References',
   pictures: (count) => `${count} picture${count === 1 ? '' : 's'} attached`,
   tool: (name) => `Tool: ${name}`
@@ -1124,11 +1124,11 @@ describe('chatToMarkdown', () => {
         '# Trip',
         '**You:**\n\nWho won?\n\n_1 picture attached_',
         '> Tool: web_search',
-        '**Exodus:**\n\nA won[1].\n\n---\n\n## References\n\n- [1] A title (a.example) https://a.example/x',
+        '**Actovia:**\n\nA won[1].\n\n---\n\n## References\n\n- [1] A title (a.example) https://a.example/x',
         '**You:**\n\nAnd then?',
         '> Tool: web_search',
         '> Tool: terminal',
-        '**Exodus:**\n\nB next[1].\n\n---\n\n## References\n\n- [1] B title (b.example) https://b.example/y'
+        '**Actovia:**\n\nB next[1].\n\n---\n\n## References\n\n- [1] B title (b.example) https://b.example/y'
       ].join('\n\n') + '\n'
     )
   })
@@ -1191,14 +1191,14 @@ Expected: FAIL — cannot resolve `@/lib/chat-export`.
 `src/renderer/lib/chat-export.ts`:
 
 ```ts
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
   ChatToolResultMessage,
   ChatUserMessage
-} from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
-import { withBlockText } from '@exodus/shared/utils/interactive-plain-text'
+} from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { withBlockText } from '@actovia/shared/utils/interactive-plain-text'
 
 import { withReferences } from '@/lib/citation-references'
 import { userMessageText } from '@/lib/user-message-text'
@@ -1221,7 +1221,7 @@ interface Run {
 /**
  * The chat as a Markdown document (spec 2026-10-08 §4): `# title`, then each
  * run as a **You:** paragraph (its pictures as a count), the tools it called
- * as quoted lines, and an **Exodus:** paragraph — the answer's text blocks
+ * as quoted lines, and an **Actovia:** paragraph — the answer's text blocks
  * joined, through the same rules Copy uses: a block's words instead of its
  * JSON (`withBlockText`), citation markers as [n] with the sources listed
  * under it (`withReferences`, against the sources found up to that run).
@@ -1404,7 +1404,7 @@ Run: `bun run test tests/unit/main/lib/print-document.test.ts tests/unit/rendere
 
 ```bash
 git add src/renderer/lib/chat-export.ts src/main/lib/pdf/print-document.ts src/main/lib/server/routes/tools.ts tests/unit/renderer/lib/chat-export.test.ts tests/unit/main/lib/print-document.test.ts
-git commit -m "feat(chat): a chat as a Markdown document — You / Exodus paragraphs, tool calls quoted, citations as references against the sources found so far — and a print sheet under every PDF export" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
+git commit -m "feat(chat): a chat as a Markdown document — You / Actovia paragraphs, tool calls quoted, citations as references against the sources found so far — and a print sheet under every PDF export" -m "Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>"
 ```
 
 ---
@@ -1430,11 +1430,11 @@ git commit -m "feat(chat): a chat as a Markdown document — You / Exodus paragr
 Create `src/renderer/lib/generated-image.ts`:
 
 ```ts
-import { BASE_URL } from '@exodus/shared/constants/systems'
+import { BASE_URL } from '@actovia/shared/constants/systems'
 import type {
   GeneratedImage,
   LegacyGeneratedImage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 
 import { isRasterDataUrl } from '@/components/markdown/remote-image'
 
@@ -1473,7 +1473,7 @@ In `image-generation-card.tsx`: delete the `imageSrcOf` function and its doc com
 // What the header's panel lists, derived from the chat's messages: the
 // user's pictures and what the tools made (newest first), every tool called
 // with its count, and the sources found, grouped by the run's question.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -1694,14 +1694,14 @@ Expected: FAIL — cannot resolve `@/lib/chat-panel-items`.
 `src/renderer/lib/chat-panel-items.ts`:
 
 ```ts
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
   ChatToolResultMessage,
   ImageContent,
   ImageGenerationDetails
-} from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 
 import { imageSrcOf } from '@/lib/generated-image'
 import { userMessageText } from '@/lib/user-message-text'
@@ -2153,7 +2153,7 @@ export const chatMessagesAtom = atom<ChatMessage[]>([])
 export const revealArtifactAtom = atom<string | null>(null)
 ```
 
-and add `ChatMessage` to the `@exodus/shared/types/chat` import (`import { Attachment, ChatMessage } from '@exodus/shared/types/chat'`).
+and add `ChatMessage` to the `@actovia/shared/types/chat` import (`import { Attachment, ChatMessage } from '@actovia/shared/types/chat'`).
 
 `chat.tsx`: import `chatMessagesAtom` from `@/stores/chat` (join the existing import), add `const setChatMessages = useSetAtom(chatMessagesAtom)` beside `setChatStop`, and after the `setChatStop` effect:
 
@@ -2319,8 +2319,8 @@ it('has the header panel keys', () => {
 // @vitest-environment happy-dom
 // The header's panel: what the chat produced and used, in three sections,
 // each row a way back to its run.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -2591,8 +2591,8 @@ Expected: FAIL — cannot resolve `@/components/chat/panel/chat-panel`.
 `src/renderer/components/chat/panel/chat-panel.tsx`:
 
 ```tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   File01Icon,
   SparklesIcon,
@@ -3000,7 +3000,7 @@ In every `packages/shared/src/i18n/locales/<locale>/chat.json`, insert `"header"
 | header.phoneNotPaired | No phone connected          | Kein Telefon verbunden              | Ningún teléfono conectado        | Aucun téléphone connecté             | Nessun telefono connesso         |
 | header.panel          | Files, tools and sources    | Dateien, Tools und Quellen          | Archivos, herramientas y fuentes | Fichiers, outils et sources          | File, strumenti e fonti          |
 | export.you            | You                         | Du                                  | Tú                               | Vous                                 | Tu                               |
-| export.assistant      | Exodus                      | Exodus                              | Exodus                           | Exodus                               | Exodus                           |
+| export.assistant      | Actovia                     | Actovia                             | Actovia                          | Actovia                              | Actovia                          |
 | export.pictures_one   | {{count}} picture attached  | {{count}} Bild angehängt            | {{count}} imagen adjunta         | {{count}} image jointe               | {{count}} immagine allegata      |
 | export.pictures_other | {{count}} pictures attached | {{count}} Bilder angehängt          | {{count}} imágenes adjuntas      | {{count}} images jointes             | {{count}} immagini allegate      |
 | export.tool           | Tool: {{name}}              | Tool: {{name}}                      | Herramienta: {{name}}            | Outil : {{name}}                     | Strumento: {{name}}              |
@@ -3022,7 +3022,7 @@ In every `packages/shared/src/i18n/locales/<locale>/chat.json`, insert `"header"
 | header.phoneNotPaired | スマートフォン未接続           | 연결된 휴대폰 없음          | Nenhum telefone conectado        | 未連線手機            | 未連線手機            |
 | header.panel          | ファイル・ツール・ソース       | 파일, 도구 및 출처          | Arquivos, ferramentas e fontes   | 檔案、工具與來源      | 檔案、工具與來源      |
 | export.you            | あなた                         | 나                          | Você                             | 你                    | 你                    |
-| export.assistant      | Exodus                         | Exodus                      | Exodus                           | Exodus                | Exodus                |
+| export.assistant      | Actovia                        | Actovia                     | Actovia                          | Actovia               | Actovia               |
 | export.pictures_one   | —                              | —                           | {{count}} imagem anexada         | —                     | —                     |
 | export.pictures_other | 添付画像 {{count}} 枚          | 사진 {{count}}장 첨부       | {{count}} imagens anexadas       | 附加 {{count}} 張圖片 | 附加 {{count}} 張圖片 |
 | export.tool           | ツール: {{name}}               | 도구: {{name}}              | Ferramenta: {{name}}             | 工具：{{name}}        | 工具：{{name}}        |
@@ -3044,8 +3044,8 @@ it('has the header and export keys', () => {
 `tests/unit/renderer/lib/provider-labels.test.ts`:
 
 ```ts
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -3129,8 +3129,8 @@ describe('provider labels', () => {
 import type {
   CachedModelEntry,
   Settings
-} from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+} from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 
 /** The provider's short name, as the Settings tabs spell it. */
 export const PROVIDER_SHORT_LABELS: Record<AiProviders, string> = {
@@ -3203,9 +3203,9 @@ Run: `bun run test tests/unit/renderer/lib/provider-labels.test.ts` — PASS (3 
 ```ts
 // @vitest-environment happy-dom
 // The chip in the header: which model answers, and a pick that saves it.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -3383,8 +3383,8 @@ describe('<ModelChip>', () => {
 `src/renderer/components/chat/header/model-chip.tsx`:
 
 ```tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { CachedModelEntry } from '@exodus/shared/schemas/settings-schema'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { CachedModelEntry } from '@actovia/shared/schemas/settings-schema'
 import { ArrowDown01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
@@ -3544,8 +3544,8 @@ Run: `bun run test tests/unit/renderer/components/chat/model-chip.test.ts` — P
 // @vitest-environment happy-dom
 // The ▾ beside the title: the sidebar row's actions for the chat on screen,
 // and the two exports.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -3759,7 +3759,7 @@ describe('<ChatMenu>', () => {
 `src/renderer/components/chat/header/chat-menu.tsx`:
 
 ```tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   Delete02Icon,
   FileExportIcon,
@@ -3941,8 +3941,8 @@ git commit -m "feat(chat): the header's model chip — the provider and model an
 // The header's three groups: the arrows over the app's history; on a chat
 // page the title with its streaming dot, the model chip and the menu; the
 // phone dot and the panel toggle.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -4174,7 +4174,7 @@ Expected: FAIL — cannot resolve `@/components/chat/header/chat-header`.
 `src/renderer/components/chat/header/phone-dot.tsx`:
 
 ```tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -4241,7 +4241,7 @@ export function PhoneDot() {
 `src/renderer/components/chat/header/chat-header.tsx`:
 
 ```tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,

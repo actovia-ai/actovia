@@ -140,7 +140,7 @@ handler per provider under `src/main/lib/ai/providers/list-models/`:
   a two-state choice for Gemini models.
 - **Azure**: expected to call `{endpoint}/openai/models?api-version=...` with
   the same `api-key` header already used for chat completions (no separate
-  ARM/subscription credentials — Exodus doesn't collect those). **Unverified
+  ARM/subscription credentials — Actovia doesn't collect those). **Unverified
   against a real Azure resource — flagged as a spike for the implementation
   plan.** If it doesn't pan out, Azure keeps a free-text model field instead of
   a dropdown, same as the Ollama fallback below.

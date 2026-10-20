@@ -1,12 +1,12 @@
 # Codex employees — phase 2 of coding-agent employees
 
 Date: 2026-10-10 · Status: design agreed in chat (owner, 2026-10-10); spec for the owner's review
-Repo: `exodus`, branch `coding-agents` (worktree `exodus-agents`), on top of phase 1
+Repo: `actovia`, branch `coding-agents` (worktree `actovia-agents`), on top of phase 1
 Reference: phase 1 spec `2026-10-09-coding-agent-employees-design.md` (everything there holds unless this spec says otherwise); the Codex probe of 2026-10-10 (`codex-cli 0.162.1`, ChatGPT login) and the protocol types `codex app-server generate-ts` emits.
 
 ## 1. Goal
 
-A Philharmonic employee can be the owner's own Codex, exactly as one can be their own Claude Code: the PM hands it a step, Exodus runs it in the group's folder, shows its steps on the same card, stops for the owner's Allow / Deny / answers, and returns the result. Nothing of phase 1's machinery is duplicated: Codex is a second implementation of the `AgentDriver` the step already runs on.
+A Philharmonic employee can be the owner's own Codex, exactly as one can be their own Claude Code: the PM hands it a step, Actovia runs it in the group's folder, shows its steps on the same card, stops for the owner's Allow / Deny / answers, and returns the result. Nothing of phase 1's machinery is duplicated: Codex is a second implementation of the `AgentDriver` the step already runs on.
 
 ### Decided by the owner (2026-10-10)
 
@@ -20,7 +20,7 @@ A Philharmonic employee can be the owner's own Codex, exactly as one can be thei
 ### Non-goals
 
 - `codex exec`, the Codex TypeScript SDK, or Codex Cloud.
-- "Allow for the whole session" / exec-policy amendments — Codex offers them; Exodus answers Allow (this request) or Deny only, as in phase 1. Standing rules stay in Codex's own config.
+- "Allow for the whole session" / exec-policy amendments — Codex offers them; Actovia answers Allow (this request) or Deny only, as in phase 1. Standing rules stay in Codex's own config.
 - Managing Codex's config, MCP servers, skills or login.
 - iOS (phase 3).
 
@@ -28,9 +28,9 @@ A Philharmonic employee can be the owner's own Codex, exactly as one can be thei
 
 One process per agent session: `codex app-server` in the working folder, stdio, newline-delimited JSON-RPC 2.0 **without** the `jsonrpc` field.
 
-| Direction      | Message                                                                                                                                                                                                                                             | Meaning for Exodus                                                                                                                |
+| Direction      | Message                                                                                                                                                                                                                                             | Meaning for Actovia                                                                                                               |
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| → request      | `initialize {clientInfo:{name:'exodus', title:'Exodus', version}, capabilities:null}`                                                                                                                                                               | handshake; then the `initialized` notification                                                                                    |
+| → request      | `initialize {clientInfo:{name:'actovia', title:'Actovia', version}, capabilities:null}`                                                                                                                                                             | handshake; then the `initialized` notification                                                                                    |
 | → request      | `thread/start {cwd, approvalPolicy, sandbox:'workspace-write', model?}` → `{thread:{id}, model, …}`                                                                                                                                                 | a new session; `thread.id` is the CLI session id                                                                                  |
 | → request      | `thread/resume {threadId, cwd, approvalPolicy, sandbox, model?}`                                                                                                                                                                                    | continue a session in a new process (verified: full memory, same id)                                                              |
 | → request      | `turn/start {threadId, input:[{type:'text', text, text_elements:[]}]}` → `{turn:{id}}`                                                                                                                                                              | a task or follow-up                                                                                                               |
@@ -49,7 +49,7 @@ One process per agent session: `codex app-server` in the working folder, stdio, 
 Behaviours the design must hold to:
 
 1. The first request after `initialize` must wait for its response; requests are matched by id. A server request (has `id` and `method`) must be answered exactly once — or the turn waits forever.
-2. File-change approvals carry no content; Exodus correlates by `itemId` with the `fileChange` item it already received. If no such item is known, the prompt says "the change wasn't shown — Deny unless you expected it".
+2. File-change approvals carry no content; Actovia correlates by `itemId` with the `fileChange` item it already received. If no such item is known, the prompt says "the change wasn't shown — Deny unless you expected it".
 3. A declined change/command ends that item `status:'declined'`; the agent carries on and says so (verified).
 4. Under `untrusted` every command and file change asks, except reads Codex deems safe (verified: `ls`, file writes and `sleep` all asked).
 5. Unknown notifications and item types are ignored; unknown server requests are answered with a refusal (`decline` / JSON-RPC error) and shown as a notice — never left pending, never accepted.
@@ -74,7 +74,7 @@ Behaviours the design must hold to:
 
 ## 4. Permission modes for Codex
 
-| Exodus mode                                      | Codex `approvalPolicy` | Sandbox           | Editor text for Codex                                                           |
+| Actovia mode                                     | Codex `approvalPolicy` | Sandbox           | Editor text for Codex                                                           |
 | ------------------------------------------------ | ---------------------- | ----------------- | ------------------------------------------------------------------------------- |
 | Ask before changes (`default`)                   | `untrusted`            | `workspace-write` | "Asks before every command and file change"                                     |
 | Edit freely, ask before commands (`acceptEdits`) | `on-request`           | `workspace-write` | "Works freely inside the folder; asks to go beyond it (network, other folders)" |
@@ -93,10 +93,10 @@ Behaviours the design must hold to:
 
 ## 6. Safety (phase 1 §7 holds; additions)
 
-1. Every Codex server request is answered exactly once by the owner's click, or refused by Exodus for unsupported kinds — never accepted automatically, never left pending.
-2. The sandbox is always `workspace-write`; Exodus never grants `session`-scoped permissions.
-3. File-change prompts show the full diff from the item; an approval whose content Exodus never saw says so (rule 2).
-4. Secret answers (`isSecret`) are never written to the card, the log Exodus keeps, or the DB.
+1. Every Codex server request is answered exactly once by the owner's click, or refused by Actovia for unsupported kinds — never accepted automatically, never left pending.
+2. The sandbox is always `workspace-write`; Actovia never grants `session`-scoped permissions.
+3. File-change prompts show the full diff from the item; an approval whose content Actovia never saw says so (rule 2).
+4. Secret answers (`isSecret`) are never written to the card, the log Actovia keeps, or the DB.
 
 ## 7. Edge cases
 
@@ -104,11 +104,11 @@ Behaviours the design must hold to:
 - `initialize` or `thread/start` fails (auth expired, config error): the step fails with Codex's error message; the session row keeps no thread id.
 - A turn ends `failed`: the card shows Failed with `turn.error`.
 - Two approvals pending at once (zsh-bridge subcommands carry `approvalId`): both prompts show; each answers its own request id.
-- Codex asks via MCP elicitation: refused + notice "Codex asked something Exodus can't answer — Continue in Terminal".
+- Codex asks via MCP elicitation: refused + notice "Codex asked something Actovia can't answer — Continue in Terminal".
 
 ## 8. Testing
 
 - Fixtures from the 2026-10-10 probe (sanitised): allow, decline, interrupt, resume — committed under `tests/fixtures/codex/`.
-- A fake `codex app-server` (Node) that answers `initialize` / `thread/start|resume` / `turn/start` / `turn/interrupt` from the fixtures, pauses on server requests until answered, and records what Exodus sent.
+- A fake `codex app-server` (Node) that answers `initialize` / `thread/start|resume` / `turn/start` / `turn/interrupt` from the fixtures, pauses on server requests until answered, and records what Actovia sent.
 - Protocol, run, and runAgentEmployee-with-codex tests mirroring phase 1's; the check against fake `codex` binaries (missing, broken, old, logged out).
 - Manual (owner): a Codex employee builds a file in a new project; Deny a change; Stop mid-command; Continue in Terminal; each permission mode's behaviour; a Claude Code and a Codex employee working in parallel in one repo (worktrees).

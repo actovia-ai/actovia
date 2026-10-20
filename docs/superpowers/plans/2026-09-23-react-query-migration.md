@@ -293,7 +293,7 @@ separate caches, so there's no interaction between them.
 import '@/assets/stylesheets/globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { Provider } from 'jotai'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from 'react-router'
@@ -454,7 +454,7 @@ save-success-toast and save-error-toast paths as of today's code.
 ```typescript
 // tests/unit/renderer/hooks/use-settings.test.ts
 // @vitest-environment happy-dom
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
 import { createElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -548,9 +548,9 @@ Expected: FAIL — `settingsKeys` is not exported, `useSettings` still uses `use
 
 ```typescript
 // src/renderer/hooks/use-settings.ts
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { getHttpErrorMessage, toErrorI18n } from '@exodus/shared/utils/http'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { getHttpErrorMessage, toErrorI18n } from '@actovia/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
@@ -644,7 +644,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ```typescript
 // src/renderer/services/chat.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { Chat } from '@/types/db'
 
@@ -669,7 +669,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQueryClient } from '../../../helpers/query-test-utils'
 
 const fetcher = vi.fn()
-vi.mock('@exodus/shared/utils/http', () => ({
+vi.mock('@actovia/shared/utils/http', () => ({
   fetcher: (...args: unknown[]) => fetcher(...args)
 }))
 const updateChat = vi.fn()
@@ -785,7 +785,7 @@ Expected: FAIL — `Cannot find module '@/hooks/use-chat-history'`
 
 ```typescript
 // src/renderer/hooks/use-chat-history.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { sileo } from 'sileo'
 
@@ -983,7 +983,7 @@ touch; if either fails, the regression is in this task, not in `use-chat.ts` its
 
 ```typescript
 // src/renderer/services/project.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import type { Project } from '@/types/db'
 
@@ -1117,7 +1117,7 @@ Expected: FAIL — module not found.
 
 ```typescript
 // src/renderer/hooks/use-projects.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { sileo } from 'sileo'
 
@@ -1220,7 +1220,7 @@ Remove the `swr` and `@/services/project` imports; import from `@/hooks/use-proj
 ```typescript
 // src/renderer/containers/project-detail.tsx
 // Only the data-layer lines change; every JSX/state line below `handleSave` is unchanged.
-import type { StructuredInstructions } from '@exodus/shared/schemas/project-schema'
+import type { StructuredInstructions } from '@actovia/shared/schemas/project-schema'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
@@ -1346,8 +1346,8 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ```typescript
 // src/renderer/layouts/chat-layout/search-dialog.tsx
 // Replace the import and the query line; everything else in the file is unchanged.
-import { ChatMessage } from '@exodus/shared/types/chat'
-import { fetcher } from '@exodus/shared/utils/http'
+import { ChatMessage } from '@actovia/shared/types/chat'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 // ...other existing imports unchanged (SearchIcon, useState, useTranslation, Link, Dialog*, useDebouncedValue, isFullTextSearchVisibleAtom)
@@ -1426,7 +1426,7 @@ this task does, create the minimal version here and Task 15 extends it, never re
 - [ ] **Step 1: Create `hooks/use-usage.ts`**
 
 ```typescript
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery } from '@tanstack/react-query'
 
 // src/renderer/hooks/use-usage.ts
@@ -1451,8 +1451,8 @@ adjust the import accordingly.
 
 ```typescript
 // src/renderer/hooks/use-installed-skills.ts
-import type { InstalledSkill } from '@exodus/shared/types/skills'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { InstalledSkill } from '@actovia/shared/types/skills'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery } from '@tanstack/react-query'
 
 import { INSTALLED_SKILLS_KEY as INSTALLED_SKILLS_URL } from '@/services/skills'
@@ -1511,9 +1511,9 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ```typescript
 // components/settings/settings-form/providers/ollama.tsx
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
-import { fetcher } from '@exodus/shared/utils/http'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery } from '@tanstack/react-query'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -1670,7 +1670,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ```typescript
 // src/renderer/hooks/use-logs.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 // Match the response shapes logger.tsx already declares/imports today —
@@ -1753,7 +1753,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 - [ ] **Step 1: Implement the hook**
 
 ```typescript
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 // src/renderer/hooks/use-analytics.ts
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -1825,9 +1825,9 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ```typescript
 // Match the McpToolsGroup type mcp-servers.tsx/composer-tools.tsx already
 // import today (`grep -n "McpToolsGroup" src/renderer/components/settings/settings-form/mcp-servers.tsx`)
-import type { McpToolsGroup } from '@exodus/shared/types/mcp'
+import type { McpToolsGroup } from '@actovia/shared/types/mcp'
 // src/renderer/hooks/use-mcp.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
@@ -1882,7 +1882,7 @@ export function useDeleteMcpServer() {
 }
 ```
 
-If `@exodus/shared/types/mcp` isn't the real path for `McpToolsGroup`, correct it per the grep in
+If `@actovia/shared/types/mcp` isn't the real path for `McpToolsGroup`, correct it per the grep in
 the comment before finishing this step — don't guess.
 
 - [ ] **Step 2: Migrate `mcp-servers.tsx`**
@@ -1948,8 +1948,8 @@ present, same approach as Task 3's Step 1.
 
 ```typescript
 // src/renderer/hooks/use-discover-feed.ts
-import type { DiscoverFeedDto } from '@exodus/shared/types/discover'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { DiscoverFeedDto } from '@actovia/shared/types/discover'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 // While a refresh is running, poll so the freshly generated groups appear
@@ -2025,7 +2025,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ```typescript
 // src/renderer/hooks/use-installed-apps.ts
-import type { InstalledApp } from '@exodus/shared/types/computer-use'
+import type { InstalledApp } from '@actovia/shared/types/computer-use'
 import { useQuery } from '@tanstack/react-query'
 
 import { getInstalledApps } from '@/services/computer-use'
@@ -2112,8 +2112,8 @@ import type {
   SkillListResponse,
   SkillSearchResponse,
   SkillsView
-} from '@exodus/shared/types/skills'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/skills'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/skills'
 
@@ -2153,9 +2153,9 @@ export const toggleSkill = (slug: string, isActive: boolean) =>
     body: { isActive }
   })
 
-/** The exodus-cli equivalent of the Install button, shown on every detail page. */
+/** The @actovia-ai/cli equivalent of the Install button, shown on every detail page. */
 export function cliInstallCommand(id: string): string {
-  return `exodus skills install ${id}`
+  return `actovia skills install ${id}`
 }
 ```
 
@@ -2168,8 +2168,8 @@ migration is meant to remove. Update every import site in this task's later step
 
 ```typescript
 // src/renderer/hooks/use-installed-skills.ts
-import type { InstalledSkill } from '@exodus/shared/types/skills'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { InstalledSkill } from '@actovia/shared/types/skills'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
@@ -2228,7 +2228,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQueryClient } from '../../../helpers/query-test-utils'
 
 const fetcher = vi.fn()
-vi.mock('@exodus/shared/utils/http', () => ({
+vi.mock('@actovia/shared/utils/http', () => ({
   fetcher: (...args: unknown[]) => fetcher(...args)
 }))
 
@@ -2305,8 +2305,8 @@ import type {
   SkillListResponse,
   SkillSearchResponse,
   SkillsView
-} from '@exodus/shared/types/skills'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/skills'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { auditUrl, detailUrl, registryUrl, searchUrl } from '@/services/skills'

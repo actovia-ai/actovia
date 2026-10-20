@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A window-scoped, screenshot-loop computer-use agent for Exodus — the AI can play `Chess.app` or work through a simple web page, driven by Claude, with a human-motor action space.
+**Goal:** A window-scoped, screenshot-loop computer-use agent for Actovia — the AI can play `Chess.app` or work through a simple web page, driven by Claude, with a human-motor action space.
 
-**Architecture:** A `computerUse` calling-tool runs a **blocking** perceive→act session. `src/main/lib/computer/` is the Runtime (capture · target-window resolution · "hands" motor primitives · guard) and `src/main/lib/ai/computer-use/` is the inner-loop agent. A bundled Swift helper (`exodus-input`) does the actual screen capture and `CGEvent` posting. Every episode is one trace. All model touch points go through a `ComputerAgent` interface so a local model can be added later without touching the Runtime.
+**Architecture:** A `computerUse` calling-tool runs a **blocking** perceive→act session. `src/main/lib/computer/` is the Runtime (capture · target-window resolution · "hands" motor primitives · guard) and `src/main/lib/ai/computer-use/` is the inner-loop agent. A bundled Swift helper (`actovia-input`) does the actual screen capture and `CGEvent` posting. Every episode is one trace. All model touch points go through a `ComputerAgent` interface so a local model can be added later without touching the Runtime.
 
 **Tech Stack:** TypeScript, Electron 42 main, Swift 6 (`~/.swiftly/bin/swiftc` present), `@mariozechner/pi-ai` `complete()` with tools, Electron `nativeImage` (downscaling — no new dep), `globalShortcut`, Vitest, Playwright, React 19 + SWR.
 
@@ -34,7 +34,7 @@
 
 ## File Structure
 
-**New — Swift:** `helper-src/exodus-input/main.swift` (+ any split files) · committed binary `resources/bin/exodus-input`
+**New — Swift:** `helper-src/actovia-input/main.swift` (+ any split files) · committed binary `resources/bin/actovia-input`
 
 **New — Runtime (`src/main/lib/computer/`):** `types.ts` · `helper.ts` · `guard.ts` · `hands.ts` · `capture.ts` · `target.ts` · `ask-registry.ts` · `session.ts` · `liveness.ts`
 
@@ -52,17 +52,17 @@
 
 **Files:**
 
-- Create: `helper-src/exodus-input/main.swift`
-- Create: `resources/bin/exodus-input` (built artifact, committed)
+- Create: `helper-src/actovia-input/main.swift`
+- Create: `resources/bin/actovia-input` (built artifact, committed)
 - Modify: `package.json` (add `build:helper` script; call it from `build:mac`)
-- Test: manual — `resources/bin/exodus-input list-windows`
+- Test: manual — `resources/bin/actovia-input list-windows`
 
 **Interfaces:**
 
 - Produces (CLI contract consumed by `helper.ts` in Task 2):
-  - `exodus-input list-windows` → stdout JSON `[{ "id": number, "app": string, "bundleId": string, "title": string, "bounds": [x,y,w,h] }]` (on-screen windows, window layer 0, excluding Exodus itself)
-  - `exodus-input screenshot --window <id>` → PNG bytes on stdout, exit 1 + stderr message if the window is gone
-  - `exodus-input input [--clamp x,y,w,h]` → reads newline-delimited JSON commands on stdin, one per line: `{"op":"move","x":N,"y":N}` · `{"op":"down","button":"left|right|middle"}` · `{"op":"up","button":...}` · `{"op":"wheel","dx":N,"dy":N}` · `{"op":"key","code":N,"down":true|false}`. Executes each immediately. `--clamp` restricts `move` points to the rect.
+  - `actovia-input list-windows` → stdout JSON `[{ "id": number, "app": string, "bundleId": string, "title": string, "bounds": [x,y,w,h] }]` (on-screen windows, window layer 0, excluding Actovia itself)
+  - `actovia-input screenshot --window <id>` → PNG bytes on stdout, exit 1 + stderr message if the window is gone
+  - `actovia-input input [--clamp x,y,w,h]` → reads newline-delimited JSON commands on stdin, one per line: `{"op":"move","x":N,"y":N}` · `{"op":"down","button":"left|right|middle"}` · `{"op":"up","button":...}` · `{"op":"wheel","dx":N,"dy":N}` · `{"op":"key","code":N,"down":true|false}`. Executes each immediately. `--clamp` restricts `move` points to the rect.
 
 - [ ] **Step 1: Write `main.swift`**
 
@@ -72,30 +72,30 @@ A single-file CLI. Use `CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullW
 
 ```bash
 mkdir -p resources/bin
-swiftc -O -o /tmp/exodus-input-arm64 helper-src/exodus-input/main.swift -target arm64-apple-macos13
+swiftc -O -o /tmp/actovia-input-arm64 helper-src/actovia-input/main.swift -target arm64-apple-macos13
 # x86_64 slice only if an Intel SDK is available; otherwise ship arm64 and note it
-lipo -create -output resources/bin/exodus-input /tmp/exodus-input-arm64 || cp /tmp/exodus-input-arm64 resources/bin/exodus-input
-chmod +x resources/bin/exodus-input
+lipo -create -output resources/bin/actovia-input /tmp/actovia-input-arm64 || cp /tmp/actovia-input-arm64 resources/bin/actovia-input
+chmod +x resources/bin/actovia-input
 ```
 
 Add to `package.json`:
 
 ```json
-"build:helper": "swiftc -O -o resources/bin/exodus-input helper-src/exodus-input/main.swift"
+"build:helper": "swiftc -O -o resources/bin/actovia-input helper-src/actovia-input/main.swift"
 ```
 
 and prepend `pnpm build:helper && ` to `build:mac`.
 
 - [ ] **Step 3: Smoke test**
 
-Run: `resources/bin/exodus-input list-windows | head -c 400`
+Run: `resources/bin/actovia-input list-windows | head -c 400`
 Expected: JSON array with at least one entry that has `id`, `app`, `bounds`. (`screenshot` / `input` need TCC grants — the user grants Screen Recording + Accessibility on first real use; note this in the task report, do not block on it.)
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add helper-src/ resources/bin/exodus-input package.json
-git commit -m "feat(computer): exodus-input Swift helper (list-windows, screenshot, input)"
+git add helper-src/ resources/bin/actovia-input package.json
+git commit -m "feat(computer): actovia-input Swift helper (list-windows, screenshot, input)"
 ```
 
 ---
@@ -114,15 +114,15 @@ git commit -m "feat(computer): exodus-input Swift helper (list-windows, screensh
   - all types from spec §2.1 verbatim: `MouseButton`, `Action`, `TargetWindow`, `ComputerState`, `SessionOutcome`, `SessionResult`
   - `type HelperCommand = { op:'move'; x:number; y:number } | { op:'down'|'up'; button:MouseButton } | { op:'wheel'; dx:number; dy:number } | { op:'key'; code:number; down:boolean }`
   - `interface InputHelper { listWindows(): Promise<TargetWindow[]>; screenshot(cgWindowId:number): Promise<Buffer>; send(commands: HelperCommand[], clamp?: [number,number,number,number]): Promise<void> }`
-  - `const realHelper: InputHelper` — spawns `resources/bin/exodus-input` (resolve via `app.getAppPath()` in prod, `process.cwd()` in dev)
-  - `function getHelper(): InputHelper` — returns `mockHelper` when `process.env.EXODUS_INPUT_MOCK` is set, else `realHelper`
+  - `const realHelper: InputHelper` — spawns `resources/bin/actovia-input` (resolve via `app.getAppPath()` in prod, `process.cwd()` in dev)
+  - `function getHelper(): InputHelper` — returns `mockHelper` when `process.env.ACTOVIA_INPUT_MOCK` is set, else `realHelper`
   - `mockHelper` (exported for tests): records `send()` calls in `mockHelper.sent`, `listWindows()`/`screenshot()` return canned values settable via `mockHelper.__setWindows(...)` / `mockHelper.__setScreenshot(buf)`
 
-- [ ] **Step 1: Write the failing test** — `helper.test.ts`: `mockHelper.send([{op:'move',x:1,y:2}])` records to `mockHelper.sent`; `getHelper()` returns `mockHelper` under `EXODUS_INPUT_MOCK=1`; serialization: `realHelper` would write `'{"op":"move","x":1,"y":2}\n'` (test a private `serialize(commands)` export).
+- [ ] **Step 1: Write the failing test** — `helper.test.ts`: `mockHelper.send([{op:'move',x:1,y:2}])` records to `mockHelper.sent`; `getHelper()` returns `mockHelper` under `ACTOVIA_INPUT_MOCK=1`; serialization: `realHelper` would write `'{"op":"move","x":1,"y":2}\n'` (test a private `serialize(commands)` export).
 - [ ] **Step 2: Run, verify fail.**
 - [ ] **Step 3: Implement** `types.ts` (copy §2.1) then `helper.ts` (`child_process.spawn`, write newline-JSON to stdin, collect stdout; `serialize()` pure helper).
 - [ ] **Step 4: Run, verify pass.**
-- [ ] **Step 5: Gate + commit** — `git commit -m "feat(computer): Runtime types + exodus-input client (+ mock)"`
+- [ ] **Step 5: Gate + commit** — `git commit -m "feat(computer): Runtime types + actovia-input client (+ mock)"`
 
 ---
 
@@ -307,7 +307,7 @@ describe('Guard.noteFrame', () => {
   - The loop (spec §1 diagram): `withTrace()` → `resolveTarget` → for `step` in `1..maxSteps`: check `signal?.aborted`/`guard.aborted`; `refreshBounds`; `screenshotWindow` → `{shot, scaleFactor}`; `guard.noteFrame(hashPng(...))` → on `'stuck'` inject one `askHuman`, second stuck → `outcome:'stuck'`; build `ComputerState`; `action = await agent.nextAction(state)`; if `done` → return; if `askHuman` → `onUpdate({awaitingHuman})` + `Promise.race([computerAskRegistry.wait(id), timeout])`, feed the answer back as the next state's text (or `outcome:'abandoned'` on timeout); else `guard.check(action, viewport)` then `hands.execute(action, {target, scaleFactor, helper})`; `await sleep(settleMs)`; `onUpdate({step, action: action.kind, thumbnail: shot.data})`. After the loop without `done` → `outcome:'failed'`.
   - Catch `AbortedByUser` → `outcome:'aborted'`; `WindowGone`/`TargetNotFound` → `outcome:'failed'` with the message in `summary`.
 
-- [ ] **Step 1: Write the failing test** — a `ScriptedAgent implements ComputerAgent` (returns a queued `Action[]`), `mockHelper` with `__setWindows`/`__setScreenshot`, `EXODUS_INPUT_MOCK=1`:
+- [ ] **Step 1: Write the failing test** — a `ScriptedAgent implements ComputerAgent` (returns a queued `Action[]`), `mockHelper` with `__setWindows`/`__setScreenshot`, `ACTOVIA_INPUT_MOCK=1`:
   - happy path: `[click, type, done(success:true)]` → `outcome:'success'`, `steps:3`, `mockHelper.sent` has the click + type commands.
   - cap: an agent that always returns `wait` → after `maxSteps:5` → `outcome:'failed'`.
   - abort: `guard.abort('user')` after 2 steps (via an `onUpdate` hook) → `outcome:'aborted'`.
@@ -438,7 +438,7 @@ and `SettingsSchema` gains `computerUse: ComputerUseSchema.nullish()`.
 
 - `messages-calling-tools.tsx`: add `'computerUse'` to `BUILTIN_TOOL_NAMES`; render `{toolName === 'computerUse' && <ComputerUseCard toolResult={output} />}`.
 - `ComputerUseCard`: reads `details` (the last `SessionUpdate` streamed, or the final `{sessionId, outcome, steps}`). Renders: a header (`Computer Use · {outcome ?? 'running'}`), the current/last step + action, an optional thumbnail (`details.thumbnail` base64), and — while `!outcome` — a **Stop** button calling `abortComputerUse()`. On `details.awaitingHuman`: an inline question + text input + "Done — continue" button calling `answerComputerUse(sessionId, value || '(done)')`. On completion: a "View episode" link to `#` (V0: just show `traceId` text; wiring the Logger deep-link is optional polish).
-- `CLAUDE.md`: under "Built-in tools" add `computer-use`; add a `src/main/lib/computer/` bullet to Code Structure ("window-scoped screenshot-loop computer-use Runtime: `exodus-input` Swift helper, capture/target/hands/guard, the `runComputerSession` loop; see docs/superpowers/specs/2026-09-06-computer-use-v0-design.md"); add `/api/computer-use` to the route list.
+- `CLAUDE.md`: under "Built-in tools" add `computer-use`; add a `src/main/lib/computer/` bullet to Code Structure ("window-scoped screenshot-loop computer-use Runtime: `actovia-input` Swift helper, capture/target/hands/guard, the `runComputerSession` loop; see docs/superpowers/specs/2026-09-06-computer-use-v0-design.md"); add `/api/computer-use` to the route list.
 
 - [ ] **Step 1: implement the card + `BUILTIN_TOOL_NAMES` entry.**
 - [ ] **Step 2: `pnpm typecheck:web` + `pnpm vitest run`.**

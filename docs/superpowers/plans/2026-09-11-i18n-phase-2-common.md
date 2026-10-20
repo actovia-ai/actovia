@@ -92,7 +92,7 @@ Edit `src/shared/i18n/locales/en/common.json` — it currently reads:
 
 ```json
 {
-  "appName": "Exodus",
+  "appName": "Actovia",
   "action": {
     "save": "Save",
     "cancel": "Cancel",

@@ -12,15 +12,15 @@
 
 ## Global Constraints
 
-- Work in the git worktree `/Users/yanceyleo/Code/exodus/exodus-agents`, branch `coding-agents`. Never touch `/Users/yanceyleo/Code/exodus/exodus` (the owner's checkout). Commit locally, never push. Stage only files you changed.
+- Work in the git worktree `/Users/yanceyleo/Code/actovia/actovia-agents`, branch `coding-agents`. Never touch `/Users/yanceyleo/Code/actovia/actovia` (the owner's checkout). Commit locally, never push. Stage only files you changed.
 - Commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; the pre-commit hook (oxlint, oxfmt, typecheck, i18n:check) must pass; never `--no-verify`.
 - No legacy/back-compat shims (unreleased app): rename fields outright.
 - Codex is driven only through `codex app-server` (stdio, newline-delimited JSON-RPC without the `jsonrpc` field).
 - Codex sandbox is always `workspace-write`; `danger-full-access` is never passed. Approval policy by mode: `default` → `untrusted`, `acceptEdits` → `on-request`, `auto` → `never`.
-- Every Codex server request is answered exactly once: by the owner's click, or refused by Exodus for unsupported kinds — never accepted automatically, never left pending.
+- Every Codex server request is answered exactly once: by the owner's click, or refused by Actovia for unsupported kinds — never accepted automatically, never left pending.
 - Approvals answer only `accept` / `decline` (never `acceptForSession` or exec-policy amendments); permission grants are `scope: 'turn'` only.
 - A permission prompt's `detail` shows everything the owner approves, untruncated; every input field not rendered is appended.
-- Secret answers (`isSecret`) are never stored in the card, the DB or any log Exodus writes.
+- Secret answers (`isSecret`) are never stored in the card, the DB or any log Actovia writes.
 - Minimum Codex version `0.162.1`; the check runs `codex --version` and `codex login status` and spends no quota.
 - The CLI is named "Codex" in UI (`CLI_NAMES.codex`); "Claude Code" for the other.
 - New user-facing strings in en AND all 9 machine locales (`packages/shared/src/i18n/locales/*`), translated, in the same commit.
@@ -29,8 +29,8 @@
 
 ## Review Focus
 
-1. **A server request Exodus doesn't model (e.g. `item/tool/call`, `mcpServer/elicitation/request`, `account/chatgptAuthTokens/refresh`)** — expect an immediate refusal reply (JSON-RPC error or `decline`) and a notice, never a hang. Test in Task 3/4.
-2. **A file-change approval whose item Exodus never saw** — expect the prompt to say so ("the change wasn't shown — Deny unless you expected it"), not an empty detail. Test in Task 3.
+1. **A server request Actovia doesn't model (e.g. `item/tool/call`, `mcpServer/elicitation/request`, `account/chatgptAuthTokens/refresh`)** — expect an immediate refusal reply (JSON-RPC error or `decline`) and a notice, never a hang. Test in Task 3/4.
+2. **A file-change approval whose item Actovia never saw** — expect the prompt to say so ("the change wasn't shown — Deny unless you expected it"), not an empty detail. Test in Task 3.
 3. **`send` before the handshake finished** (a step's task arrives while `initialize`/`thread/start` is in flight) — expect it queued and sent after, not dropped. Test in Task 4.
 4. **`thread/start` / `thread/resume` failing (expired login, unknown thread)** — expect an `exit`-path failure with Codex's message, the process stopped. Test in Task 4.
 5. **Interrupt before `turn/started` arrived** (no turn id yet) — expect the interrupt sent once the turn id is known, or the turn ends interrupted; never a lost Stop. Test in Task 4.
@@ -52,7 +52,7 @@
 | renderer `agent-card-prompts.tsx`, `employee-editor.tsx`, `lib/employee-model.ts`                                                                             | Codex questions, no deny reason for Codex, Codex permission texts, model suggestions |
 | `tests/fixtures/codex/{allow-decline-interrupt,resume}.jsonl` (exist), `fake-codex.mjs` (new)                                                                 | real app-server output; a replaying fake                                             |
 
-The fixtures are the real server's stdout from the 2026-10-10 probe (sanitised: paths → `/tmp/exodus-project`, rate-limit payload replaced, noise notifications dropped). Each line is one JSON-RPC message from the server: responses (`id` + `result`), notifications (`method` + `params`), server requests (`id` + `method` + `params`). Request ids in responses refer to the probe's own request numbering: 1 `initialize`, 2 `thread/start` (or `thread/resume`), 3.. `turn/start`, and `turn/interrupt` interleaved.
+The fixtures are the real server's stdout from the 2026-10-10 probe (sanitised: paths → `/tmp/actovia-project`, rate-limit payload replaced, noise notifications dropped). Each line is one JSON-RPC message from the server: responses (`id` + `result`), notifications (`method` + `params`), server requests (`id` + `method` + `params`). Request ids in responses refer to the probe's own request numbering: 1 `initialize`, 2 `thread/start` (or `thread/resume`), 3.. `turn/start`, and `turn/interrupt` interleaved.
 
 ---
 
@@ -68,7 +68,7 @@ The fixtures are the real server's stdout from the 2026-10-10 probe (sanitised: 
 **Interfaces:**
 
 - Produces:
-  - `AGENT_RUNTIMES = ['exodus', 'claude-code', 'codex'] as const`; `CLI_IDS = ['claude-code', 'codex'] as const`; `CLI_NAMES = { 'claude-code': 'Claude Code', codex: 'Codex' }`
+  - `AGENT_RUNTIMES = ['actovia', 'claude-code', 'codex'] as const`; `CLI_IDS = ['claude-code', 'codex'] as const`; `CLI_NAMES = { 'claude-code': 'Claude Code', codex: 'Codex' }`
   - `AgentQuestion` gains `id?: string; isOther?: boolean; isSecret?: boolean` (Claude Code questions leave them unset: answers keyed by question text, free text always offered)
   - `CliStatus` gains `models: string[] | null` (model ids a CLI reported; null when unknown)
   - `AgentsSettingsSchema.defaultEmployeesCreated: z.record(z.string(), z.boolean()).optional()` — replaces `defaultEmployeeCreated` (no shim)
@@ -109,13 +109,13 @@ In `default-employees.test.ts` (read it first; it mocks settings, CLI status and
 - [ ] **Step 2: Run — expect FAIL**: `bunx vitest run tests/unit/shared/agents-settings-schema.test.ts tests/unit/main/lib/db/migrations/0016-codex-runtime.test.ts tests/unit/main/lib/agents/default-employees.test.ts`
 
 - [ ] **Step 3: Implement**
-  - `agents.ts`: the three constants above; `AgentQuestion` and `CliStatus` fields above; update the `CLI_IDS` doc comment ("The CLIs Exodus can drive").
+  - `agents.ts`: the three constants above; `AgentQuestion` and `CliStatus` fields above; update the `CLI_IDS` doc comment ("The CLIs Actovia can drive").
   - `settings-schema.ts`: replace `defaultEmployeeCreated: z.boolean().optional()` with
     ```ts
     /** Per CLI: its default employee was added once; never again (the owner may delete it). Server-owned. */
     defaultEmployeesCreated: z.record(z.string(), z.boolean()).optional()
     ```
-  - `schema.ts`: `pgEnum('agent_runtime', ['exodus', 'claude-code', 'codex'])`; then `bunx drizzle-kit generate --name codex_runtime` → expect `ALTER TYPE "public"."agent_runtime" ADD VALUE 'codex';` and nothing else.
+  - `schema.ts`: `pgEnum('agent_runtime', ['actovia', 'claude-code', 'codex'])`; then `bunx drizzle-kit generate --name codex_runtime` → expect `ALTER TYPE "public"."agent_runtime" ADD VALUE 'codex';` and nothing else.
   - `default-employees.ts` `addOnce`: read `created = stored?.defaultEmployeesCreated ?? {}`; for each `id of CLI_IDS`: skip if `created[id]`; skip if not ready; mark `created[id] = true`; create the employee unless one with `runtime === id` exists; after the loop, if anything was marked, `updateSettingField('agents', { ...stored, defaultEmployeesCreated: created })`.
   - `settings.ts` (L78-86): preserve `defaultEmployeesCreated` (the stored value) on every save, replacing the old field.
   - `checkCli` in `cli-check.ts`: return `models: null` in every branch for now (Task 5 fills Codex's), so `CliStatus` typechecks.
@@ -155,7 +155,7 @@ export interface PendingRequest {
   kind: PendingKind
   params: Record<string, unknown>
 }
-/** A reply Exodus sends at once, without the owner (unsupported requests only — never an acceptance). */
+/** A reply Actovia sends at once, without the owner (unsupported requests only — never an acceptance). */
 export interface Refusal {
   rpcId: number | string
   result?: unknown
@@ -165,7 +165,7 @@ export interface ParsedMessage {
   events: AgentEvent[]
   pending?: PendingRequest
   refusal?: Refusal
-  /** A reply to one of Exodus' own requests. */
+  /** A reply to one of Actovia's own requests. */
   response?: {
     id: number | string
     result?: unknown
@@ -254,7 +254,7 @@ describe('Codex protocol', () => {
     >
     expect(first.prompt).toMatchObject({ kind: 'permission', tool: 'Edit' })
     expect(first.prompt.kind === 'permission' && first.prompt.detail).toMatch(
-      /hello\.txt[\s\S]*hi from exodus/u
+      /hello\.txt[\s\S]*hi from actovia/u
     )
   })
 
@@ -267,7 +267,7 @@ describe('Codex protocol', () => {
         e.prompt.tool === 'Bash'
     ) as Extract<AgentEvent, { type: 'blocked' }>
     expect(cmd.prompt.kind === 'permission' && cmd.prompt.detail).toMatch(
-      /sleep 20 && echo done[\s\S]*\/tmp\/exodus-project/u
+      /sleep 20 && echo done[\s\S]*\/tmp\/actovia-project/u
     )
   })
 
@@ -397,7 +397,7 @@ describe('Codex protocol', () => {
     expect(t.pending).toBeUndefined()
   })
 
-  it("passes responses to Exodus' own requests through, and ignores noise", () => {
+  it("passes responses to Actovia's own requests through, and ignores noise", () => {
     const p = createCodexParser()
     expect(
       p.parse(JSON.stringify({ id: 2, result: { thread: { id: 't' } } }))
@@ -418,7 +418,7 @@ describe('Codex protocol', () => {
 
 ```ts
 // src/main/lib/agents/codex/protocol.ts
-import type { AgentQuestion } from '@exodus/shared/types/agents'
+import type { AgentQuestion } from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
 
@@ -512,7 +512,7 @@ export function describeFileChange(
             `${KIND[c.kind.type] ?? c.kind.type} ${c.path}${c.kind.move_path ? ` → ${c.kind.move_path}` : ''}\n${c.diff}`
         )
         .join('\n\n')
-    : 'The change wasn’t shown to Exodus — Deny unless you expected it.'
+    : 'The change wasn’t shown to Actovia — Deny unless you expected it.'
   return `${body}${grantRoot ? `\n\nAlso asks to allow writes under ${grantRoot}.` : ''}${reason ? `\n\nReason: ${reason}` : ''}${rest(params, ['reason', 'grantRoot'])}`
 }
 
@@ -663,7 +663,7 @@ export function createCodexParser(): CodexParser {
         return {
           events: [
             notice(
-              'Codex asked something on behalf of an MCP server, which Exodus can’t answer — continue in Terminal.'
+              'Codex asked something on behalf of an MCP server, which Actovia can’t answer — continue in Terminal.'
             )
           ],
           refusal: { rpcId, result: { action: 'decline', content: null } }
@@ -672,12 +672,15 @@ export function createCodexParser(): CodexParser {
         return {
           events: [
             notice(
-              `Codex asked for “${method}”, which Exodus can’t answer — continue in Terminal.`
+              `Codex asked for “${method}”, which Actovia can’t answer — continue in Terminal.`
             )
           ],
           refusal: {
             rpcId,
-            error: { code: -32601, message: `Exodus does not handle ${method}` }
+            error: {
+              code: -32601,
+              message: `Actovia does not handle ${method}`
+            }
           }
         }
     }
@@ -814,7 +817,7 @@ export function createCodexParser(): CodexParser {
 - [ ] **Step 5: Commit** (`protocol.ts`, the test, `tests/fixtures/codex/*.jsonl`)
 
 ```bash
-git commit -m "feat(agents): read codex app-server — turns, items, approvals with the full command or diff, questions, and refusals for what Exodus can't answer — from the real server's recorded output
+git commit -m "feat(agents): read codex app-server — turns, items, approvals with the full command or diff, questions, and refusals for what Actovia can't answer — from the real server's recorded output
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
@@ -1180,7 +1183,7 @@ describe('Codex run', () => {
       const sent = recorded()
       expect(sent[0]).toMatchObject({
         method: 'initialize',
-        params: { clientInfo: { name: 'exodus' } }
+        params: { clientInfo: { name: 'actovia' } }
       })
       expect(sent[1]).toEqual({ method: 'initialized' })
       expect(sent[2]).toMatchObject({
@@ -1415,13 +1418,13 @@ describe('Codex run', () => {
 
 ```ts
 // src/main/lib/agents/codex/run.ts
-import type { AgentAnswer, PermissionMode } from '@exodus/shared/types/agents'
+import type { AgentAnswer, PermissionMode } from '@actovia/shared/types/agents'
 
 import type { AgentEvent, AgentRun, StartInput } from '../driver'
 import { superviseProcess } from '../process'
 import { createCodexParser, type PendingRequest } from './protocol'
 
-/** Spec §4: Exodus' modes by meaning; the sandbox is always workspace-write. */
+/** Spec §4: Actovia's modes by meaning; the sandbox is always workspace-write. */
 export const CODEX_APPROVAL: Record<
   PermissionMode,
   'untrusted' | 'on-request' | 'never'
@@ -1545,7 +1548,7 @@ export function startCodex(input: StartInput): AgentRun {
   void (async () => {
     try {
       await request('initialize', {
-        clientInfo: { name: 'exodus', title: 'Exodus', version: '1' },
+        clientInfo: { name: 'actovia', title: 'Actovia', version: '1' },
         capabilities: null
       })
       proc.write({ method: 'initialized' })
@@ -1636,7 +1639,7 @@ export function startCodex(input: StartInput): AgentRun {
 
 A question answer arrives as `AgentAnswer { kind: 'answers', answers: { [questionId]: string } }` — the renderer keys Codex answers by `question.id` (Task 5). Only stdout is logged, so the owner's answers (stdin) never reach the log.
 
-- [ ] **Step 6: Run** `bunx vitest run tests/unit/main/lib/agents` three times — all pass each time (report the three results). Adjust only the fake if a test reveals it doesn't mirror the recorded protocol; never weaken an assertion about what Exodus sends.
+- [ ] **Step 6: Run** `bunx vitest run tests/unit/main/lib/agents` three times — all pass each time (report the three results). Adjust only the fake if a test reveals it doesn't mirror the recorded protocol; never weaken an assertion about what Actovia sends.
 
 - [ ] **Step 7: Commit** (`process.ts`, `claude-code/run.ts`, `codex/run.ts`, `fake-codex.mjs`, the tests)
 
@@ -1672,7 +1675,7 @@ export const DRIVERS: Record<CliId, CliDriver> = {
   'claude-code': { start: startClaudeCode, resumeArgs: (id) => ['--resume', id] },
   codex: { start: startCodex, resumeArgs: (id) => ['resume', id] }
 }
-export function cliOf(runtime: string): CliId  // throws for 'exodus' or an unknown runtime
+export function cliOf(runtime: string): CliId  // throws for 'actovia' or an unknown runtime
 // run-agent-employee.ts
 export interface RunAgentEmployeeDeps {
   start(cli: CliId, input: StartInput): AgentRun          // default: DRIVERS[cli].start(input)
@@ -1711,9 +1714,9 @@ describe('drivers', () => {
     ])
     expect(DRIVERS.codex.resumeArgs('abc')).toEqual(['resume', 'abc'])
   })
-  it('maps a CLI runtime and refuses Exodus’ own', () => {
+  it('maps a CLI runtime and refuses Actovia’ own', () => {
     expect(cliOf('codex')).toBe('codex')
-    expect(() => cliOf('exodus')).toThrow()
+    expect(() => cliOf('actovia')).toThrow()
     expect(() => cliOf('nope')).toThrow()
   })
 })

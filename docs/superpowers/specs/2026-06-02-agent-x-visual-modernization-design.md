@@ -2,18 +2,18 @@
 
 **Date:** 2026-06-02
 **Status:** Approved, pending plan
-**Scope:** Philharmonic feature surface only (chat / workforce / knowledge / dashboard + drawers, dialogs, empty states). Rest of Exodus untouched.
+**Scope:** Philharmonic feature surface only (chat / workforce / knowledge / dashboard + drawers, dialogs, empty states). Rest of Actovia untouched.
 
 > **Brand rename:** As part of this work, the feature formerly named **AgentX** is renamed to **Philharmonic**. All folders, components, types, stores, services, routes, and user-facing strings move to the new name. See §0.
 
 ## Goal
 
-Bring Philharmonic's visual language to a modern desktop-app standard inspired by a TweetDeck/Perch-style layered card aesthetic, while keeping Exodus's existing brand identity (green primary) and Philharmonic's existing information architecture (page-switching, not user-configurable columns). The result should feel airy, colorful in the right places, and motion-aware — without re-skinning the rest of the application.
+Bring Philharmonic's visual language to a modern desktop-app standard inspired by a TweetDeck/Perch-style layered card aesthetic, while keeping Actovia's existing brand identity (green primary) and Philharmonic's existing information architecture (page-switching, not user-configurable columns). The result should feel airy, colorful in the right places, and motion-aware — without re-skinning the rest of the application.
 
 ## Non-goals
 
 - Restructuring Philharmonic's IA (no Perch-style configurable columns).
-- Re-skinning Exodus outside Philharmonic.
+- Re-skinning Actovia outside Philharmonic.
 - Replacing Dicebear avatars with letter-initial avatars.
 - Adding new product features. Visual + close-range interaction polish only.
 
@@ -48,7 +48,7 @@ The rename ships in the same PR as the visual modernization (they share the same
 ### Backend, DB, API
 
 - Backend API routes: scan for any `/api/agent-x*`. If any exist, they're renamed to `/api/philharmonic*`. If none exist (current `chat.ts` / `history.ts` are generic), nothing to do.
-- DB tables: this feature shares the generic `chat` / `message` / `agent_*` tables with the rest of Exodus. The `agent` table is _not_ AgentX-specific — it's general agent storage. **Do not rename DB tables.** Rename only renderer-side code and the user-facing brand.
+- DB tables: this feature shares the generic `chat` / `message` / `agent_*` tables with the rest of Actovia. The `agent` table is _not_ AgentX-specific — it's general agent storage. **Do not rename DB tables.** Rename only renderer-side code and the user-facing brand.
 - The `getAgents` / `getTeams` service names stay as-is (they query the generic agent table). New service module file name uses `philharmonic` for namespace cohesion, but exports keep their existing names so call sites need only update the import path.
 
 ### User-facing strings
@@ -59,7 +59,7 @@ Every occurrence of "AgentX" / "Agent X" in `.tsx` / `.ts` strings becomes "Phil
 
 - Git history rewriting (commits keep saying `agent-x`)
 - `CLAUDE.md` is updated to mention the new name in a separate small commit after the rename lands
-- Renaming Exodus product-level concepts outside the feature (e.g. the generic `agent` table)
+- Renaming Actovia product-level concepts outside the feature (e.g. the generic `agent` table)
 
 ---
 
@@ -77,7 +77,7 @@ A new Philharmonic-scoped token layer sits on top of the existing shadcn theme. 
 | `--ph-border`         | `#F0EEE9`              | `#2A2E37`                  | Subtle dividers; never used as the primary edge — shadow does that    |
 | `--ph-text`           | `oklch(0.16 0.02 160)` | `#E6E8EC`                  | Primary text                                                          |
 | `--ph-text-muted`     | `#888888`              | `#7D838F`                  | Secondary text                                                        |
-| `--ph-primary`        | `oklch(0.52 0.17 160)` | `oklch(0.55 0.17 160)`     | Exodus green — actions, active state, send button, FAB-equivalents    |
+| `--ph-primary`        | `oklch(0.52 0.17 160)` | `oklch(0.55 0.17 160)`     | Actovia green — actions, active state, send button, FAB-equivalents   |
 | `--ph-primary-soft`   | `oklch(0.92 0.04 160)` | `oklch(0.30 0.08 160)`     | Soft chips, active item background at ~12% saturation                 |
 | `--ph-primary-faint`  | `oklch(0.97 0.02 160)` | `oklch(0.22 0.05 160)`     | Subtlest tint (active conversation row 6%)                            |
 | `--ph-success`        | `#10B981`              | `#10B981`                  | Idle status dot                                                       |
@@ -564,6 +564,6 @@ Default to **option 2 (omit)** to keep the design honest — we won't ship affor
 - Multi-column user-arranged dashboard (Perch-style)
 - Replacing Dicebear avatars
 - Restructuring Philharmonic's information architecture
-- Modifying Exodus surfaces outside Philharmonic
+- Modifying Actovia surfaces outside Philharmonic
 - New product capabilities
 - Attachment flow (see §14)

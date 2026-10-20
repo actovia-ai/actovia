@@ -1,6 +1,6 @@
 # Edit memory from the chat — design
 
-Status: approved in conversation on 2026-09-24 (four sections, one at a time). Desktop only; exodus-ios follows
+Status: approved in conversation on 2026-09-24 (four sections, one at a time). Desktop only; the iOS app follows
 later.
 
 ## 1. Goal
@@ -82,7 +82,7 @@ every tool to be described; add it.
   `loadRelevantMemories(question, model, apiKey, sessionId, runId)` writes both.
 - **While streaming:** memories are chosen before the model starts, so the chat route sends a new SSE event
   `{ type: 'memories_used'; runId; memories: Array<{ id; key; section }> }` before the first frame (added to
-  `ChatSseEvent`; clients that do not know it ignore it — exodus-ios does).
+  `ChatSseEvent`; clients that do not know it ignore it — the iOS app does).
 - **History:** `GET /api/v1/memory/usage?chatId=` → `Record<runId, Array<{ id; key; section }>>`, read by a React
   Query hook per chat; the SSE event writes the live run straight into that hook's cache.
 - **UI:** a line at the foot of the reply, beside the action bar — "Used 2 memories · Work setup, Classical music".
@@ -109,7 +109,7 @@ every tool to be described; add it.
 - Motion: `ENTER_UP` entrance like the compaction strip, `Reveal` for the details (CLAUDE.md "Motion"). All copy in
   the `chat` namespace, 10 locales in the same commit. `TEST_IDS` for the strip, its Undo, the used-memories line,
   its popover and "This is wrong".
-- **exodus-ios:** out of scope. It ignores the new event and shows the tool as a generic card.
+- **The iOS app:** out of scope. It ignores the new event and shows the tool as a generic card.
 
 ## 5. Testing
 
@@ -131,4 +131,4 @@ every tool to be described; add it.
 
 ## 6. Out of scope
 
-exodus-ios; editing memory by clicking in the popover (the chat does it); soft delete; persisting the undo state.
+The iOS app; editing memory by clicking in the popover (the chat does it); soft delete; persisting the undo state.

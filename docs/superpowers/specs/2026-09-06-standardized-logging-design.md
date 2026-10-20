@@ -8,10 +8,10 @@
 
 ## Context
 
-Exodus's logger (`src/main/lib/logger.ts`, spec `2026-03-24-logger-design.md`) is
+Actovia's logger (`src/main/lib/logger.ts`, spec `2026-03-24-logger-design.md`) is
 a zero-dependency JSONL writer: `logger.<level>(surface, message, detail?)` →
 one line `{ts, level, surface, message, detail?}` appended to
-`~/.exodus/logs/YYYY-MM-DD.jsonl`, also echoed to `console.*`. ~105 call sites
+`~/.actovia/logs/YYYY-MM-DD.jsonl`, also echoed to `console.*`. ~105 call sites
 across ~40 files. Read back by `GET /api/logs` (filter by date/level/surface/
 keyword, paginate, export, clear) and the **Settings → Logger** tab
 (`src/renderer/components/settings/settings-form/logger.tsx`). Main process only.
@@ -62,7 +62,7 @@ tracing) without reshaping anything defined here.
 7. **Call signature unchanged.** `logger.<level>(surface, message, detail?)`
    stays. No churn at the ~105 call sites.
 8. **No migration.** Legacy log lines are best-effort-mapped by the reader so a
-   day that straddles the upgrade still renders. `~/.exodus/logs` is disposable
+   day that straddles the upgrade still renders. `~/.actovia/logs` is disposable
    (7-day retention + "Clear All").
 
 ---
@@ -101,14 +101,14 @@ interface LogRecord {
 ### Severity mapping
 
 OTel `SeverityNumber` bands: DEBUG 5–8, INFO 9–12, WARN 13–16, ERROR 17–20.
-Exodus uses the low end of each band.
+Actovia uses the low end of each band.
 
-| Exodus level | `severityNumber` | `severityText` |
-| ------------ | ---------------- | -------------- |
-| `debug`      | 5                | `DEBUG`        |
-| `info`       | 9                | `INFO`         |
-| `warn`       | 13               | `WARN`         |
-| `error`      | 17               | `ERROR`        |
+| Actovia level | `severityNumber` | `severityText` |
+| ------------- | ---------------- | -------------- |
+| `debug`       | 5                | `DEBUG`        |
+| `info`        | 9                | `INFO`         |
+| `warn`        | 13               | `WARN`         |
+| `error`       | 17               | `ERROR`        |
 
 `is.dev ? 5 : 9` remains the minimum-level gate (unchanged behavior, expressed
 as a `severityNumber` threshold).
@@ -126,7 +126,7 @@ logger removes it and expands per OTel exception semantic conventions:
 
 Existing call sites already pass `{ error: String(err) }` or `{ error: err }` —
 both are handled. Every other `detail` key passes through to `attributes`
-untouched (`chatId`, `msgId`, `port`, `durationMs`, …). No forced `exodus.`
+untouched (`chatId`, `msgId`, `port`, `durationMs`, …). No forced `actovia.`
 namespacing this pass.
 
 ### Legacy-line fallback (reader side)
@@ -147,7 +147,7 @@ spread into every `LogRecord`.
 
 ```ts
 interface Resource {
-  'service.name': 'exodus'
+  'service.name': 'actovia'
   'service.version': string // app.getVersion() — "1.13.0"
   'process.pid': number
   'process.runtime.name': 'electron'
@@ -488,7 +488,7 @@ Explicitly **not** in this iteration:
 - OTLP-JSON on disk or over the wire; any `@opentelemetry/*` package.
 - Automatic `code.function` / `code.filepath` / `code.lineno` capture (needs
   stack parsing per call or a build transform).
-- Namespacing custom attributes under `exodus.*`.
+- Namespacing custom attributes under `actovia.*`.
 - An OTLP export format for the Export button (raw JSONL only, as today).
 - Changing retention, file naming, or the level-gate policy.
 - Touching the ~105 `logger.*` call sites' arguments (beyond the optional

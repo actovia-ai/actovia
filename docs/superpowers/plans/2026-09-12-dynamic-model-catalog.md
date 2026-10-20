@@ -2766,7 +2766,7 @@ Add the import: `import { advancedToolsAtom, reasoningEffortAtom } from '@/store
 
 - [ ] **Step 4: Write the E2E test**
 
-`tests/fixtures/electron.ts` (read during planning) launches the real app against whatever is already in `~/.exodus/database` — it has no settings-seeding fixture of its own. Seed `providerConfig.modelSnapshot` directly through the running app's own `/api/settings` endpoint at the start of the test, the same way `tests/api/settings.spec.ts` does with `providerConfig` today (`api.updateSettings({...})`) — this test needs both fixtures together.
+`tests/fixtures/electron.ts` (read during planning) launches the real app against whatever is already in `~/.actovia/database` — it has no settings-seeding fixture of its own. Seed `providerConfig.modelSnapshot` directly through the running app's own `/api/settings` endpoint at the start of the test, the same way `tests/api/settings.spec.ts` does with `providerConfig` today (`api.updateSettings({...})`) — this test needs both fixtures together.
 
 ```ts
 // tests/e2e/composer-reasoning-effort.spec.ts
@@ -3112,7 +3112,7 @@ git commit -m "refactor: rename chatModel/reasoningModel to model across remaini
 
 **Files:**
 
-- Modify: `/Users/yanceyleo/Code/exodus/exodus/CLAUDE.md`
+- Modify: `/Users/yanceyleo/Code/actovia/actovia/CLAUDE.md`
 
 **Interfaces:** none — documentation only.
 

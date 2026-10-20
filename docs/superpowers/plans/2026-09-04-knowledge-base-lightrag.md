@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Integrate a self-hosted LightRAG server as Exodus's single knowledge base — `knowledge_doc` rows are the editable source-of-truth, synced into LightRAG via a durable queue, and retrieved by a model-decided `searchKnowledgeBase` tool in both the main chat and Philharmonic.
+**Goal:** Integrate a self-hosted LightRAG server as Actovia's single knowledge base — `knowledge_doc` rows are the editable source-of-truth, synced into LightRAG via a durable queue, and retrieved by a model-decided `searchKnowledgeBase` tool in both the main chat and Philharmonic.
 
-**Architecture:** Exodus is a pure LightRAG client (URL + API key in settings), mirroring the optional-Elasticsearch posture. Document CRUD writes `knowledge_doc` and enqueues a `kb-sync` pgmq job; the job pushes to LightRAG (`POST /documents/text`, delete+reinsert on edit) and a periodic reconciler settles per-doc `indexStatus` via `GET /documents/track_status`. Retrieval calls `POST /query` with `only_need_context:true` so Exodus's own chat model writes the answer. The existing Philharmonic substring-stub KB and its team-scoping are removed.
+**Architecture:** Actovia is a pure LightRAG client (URL + API key in settings), mirroring the optional-Elasticsearch posture. Document CRUD writes `knowledge_doc` and enqueues a `kb-sync` pgmq job; the job pushes to LightRAG (`POST /documents/text`, delete+reinsert on edit) and a periodic reconciler settles per-doc `indexStatus` via `GET /documents/track_status`. Retrieval calls `POST /query` with `only_need_context:true` so Actovia's own chat model writes the answer. The existing Philharmonic substring-stub KB and its team-scoping are removed.
 
 **Tech Stack:** Electron main (Node), Hono routes, Drizzle ORM + PGlite, pgmq job queue, Zod settings schemas, React 19 + RHF + Tailwind v4 renderer, Vitest + Playwright tests, `@mariozechner/pi-agent-core` `AgentTool`.
 
@@ -22,7 +22,7 @@
 - **Dark by default:** no `settings.knowledgeBase.url` → the tool is never
   bound, zero behavior change.
 - **Retrieval-only:** always call LightRAG with `only_need_context: true`.
-  Exodus's configured model generates every answer. Never surface LightRAG's
+  Actovia's configured model generates every answer. Never surface LightRAG's
   own generated text.
 - **Endpoint strings live only in `lightrag-client.ts`.** No LightRAG paths
   anywhere else.
@@ -1001,7 +1001,7 @@ Add the handler entry to the `handlers` record:
         try {
           await kb.deleteDoc(p.lightragDocId)
         } catch {
-          // The doc is already gone from Exodus; an orphan in LightRAG is
+          // The doc is already gone from Actovia; an orphan in LightRAG is
           // harmless and Reindex all never recreates it. Nothing to retry.
         }
         return
@@ -2183,8 +2183,8 @@ git commit -m "feat(kb): remove the Philharmonic Knowledge Base nav page"
 
 End-user guide, sibling of `docs/elasticsearch-setup.md`. Cover:
 
-- What it is: Exodus's optional knowledge base, powered by a self-hosted
-  LightRAG server. Exodus is a client only — it never runs LightRAG.
+- What it is: Actovia's optional knowledge base, powered by a self-hosted
+  LightRAG server. Actovia is a client only — it never runs LightRAG.
 - Minimal `docker-compose.yml`:
   ```yaml
   services:
@@ -2201,7 +2201,7 @@ End-user guide, sibling of `docs/elasticsearch-setup.md`. Cover:
   - `EMBEDDING_MODEL` + `EMBEDDING_DIM`, `SUMMARY_LANGUAGE`.
 - **Bold warning:** `EMBEDDING_DIM` / the embedding model cannot change after
   the first document is ingested without wiping `./data/rag_storage`.
-- "In Exodus: Settings → Knowledge Base → Server URL `http://localhost:9621`,
+- "In Actovia: Settings → Knowledge Base → Server URL `http://localhost:9621`,
   API Key = your `LIGHTRAG_API_KEY`. Click Test Connection, then add
   documents. Indexing runs in the background — watch the status badge."
 - Note ingestion costs LLM tokens on the LightRAG key (entity extraction).

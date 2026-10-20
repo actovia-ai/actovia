@@ -9,7 +9,7 @@
 
 Some remote MCP servers require an OAuth sign-in before any tools are usable —
 e.g. Alpha Vantage's `https://mcp.alphavantage.co/mcp`, whose docs say "an
-authentication page opens where you enter and authorize your API key." Exodus
+authentication page opens where you enter and authorize your API key." Actovia
 has MCP settings, an `/api/mcp` route, and a live `getMcpTools()` path (used by
 `chat.ts` and Philharmonic's `employee-loop.ts` — only the _startup preload_
 `connectMcpServers()` is archived), but no OAuth mechanism. Adding an OAuth
@@ -31,14 +31,14 @@ down for a single-user local desktop app.
 
 ## Decisions (from brainstorming, 2026-09-08)
 
-| Question           | Decision                                                                                                                                                                                                                                                                                |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Transports         | **`streamable-http` only.** SSE is legacy/deprecated in the MCP spec; stdio is local (no OAuth).                                                                                                                                                                                        |
-| Browser round-trip | **Loopback HTTP redirect** on the existing Hono server (`http://localhost:60223/api/mcp/oauth/callback`). No custom `exodus://` protocol, no embedded webview (RFC 8252 §8.12 anti-pattern). Custom protocol stays documented as the fallback if a provider ever rejects http-loopback. |
-| Client identity    | **DCR (auto) with a manual override.** Try RFC 7591 Dynamic Client Registration first; fall back to a user-entered `client_id` (+ optional secret). No CIMD (needs a hosted metadata URL; Exodus has no public origin).                                                                 |
-| Auth mode          | **`none` \| `oauth`.** The SDK's `authProvider` makes "always required" and "required when the server asks" behave identically at connect; collapse to one. `none` = open / API-key servers. **Detected** by probing the URL on Add.                                                    |
-| Token storage      | **safeStorage-encrypted** blob per server (mirrors `lock/pin-store.ts`), never returned by the API.                                                                                                                                                                                     |
-| Server metadata    | Read `Implementation` (title, description, websiteUrl, icons), `getInstructions()`, `getServerCapabilities()` after connect; cache in a renderer-safe `card` column; render a rich row + tool list.                                                                                     |
+| Question           | Decision                                                                                                                                                                                                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Transports         | **`streamable-http` only.** SSE is legacy/deprecated in the MCP spec; stdio is local (no OAuth).                                                                                                                                                                                         |
+| Browser round-trip | **Loopback HTTP redirect** on the existing Hono server (`http://localhost:60223/api/mcp/oauth/callback`). No custom `actovia://` protocol, no embedded webview (RFC 8252 §8.12 anti-pattern). Custom protocol stays documented as the fallback if a provider ever rejects http-loopback. |
+| Client identity    | **DCR (auto) with a manual override.** Try RFC 7591 Dynamic Client Registration first; fall back to a user-entered `client_id` (+ optional secret). No CIMD (needs a hosted metadata URL; Actovia has no public origin).                                                                 |
+| Auth mode          | **`none` \| `oauth`.** The SDK's `authProvider` makes "always required" and "required when the server asks" behave identically at connect; collapse to one. `none` = open / API-key servers. **Detected** by probing the URL on Add.                                                     |
+| Token storage      | **safeStorage-encrypted** blob per server (mirrors `lock/pin-store.ts`), never returned by the API.                                                                                                                                                                                      |
+| Server metadata    | Read `Implementation` (title, description, websiteUrl, icons), `getInstructions()`, `getServerCapabilities()` after connect; cache in a renderer-safe `card` column; render a rich row + tool list.                                                                                      |
 
 ## Global Constraints
 
@@ -50,7 +50,7 @@ down for a single-user local desktop app.
 - No new npm dependency — everything is in `@modelcontextprotocol/sdk@1.30.0`
   and `electron` (`shell`, `safeStorage`).
 - Destructive DB changes are fine (single squashed `0000_*` migration
-  regenerated); the user accepts wiping `~/.exodus/database`.
+  regenerated); the user accepts wiping `~/.actovia/database`.
 - New user-facing strings are English. New interactive elements get a
   `TEST_IDS` entry + a Playwright reference.
 
@@ -165,7 +165,7 @@ interface PendingFlow {
   serverId: string
   client: Client
   transport: StreamableHTTPClientTransport
-  provider: ExodusOAuthProvider
+  provider: ActoviaOAuthProvider
   startedAt: number
 }
 export const pendingAuth = new Map<string /* state */, PendingFlow>()
@@ -182,7 +182,7 @@ export const codeVerifiers = new Map<string /* serverId */, string>()
 ```ts
 import type { OAuthClientProvider } from '@modelcontextprotocol/sdk/client/auth.js'
 
-export class ExodusOAuthProvider implements OAuthClientProvider {
+export class ActoviaOAuthProvider implements OAuthClientProvider {
   // `interactive: false` (the lazy getMcpTools path) makes
   // redirectToAuthorization a no-op so a background chat turn never opens an
   // uninvited browser tab — it just surfaces state:'needs_auth'.
@@ -198,7 +198,7 @@ export class ExodusOAuthProvider implements OAuthClientProvider {
 
   get clientMetadata(): OAuthClientMetadata {
     return {
-      client_name: 'Exodus',
+      client_name: 'Actovia',
       redirect_uris: [this.redirectUrl],
       grant_types: ['authorization_code', 'refresh_token'],
       response_types: ['code'],
@@ -317,7 +317,7 @@ export async function connectMcpServer(
 ```
 
 - `stateKey = uuidV4()`, passed to both the provider ctor and `pendingAuth.set`.
-- `authMode === 'oauth'` → `new StreamableHTTPClientTransport(url, { authProvider: new ExodusOAuthProvider(server, stateKey, !!opts?.interactive) })`. Register the `PendingFlow` under `stateKey` _before_ `client.connect` (interactive only; non-interactive drops it since there's no callback coming).
+- `authMode === 'oauth'` → `new StreamableHTTPClientTransport(url, { authProvider: new ActoviaOAuthProvider(server, stateKey, !!opts?.interactive) })`. Register the `PendingFlow` under `stateKey` _before_ `client.connect` (interactive only; non-interactive drops it since there's no callback coming).
 - `authMode === 'none'` → transport with `requestInit.headers` from `server.headers` (unchanged from today).
 - On `UnauthorizedError`:
   - `interactive` → the provider already called `shell.openExternal`; return `{ state: 'needs_auth' }` (leave the `PendingFlow` registered for the callback).
@@ -486,7 +486,7 @@ authModeOAuth, authModeNone, serverCard }`.
 
 | Path                                    | Responsibility                                                                            |
 | --------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `src/main/lib/ai/mcp/oauth-provider.ts` | `ExodusOAuthProvider implements OAuthClientProvider`                                      |
+| `src/main/lib/ai/mcp/oauth-provider.ts` | `ActoviaOAuthProvider implements OAuthClientProvider`                                     |
 | `src/main/lib/ai/mcp/secret-store.ts`   | `readSecrets` / `writeSecrets` / `clearSecrets` (safeStorage)                             |
 | `src/main/lib/ai/mcp/pending-auth.ts`   | `pendingAuth` + `codeVerifiers` maps, 5-min sweep                                         |
 | `src/main/lib/ai/mcp/connect.ts`        | `connectMcpServer(server, {interactive})` — build transport, connect, card, cache, status |
@@ -549,7 +549,7 @@ Unit (Vitest, mock `electron` `shell`/`safeStorage`, mock `Client`/transport):
   `warning` SSE frame.
 
 E2E (`tests/e2e/settings-mcp-oauth.spec.ts`, transport stubbed via
-`EXODUS_MCP_MOCK` or an injected fake): add a remote server; Detect fills the
+`ACTOVIA_MCP_MOCK` or an injected fake): add a remote server; Detect fills the
 Authentication radio + `[Detected]` chip; Connect shows the "Waiting for
 authorization…" state; a simulated callback flips the row to the connected card
 with the tool list.
@@ -569,7 +569,7 @@ info persisted).
 - CIMD / hosted client metadata.
 - The `server/discover` RPC (SDK 1.30 has no client method — revisit on the next
   SDK bump) and `.well-known/mcp` Server Cards (working-group draft).
-- Multi-user / per-identity tokens (Exodus is single-user, local).
+- Multi-user / per-identity tokens (Actovia is single-user, local).
 - Reconnect-on-startup (the lazy `getMcpTools()` path refreshes silently; a dead
   refresh token surfaces as `needs_auth` on next use).
 - Migrating existing plaintext `headers` into the encrypted blob, or a

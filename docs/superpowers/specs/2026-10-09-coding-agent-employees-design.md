@@ -1,32 +1,32 @@
 # Coding-agent employees — Philharmonic hands work to the user's own Claude Code (and later Codex) and watches it through
 
 Date: 2026-10-09 · Status: design approved in chat (owner, 2026-10-09: v1's five questions and v2's four answered); ready for an implementation plan
-Repo: `exodus` (desktop; the phone waits for Philharmonic on iOS, §9)
+Repo: `actovia` (desktop; the phone waits for Philharmonic on iOS, §9)
 Reference: the probes of 2026-10-09 (`claude` 2.1.294, scratchpad `cc-probe/`): stream-json in and out, permission prompts answered by the host, deny, interrupt, resume, partial messages — all verified against the real CLI. Claude's desktop app for the folder picker (owner's screenshot, 2026-10-09): a folder chip — No folder · Recent · Open folder… — beside a branch chip and a worktree toggle.
 
 ## 1. Goal
 
-Exodus is not an AI-coding product and will not become one. Philharmonic can still get code written, PDFs sorted, a repo changed: the owner gives a group a task and a folder, the PM plans it, and steps go to **employees that are coding agents** — the Claude Code (later Codex) the owner already installed and logged into, run by Exodus as the human at the keyboard. Exodus shows what each one does step by step, stops for the owner wherever the agent stops, and reports back when it is done. The agent stays itself: its login, its tools, its permission rules, its hooks, skills and MCP servers.
+Actovia is not an AI-coding product and will not become one. Philharmonic can still get code written, PDFs sorted, a repo changed: the owner gives a group a task and a folder, the PM plans it, and steps go to **employees that are coding agents** — the Claude Code (later Codex) the owner already installed and logged into, run by Actovia as the human at the keyboard. Actovia shows what each one does step by step, stops for the owner wherever the agent stops, and reports back when it is done. The agent stays itself: its login, its tools, its permission rules, its hooks, skills and MCP servers.
 
 ### Decided by the owner (2026-10-09)
 
-| Decision             | Choice                                                                                                                                                     |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Which route          | Drive the user's installed CLI; no Agent SDK (the SDK may not offer claude.ai login to third parties, only API keys — its overview's note)                 |
-| Where                | **Philharmonic only.** Not a Chat tool                                                                                                                     |
-| Name                 | "Claude Code" — it is the owner's own install. Each CLI by its own name; Codex next, and several instances of one CLI (different models) side by side      |
-| Folders              | An existing folder (a repo, a folder of PDFs) **or** a new project; either way a project folder `~/Exodus Projects/<name>/` exists and holds the meta (§4) |
-| Blocking             | A step waits for its agent's turn to end; the PM then sees the result                                                                                      |
-| Continue in Terminal | Yes, phase 1                                                                                                                                               |
-| Usage, limits, cost  | Reported as the CLI reports them, no special treatment: its rate-limit notices and its cost appear as it gave them                                         |
-| Pre-warm             | No (unchanged since 2026-10-08)                                                                                                                            |
-| Scope of this pass   | MVP: start, watch, answer, interrupt, continue. Switching modes mid-session, installing skills and the CLIs' other abilities come later                    |
+| Decision             | Choice                                                                                                                                                      |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Which route          | Drive the user's installed CLI; no Agent SDK (the SDK may not offer claude.ai login to third parties, only API keys — its overview's note)                  |
+| Where                | **Philharmonic only.** Not a Chat tool                                                                                                                      |
+| Name                 | "Claude Code" — it is the owner's own install. Each CLI by its own name; Codex next, and several instances of one CLI (different models) side by side       |
+| Folders              | An existing folder (a repo, a folder of PDFs) **or** a new project; either way a project folder `~/Actovia Projects/<name>/` exists and holds the meta (§4) |
+| Blocking             | A step waits for its agent's turn to end; the PM then sees the result                                                                                       |
+| Continue in Terminal | Yes, phase 1                                                                                                                                                |
+| Usage, limits, cost  | Reported as the CLI reports them, no special treatment: its rate-limit notices and its cost appear as it gave them                                          |
+| Pre-warm             | No (unchanged since 2026-10-08)                                                                                                                             |
+| Scope of this pass   | MVP: start, watch, answer, interrupt, continue. Switching modes mid-session, installing skills and the CLIs' other abilities come later                     |
 
 ### Non-goals
 
 - A terminal emulator, a PTY, OSC 7501 (stream-json gives everything OSC 7501 would; a TUI view is a later phase).
-- Exodus' own coding tools or editor. Exodus never edits the project; the agent does.
-- Managing a CLI's configuration (its settings, skills, MCP, login). Exodus checks it is there and logged in, nothing more.
+- Actovia's own coding tools or editor. Actovia never edits the project; the agent does.
+- Managing a CLI's configuration (its settings, skills, MCP, login). Actovia checks it is there and logged in, nothing more.
 - Approving anything on the owner's behalf (§7).
 - A Chat entry point. Chat stays a conversation; work on folders is Philharmonic's.
 
@@ -34,7 +34,7 @@ Exodus is not an AI-coding product and will not become one. Philharmonic can sti
 
 One process per agent session: `claude -p --input-format stream-json --output-format stream-json --verbose --include-partial-messages --permission-prompt-tool stdio [--model M] [--permission-mode P] [--resume <cliSessionId>]`, run in the working folder.
 
-| Direction | Line                                                                                                                                   | Meaning for Exodus                                                   |
+| Direction | Line                                                                                                                                   | Meaning for Actovia                                                  |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | → stdin   | `{type:'user', message:{role:'user', content}}`                                                                                        | a task, or a follow-up in the same session                           |
 | ← stdout  | `system/init` (`session_id`, `model`, `permissionMode`, `tools`)                                                                       | a turn starts; keep `session_id` to resume                           |
@@ -48,11 +48,11 @@ One process per agent session: `claude -p --input-format stream-json --output-fo
 
 Observed behaviours the design must hold to:
 
-1. **A `result` is not the end.** A background command the agent started finished 30 s after our last message and the CLI ran a turn of its own, unprompted. Exodus keeps reading for as long as the process lives.
+1. **A `result` is not the end.** A background command the agent started finished 30 s after our last message and the CLI ran a turn of its own, unprompted. Actovia keeps reading for as long as the process lives.
 2. After an interrupt the process lives on and the session continues; the model knows it was cut off.
 3. `--resume <id>` in a new process continues the same session (same id, full memory). A process can exit between turns at no cost.
-4. Read-only work (`ls`) does not prompt; writes do in the default mode. What prompts is the CLI's rule, not Exodus'.
-5. The user's own hooks, MCP servers, skills and CLAUDE.md load. Behaviour varies by user; Exodus does not normalise it.
+4. Read-only work (`ls`) does not prompt; writes do in the default mode. What prompts is the CLI's rule, not Actovia'.
+5. The user's own hooks, MCP servers, skills and CLAUDE.md load. Behaviour varies by user; Actovia does not normalise it.
 6. Unknown event types and fields appear (`hook_started`, `thinking_tokens`, `status`…). The parser ignores what it does not know.
 
 Codex has its own machine interface (`codex exec --json`, and an app-server protocol); its adapter is written against it when Codex lands, behind the same driver interface (§8). Nothing here is verified for Codex yet.
@@ -92,7 +92,7 @@ An employee whose **runtime** is a CLI. The existing `agent` row gains the field
 
 | Field              | Claude Code                                                                 | Note                                                              |
 | ------------------ | --------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Runtime            | `claude-code` · `codex` · (`exodus` = today's employees)                    |                                                                   |
+| Runtime            | `claude-code` · `codex` · (`actovia` = today's employees)                   |                                                                   |
 | Model              | the CLI's own names (`opus`, `sonnet`, `haiku`, a full id) or "CLI default" | two employees can be the same CLI with different models           |
 | Permission mode    | `default` · `acceptEdits` · `auto`                                          | `bypassPermissions` is never offered (§7)                         |
 | Extra instructions | text                                                                        | prepended to each task ("you are the reviewer; never edit files") |
@@ -101,7 +101,7 @@ The agents are ordinary Philharmonic employees after that: in teams, in group me
 
 ### Other settings
 
-- **Projects folder** — default `~/Exodus Projects`.
+- **Projects folder** — default `~/Actovia Projects`.
 - **At most N agents running at once** (default 2) — the owner's machine and quota; a step over the limit waits, and says so.
 - **Keep an agent's process after its turn** — default 10 minutes (§8); 0 = exit at once and resume next time.
 - **Worktrees** — default on: when two agents work in the same git repo at once, each gets its own worktree (§4).
@@ -115,7 +115,7 @@ A Philharmonic group that works on files is bound to a **project**. The group's 
      No folder
      ──────────
      Recent
-       exodus ✓
+       actovia ✓
        tax-pdfs-2026
      ──────────
      New project…
@@ -123,17 +123,17 @@ A Philharmonic group that works on files is bound to a **project**. The group's 
 ```
 
 - **No folder** — today's group: no coding agents can be given steps (the PM is told they are unavailable).
-- **New project…** — a name; creates `~/Exodus Projects/<name>/`, and the work happens **in it**.
-- **Open folder…** — an existing folder (a repo, a folder of PDFs). The work happens **there**; `~/Exodus Projects/<name>/` is still created, for the meta only — nothing of Exodus' is written into the owner's folder.
+- **New project…** — a name; creates `~/Actovia Projects/<name>/`, and the work happens **in it**.
+- **Open folder…** — an existing folder (a repo, a folder of PDFs). The work happens **there**; `~/Actovia Projects/<name>/` is still created, for the meta only — nothing of Actovia's is written into the owner's folder.
 - **Recent** — the projects used before, by name.
 
-Every project folder has the same meta, in `.exodus/` (hidden, so a new project's own files read clean):
+Every project folder has the same meta, in `.actovia/` (hidden, so a new project's own files read clean):
 
 ```
-~/Exodus Projects/notes-prototype/
-  .exodus/
+~/Actovia Projects/notes-prototype/
+  .actovia/
     project.json        # id, name, workDir (this folder, or the opened one), createdAt, the group's id
-    plan.md             # the group's plan (moves here from ~/.exodus/groups/<id>/plan.md)
+    plan.md             # the group's plan (moves here from ~/.actovia/groups/<id>/plan.md)
     sessions/<id>.json  # one per agent session: runtime, model, cliSessionId, cwd, state, timestamps
     logs/<id>.jsonl     # the CLI's raw event lines — for the owner and for debugging; never read back as instructions
   index.html …          # a new project's work; an opened folder's work stays where it is
@@ -141,18 +141,18 @@ Every project folder has the same meta, in `.exodus/` (hidden, so a new project'
 
 For an opened folder, `project.json`'s `workDir` points at it, and the project folder also gets a Finder alias to it, so the project reads whole in Finder.
 
-**Worktrees**: two agents in the same git repo at once would edit the same files. With the toggle on (or the setting, §3), each agent session after the first gets `git worktree add` under `.exodus/worktrees/<session>/` on a branch `exodus/<session>`; the card shows the branch; merging back is the owner's (or a later step's) job, never automatic. Not a git folder: agents share the folder, and the PM is told to keep their steps apart.
+**Worktrees**: two agents in the same git repo at once would edit the same files. With the toggle on (or the setting, §3), each agent session after the first gets `git worktree add` under `.actovia/worktrees/<session>/` on a branch `actovia/<session>`; the card shows the branch; merging back is the owner's (or a later step's) job, never automatic. Not a git folder: agents share the folder, and the PM is told to keep their steps apart.
 
-Folder rules (§7): never `~`, `/`, or anything under `~/.exodus`; an opened folder is the owner's pick in a system dialog, so it is consent to work there.
+Folder rules (§7): never `~`, `/`, or anything under `~/.actovia`; an opened folder is the owner's pick in a system dialog, so it is consent to work there.
 
 ## 5. In the group: the step, the card
 
-The PM delegates a step to a coding-agent employee as to any employee (`createDelegateTaskTool`); `runDelegatedTask` branches on the runtime: `exodus` → `runEmployeeLoop` as today; a CLI → `runAgentEmployee`, same arguments (agent, instructions, executionId, conversationId, emit, signal), same events out (`message_start`, `message_delta`, `tool_card`, `message_end`), same `Promise<string>` back: the agent's final text, the files it touched, denials, interrupted or not, its session id. The PM reads that and goes on. A later step to the same employee in the same project continues its session (`--resume`), so "now add tests" has the context.
+The PM delegates a step to a coding-agent employee as to any employee (`createDelegateTaskTool`); `runDelegatedTask` branches on the runtime: `actovia` → `runEmployeeLoop` as today; a CLI → `runAgentEmployee`, same arguments (agent, instructions, executionId, conversationId, emit, signal), same events out (`message_start`, `message_delta`, `tool_card`, `message_end`), same `Promise<string>` back: the agent's final text, the files it touched, denials, interrupted or not, its session id. The PM reads that and goes on. A later step to the same employee in the same project continues its session (`--resume`), so "now add tests" has the context.
 
 The employee's message in the group is a **card**, the steps timeline's look (capital-case tool names):
 
 ```
-┌ Claude Code (Opus) · notes-prototype · exodus/a1b2 ─────── Working ◌ ┐
+┌ Claude Code (Opus) · notes-prototype · actovia/a1b2 ─────── Working ◌ ┐
 │ ✓ Write  index.html                                                  │
 │ ✓ Write  app.js                                                      │
 │ ◌ Bash   npm install                                                 │
@@ -163,7 +163,7 @@ The employee's message in the group is a **card**, the steps timeline's look (ca
 - Header: the employee, the folder, the branch when in a worktree, the state: Working · Waiting for you · Done · Stopped · Failed.
 - Steps: each `tool_use` a row (one-line input: the path, the command); its `tool_result` ticks it or marks it failed. Long runs fold to the last few with "N more steps".
 - Text streams under the steps; when done, the final text is the card's body (Markdown). The CLI's own notices (rate limit, cost) appear as a quiet line, verbatim.
-- **Continue in Terminal** opens Terminal.app in the working folder running `claude --resume <cliSessionId>` — the owner takes over by hand; Exodus marks the session "continued in Terminal" and does not drive it while that terminal could be (it resumes on the next step).
+- **Continue in Terminal** opens Terminal.app in the working folder running `claude --resume <cliSessionId>` — the owner takes over by hand; Actovia marks the session "continued in Terminal" and does not drive it while that terminal could be (it resumes on the next step).
 - **Stop** interrupts that agent only; the group's Stop stops the PM and every running agent.
 
 ### Waiting for you
@@ -181,13 +181,13 @@ The PM may hand steps to several agents in parallel (the delegate calls of one P
 
 ## 7. Safety
 
-The agent is the owner's own tool with its own permission system, and Exodus gives it nothing the owner's terminal would not. But the PM writes the task, and Exodus' models read the web — so a poisoned page could become an instruction to an agent. The rules:
+The agent is the owner's own tool with its own permission system, and Actovia gives it nothing the owner's terminal would not. But the PM writes the task, and Actovia's models read the web — so a poisoned page could become an instruction to an agent. The rules:
 
 1. **Default permission mode is `default`** (the agent asks before writes and commands). `acceptEdits` and `auto` are per employee, set knowingly; `bypassPermissions` is never passed.
-2. **Exodus never answers a `control_request` itself.** Every one is the owner's click. No timeout auto-deny: the CLI waits; the card waits.
-3. **Folders**: never `~`, `/`, anything under `~/.exodus`; an opened folder is the owner's pick in the system dialog.
-4. **The environment is the login shell's, scrubbed**: never Exodus' own variables, provider keys, or the loopback port / token.
-5. Exodus' secrets hardening (§2.5 of the 2026-09-25 spec) does not reach inside the agent — its file tools are its own. Settings › Agents says so: "Coding agents run with their own permissions, in the folder you give them."
+2. **Actovia never answers a `control_request` itself.** Every one is the owner's click. No timeout auto-deny: the CLI waits; the card waits.
+3. **Folders**: never `~`, `/`, anything under `~/.actovia`; an opened folder is the owner's pick in the system dialog.
+4. **The environment is the login shell's, scrubbed**: never Actovia's own variables, provider keys, or the loopback port / token.
+5. Actovia's secrets hardening (§2.5 of the 2026-09-25 spec) does not reach inside the agent — its file tools are its own. Settings › Agents says so: "Coding agents run with their own permissions, in the folder you give them."
 6. The raw logs (`logs/*.jsonl`) can hold file contents the agent read; they live in the project folder the owner owns, and are never fed back to a model.
 
 ## 8. The driver (main process)
@@ -226,7 +226,7 @@ Data: the `agent` table gains `runtime`, `cliModel`, `permissionMode`; `conversa
 
 ### 8.1 Every employee's own model
 
-Today `runEmployeeLoop` calls `getModelFromProvider(setting)` and every Exodus employee runs on the global model; `agent.model` / `agent.provider` are stored and never read. In this pass:
+Today `runEmployeeLoop` calls `getModelFromProvider(setting)` and every Actovia employee runs on the global model; `agent.model` / `agent.provider` are stored and never read. In this pass:
 
 - The employee editor gets a **Model** picker: "Default (the app's model)" or a model of a provider that is configured with a key. For a CLI runtime the same picker lists the CLI's names instead (§3).
 - `runEmployeeLoop` resolves `agent.provider` + `agent.model` through the same provider table `getModelFromProvider` uses (a settings copy whose `providerConfig` is the employee's), falling back to the global model when unset — and, when the employee's provider has lost its key or the model is gone, failing the step with that reason instead of silently running on another model.
@@ -255,7 +255,7 @@ Today `runEmployeeLoop` calls `getModelFromProvider(setting)` and every Exodus e
 
 ## 11. Resolved questions (owner, 2026-10-09)
 
-1. Meta in `.exodus/`, hidden — yes.
+1. Meta in `.actovia/`, hidden — yes.
 2. An opened folder's Finder alias in its project folder — yes.
 3. Parallel by default, limit 2 — yes.
 4. Today's employees' `model` / `provider` — fixed in the same pass (§8.1).
@@ -267,4 +267,4 @@ Today `runEmployeeLoop` calls `getModelFromProvider(setting)` and every Exodus e
 - Projects: create / open / Recent / the alias / worktree add and fallback, in a temp home.
 - Employee models: an employee with its own provider/model runs on it; unset falls back to the global; a provider without a key fails the step with the reason.
 - The card: renderer tests with recorded `parts`.
-- Manual, real CLI: a new project from an idea; an opened repo with two agents in worktrees; an opened PDF folder; deny with a reason; a question; Stop one agent, then the whole group; quit Exodus mid-run and resume; Continue in Terminal.
+- Manual, real CLI: a new project from an idea; an opened repo with two agents in worktrees; an opened PDF folder; deny with a reason; a question; Stop one agent, then the whole group; quit Actovia mid-run and resume; Continue in Terminal.

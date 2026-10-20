@@ -4,7 +4,7 @@
 
 **Goal:** Allow the AI to generate interactive React components (charts, tables, dashboards, etc.) from research data and render them live in the chat, instead of summarizing everything as plain text.
 
-**Architecture:** A new `createArtifact` tool lets the LLM emit JSX code. The chat UI renders it inside a sandboxed iframe that points to a pre-built "artifact sandbox" sub-app. The sandbox uses `sucrase` for real-time JSX→JS transpilation and shares the same Tailwind CSS + shadcn/ui design tokens as the main app. Artifacts are persisted to `~/.exodus/artifacts/{chatId}/` for later viewing.
+**Architecture:** A new `createArtifact` tool lets the LLM emit JSX code. The chat UI renders it inside a sandboxed iframe that points to a pre-built "artifact sandbox" sub-app. The sandbox uses `sucrase` for real-time JSX→JS transpilation and shares the same Tailwind CSS + shadcn/ui design tokens as the main app. Artifacts are persisted to `~/.actovia/artifacts/{chatId}/` for later viewing.
 
 **Tech Stack:** sucrase (fast JSX transpile), iframe sandbox, postMessage API, Tailwind CSS, recharts, lucide-react
 
@@ -29,7 +29,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Exodus Artifact</title>
+    <title>Actovia Artifact</title>
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src * data: blob:; connect-src 'self' http://localhost:*; font-src 'self' data:;"
@@ -527,11 +527,11 @@ In `src/main/lib/paths.ts`, add a new function:
 
 ```ts
 export function getArtifactsDir(): string {
-  return join(getExodusHome(), 'artifacts')
+  return join(getActoviaHome(), 'artifacts')
 }
 ```
 
-Also add `getArtifactsDir()` to the dirs array inside `ensureExodusDirs()`.
+Also add `getArtifactsDir()` to the dirs array inside `ensureActoviaDirs()`.
 
 - [ ] **Step 2: Create artifacts persistence module**
 
@@ -728,6 +728,6 @@ Verify:
    - Expand/collapse button
    - Rendered chart inside iframe
 5. The chart should use the app's color scheme (Tailwind CSS variables)
-6. `~/.exodus/artifacts/` should contain saved artifact files
+6. `~/.actovia/artifacts/` should contain saved artifact files
 
 - [ ] **Step 5: Final commit if any fixes needed**

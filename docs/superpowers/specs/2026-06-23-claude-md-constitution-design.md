@@ -38,7 +38,7 @@ Re-explore the codebase, then correct/add. Known corrections (non-exhaustive;
 the implementer re-verifies each against the code):
 
 - **Port:** `localhost:3000` → `localhost:60223` (`SERVER_PORT`). All occurrences.
-- **DB path:** `~/.app/Database` → `~/.exodus/database` (see `src/main/lib/paths.ts`).
+- **DB path:** `~/.app/Database` → `~/.actovia/database` (see `src/main/lib/paths.ts`).
 - **AI stack:** "Vercel AI SDK v6 / `streamText()`" → `@mariozechner/pi-ai` +
   `@mariozechner/pi-agent-core` ("pi-mono"); chat runs through `agentLoop`
   (`src/main/lib/server/routes/chat.ts`), not `streamText`.
@@ -62,7 +62,7 @@ the implementer re-verifies each against the code):
   - **Philharmonic** (multi-agent "Groups"): `src/main/lib/ai/philharmonic/`,
     `src/renderer/components/philharmonic/`, `/api/philharmonic`.
   - **App Lock**: `src/main/lib/lock/`, the `423` lock-gate middleware, IPC-only
-    unlock, `~/.exodus/lock.dat`.
+    unlock, `~/.actovia/lock.dat`.
   - **LCM (context management)**: `src/main/lib/ai/context-management/`, `/api/lcm`.
   - **Test-ID checkpoints**: `src/shared/constants/test-ids.ts`, linkage test,
     release-only strip.

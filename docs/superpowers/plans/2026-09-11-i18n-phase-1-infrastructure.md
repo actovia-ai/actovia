@@ -276,7 +276,7 @@ Each file is valid JSON with an initial set of keys that other Phase-1 code and 
 ```json
 // src/shared/i18n/locales/en/common.json
 {
-  "appName": "Exodus",
+  "appName": "Actovia",
   "action": {
     "save": "Save",
     "cancel": "Cancel",
@@ -298,7 +298,7 @@ Each file is valid JSON with an initial set of keys that other Phase-1 code and 
   "general": {
     "language": {
       "label": "Language",
-      "description": "The language Exodus's interface is shown in.",
+      "description": "The language Actovia's interface is shown in.",
       "auto": "Auto (detect from system)"
     }
   }

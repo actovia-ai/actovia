@@ -7,18 +7,18 @@ to build, and how to check it.
 
 ## Standing rules (apply to every item)
 
-- **Two repos.** Desktop: `/Users/yanceyleo/Code/exodus/exodus` (branch
-  `feat/react-query`). iOS: `/Users/yanceyleo/Code/exodus/exodus-ios` (branch
+- **Two repos.** Desktop: `/Users/yanceyleo/Code/actovia/actovia` (branch
+  `feat/react-query`). iOS: `/Users/yanceyleo/Code/actovia/ios` (branch
   `main`). Everything is uncommitted in both and stays that way: no commit, no
   stash, no reset, no `git subtree`, no `--no-verify`. The owner tests and
   commits.
-- **The owner's dev app is running** on the real `~/.exodus` (ports 60223 /
+- **The owner's dev app is running** on the real `~/.actovia` (ports 60223 /
   5173). Do not start, stop or restart it; no `bun run package`, no e2e; no
-  non-GET request to `localhost:60223`; never read or write `~/.exodus`.
+  non-GET request to `localhost:60223`; never read or write `~/.actovia`.
 - **TDD.** Test first, watch it fail for the right reason, then the code.
 - **Desktop gates** before calling a desktop item done: `bunx oxfmt <touched
   files>` (never repo-wide `bun run fmt` / `lint:fix`), then
-  `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck`,
+  `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck`,
   `bun run lint` (0 errors), `bun run i18n:check`, `bun run fmt:check`,
   `bun run test`. New strings go into all 10 locales in the same change.
   CLAUDE.md is updated in the same change when behaviour it describes changes.
@@ -30,7 +30,7 @@ to build, and how to check it.
   (`-MessageGallery`, `-MarkdownGallery`, `-CardPrototypes
   -CardPrototypesSection map`, `-ColorTone <name>`).
 - **Screenshots go where the owner can find them** (point 5/6): copy every
-  screenshot that a report mentions to `~/Desktop/exodus-shots/<item>/` and
+  screenshot that a report mentions to `~/Desktop/actovia-shots/<item>/` and
   give absolute paths in the report. The session scratchpad is a temp
   directory the owner does not browse.
 - **What cannot be verified is said so.** A long press, a drag, real audio, a
@@ -327,10 +327,10 @@ seen.
 - **2.** `.playwright-mcp/` was removed by the owner.
 - **5 / 6.** The screenshots of the earlier rounds are in the session's temp
   directory, which is why they were not found:
-  `/private/tmp/claude-501/-Users-yanceyleo-Code-exodus-exodus/bf42e566-e7d0-4c56-b1f7-709455611cde/scratchpad/ios-shots/`
+  `/private/tmp/claude-501/-Users-yanceyleo-Code-actovia-actovia/bf42e566-e7d0-4c56-b1f7-709455611cde/scratchpad/ios-shots/`
   (names starting with `n-` are the neutral-tone ones; desktop ones are in
   `…/scratchpad/shots/`). From this round on they are copied to
-  `~/Desktop/exodus-shots/`.
+  `~/Desktop/actovia-shots/`.
 
 ## Status — 2026-09-29, night
 
@@ -340,13 +340,13 @@ seen.
   `TextWithCitations` is gone. Also done, found on the way: sources are
   numbered through a chat (`highestSourceRank`, `rankBase`) — every run
   used to start at 1 again.
-- **9, 4, 7 + 3 done** (iOS), screenshots in `~/Desktop/exodus-shots/round-4/`.
+- **9, 4, 7 + 3 done** (iOS), screenshots in `~/Desktop/actovia-shots/round-4/`.
 - **1 done** (iOS): answers and the user bubble are `UITextView`s
   (`MarkdownKit/SelectableText.swift`, `MarkdownAttributedText.swift`); the
   block still streaming keeps the SwiftUI renderer. The long press itself
   was not exercised on the simulator.
 - **12 added and done on both platforms** (owner, same night: "对选中的文本进行
-  提问"): desktop `chat/selection-ask.tsx` + `chatQuoteAtom`; iOS "Ask Exodus"
+  提问"): desktop `chat/selection-ask.tsx` + `chatQuoteAtom`; iOS "Ask Actovia"
   first in the selection's edit menu (`markdownAskAbout`), `ComposerQuote`;
   one shared text format, `quoted-text.ts` / `QuotedText.swift`.
 - **10** in progress in a separate run.

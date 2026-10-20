@@ -1,6 +1,6 @@
 # The chat API — technical specification
 
-The chat API is the core of Actovia: every conversation, on the desktop and on exodus-ios, goes through it, and
+The chat API is the core of Actovia: every conversation, on the desktop and on the iOS app, goes through it, and
 everything the product does with a model — tools, memory, search, regenerate, approvals — meets in it. This
 document is the contract. It says what each endpoint takes and answers, what the server does with a message and in
 what order, what the model is sent and why, and what a client must do with what it receives. It is written to be
@@ -47,10 +47,10 @@ Sources of truth, in the order to read them:
 
 The API is served twice from the main process (`src/main/lib/server/app.ts`):
 
-| Listener | Address                                    | Who                                                                   | Auth                                               |
-| -------- | ------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------- |
-| Loopback | `http://127.0.0.1:60223` and `[::1]`       | the desktop renderer, the Actovia CLI, `tests/api`, the iOS Simulator | none (a local process can read `~/.exodus` anyway) |
-| LAN      | `https://<host>:63129` (`LAN_SERVER_PORT`) | exodus-ios on a device                                                | `Authorization: Bearer <device token>`             |
+| Listener | Address                                    | Who                                                                   | Auth                                                |
+| -------- | ------------------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------- |
+| Loopback | `http://127.0.0.1:60223` and `[::1]`       | the desktop renderer, the Actovia CLI, `tests/api`, the iOS Simulator | none (a local process can read `~/.actovia` anyway) |
+| LAN      | `https://<host>:63129` (`LAN_SERVER_PORT`) | the iOS app on a device                                               | `Authorization: Bearer <device token>`              |
 
 The LAN listener exists only while a device is paired or a pairing window is open. Its certificate is pinned by the
 device. Ports are `SERVER_PORT` / `LAN_SERVER_PORT` in `packages/shared/src/constants/systems.ts`.
@@ -60,7 +60,7 @@ device. Ports are `SERVER_PORT` / `LAN_SERVER_PORT` in `packages/shared/src/cons
 Every request passes, in this order (`app.ts`): **compression** (LAN only, §2.4) → **origin gate** (a request with an
 `Origin` other than the dev renderer's is `403`) → CORS → **auth gate** (LAN: a paired device's bearer token, else
 `401`) → **lock gate** (`423 APP_LOCKED` while the app is locked) → **presence gate** (`POST /api/v1/chat/approval`
-on loopback needs the window's `x-exodus-presence` token, else `403 PRESENCE_REQUIRED`) → trace (`x-trace-id` on
+on loopback needs the window's `x-actovia-presence` token, else `403 PRESENCE_REQUIRED`) → trace (`x-trace-id` on
 every response) → settings injection → the route. Every business route lives under `/api/v1`; a breaking change
 ships as `/api/v2` beside it, never by changing v1 in place.
 
@@ -291,7 +291,7 @@ The stream stays open until the rows are written, so a client that sees the stre
   `liveRunError`): it is not a row, and it lives for the session only.
 - **One stream per chat.** The desktop keeps a run's stream in `lib/stream-manager.ts`, beyond the chat page, so
   opening another chat does not stop it and coming back re-attaches; it refreshes the chat list on `title` and when
-  a run ends. exodus-ios does the same in `ChatStreamManager`.
+  a run ends. The iOS app does the same in `ChatStreamManager`.
 - **Do not send** until the history is loaded: a run is merged into the transcript the client holds.
 
 ## 5. What the model is sent
@@ -488,7 +488,7 @@ idempotent (the first answer stands), `404 APPROVAL_NOT_FOUND` once nothing wait
 loopback (the model can reach loopback through `terminal`, and must not approve its own call). Any client may
 answer — the window or a paired phone. The stream then sends `approval_resolved`; anything but `allowed` gives the
 model "The user declined access to <summary>." Allow is per call, never remembered. Actovia's own data
-(`~/.exodus/lock.dat`, `tls/`, the database, backups, analytics) and its API ports are refused outright, never asked.
+(`~/.actovia/lock.dat`, `tls/`, the database, backups, analytics) and its API ports are refused outright, never asked.
 
 ## 10. Other chat routes
 
@@ -508,7 +508,7 @@ desktop renderer's contract, unchanged. With `limit` (1–100) it answers a page
 `packages/shared/src/types/chat-history.ts`): `{ "chats": […], "olderCursor": "2026-10-06T12:00:00.000Z|<id>" | null,
 "favorites": […] }`. `chats` are the `limit` newest chats strictly older than `before`, ordered by `createdAt` (to the
 millisecond) then `id`, both descending, favourites included; `olderCursor` is `"<createdAt ISO>|<id>"` of the last
-one, passed back as `before`, and `null` on the last page (`utils/chat-history-cursor.ts`; exodus-ios builds the same
+one, passed back as `before`, and `null` on the last page (`utils/chat-history-cursor.ts`; the iOS app builds the same
 string). `favorites` — every favourite, newest first — is on the first page only. A bad `limit` or cursor is `400
 VALIDATION_FAILED`.
 
@@ -564,7 +564,7 @@ Re-measure against these numbers with Chat Audit and a page's size after any cha
 
 1. The route, its schema, and the shared wire type, together.
 2. **Both clients**: the desktop (`lib/stream-manager.ts`, `hooks/use-chat.ts`, `hooks/use-older-pages.ts`,
-   `components/chat/messages.tsx`) and exodus-ios (`ChatStreamManager`, `ChatSseEvent`, `ChatDetailViewModel`,
+   `components/chat/messages.tsx`) and the iOS app (`ChatStreamManager`, `ChatSseEvent`, `ChatDetailViewModel`,
    `RunGrouper`), with the same test vectors where both implement a rule (`mergeRun` / `RunMerge`).
 3. A new built-in tool: `TOOL_NAMES`, a `TOOL_POLICIES` row, the system prompt line, Built-in Tools, and iOS's
    `ToolNames` / `BuiltinTools` / `desktop-tools.json`.

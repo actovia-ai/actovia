@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- Branch `maintenance`; never push. Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test` (husky runs it). Typecheck as `env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck`.
+- Branch `maintenance`; never push. Pre-commit gate: `bun run fmt` → `bun run lint` → `bun run typecheck` → `bun run i18n:check` → `bun run test` (husky runs it). Typecheck as `env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck`.
 - Scope: the PM only. Employee reports are linked by message id and name, never copied into the trail.
 - Capture is passive: the PM's behaviour, prompts and tools do not change (except the LCM's author label, Task 4).
 - A recording failure never fails a PM round: every trail write is best-effort and logged (`logger.warn('philharmonic', …)`).
@@ -22,7 +22,7 @@
 - Migration is `0018` (latest shipped is `0017_codex_runtime`); `pm_round_event` cascades from `conversation`.
 - New user-facing strings: catalog keys in **all 10 locales** (`de en es fr it ja ko pt-BR zh-Hant-HK zh-Hant-TW`), authored by hand in the same commit; no i18next plural suffixes (parity across locales).
 - New interactive element → `TEST_IDS` entry + `data-testid` + a Playwright reference (`test-ids.linkage.test.ts`).
-- Tests under `tests/unit/**` mirroring `src/`; imports via `@main/…`, `@/…`, `@exodus/shared/…`; DOM tests start with `// @vitest-environment happy-dom`. No real model: the coordinator tests use the file's existing `agentLoopMock` + `fakeStream` (ruling: same scripted-event approach the suite already uses; the spec's "faux provider" intent — no key, scripted events — is met).
+- Tests under `tests/unit/**` mirroring `src/`; imports via `@main/…`, `@/…`, `@actovia/shared/…`; DOM tests start with `// @vitest-environment happy-dom`. No real model: the coordinator tests use the file's existing `agentLoopMock` + `fakeStream` (ruling: same scripted-event approach the suite already uses; the spec's "faux provider" intent — no key, scripted events — is met).
 
 ## Review Focus
 
@@ -82,7 +82,7 @@ export const pmRoundEvent = pgTable(
 export type PmRoundEvent = InferSelectModel<typeof pmRoundEvent>
 ```
 
-(import `integer` from drizzle if not yet imported; import `PmRoundEventKind` from `@exodus/shared/types/pm-round`.) Run `bun run db:generate --name pm_round_event` → `0018_pm_round_event.sql`. Read the SQL: it must add the `roundId` column and create the table with the FK `ON DELETE cascade` and the index.
+(import `integer` from drizzle if not yet imported; import `PmRoundEventKind` from `@actovia/shared/types/pm-round`.) Run `bun run db:generate --name pm_round_event` → `0018_pm_round_event.sql`. Read the SQL: it must add the `roundId` column and create the table with the FK `ON DELETE cascade` and the index.
 
 - [ ] **Step 3: Migration test (fails before Step 2's SQL exists, passes after)** — `0018-pm-round-event.test.ts`:
 
@@ -118,7 +118,7 @@ describe('migration 0018 — pm_round_event', () => {
 - [ ] **Step 4: Queries, test first** — `pm-round-queries.test.ts` on a real migrated PGlite (pattern: `vi.mock('@main/lib/db/db', async () => { const { drizzle } = await import('drizzle-orm/pglite'); const { createMigratedPglite } = await import('../../../helpers/migrated-pglite'); const pglite = await createMigratedPglite('9999'); return { pglite, db: drizzle(pglite) } })` — copy from `tests/unit/main/lib/secrets/at-rest.test.ts`). Cases: events come back in `seq` order whatever the insert order; another conversation's round id returns `[]`; `lastRoundStartedAt` is the newest `input` event's time and `null` for a group with none. Then `src/main/lib/db/pm-round-queries.ts`:
 
 ```ts
-import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 import { and, asc, desc, eq } from 'drizzle-orm'
 
 import { db } from './db'
@@ -403,7 +403,7 @@ Run → FAIL (module missing).
 // The PM's decision trail (spec 2026-10-17 §2): every agentLoop event of a
 // round that tells why it did what it did, in order, masked, written as it
 // happens. Best-effort: a failed write is logged and never fails the round.
-import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 
 import { appendRoundEvent } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
@@ -673,7 +673,7 @@ git commit -m "feat(philharmonic): every PM round records its decision trail —
 
 **Interfaces:**
 
-- Produces: `employeeLabel(agent: { name: string; runtime: string; model: string | null } | undefined): string` — `[<name> · <CLI name> · <model or 'CLI default'>]` for a CLI runtime, `[<name>]` for `exodus`, `[former employee]` when undefined.
+- Produces: `employeeLabel(agent: { name: string; runtime: string; model: string | null } | undefined): string` — `[<name> · <CLI name> · <model or 'CLI default'>]` for a CLI runtime, `[<name>]` for `actovia`, `[former employee]` when undefined.
 
 - [ ] **Step 1: Failing test** — `labels.test.ts`:
 
@@ -684,7 +684,7 @@ import { describe, expect, it } from 'vitest'
 describe('employeeLabel', () => {
   it('names the author of a report', () => {
     expect(
-      employeeLabel({ name: 'Writer', runtime: 'exodus', model: 'gpt-5.5' })
+      employeeLabel({ name: 'Writer', runtime: 'actovia', model: 'gpt-5.5' })
     ).toBe('[Writer]')
     expect(
       employeeLabel({ name: 'CC', runtime: 'claude-code', model: 'opus' })
@@ -697,7 +697,7 @@ describe('employeeLabel', () => {
 })
 ```
 
-Then `labels.ts` (import `CLI_NAMES` from `@exodus/shared/types/agents`, `isCliId` / `cliOf` from `../../../agents/drivers`). Run → PASS.
+Then `labels.ts` (import `CLI_NAMES` from `@actovia/shared/types/agents`, `isCliId` / `cliOf` from `../../../agents/drivers`). Run → PASS.
 
 - [ ] **Step 2: Use it** — `PhilharmonicLcm.assembleContext` loads `getAllAgents()` (`db/philharmonic-queries.ts`, includes inactive) once into a `Map(id → agent)` and `rowToLlmMessage(row, agents)` prefixes an `employee` row: `text: \`${employeeLabel(agents.get(row.agentId ?? ''))} ${row.content}\``. `summarize.ts`'s `roleLabel`takes the same map (thread it from its caller) and returns`employeeLabel(...)`without brackets for employee rows — i.e.`employeeLabel(a).slice(1, -1)`. Add to the existing lcm tests: an employee row reaches the model text-prefixed with its label; the summary transcript labels it by name, not `Employee <id>`. Mock `getAllAgents`where the lcm tests mock the DB. Run`bunx vitest run tests/unit/main/lib/ai/philharmonic` → PASS.
 
@@ -746,12 +746,12 @@ router.get('/conversations/:id/rounds/:roundId', async (c) => {
 })
 ```
 
-(`NotFoundError` from `@exodus/shared/errors/app-error`; check its constructor in chat.ts's usage.) Run → PASS.
+(`NotFoundError` from `@actovia/shared/errors/app-error`; check its constructor in chat.ts's usage.) Run → PASS.
 
 - [ ] **Step 2: The pure description, test first** — `src/renderer/lib/pm-round.ts`:
 
 ```ts
-import type { PmRoundEventDto } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventDto } from '@actovia/shared/types/pm-round'
 
 export type RoundLine =
   | { kind: 'trigger'; scheduled: boolean; text: string }
@@ -908,7 +908,7 @@ git commit -m "feat(analytics): Chat Audit reads Philharmonic — group_messages
 - [ ] **Step 1: CLAUDE.md** — Philharmonic section, a bullet: "**Decision trail** (spec `docs/superpowers/specs/2026-10-17-pm-decision-trail-design.md`): every PM round records, through `ai/philharmonic/round-recorder.ts`, its trigger, the employee reports it read (ids and names), thinking, text, each tool call with its arguments and result, usage and any error, masked (`maskLogText`), in `pm_round_event` (migration 0018; a recording failure never fails the round). The PM's message (or its error row) carries `roundId`; `GET /api/v1/philharmonic/conversations/:id/rounds/:roundId` serves a round and `chat/decision-process.tsx` draws it under the message, lazily. The PM's context labels each employee report with its author (`lcm/labels.ts`)." Key Tables: add `pm_round_event`. Chat Audit: the snapshot also builds `group_messages` and `pm_round_events` (scrubbed) and the `pmDecisions` preset.
 - [ ] **Step 2: QA** — add to `docs/manual-qa-checklist.md`'s Philharmonic/agents section: "P1 Decision trail: after a PM round that delegated, opening 'Decision process' under its message shows the trigger, the reports read (each scrolls to its message), every delegation as a sentence with its instructions one click further, any quota refusal or wait, and the round's tokens; Settings → Developer → Chat Audit → 'PM decisions by group' lists the round."
 - [ ] **Step 3: Spec status** → `implemented 2026-10-17 (plan docs/superpowers/plans/2026-10-17-pm-decision-trail.md)`.
-- [ ] **Step 4: Gate** — `bun run fmt && bun run lint && env PWD=/Users/yanceyleo/Code/exodus/exodus bun run typecheck && bun run i18n:check && bun run test` → all pass (a lone PGlite `Aborted()` / `ErrnoError` with every test passing is the known flake: re-run once).
+- [ ] **Step 4: Gate** — `bun run fmt && bun run lint && env PWD=/Users/yanceyleo/Code/actovia/actovia bun run typecheck && bun run i18n:check && bun run test` → all pass (a lone PGlite `Aborted()` / `ErrnoError` with every test passing is the known flake: re-run once).
 - [ ] **Step 5: Commit**
 
 ```bash

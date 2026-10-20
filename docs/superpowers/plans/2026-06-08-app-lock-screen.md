@@ -16,8 +16,8 @@
 
 **Main process**
 
-- `src/main/lib/lock/pin-store.ts` (new) — secret PIN record: scrypt hash, `safeStorage`-wrapped, `~/.exodus/lock.dat`.
-- `src/main/lib/lock/lock-config.ts` (new) — non-secret toggles, plain JSON `~/.exodus/lock-config.json`.
+- `src/main/lib/lock/pin-store.ts` (new) — secret PIN record: scrypt hash, `safeStorage`-wrapped, `~/.actovia/lock.dat`.
+- `src/main/lib/lock/lock-config.ts` (new) — non-secret toggles, plain JSON `~/.actovia/lock-config.json`.
 - `src/main/lib/lock/lock-manager.ts` (new) — authoritative state, transitions, attempt backoff, events.
 - `src/main/lib/lock/idle-watcher.ts` (new) — idle/sleep/launch triggers.
 - `src/main/lib/lock/lock-notifications.ts` (new) — recent-events ring buffer + push to renderer (used by the lock-screen feed).
@@ -137,11 +137,11 @@ git commit -m "feat(lock): shared lock types and IPC channel constants"
 
 ```ts
 export function getLockSecretPath(): string {
-  return join(getExodusHome(), 'lock.dat')
+  return join(getActoviaHome(), 'lock.dat')
 }
 
 export function getLockConfigPath(): string {
-  return join(getExodusHome(), 'lock-config.json')
+  return join(getActoviaHome(), 'lock-config.json')
 }
 ```
 
@@ -190,7 +190,7 @@ vi.mock('../logger', () => ({
 }))
 
 beforeEach(() => {
-  tmpFile = `/tmp/exodus-lock-test-${Math.random().toString(36).slice(2)}.dat`
+  tmpFile = `/tmp/actovia-lock-test-${Math.random().toString(36).slice(2)}.dat`
 })
 afterEach(async () => {
   const { rmSync, existsSync } = await import('fs')
@@ -360,7 +360,7 @@ vi.mock('../paths', () => ({ getLockConfigPath: () => tmpFile }))
 vi.mock('../logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }))
 
 beforeEach(() => {
-  tmpFile = `/tmp/exodus-lockcfg-${Math.random().toString(36).slice(2)}.json`
+  tmpFile = `/tmp/actovia-lockcfg-${Math.random().toString(36).slice(2)}.json`
 })
 afterEach(async () => {
   const { rmSync, existsSync } = await import('fs')
@@ -1049,7 +1049,7 @@ export function setupLockIPC(): void {
   ipcMain.handle(LOCK_CHANNELS.unlockTouchId, async () => {
     if (!touchIdAvailable()) return { ok: false }
     try {
-      await systemPreferences.promptTouchID('Unlock Exodus')
+      await systemPreferences.promptTouchID('Unlock Actovia')
       manager.completeUnlock()
       return { ok: true }
     } catch (err) {
@@ -1693,8 +1693,8 @@ export function LockPrivacy() {
       {!status.hasPin ? (
         <div className="flex flex-col gap-3">
           <p className="text-muted-foreground text-sm">
-            Set a 6-digit PIN to lock Exodus. While locked, the UI and the local
-            API are inaccessible, but background tasks keep running.
+            Set a 6-digit PIN to lock Actovia. While locked, the UI and the
+            local API are inaccessible, but background tasks keep running.
           </p>
           <Input
             inputMode="numeric"
@@ -1826,6 +1826,6 @@ Run: `pnpm dev`
 ## Self-Review Notes (author)
 
 - **Spec coverage:** PIN+scrypt+safeStorage (T3), toggles (T4), state+backoff (T5), 423 gate (T6), idle/sleep/launch triggers (T7, T10), OS+feed notifications (T8, T13), IPC-only unlock (T9, T12), render-instead-of-overlay (T13), Touch ID (T9, T13), settings UI (T14), manual verification incl. external `curl` 423 (T15). Forgotten-PIN = delete file: documented in spec; no in-app reset implemented (correct).
-- **Deviation from spec:** toggles persisted in `~/.exodus/lock-config.json` (module-owned) instead of the DB `settings` table, to avoid a schema migration and keep the feature self-contained and IPC-driven. Behavior is unchanged.
+- **Deviation from spec:** toggles persisted in `~/.actovia/lock-config.json` (module-owned) instead of the DB `settings` table, to avoid a schema migration and keep the feature self-contained and IPC-driven. Behavior is unchanged.
 - **Type consistency:** `LOCK_CHANNELS`, `LockStatus`, `LockConfig`, `UnlockResult`, `LockNotification` defined once in `src/shared/types/lock.ts` and reused across main + renderer. `getLockManager()` singleton used by middleware, IPC, menu, startup. `completeUnlock()` shared by PIN and Touch ID paths.
 - **Note:** the pre-commit hook runs the full Vitest suite, which currently hits a flaky PGlite WASM teardown error in `context-management/index.test.ts` unrelated to this work; if it blocks a commit, re-run or use `--no-verify` for that commit.

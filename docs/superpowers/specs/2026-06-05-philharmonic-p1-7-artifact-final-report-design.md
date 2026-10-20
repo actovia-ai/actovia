@@ -11,7 +11,7 @@ Today the PM's final message is a plain markdown string in `conversation_message
 ## Decisions
 
 - **Reuse, don't fork.** The on-disk artifact format (`{artifactId}.tsx` + `{artifactId}.json` next to it) and the renderer's `ArtifactCard` are unchanged. We pass `conversationId` everywhere `chatId` used to flow — UUIDs don't collide and the existing reveal IPC resolves to the right path.
-- **Save to `~/.exodus/artifacts/{conversationId}/`.** Reusing `getArtifactsDir()` means the existing reveal-artifact-file IPC works unchanged. No second IPC handler.
+- **Save to `~/.actovia/artifacts/{conversationId}/`.** Reusing `getArtifactsDir()` means the existing reveal-artifact-file IPC works unchanged. No second IPC handler.
 - **No new SSE event.** `createReport` is itself a tool — its execution already produces `tool_card phase=start/end` events. The end event carries `details: {type: 'artifact', artifactId, title, code}` just like Chat's `createArtifact`. The renderer's existing tool-card aggregation handles the live case.
 - **Code lives in the message row.** The artifact is attached as a part on the PM's final `conversation_message` (`{kind: 'artifact', artifactId, title, code}`). Storing code in the row mirrors Chat's behavior and keeps replay/history rendering trivial — no extra fetch round-trip.
 - **One report per turn is the v1 contract.** The PM may call `createReport` multiple times in a turn; every result is attached. Future P2 can introduce a "report registry" if curation matters.

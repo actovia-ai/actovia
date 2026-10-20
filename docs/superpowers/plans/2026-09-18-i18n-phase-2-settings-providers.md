@@ -18,7 +18,7 @@ exception from CLAUDE.md.
 `'Anthropic Claude'`, `'Google Gemini'`, `'xAI Grok'`, `'Ollama'`) and the
 tab labels in `providers-tabs.tsx`'s `PROVIDER_TABS` (`'OpenAI'`, `'Azure'`,
 `'Claude'`, `'Gemini'`, `'Grok'`, `'Ollama'`) are proper nouns / product
-names — like `settings-core`'s `exodus-ai-org/exodus`/`MIT`/`AWS S3`, these
+names — like `settings-core`'s `actovia-ai/actovia`/`MIT`/`AWS S3`, these
 stay hardcoded in every locale, never routed through `t()`. Likewise every
 placeholder that's an API-key-format hint or a URL/version-string example
 (`sk-...`, `AIza...`, `https://api.openai.com/v1`, `2024-12-01-preview`,

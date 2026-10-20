@@ -14,7 +14,7 @@ This is what makes Philharmonic feel like a workspace rather than another chat a
 
 - **Auto-execute (no approval gate).** PM generates the plan and starts the first delegation in the same turn. The user can interrupt via the existing AbortSignal hook (UI wiring lands in P1-6) — but doesn't need to click "approve" to begin.
 - **Two tables, not JSONB.** `conversation_plan` and `plan_step` are independent. Steps are mutated row-by-row; status updates become small targeted writes; SSE events reference `stepId` directly. Future audit trails (P1-5) can hang a `plan_step_event` table off the same key.
-- **DB is source of truth; Markdown is a mirror.** `~/.exodus/groups/{conversationId}/plan.md` is rewritten on every plan change, so users can read/diff/grep externally. Reading the markdown back into the DB is **not** supported — DB writes drive Markdown, not the other way around.
+- **DB is source of truth; Markdown is a mirror.** `~/.actovia/groups/{conversationId}/plan.md` is rewritten on every plan change, so users can read/diff/grep externally. Reading the markdown back into the DB is **not** supported — DB writes drive Markdown, not the other way around.
 - **One active plan per conversation.** A plan is `drafting → active → (completed | aborted)`. The next user message after a plan reaches a terminal state spawns a new plan. We don't model multiple concurrent plans for v1.
 - **Philharmonic-only.** Same isolation principle as P0-1: Chat does not see these tables.
 
@@ -115,7 +115,7 @@ The renderer's `useConversationStream` hook gains a `plan` state and a `setPlan`
 
 ## Markdown mirror
 
-Location: `~/.exodus/groups/{conversationId}/plan.md` (Electron's `app.getPath('home')` + `.exodus/groups/...`). The directory is created lazily on first write.
+Location: `~/.actovia/groups/{conversationId}/plan.md` (Electron's `app.getPath('home')` + `.actovia/groups/...`). The directory is created lazily on first write.
 
 Format:
 

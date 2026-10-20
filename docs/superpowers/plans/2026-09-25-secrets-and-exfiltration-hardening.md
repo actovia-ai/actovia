@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: superpowers:subagent-driven-development. Steps use checkbox syntax.
 
-**Goal:** every secret Exodus stores is encrypted at rest and never leaves the main process in plaintext; injected
+**Goal:** every secret Actovia stores is encrypted at rest and never leaves the main process in plaintext; injected
 instructions cannot pull it out; secrets elsewhere on the machine sit behind a user approval gate.
 **Spec:** `docs/superpowers/specs/2026-09-25-secrets-and-exfiltration-hardening-design.md` (read it first).
 **Tech:** Electron `safeStorage`, Hono routes, Drizzle/PGlite, pi-agent-core `beforeToolCall`, React Query, Vitest,
@@ -14,10 +14,10 @@ Playwright (faux provider).
   stash`. If the pre-commit hook fails only because of their files (today `itinerary-card.tsx` TS18048), commit with
   `$SCRATCH/commit-via-worktree.sh "<message>" <files…>` (the real hook runs in a temp worktree; it moves the branch).
 - Gate before each commit: `bun run fmt` (check `git status` for foreign changes) → `bun run lint` → `bun run
-  typecheck` (TS1149 → `env PWD=/Users/yanceyleo/Code/exodus/exodus`) → `bun run i18n:check` → `bun run test`.
+  typecheck` (TS1149 → `env PWD=/Users/yanceyleo/Code/actovia/actovia`) → `bun run i18n:check` → `bun run test`.
   Trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Never `--no-verify`.
 - Secrets never appear in logs, errors, SSE events, test snapshots or tool results. Tests never touch the real
-  `~/.exodus` (temp `EXODUS_HOME`), never a real keychain (`safeStorage` mocked).
+  `~/.actovia` (temp `ACTOVIA_HOME`), never a real keychain (`safeStorage` mocked).
 - User-facing strings: catalog keys, 10 locales in the same commit. Interactive elements: `TEST_IDS` + a Playwright
   reference. CLAUDE.md updated in the same change (stage only your hunks — `git apply --cached`).
 - `docs/security-hardening.md` updated as items land (move from Open to In place).
@@ -76,14 +76,14 @@ Files: `src/renderer/components/markdown.tsx` (+ a small `RemoteImage` component
 - [ ] `data:`, `/api/v1/media/…`, and hosts in the run's web-search results load; others show host + "Load image".
 - [ ] Render-path guard stays green (`messages-rerender.test.ts`, markdown-blocks tests).
 
-### S5: web_fetch cannot reach Exodus
+### S5: web_fetch cannot reach Actovia
 
 Files: `calling-tools/web-fetch.ts` (and deep research's fetch if separate), `net/safe-fetch.ts` helpers, tests.
 
 - [ ] Refuse loopback / local-interface / LAN-IP hosts on ports 60223 and 63129 (incl. `localhost`, `0.0.0.0`,
       `[::1]`), every redirect hop; other local ports allowed.
 
-### S6: Approval gate for secrets outside Exodus
+### S6: Approval gate for secrets outside Actovia
 
 Files: new `src/main/lib/ai/kernel/approval.ts` (matcher + pending registry), `kernel/run.ts` (`beforeToolCall`),
 `routes/chat.ts` + `chat-sse.ts` (event), new route `POST /api/v1/chat/approval`, `ChatSseEvent` type, renderer
@@ -91,13 +91,13 @@ approval card in the timeline + hook, `prompts.ts`, i18n, TEST_IDS, e2e (faux pr
 `read_file`).
 
 - [ ] Matcher per spec §2.5, table-tested (paths, workspace `.env`, terminal heuristics, false positives).
-- [ ] `lock.dat` / `tls/` refused outright; other `~/.exodus` reads pass (ciphertext only).
+- [ ] `lock.dat` / `tls/` refused outright; other `~/.actovia` reads pass (ciphertext only).
 - [ ] Pause → `approval_required` event → decision route → resume; deny/timeout (10 min)/Stop → declined result.
 - [ ] Card: summary (path/command), Allow once / Deny, states after decision; iOS shows nothing new yet (unknown event
       ignored) — iOS task follows.
 - [ ] Prompt lines in `<hard_stops>`; `prompts.test.ts` pins them.
 
-### S7: exodus-ios follow-up
+### S7: The iOS app follow-up
 
 - [ ] Providers page with masked keys (display, unchanged save, replace); secrets-status notice.
 - [ ] Approval card on the phone (`approval_required` + the decision route) — the remote principle.

@@ -66,7 +66,7 @@ API base path **does** flip: `/api/agent-x` → `/api/philharmonic`. Three rende
 - [ ] **Step 1: Use `git mv` for every move so git tracks the rename**
 
 ```bash
-cd /Users/yanceyleo/Code/exodus/exodus
+cd /Users/yanceyleo/Code/actovia/actovia
 
 git mv src/renderer/components/agent-x src/renderer/components/philharmonic
 git mv src/renderer/layouts/agent-x-layout src/renderer/layouts/philharmonic-layout
@@ -121,7 +121,7 @@ Identifier rename rules (apply across `**/*.ts` and `**/*.tsx`):
 - [ ] **Step 1: Run the bulk substitution with sed**
 
 ```bash
-cd /Users/yanceyleo/Code/exodus/exodus
+cd /Users/yanceyleo/Code/actovia/actovia
 
 # Path rewrites — folder slug
 git ls-files 'src/**/*.ts' 'src/**/*.tsx' | xargs sed -i '' \

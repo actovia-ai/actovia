@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reshape Exodus's main-process logger to the OpenTelemetry log data model (no `@opentelemetry/*` dependency) and add flat per-unit-of-work trace IDs via `AsyncLocalStorage`, surfaced in the Logger settings tab.
+**Goal:** Reshape Actovia's main-process logger to the OpenTelemetry log data model (no `@opentelemetry/*` dependency) and add flat per-unit-of-work trace IDs via `AsyncLocalStorage`, surfaced in the Logger settings tab.
 
 **Architecture:** `src/main/lib/logger.ts` becomes a `src/main/lib/logger/` folder with four focused modules: `resource.ts` (process/app identity), `record.ts` (the `LogRecord` shape + severity/exception mapping + legacy normalization), `trace-context.ts` (the ALS store + `withTrace`), and `index.ts` (the `logger` API that stitches them together and writes JSONL). The public call signature `logger.<level>(surface, message, detail?)` is unchanged, so the ~105 existing call sites are untouched. `withTrace` wraps three entry points — the Hono `/api/*` middleware, the pgmq job worker, and the Philharmonic scheduler — and `enqueueJob` threads the originating `traceId` onto job payloads so async work links back to the turn that spawned it.
 
@@ -60,7 +60,7 @@
 
 - Consumes: nothing (first task).
 - Produces:
-  - `interface Resource { 'service.name': 'exodus'; 'service.version': string; 'process.pid': number; 'process.runtime.name': 'electron'; 'os.type': string; 'os.version': string; 'session.id': string }`
+  - `interface Resource { 'service.name': 'actovia'; 'service.version': string; 'process.pid': number; 'process.runtime.name': 'electron'; 'os.type': string; 'os.version': string; 'session.id': string }`
   - `function getResource(): Resource` — frozen, memoized after first call.
 
 - [ ] **Step 1: Write the failing test**
@@ -77,7 +77,7 @@ const { getResource } = await import('@main/lib/logger/resource')
 describe('getResource', () => {
   it('returns the OTel resource fields', () => {
     const r = getResource()
-    expect(r['service.name']).toBe('exodus')
+    expect(r['service.name']).toBe('actovia')
     expect(r['service.version']).toBe('9.9.9')
     expect(r['process.runtime.name']).toBe('electron')
     expect(typeof r['process.pid']).toBe('number')
@@ -112,7 +112,7 @@ import { release, type } from 'node:os'
 import { app } from 'electron'
 
 export interface Resource {
-  'service.name': 'exodus'
+  'service.name': 'actovia'
   'service.version': string
   'process.pid': number
   'process.runtime.name': 'electron'
@@ -140,7 +140,7 @@ function resolveVersion(): string {
 export function getResource(): Resource {
   if (cached) return cached
   cached = Object.freeze({
-    'service.name': 'exodus',
+    'service.name': 'actovia',
     'service.version': resolveVersion(),
     'process.pid': process.pid,
     'process.runtime.name': 'electron',
@@ -619,7 +619,7 @@ describe('logger.write', () => {
     expect(r.body).toBe('hello')
     expect(r.scope).toEqual({ name: 'chat' })
     expect(r.attributes).toEqual({ chatId: 'c1' })
-    expect(r.resource['service.name']).toBe('exodus')
+    expect(r.resource['service.name']).toBe('actovia')
     expect(r.timestamp).toMatch(/^\d{4}-\d\d-\d\dT/)
     expect(r.traceId).toBeUndefined()
   })

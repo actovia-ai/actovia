@@ -1,12 +1,12 @@
-# Data Controls, Auto Backup & ~/.exodus Migration
+# Data Controls, Auto Backup & ~/.actovia Migration
 
 **Date**: 2026-04-02
 **Status**: Approved
 
-## 1. ~/.exodus Directory Structure
+## 1. ~/.actovia Directory Structure
 
 ```
-~/.exodus/
+~/.actovia/
 ├── database/          # PGlite data files (migrated from old location)
 ├── logs/              # Application logs (JSONL, 7-day retention)
 ├── skills/            # Skill files
@@ -15,7 +15,7 @@
     └── manual/        # Manual CSV ZIP exports
 ```
 
-Electron's own data (Cache, Session Storage, blob_storage) stays in `~/Library/Application Support/Exodus`.
+Electron's own data (Cache, Session Storage, blob_storage) stays in `~/Library/Application Support/Actovia`.
 
 ## 2. Data Directory Migration
 
@@ -23,18 +23,18 @@ Electron's own data (Cache, Session Storage, blob_storage) stays in `~/Library/A
 
 Centralizes all business data paths:
 
-- `getExodusHome()` → `~/.exodus`
-- `getDatabaseDir()` → `~/.exodus/database`
-- `getLogsDir()` → `~/.exodus/logs`
-- `getSkillsDir()` → `~/.exodus/skills`
-- `getBackupsDir()` → `~/.exodus/backups`
-- `getAutoBackupsDir()` → `~/.exodus/backups/auto`
-- `getManualBackupsDir()` → `~/.exodus/backups/manual`
+- `getActoviaHome()` → `~/.actovia`
+- `getDatabaseDir()` → `~/.actovia/database`
+- `getLogsDir()` → `~/.actovia/logs`
+- `getSkillsDir()` → `~/.actovia/skills`
+- `getBackupsDir()` → `~/.actovia/backups`
+- `getAutoBackupsDir()` → `~/.actovia/backups/auto`
+- `getManualBackupsDir()` → `~/.actovia/backups/manual`
 
 ### Migration logic (runs once at startup)
 
-1. Check if `~/.exodus/database` exists
-2. If not, check if `~/Library/Application Support/Exodus/database` exists
+1. Check if `~/.actovia/database` exists
+2. If not, check if `~/Library/Application Support/Actovia/database` exists
 3. If old location exists, move via `fs.renameSync` (same disk = instant)
 4. Same for `logs/` and `skills/`
 5. Migration is idempotent — once files are in new location, no-op
@@ -53,7 +53,7 @@ Centralizes all business data paths:
 
 **Backup engine:**
 
-- `createAutoBackup()`: calls `pglite.dumpDataDir()`, gzip compresses, writes to `~/.exodus/backups/auto/YYYY-MM-DD.tar.gz`
+- `createAutoBackup()`: calls `pglite.dumpDataDir()`, gzip compresses, writes to `~/.actovia/backups/auto/YYYY-MM-DD.tar.gz`
 - `cleanupOldBackups()`: keeps most recent 7 files, deletes older ones
 - `restoreFromBackup(filePath)`: stops PGlite, replaces database dir with extracted backup, restarts
 - `listAutoBackups()`: returns sorted list of backup files with metadata (name, size, date)

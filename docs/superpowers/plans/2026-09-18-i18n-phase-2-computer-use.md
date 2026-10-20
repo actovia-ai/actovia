@@ -396,14 +396,14 @@ document.
 - [ ] **Step 1: Isolated committed-tree check**
 
 ```bash
-rm -rf /tmp/exodus-committed-check
-git archive HEAD | (mkdir -p /tmp/exodus-committed-check && tar -x -C /tmp/exodus-committed-check)
-ln -s /Users/yanceyleo/Code/exodus/universal-client/node_modules /tmp/exodus-committed-check/node_modules
-cd /tmp/exodus-committed-check
+rm -rf /tmp/actovia-committed-check
+git archive HEAD | (mkdir -p /tmp/actovia-committed-check && tar -x -C /tmp/actovia-committed-check)
+ln -s /Users/yanceyleo/Code/actovia/universal-client/node_modules /tmp/actovia-committed-check/node_modules
+cd /tmp/actovia-committed-check
 ./node_modules/.bin/tsc --noEmit -p tsconfig.node.json --composite false
 ./node_modules/.bin/tsc --noEmit -p tsconfig.web.json --composite false
-cd /Users/yanceyleo/Code/exodus/universal-client
-rm -rf /tmp/exodus-committed-check
+cd /Users/yanceyleo/Code/actovia/universal-client
+rm -rf /tmp/actovia-committed-check
 ```
 
 Expected: no errors.

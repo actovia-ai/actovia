@@ -14,11 +14,11 @@ remains the only write path.
 
 ## Goals
 
-- Build / rebuild a snapshot on demand (`~/.exodus/analytics/exodus.duckdb`
+- Build / rebuild a snapshot on demand (`~/.actovia/analytics/actovia.duckdb`
   - `snapshot.json` meta): `chats`, `messages` (usage flattened to
     `input_tokens`, `output_tokens`, `cache_read_tokens`, `cache_write_tokens`,
     `total_tokens`, `cost_usd`), `projects`, and a `logs` view over
-    `~/.exodus/logs/*.jsonl` when any exist.
+    `~/.actovia/logs/*.jsonl` when any exist.
 - Run any SQL against it, capped at 500 rows, with column names and types
   and the wall time.
 - Preset queries a non-SQL user can click: messages per day, tokens and

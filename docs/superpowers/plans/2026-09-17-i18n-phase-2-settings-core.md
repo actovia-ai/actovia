@@ -149,7 +149,7 @@ export enum SettingsLabel {
   DataControls = 'Data Controls',
   Logger = 'Logger',
   KeyboardShortcuts = 'Keyboard Shortcuts',
-  AboutExodus = 'About Exodus'
+  AboutActovia = 'About Actovia'
 }
 
 export type SettingsPage = SettingsLabel
@@ -187,12 +187,12 @@ export const NAV_TITLE_KEYS = {
   [SettingsLabel.DataControls]: 'nav.dataControls.title',
   [SettingsLabel.Logger]: 'nav.logger.title',
   [SettingsLabel.KeyboardShortcuts]: 'nav.keyboardShortcuts.title',
-  [SettingsLabel.AboutExodus]: 'nav.about.title'
+  [SettingsLabel.AboutActovia]: 'nav.about.title'
 } as const satisfies Record<SettingsLabel, ParseKeys<'settings'>>
 
 // Flat menu — every entry is a top-level page. The content-side Cards provide
 // the visual grouping, so the sidebar has no expandable second level. The final
-// group has no label — it holds "About Exodus", pinned to the bottom.
+// group has no label — it holds "About Actovia", pinned to the bottom.
 // `label` holds a settings.json key path (empty string for the unlabeled
 // group), not display text — settings-sidebar.tsx renders `t(group.label)`.
 export const menus = {
@@ -244,7 +244,7 @@ export const menus = {
     },
     {
       label: '',
-      items: [{ title: SettingsLabel.AboutExodus, icon: InfoIcon }]
+      items: [{ title: SettingsLabel.AboutActovia, icon: InfoIcon }]
     }
   ]
 } as const
@@ -259,7 +259,7 @@ Replace the entire file with:
   "general": {
     "language": {
       "label": "Language",
-      "description": "The language Exodus's interface is shown in.",
+      "description": "The language Actovia's interface is shown in.",
       "auto": "Auto (detect from system)"
     }
   },
@@ -282,7 +282,7 @@ Replace the entire file with:
     "dataControls": { "title": "Data Controls" },
     "logger": { "title": "Logger" },
     "keyboardShortcuts": { "title": "Keyboard Shortcuts" },
-    "about": { "title": "About Exodus" },
+    "about": { "title": "About Actovia" },
     "group": {
       "personal": "Personal",
       "aiTools": "AI & Tools",
@@ -324,7 +324,7 @@ describe('settings namespace (en)', () => {
   it('keeps the pre-existing general.language keys untouched', () => {
     expect(settings.general.language.label).toBe('Language')
     expect(settings.general.language.description).toBe(
-      "The language Exodus's interface is shown in."
+      "The language Actovia's interface is shown in."
     )
     expect(settings.general.language.auto).toBe('Auto (detect from system)')
   })
@@ -348,7 +348,7 @@ describe('settings namespace (en)', () => {
     expect(settings.nav.dataControls.title).toBe('Data Controls')
     expect(settings.nav.logger.title).toBe('Logger')
     expect(settings.nav.keyboardShortcuts.title).toBe('Keyboard Shortcuts')
-    expect(settings.nav.about.title).toBe('About Exodus')
+    expect(settings.nav.about.title).toBe('About Actovia')
   })
 
   it('has the nav group heading keys', () => {
@@ -865,7 +865,7 @@ Find:
   "general": {
     "language": {
       "label": "Language",
-      "description": "The language Exodus's interface is shown in.",
+      "description": "The language Actovia's interface is shown in.",
       "auto": "Auto (detect from system)"
     }
   },
@@ -877,7 +877,7 @@ Replace with:
   "general": {
     "language": {
       "label": "Language",
-      "description": "The language Exodus's interface is shown in.",
+      "description": "The language Actovia's interface is shown in.",
       "auto": "Auto (detect from system)"
     },
     "theme": {
@@ -889,11 +889,11 @@ Replace with:
     },
     "runOnStartup": {
       "label": "Run on startup",
-      "description": "Automatically start Exodus when you log in"
+      "description": "Automatically start Actovia when you log in"
     },
     "menuBar": {
       "label": "Menu bar",
-      "description": "Show Exodus in the menu bar"
+      "description": "Show Actovia in the menu bar"
     }
   },
 ```
@@ -923,11 +923,11 @@ Replace with:
     expect(settings.general.theme.dark).toBe('Dark')
     expect(settings.general.runOnStartup.label).toBe('Run on startup')
     expect(settings.general.runOnStartup.description).toBe(
-      'Automatically start Exodus when you log in'
+      'Automatically start Actovia when you log in'
     )
     expect(settings.general.menuBar.label).toBe('Menu bar')
     expect(settings.general.menuBar.description).toBe(
-      'Show Exodus in the menu bar'
+      'Show Actovia in the menu bar'
     )
   })
 ```
@@ -1354,9 +1354,9 @@ those neighboring lines yourself.
 
 ```tsx
 import {
-  EXODUS_REPO,
-  EXODUS_TWITTER,
-  EXODUS_WEBSITE
+  ACTOVIA_REPO,
+  ACTOVIA_TWITTER,
+  ACTOVIA_WEBSITE
 } from '@shared/constants/external-urls'
 import { UseFormReturnType } from '@shared/schemas/settings-schema'
 import { ExternalLinkIcon } from 'lucide-react'
@@ -1424,13 +1424,13 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
       </SettingsRow>
 
       <SettingsRow label={t('about.github')}>
-        <ExternalLink href={EXODUS_REPO}>exodus-ai-org/exodus</ExternalLink>
+        <ExternalLink href={ACTOVIA_REPO}>actovia-ai/actovia</ExternalLink>
       </SettingsRow>
       <SettingsRow label={t('about.twitter')}>
-        <ExternalLink href={EXODUS_TWITTER}>@YanceyOfficial</ExternalLink>
+        <ExternalLink href={ACTOVIA_TWITTER}>@YanceyOfficial</ExternalLink>
       </SettingsRow>
       <SettingsRow label={t('about.website')}>
-        <ExternalLink href={EXODUS_WEBSITE}>exodus.yancey.app</ExternalLink>
+        <ExternalLink href={ACTOVIA_WEBSITE}>actovia.yancey.app</ExternalLink>
       </SettingsRow>
       <SettingsRow label={t('about.license')}>
         <span className="text-ring text-sm">MIT</span>
@@ -1452,7 +1452,7 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
 }
 ```
 
-`exodus-ai-org/exodus`, `@YanceyOfficial`, `exodus.yancey.app`, and `MIT`
+`actovia-ai/actovia`, `@YanceyOfficial`, `actovia.yancey.app`, and `MIT`
 stay hardcoded — they're identifiers/proper nouns (a repo path, a handle,
 a hostname, an SPDX license id), not language-dependent text.
 

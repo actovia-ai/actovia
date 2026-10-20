@@ -37,7 +37,7 @@ Transitions (all in one server function, `src/main/lib/chat/attempts.ts`):
   → `folded`, before context is assembled.
 
 `ChatMessage` on the wire gains optional `alternateOf?: string | null` and `attempt?: …` (on the user message), so the
-renderer, `GET` history and exodus-ios all read the same state. Migration adds both columns (no backfill: existing runs
+renderer, `GET` history and the iOS app all read the same state. Migration adds both columns (no backfill: existing runs
 are ordinary).
 
 ## 3. What the model sees
@@ -74,7 +74,7 @@ a folded answer. The property test (`context-assembler.property.test.ts`) gains 
 ## 5. Out of scope
 
 - Memory consolidation already ran for a rejected answer; left as is (it mostly records facts from the shared question).
-- exodus-ios: reads the same fields; a follow-up task hides `folded`/`hidden` runs and later offers a swipe comparison
+- The iOS app: reads the same fields; a follow-up task hides `folded`/`hidden` runs and later offers a swipe comparison
   with Use this one. Until then the phone shows every run, as today.
 - Comparing more than two, editing the question before regenerating, regenerating an earlier exchange.
 

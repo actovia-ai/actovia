@@ -46,7 +46,7 @@
 - Modify: `src/renderer/components/settings/settings-menu.ts`
 
 - [ ] Add `KeyboardShortcuts = 'Keyboard Shortcuts'` to `SettingsLabel` enum
-- [ ] Add menu entry with `KeyboardIcon` before `AboutExodus`
+- [ ] Add menu entry with `KeyboardIcon` before `AboutActovia`
 
 ### Task 3: Create Keyboard Shortcuts settings page
 

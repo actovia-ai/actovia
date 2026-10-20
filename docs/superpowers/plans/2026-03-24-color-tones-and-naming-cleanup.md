@@ -1215,7 +1215,7 @@ Create `src/renderer/tone-init.js`:
 
 ```javascript
 ;(function () {
-  var t = localStorage.getItem('exodus-color-tone')
+  var t = localStorage.getItem('actovia-color-tone')
   if (t) document.documentElement.setAttribute('data-tone', t)
 })()
 ```
@@ -1265,7 +1265,7 @@ import { useCallback, useEffect } from 'react'
 
 import { useSettings } from '@/hooks/use-settings'
 
-const STORAGE_KEY = 'exodus-color-tone'
+const STORAGE_KEY = 'actovia-color-tone'
 
 function applyTone(tone: string) {
   document.documentElement.setAttribute('data-tone', tone)

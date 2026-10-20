@@ -1989,7 +1989,7 @@ export function S3({ form }: { form: UseFormReturnType }) {
         <AlertDescription className="flex flex-col gap-2 text-sm">
           <p>
             <Trans ns="settings" i18nKey="tools.s3.alert.encoding">
-              By default, Exodus encodes attachments as <strong>base64</strong>{' '}
+              By default, Actovia encodes attachments as <strong>base64</strong>{' '}
               inline in the prompt. For large files or vision-heavy workflows,
               uploading to S3 and passing a URL is more efficient and reliable.
             </Trans>
@@ -2013,7 +2013,7 @@ export function S3({ form }: { form: UseFormReturnType }) {
               <Trans ns="settings" i18nKey="tools.s3.alert.cors">
                 <strong>CORS</strong> — Add a CORS rule allowing{' '}
                 <code>PUT</code> from <code>*</code> (or your app origin) so
-                Exodus can upload directly from the desktop.
+                Actovia can upload directly from the desktop.
               </Trans>
             </li>
             <li>
@@ -2156,10 +2156,10 @@ Replace with:
     },
     "s3": {
       "alert": {
-        "encoding": "By default, Exodus encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.",
+        "encoding": "By default, Actovia encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.",
         "requirementsHeading": "<strong>Requirements before configuring:</strong>",
         "publicReadAccess": "<strong>Public read access</strong> — AWS blocks public access by default. You must disable \"Block all public access\" on the bucket and attach a bucket policy granting <2>s3:GetObject</2> to <4>*</4>, so the AI provider can fetch the URL without credentials.",
-        "cors": "<strong>CORS</strong> — Add a CORS rule allowing <2>PUT</2> from <4>*</4> (or your app origin) so Exodus can upload directly from the desktop.",
+        "cors": "<strong>CORS</strong> — Add a CORS rule allowing <2>PUT</2> from <4>*</4> (or your app origin) so Actovia can upload directly from the desktop.",
         "iamCredentials": "<strong>IAM credentials</strong> — The Access Key ID / Secret Access Key must belong to an IAM user or role with at least <2>s3:PutObject</2> and <4>s3:PutObjectAcl</4> permissions on the configured bucket.",
         "objectAcl": "<strong>Object ACL</strong> — Each uploaded object is set to <2>public-read</2>. Your bucket must not have ACLs disabled (i.e., Object Ownership must be set to <4>ACLs enabled / Bucket owner preferred</4>)."
       },
@@ -2272,12 +2272,12 @@ describe('settings namespace tools.s3.alert.* renders correctly via Trans', () =
   it('encoding — one literal <strong>, no numbered placeholders', async () => {
     const { createElement } = await import('react')
     const html = await renderTrans('tools.s3.alert.encoding', [
-      'By default, Exodus encodes attachments as ',
+      'By default, Actovia encodes attachments as ',
       createElement('strong', null, 'base64'),
       ' inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.'
     ])
     expect(html).toBe(
-      'By default, Exodus encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.'
+      'By default, Actovia encodes attachments as <strong>base64</strong> inline in the prompt. For large files or vision-heavy workflows, uploading to S3 and passing a URL is more efficient and reliable.'
     )
   })
 
@@ -2312,10 +2312,10 @@ describe('settings namespace tools.s3.alert.* renders correctly via Trans', () =
       createElement('code', null, 'PUT'),
       ' from ',
       createElement('code', null, '*'),
-      ' (or your app origin) so Exodus can upload directly from the desktop.'
+      ' (or your app origin) so Actovia can upload directly from the desktop.'
     ])
     expect(html).toBe(
-      '<strong>CORS</strong> — Add a CORS rule allowing <code>PUT</code> from <code>*</code> (or your app origin) so Exodus can upload directly from the desktop.'
+      '<strong>CORS</strong> — Add a CORS rule allowing <code>PUT</code> from <code>*</code> (or your app origin) so Actovia can upload directly from the desktop.'
     )
   })
 

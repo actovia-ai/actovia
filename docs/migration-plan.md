@@ -1,8 +1,8 @@
-# Business-code migration plan: universal-client → exodus
+# Business-code migration plan: universal-client → actovia
 
 ## Purpose
 
-`exodus` now has a verified, working base architecture (native electron-forge +
+`actovia` now has a verified, working base architecture (native electron-forge +
 Vite + bun, no electron-vite, no electron-builder — see git history / session
 notes for the full base-migration). `universal-client` is the mature codebase
 where all business features actually live, and where active development
@@ -28,25 +28,25 @@ file when a phase starts, since `universal-client` keeps moving.
 ## Repository / git strategy (user instruction, 2026-09-19)
 
 The end state is **one repository using `universal-client`'s `.git`
-history**, not `exodus`'s:
+history**, not `actovia`'s:
 
 - **Executed (2026-09-19):** all three steps below are done — see "Status and
   what is left". The history is `universal-client`'s; the migration is one
   commit on top of `dev`.
-- **Already done (2026-09-19):** `exodus`'s own `.git` has been deleted.
+- **Already done (2026-09-19):** `actovia`'s own `.git` has been deleted.
   It had zero commits — everything in this whole base-migration effort
   (every phase described in this document, plus the entire prior
   base-architecture session) sat as uncommitted working-tree changes the
   whole time, so there was no history to lose. Verified empty (`git log`,
   `git stash list`, `git remote -v`, `git branch -a`) before deletion; the
   working-tree files themselves were untouched by removing `.git`.
-  `exodus`'s directory is now a plain, non-git working tree.
+  `actovia`'s directory is now a plain, non-git working tree.
 - **At migration time:** copy `universal-client`'s `.git` directory
-  straight into `exodus`'s working tree (its history is the real, valuable
+  straight into `actovia`'s working tree (its history is the real, valuable
   one — years of actual feature development — and must not be lost or
   replaced). This is the whole mechanism, per direct user instruction — no
   history-rewriting, cherry-picking, or diff-carrying needed.
-- After that copy, `exodus`'s working tree (base architecture + whatever
+- After that copy, `actovia`'s working tree (base architecture + whatever
   business code has been ported per the phases below) will show as a large
   set of uncommitted changes against `universal-client`'s last commit —
   **commit that with a real, well-described message** documenting what the
@@ -84,7 +84,7 @@ as written; each phase section records what happened.
 - **`paths.ts`'s `getDatabaseDir()`** — deleted as unused; it's a hard
   dependency of `db/db.ts`. Restore alongside Phase 1 (DB layer).
 
-### 2. Error-code strategy for `@exodus/shared`
+### 2. Error-code strategy for `@actovia/shared`
 
 `packages/shared/src/constants/error-codes.ts` currently has 8 generic codes
 (trimmed during the base migration). `universal-client`'s `ErrorCode` enum
@@ -95,7 +95,7 @@ i18n `errors.json` namespace maps every one of them 1:1 via
 
 **Decision needed:** restore the full `ErrorCode` enum (+ `ErrorCodeToStatus`
 
-- `ErrorMessages`) in `@exodus/shared` in one pass before Phase 1, rather
+- `ErrorMessages`) in `@actovia/shared` in one pass before Phase 1, rather
   than growing it piecemeal per-phase and re-touching the same file 10 times.
   Also restore the feature-specific `AppError` subclasses (`AIError`,
   `RateLimitError`) dropped alongside the trim. Do this as the very first
@@ -107,14 +107,14 @@ i18n `errors.json` namespace maps every one of them 1:1 via
 `universal-client`'s `src/renderer/lib/ipc.ts` calls
 `window.electron.ipcRenderer.invoke(...)` / `.on(...)` /
 `.removeListener(...)` — i.e. it expects the nested shape
-`@electron-toolkit/preload`'s `electronAPI` provides. `exodus`'s
+`@electron-toolkit/preload`'s `electronAPI` provides. `actovia`'s
 `src/preload/preload.ts` (written this session, deliberately _not_ using
 `@electron-toolkit/preload`) exposes a flatter bridge:
 `window.electron = { send, invoke, on, off }`.
 
 **Decision needed before any renderer code migrates (Phase 6):** either (a)
-reshape exodus's preload bridge to nest under `.ipcRenderer` to match every
-existing renderer call site, or (b) keep exodus's flat shape and rewrite
+reshape actovia's preload bridge to nest under `.ipcRenderer` to match every
+existing renderer call site, or (b) keep actovia's flat shape and rewrite
 `renderer/lib/ipc.ts`'s call sites during migration. (a) is less invasive
 per-file since dozens of renderer files call through `lib/ipc.ts`'s
 abstraction, not `window.electron` directly — check how many call sites
@@ -126,20 +126,20 @@ before picking; if it's mostly the wrapper, (b) might be a one-file fix.
 `db/migrate.ts` and `computer/helper.ts` both assume electron-builder's
 `asarUnpack` → `app.asar.unpacked/...` layout (accessed via
 `@electron-toolkit/utils`'s `is.dev` to pick dev vs. packaged paths). This
-session confirmed empirically that exodus's `packagerConfig.extraResource`
+session confirmed empirically that actovia's `packagerConfig.extraResource`
 copies to `Contents/Resources/resources/*` — a _different_ mechanism, not
 asar-unpacking. Forge has its own equivalent
 (`packagerConfig.asar.unpack: '**/*.{node,sql}'`-style glob, or per-file) —
 set this up once, in `forge.config.ts`, before Phase 1 (migration SQL) or
 Phase 7 (native helper binary) needs it. Replace every `is.dev` reference in
-ported code with `app.isPackaged` (exodus's established convention) and drop
+ported code with `app.isPackaged` (actovia's established convention) and drop
 the `@electron-toolkit/utils` dependency — same pattern already applied to
 `window.ts`/`tray.ts`/`ipc.ts` this session.
 
-### 5. `@shared/*` → `@exodus/shared` rename
+### 5. `@shared/*` → `@actovia/shared` rename
 
 Every ported file that currently does `import ... from '@shared/...'` needs
-that rewritten to `@exodus/shared` (or a relative import within the package,
+that rewritten to `@actovia/shared` (or a relative import within the package,
 if the code is moving _into_ `packages/shared` itself — e.g. more of
 `src/shared/types`, `src/shared/constants`, `src/shared/schemas` will likely
 want to join `packages/shared` alongside the errors code already there).
@@ -156,7 +156,7 @@ a final cleanup pass.
   never-wired-up reimplementation of `ai/context-management/` +
   `ai/memory/manager.ts` + the three `lcm-*` calling-tools. **Do not port it
   as-is.** It may be a useful _design reference_ for eventually extracting a
-  `packages/lcm` in exodus once `ai/context-management/` itself has
+  `packages/lcm` in actovia once `ai/context-management/` itself has
   migrated and proven stable — but the live code to port is the in-app
   version, not this package.
 - Anything not listed in the phases below (it wasn't surveyed, or is a
@@ -184,8 +184,8 @@ until you actually run the full pipeline, not just `tsc`).
 - Only 3 migration SQL files exist (`resources/drizzle/0000`–`0002`) —
   small enough that regenerating via `drizzle-kit generate` against the
   copied `schema.ts` is a reasonable alternative to carrying migration
-  history verbatim, if starting exodus with a fresh data directory is
-  acceptable (it should be — different `~/.exodus/database` state isn't
+  history verbatim, if starting actovia with a fresh data directory is
+  acceptable (it should be — different `~/.actovia/database` state isn't
   shared with `universal-client`'s users regardless).
 - Add dependencies: `@electric-sql/pglite`, `@electric-sql/pglite-pgmq`,
   `@electric-sql/pglite-pgvector`, `drizzle-orm`, `drizzle-kit` (dev).
@@ -198,10 +198,10 @@ until you actually run the full pipeline, not just `tsc`).
 - **Prerequisite chain was bigger than scoped.** `schema.ts` pulls in
   `settings-schema.ts` (17 zod schemas), `types/discover.ts`, and
   `types/web-search.ts` before it will even typecheck. All three got
-  ported into `@exodus/shared` (as `./schemas/settings-schema`,
+  ported into `@actovia/shared` (as `./schemas/settings-schema`,
   `./types/discover`, `./types/web-search` subpath exports) as part of
   this phase rather than blocking on a re-plan. Also restored: the full
-  ~50-code `ErrorCode` enum in `@exodus/shared` (had been trimmed to 8
+  ~50-code `ErrorCode` enum in `@actovia/shared` (had been trimmed to 8
   generic codes) and the `AIError`/`RateLimitError` subclasses — `queries.ts`
   needs both. One Chinese string found and translated per the
   English-default rule: `S3Schema`'s zod validation message.
@@ -220,44 +220,44 @@ until you actually run the full pipeline, not just `tsc`).
   UNWIRED** — no IPC handler calls any of them yet (that's Phase 6/IPC
   work). `knip` correctly flags them as unused files; this is expected,
   same situation as the pre-installed shadcn UI kit components.
-- **`~/.exodus` collides with `universal-client` in dev — this was wrong
+- **`~/.actovia` collides with `universal-client` in dev — this was wrong
   in the plan above, and caused a real incident.** The assumption that
-  "different `~/.exodus/database` state isn't shared... regardless" is
-  only true for separate END USERS. On this machine, in dev, exodus and
-  `universal-client` both resolve `getExodusHome()` to the literal same
-  `~/.exodus`. Running exodus's `bun run dev` after wiring the DB layer
+  "different `~/.actovia/database` state isn't shared... regardless" is
+  only true for separate END USERS. On this machine, in dev, actovia and
+  `universal-client` both resolve `getActoviaHome()` to the literal same
+  `~/.actovia`. Running actovia's `bun run dev` after wiring the DB layer
   ran real migrations and the new task-cleanup UPDATE against
   `universal-client`'s live dev database (confirmed: 14 real chats, 176
   messages). No data loss resulted (the `task` table was empty, and the
   queries that ran either no-opped against already-applied migrations or
   failed outright before any write) — confirmed via a read-only PGlite
-  inspection script — but it could have gone worse. **Fix**: `getExodusHome()`
+  inspection script — but it could have gone worse. **Fix**: `getActoviaHome()`
   now appends `-dev` to the directory name whenever `!app.isPackaged`,
-  leaving the packaged (production) path unsuffixed and unchanged — exodus
-  is meant to eventually ship AS the real Exodus app, sharing that
+  leaving the packaged (production) path unsuffixed and unchanged — actovia
+  is meant to eventually ship AS the real Actovia app, sharing that
   directory with other installs by design; only unpackaged dev runs needed
   isolating. **Standing rule**: never run `bun run dev`/`package`/`make`
-  for this repo against the real `~/.exodus` — always verify the active
+  for this repo against the real `~/.actovia` — always verify the active
   binary resolved the suffixed dev path (or a sandboxed `$HOME` for
   packaged-build testing) before trusting a DB-touching test.
   **Superseded (2026-09-19, after the migration):** the `-dev` split existed
-  because exodus was then a half-built base that mutated a live database.
-  Once exodus became a faithful port — same schema, same 3 migrations,
+  because actovia was then a half-built base that mutated a live database.
+  Once actovia became a faithful port — same schema, same 3 migrations,
   verified on a copy of the real database — it hid the user's data in dev
   ("where did my chats go?"), so at the user's request unpackaged builds now
-  use `~/.exodus` too (`getExodusHome()` no longer looks at
-  `app.isPackaged`). The standing rule became: **never run two Exodus
+  use `~/.actovia` too (`getActoviaHome()` no longer looks at
+  `app.isPackaged`). The standing rule became: **never run two Actovia
   processes — a dev build, the packaged app, universal-client — against one
   data directory at once (PGlite is single-process)**; the e2e suite sandboxes
-  `$HOME` and its fixture refuses to run otherwise. `EXODUS_HOME` remains as an
+  `$HOME` and its fixture refuses to run otherwise. `ACTOVIA_HOME` remains as an
   explicit override.
 - **`db.ts` had a latent directory-creation-order bug**, also present
   verbatim in `universal-client`. Its module-level `export const pglite =
   new PGlite({ dataDir })` runs at ES-import time — before
-  `ensureExodusDirs()` ever executes inside `app.on('ready')` — and
+  `ensureActoviaDirs()` ever executes inside `app.on('ready')` — and
   PGlite's own internal `mkdir` isn't recursive, so it depends on some
   _other_ module having already created the parent directory as a side
-  effect. This was silently masked in both repos by `~/.exodus` already
+  effect. This was silently masked in both repos by `~/.actovia` already
   existing from prior runs; it only surfaced once the `-dev` suffix
   pointed at a genuinely new path. Fixed by having `db.ts` `mkdirSync(dbPath,
   { recursive: true })` itself before constructing `PGlite`, rather than
@@ -313,7 +313,7 @@ Port together since they're peer-level and lightly cross-dependent:
     `runMemoryConsolidation` (`ai/memory/manager`, Phase 3),
     `runDiscoverRefresh`/`resetStuckDiscoverRefresh` (`discover/manager`,
     below), `contentHash`/`resolveKnowledgeBase`/`reconcileKnowledgeIndexStatus`
-    (`knowledge-base/`, below) — none of which exist in exodus yet. Land
+    (`knowledge-base/`, below) — none of which exist in actovia yet. Land
     these two once Phase 3 + `discover/` + `knowledge-base/` all land; this
     is the real reason the plan's "port together" framing undersold the
     coupling here — only 3 of the 5 files in this directory are actually
@@ -337,7 +337,7 @@ Port together since they're peer-level and lightly cross-dependent:
   despite the filename/header comment, none of its code is actually
   philharmonic-specific, confirmed by reading it; Phase 3's philharmonic
   work will consume the same file rather than needing its own copy.
-  `packages/shared/src/types/lock.ts` added as a new `@exodus/shared`
+  `packages/shared/src/types/lock.ts` added as a new `@actovia/shared`
   subpath export (`./types/lock`). `paths.ts` gained `getLockSecretPath()`/
   `getLockConfigPath()`.
 - ⬜ **`discover/`** (`manager.ts`, `brave-news-client.ts`) — depends on Brave
@@ -377,10 +377,10 @@ Land roughly in this sub-order (later items depend on earlier ones):
    Anthropic, Google, xAI, Ollama) via `@mariozechner/pi-ai`; `list-models/*`
    hand-rolled REST calls per provider, no extra SDKs needed there. Ported
    verbatim except: `@shared/types/ai` (AiProviders enum + McpTools, genuinely
-   shared logic) → new `@exodus/shared/types/ai` subpath (needs
+   shared logic) → new `@actovia/shared/types/ai` subpath (needs
    `@mariozechner/pi-agent-core`, added as a dependency); `@shared/types/db`
    (a renderer-facing passthrough of `db/schema.ts` row types) was
-   deliberately NOT replicated in `@exodus/shared` — that would invert the
+   deliberately NOT replicated in `@actovia/shared` — that would invert the
    workspace package's dependency direction (shared → app instead of app →
    shared). Since `providers/` is main-process-only code, it just imports
    `Settings` directly from `../../db/schema`, matching the `search/`
@@ -417,7 +417,7 @@ Land roughly in this sub-order (later items depend on earlier ones):
    SDK-shape thing.
 9. ✅ **`artifacts.ts` + `artifacts-migration.ts`** (199 lines total) — file
    storage under `getArtifactsDir()`; the migration file follows the same
-   legacy-location pattern already used by exodus's own trimmed `paths.ts`.
+   legacy-location pattern already used by actovia's own trimmed `paths.ts`.
 10. ✅ **`prompts.ts`** (160 lines) — pure string building from settings, no
     external deps, trivial.
 11. ✅ **`utils/`** (1622 lines, 10 files) — shared helpers most of the above
@@ -452,20 +452,20 @@ runtime exercise of the new code — the first real exercise comes once
   Its two registration sites, `calling-tools/index.ts` and
   `utils/tool-binding-util.ts`, have the `computerUse` line removed (a
   one-line comment marks the second). Re-add both when Phase 7 lands. Only
-  `computer/types.ts` (+ `@exodus/shared/types/computer-use`) was pulled
+  `computer/types.ts` (+ `@actovia/shared/types/computer-use`) was pulled
   forward, since `ai/computer-use/` imports `Action`/`ComputerState` from it.
 - **`knowledge-base/` pulled forward from Phase 2** (see above) — both
   `utils/tool-binding-util.ts` and `calling-tools/search-knowledge-base.ts`
   import it.
-- **Five more `@exodus/shared` subpath exports:** `types/chat`,
+- **Five more `@actovia/shared` subpath exports:** `types/chat`,
   `types/deep-research`, `types/computer-use`, `constants/systems`,
   `utils/http`. `@shared/types/db` was again replaced by direct
   `../../db/schema` imports (4 tools), and `@shared/errors/*` /
   `@shared/constants/error-codes` became imports from the package root
-  (`@exodus/shared`) — exodus exports them there, not as subpaths.
+  (`@actovia/shared`) — actovia exports them there, not as subpaths.
 - **`utils/http.ts` is the one file that needed real edits, not just import
   rewrites.** It's dual-use (renderer services + the main-process
-  `deepResearch` tool) and was written against DOM typings; exodus's
+  `deepResearch` tool) and was written against DOM typings; actovia's
   `tsconfig.node.json` and `packages/shared/tsconfig.json` deliberately have
   no DOM lib. Rather than add DOM to main's `lib` (which would let main code
   quietly use `window`/`document`), four small edits made it
@@ -477,7 +477,7 @@ runtime exercise of the new code — the first real exercise comes once
   main whenever `timeout > 0`. Upstream only escaped it because the one
   main-process caller found (`calling-tools/deep-research.ts`) never passes
   a timeout.
-- **`paths.ts`** gained `getArtifactsDir()`, and `ensureExodusDirs()` now
+- **`paths.ts`** gained `getArtifactsDir()`, and `ensureActoviaDirs()` now
   also creates it.
 - **Lint fixes (no behaviour change):** `no-array-sort` ×2 → `toSorted()`;
   `preserve-caught-error` ×7 → `{ cause }` added to re-thrown errors in the
@@ -506,9 +506,9 @@ runtime exercise of the new code — the first real exercise comes once
 
 Verified: `typecheck` (node/web/shared), `lint` (0 errors), `fmt:check` and
 `test` (19 files / 116 tests) all clean; a real `bun run dev` boots
-cleanly against `~/.exodus-dev` with `Migrations completed` + `Lock IPC
-ready` and no errors, and `~/.exodus-dev/artifacts` was created by the
-updated `ensureExodusDirs()`. As with items 1–3, the new modules have no
+cleanly against `~/.actovia-dev` with `Migrations completed` + `Lock IPC
+ready` and no errors, and `~/.actovia-dev/artifacts` was created by the
+updated `ensureActoviaDirs()`. As with items 1–3, the new modules have no
 consumer yet, so `start` proves the boot path still works, not that the new
 code runs — the unit tests are the real evidence for these.
 
@@ -522,7 +522,7 @@ code runs — the unit tests are the real evidence for these.
   code still calls — `listInstalledSkills()` (the philharmonic-crud route),
   `getSkillsContentBySlugs()` (philharmonic's employee loop) and
   `getActiveSkillsContent()` (the chat route) — all returning "no skills"
-  (`[]` / `''`). `@exodus/shared/types/skills` is cut down to the single
+  (`[]` / `''`). `@actovia/shared/types/skills` is cut down to the single
   `InstalledSkill` interface those signatures need. Not migrated: the other
   7 upstream functions (registry list/search, install/uninstall/toggle,
   local/zip install), the Convex types, `constants/external-urls` (nothing
@@ -532,15 +532,15 @@ code runs — the unit tests are the real evidence for these.
   (`containers/skills-market/*`, `settings-form/skills-market.tsx`,
   `services/skills-service.ts` — Phase 6); leave a nav/settings entry for
   the replacement instead. Known side effect: skills already installed
-  under `~/.exodus/skills` via universal-client stop being injected into
+  under `~/.actovia/skills` via universal-client stop being injected into
   prompts until the replacement lands.
 - **12 (`philharmonic/` + `philharmonic/lcm/`, 19 files, 2348 lines)
   ported verbatim**, per the user's instruction to migrate this area
   as-is ("they haven't tested it themselves either") — no cleanup, no
   behaviour changes, its ~100 lint warnings (upstream style) left alone.
-  Only `@shared/*` → `@exodus/shared/*` rewrites. Every `mainT()` key it
+  Only `@shared/*` → `@actovia/shared/*` rewrites. Every `mainT()` key it
   uses type-checks against the shared catalog. New shared modules:
-  `@exodus/shared/types/philharmonic` (214 lines) and `/constants/avatar`.
+  `@actovia/shared/types/philharmonic` (214 lines) and `/constants/avatar`.
   `paths.ts` gained `getGroupsDir()` / `getGroupDir()` (lazy `mkdir`, used
   by `plan-mirror.ts`).
 - **Dependencies:** `node-cron@^4.6.0` added. **Not** added:
@@ -552,7 +552,7 @@ code runs — the unit tests are the real evidence for these.
   is now 32 files / 163 tests, all passing.
 - **Verified:** `typecheck`, `lint` and `fmt:check` all exit 0; `test`
   32 files / 163 tests. No fresh `bun run dev` this pass — nothing new is
-  wired into boot and `ensureExodusDirs()` is unchanged. Like the rest of
+  wired into boot and `ensureActoviaDirs()` is unchanged. Like the rest of
   this phase, philharmonic has no consumer yet (Phase 4's server routes and
   `initScheduler()` are what will call it), so the tests are the only
   runtime evidence.
@@ -569,7 +569,7 @@ survey time — re-check current versions when this phase starts):
 
 No electron-vite-specific imports or sandboxed-preload-incompatible APIs
 were found anywhere in this layer — it's all main-process Node/fetch/SDK
-code, which already matches exodus's architecture. The real risk here is
+code, which already matches actovia's architecture. The real risk here is
 the DB/i18n/knowledge-base fan-out (worst in philharmonic and
 skills-manager's external dependency), not environment compatibility.
 
@@ -579,7 +579,7 @@ skills-manager's external dependency), not environment compatibility.
   `initJobQueue()` on start), `instance.ts`.
 - Middlewares: `lock-gate.ts` (needs Phase 2's `lock/`), `trace.ts` (needs
   decision #1's restore), `error-handler.ts` (already compatible with
-  `@exodus/shared`'s `AppError`/`isAppError`/`toAppError` once decision #2
+  `@actovia/shared`'s `AppError`/`isAppError`/`toAppError` once decision #2
   lands).
 - 26 route files — full list and one-line-each already captured in the
   backend-survey notes; port grouped by what they depend on (e.g.
@@ -595,19 +595,19 @@ skills-manager's external dependency), not environment compatibility.
   than just a separate `packages/*` workspace package — revisit that
   ambition against this coupling before committing to a deployment topology.
 - `SERVER_PORT` and other config live in `@shared/constants/systems` —
-  **already ported** (as `@exodus/shared/constants/systems`, together with
-  `@exodus/shared/utils/http`, the HTTP client shared by renderer and main),
+  **already ported** (as `@actovia/shared/constants/systems`, together with
+  `@actovia/shared/utils/http`, the HTTP client shared by renderer and main),
   because Phase 3's `deepResearch` tool POSTs to `/api/deep-research` through
   it. **Resolved — `SERVER_PORT` stays `60223`.** It was briefly changed to
   `63129` (to keep two dev builds from fighting for the port, and to stop an
-  exodus renderer from reaching universal-client's server and, through it, that
+  actovia renderer from reaching universal-client's server and, through it, that
   app's database) and reverted the same day, on the user's correction. The
   collision rationale had gone away — the data directory is shared anyway now,
   and universal-client is to be deleted — and 60223 is this backend's public
-  address: **`exodus-ios` (the iOS client) defaults to `http://localhost:60223`**
+  address: **the iOS app defaults to `http://localhost:60223`**
   (`NetworkingKit/ServerConfigStore.swift`; its README says the API is on
   60223). **Correction:** an earlier version of this note claimed no sibling
-  repo referenced 60223; that check was made before `exodus-ios` grew those
+  repo referenced 60223; that check was made before the iOS app grew those
   references and never repeated. Never change the port without grepping the
   sibling repos again.
 - This phase is what makes all 17 renderer `services/*.ts` (Phase 6)
@@ -617,11 +617,11 @@ skills-manager's external dependency), not environment compatibility.
 
 - **Ported:** the 47 upstream server files (`routes/skills.ts` skipped —
   skills is deprecated) plus a new `server/types.ts`: `@shared/*` →
-  `@exodus/shared/*` rewrites only. `Variables` (`@shared/types/server`, which
+  `@actovia/shared/*` rewrites only. `Variables` (`@shared/types/server`, which
   imports the app's `Settings`) moved into `server/types.ts` for the same
   dependency-direction reason as `types/db`; `@shared/types/db` became direct
   `db/schema` imports; `@shared/errors/app-error` and
-  `@shared/constants/error-codes` got subpath exports in `@exodus/shared`, so
+  `@shared/constants/error-codes` got subpath exports in `@actovia/shared`, so
   the many files importing them stay verbatim. `logger/` was restored to the
   full upstream version (`routes/logs.ts` needs `normalizeToLogRecord`,
   `LogRecord`, `localDateStr`), with only `is.dev` → `app.isPackaged`.
@@ -645,24 +645,24 @@ skills-manager's external dependency), not environment compatibility.
   and then `app.exit()`s, releasing the server port first — a stuck WASM
   teardown or a cron job can otherwise keep the event loop alive forever.
 - **Dev isolation, removed:** there is no `-dev` anything any more — dev and
-  packaged builds share `~/.exodus` (see the Phase 1 "Superseded" note) and
-  Electron's default `userData` (`~/Library/Application Support/Exodus`; an
+  packaged builds share `~/.actovia` (see the Phase 1 "Superseded" note) and
+  Electron's default `userData` (`~/Library/Application Support/Actovia`; an
   interim `-dev` suffix on it was dropped too, at the user's request, since
   universal-client is to be deleted once migration testing is done). With
   that shared `userData`, the legacy-location migration finds only an old
-  `logs/` there and `~/.exodus/logs` is non-empty, so it is a no-op.
+  `logs/` there and `~/.actovia/logs` is non-empty, so it is a no-op.
 - **`ipc.ts`** is upstream's handler set (find-in-page, quick-chat,
   fullscreen, theme, login item, menu bar, reveal artifact, updater, …) minus
-  the skill-package picker, on exodus's `toAppError`-based `safeHandle`. The
+  the skill-package picker, on actovia's `toAppError`-based `safeHandle`. The
   three demo handlers from the base migration (`open-file-dialog`,
   `open-logs-folder`, `show-item-in-folder`) are gone — nothing calls them.
 - **`window.ts` / `tray.ts` / `menu.ts`:** the search bar (`WebContentsView`)
   and quick-chat window are back, both loaded through one `loadSubApp()`, and
-  use exodus's sandbox + context isolation rather than upstream's
+  use actovia's sandbox + context isolation rather than upstream's
   `nodeIntegration`. Tray left-click toggles quick-chat as upstream does;
   show/hide of the main window stays in the tray context menu. The "Find"
-  menu item is back, and `EXODUS_WEBSITE` now comes from
-  `@exodus/shared/constants/external-urls` (`menu.ts` had its own copy saying
+  menu item is back, and `ACTOVIA_WEBSITE` now comes from
+  `@actovia/shared/constants/external-urls` (`menu.ts` had its own copy saying
   `exdous.yancey.app` — a typo).
 - **Auto-updater:** `update-electron-app` stays (base decision), but
   `auto-updater.ts` exposes the same state machine and IPC the renderer's
@@ -687,14 +687,14 @@ Migrated ahead of Phases 1–4 at the user's explicit request, once
 `universal-client`'s i18n work landed. Notes below are what actually
 happened, kept for the phases still ahead.
 
-- `src/shared/i18n/` → `packages/shared/src/i18n/` (new `@exodus/shared/i18n`,
+- `src/shared/i18n/` → `packages/shared/src/i18n/` (new `@actovia/shared/i18n`,
   `/i18n/locales`, `/i18n/namespaces`, `/i18n/catalog-audit` subpath
   exports, matching upstream's import shape almost verbatim). 10 locales at
   migration time (`ru` had been dropped since this document's original
   survey — always re-check live, per this doc's own opening note), 13
   namespaces, 139 files. `locales.ts`/`types.d.ts`/`catalog-audit.ts`
   ported verbatim.
-- Decision #2 executed: `@exodus/shared`'s `ErrorCode` enum, `AppError`
+- Decision #2 executed: `@actovia/shared`'s `ErrorCode` enum, `AppError`
   subclasses (`AIError`, `RateLimitError` included), and `error-codes.ts`
   restored to the full set in one pass, matching `errors.json`.
 - **Main process**: `main/lib/i18n.ts` ported, but `initMainI18n()`
@@ -719,7 +719,7 @@ happened, kept for the phases still ahead.
 - **Real, production-breaking bug found and fixed** — see the standing
   checklist below: `resourcesToBackend`'s runtime
   `import(`./locales/${lng}/${ns}.json`)` pattern never got resolved by
-  Rollup once the code moved into the `@exodus/shared` workspace package —
+  Rollup once the code moved into the `@actovia/shared` workspace package —
   it shipped completely unresolved in a real `electron-forge package`
   build, meaning **zero translations would have loaded in any packaged
   build** despite working perfectly in dev mode. Replaced with
@@ -741,11 +741,11 @@ else here.
    Phase 4's server exists — literally none of them are meaningfully
    portable before that), 6 jotai stores. One exception to flag:
    `use-updater.ts` currently talks to `electron-updater`'s IPC channels,
-   which exodus already removed this session in favor of
+   which actovia already removed this session in favor of
    `update-electron-app`'s much simpler model (no manual check/download/state
    surface) — this hook needs a redesign, not a port, matching what was
    done to `main/lib/ipc.ts`.
-2. **Components** (non-`ui/`, already in exodus) — ~35 top-level files +
+2. **Components** (non-`ui/`, already in actovia) — ~35 top-level files +
    9 subfolders (`calling-tools/`, `chat/`, `deep-research/`, `home/`,
    `lock/`, `philharmonic/` (largest — chat/employees/schedule/teams/workforce
    subfolders), `settings/` (26-file `settings-form/`), `web-search/`,
@@ -763,13 +763,13 @@ else here.
    (Google APIs/fonts, TradingView, diagrams.net iframes,
    `connect-src` including a hardcoded dev port `localhost:60223` — **must
    be updated to match whatever port Phase 4's server actually uses in
-   exodus**) and an inline-CSS boot-splash spinner that paints before the JS
+   actovia**) and an inline-CSS boot-splash spinner that paints before the JS
    module graph loads (theme-aware via `prefers-color-scheme`). Both are
    worth preserving; re-validate the CSP's allowlisted origins against
    what's actually still in use.
 5. **Sub-apps** (`searchbar/`, `artifacts/`, `quick-chat/`) — **land last**:
    each is a separate Vite renderer entry (own `main.tsx` + `index.html`).
-   exodus's `forge.config.ts` currently declares only one
+   actovia's `forge.config.ts` currently declares only one
    `renderer: [{ name: 'main_window', ... }]` — each sub-app needs its own
    entry added to that array. Correspondingly, `window.ts`'s
    `registerSearchMenu()`/`registerQuickChat()` (deliberately stripped this
@@ -781,20 +781,20 @@ else here.
 - **Decision #3 (IPC bridge shape) → (a).** Outside `lib/ipc.ts` only 5
   places in the whole renderer touch `window.electron` raw, but every call site
   and the ~35-function `lib/ipc.ts` wrapper use the nested
-  `window.electron.ipcRenderer.*` shape — so exodus's preload was reshaped to
+  `window.electron.ipcRenderer.*` shape — so actovia's preload was reshaped to
   match, mirroring `@electron-toolkit/preload`'s `electronAPI`
   (`ipcRenderer.{send,invoke,on,once,removeListener,removeAllListeners}` +
   `process.{platform,versions,env}`), reimplemented without the dependency.
-  Nothing in exodus used the old flat bridge. `invoke` is typed
+  Nothing in actovia used the old flat bridge. `invoke` is typed
   `Promise<any>`, like the toolkit's.
 - **Copy:** 259 files from `universal-client/src/renderer`; `@shared/types/db`
   → `@/types/db` (a renderer-side passthrough of `db/schema`, same reasoning as
-  in main) and `@shared/*` → `@exodus/shared/*` (120 files touched). Both UI
+  in main) and `@shared/*` → `@actovia/shared/*` (120 files touched). Both UI
   kits are shadcn `base-mira` on `@base-ui/react`, but universal-client
   customized its copy (rounder buttons, other sizes, `cn` from `@/lib/utils`
   rather than the `cn` npm package), so all 56 differing overlap files (the
   `components/ui` kit plus `i18n-provider.tsx`) were replaced by upstream's.
-  exodus's demo `index.tsx` and `styles/globals.css` are gone
+  actovia's demo `index.tsx` and `styles/globals.css` are gone
   (`assets/stylesheets/globals.css` now; `components.json` follows).
 - **Layout constraint:** Vite's `root` stays the repo root.
   `@electron-forge/plugin-vite` sets it and merges the user config over it,
@@ -843,14 +843,14 @@ else here.
   `settings-namespace.test.ts` that exercised that container was removed.
 - **A dev-only i18n failure, found by the user right after hand-over
   (`messageList.greetingTitle` on screen instead of text).** In `bun run
-  start`, Forge's `resolve.preserveSymlinks: true` keeps the `@exodus/shared`
+  start`, Forge's `resolve.preserveSymlinks: true` keeps the `@actovia/shared`
   workspace package under `node_modules`, so Vite pre-bundled it with esbuild
   — which replaced the i18n loader's `import.meta.glob('./locales/*/*.json')`
   with `Object.assign({})`. No catalog ever loaded. Production builds (Rollup
   expands the macro), unit tests and the e2e suite (which drives the
   production build) were all green, so nothing caught it: until then the real
   renderer had never been rendered in dev mode. Fix:
-  `optimizeDeps.exclude: ['@exodus/shared']` in `vite.renderer.config.mts`
+  `optimizeDeps.exclude: ['@actovia/shared']` in `vite.renderer.config.mts`
   (guarded by `tests/unit/config/vite-renderer-config.test.ts`) — **and a second
   trap behind it, found when a port change didn't take effect**: Forge forces
   `resolve.preserveSymlinks: true`, which keeps the package under
@@ -871,7 +871,7 @@ else here.
   `zh-Hant-TW` catalogs load too, `/settings` renders, and no module-resolution
   errors on the heavy routes.
 - **Small restorations:** `UseFormReturnType` in
-  `@exodus/shared/schemas/settings-schema` (Phase 1 left a note to re-add it
+  `@actovia/shared/schemas/settings-schema` (Phase 1 left a note to re-add it
   with the settings form), and the `cron-parser` dependency (used by the
   philharmonic schedule UI).
 - **New dependencies** (versions from upstream): `hono`, `@hono/node-server`,
@@ -881,10 +881,10 @@ else here.
   `monaco-editor`, `three` + `@react-three/*`, `react-markdown` +
   remark/rehype/katex, `framer-motion`/`motion`, `sileo`, …). Deliberately
   **not** installed: `electron-builder`, `electron-vite`, `electron-updater`,
-  `@electron-toolkit/*`, `@tailwindcss/postcss` / `postcss` (exodus uses
+  `@electron-toolkit/*`, `@tailwindcss/postcss` / `postcss` (actovia uses
   `@tailwindcss/vite`), semantic-release, `react-doctor`,
   `rollup-plugin-visualizer`, `@electron/asar`.
-- **Lint:** exodus's oxlint config (`suspicious: error`, `pedantic: warn`) is
+- **Lint:** actovia's oxlint config (`suspicious: error`, `pedantic: warn`) is
   stricter than universal-client's (`correctness` only) and produced ~70
   errors across 7 style rules in the ported code (`no-underscore-dangle`,
   `no-shadow`, `no-array-sort`, `no-array-reverse`,
@@ -906,10 +906,10 @@ else here.
 ### Phase 7 — Native computer-use helper (`src/main/lib/computer/`) — ✅ done (2026-09-19)
 
 - `helper.ts` spawns a prebuilt **Swift binary**
-  (`resources/bin/exodus-input`, built from `helper-src/exodus-input/main.swift`)
+  (`resources/bin/actovia-input`, built from `helper-src/actovia-input/main.swift`)
   via `child_process.spawn`, NDJSON over stdin/stdout. **macOS-only**
   (explicit in source). Has a full in-memory `mockHelper` behind an
-  `EXODUS_INPUT_MOCK` env var — good precedent, port that too for testability.
+  `ACTOVIA_INPUT_MOCK` env var — good precedent, port that too for testability.
 - Needs: the Swift binary actually built and committed (or a build step
   added — check if `helper-src/` has its own build script, or if it's built
   ad hoc), decision #4's asar-unpack config so it's reachable in packaged
@@ -920,7 +920,7 @@ else here.
 - This is what makes Phase 3's `ai/computer-use/` (the model-facing half)
   actually functional end to end, not just typecheck-clean.
 - **Already pulled forward:** `computer/types.ts` (+
-  `@exodus/shared/types/computer-use`), because `ai/computer-use/` imports
+  `@actovia/shared/types/computer-use`), because `ai/computer-use/` imports
   `Action`/`ComputerState` from it. **Still to do here:** port
   `ai/calling-tools/computer-use.ts` (imports `guard`, `liveness`,
   `session`) and re-add the `computerUse` registration in
@@ -937,13 +937,13 @@ else here.
   stub comment is gone). Their upstream unit tests (8 + 1) came along and pass.
 - **Helper path:** `helper.ts` resolved the binary through electron-toolkit's
   `is.dev` plus an `app.asar.unpacked` fallback. It now just calls
-  `getResourcePath('bin/exodus-input')` — dev `<repo>/resources/bin`, packaged
+  `getResourcePath('bin/actovia-input')` — dev `<repo>/resources/bin`, packaged
   `Contents/Resources/resources/bin` (`extraResource: ['./resources']`).
   **Decision #4 needed no `asar.unpack` config after all:** the binary is an
   `extraResource`, not inside the asar. Verified in a real package: present,
   mode `-rwxr-xr-x`.
 - **Swift source and prebuilt binary** are both committed
-  (`helper-src/exodus-input/main.swift`, `resources/bin/exodus-input`), as
+  (`helper-src/actovia-input/main.swift`, `resources/bin/actovia-input`), as
   upstream does. `bun run build:helper` uses **`xcrun swiftc`**, not a bare
   `swiftc`: with a swiftly-installed toolchain first on `PATH`,
   `swiftc -target arm64-apple-macos13` fails with `unknown argument:
@@ -971,18 +971,18 @@ exist upstream). `tests/e2e/` has ~20 Playwright specs (see below).
 - **Unit tests:** every upstream unit test that has a home here is ported —
   136 files / 862 tests (incl. the two `tests/unit/config/` guards added in the wrap-up), all passing (the suite was 3 files at the start of
   Phase 3); `tests/unit/**` mirrors `src/`. Mechanical rewrites only
-  (`@shared/*` → `@exodus/shared/*`, `@shared/types/db` →
+  (`@shared/*` → `@actovia/shared/*`, `@shared/types/db` →
   `@main/lib/db/schema`, dead `vi.mock('@electron-toolkit/utils')` removed).
   Adapted rather than copied: `paths.test.ts` (rewritten and run against a
   scratch `$HOME` — upstream's created directories in the
   real home), the i18n tests (locales moved to `packages/shared/src/i18n/
-  locales`), `claude-md-freshness` (exodus's config files), the
+  locales`), `claude-md-freshness` (actovia's config files), the
   `no-hardcoded-strings` allowlist (it pins line numbers), and the skills-market
   block removed. `jobs/worker.test.ts` gained a `db/db` mock like its
   siblings — several upstream tests import the real `db/db` and would open a
   PGlite at import time.
 - **`CLAUDE.md`** (required by two meta tests, and for future sessions) is
-  upstream's, adapted: bun / Forge commands, `@exodus/shared`, ports, plus new
+  upstream's, adapted: bun / Forge commands, `@actovia/shared`, ports, plus new
   sections on dev-vs-packaged isolation, the skills seam and this migration.
   `docs/` (specs, plans, the research and setup guides), `README.md`,
   `CHANGELOG.md` and `screenshots/` were carried over as they are;
@@ -996,10 +996,10 @@ exist upstream). `tests/e2e/` has ~20 Playwright specs (see below).
   **unpackaged on purpose** — the packaged app's Electron fuses disable the
   inspector Playwright attaches through. Isolation: `playwright.config.ts`
   points `$HOME` at a scratch dir and the fixture passes `--user-data-dir`, so
-  nothing touches a real `~/.exodus` — the fixture wipes `~/.exodus` under that
+  nothing touches a real `~/.actovia` — the fixture wipes `~/.actovia` under that
   scratch `$HOME` before every test (settings persist, and a test that switched
   the language leaked it into the next one), so it **throws at import unless
-  `$HOME` is the scratch dir** and blanks any `EXODUS_HOME` from the
+  `$HOME` is the scratch dir** and blanks any `ACTOVIA_HOME` from the
   developer's shell.
 - **Fixture / spec repairs — all upstream staleness, not port bugs (confirmed
   by driving the same paths by hand):** the composer autofocuses on mount and
@@ -1032,7 +1032,7 @@ renders the real UI without console errors.
 
 - **Git.** `universal-client/.git` was copied in and the whole migration is one
   `build:` commit on branch `migrate/forge-vite-bun`, cut from `dev`. The commit
-  shows a lot of deletions: files upstream has that exodus deliberately does not
+  shows a lot of deletions: files upstream has that actovia deliberately does not
   (`electron-builder.yml`, `electron.vite.config.ts`, `pnpm-lock.yaml` /
   `pnpm-workspace.yaml`, `dev-app-update.yml`, `src/shared/**` — now
   `packages/shared` — `packages/pi-lcm`, `scripts/asar-sniff.ts`, `.npmrc`,
@@ -1050,8 +1050,8 @@ renders the real UI without console errors.
   derives the repo from `repository`) and `PublisherGithub` point at
   `actovia-ai/actovia`.
 - **Release-build checks.** `bun run make` on macOS arm64 produced a valid DMG
-  and a ZIP (`hdiutil verify` OK; `Exodus.app` is version 1.14.0, bundle id
-  `app.yancey.exodus`). With `STRIP_TEST_IDS=1` all 50 of our own `data-testid`
+  and a ZIP (`hdiutil verify` OK; `Actovia.app` is version 1.14.0, bundle id
+  `app.yancey.actovia`). With `STRIP_TEST_IDS=1` all 50 of our own `data-testid`
   attributes are gone from the renderer bundle; 6 remain, all third-party
   (`@vis.gl/react-google-maps`, `react-resizable-panels`) — out of scope by
   design, see `stripTestIdPlugin`.
@@ -1059,11 +1059,11 @@ renders the real UI without console errors.
 **First GitHub run (PR #225 → master, 2026-09-19) and what it taught:**
 
 - **Linux `make` failed** on `deb` / `rpm`: "could not find the Electron app
-  binary at `out/Exodus-linux-x64/exodus`". The packager names the executable
-  after `productName` (`Exodus`); `MakerDeb` / `MakerRpm` default `bin` to
-  package.json's `name` (`exodus`). macOS and Windows filesystems are
+  binary at `out/Actovia-linux-x64/actovia`". The packager names the executable
+  after `productName` (`Actovia`); `MakerDeb` / `MakerRpm` default `bin` to
+  package.json's `name` (`actovia`). macOS and Windows filesystems are
   case-insensitive, so a local macOS `make` could not show it. Fixed with
-  `bin: 'Exodus'` on both makers; reproduced (exit 1, same message) and fixed
+  `bin: 'Actovia'` on both makers; reproduced (exit 1, same message) and fixed
   (exit 0, `.deb` + `.rpm`) in an ubuntu 24.04 container. **Reproduce Linux
   problems on the container's own filesystem** — a bind mount from macOS is
   case-insensitive too, and hid the bug in a first, invalid attempt.
@@ -1099,7 +1099,7 @@ inline code between them — keep `$VARS` inside code spans.)
 semantic-release cut **v1.15.0** (`chore(release): 1.15.0 [skip ci]`, db824b02)
 and the release carries seven assets: `.rpm`, `.deb`, `.dmg`, the macOS `.zip`,
 and Windows `Setup.exe` / `.nupkg` / `RELEASES` (GitHub turns the space in
-`Exodus-1.15.0 Setup.exe` into a dot). So the `release` job — merge artifacts,
+`Actovia-1.15.0 Setup.exe` into a dot). So the `release` job — merge artifacts,
 tag, CHANGELOG, attach assets — is now proven end to end. The same PR's
 Playwright run failed once, on `settings-knowledge-base`, and did not block the
 release: the spec points the knowledge base at `localhost:9621`, nothing listens
@@ -1134,11 +1134,11 @@ was checked against a replica of the row's markup in Chromium, not end to end
 - Auto-update end to end (needs a signed macOS build and a GitHub release).
 
 **After `universal-client` is gone** (the user's plan, once testing is done):
-nothing in exodus depends on it at runtime, and the "never two Exodus processes
+nothing in actovia depends on it at runtime, and the "never two Actovia processes
 on one data dir" caution stops involving a second app (it still holds for a dev
 build vs the packaged app). Not updated for that (it is another repo):
-`exodus-ios/README.md` says to run `pnpm dev` in `../universal-client` for the
-API — it must point at exodus instead.
+`ios/README.md` says to run `pnpm dev` in `../universal-client` for the
+API — it must point at actovia instead.
 
 **Known, accepted divergences from universal-client:** React Compiler off
 (evaluated and dropped, see above);
@@ -1169,7 +1169,7 @@ the thing listed on the right:
   `require()` arbitrary Node builtins** — confirmed only `process.platform`/
   `arch`/`getSystemVersion()`-style properties work; a plain `import os from
   'os'` throws `module not found: os` _silently_ unless something listens
-  for the `preload-error` event (exodus's `window.ts` already does). Any
+  for the `preload-error` event (actovia's `window.ts` already does). Any
   newly-ported preload code needs the same scrutiny. → _Read full launch
   output, don't just check the process stayed alive._
 - **`"type": "module"` in `package.json` breaks
@@ -1179,7 +1179,7 @@ the thing listed on the right:
   be added** — use `app.isPackaged` everywhere, per the established
   convention.
 - **A runtime dynamic `import(`./relative/${var}.json`)` inside a
-  workspace package (`@exodus/shared` or any future `packages/*`) doesn't
+  workspace package (`@actovia/shared` or any future `packages/*`) doesn't
   get resolved by Rollup once it ships** — it survives completely
   unresolved in a real `electron-forge package` build (confirmed by byte-
   grepping the output), meaning it silently does nothing at runtime, while
@@ -1232,7 +1232,7 @@ the thing listed on the right:
 
 ## Open questions for the user (resolve before or at the start of execution)
 
-1. IPC bridge shape (decision #3) — reshape exodus's preload to nest under
+1. IPC bridge shape (decision #3) — reshape actovia's preload to nest under
    `.ipcRenderer`, or rewrite renderer call sites?
 2. Error-code enum (decision #2) — restore the full ~50-code enum in one
    pass now, or grow it per-phase as routes/tools land?

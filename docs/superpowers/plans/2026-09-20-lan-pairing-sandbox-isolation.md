@@ -4,7 +4,7 @@
 
 **Goal:** Model-written artifact code can no longer reach the app, and a device on the LAN can do nothing until it has been paired from the desktop's screen — over TLS, with the iPhone's token behind Face ID.
 
-**Architecture:** The artifact sandbox moves to its own origin through a privileged custom scheme (`exodus-artifact://sandbox`), served from the built renderer and proxied to Vite in dev. The Hono app is served twice: plaintext on loopback only (`127.0.0.1` + `::1`, port 60223, no token) and HTTPS on `0.0.0.0:63129` behind an `authGate` that requires a per-device bearer token; that listener only runs while a device is paired or a pairing window is open. Pairing is a one-time code shown as a QR code together with the self-signed certificate's fingerprint, which exodus-ios pins.
+**Architecture:** The artifact sandbox moves to its own origin through a privileged custom scheme (`actovia-artifact://sandbox`), served from the built renderer and proxied to Vite in dev. The Hono app is served twice: plaintext on loopback only (`127.0.0.1` + `::1`, port 60223, no token) and HTTPS on `0.0.0.0:63129` behind an `authGate` that requires a per-device bearer token; that listener only runs while a device is paired or a pairing window is open. Pairing is a one-time code shown as a QR code together with the self-signed certificate's fingerprint, which the iOS app pins.
 
 **Tech Stack:** Electron 44 (`protocol.handle`, `safeStorage`), Hono 4 + `@hono/node-server` 2.1 (`createServer: https.createServer`), Drizzle + PGlite, `@peculiar/x509` 2.1 (+ `reflect-metadata`), `qrcode.react`, Vitest, Playwright; Swift 6 / SwiftUI / Tuist on iOS 27 (`DataScannerViewController`, Keychain + `LocalAuthentication`, `URLSessionDelegate`).
 
@@ -12,11 +12,11 @@
 
 ## Global Constraints
 
-- Branch `feat/lan-pairing-sandbox-isolation` in `exodus`. In `../exodus-ios`, work directly in the existing working tree (the user's call); it has uncommitted edits to `Project.swift` and `Sources/App/SideDrawer.swift` — do not revert or reformat them, and do not commit in that repo unless asked.
+- Branch `feat/lan-pairing-sandbox-isolation` in `actovia`. In `../ios`, work directly in the existing working tree (the user's call); it has uncommitted edits to `Project.swift` and `Sources/App/SideDrawer.swift` — do not revert or reformat them, and do not commit in that repo unless asked.
 - Ports: loopback `SERVER_PORT = 60223` (unchanged), LAN `LAN_SERVER_PORT = 63129`.
 - Pairing code: 128 random bits, base64url, valid 120 s, single use, 5 wrong attempts close the window. Device token: 256 random bits, base64url; stored only as hex SHA-256.
-- Pairing link: `exodus://pair?h=<hosts,comma-separated>&p=63129&c=<code>&f=<base64url SHA-256 of cert DER>&n=<computer name>`.
-- Certificate: ECDSA P-256, self-signed, 10 years, `~/.exodus/tls/`; private key encrypted with `safeStorage`. Never rotated except by "Reset all".
+- Pairing link: `actovia://pair?h=<hosts,comma-separated>&p=63129&c=<code>&f=<base64url SHA-256 of cert DER>&n=<computer name>`.
+- Certificate: ECDSA P-256, self-signed, 10 years, `~/.actovia/tls/`; private key encrypted with `safeStorage`. Never rotated except by "Reset all".
 - Middleware order: origin gate → CORS → auth gate → lock gate → trace → settings.
 - Face ID (iOS): prompt on cold start and after > 300 s in the background; passcode fallback allowed; a device with no passcode cannot pair.
 - Every new user-facing string is an i18n key, authored for **all ten locales in the same commit** (`de en es fr it ja ko pt-BR zh-Hant-HK zh-Hant-TW`); `bun run i18n:check` must pass. There is no translation pass — write the translations.
@@ -29,32 +29,32 @@
 
 ## File Structure
 
-`exodus` — created:
+`actovia` — created:
 
-| File                                                                            | Responsibility                                                                                                    |
-| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `src/main/lib/artifact-protocol.ts`                                             | Register + serve `exodus-artifact://` (static files in prod, Vite proxy in dev), path guard, dev-only CSP rewrite |
-| `src/main/lib/lan/pairing.ts`                                                   | Pairing-window state machine (pure; clock and RNG injected) + pairing-link builder + LAN host discovery           |
-| `src/main/lib/lan/devices.ts`                                                   | Mint / hash tokens, register, authenticate (cached, constant-time), revoke, throttled `lastSeenAt`                |
-| `src/main/lib/lan/certificate.ts`                                               | Create / load / reset the self-signed certificate; fingerprint                                                    |
-| `src/main/lib/lan/listener.ts`                                                  | Start / stop the HTTPS listener to match "devices exist or window open"                                           |
-| `src/main/lib/lan/index.ts`                                                     | The process-wide `pairing` + `lanListener` singletons and `syncLan()`                                             |
-| `src/main/lib/db/device-queries.ts`                                             | Drizzle queries for `paired_device`                                                                               |
-| `src/main/lib/server/middlewares/auth-gate.ts`                                  | Bearer-token gate for the LAN listener                                                                            |
-| `src/main/lib/server/routes/pair.ts`, `routes/devices.ts`                       | `POST /api/v1/pair`; device management (loopback only)                                                            |
-| `src/renderer/services/devices.ts`                                              | Fetch wrappers                                                                                                    |
-| `src/renderer/components/settings/settings-form/devices.tsx`                    | Settings → Integrations → Devices                                                                                 |
-| `tests/e2e/artifact-sandbox-isolation.spec.ts`, `tests/e2e/lan-pairing.spec.ts` | Packaged-build verification                                                                                       |
+| File                                                                            | Responsibility                                                                                                     |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `src/main/lib/artifact-protocol.ts`                                             | Register + serve `actovia-artifact://` (static files in prod, Vite proxy in dev), path guard, dev-only CSP rewrite |
+| `src/main/lib/lan/pairing.ts`                                                   | Pairing-window state machine (pure; clock and RNG injected) + pairing-link builder + LAN host discovery            |
+| `src/main/lib/lan/devices.ts`                                                   | Mint / hash tokens, register, authenticate (cached, constant-time), revoke, throttled `lastSeenAt`                 |
+| `src/main/lib/lan/certificate.ts`                                               | Create / load / reset the self-signed certificate; fingerprint                                                     |
+| `src/main/lib/lan/listener.ts`                                                  | Start / stop the HTTPS listener to match "devices exist or window open"                                            |
+| `src/main/lib/lan/index.ts`                                                     | The process-wide `pairing` + `lanListener` singletons and `syncLan()`                                              |
+| `src/main/lib/db/device-queries.ts`                                             | Drizzle queries for `paired_device`                                                                                |
+| `src/main/lib/server/middlewares/auth-gate.ts`                                  | Bearer-token gate for the LAN listener                                                                             |
+| `src/main/lib/server/routes/pair.ts`, `routes/devices.ts`                       | `POST /api/v1/pair`; device management (loopback only)                                                             |
+| `src/renderer/services/devices.ts`                                              | Fetch wrappers                                                                                                     |
+| `src/renderer/components/settings/settings-form/devices.tsx`                    | Settings → Integrations → Devices                                                                                  |
+| `tests/e2e/artifact-sandbox-isolation.spec.ts`, `tests/e2e/lan-pairing.spec.ts` | Packaged-build verification                                                                                        |
 
-`exodus` — modified: `src/main/main.ts`, `src/main/lib/server/app.ts`, `server/types.ts`, `server/middlewares/{index,origin-gate}.ts`, `src/main/lib/db/schema.ts`, `src/main/lib/paths.ts`, `packages/shared/src/constants/{systems,test-ids}.ts`, `index.html`, `src/renderer/sub-apps/artifacts/{index.html,sandbox.tsx}`, `src/renderer/components/calling-tools/artifact/artifact-card.tsx`, `src/renderer/components/settings/{settings-menu.ts,settings-form.tsx}`, `src/renderer/hooks/use-settings-tab.ts`, the ten `locales/*/settings.json`, `CLAUDE.md`, `docs/security-hardening.md`, `package.json`, `bun.lock`.
+`actovia` — modified: `src/main/main.ts`, `src/main/lib/server/app.ts`, `server/types.ts`, `server/middlewares/{index,origin-gate}.ts`, `src/main/lib/db/schema.ts`, `src/main/lib/paths.ts`, `packages/shared/src/constants/{systems,test-ids}.ts`, `index.html`, `src/renderer/sub-apps/artifacts/{index.html,sandbox.tsx}`, `src/renderer/components/calling-tools/artifact/artifact-card.tsx`, `src/renderer/components/settings/{settings-menu.ts,settings-form.tsx}`, `src/renderer/hooks/use-settings-tab.ts`, the ten `locales/*/settings.json`, `CLAUDE.md`, `docs/security-hardening.md`, `package.json`, `bun.lock`.
 
-`exodus-ios` — created in `Sources/NetworkingKit/`: `PairingLink.swift`, `PairedServer.swift`, `CredentialStore.swift`, `PinnedSessionDelegate.swift`, `ServerConnection.swift`; in `Sources/SettingsFeature/`: `PairingView.swift`, `QRScannerView.swift`; tests beside the existing ones in `Tests/NetworkingKitTests/`. Modified: `ServerConfigStore.swift`, `APIClient.swift`, `ChatStreamManager.swift`, `Sources/App/ExodusApp.swift`, `Sources/SettingsFeature/SettingsView.swift`, `Project.swift`.
+In the iOS app, created in `Sources/NetworkingKit/`: `PairingLink.swift`, `PairedServer.swift`, `CredentialStore.swift`, `PinnedSessionDelegate.swift`, `ServerConnection.swift`; in `Sources/SettingsFeature/`: `PairingView.swift`, `QRScannerView.swift`; tests beside the existing ones in `Tests/NetworkingKitTests/`. Modified: `ServerConfigStore.swift`, `APIClient.swift`, `ChatStreamManager.swift`, `Sources/App/ActoviaApp.swift`, `Sources/SettingsFeature/SettingsView.swift`, `Project.swift`.
 
 ---
 
 ## Part A — Artifact sandbox isolation
 
-### Task 1: The `exodus-artifact://` protocol
+### Task 1: The `actovia-artifact://` protocol
 
 **Files:**
 
@@ -64,7 +64,7 @@
 
 **Interfaces:**
 
-- Produces: `ARTIFACT_ORIGIN = 'exodus-artifact://sandbox'`; `registerArtifactScheme(): void` (call at import time, before `ready`); `serveArtifactProtocol(opts: { rendererDir: string; devServerUrl?: string }): void` (call after `ready`); pure helpers `resolveArtifactFile(rendererDir: string, pathname: string): string | null` and `allowDevWebSocket(html: string, devServerUrl: string): string`.
+- Produces: `ARTIFACT_ORIGIN = 'actovia-artifact://sandbox'`; `registerArtifactScheme(): void` (call at import time, before `ready`); `serveArtifactProtocol(opts: { rendererDir: string; devServerUrl?: string }): void` (call after `ready`); pure helpers `resolveArtifactFile(rendererDir: string, pathname: string): string | null` and `allowDevWebSocket(html: string, devServerUrl: string): string`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -145,7 +145,7 @@ import { net, protocol } from 'electron'
  * attribute now isolates it: `window.parent` is cross-origin. The origin gate
  * refuses this origin, and the permission handler denies it.
  */
-const SCHEME = 'exodus-artifact'
+const SCHEME = 'actovia-artifact'
 export const ARTIFACT_ORIGIN = `${SCHEME}://sandbox`
 
 /** Must run before `app` is ready. */
@@ -261,7 +261,7 @@ git commit -m "feat(security): serve the artifact sandbox from its own origin sc
 
 **Interfaces:**
 
-- Consumes: the origin `exodus-artifact://sandbox` from Task 1 (a literal in the renderer — it cannot import main-process code).
+- Consumes: the origin `actovia-artifact://sandbox` from Task 1 (a literal in the renderer — it cannot import main-process code).
 
 - [ ] **Step 1: Write the e2e spec (fails until the steps below land)**
 
@@ -270,7 +270,7 @@ git commit -m "feat(security): serve the artifact sandbox from its own origin sc
 import { electronTest as test, expect } from '../fixtures/electron'
 
 const SANDBOX_URL =
-  'exodus-artifact://sandbox/src/renderer/sub-apps/artifacts/index.html'
+  'actovia-artifact://sandbox/src/renderer/sub-apps/artifacts/index.html'
 
 // What a hostile artifact would try. It reports what it managed to reach.
 const PROBE = `
@@ -329,7 +329,7 @@ test.describe('Artifact sandbox isolation', () => {
 ```tsx
 // An origin of its own (see src/main/lib/artifact-protocol.ts): generated code
 // in the iframe must not share this window's. Same URL in dev and packaged.
-const ARTIFACT_ORIGIN = 'exodus-artifact://sandbox'
+const ARTIFACT_ORIGIN = 'actovia-artifact://sandbox'
 
 function getArtifactSandboxUrl(): string {
   return `${ARTIFACT_ORIGIN}/${ARTIFACT_SANDBOX_PAGE}`
@@ -340,7 +340,7 @@ In the `onMessage` handler, first line: `if (event.origin !== ARTIFACT_ORIGIN) r
 
 - [ ] **Step 3: `sandbox.tsx`** — first line of `handleMessage`: `if (event.source !== window.parent) return`.
 
-- [ ] **Step 4: CSPs.** In `src/renderer/sub-apps/artifacts/index.html` change `connect-src 'self' http://localhost:*;` to `connect-src 'self';`. In `index.html` add `exodus-artifact:` to the `frame-src` list.
+- [ ] **Step 4: CSPs.** In `src/renderer/sub-apps/artifacts/index.html` change `connect-src 'self' http://localhost:*;` to `connect-src 'self';`. In `index.html` add `actovia-artifact:` to the `frame-src` list.
 
 - [ ] **Step 5: Verify** (app closed — see Global Constraints)
 
@@ -421,7 +421,7 @@ describe('createOriginGate', () => {
 
 ```ts
 // HTTPS, token-gated, only up while a device is paired (see src/main/lib/lan/).
-// exodus-ios connects here; the plaintext SERVER_PORT is loopback-only.
+// the iOS app connects here; the plaintext SERVER_PORT is loopback-only.
 export const LAN_SERVER_PORT = 63129
 ```
 
@@ -483,7 +483,7 @@ export function createOriginGate(opts: { devOrigin?: string }) {
           type: 'error',
           error: {
             code: 'FORBIDDEN_ORIGIN',
-            message: 'This origin may not call the Exodus API.'
+            message: 'This origin may not call the Actovia API.'
           }
         },
         403
@@ -725,7 +725,7 @@ describe('buildPairingLink', () => {
       name: "Yancey's Mac"
     })
     const url = new URL(link)
-    expect(url.protocol).toBe('exodus:')
+    expect(url.protocol).toBe('actovia:')
     expect(url.host).toBe('pair')
     expect(url.searchParams.get('h')).toBe('192.168.1.10,mac.local')
     expect(url.searchParams.get('p')).toBe('63129')
@@ -855,7 +855,7 @@ export function buildPairingLink(p: {
     f: p.fingerprint,
     n: p.name
   })
-  return `exodus://pair?${query.toString()}`
+  return `actovia://pair?${query.toString()}`
 }
 
 /** Every address a phone on the LAN might reach this machine by. */
@@ -1033,7 +1033,7 @@ export async function revokeAllDevices(): Promise<void> {
 
 - [ ] **Step 1: Dependencies** — `bun add @peculiar/x509@^2.1.0 reflect-metadata` then `bun install --frozen-lockfile` (must report no changes). `@peculiar/x509` throws at import without `reflect-metadata` (tsyringe) — both are imported lazily, only when a certificate has to be _created_.
 
-- [ ] **Step 2: `paths.ts`** — `export function getTlsDir(): string { return join(getExodusHome(), 'tls') }`.
+- [ ] **Step 2: `paths.ts`** — `export function getTlsDir(): string { return join(getActoviaHome(), 'tls') }`.
 
 - [ ] **Step 3: Failing tests** — mock `electron` (`safeStorage: { isEncryptionAvailable: () => true, encryptString: (s) => Buffer.from('enc:' + s), decryptString: (b) => b.toString().slice(4) }`) and `@main/lib/paths` (`getTlsDir` → a `mkdtempSync` dir):
 
@@ -1041,7 +1041,7 @@ export async function revokeAllDevices(): Promise<void> {
 it('creates a certificate Node accepts, valid for about ten years', async () => {
   const { certPem } = await loadOrCreateCertificate()
   const parsed = new X509Certificate(certPem)
-  expect(parsed.subject).toContain('CN=Exodus')
+  expect(parsed.subject).toContain('CN=Actovia')
   const years = (Date.parse(parsed.validTo) - Date.now()) / (365 * 864e5)
   expect(years).toBeGreaterThan(9.9)
 })
@@ -1151,7 +1151,7 @@ async function create(): Promise<LanCertificate> {
   ])
   const cert = await x509.X509CertificateGenerator.createSelfSigned({
     serialNumber: Date.now().toString(16),
-    name: 'CN=Exodus',
+    name: 'CN=Actovia',
     keys,
     signingAlgorithm: ALGORITHM,
     notBefore: new Date(),
@@ -1303,7 +1303,7 @@ it('keeps device management off the lan, token or not', async () => {
 // src/main/lib/lan/listener.ts
 import https from 'https'
 
-import { LAN_SERVER_PORT } from '@exodus/shared/constants/systems'
+import { LAN_SERVER_PORT } from '@actovia/shared/constants/systems'
 import type { serve as honoServe, ServerType } from '@hono/node-server'
 
 import { logger } from '../logger'
@@ -1433,7 +1433,7 @@ function deny(c: Context, status: 401 | 403, code: string, message: string) {
 
 /**
  * The LAN listener's door. Loopback has none: a local process can read
- * ~/.exodus directly, and browsers are turned away by the origin gate. A LAN
+ * ~/.actovia directly, and browsers are turned away by the origin gate. A LAN
  * request needs the token of a paired device — except the one request that
  * obtains a token, which the pairing window guards instead.
  */
@@ -1449,7 +1449,7 @@ export async function authGate(c: Context, next: Next) {
       c,
       401,
       'UNAUTHORIZED',
-      'Pair this device from Exodus on your computer.'
+      'Pair this device from Actovia on your computer.'
     )
   }
   // Pairing and revoking are done at the desktop, never by another device.
@@ -1518,7 +1518,7 @@ export default pairRouter
 // src/main/lib/server/routes/devices.ts
 import { hostname, networkInterfaces } from 'os'
 
-import { LAN_SERVER_PORT } from '@exodus/shared/constants/systems'
+import { LAN_SERVER_PORT } from '@actovia/shared/constants/systems'
 import { Hono } from 'hono'
 
 import { isLanRunning, openPairingWindow, pairing, syncLan } from '../../lan'
@@ -1635,7 +1635,7 @@ interface Reply {
  * an unverified peer. `rejectUnauthorized: false` is not "skip verification"
  * here: the certificate is self-signed by design, so there is no CA to verify
  * against, and the fingerprint comparison below *is* the verification. This is
- * the order exodus-ios gets for free from URLSession's challenge callback.
+ * the order the iOS app gets for free from URLSession's challenge callback.
  */
 function pinnedSocket(pin: string) {
   return new Promise<tls.TLSSocket>((resolve, reject) => {
@@ -1654,7 +1654,7 @@ function pinnedSocket(pin: string) {
   })
 }
 
-/** What exodus-ios does: trust the pinned certificate, and nothing else. */
+/** What the iOS app does: trust the pinned certificate, and nothing else. */
 async function pinned(
   pin: string,
   path: string,
@@ -1809,7 +1809,7 @@ test.describe('LAN pairing', () => {
 
 ```ts
 // src/renderer/services/devices.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 export interface PairedDeviceInfo {
   id: string
@@ -1847,12 +1847,12 @@ export const resetDevices = () =>
 ```json
 "devices": {
   "heading": "Devices",
-  "description": "Phones and tablets that may use Exodus over your local network. A device has to be paired here first; until one is, Exodus is not reachable from the network at all.",
+  "description": "Phones and tablets that may use Actovia over your local network. A device has to be paired here first; until one is, Actovia is not reachable from the network at all.",
   "empty": "No paired devices.",
   "pair": "Pair a device",
   "pairing": {
-    "title": "Scan with Exodus on your iPhone",
-    "instructions": "Open Exodus on the device, go to Settings → Pair with computer, and scan this code. Both must be on the same network.",
+    "title": "Scan with Actovia on your iPhone",
+    "instructions": "Open Actovia on the device, go to Settings → Pair with computer, and scan this code. Both must be on the same network.",
     "expiresIn": "Expires in {{seconds}}s",
     "copyLink": "Copy pairing link",
     "linkCopied": "Pairing link copied",
@@ -1888,7 +1888,7 @@ Run `bun run i18n:check` — it lists any locale still missing a key.
 
 ```tsx
 // src/renderer/components/settings/settings-form/devices.tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { QRCodeSVG } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -2163,15 +2163,15 @@ export function Devices() {
 
 **Files:** `CLAUDE.md`, `docs/security-hardening.md`
 
-- [ ] **Step 1:** `CLAUDE.md` — "Data directory, ports and isolation": the two ports, that 60223 is loopback-only and exodus-ios uses 63129; "Middleware Pipeline": the six steps in order with the auth gate; routes list gains `/api/v1/pair`, `/api/v1/devices`; Key Tables gains `paired_device`; Code Structure gains `src/main/lib/lan/` (one line per file) and `src/main/lib/artifact-protocol.ts`; Security Considerations: replace the "No authentication on the HTTP API" bullet with the pairing model, and state that the artifact sandbox has its own origin and that nothing may be added to it that needs the API.
+- [ ] **Step 1:** `CLAUDE.md` — "Data directory, ports and isolation": the two ports, that 60223 is loopback-only and the iOS app uses 63129; "Middleware Pipeline": the six steps in order with the auth gate; routes list gains `/api/v1/pair`, `/api/v1/devices`; Key Tables gains `paired_device`; Code Structure gains `src/main/lib/lan/` (one line per file) and `src/main/lib/artifact-protocol.ts`; Security Considerations: replace the "No authentication on the HTTP API" bullet with the pairing model, and state that the artifact sandbox has its own origin and that nothing may be added to it that needs the API.
 - [ ] **Step 2:** `docs/security-hardening.md` — move items 1 and 2 into the "In place" table (rows _Artifact sandbox_ and _LAN access_), delete their "Open" sections, keep "Smaller items".
 - [ ] **Step 3:** `bunx vitest run tests/unit/config` (the CLAUDE.md freshness tests) → PASS; commit `docs: paired LAN access and the isolated artifact sandbox`.
 
 ---
 
-## Part C — exodus-ios
+## Part C — the iOS app
 
-All commands run in `../exodus-ios`. After adding files run `tuist generate --no-open`. Tests: `xcodebuild test -workspace ExodusIos.xcworkspace -scheme NetworkingKit -destination "platform=iOS Simulator,name=iPhone 17"` — look for the `Test run with N tests` line (a wrong `-only-testing:` name still prints SUCCEEDED).
+All commands run in `../ios`. After adding files run `tuist generate --no-open`. Tests: `xcodebuild test -workspace ActoviaIos.xcworkspace -scheme NetworkingKit -destination "platform=iOS Simulator,name=iPhone 17"` — look for the `Test run with N tests` line (a wrong `-only-testing:` name still prints SUCCEEDED).
 
 ### Task 11: `PairingLink` and `PairedServer`
 
@@ -2191,7 +2191,7 @@ import Testing
 @testable import NetworkingKit
 
 @Suite struct PairingLinkTests {
-    static let valid = "exodus://pair?h=192.168.1.10%2Cmac.local&p=63129&c=abc-DEF_123&f=VldKaXWVm4PXpwRHg9LDxh0tcUW5A5sOgwTVeSyjWtM&n=Yancey%27s+Mac"
+    static let valid = "actovia://pair?h=192.168.1.10%2Cmac.local&p=63129&c=abc-DEF_123&f=VldKaXWVm4PXpwRHg9LDxh0tcUW5A5sOgwTVeSyjWtM&n=Yancey%27s+Mac"
 
     @Test func parsesEveryField() throws {
         let link = try #require(PairingLink(string: Self.valid))
@@ -2204,13 +2204,13 @@ import Testing
 
     @Test(arguments: [
         "https://pair?h=a&p=1&c=x&f=y&n=z",          // wrong scheme
-        "exodus://other?h=a&p=1&c=x&f=y&n=z",        // wrong host
-        "exodus://pair?p=63129&c=x&f=y&n=z",         // no hosts
-        "exodus://pair?h=&p=63129&c=x&f=y&n=z",      // empty hosts
-        "exodus://pair?h=a&p=notaport&c=x&f=y&n=z",  // bad port
-        "exodus://pair?h=a&p=70000&c=x&f=y&n=z",     // port out of range
-        "exodus://pair?h=a&p=63129&f=y&n=z",         // no code
-        "exodus://pair?h=a&p=63129&c=x&n=z",         // no fingerprint
+        "actovia://other?h=a&p=1&c=x&f=y&n=z",        // wrong host
+        "actovia://pair?p=63129&c=x&f=y&n=z",         // no hosts
+        "actovia://pair?h=&p=63129&c=x&f=y&n=z",      // empty hosts
+        "actovia://pair?h=a&p=notaport&c=x&f=y&n=z",  // bad port
+        "actovia://pair?h=a&p=70000&c=x&f=y&n=z",     // port out of range
+        "actovia://pair?h=a&p=63129&f=y&n=z",         // no code
+        "actovia://pair?h=a&p=63129&c=x&n=z",         // no fingerprint
         "not a url"
     ])
     func rejects(_ string: String) {
@@ -2235,7 +2235,7 @@ import Testing
 // Sources/NetworkingKit/PairingLink.swift
 import Foundation
 
-/// What the desktop's QR code says: where Exodus is, the one-time code that
+/// What the desktop's QR code says: where Actovia is, the one-time code that
 /// lets this device in, and the fingerprint of the only certificate to trust.
 public struct PairingLink: Equatable, Sendable {
     public let hosts: [String]
@@ -2246,7 +2246,7 @@ public struct PairingLink: Equatable, Sendable {
 
     public init?(string: String) {
         guard let components = URLComponents(string: string.trimmingCharacters(in: .whitespacesAndNewlines)),
-              components.scheme == "exodus", components.host == "pair"
+              components.scheme == "actovia", components.host == "pair"
         else { return nil }
         // `+` is a space in a query string; URLComponents leaves it alone.
         func value(_ key: String) -> String? {
@@ -2308,7 +2308,7 @@ public struct PairedServer: Codable, Equatable, Sendable {
 **Files:**
 
 - Create: `Sources/NetworkingKit/PinnedSessionDelegate.swift`
-- Test: `Tests/NetworkingKitTests/PinnedSessionDelegateTests.swift` + `Tests/NetworkingKitTests/Fixtures/test-cert.der` (generate once: `openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout /dev/null -subj "/CN=Exodus" -days 3650 -outform DER -out Tests/NetworkingKitTests/Fixtures/test-cert.der`; its expected pin: `openssl dgst -sha256 -binary test-cert.der | basenc --base64url | tr -d '='`)
+- Test: `Tests/NetworkingKitTests/PinnedSessionDelegateTests.swift` + `Tests/NetworkingKitTests/Fixtures/test-cert.der` (generate once: `openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -nodes -keyout /dev/null -subj "/CN=Actovia" -days 3650 -outform DER -out Tests/NetworkingKitTests/Fixtures/test-cert.der`; its expected pin: `openssl dgst -sha256 -binary test-cert.der | basenc --base64url | tr -d '='`)
 
 **Interfaces:**
 
@@ -2407,7 +2407,7 @@ public protocol CredentialStoring: Sendable {
 /// on this device, never in a backup or iCloud. A device with no passcode
 /// cannot hold it, so it cannot pair.
 public final class KeychainCredentialStore: CredentialStoring {
-    private static let service = "app.yancey.exodus.pairing"
+    private static let service = "app.yancey.actovia.pairing"
     private static let account = "paired-server"
 
     public init() {}
@@ -2613,22 +2613,22 @@ and in `throwIfError`'s caller: on a `401` while `serverConfig.connection?.isUnl
 **Files:**
 
 - Create: `Sources/SettingsFeature/PairingView.swift`, `Sources/SettingsFeature/QRScannerView.swift`
-- Modify: `Sources/SettingsFeature/SettingsView.swift`, `Sources/App/ExodusApp.swift`, `Project.swift`, the string catalog (run `scripts/l10n.py` as the README describes)
+- Modify: `Sources/SettingsFeature/SettingsView.swift`, `Sources/App/ActoviaApp.swift`, `Project.swift`, the string catalog (run `scripts/l10n.py` as the README describes)
 
 - [ ] **Step 1: `Project.swift`** — add to the App target's `infoPlist` dictionary (do not touch the user's other uncommitted edits in this file):
 
 ```swift
                     "NSCameraUsageDescription":
-                        "Exodus uses the camera to scan the pairing code shown on your computer.",
+                        "Actovia uses the camera to scan the pairing code shown on your computer.",
                     "NSFaceIDUsageDescription":
-                        "Exodus uses Face ID to unlock the connection to your computer.",
+                        "Actovia uses Face ID to unlock the connection to your computer.",
 ```
 
 - [ ] **Step 2: `QRScannerView.swift`** — a `UIViewControllerRepresentable` over `DataScannerViewController(recognizedDataTypes: [.barcode(symbologies: [.qr])], qualityLevel: .balanced, isHighlightingEnabled: true)`; its coordinator's `dataScanner(_:didAdd:allItems:)` takes the first `.barcode` payload that parses as `PairingLink(string:)`, calls `onLink` once, and stops scanning. When `DataScannerViewController.isSupported && isAvailable` is false (the Simulator), the view shows nothing and `PairingView` falls back to paste.
 
 - [ ] **Step 3: `PairingView.swift`** — states `idle / scanning / pairing / failed(String)`. Unpaired: "Scan pairing code" (presents the scanner as a sheet) and "Paste pairing link" (reads `UIPasteboard.general.string`). On a link: `try await connection.pair(link, deviceName: UIDevice.current.name, session: session)`; on `CredentialError.passcodeNotSet` show "Set a passcode on this device to pair with your computer." Paired: the computer's name, the host in use, and "Unpair" (confirmation dialog → `connection.unpair()`). `SettingsView` gains a "Computer" section at the top that links to it; the manual server-address field stays, labelled as for the Simulator, and is hidden while paired.
 
-- [ ] **Step 4: `ExodusApp.swift`** — build one pinned session and share it; gate the UI on the unlock:
+- [ ] **Step 4: `ActoviaApp.swift`** — build one pinned session and share it; gate the UI on the unlock:
 
 ```swift
     init() {
@@ -2647,7 +2647,7 @@ and in `throwIfError`'s caller: on a `401` while `serverConfig.connection?.isUnl
 
 In `body`, wrap `AppShell` in a view that: on first appearance, if `connection.isPaired`, calls `try await connection.unlock(reason: String(localized: "Unlock the connection to your computer"))` and shows a full-screen "Locked — Unlock with Face ID" placeholder with a retry button until it succeeds; observes `@Environment(\.scenePhase)` — on `.background` record `Date()`, on `.active`, if more than `ServerConnection.backgroundGrace` seconds passed, `connection.lock()` and unlock again. An unpaired app skips all of it.
 
-- [ ] **Step 5: Verify** — `tuist generate --no-open`; `xcodebuild build -workspace ExodusIos.xcworkspace -scheme App -destination "generic/platform=iOS Simulator"` succeeds; all four test schemes pass with their `Test run with N tests` lines. In the Simulator (desktop running this branch): paste a pairing link copied from Settings → Devices → the device appears on the desktop; revoke it there → the next request on the phone returns to the pairing screen. Face ID and the camera need a real device: enrol, pair by scanning, background for six minutes, return → Face ID prompt.
+- [ ] **Step 5: Verify** — `tuist generate --no-open`; `xcodebuild build -workspace ActoviaIos.xcworkspace -scheme App -destination "generic/platform=iOS Simulator"` succeeds; all four test schemes pass with their `Test run with N tests` lines. In the Simulator (desktop running this branch): paste a pairing link copied from Settings → Devices → the device appears on the desktop; revoke it there → the next request on the phone returns to the pairing screen. Face ID and the camera need a real device: enrol, pair by scanning, background for six minutes, return → Face ID prompt.
 
 ---
 

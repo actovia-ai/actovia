@@ -61,7 +61,7 @@ Search tab (Elasticsearch config), and the Logger tab (in-app log viewer).
   literally in code — `deleteConfirmText !== 'DELETE'` — so it must never
   be translated or a translated build would make the confirmation
   impossible to satisfy), example/placeholder values
-  (`https://localhost:9200`, `exodus-messages`), and log severity level
+  (`https://localhost:9200`, `actovia-messages`), and log severity level
   values (`debug`/`info`/`warn`/`error` — technical enum values sent as
   API query params and matched against `severityText` elsewhere in the
   file; only the `'All'` filter option is real UI prose and gets
@@ -131,7 +131,7 @@ purposes, but keep it appended after `tools` for readability):
   "dataControls": {
     "autoBackup": {
       "label": "Automatic Backups",
-      "description": "Back up your data daily at 3:00 AM. Backups are stored locally in ~/.exodus/backups/."
+      "description": "Back up your data daily at 3:00 AM. Backups are stored locally in ~/.actovia/backups/."
     },
     "lastBackup": {
       "label": "Last Backup",
@@ -440,7 +440,7 @@ git commit -m "i18n: extract Data Controls tab strings to settings namespace"
 
 ```json
   "fullTextSearch": {
-    "alert": "Exodus's built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not \"smart\" results</strong>: no relevance ranking, no typo tolerance, no stemming (searching \"run\" won't find \"running\"). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Exodus only reads and writes documents to your cluster's index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <4>ik</4>, <6>smartcn</6>, or the built-in <9>cjk</9>) on your cluster before pointing Exodus at it.",
+    "alert": "Actovia's built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not \"smart\" results</strong>: no relevance ranking, no typo tolerance, no stemming (searching \"run\" won't find \"running\"). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Actovia only reads and writes documents to your cluster's index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <4>ik</4>, <6>smartcn</6>, or the built-in <9>cjk</9>) on your cluster before pointing Actovia at it.",
     "url": {
       "label": "Elasticsearch URL",
       "description": "Leave empty to use the built-in PGlite full-text search."
@@ -454,7 +454,7 @@ git commit -m "i18n: extract Data Controls tab strings to settings namespace"
     "optionalSecurityHint": "Optional — required only if your cluster has security enabled.",
     "indexName": {
       "label": "Index Name",
-      "description": "Defaults to \"exodus-messages\" if left empty."
+      "description": "Defaults to \"actovia-messages\" if left empty."
     },
     "connection": {
       "label": "Connection",
@@ -498,17 +498,17 @@ import { SettingsRow, SettingsSection } from '../settings-row'
 export function SearchQualityNotice() {
   return (
     <Trans ns="settings" i18nKey="fullTextSearch.alert">
-      Exodus's built-in search works across all languages, including Chinese,
+      Actovia's built-in search works across all languages, including Chinese,
       Japanese, and Korean —{' '}
       <strong>it matches exact text, not "smart" results</strong>: no relevance
       ranking, no typo tolerance, no stemming (searching "run" won't find
       "running"). Configure a self-hosted or cloud Elasticsearch cluster below
       for better relevance ranking and real word segmentation. This is optional;
-      leave the URL empty to keep using the built-in search. Exodus only reads
+      leave the URL empty to keep using the built-in search. Actovia only reads
       and writes documents to your cluster's index — for real word-level Chinese
       segmentation (rather than character-level), configure a language-aware
       analyzer (e.g. <code>ik</code>, <code>smartcn</code>, or the built-in{' '}
-      <code>cjk</code>) on your cluster before pointing Exodus at it.
+      <code>cjk</code>) on your cluster before pointing Actovia at it.
     </Trans>
   )
 }
@@ -643,7 +643,7 @@ Replace the JSX body:
               layout="vertical"
             >
               <Input
-                placeholder="exodus-messages"
+                placeholder="actovia-messages"
                 {...field}
                 value={field.value ?? ''}
               />
@@ -751,7 +751,7 @@ describe('settings namespace fullTextSearch.alert renders correctly via Trans', 
       )
     )
     expect(html).toBe(
-      'Exodus&#x27;s built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not &quot;smart&quot; results</strong>: no relevance ranking, no typo tolerance, no stemming (searching &quot;run&quot; won&#x27;t find &quot;running&quot;). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Exodus only reads and writes documents to your cluster&#x27;s index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <code>ik</code>, <code>smartcn</code>, or the built-in <code>cjk</code>) on your cluster before pointing Exodus at it.'
+      'Actovia&#x27;s built-in search works across all languages, including Chinese, Japanese, and Korean — <strong>it matches exact text, not &quot;smart&quot; results</strong>: no relevance ranking, no typo tolerance, no stemming (searching &quot;run&quot; won&#x27;t find &quot;running&quot;). Configure a self-hosted or cloud Elasticsearch cluster below for better relevance ranking and real word segmentation. This is optional; leave the URL empty to keep using the built-in search. Actovia only reads and writes documents to your cluster&#x27;s index — for real word-level Chinese segmentation (rather than character-level), configure a language-aware analyzer (e.g. <code>ik</code>, <code>smartcn</code>, or the built-in <code>cjk</code>) on your cluster before pointing Actovia at it.'
     )
   })
 })
@@ -1129,13 +1129,13 @@ typechecks cleanly (catches anything a working-tree-only check would
 miss):
 
 ```bash
-rm -rf /tmp/exodus-committed-check
-git archive HEAD | (mkdir -p /tmp/exodus-committed-check && tar -x -C /tmp/exodus-committed-check)
-ln -s /Users/yanceyleo/Code/exodus/universal-client/node_modules /tmp/exodus-committed-check/node_modules
-cd /tmp/exodus-committed-check
+rm -rf /tmp/actovia-committed-check
+git archive HEAD | (mkdir -p /tmp/actovia-committed-check && tar -x -C /tmp/actovia-committed-check)
+ln -s /Users/yanceyleo/Code/actovia/universal-client/node_modules /tmp/actovia-committed-check/node_modules
+cd /tmp/actovia-committed-check
 ./node_modules/.bin/tsc --noEmit -p tsconfig.json --composite false
-cd /Users/yanceyleo/Code/exodus/universal-client
-rm -rf /tmp/exodus-committed-check
+cd /Users/yanceyleo/Code/actovia/universal-client
+rm -rf /tmp/actovia-committed-check
 ```
 
 Expected: no errors. If there are multiple tsconfig projects

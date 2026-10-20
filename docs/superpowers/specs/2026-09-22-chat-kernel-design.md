@@ -45,7 +45,7 @@ replaced by pi's `Agent`.
   `Agent`), and does not use them.
 - The system prompt's design for autonomous tool and skill use — the next
   project, which depends on this one's tool surface.
-- Any change to `exodus-ios`: the wire format gains a field and loses nothing.
+- Any change to the iOS app: the wire format gains a field and loses nothing.
 
 ## Decisions already made
 
@@ -148,7 +148,7 @@ persisted at all.
 ### Wire format and rendering
 
 - SSE events keep their shapes; every message on the wire gains `runId`.
-  The frame coalescing in `chat-sse.ts` stays. exodus-ios needs nothing.
+  The frame coalescing in `chat-sse.ts` stays. The iOS app needs nothing.
 - `messages.tsx` groups by `runId` — no more "a run is a contiguous
   non-user span". One run renders as **one** assistant message: the existing
   `ThinkingTimeline` (thinking, tool calls, tool results) above one body that
@@ -186,7 +186,7 @@ persisted at all.
   chat, snake_case rewrite of both the column and the JSON.
 - **Rendering**: grouping by `runId`, one message per run, and the existing
   render-count tests extended so that only the streaming run re-renders.
-- **E2E**: a faux provider registered only when `EXODUS_FAUX_PROVIDER=1` lets
+- **E2E**: a faux provider registered only when `ACTOVIA_FAUX_PROVIDER=1` lets
   the Electron e2e run a full conversation with a tool call. Today every chat
   spec is skipped for want of a key; this is the base for all chat e2e from
   here on.

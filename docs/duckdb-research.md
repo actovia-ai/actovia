@@ -1,4 +1,4 @@
-# DuckDB in Exodus — research notes
+# DuckDB in Actovia — research notes
 
 Date: 2026-09-19. Companion to
 `docs/superpowers/specs/2026-09-19-duckdb-chat-audit-design.md`.
@@ -12,7 +12,7 @@ a desktop app:
 - **Reads files directly.** `read_json_auto('logs/*.jsonl')`, `read_csv`,
   `read_parquet`, globs, `union_by_name` for ragged schemas — no import step.
 - **Fast aggregates** over millions of rows on a laptop; irrelevant at
-  Exodus's current data sizes but it means the audit console never needs
+  Actovia's current data sizes but it means the audit console never needs
   paging tricks.
 - **Portable output.** A `.duckdb` file or Parquet/CSV export opens in the
   DuckDB CLI, DBeaver, Python, R, Excel — the "hand the data to someone
@@ -39,12 +39,12 @@ assets resolve relative to the real package) and **unpacked from asar**
 `.node`-only rule of `AutoUnpackNativesPlugin` is not enough). The forge
 `ignore` allowlist keeps `@duckdb/*` and its runtime dep `detect-libc`.
 
-## Where it fits Exodus
+## Where it fits Actovia
 
 1. **Chat audit (built now)** — Settings → Developer → Chat Audit. A
    snapshot of `chat` / `message` / `project` from PGlite is written into
-   `~/.exodus/analytics/exodus.duckdb`, plus a `logs` view straight over
-   `~/.exodus/logs/*.jsonl`. A read-only SQL console with presets (tokens
+   `~/.actovia/analytics/actovia.duckdb`, plus a `logs` view straight over
+   `~/.actovia/logs/*.jsonl`. A read-only SQL console with presets (tokens
    and cost by model, tool calls, longest chats, errors, activity by hour,
    full-text search, log severity by scope) and CSV export. The snapshot
    file is the audit artefact: it opens in any DuckDB client.

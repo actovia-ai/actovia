@@ -14,7 +14,7 @@ restarts between the chat response being sent and one of these blocks
 finishing, that work is silently lost forever, with no record it was ever
 supposed to happen and no retry.
 
-While researching this, the user found that PGlite (Exodus's embedded
+While researching this, the user found that PGlite (Actovia's embedded
 Postgres) ships **pgmq** as a supported extension
 (`@electric-sql/pglite-pgmq`) — a real SQL-native message queue ("like AWS
 SQS and RSMQ but on Postgres"), requiring no background worker, pure SQL

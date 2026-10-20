@@ -6,7 +6,7 @@
 
 ## Overview
 
-Add a lightweight, built-in logging system to Exodus. Logs are written as JSONL files (one per day) in the userData directory. A new Logger page in Settings provides filtering, search, and management.
+Add a lightweight, built-in logging system to Actovia. Logs are written as JSONL files (one per day) in the userData directory. A new Logger page in Settings provides filtering, search, and management.
 
 ---
 
@@ -123,7 +123,7 @@ Response: raw JSONL file as download (`Content-Disposition: attachment`)
 
 ### Menu Placement
 
-In `settings-menu.ts`, add between Data Controls and About Exodus:
+In `settings-menu.ts`, add between Data Controls and About Actovia:
 
 ```typescript
 {

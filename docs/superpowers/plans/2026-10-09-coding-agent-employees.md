@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** A Philharmonic employee can be the owner's own Claude Code: the PM hands it a step, Exodus runs `claude` in the group's project folder over stream-json, draws a live card of its steps, stops for the owner's Allow / Deny / answers, and returns the result to the PM; every Exodus employee also runs on its own model.
+**Goal:** A Philharmonic employee can be the owner's own Claude Code: the PM hands it a step, Actovia runs `claude` in the group's project folder over stream-json, draws a live card of its steps, stops for the owner's Allow / Deny / answers, and returns the result to the PM; every Actovia employee also runs on its own model.
 
-**Architecture:** A main-process driver (`src/main/lib/agents/`) finds and checks the CLI, spawns one `claude -p` process per agent session, maps its NDJSON to `AgentEvent`s, folds them into an `AgentCard` that is streamed over the existing Philharmonic SSE (`agent_card` event) and persisted in the employee message's `parts`. `runDelegatedTask` branches on `agent.runtime`; projects (`~/Exodus Projects/<name>/.exodus/`) bind a group to a folder. The renderer gets Settings › Agents, a runtime/model picker in the employee editor, a folder chip in the group composer and the card.
+**Architecture:** A main-process driver (`src/main/lib/agents/`) finds and checks the CLI, spawns one `claude -p` process per agent session, maps its NDJSON to `AgentEvent`s, folds them into an `AgentCard` that is streamed over the existing Philharmonic SSE (`agent_card` event) and persisted in the employee message's `parts`. `runDelegatedTask` branches on `agent.runtime`; projects (`~/Actovia Projects/<name>/.actovia/`) bind a group to a folder. The renderer gets Settings › Agents, a runtime/model picker in the employee editor, a folder chip in the group composer and the card.
 
 **Tech Stack:** Electron main (Node 24, `child_process`, `readline`), drizzle on PGlite (migration 0015), Hono routes, zod (shared schemas), React + Tailwind v4 + react-i18next, Vitest (`tests/unit/**`), oxlint / oxfmt, bun.
 
@@ -12,16 +12,16 @@
 
 ## Global Constraints
 
-- Repo `exodus`, branch `maintenance`; commit locally after every task; **never push**. Other people's uncommitted edits may be in the tree (`globals.css`, `chat-header.tsx`, `chat-panel.tsx`, `app-sidebar.tsx`): `git add` only the files your task names — never `git add -A` / `.`.
+- Repo `actovia`, branch `maintenance`; commit locally after every task; **never push**. Other people's uncommitted edits may be in the tree (`globals.css`, `chat-header.tsx`, `chat-panel.tsx`, `app-sidebar.tsx`): `git add` only the files your task names — never `git add -A` / `.`.
 - Commit messages: Conventional Commits, subject says what changed and why; end with the line `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. The pre-commit hook runs oxlint, oxfmt, typecheck and `i18n:check` — it must pass; never `--no-verify`.
 - No legacy / back-compat code: the app is unreleased (no shims for old rows or names).
 - UI copy: the CLI is named **"Claude Code"** everywhere; tool names on the card are capital-case ("Write", "Bash"); `font-mono` only for code (a command or path in a card row is code — mono is fine there, nowhere else).
 - Permission modes offered: `default`, `acceptEdits`, `auto`. **`bypassPermissions` is never passed or offered.**
-- Exodus never answers a `control_request` by itself; no timeout auto-answers.
-- Working folders: never `~`, `/`, or anything under `getExodusHome()`; nothing of Exodus' is written into an opened folder.
-- Child process environment = the owner's login-shell environment minus keys matching `/^(EXODUS_|ELECTRON_|VITE_)/` and `NODE_OPTIONS`; never Exodus' provider keys.
+- Actovia never answers a `control_request` by itself; no timeout auto-answers.
+- Working folders: never `~`, `/`, or anything under `getActoviaHome()`; nothing of Actovia's is written into an opened folder.
+- Child process environment = the owner's login-shell environment minus keys matching `/^(ACTOVIA_|ELECTRON_|VITE_)/` and `NODE_OPTIONS`; never Actovia's provider keys.
 - Minimum Claude Code version: `2.1.294` (the probed one).
-- Defaults: projects folder `~/Exodus Projects`; at most **2** agents running at once; keep an agent's process **10** minutes after its turn; worktrees **on**.
+- Defaults: projects folder `~/Actovia Projects`; at most **2** agents running at once; keep an agent's process **10** minutes after its turn; worktrees **on**.
 - The CLI's notices (rate limit, cost) are shown verbatim, never interpreted.
 - New user-facing strings: add to `packages/shared/src/i18n/locales/en/<ns>.json` **and** every locale whose `_status.json` source is `machine` or `reviewed` (Task 16 does the bulk; each UI task adds its en keys).
 - Tests: `bunx vitest run <file>`; full gates before each commit: `bun run typecheck && bun run lint && bun run i18n:check`.
@@ -32,7 +32,7 @@
 2. **A CLI line split across stdout chunks, or a non-JSON line (a stray warning)** — expect it parsed whole, or skipped and logged, never a crash. Test in Task 6.
 3. **The CLI dies mid-turn (killed, crashed, logged out)** — expect the step to fail with stderr's last lines, the card Failed, the task `failed`, and the next step resuming the session. Test in Task 6 and Task 10.
 4. **Two steps for the same employee in the same project at once** — expect the second to wait for the first's turn, never two writes into one session. Test in Task 9.
-5. **An opened folder that is `~`, `/`, inside `~/.exodus`, or a file** — expect a validation error before anything is created. Test in Task 8.
+5. **An opened folder that is `~`, `/`, inside `~/.actovia`, or a file** — expect a validation error before anything is created. Test in Task 8.
 
 ---
 
@@ -65,7 +65,7 @@
 | `src/renderer/components/philharmonic/chat/agent-card.tsx` (new), `group-message-bubble.tsx`, `hooks/use-conversation-stream.ts` | The card, live and from history                                                                             |
 | `tests/fixtures/claude-code/*.jsonl` (exists), `fake-claude.mjs` (new)                                                           | Real CLI output from the 2026-10-09 probes, and a fake CLI that replays it                                  |
 
-The fixtures already in the repo (`tests/fixtures/claude-code/`) are the real CLI's stdout from the probes, sanitised (paths → `/tmp/exodus-project`, hooks trimmed to one, init slimmed). Only stdout is recorded; what Exodus writes is the tests' own.
+The fixtures already in the repo (`tests/fixtures/claude-code/`) are the real CLI's stdout from the probes, sanitised (paths → `/tmp/actovia-project`, hooks trimmed to one, init slimmed). Only stdout is recorded; what Actovia writes is the tests' own.
 
 ### Task 1: Shared types, the `agents` settings block, the `agent_card` event
 
@@ -78,7 +78,7 @@ The fixtures already in the repo (`tests/fixtures/claude-code/`) are the real CL
 
 **Interfaces:**
 
-- Produces: every type below, imported as `@exodus/shared/types/agents`; `AgentsSettingsSchema`, `AgentsSettings` from `@exodus/shared/schemas/settings-schema`; SSE member `{ type: 'agent_card'; conversationId: string; messageId: string; card: AgentCard }`.
+- Produces: every type below, imported as `@actovia/shared/types/agents`; `AgentsSettingsSchema`, `AgentsSettings` from `@actovia/shared/schemas/settings-schema`; SSE member `{ type: 'agent_card'; conversationId: string; messageId: string; card: AgentCard }`.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -87,7 +87,7 @@ The fixtures already in the repo (`tests/fixtures/claude-code/`) are the real CL
 import {
   AgentsSettingsSchema,
   SettingsSchema
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { describe, expect, it } from 'vitest'
 
 describe('agents settings schema', () => {
@@ -134,7 +134,7 @@ In `settings-schema.ts`, after `ComputerUseSchema` (uses the file's existing `fo
 /**
  * Coding-agent employees (spec 2026-10-09). Unset numbers take their
  * defaults where they are used (`src/main/lib/agents/settings.ts`): the
- * projects folder `~/Exodus Projects`, 2 running at once, 10 minutes kept.
+ * projects folder `~/Actovia Projects`, 2 running at once, 10 minutes kept.
  */
 export const AgentsSettingsSchema = z.object({
   projectsDir: z.string().nullish(),
@@ -153,11 +153,11 @@ In `SettingsSchema`, beside `computerUse`: `agents: AgentsSettingsSchema.nullish
 
 ```ts
 // packages/shared/src/types/agents.ts
-/** Who runs an employee's turn: Exodus' own loop, or a CLI on the owner's machine. */
-export const AGENT_RUNTIMES = ['exodus', 'claude-code'] as const
+/** Who runs an employee's turn: Actovia's own loop, or a CLI on the owner's machine. */
+export const AGENT_RUNTIMES = ['actovia', 'claude-code'] as const
 export type AgentRuntime = (typeof AGENT_RUNTIMES)[number]
 
-/** The CLIs Exodus can drive. Codex joins in phase 2. */
+/** The CLIs Actovia can drive. Codex joins in phase 2. */
 export const CLI_IDS = ['claude-code'] as const
 export type CliId = (typeof CLI_IDS)[number]
 
@@ -288,7 +288,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 **Interfaces:**
 
 - Consumes: `AgentsSettings` (Task 1).
-- Produces: tables `project`, `agentSession`; types `Project`, `AgentSession`; columns `agent.runtime` (`'exodus' | 'claude-code'`, default `'exodus'`), `agent.permissionMode` (text, null = `default`), `conversation.projectId`, `settings.agents`. Queries:
+- Produces: tables `project`, `agentSession`; types `Project`, `AgentSession`; columns `agent.runtime` (`'actovia' | 'claude-code'`, default `'actovia'`), `agent.permissionMode` (text, null = `default`), `conversation.projectId`, `settings.agents`. Queries:
   - `createProject(data: { name: string; dir: string; workDir: string }): Promise<Project>`
   - `getProjectById(id: string): Promise<Project | undefined>`
   - `getProjectByDir(dir: string): Promise<Project | undefined>`
@@ -308,7 +308,7 @@ The CLI model lives in the existing `agent.model` (with `provider` null for a CL
 In `agent`, after `provider`:
 
 ```ts
-    runtime: agentRuntimeEnum('runtime').notNull().default('exodus'),
+    runtime: agentRuntimeEnum('runtime').notNull().default('actovia'),
     /** A CLI employee's permission mode; null = the CLI's `default`. */
     permissionMode: text('permissionMode'),
 ```
@@ -317,7 +317,7 @@ Above `agent`:
 
 ```ts
 export const agentRuntimeEnum = pgEnum('agent_runtime', [
-  'exodus',
+  'actovia',
   'claude-code'
 ])
 ```
@@ -325,7 +325,7 @@ export const agentRuntimeEnum = pgEnum('agent_runtime', [
 New table, defined **before** `conversation` (so the reference reads top-down):
 
 ```ts
-/** A folder Philharmonic works in (spec §4): `dir` holds `.exodus/` meta; `workDir` is where agents work — `dir` for a new project, the owner's folder for an opened one. */
+/** A folder Philharmonic works in (spec §4): `dir` holds `.actovia/` meta; `workDir` is where agents work — `dir` for a new project, the owner's folder for an opened one. */
 export const project = pgTable('project', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
@@ -401,14 +401,14 @@ import { describe, expect, it } from 'vitest'
 import { createMigratedPglite } from '../../../../helpers/migrated-pglite'
 
 describe('migration 0015 — coding agents', () => {
-  it('adds runtime to agents with exodus as the default', async () => {
+  it('adds runtime to agents with actovia as the default', async () => {
     const pg = await createMigratedPglite('0015')
     await pg.exec(`INSERT INTO agent (name) VALUES ('Ada')`)
     const { rows } = await pg.query<{
       runtime: string
       permissionMode: string | null
     }>(`SELECT runtime, "permissionMode" FROM agent`)
-    expect(rows).toEqual([{ runtime: 'exodus', permissionMode: null }])
+    expect(rows).toEqual([{ runtime: 'actovia', permissionMode: null }])
     await pg.close()
   })
 
@@ -685,15 +685,15 @@ Run: `bunx vitest run tests/unit/main/lib/ai/utils/resolve-employee-model.test.t
 - [ ] **Step 3: Implement**
 
 ```ts
+import { ConfigurationError, ErrorCode } from '@actovia/shared'
 // src/main/lib/ai/utils/employee-model.ts
 import type { Model } from '@earendil-works/pi-ai'
-import { ConfigurationError, ErrorCode } from '@exodus/shared'
 
 import type { Agent, Settings } from '../../db/schema'
 import { getModelFromProvider } from './model-util'
 
 /**
- * The model an Exodus employee runs on: its own provider + model when set,
+ * The model an Actovia employee runs on: its own provider + model when set,
  * else the app's (spec §8.1). Its own choice never falls back silently — a
  * provider without a key, or a model gone, fails the step with the reason.
  */
@@ -717,7 +717,7 @@ export function resolveEmployeeModel(
 }
 ```
 
-(Check `ConfigurationError`'s constructor in `@exodus/shared` — `model-util.ts:56` and `:65` show `(code)` and `(code, message?, meta?)`; pass the message second.)
+(Check `ConfigurationError`'s constructor in `@actovia/shared` — `model-util.ts:56` and `:65` show `(code)` and `(code, message?, meta?)`; pass the message second.)
 
 - [ ] **Step 4: Use it in the employee loop** — `employee-loop.ts:66-67` becomes:
 
@@ -770,7 +770,7 @@ import { describe, expect, it } from 'vitest'
 describe('login shell environment', () => {
   it('reads the NUL-separated dump between the markers, ignoring rc-file noise', () => {
     const out =
-      'Welcome to zsh\n__EXODUS_ENV__PATH=/opt/homebrew/bin:/usr/bin\0HOME=/Users/o\0A=b=c\0__EXODUS_ENV__\nbye'
+      'Welcome to zsh\n__ACTOVIA_ENV__PATH=/opt/homebrew/bin:/usr/bin\0HOME=/Users/o\0A=b=c\0__ACTOVIA_ENV__\nbye'
     expect(parseEnvDump(out)).toEqual({
       PATH: '/opt/homebrew/bin:/usr/bin',
       HOME: '/Users/o',
@@ -782,11 +782,11 @@ describe('login shell environment', () => {
     expect(parseEnvDump('no markers here')).toEqual({})
   })
 
-  it("drops Exodus', Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
+  it("drops Actovia', Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
     expect(
       scrubEnv({
         PATH: '/bin',
-        EXODUS_HOME: '/x',
+        ACTOVIA_HOME: '/x',
         ELECTRON_RUN_AS_NODE: '1',
         VITE_DEV_SERVER_URL: 'http://localhost',
         NODE_OPTIONS: '--inspect',
@@ -926,7 +926,7 @@ import { getSettings } from '../db/queries'
 export async function agentSettings() {
   const a = (await getSettings()).agents
   return {
-    projectsDir: a?.projectsDir || join(homedir(), 'Exodus Projects'),
+    projectsDir: a?.projectsDir || join(homedir(), 'Actovia Projects'),
     maxRunning: a?.maxRunning ?? 2,
     keepAliveMinutes: a?.keepAliveMinutes ?? 10,
     worktrees: a?.worktrees ?? true,
@@ -947,8 +947,8 @@ import { join } from 'path'
 
 import { logger } from '../logger'
 
-const MARK = '__EXODUS_ENV__'
-const DROP = /^(EXODUS_|ELECTRON_|VITE_)/
+const MARK = '__ACTOVIA_ENV__'
+const DROP = /^(ACTOVIA_|ELECTRON_|VITE_)/
 /** Where CLIs install when the login shell cannot tell us (spec §3). */
 const FALLBACK_DIRS = [
   join(homedir(), '.local/bin'),
@@ -969,7 +969,7 @@ export function parseEnvDump(out: string): Record<string, string> {
   return env
 }
 
-/** The child never sees Exodus' own variables (spec §7.4). */
+/** The child never sees Actovia's own variables (spec §7.4). */
 export function scrubEnv(
   env: Record<string, string | undefined>
 ): Record<string, string> {
@@ -1039,7 +1039,7 @@ import { execFile } from 'child_process'
 import { access, constants } from 'fs/promises'
 import { join } from 'path'
 
-import type { CliId, CliStatus } from '@exodus/shared/types/agents'
+import type { CliId, CliStatus } from '@actovia/shared/types/agents'
 
 import { loginShellEnv } from './login-shell'
 import { agentSettings } from './settings'
@@ -1310,13 +1310,13 @@ describe('Claude Code protocol', () => {
           kind: 'permission',
           requestId: parsed.control!.requestId,
           tool: 'Write',
-          summary: '/tmp/exodus-project/hello.txt'
+          summary: '/tmp/actovia-project/hello.txt'
         }
       }
     ])
     expect(parsed.control).toMatchObject({
       toolName: 'Write',
-      input: { file_path: '/tmp/exodus-project/hello.txt' }
+      input: { file_path: '/tmp/actovia-project/hello.txt' }
     })
   })
 
@@ -1411,13 +1411,13 @@ describe('Claude Code protocol', () => {
 
 Run: `bunx vitest run tests/unit/main/lib/agents/claude-code/protocol.test.ts`
 
-- [ ] **Step 3: Write `driver.ts`** with exactly the `AgentEvent`, `StartInput`, `AgentRun` from the Interfaces block (import types from `@exodus/shared/types/agents`).
+- [ ] **Step 3: Write `driver.ts`** with exactly the `AgentEvent`, `StartInput`, `AgentRun` from the Interfaces block (import types from `@actovia/shared/types/agents`).
 
 - [ ] **Step 4: Write `protocol.ts`**
 
 ```ts
 // src/main/lib/agents/claude-code/protocol.ts
-import type { AgentQuestion } from '@exodus/shared/types/agents'
+import type { AgentQuestion } from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
 
@@ -1552,7 +1552,7 @@ export function parseLine(line: string): ParsedLine {
           events: [
             {
               type: 'notice',
-              text: `Claude Code asked for “${String(req.subtype)}”, which Exodus cannot answer — continue in Terminal.`
+              text: `Claude Code asked for “${String(req.subtype)}”, which Actovia cannot answer — continue in Terminal.`
             }
           ]
         }
@@ -1920,7 +1920,7 @@ describe('Claude Code run', () => {
       request_id: blocked.prompt.requestId,
       response: {
         behavior: 'allow',
-        updatedInput: { file_path: '/tmp/exodus-project/hello.txt' }
+        updatedInput: { file_path: '/tmp/actovia-project/hello.txt' }
       }
     })
     expect(run.cliSessionId).toMatch(/^[0-9a-f-]{36}$/)
@@ -2111,7 +2111,7 @@ import { spawn } from 'child_process'
 import { createWriteStream } from 'fs'
 import { createInterface } from 'readline'
 
-import type { AgentAnswer } from '@exodus/shared/types/agents'
+import type { AgentAnswer } from '@actovia/shared/types/agents'
 
 import type { AgentEvent, AgentRun, StartInput } from '../driver'
 import { parseLine } from './protocol'
@@ -2286,7 +2286,7 @@ export function startClaudeCode(input: StartInput): AgentRun {
 }
 ```
 
-- [ ] **Step 5: Run — expect PASS.** The fake is the only moving part you may need to adjust; never weaken an assertion about what Exodus writes.
+- [ ] **Step 5: Run — expect PASS.** The fake is the only moving part you may need to adjust; never weaken an assertion about what Actovia writes.
 
 - [ ] **Step 6: Lint, typecheck, commit**
 
@@ -2367,7 +2367,7 @@ describe('agent card', () => {
     expect(card.costUsd).toBeGreaterThan(0.1)
     expect(cardText(card)).toMatch(/You chose Blue!/)
     expect(card.prompts).toEqual([])
-    expect(touchedFiles(card)).toEqual(['/tmp/exodus-project/hello.txt'])
+    expect(touchedFiles(card)).toEqual(['/tmp/actovia-project/hello.txt'])
   })
 
   it('is blocked while a prompt waits and working again once it is answered', () => {
@@ -2477,7 +2477,7 @@ Run: `bunx vitest run tests/unit/main/lib/agents/card.test.ts`
 
 ```ts
 // src/main/lib/agents/card.ts
-import type { AgentCard } from '@exodus/shared/types/agents'
+import type { AgentCard } from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from './driver'
 
@@ -2620,21 +2620,21 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 
 **Interfaces:**
 
-- Consumes: `agentSettings()` (Task 4), project / conversation queries (Task 2), `getExodusHome()`, `getGroupDir()` (`paths.ts`), `getConversationById()` (`conversation-queries.ts`).
+- Consumes: `agentSettings()` (Task 4), project / conversation queries (Task 2), `getActoviaHome()`, `getGroupDir()` (`paths.ts`), `getConversationById()` (`conversation-queries.ts`).
 - Produces:
   - `slugify(name: string): string`
-  - `assertWorkableFolder(folder: string): Promise<string>` — the real path, or throws `ValidationError` (from `@exodus/shared`, the class `validateSchema` throws) with one of: `"Not a folder"`, `"Your home folder is too broad — choose a folder inside it"`, `"The root folder cannot be used"`, `"Exodus' own data folder cannot be used"`
+  - `assertWorkableFolder(folder: string): Promise<string>` — the real path, or throws `ValidationError` (from `@actovia/shared`, the class `validateSchema` throws) with one of: `"Not a folder"`, `"Your home folder is too broad — choose a folder inside it"`, `"The root folder cannot be used"`, `"Actovia's own data folder cannot be used"`
   - `createNewProject(name: string): Promise<Project>`
   - `openFolderAsProject(folder: string): Promise<Project>`
   - `bindConversation(conversationId: string, projectId: string | null): Promise<void>`
-  - `metaDir(project: Pick<Project, 'dir'>): string` → `<dir>/.exodus`
+  - `metaDir(project: Pick<Project, 'dir'>): string` → `<dir>/.actovia`
   - `sessionLogPath(project, sessionId): string` → `<meta>/logs/<id>.jsonl`
   - `writeSessionMeta(project, session: AgentSession): Promise<void>` → `<meta>/sessions/<id>.json`
   - `gitBranch(dir: string): Promise<string | null>`
   - `prepareWorkDir(project: Project, sessionId: string, othersRunning: boolean): Promise<{ cwd: string; branch: string | null; note: string | null }>`
   - `planDirFor(conversationId: string): Promise<string>` — the project's meta dir when the group has one, else `getGroupDir(conversationId)`
 
-`project.json` (spec §4): `{ "id", "name", "workDir", "createdAt", "conversationId" }` — `conversationId` is the last group bound. The alias for an opened folder is a **symlink** named after the folder (Finder shows and follows it like an alias). Worktrees: only when `project.useWorktrees`, `othersRunning` and `workDir` is a git work tree; `git worktree add -b exodus/<first 8 of session id> <meta>/worktrees/<session id>`; when `workDir === dir` (a new project that is its own repo), add `.exodus/` to `<workDir>/.git/info/exclude` first so the repo never sees the meta.
+`project.json` (spec §4): `{ "id", "name", "workDir", "createdAt", "conversationId" }` — `conversationId` is the last group bound. The alias for an opened folder is a **symlink** named after the folder (Finder shows and follows it like an alias). Worktrees: only when `project.useWorktrees`, `othersRunning` and `workDir` is a git work tree; `git worktree add -b actovia/<first 8 of session id> <meta>/worktrees/<session id>`; when `workDir === dir` (a new project that is its own repo), add `.actovia/` to `<workDir>/.git/info/exclude` first so the repo never sees the meta.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -2659,7 +2659,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // macOS' tmpdir is a symlink (/var → /private/var); the code works on real paths.
 const tmp = (prefix: string) =>
   realpathSync(mkdtempSync(join(tmpdir(), prefix)))
-const projectsDir = tmp('exodus-projects-')
+const projectsDir = tmp('actovia-projects-')
 vi.mock('@main/lib/agents/settings', () => ({
   agentSettings: async () => ({
     projectsDir,
@@ -2738,10 +2738,10 @@ describe('projects', () => {
     const p = await P.createNewProject('Notes Prototype')
     expect(p.dir).toBe(join(projectsDir, 'notes-prototype'))
     expect(p.workDir).toBe(p.dir)
-    expect(existsSync(join(p.dir, '.exodus/sessions'))).toBe(true)
-    expect(existsSync(join(p.dir, '.exodus/logs'))).toBe(true)
+    expect(existsSync(join(p.dir, '.actovia/sessions'))).toBe(true)
+    expect(existsSync(join(p.dir, '.actovia/logs'))).toBe(true)
     const meta = JSON.parse(
-      readFileSync(join(p.dir, '.exodus/project.json'), 'utf8')
+      readFileSync(join(p.dir, '.actovia/project.json'), 'utf8')
     )
     expect(meta).toMatchObject({
       id: p.id,
@@ -2766,7 +2766,7 @@ describe('projects', () => {
     const alias = join(p.dir, p.name)
     expect(lstatSync(alias).isSymbolicLink()).toBe(true)
     expect(readlinkSync(alias)).toBe(folder)
-    expect(existsSync(join(folder, '.exodus'))).toBe(false)
+    expect(existsSync(join(folder, '.actovia'))).toBe(false)
   })
 
   it('opening the same folder twice returns the same project', async () => {
@@ -2781,13 +2781,13 @@ describe('projects', () => {
   it.each([
     ['home', homedir(), /home folder/],
     ['root', '/', /root folder/],
-    ["Exodus' data", process.env.EXODUS_HOME!, /data folder/]
+    ["Actovia's data", process.env.ACTOVIA_HOME!, /data folder/]
   ])('refuses %s', async (_label, folder, message) => {
     await expect(P.assertWorkableFolder(folder)).rejects.toThrow(message)
   })
 
-  it('refuses anything inside Exodus’ data and a file', async () => {
-    const inside = join(process.env.EXODUS_HOME!, 'groups', 'g')
+  it('refuses anything inside Actovia’ data and a file', async () => {
+    const inside = join(process.env.ACTOVIA_HOME!, 'groups', 'g')
     mkdirSync(inside, { recursive: true })
     await expect(P.assertWorkableFolder(inside)).rejects.toThrow(/data folder/)
     const file = join(tmp('f-'), 'x.txt')
@@ -2801,10 +2801,10 @@ describe('projects', () => {
     await P.bindConversation('c1', p.id)
     expect(convs.get('c1')!.projectId).toBe(p.id)
     expect(
-      JSON.parse(readFileSync(join(p.dir, '.exodus/project.json'), 'utf8'))
+      JSON.parse(readFileSync(join(p.dir, '.actovia/project.json'), 'utf8'))
         .conversationId
     ).toBe('c1')
-    expect(await P.planDirFor('c1')).toBe(join(p.dir, '.exodus'))
+    expect(await P.planDirFor('c1')).toBe(join(p.dir, '.actovia'))
     await P.bindConversation('c1', null)
     expect(convs.get('c1')!.projectId).toBeNull()
   })
@@ -2820,10 +2820,10 @@ describe('projects', () => {
     const dir = repo()
     const p = await P.openFolderAsProject(dir)
     const w = await P.prepareWorkDir(p, 'abcdef12-3456', true)
-    expect(w.branch).toBe('exodus/abcdef12')
-    expect(w.cwd).toBe(join(p.dir, '.exodus/worktrees/abcdef12-3456'))
+    expect(w.branch).toBe('actovia/abcdef12')
+    expect(w.cwd).toBe(join(p.dir, '.actovia/worktrees/abcdef12-3456'))
     expect(git(w.cwd, 'rev-parse', '--abbrev-ref', 'HEAD')).toBe(
-      'exodus/abcdef12'
+      'actovia/abcdef12'
     )
   })
 
@@ -2854,7 +2854,7 @@ describe('projects', () => {
     )
     await P.prepareWorkDir(p, 'ffffffff-0000', true)
     expect(readFileSync(join(p.dir, '.git/info/exclude'), 'utf8')).toMatch(
-      /^\.exodus\/$/m
+      /^\.actovia\/$/m
     )
     expect(git(p.dir, 'status', '--porcelain')).toBe('')
   })
@@ -2862,7 +2862,7 @@ describe('projects', () => {
   it('falls back to the shared folder when the worktree cannot be made', async () => {
     const dir = repo()
     const p = await P.openFolderAsProject(dir)
-    git(dir, 'branch', 'exodus/deadbeef') // the branch it would create already exists
+    git(dir, 'branch', 'actovia/deadbeef') // the branch it would create already exists
     const w = await P.prepareWorkDir(p, 'deadbeef-0000', true)
     expect(w.cwd).toBe(dir)
     expect(w.note).toMatch(/^worktree-failed/)
@@ -2892,7 +2892,7 @@ import {
 import { homedir } from 'os'
 import { basename, join, sep } from 'path'
 
-import { ErrorCode, ValidationError } from '@exodus/shared'
+import { ErrorCode, ValidationError } from '@actovia/shared'
 
 import {
   getConversationById,
@@ -2906,7 +2906,7 @@ import {
   updateProject
 } from '../db/project-queries'
 import type { AgentSession, Project } from '../db/schema'
-import { getExodusHome, getGroupDir } from '../paths'
+import { getActoviaHome, getGroupDir } from '../paths'
 import { agentSettings } from './settings'
 
 export function slugify(name: string): string {
@@ -2923,7 +2923,7 @@ const fail = (message: string): never => {
   throw new ValidationError(ErrorCode.VALIDATION_FAILED, message)
 }
 
-/** Spec §4 / §7.3: a real folder, never `~`, `/`, or Exodus' own data. */
+/** Spec §4 / §7.3: a real folder, never `~`, `/`, or Actovia's own data. */
 export async function assertWorkableFolder(folder: string): Promise<string> {
   let real: string
   try {
@@ -2935,14 +2935,14 @@ export async function assertWorkableFolder(folder: string): Promise<string> {
   if (real === '/') fail('The root folder cannot be used')
   if (real === (await realpath(homedir())))
     fail('Your home folder is too broad — choose a folder inside it')
-  const data = await realpath(getExodusHome()).catch(() => getExodusHome())
+  const data = await realpath(getActoviaHome()).catch(() => getActoviaHome())
   if (real === data || real.startsWith(data + sep))
-    fail("Exodus' own data folder cannot be used")
+    fail("Actovia's own data folder cannot be used")
   return real
 }
 
 export const metaDir = (project: Pick<Project, 'dir'>) =>
-  join(project.dir, '.exodus')
+  join(project.dir, '.actovia')
 export const sessionLogPath = (
   project: Pick<Project, 'dir'>,
   sessionId: string
@@ -2981,8 +2981,8 @@ async function writeProjectJson(
 }
 
 async function makeMeta(dir: string) {
-  await mkdir(join(dir, '.exodus', 'sessions'), { recursive: true })
-  await mkdir(join(dir, '.exodus', 'logs'), { recursive: true })
+  await mkdir(join(dir, '.actovia', 'sessions'), { recursive: true })
+  await mkdir(join(dir, '.actovia', 'logs'), { recursive: true })
 }
 
 export async function createNewProject(name: string): Promise<Project> {
@@ -3078,17 +3078,17 @@ export async function prepareWorkDir(
     const gitDir = await git(project.workDir, ['rev-parse', '--git-dir'])
     const exclude = join(project.workDir, gitDir.out, 'info', 'exclude')
     const text = await readFile(exclude, 'utf8').catch(() => '')
-    if (!/^\.exodus\/$/m.test(text)) {
+    if (!/^\.actovia\/$/m.test(text)) {
       await mkdir(join(project.workDir, gitDir.out, 'info'), {
         recursive: true
       })
       await appendFile(
         exclude,
-        `${text && !text.endsWith('\n') ? '\n' : ''}.exodus/\n`
+        `${text && !text.endsWith('\n') ? '\n' : ''}.actovia/\n`
       )
     }
   }
-  const branch = `exodus/${sessionId.slice(0, 8)}`
+  const branch = `actovia/${sessionId.slice(0, 8)}`
   const cwd = join(metaDir(project), 'worktrees', sessionId)
   const added = await git(project.workDir, [
     'worktree',
@@ -3128,7 +3128,7 @@ Run: `bunx vitest run tests/unit/main/lib/agents/projects.test.ts tests/unit/mai
 
 ```bash
 git add src/main/lib/agents/projects.ts src/main/lib/ai/philharmonic/plan-mirror.ts tests/unit/main/lib/agents/projects.test.ts tests/unit/main/lib/ai/philharmonic/plan-mirror.test.ts
-git commit -m "feat(agents): projects — a new folder or an opened one, the hidden .exodus meta in ~/Exodus Projects, an alias to an opened folder, a worktree for a second agent in a repo; a group's plan.md moves into its project
+git commit -m "feat(agents): projects — a new folder or an opened one, the hidden .actovia meta in ~/Actovia Projects, an alias to an opened folder, a worktree for a second agent in a repo; a group's plan.md moves into its project
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
@@ -3577,7 +3577,7 @@ vi.mock('@main/lib/db/agent-session-queries', () => ({
 }))
 vi.mock('@main/lib/agents/projects', () => ({
   prepareWorkDir: async () => ({ cwd: '/x/notes', branch: 'main', note: null }),
-  sessionLogPath: () => '/x/notes/.exodus/logs/s.jsonl',
+  sessionLogPath: () => '/x/notes/.actovia/logs/s.jsonl',
   writeSessionMeta: async () => {}
 }))
 
@@ -3781,8 +3781,8 @@ describe('runAgentEmployee', () => {
     resumable = {
       id: 'sess-old',
       cliSessionId: 'cli-old',
-      cwd: '/x/notes/.exodus/worktrees/w',
-      branch: 'exodus/w'
+      cwd: '/x/notes/.actovia/worktrees/w',
+      branch: 'actovia/w'
     }
     sessions.set('sess-old', { ...resumable })
     const run = makeRun(happy)
@@ -3799,7 +3799,7 @@ describe('runAgentEmployee', () => {
     )
     expect(starts[0]).toMatchObject({
       resume: 'cli-old',
-      cwd: '/x/notes/.exodus/worktrees/w'
+      cwd: '/x/notes/.actovia/worktrees/w'
     })
   })
 
@@ -3920,8 +3920,8 @@ import type {
   AgentCard,
   CliStatus,
   PermissionMode
-} from '@exodus/shared/types/agents'
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
+import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { v4 as uuidV4 } from 'uuid'
 
 import type { SseEmitter } from '../ai/philharmonic/employee-loop'
@@ -4219,7 +4219,7 @@ export async function runAgentEmployee(
 
 ```ts
 const outcome: DelegatedOutput =
-  agent.runtime === 'exodus'
+  agent.runtime === 'actovia'
     ? {
         output: await withRetry(
           () =>
@@ -4272,13 +4272,13 @@ if (sessionId) await updateAgentSession(sessionId, { messageId: message.id })
         id: e.id,
         name: e.name,
         description:
-          e.runtime === 'exodus'
+          e.runtime === 'actovia'
             ? e.description
             : `${e.description ?? ''} [Coding agent — Claude Code on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
       })),
 ```
 
-- [ ] **Step 7: Update the existing engine and coordinator tests** for `DelegatedOutput` (`expect(result).toBe('x')` → `expect(result.output).toBe('x')`; mocks of `runDelegatedTask` return `{ output: 'x' }`), add `runtime: 'exodus'` to their agent fixtures, and mock `@main/lib/agents/run-agent-employee` in the engine test with one case asserting a `claude-code` agent goes there and is not retried.
+- [ ] **Step 7: Update the existing engine and coordinator tests** for `DelegatedOutput` (`expect(result).toBe('x')` → `expect(result.output).toBe('x')`; mocks of `runDelegatedTask` return `{ output: 'x' }`), add `runtime: 'actovia'` to their agent fixtures, and mock `@main/lib/agents/run-agent-employee` in the engine test with one case asserting a `claude-code` agent goes there and is not retried.
 
 - [ ] **Step 8: Run all Philharmonic and agents tests — expect PASS**
 
@@ -4317,7 +4317,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
     - `POST /clis/:id/check` → `CliStatus` (re-reads the login shell first)
     - `POST /sessions/:id/respond` body `{ requestId: string, answer: AgentAnswer }` → `{ success: true }`, or 409 `AGENT_PROMPT_GONE`
     - `POST /sessions/:id/interrupt` → `{ success: true }`, or 409 `AGENT_NOT_RUNNING`
-    - `POST /sessions/:id/terminal` → `{ success: true }` — stops Exodus' process for that session first, opens Terminal, marks the session `continuedInTerminal`
+    - `POST /sessions/:id/terminal` → `{ success: true }` — stops Actovia's process for that session first, opens Terminal, marks the session `continuedInTerminal`
     - `POST /sessions/:id/open-folder` → `{ success: true }` (`shell.openPath(cwd)`)
   - Routes under `/api/v1/projects`:
     - `GET /` → `Project[]` (recent)
@@ -4514,12 +4514,12 @@ end tell`
 
 ```ts
 // src/main/lib/server/routes/agents.ts
-import { ConflictError, ErrorCode, NotFoundError } from '@exodus/shared'
+import { ConflictError, ErrorCode, NotFoundError } from '@actovia/shared'
 import {
   CLI_IDS,
   type AgentCard,
   type CliId
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 import { shell } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'
@@ -4591,7 +4591,7 @@ router.post('/sessions/:id/terminal', async (c) => {
   if (!session?.cliSessionId) throw new NotFoundError()
   const status = await getCliStatus('claude-code')
   if (!status.path) throw new ConflictError(ErrorCode.AGENT_NOT_RUNNING)
-  // Never two drivers on one session: Exodus lets go first.
+  // Never two drivers on one session: Actovia lets go first.
   await agentRegistry.stopSession(id)
   await openInTerminal(session.cwd, status.path, session.cliSessionId)
   await updateAgentSession(id, { continuedInTerminal: true })
@@ -4645,7 +4645,7 @@ and to the route test's `vi.mock('@main/lib/db/conversation-queries', …)`: `ge
 // src/main/lib/server/routes/projects.ts
 import { existsSync } from 'fs'
 
-import { NotFoundError } from '@exodus/shared'
+import { NotFoundError } from '@actovia/shared'
 import { dialog } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'
@@ -4708,7 +4708,7 @@ router.get('/conversations/:id', async (c) => {
   const project = conversation?.projectId
     ? ((await getProjectById(conversation.projectId)) ?? null)
     : null
-  // An opened folder can be moved or deleted behind Exodus' back (spec §10).
+  // An opened folder can be moved or deleted behind Actovia's back (spec §10).
   const missing = project ? !existsSync(project.workDir) : false
   return successResponse(c, {
     project,
@@ -4758,7 +4758,7 @@ await markLiveSessionsStopped().catch(() => {})
 - [ ] **Step 8b: A ready-made employee per Ready CLI** (spec §3: "nothing to set up before the first try") — create `src/main/lib/agents/default-employees.ts`:
 
 ```ts
-import { CLI_IDS, CLI_NAMES } from '@exodus/shared/types/agents'
+import { CLI_IDS, CLI_NAMES } from '@actovia/shared/types/agents'
 
 import { createAgent, getAllAgents } from '../db/philharmonic-queries'
 import { getCliStatus } from './cli-check'
@@ -4861,7 +4861,7 @@ describe('cliStatusView', () => {
 
 ```ts
 // src/renderer/lib/cli-status.ts
-import type { CliStatus } from '@exodus/shared/types/agents'
+import type { CliStatus } from '@actovia/shared/types/agents'
 
 const VIEW: Record<
   CliStatus['state'],
@@ -4899,8 +4899,12 @@ Run: `bunx vitest run tests/unit/renderer/lib/cli-status.test.ts` — expect PAS
 
 ```ts
 // src/renderer/services/agents.ts
-import type { AgentAnswer, CliId, CliStatus } from '@exodus/shared/types/agents'
-import { fetcher } from '@exodus/shared/utils/http'
+import type {
+  AgentAnswer,
+  CliId,
+  CliStatus
+} from '@actovia/shared/types/agents'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/agents'
 
@@ -4932,7 +4936,7 @@ export const openAgentFolder = (sessionId: string) =>
 
 ```ts
 // src/renderer/services/projects.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/projects'
 
@@ -4980,8 +4984,8 @@ export const setProjectWorktrees = (id: string, useWorktrees: boolean) =>
 
 ```tsx
 // src/renderer/components/settings/settings-form/agents.tsx
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
-import { CLI_NAMES, type CliStatus } from '@exodus/shared/types/agents'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
+import { CLI_NAMES, type CliStatus } from '@actovia/shared/types/agents'
 import { useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -5102,7 +5106,7 @@ export function Agents({ form }: { form: UseFormReturnType }) {
               <div className="flex items-center gap-2">
                 <Input
                   value={field.value ?? ''}
-                  placeholder="~/Exodus Projects"
+                  placeholder="~/Actovia Projects"
                   onChange={field.onChange}
                   className="w-64"
                 />
@@ -5194,14 +5198,14 @@ export function Agents({ form }: { form: UseFormReturnType }) {
 ```json
 "agents": {
   "settings": {
-    "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Exodus starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
+    "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Actovia starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
     "clisTitle": "On this Mac",
     "runTitle": "How they run",
     "projectsDir": { "label": "Projects folder", "description": "New projects are created here, and every project keeps its notes and logs here — even when the work happens in a folder you opened.", "choose": "Choose…" },
     "maxRunning": { "label": "Agents at once", "description": "More steps wait for a free slot. Each one uses your machine and your plan." },
     "keepAlive": { "label": "Keep an agent ready (minutes)", "description": "After a step, its process waits this long so the next step starts at once. 0 stops it right away." },
     "worktrees": { "label": "Separate worktrees", "description": "When two agents work in the same git repository at once, each gets its own worktree and branch. Merging is up to you." },
-    "safety": "Coding agents run with their own permissions, in the folder you give them. Exodus never answers their questions or approves their actions for you."
+    "safety": "Coding agents run with their own permissions, in the folder you give them. Actovia never answers their questions or approves their actions for you."
   },
   "cli": {
     "check": "Check",
@@ -5252,7 +5256,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Produces:
   - `providerHasKey(settings, provider): boolean`; `hasProviderKey(settings)` becomes `providerHasKey(settings, configuredProvider(settings))`
   - `configuredProviders(settings): AiProviders[]` — every provider with a key (or keyless, Ollama)
-  - `exodusModelOptions(settings): Array<{ value: string; label: string; provider: AiProviders; model: string }>` — `value` = `${provider}::${model}`; the first option is not here (the "Default" choice is the picker's own)
+  - `actoviaModelOptions(settings): Array<{ value: string; label: string; provider: AiProviders; model: string }>` — `value` = `${provider}::${model}`; the first option is not here (the "Default" choice is the picker's own)
   - `parseModelValue(value: string): { provider: string | null; model: string | null }` — `''` → both null
   - `CLI_MODEL_SUGGESTIONS: Record<CliId, string[]>` = `{ 'claude-code': ['opus', 'sonnet', 'haiku'] }`
   - `employeeModelLabel(agent: AgentData, settings): string` — "Default", `modelLabel(...)`, or `Claude Code · opus`
@@ -5265,7 +5269,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   employeeModelLabel,
-  exodusModelOptions,
+  actoviaModelOptions,
   parseModelValue
 } from '@/lib/employee-model'
 
@@ -5280,7 +5284,7 @@ const settings = {
 
 describe('employee model', () => {
   it('offers only the models of providers with a key', () => {
-    const opts = exodusModelOptions(settings)
+    const opts = actoviaModelOptions(settings)
     expect(opts.map((o) => o.value)).toEqual(['anthropic::claude-opus-5-5'])
     expect(opts[0].label).toMatch(/Claude Opus 5\.5/)
   })
@@ -5296,14 +5300,14 @@ describe('employee model', () => {
   it('labels an employee by what it runs on', () => {
     expect(
       employeeModelLabel(
-        { runtime: 'exodus', provider: null, model: null } as never,
+        { runtime: 'actovia', provider: null, model: null } as never,
         settings
       )
     ).toBe('Default')
     expect(
       employeeModelLabel(
         {
-          runtime: 'exodus',
+          runtime: 'actovia',
           provider: 'anthropic',
           model: 'claude-opus-5-5'
         } as never,
@@ -5358,9 +5362,9 @@ export function configuredProviders(
 
 ```ts
 // src/renderer/lib/employee-model.ts
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
-import type { AiProviders } from '@exodus/shared/types/ai'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
+import type { AiProviders } from '@actovia/shared/types/ai'
 
 import type { AgentData } from '@/stores/philharmonic'
 
@@ -5374,7 +5378,7 @@ export const CLI_MODEL_SUGGESTIONS: Record<CliId, string[]> = {
   'claude-code': ['opus', 'sonnet', 'haiku']
 }
 
-export function exodusModelOptions(settings: Settings | undefined) {
+export function actoviaModelOptions(settings: Settings | undefined) {
   return configuredProviders(settings).flatMap((provider) => {
     const catalog = modelCatalog(settings, provider)
     return catalog.map((m) => ({
@@ -5400,7 +5404,7 @@ export function employeeModelLabel(
   agent: Pick<AgentData, 'runtime' | 'provider' | 'model'>,
   settings: Settings | undefined
 ): string {
-  if (agent.runtime !== 'exodus') {
+  if (agent.runtime !== 'actovia') {
     const name = CLI_NAMES[agent.runtime]
     return agent.model ? `${name} · ${agent.model}` : name
   }
@@ -5414,14 +5418,14 @@ export function employeeModelLabel(
 
 Run the test — expect PASS.
 
-- [ ] **Step 3: Data and validation** — `AgentData` gets `runtime: 'exodus' | 'claude-code'` and `permissionMode: 'default' | 'acceptEdits' | 'auto' | null`. `employeeSchema` in `philharmonic-crud.ts` gets:
+- [ ] **Step 3: Data and validation** — `AgentData` gets `runtime: 'actovia' | 'claude-code'` and `permissionMode: 'default' | 'acceptEdits' | 'auto' | null`. `employeeSchema` in `philharmonic-crud.ts` gets:
 
 ```ts
   runtime: z.enum(AGENT_RUNTIMES).optional(),
   permissionMode: z.enum(PERMISSION_MODES).nullable().optional()
 ```
 
-(imported from `@exodus/shared/types/agents`). A CLI employee is saved with `provider: null`.
+(imported from `@actovia/shared/types/agents`). A CLI employee is saved with `provider: null`.
 
 - [ ] **Step 4: The editor** — in `employee-editor.tsx`, after the description field and before the system prompt, add (reading `useSettings()` and `getClis()` once on mount):
 
@@ -5443,8 +5447,8 @@ Run the test — expect PASS.
       <SelectValue />
     </SelectTrigger>
     <SelectContent>
-      <SelectItem value="exodus">
-        {t('philharmonic:employees.runtime.exodus')}
+      <SelectItem value="actovia">
+        {t('philharmonic:employees.runtime.actovia')}
       </SelectItem>
       {clis.map((c) => (
         <SelectItem
@@ -5461,7 +5465,7 @@ Run the test — expect PASS.
 </Field>
 
 {
-  draft.runtime === 'exodus' ? (
+  draft.runtime === 'actovia' ? (
     <Field label={t('philharmonic:employees.model.label')}>
       <Select
         value={
@@ -5482,7 +5486,7 @@ Run the test — expect PASS.
           <SelectItem value="">
             {t('philharmonic:employees.model.default')}
           </SelectItem>
-          {exodusModelOptions(settings).map((o) => (
+          {actoviaModelOptions(settings).map((o) => (
             <SelectItem key={o.value} value={o.value}>
               {o.label}
             </SelectItem>
@@ -5541,14 +5545,14 @@ Run the test — expect PASS.
 }
 ```
 
-`Field` stands for however the editor already lays out a labelled field (read the name / description fields and copy their wrapper exactly — do not introduce a new component). For a CLI employee, hide the skills and MCP-servers fields (`draft.runtime === 'exodus' && …`) and relabel the system prompt `t('philharmonic:employees.systemPrompt.cliLabel')` ("Instructions added to every task"). `Select` is `@/components/ui/select`; if its `SelectItem` refuses `value=""`, use the sentinel `'__default__'` and map it in `onValueChange`.
+`Field` stands for however the editor already lays out a labelled field (read the name / description fields and copy their wrapper exactly — do not introduce a new component). For a CLI employee, hide the skills and MCP-servers fields (`draft.runtime === 'actovia' && …`) and relabel the system prompt `t('philharmonic:employees.systemPrompt.cliLabel')` ("Instructions added to every task"). `Select` is `@/components/ui/select`; if its `SelectItem` refuses `value=""`, use the sentinel `'__default__'` and map it in `onValueChange`.
 
 - [ ] **Step 5: The member list** — in `group-members-panel.tsx`, under each member's name, a muted `text-xs` line `employeeModelLabel(member, settings)` (`'Default'` → `t('philharmonic:employees.model.default')`).
 
 - [ ] **Step 6: Strings (en, `philharmonic.json` → `employees`)**
 
 ```json
-"runtime": { "label": "Runs on", "exodus": "Exodus" },
+"runtime": { "label": "Runs on", "actovia": "Actovia" },
 "model": {
   "label": "Model",
   "default": "Default (the app's model)",
@@ -5572,7 +5576,7 @@ Run the test — expect PASS.
 ```bash
 bun run typecheck && bun run lint && bunx vitest run tests/unit/renderer tests/unit/main/lib/server/routes
 git add src/renderer/stores/philharmonic.ts src/main/lib/server/routes/philharmonic-crud.ts src/renderer/lib/provider-labels.ts src/renderer/lib/employee-model.ts src/renderer/components/philharmonic/employees/employee-editor.tsx src/renderer/components/philharmonic/chat/group-members-panel.tsx packages/shared/src/i18n/locales/en/philharmonic.json tests/unit/renderer/lib/employee-model.test.ts
-git commit -m "feat(philharmonic): the employee editor picks what an employee runs on — Exodus with its own model, or Claude Code with a model and a permission mode; the member list shows each one's model
+git commit -m "feat(philharmonic): the employee editor picks what an employee runs on — Actovia with its own model, or Claude Code with a model and a permission mode; the member list shows each one's model
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ```
@@ -5820,7 +5824,7 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
 }
 ```
 
-- [ ] **Step 4: Typecheck, lint; manual check in the running app** — open a group: the chip reads "No folder"; New project… creates `~/Exodus Projects/<name>/.exodus/`; Open folder… on `~` shows "This folder can't be used" with the reason; Recent lists both; opening a git repo shows the branch chip.
+- [ ] **Step 4: Typecheck, lint; manual check in the running app** — open a group: the chip reads "No folder"; New project… creates `~/Actovia Projects/<name>/.actovia/`; Open folder… on `~` shows "This folder can't be used" with the reason; Recent lists both; opening a git repo shows the branch chip.
 
 - [ ] **Step 5: Commit**
 
@@ -5915,7 +5919,7 @@ describe('agent card helpers', () => {
 
 ```ts
 // src/renderer/lib/agent-card.ts
-import type { AgentCard, AgentCardStep } from '@exodus/shared/types/agents'
+import type { AgentCard, AgentCardStep } from '@actovia/shared/types/agents'
 
 export function agentCardFromParts(
   parts: unknown[] | null | undefined
@@ -5969,8 +5973,8 @@ and return `agentCards` from the hook (add it to `ConversationStream`).
 
 ```tsx
 // src/renderer/components/philharmonic/chat/agent-card.tsx
-import type { AgentCard, AgentPrompt } from '@exodus/shared/types/agents'
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+import type { AgentCard, AgentPrompt } from '@actovia/shared/types/agents'
+import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { capitalCase } from 'change-case'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -6294,7 +6298,7 @@ export function AgentCardView({ card }: { card: AgentCard }) {
   "stop": "Stop",
   "continueInTerminal": "Continue in Terminal",
   "terminalFailed": "Could not open Terminal",
-  "inTerminal": "Continued in Terminal — Exodus picks it up again on its next step."
+  "inTerminal": "Continued in Terminal — Actovia picks it up again on its next step."
 }
 ```
 
@@ -6338,20 +6342,20 @@ Needs Claude Code ≥ 2.1.294 installed and logged in.
 - [ ] With `claude` renamed away, Check says Not installed; restored, Ready again.
 - [ ] Workforce: a new employee "Claude Code (Haiku)", runs on Claude Code, model haiku, permissions "Ask before changes".
 - [ ] A group with that employee and **no folder**: asking it to build something — the PM says the folder is missing (no CLI is started).
-- [ ] New project… "notes-prototype": `~/Exodus Projects/notes-prototype/.exodus/` exists, with `project.json`.
+- [ ] New project… "notes-prototype": `~/Actovia Projects/notes-prototype/.actovia/` exists, with `project.json`.
 - [ ] "Build a single-page notes app in plain HTML": a card appears, steps tick, a Write asks — Allow — the file lands in the project; the card ends Done and the PM summarises.
 - [ ] A second request in the same group: the card continues the same session (the agent remembers the first).
 - [ ] Deny with a reason ("call it app.html"): the agent follows the reason.
 - [ ] A request that makes it ask a question (AskUserQuestion): the rows answer it.
 - [ ] Stop on the card mid-step: the card says Stopped; the group carries on.
 - [ ] Stop the whole group mid-step: the agent is interrupted too.
-- [ ] Quit Exodus mid-step, reopen: the step shows Stopped; a new request resumes the session.
-- [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Exodus resumes.
-- [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.exodus/worktrees/…` on an `exodus/…` branch; the branch chip and Worktree switch show.
+- [ ] Quit Actovia mid-step, reopen: the step shows Stopped; a new request resumes the session.
+- [ ] Continue in Terminal: Terminal opens `claude --resume` in the project; the card says so; the next step in Actovia resumes.
+- [ ] Open folder… on a git repo with two Claude Code employees given parallel steps: the second works in `.actovia/worktrees/…` on an `actovia/…` branch; the branch chip and Worktree switch show.
 - [ ] Open folder… on `~`: refused with the reason.
 - [ ] With the window in the background, a permission prompt raises a notification "… is waiting for you".
 - [ ] Settings › Agents → Agents at once = 1, two parallel steps: the second card says "Waiting for a free slot" until the first ends.
-- [ ] An Exodus employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.
+- [ ] An Actovia employee given its own model (Workforce → Model): its step runs on that model (cost view / logs); removing that provider's key makes its next step fail with the reason.
 ```
 
 - [ ] **Step 4: Commit**
