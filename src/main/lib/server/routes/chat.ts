@@ -39,6 +39,7 @@ import {
   getModelFromProvider,
   getTextFromMessage
 } from '../../ai/utils/chat-message-util'
+import { withFittedImages } from '../../ai/utils/image-fit'
 import {
   chooseAttempt,
   getChatAttempts,
@@ -239,11 +240,13 @@ chat.post('/', async (c) => {
     : null
   // Stamped here, not by the client: every read orders by `createdAt`, and a
   // phone whose clock was off sorted its question before earlier answers.
+  // Pictures past the shared limits are fitted before the row is saved
+  // (`withFittedImages`): the clients prepare their own, this catches the rest.
   const userMessage: ChatUserMessage = withRunId(
-    {
+    withFittedImages({
       ...(regenerateOf ? { ...prompt, alternateOf: regenerateOf } : prompt),
       timestamp: Date.now()
-    },
+    }),
     last.id
   )
 

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
 
+import { prepareImageFile } from '@/lib/prepare-image'
 import { convertFileToBase64 } from '@/lib/utils'
 import { attachmentAtom } from '@/stores/chat'
 
@@ -13,7 +14,8 @@ export function useUpload() {
 
   const uploadFileToBase64 = async (files: File[]) => {
     const results = await Promise.all(
-      files.map(async (file) => {
+      files.map(async (original) => {
+        const file = await prepareImageFile(original)
         const base64 = await convertFileToBase64(file)
         return { name: file.name, url: base64, contentType: file.type }
       })

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
 
 import { useSettings } from '@/hooks/use-settings'
+import { prepareImageFile } from '@/lib/prepare-image'
 import { convertFileToBase64 } from '@/lib/utils'
 import { philharmonicAttachmentAtom } from '@/stores/philharmonic'
 
@@ -111,7 +112,8 @@ export function usePhilharmonicUpload() {
     setUploading(true)
     try {
       const results = await Promise.all(
-        files.map(async (file) => {
+        files.map(async (original) => {
+          const file = await prepareImageFile(original)
           if (s3Ready) {
             try {
               return await uploadViaS3(file)

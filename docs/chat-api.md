@@ -182,6 +182,11 @@ messages only — is filled in from its messages the first time it is read (`ens
 
 - `message` is validated (`userMessageSchema`): a v4 UUID id, `role: "user"`, text or text/image parts. Other
   fields are kept and ignored; an `attempt` a client sends is dropped — only the server sets one.
+- **Pictures are prepared by the client** (`@actovia/shared/utils/image-fit`: longest side at most 2048 px, JPEG at
+  0.85, PNG when transparent — the desktop's `prepareImageFile()`, exodus-ios's `ComposerPicture`). An image part
+  past those limits (over 2048 px, or over 3 MB) is fitted by the server before the row is saved
+  (`withFittedImages`, `ai/utils/image-fit.ts`), so the stored question — the one `done` echoes — can differ from the
+  one sent in that part's `data` and `mimeType`. A remote URL, a GIF or anything that will not decode is kept as is.
 - **The server owns the history.** It reads the conversation from its own rows; a send carries only what is new.
   (Clients used to post the whole conversation back with every message — 2.4 MB for a chat with a few searches, on
   a phone's uplink.)

@@ -32,6 +32,7 @@
     "./constants/systems": "./src/constants/systems.ts",
     "./utils/http": "./src/utils/http.ts",
     "./utils/base-url": "./src/utils/base-url.ts",
+    "./utils/image-fit": "./src/utils/image-fit.ts",
     "./utils/secret-detect": "./src/utils/secret-detect.ts",
     "./types/philharmonic": "./src/types/philharmonic.ts",
     "./constants/brand": "./src/constants/brand.ts",
