@@ -16,7 +16,8 @@ import { join, resolve } from 'node:path'
 // Render every Actovia icon, the tray glyph, web assets and the boot splash
 // from brand/art.mjs. Run with `bun run icons` after editing the art.
 //
-//   build/      icon.icns, icon.icon, icon-dock.png, icon.ico, icon.png, <n>x<n>.png
+//   build/      icon.icns, icon.icon, icon-dock.png, icon.ico, icon.png, <n>x<n>.png,
+//               dmg-background{,@2x}.png
 //   resources/  icon.png, trayTemplate{,@2x,@3x}.png   (shipped with the app)
 //   brand/      svg/, icon-composer/, ios/, web/
 //   src/renderer/assets/images/logo-{light,dark}.png   (Settings → About)
@@ -347,6 +348,19 @@ await png(
   630,
   { opaque: true }
 )
+
+// ── DMG window (maker-dmg in forge.config.ts) ─────────────────────────────
+// appdmg merges foo.png + foo@2x.png into one Retina background by itself.
+
+for (const scale of [1, 2]) {
+  await png(
+    out(`build/dmg-background${scale === 2 ? '@2x' : ''}.png`),
+    m.dmgBackground(scale),
+    m.DMG.width * scale,
+    m.DMG.height * scale,
+    { opaque: true }
+  )
+}
 
 await browser.close()
 

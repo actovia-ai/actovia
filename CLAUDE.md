@@ -395,6 +395,12 @@ plus `iconutil`) renders everything from it:
 - `src/renderer/assets/images/logo-light.png` and `logo-dark.png` — the
   Liquid Glass exports at 256 px for the header of Settings → About (the
   app theme picks one)
+- `build/dmg-background{,@2x}.png` — the installer window (`dmgBackground()`;
+  window size and icon centres in `brand/dmg.json`, which `forge.config.ts`'s
+  `MakerDMG` reads too). Its paper runs left to right only: Finder on macOS 26
+  makes the window taller than the image and tiles it. Build it with the plain
+  `make` — `electron-forge make --targets …` builds a fresh maker without this
+  config
 - `resources/icon.png` (Linux window icon) and
   `resources/trayTemplate{,@2x,@3x}.png` (22 pt, black + alpha: the
   `Template` suffix lets macOS tint it; `tray.ts` loads the 1x name)

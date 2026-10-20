@@ -5,6 +5,8 @@
 // scripts/render-icons.mjs; edit the art here, then run `bun run icons`.
 // All art is drawn on a 1024 × 1024 canvas (the menu bar glyph on 16 × 16).
 
+import { readFileSync } from 'node:fs'
+
 import { blurs, lin, rad } from './lib.mjs'
 
 export const PALETTE = {
@@ -283,4 +285,54 @@ export function bootSplash() {
         #boot-splash .bs-dots i { transform: none; }
       }`
   return { html, css }
+}
+
+// ── DMG window (build/dmg-background.png) ─────────────────────────────────
+
+/** The installer window in points and the icons' centres; forge.config.ts reads the same file. */
+export const DMG = JSON.parse(
+  readFileSync(new URL('./dmg.json', import.meta.url), 'utf8')
+)
+
+/**
+ * The DMG window's background: the web surfaces' paper, a dashed arc from the
+ * app to Applications, and one line saying what to do. Finder draws the two
+ * icons and their labels on top, centred on DMG.app / DMG.apps. The paper
+ * runs left to right only: Finder on macOS 26 makes the window a little
+ * taller than the image and tiles it, so the top and bottom rows must match.
+ */
+export function dmgBackground(scale = 1) {
+  const { width: w, height: h, app, apps } = DMG
+  const [a, b] = PALETTE.paper
+  const y = app[1] - 4
+  const x1 = app[0] + 92
+  const x2 = apps[0] - 92
+  const mid = (x1 + x2) / 2
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w * scale}" height="${h * scale}">
+    <defs>
+      ${lin(
+        'dmgp',
+        [
+          [0, a],
+          [1, b]
+        ],
+        0,
+        0,
+        1,
+        0
+      )}
+      ${rad('dmgg', [
+        [0, '#FFFFFF', 0.7],
+        [1, '#FFFFFF', 0]
+      ])}
+    </defs>
+    <rect width="${w}" height="${h}" fill="url(#dmgp)"/>
+    <ellipse cx="${app[0]}" cy="${app[1]}" rx="120" ry="110" fill="url(#dmgg)"/>
+    <ellipse cx="${apps[0]}" cy="${apps[1]}" rx="120" ry="110" fill="url(#dmgg)"/>
+    <g fill="none" stroke="${PALETTE.accent}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity=".75">
+      <path d="M${x1} ${y} Q${mid} ${y - 34} ${x2} ${y}" stroke-dasharray="1 10"/>
+      <path d="M${x2 - 13} ${y - 10} L${x2} ${y} L${x2 - 15} ${y + 5}"/>
+    </g>
+    <text x="${w / 2}" y="${h - 52}" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="500" font-size="17" fill="${PALETTE.text}" fill-opacity=".6">Drag Actovia into Applications</text>
+  </svg>`
 }

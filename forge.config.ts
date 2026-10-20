@@ -15,6 +15,7 @@ import type { ForgeConfig } from '@electron-forge/shared-types'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
 
 // Relative: Forge loads this file itself, without the Vite aliases.
+import DMG from './brand/dmg.json'
 import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
 
 const config: ForgeConfig = {
@@ -129,7 +130,26 @@ const config: ForgeConfig = {
     // ZIP feeds the auto-updater (update.electronjs.org needs
     // `*-darwin-*.zip`); the DMG is what people download.
     new MakerZIP({}, ['darwin']),
-    new MakerDMG({}, ['darwin']),
+    // The installer window: background and icon positions come from
+    // brand/art.mjs (`bun run icons` renders build/dmg-background{,@2x}.png),
+    // and the mounted volume shows the app icon instead of Electron's.
+    new MakerDMG(
+      {
+        background: './build/dmg-background.png',
+        icon: './build/icon.icns',
+        iconSize: 128,
+        contents: (opts) => [
+          { x: DMG.app[0], y: DMG.app[1], type: 'file', path: opts.appPath },
+          {
+            x: DMG.apps[0],
+            y: DMG.apps[1],
+            type: 'link',
+            path: '/Applications'
+          }
+        ]
+      },
+      ['darwin']
+    ),
     // The Linux executable follows `executableName` ("Actovia"), but these two
     // makers default `bin` to package.json's `name` ("actovia") and fail with
     // "could not find the Electron app binary" — Linux paths are case-sensitive.
