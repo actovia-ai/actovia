@@ -243,7 +243,7 @@ describe('a stock chart in a reply', () => {
       'allow-scripts allow-same-origin'
     )
     expect(frame?.getAttribute('referrerpolicy')).toBe('no-referrer')
-    expect(frame?.getAttribute('height')).toBe('220')
+    expect(frame?.getAttribute('height')).toBe('380')
     expect(host.textContent).toContain('Up 12% since the call.')
     expect(host.textContent).toContain('richBlocks.chartBy')
     const link = host.querySelector<HTMLAnchorElement>('a[target="_blank"]')
@@ -261,7 +261,7 @@ describe('a stock chart in a reply', () => {
     )
     expect(
       byId(TEST_IDS.chat.richBlocks.stockFrame)?.getAttribute('src')
-    ).toContain('%22dateRange%22%3A%221D%22')
+    ).toContain('%7C1D%22%5D%5D')
   })
 
   it('falls back to a card when the frame fails', async () => {
@@ -320,7 +320,7 @@ describe('a stock chart in a reply', () => {
     expect(byId(TEST_IDS.chat.richBlocks.stockFallback)).toBeNull()
     expect(
       byId(TEST_IDS.chat.richBlocks.stockFrame)?.getAttribute('src')
-    ).toContain('%22dateRange%22%3A%221M%22')
+    ).toContain('%7C1M%22%5D%5D')
     expect(byId(TEST_IDS.chat.richBlocks.stock)?.dataset.state).toBe('loading')
   })
 

@@ -97,7 +97,7 @@ export const stepsBlockSchema = z.object({
   steps: z.array(stepSchema).min(2).max(12)
 })
 
-/** TradingView's Mini Chart `dateRange` set, as it spells it — nothing in between. */
+/** The chart's ranges as TradingView spells them — the tab the chart opens on; nothing in between. */
 export const STOCK_RANGES = ['1D', '1M', '3M', '12M', '60M', 'ALL'] as const
 export type StockRange = (typeof STOCK_RANGES)[number]
 /** The finest the widget offers (owner, 2026-10-07). */

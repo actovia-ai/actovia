@@ -11,7 +11,7 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('tradingViewEmbedUrl', () => {
-  it('is the mini-symbol-overview embed with the symbol and locale in the query and the settings in the hash', () => {
+  it('is the symbol-overview embed: the locale in the query, the settings in the hash, the picked range its first tab', () => {
     const url = new URL(
       tradingViewEmbedUrl({
         symbol: 'NASDAQ:AAPL',
@@ -21,18 +21,18 @@ describe('tradingViewEmbedUrl', () => {
       })
     )
     expect(url.origin).toBe('https://www.tradingview-widget.com')
-    expect(url.pathname).toBe('/embed-widget/mini-symbol-overview/')
+    expect(url.pathname).toBe('/embed-widget/symbol-overview/')
+    expect([...url.searchParams.keys()]).toEqual(['locale'])
     expect(url.searchParams.get('locale')).toBe('en')
-    expect(url.searchParams.get('symbol')).toBe('NASDAQ:AAPL')
-    expect(JSON.parse(decodeURIComponent(url.hash.slice(1)))).toEqual({
-      symbol: 'NASDAQ:AAPL',
-      dateRange: '1D',
+    const settings = JSON.parse(decodeURIComponent(url.hash.slice(1)))
+    expect(settings).toMatchObject({
+      symbols: [['AAPL', 'NASDAQ:AAPL|1D']],
+      chartOnly: false,
+      height: STOCK_CHART_HEIGHT,
       colorTheme: 'dark',
       isTransparent: true,
-      width: '100%',
-      height: STOCK_CHART_HEIGHT,
-      autosize: false,
-      largeChartUrl: ''
+      chartType: 'area',
+      dateRanges: ['1d|1', '1m|30', '3m|60', '12m|1D', '60m|1W', 'all|1M']
     })
   })
 
@@ -45,7 +45,7 @@ describe('tradingViewEmbedUrl', () => {
         locale: 'ja'
       })
     ).toBe(
-      'https://www.tradingview-widget.com/embed-widget/mini-symbol-overview/?locale=ja&symbol=TSE%3A7203#%7B%22symbol%22%3A%22TSE%3A7203%22%2C%22dateRange%22%3A%2212M%22%2C%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Atrue%2C%22width%22%3A%22100%25%22%2C%22height%22%3A220%2C%22autosize%22%3Afalse%2C%22largeChartUrl%22%3A%22%22%7D'
+      'https://www.tradingview-widget.com/embed-widget/symbol-overview/?locale=ja#%7B%22symbols%22%3A%5B%5B%227203%22%2C%22TSE%3A7203%7C12M%22%5D%5D%2C%22chartOnly%22%3Afalse%2C%22width%22%3A%22100%25%22%2C%22height%22%3A380%2C%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Atrue%2C%22autosize%22%3Afalse%2C%22showVolume%22%3Afalse%2C%22showMA%22%3Afalse%2C%22hideDateRanges%22%3Afalse%2C%22hideMarketStatus%22%3Afalse%2C%22hideSymbolLogo%22%3Afalse%2C%22scalePosition%22%3A%22right%22%2C%22scaleMode%22%3A%22Normal%22%2C%22fontSize%22%3A%2210%22%2C%22noTimeScale%22%3Afalse%2C%22valuesTracking%22%3A%221%22%2C%22changeMode%22%3A%22price-and-percent%22%2C%22chartType%22%3A%22area%22%2C%22lineWidth%22%3A2%2C%22lineType%22%3A0%2C%22dateRanges%22%3A%5B%221d%7C1%22%2C%221m%7C30%22%2C%223m%7C60%22%2C%2212m%7C1D%22%2C%2260m%7C1W%22%2C%22all%7C1M%22%5D%7D'
     )
   })
 })

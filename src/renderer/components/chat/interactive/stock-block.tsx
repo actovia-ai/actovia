@@ -24,7 +24,7 @@ const firstPhase = (): Phase =>
     : 'loading'
 
 /**
- * A reply's stock chart (`actovia-stock`): TradingView's Mini Chart as its
+ * A reply's stock chart (`actovia-stock`): TradingView's Symbol Overview as its
  * own embed URL in a sandboxed frame — no script of theirs in our document;
  * the frame cannot navigate us or open windows — the model's note under it,
  * and "Chart by TradingView" with the symbol's page. The frame is not lazy:
