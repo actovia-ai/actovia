@@ -1,5 +1,5 @@
 /**
- * The files a chat's tools write into its workspace (`~/.exodus/workspace/<chatId>/…`),
+ * The files a chat's tools write into its workspace (`~/.actovia/workspace/<chatId>/…`),
  * opened from the chat: a write_file / edit_file card, or a path the answer
  * mentions. The renderer names a path; the main process checks it is a file
  * inside the workspace root — through every symlink — before it opens,
@@ -25,7 +25,7 @@ export const WORKSPACE_FILE_CHANNELS = {
 export const WORKSPACE_FILE_MAX_BYTES = 1024 * 1024
 
 export interface WorkspaceRoots {
-  /** `~/.exodus/workspace`, as given (not resolved through symlinks). */
+  /** `~/.actovia/workspace`, as given (not resolved through symlinks). */
   root: string
   /** The user's home, what `~/` stands for. */
   home: string

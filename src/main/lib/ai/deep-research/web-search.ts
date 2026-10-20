@@ -1,4 +1,4 @@
-import { WebSearchResult } from '@exodus/shared/types/web-search'
+import { WebSearchResult } from '@actovia/shared/types/web-search'
 
 import { fetchWebSearch, type SearchLimits } from '../utils/web-search-util'
 

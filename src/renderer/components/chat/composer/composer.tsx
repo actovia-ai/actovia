@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { composeQuoted } from '@exodus/shared/utils/quoted-text'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { composeQuoted } from '@actovia/shared/utils/quoted-text'
 import { Cancel01Icon, ArrowTurnForwardIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BorderBeam } from 'border-beam'

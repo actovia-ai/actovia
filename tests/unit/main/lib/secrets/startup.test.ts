@@ -1,7 +1,7 @@
 // The secrets startup pass, step by step (re-review S2 N2 and the deferred
 // minors): each step fails on its own (a denied Keychain prompt does not skip
 // stripping job keys), the strip reports how many payloads it changed, the
-// raw `~/.exodus/logs/*.jsonl` are scrubbed of every current secret during
+// raw `~/.actovia/logs/*.jsonl` are scrubbed of every current secret during
 // the one-time purge, and an envelope self-check that fails (a future
 // Electron with another OSCrypt tag) turns encryption off rather than
 // re-wrapping and purging on every launch. In-memory PGlite with pgmq; the
@@ -28,7 +28,7 @@ import {
   resetFakeSafeStorage
 } from '../../../helpers/fake-safe-storage'
 
-const root = mkdtempSync(join(tmpdir(), 'exodus-startup-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-startup-'))
 const logsDir = join(root, 'logs')
 const marker = join(root, 'secrets-purge.json')
 const backupsDir = join(root, 'backups')

@@ -1,6 +1,6 @@
 import { hostname, networkInterfaces } from 'os'
 
-import { LAN_SERVER_PORT } from '@exodus/shared/constants/systems'
+import { LAN_SERVER_PORT } from '@actovia/shared/constants/systems'
 import { Hono } from 'hono'
 
 import { isLanRunning, openPairingWindow, pairing, syncLan } from '../../lan'

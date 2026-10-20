@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { HttpError } from '@exodus/shared/utils/http'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { HttpError } from '@actovia/shared/utils/http'
 import { QueryClientProvider, type QueryClient } from '@tanstack/react-query'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'

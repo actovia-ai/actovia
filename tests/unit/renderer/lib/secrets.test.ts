@@ -25,7 +25,7 @@ describe('looksLikeMask / holdsMask', () => {
   it('holdsMask finds a mask inside a longer value', () => {
     expect(holdsMask('https://x.example/sse?api_key=•••• abcd')).toBe(true)
     expect(holdsMask('https://x.example/sse')).toBe(false)
-    expect(holdsMask(undefined)).toBe(false)
+    expect(holdsMask()).toBe(false)
   })
 })
 
@@ -57,7 +57,7 @@ describe('the destination rule, as the form mirrors it', () => {
   })
 
   it('compares base URLs with the very function the main process uses', () => {
-    // One implementation (`@exodus/shared/utils/base-url`), its cases in
+    // One implementation (`@actovia/shared/utils/base-url`), its cases in
     // tests/unit/shared/utils/base-url.test.ts.
     expect(normalizeBaseUrl).toBe(mainNormalize)
   })

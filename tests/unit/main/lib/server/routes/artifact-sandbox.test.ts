@@ -37,7 +37,7 @@ const { authGate } = await import('@main/lib/server/middlewares/auth-gate')
 const { errorHandler } =
   await import('@main/lib/server/middlewares/error-handler')
 
-const root = mkdtempSync(join(tmpdir(), 'exodus-sandbox-route-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-sandbox-route-'))
 const rendererDir = join(root, 'main_window')
 mkdirSync(join(rendererDir, 'src/renderer/sub-apps/artifacts'), {
   recursive: true

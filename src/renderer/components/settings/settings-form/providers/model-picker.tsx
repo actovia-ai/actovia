@@ -1,17 +1,17 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   CachedModelEntry,
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+} from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import {
   fetcher,
   getHttpErrorMessage,
   HttpError,
   toErrorI18n
-} from '@exodus/shared/utils/http'
+} from '@actovia/shared/utils/http'
 import { AsteroidIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMemo, useState } from 'react'

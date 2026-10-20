@@ -1,12 +1,12 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import { NotFoundError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import { NotFoundError } from '@actovia/shared/errors/app-error'
 import type {
   ChatPage,
   ChatPageQuestion,
   ChatPageRow,
   ChatPageSource
-} from '@exodus/shared/types/chat-page'
+} from '@actovia/shared/types/chat-page'
 import { and, eq } from 'drizzle-orm'
 
 import { db } from '../db/db'

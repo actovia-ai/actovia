@@ -1,13 +1,13 @@
-// The blocks a reply can carry (exodus-ios specs 2026-10-06 and 2026-10-07): a fenced block whose info string names it and whose body is one JSON object — a questionnaire, a confirmation, illustrated steps or a stock chart. One that validates is drawn as a control; anything else stays
-// the code block it is. exodus-ios has the same rules (`InteractiveBlock`),
+// The blocks a reply can carry (actovia-ios specs 2026-10-06 and 2026-10-07): a fenced block whose info string names it and whose body is one JSON object — a questionnaire, a confirmation, illustrated steps or a stock chart. One that validates is drawn as a control; anything else stays
+// the code block it is. actovia-ios has the same rules (`InteractiveBlock`),
 // held to the same vectors; lengths are UTF-16 units there too.
 import { z } from 'zod'
 
 export const INTERACTIVE_LANGUAGES = {
-  ask: 'exodus-ask',
-  confirm: 'exodus-confirm',
-  steps: 'exodus-steps',
-  stock: 'exodus-stock'
+  ask: 'actovia-ask',
+  confirm: 'actovia-confirm',
+  steps: 'actovia-steps',
+  stock: 'actovia-stock'
 } as const
 
 export type InteractiveKind = keyof typeof INTERACTIVE_LANGUAGES
@@ -194,7 +194,7 @@ const blank = (s: string) => /^[ \t]*$/u.test(s)
 export const trimTrailingBlanks = (s: string) => s.replace(/[ \t]+$/u, '')
 
 /**
- * A reply's block: its first `exodus-ask` / `exodus-confirm` fence that opens a
+ * A reply's block: its first `actovia-ask` / `actovia-confirm` fence that opens a
  * line at the left margin — not inside another fence, a list or a quote — and
  * is closed. Only that first one counts: when it does not validate the reply
  * has none, and a second is code either way. A fence still open (a reply

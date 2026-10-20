@@ -1,4 +1,4 @@
-// The period report's wire examples (exodus-ios trends, phase 2). exodus-ios's
+// The period report's wire examples (actovia-ios trends, phase 2). actovia-ios's
 // PeriodReportWireTests holds the same JSON, so the two sides agree on it.
 export const PERIOD_REQUEST = {
   period: { kind: 'month', start: '2026-09-01', end: '2026-09-30' },

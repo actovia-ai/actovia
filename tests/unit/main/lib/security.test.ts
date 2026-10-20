@@ -48,14 +48,15 @@ describe('openExternalSafely', () => {
 
 describe('isInAppNavigation', () => {
   const DEV = 'http://localhost:5173/#/chat/1'
-  const PACKAGED = 'file:///Applications/Exodus.app/renderer/index.html#/chat/1'
+  const PACKAGED =
+    'file:///Applications/Actovia.app/renderer/index.html#/chat/1'
 
   it('allows a reload in dev and when packaged', () => {
     expect(isInAppNavigation(DEV, 'http://localhost:5173/')).toBe(true)
     expect(
       isInAppNavigation(
         PACKAGED,
-        'file:///Applications/Exodus.app/renderer/index.html'
+        'file:///Applications/Actovia.app/renderer/index.html'
       )
     ).toBe(true)
   })
@@ -72,9 +73,9 @@ describe('isInAppNavigation', () => {
 describe('isAppUrl', () => {
   const DEV_SERVER = 'http://localhost:5173'
 
-  it("recognises Exodus's own pages", () => {
+  it("recognises Actovia's own pages", () => {
     expect(
-      isAppUrl('file:///Applications/Exodus.app/index.html', undefined)
+      isAppUrl('file:///Applications/Actovia.app/index.html', undefined)
     ).toBe(true)
     expect(isAppUrl('http://localhost:5173/#/settings', DEV_SERVER)).toBe(true)
   })

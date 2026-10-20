@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { entityTitle, wikipediaLang } from '@exodus/shared/utils/entity-link'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { entityTitle, wikipediaLang } from '@actovia/shared/utils/entity-link'
 import { ArrowUpRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useQuery } from '@tanstack/react-query'

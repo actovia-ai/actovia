@@ -1,6 +1,6 @@
-import type { ApprovalOutcome, Attempt } from '@exodus/shared/types/chat'
-import type { ChatPage, ChatPageRow } from '@exodus/shared/types/chat-page'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { ApprovalOutcome, Attempt } from '@actovia/shared/types/chat'
+import type { ChatPage, ChatPageRow } from '@actovia/shared/types/chat-page'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 import type { Chat } from '@/types/db'
@@ -48,7 +48,7 @@ export const fetchChatPage = (
   const params = new URLSearchParams()
   if (query.before) params.set('before', query.before)
   if (query.through) params.set('through', query.through)
-  const qs = params.size ? `?${params}` : ''
+  const qs = params.size > 0 ? `?${params}` : ''
   return fetcher<ChatPage>(`/api/v1/chat/${chatId}/page${qs}`)
 }
 

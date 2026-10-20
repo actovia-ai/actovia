@@ -171,7 +171,7 @@
  * `:root` / `.dark` above (shadcn's black and white).
  *
  * The accents are the owner's reference (ChatGPT's accent colours,
- * 2026-09-29) and the ones exodus-ios draws: softer and lighter than the
+ * 2026-09-29) and the ones actovia-ios draws: softer and lighter than the
  * oklch(0.52 0.17 h) they replace, and so too light to be text. A tone is
  * therefore two colours:
  *   --primary      the fill: a button, a selected state, a swatch, with

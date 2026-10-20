@@ -1,7 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname } from 'path'
 
-import { DEFAULT_LOCK_CONFIG, type LockConfig } from '@exodus/shared/types/lock'
+import {
+  DEFAULT_LOCK_CONFIG,
+  type LockConfig
+} from '@actovia/shared/types/lock'
 
 import { logger } from '../logger'
 import { getLockConfigPath } from '../paths'

@@ -1,4 +1,4 @@
-import type { EffortLevel } from '@exodus/shared/schemas/settings-schema'
+import type { EffortLevel } from '@actovia/shared/schemas/settings-schema'
 
 import type { ListModelsFn, NormalizedModel } from './types'
 

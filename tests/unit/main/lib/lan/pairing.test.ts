@@ -95,7 +95,7 @@ describe('buildPairingLink', () => {
       name: "Yancey's Mac & Co"
     })
     const url = new URL(link)
-    expect(url.protocol).toBe('exodus:')
+    expect(url.protocol).toBe('actovia:')
     expect(url.host).toBe('pair')
     expect(url.searchParams.get('h')).toBe('192.168.1.10,mac.local')
     expect(url.searchParams.get('p')).toBe('63129')

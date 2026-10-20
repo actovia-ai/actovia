@@ -1,4 +1,4 @@
-import { SettingsSchema } from '@exodus/shared/schemas/settings-schema'
+import { SettingsSchema } from '@actovia/shared/schemas/settings-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -122,7 +122,7 @@ export function SettingsForm() {
           <KeyboardShortcuts />
         )}
 
-        {activeTitle === SettingsLabel.AboutExodus && (
+        {activeTitle === SettingsLabel.AboutActovia && (
           <SystemInfo form={form} />
         )}
       </div>

@@ -1,10 +1,10 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ServiceError, ValidationError } from '@exodus/shared/errors/app-error'
-import type { EntitySummary } from '@exodus/shared/types/entity'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ServiceError, ValidationError } from '@actovia/shared/errors/app-error'
+import type { EntitySummary } from '@actovia/shared/types/entity'
 import {
   isWikipediaLang,
   isWikipediaTitle
-} from '@exodus/shared/utils/entity-link'
+} from '@actovia/shared/utils/entity-link'
 import { Hono } from 'hono'
 
 import { logger } from '../../logger'
@@ -13,7 +13,7 @@ import { Variables } from '../types'
 
 /**
  * `GET /api/v1/entity/:title?lang=xx` — Wikipedia's summary of an article,
- * for the panel a reply's `[name](entity:Title)` link opens (exodus-ios spec
+ * for the panel a reply's `[name](entity:Title)` link opens (actovia-ios spec
  * 2026-10-07 §2.2). Fetched here through `fetchPublicHttps()` (https only,
  * public addresses only, pinned) so a paired phone needs no network but its
  * computer's, and the answer is kept a day. Tried in the app's language

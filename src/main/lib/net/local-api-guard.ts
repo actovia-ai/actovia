@@ -1,6 +1,6 @@
 import { networkInterfaces } from 'os'
 
-import { LAN_SERVER_PORT, SERVER_PORT } from '@exodus/shared/constants/systems'
+import { LAN_SERVER_PORT, SERVER_PORT } from '@actovia/shared/constants/systems'
 
 import {
   canonicalizeIp,
@@ -24,9 +24,9 @@ import {
  * (another local dev server, an intranet host) stays reachable — that is a
  * supported `web_fetch` use case, not the threat this guards against.
  *
- * `assertNotExodusApi` pre-resolves a host; the connection itself is pinned
+ * `assertNotActoviaApi` pre-resolves a host; the connection itself is pinned
  * by `net/pinned-fetch.ts` (`web_fetch`'s built-in loader), which resolves
- * once, judges those addresses with `assertAddressesNotExodusApi` and
+ * once, judges those addresses with `assertAddressesNotActoviaApi` and
  * connects to exactly them — so a DNS answer that rebinds between check and
  * connect is never used. Every redirect hop is re-checked by the caller.
  */
@@ -76,7 +76,7 @@ export function isGuardedPort(url: URL): boolean {
  * its connection to them (`net/pinned-fetch.ts`), so the addresses judged are
  * the ones connected to. Throws `LocalApiTargetError`.
  */
-export function assertAddressesNotExodusApi(
+export function assertAddressesNotActoviaApi(
   url: URL,
   addresses: readonly string[]
 ): void {
@@ -95,7 +95,7 @@ export function assertAddressesNotExodusApi(
  * way, and the real fetch this guards will fail on its own for the same
  * reason.
  */
-export async function assertNotExodusApi(url: URL): Promise<void> {
+export async function assertNotActoviaApi(url: URL): Promise<void> {
   const port = url.port ? Number(url.port) : defaultPortFor(url.protocol)
   if (!GUARDED_PORTS.has(port)) return
 

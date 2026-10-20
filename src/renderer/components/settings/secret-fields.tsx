@@ -1,8 +1,8 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { useAtom } from 'jotai'
 import type React from 'react'
 import { useId, useState } from 'react'

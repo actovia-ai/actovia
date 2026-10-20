@@ -1,6 +1,6 @@
-import type { AgentRuntime, PermissionMode } from '@exodus/shared/types/agents'
-import type { Attachment } from '@exodus/shared/types/chat'
-import type { ConversationMessageRole } from '@exodus/shared/types/philharmonic'
+import type { AgentRuntime, PermissionMode } from '@actovia/shared/types/agents'
+import type { Attachment } from '@actovia/shared/types/chat'
+import type { ConversationMessageRole } from '@actovia/shared/types/philharmonic'
 import { atom } from 'jotai'
 
 /**

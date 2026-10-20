@@ -4,7 +4,7 @@
 import {
   composeConfirmAnswer,
   type AnswerLabels
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('react-i18next', () => ({
@@ -32,13 +32,13 @@ describe('outlineText', () => {
     )
     const text = outlineText(answer)
     expect(text).toBe('Send the report? Approved')
-    expect(text).not.toContain('exodus-answer')
+    expect(text).not.toContain('actovia-answer')
     expect(text).not.toContain('**')
   })
 
   it("falls back to the block's title when an answer has no lines", () => {
     const fenceOnly =
-      '```exodus-answer\n{"block":"ask","ref":"run-1","title":"A few details first"}\n```'
+      '```actovia-answer\n{"block":"ask","ref":"run-1","title":"A few details first"}\n```'
     expect(outlineText(fenceOnly)).toBe('A few details first')
   })
 

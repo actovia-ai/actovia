@@ -1,5 +1,5 @@
 // src/main/lib/agents/quota.ts — what each CLI last said of the owner's quota
-// (spec 2026-10-16 §3). Kept per CLI, in memory and in ~/.exodus/agent-quota.json:
+// (spec 2026-10-16 §3). Kept per CLI, in memory and in ~/.actovia/agent-quota.json:
 // Claude Code only reports during a run, so a restart must not forget it.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { rm } from 'fs/promises'
@@ -10,12 +10,12 @@ import {
   type CliId,
   type CliQuota,
   type QuotaWindow
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 
 import { logger } from '../logger'
-import { getExodusHome } from '../paths'
+import { getActoviaHome } from '../paths'
 
-const fileOf = () => join(getExodusHome(), 'agent-quota.json')
+const fileOf = () => join(getActoviaHome(), 'agent-quota.json')
 let store: Map<CliId, CliQuota> | null = null
 
 export { toMs } from './epoch'
@@ -49,7 +49,7 @@ function load(): Map<CliId, CliQuota> {
 // still in flight must never land after forgetAllQuotas() removed the file.
 function save() {
   try {
-    mkdirSync(getExodusHome(), { recursive: true })
+    mkdirSync(getActoviaHome(), { recursive: true })
     writeFileSync(fileOf(), JSON.stringify([...load().values()], null, 2))
   } catch (error) {
     logger.warn('agents', 'agent-quota.json not written', { error })

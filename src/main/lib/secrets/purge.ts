@@ -5,7 +5,7 @@ import { pglite } from '../db/db'
  * An `UPDATE` keeps the old tuple in its heap page until a vacuum, PGlite runs
  * no autovacuum, and the value was WAL-logged when it was first written — so
  * after the startup migration the old keys were still in
- * `~/.exodus/database` and in every `dumpDataDir()` backup taken since. The
+ * `~/.actovia/database` and in every `dumpDataDir()` backup taken since. The
  * same goes for job payloads that carried an `apiKey` (deleted, archived, or
  * stripped by `stripApiKeysFromQueuedJobs`).
  *

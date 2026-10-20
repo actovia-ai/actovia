@@ -8,10 +8,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import { CHAT_AUDIT_PRESETS } from '@exodus/shared/constants/chat-audit-presets'
+import { CHAT_AUDIT_PRESETS } from '@actovia/shared/constants/chat-audit-presets'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
-const root = mkdtempSync(join(tmpdir(), 'exodus-analytics-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-analytics-'))
 const analyticsDir = join(root, 'analytics')
 const logsDir = join(root, 'logs')
 mkdirSync(analyticsDir, { recursive: true })
@@ -24,7 +24,7 @@ vi.mock('@main/lib/logger', () => ({
 }))
 vi.mock('@main/lib/paths', () => ({
   getAnalyticsDir: () => analyticsDir,
-  getAnalyticsDbPath: () => join(analyticsDir, 'exodus.duckdb'),
+  getAnalyticsDbPath: () => join(analyticsDir, 'actovia.duckdb'),
   getLogsDir: () => logsDir
 }))
 
@@ -298,7 +298,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
         body: 'hello',
         scope: { name: 'mcp' },
         attributes: { name: 'x' },
-        resource: { 'service.name': 'exodus' },
+        resource: { 'service.name': 'actovia' },
         traceId: 't1'
       }) + '\n'
     )
@@ -317,7 +317,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
     expect((await readSnapshotMeta())?.builtAt).toBe(meta.builtAt)
     // What the page compares to know a snapshot predates the tables.
     expect(meta.schemaVersion).toBe(
-      (await import('@exodus/shared/constants/chat-audit-schema'))
+      (await import('@actovia/shared/constants/chat-audit-schema'))
         .CHAT_AUDIT_SCHEMA_VERSION
     )
 
@@ -365,7 +365,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
       runQuery(`select * from read_json('${join(logsDir, '*.jsonl')}')`)
     ).rejects.toThrow(/disabled by configuration|Permission/i)
     await expect(
-      runQuery("attach '/tmp/exodus-attach-probe.db' as x")
+      runQuery("attach '/tmp/actovia-attach-probe.db' as x")
     ).rejects.toThrow()
     await expect(runQuery('set enable_external_access = true')).rejects.toThrow(
       /locked/i
@@ -402,7 +402,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
         body: `Failed query: update "settings" params: ${LEAK},${QUOTE}`,
         scope: { name: 'database' },
         attributes: { error: `cause ${LEAK}`, nested: { v: QUOTE } },
-        resource: { 'service.name': 'exodus' },
+        resource: { 'service.name': 'actovia' },
         traceId: 't2'
       }) + '\n'
     )
@@ -419,7 +419,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
     expect(text).not.toContain('LOGGED-5a4b3c2d')
     expect(text).toContain(maskSecret(LEAK)!)
     const { readFileSync } = await import('fs')
-    const file = readFileSync(join(analyticsDir, 'exodus.duckdb'))
+    const file = readFileSync(join(analyticsDir, 'actovia.duckdb'))
     expect(file.includes(Buffer.from(LEAK))).toBe(false)
   }, 60_000)
 

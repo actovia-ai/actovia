@@ -177,7 +177,7 @@ const macosAt = (size) => {
   return `<img src="${glassSrc}" style="position:absolute;left:${100 * k}px;top:${100 * k}px;width:${824 * k}px;height:${824 * k}px;filter:drop-shadow(0 ${10 * k}px ${10 * k}px rgb(0 0 0 / 30%))">`
 }
 const iconset = join(
-  mkdtempSync(join(tmpdir(), 'exodus-icon-')),
+  mkdtempSync(join(tmpdir(), 'actovia-icon-')),
   'icon.iconset'
 )
 mkdirSync(iconset)
@@ -246,14 +246,14 @@ for (const [name, body] of Object.entries(m.composerLayers())) {
 }
 
 // ── Icon Composer document → build/icon.icon ──────────────────────────────
-// brand/Exodus.icon is the Icon Composer document (the composition: layer
+// brand/Actovia.icon is the Icon Composer document (the composition: layer
 // order, glass, shadow, the dark-appearance background). Refresh its layer
 // SVGs from the ones just rendered, then hand forge a copy: @electron/packager
 // compiles build/icon.icon with actool (macOS 26 + Xcode 26) into Assets.car,
 // which macOS 26 uses to follow the icon style (light / dark / clear / tinted);
 // older macOS keeps using build/icon.icns.
 
-const iconDoc = join(root, 'brand/Exodus.icon')
+const iconDoc = join(root, 'brand/Actovia.icon')
 if (existsSync(iconDoc)) {
   for (const f of readdirSync(join(iconDoc, 'Assets'))) {
     const fresh = join(root, 'brand/icon-composer', f)
@@ -261,7 +261,7 @@ if (existsSync(iconDoc)) {
   }
   rmSync(join(root, 'build/icon.icon'), { recursive: true, force: true })
   cpSync(iconDoc, join(root, 'build/icon.icon'), { recursive: true })
-  console.log('✓ build/icon.icon (from brand/Exodus.icon)')
+  console.log('✓ build/icon.icon (from brand/Actovia.icon)')
 }
 
 // ── iOS ───────────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 // src/main/lib/agents/registry.ts
-import type { CliId } from '@exodus/shared/types/agents'
+import type { CliId } from '@actovia/shared/types/agents'
 
 import type { AgentRun } from './driver'
 import { agentSettings } from './settings'

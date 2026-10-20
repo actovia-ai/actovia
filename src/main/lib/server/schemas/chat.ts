@@ -1,5 +1,5 @@
-import { EffortLevelSchema } from '@exodus/shared/schemas/settings-schema'
-import { AdvancedTools } from '@exodus/shared/types/ai'
+import { EffortLevelSchema } from '@actovia/shared/schemas/settings-schema'
+import { AdvancedTools } from '@actovia/shared/types/ai'
 import { z } from 'zod'
 
 import { Chat } from '../../db/schema'

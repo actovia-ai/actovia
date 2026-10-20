@@ -2,8 +2,11 @@ import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
 import { Readable } from 'stream'
 
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { NotFoundError, ValidationError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import {
+  NotFoundError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 
 import { mediaContentType, resolveMediaFile } from '../../media/store'
@@ -12,7 +15,7 @@ import { Variables } from '../types'
 /**
  * `GET /api/v1/media/:chatId/:file` — a generated image, straight off disk.
  *
- * The path is the storage layout itself (`~/.exodus/media/<chatId>/<file>`),
+ * The path is the storage layout itself (`~/.actovia/media/<chatId>/<file>`),
  * so there is no index to keep in step with the files and a row's `details`
  * is all a client needs to build the URL. Both segments must match exactly
  * what `saveMedia` writes, and the resolved path must stay inside the media

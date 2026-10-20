@@ -9,7 +9,7 @@ import {
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
   capSummary,
   declinedReason,
@@ -41,12 +41,12 @@ let env: MatchEnv
 let workspace: string
 
 beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), 'exodus-approval-'))
+  root = mkdtempSync(join(tmpdir(), 'actovia-approval-'))
   const home = join(root, 'home')
   mkdirSync(join(home, '.ssh'), { recursive: true })
   writeFileSync(join(home, '.ssh', 'id_rsa'), 'secret')
-  mkdirSync(join(home, '.exodus', 'tls'), { recursive: true })
-  workspace = join(home, '.exodus', 'workspace', 'chat-1')
+  mkdirSync(join(home, '.actovia', 'tls'), { recursive: true })
+  workspace = join(home, '.actovia', 'workspace', 'chat-1')
   mkdirSync(workspace, { recursive: true })
   writeFileSync(join(workspace, '.env'), 'X=1')
   // A link in the workspace to a key outside it.
@@ -57,7 +57,7 @@ beforeAll(() => {
   mkdirSync(join(home, 'project'), { recursive: true })
   writeFileSync(join(home, 'project', '.env'), 'SECRET=1')
   symlinkSync(join(home, 'project', '.env'), join(workspace, 'config.env'))
-  env = { home, exodusHome: join(home, '.exodus'), cwd: '/' }
+  env = { home, actoviaHome: join(home, '.actovia'), cwd: '/' }
 })
 
 afterAll(() => rmSync(root, { recursive: true, force: true }))
@@ -170,62 +170,62 @@ describe('sensitiveTarget — file tools', () => {
       'ask'
     ],
     [
-      'grep over ~/.exodus reaches tls/',
+      'grep over ~/.actovia reaches tls/',
       TOOL_NAMES.grep,
-      (h: string) => ({ pattern: 'x', path: `${h}/.exodus` }),
+      (h: string) => ({ pattern: 'x', path: `${h}/.actovia` }),
       'ask'
     ],
     [
       'lock.dat is refused',
       R,
-      (h: string) => ({ path: `${h}/.exodus/lock.dat` }),
+      (h: string) => ({ path: `${h}/.actovia/lock.dat` }),
       'refuse'
     ],
     [
       'tls/ is refused',
       R,
-      (h: string) => ({ path: `${h}/.exodus/tls/key.pem` }),
+      (h: string) => ({ path: `${h}/.actovia/tls/key.pem` }),
       'refuse'
     ],
     [
       'listing tls/ is refused',
       TOOL_NAMES.listDirectory,
-      (h: string) => ({ path: `${h}/.exodus/tls` }),
+      (h: string) => ({ path: `${h}/.actovia/tls` }),
       'refuse'
     ],
-    // Exodus's raw data: plaintext in a pre-encryption backup, or while
+    // Actovia's raw data: plaintext in a pre-encryption backup, or while
     // encryption is unavailable (I4).
     [
       'a backup archive is refused',
       R,
-      (h: string) => ({ path: `${h}/.exodus/backups/x.tar.gz` }),
+      (h: string) => ({ path: `${h}/.actovia/backups/x.tar.gz` }),
       'refuse'
     ],
     [
       'listing backups/ is refused',
       TOOL_NAMES.listDirectory,
-      (h: string) => ({ path: `${h}/.exodus/backups` }),
+      (h: string) => ({ path: `${h}/.actovia/backups` }),
       'refuse'
     ],
     [
       'a PGlite data file is refused',
       R,
-      (h: string) => ({ path: `${h}/.exodus/database/base/1/1259` }),
+      (h: string) => ({ path: `${h}/.actovia/database/base/1/1259` }),
       'refuse'
     ],
     [
       'the DuckDB copy is refused',
       R,
-      (h: string) => ({ path: `${h}/.exodus/analytics/exodus.duckdb` }),
+      (h: string) => ({ path: `${h}/.actovia/analytics/actovia.duckdb` }),
       'refuse'
     ],
     [
       'grep over the database is refused',
       TOOL_NAMES.grep,
-      (h: string) => ({ pattern: 'sk-', path: `${h}/.exodus/database` }),
+      (h: string) => ({ pattern: 'sk-', path: `${h}/.actovia/database` }),
       'refuse'
     ],
-    // Common token files outside Exodus (I3).
+    // Common token files outside Actovia (I3).
     ['~/.npmrc', R, (h: string) => ({ path: `${h}/.npmrc` }), 'ask'],
     ['~/.yarnrc.yml', R, (h: string) => ({ path: `${h}/.yarnrc.yml` }), 'ask'],
     ['~/.pypirc', R, (h: string) => ({ path: `${h}/.pypirc` }), 'ask'],
@@ -372,9 +372,9 @@ describe('sensitiveTarget — file tools', () => {
       null
     ],
     [
-      'other ~/.exodus data',
+      'other ~/.actovia data',
       R,
-      (h: string) => ({ path: `${h}/.exodus/settings-backup.json` }),
+      (h: string) => ({ path: `${h}/.actovia/settings-backup.json` }),
       null
     ],
     [
@@ -436,7 +436,7 @@ describe('sensitiveTarget — file tools', () => {
       (
         await sensitiveTarget(
           R,
-          { path: `${env.home}/.EXODUS/LOCK.DAT` },
+          { path: `${env.home}/.ACTOVIA/LOCK.DAT` },
           workspace,
           folded
         )
@@ -472,7 +472,7 @@ describe('sensitiveTarget — file tools', () => {
     expect(
       (
         await check(R, {
-          path: `/System/Volumes/Data${env.home}/.exodus/lock.dat`
+          path: `/System/Volumes/Data${env.home}/.actovia/lock.dat`
         })
       )?.kind
     ).toBe('refuse')
@@ -558,7 +558,7 @@ describe('sensitiveTarget — file tools', () => {
     expect(
       await check(TOOL_NAMES.grep, {
         pattern: '.',
-        path: join(env.home, '.exodus', 'workspace')
+        path: join(env.home, '.actovia', 'workspace')
       })
     ).toBeNull()
   })
@@ -757,7 +757,7 @@ describe('sensitiveTarget — template/example secrets are not gated (N3)', () =
   it.each(TEMPLATE_NAMES)(
     'a grep root holding only %s does not trigger the tree scan',
     async (name) => {
-      const dir = mkdtempSync(join(tmpdir(), 'exodus-approval-template-'))
+      const dir = mkdtempSync(join(tmpdir(), 'actovia-approval-template-'))
       try {
         writeFileSync(join(dir, name), 'X=1')
         expect(
@@ -770,7 +770,7 @@ describe('sensitiveTarget — template/example secrets are not gated (N3)', () =
   )
 
   it('a real secret alongside a template file in the same tree still asks', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'exodus-approval-template-'))
+    const dir = mkdtempSync(join(tmpdir(), 'actovia-approval-template-'))
     try {
       writeFileSync(join(dir, '.env.example'), 'X=1')
       writeFileSync(join(dir, '.env'), 'SECRET=1')
@@ -798,17 +798,17 @@ describe('sensitiveTarget — terminal heuristics', () => {
     ['cat /etc/ssl/private/server.key', 'ask'],
     ['cat ~/project/.env', 'ask'],
     ['kubectl --kubeconfig ~/.kube/config get pods', 'ask'],
-    ['cat ~/.exodus/lock.dat', 'refuse'],
-    ['ls ~/.exodus/tls', 'refuse'],
-    ['cd ~/.exodus && cat lock.dat', 'refuse'],
-    // Exodus's raw data (I4).
-    ['tar xzOf ~/.exodus/backups/x.tar.gz | strings | grep sk-', 'refuse'],
-    ['strings ~/.exodus/database/base/1/1259', 'refuse'],
-    ['cd ~/.exodus && tar c database | gzip', 'refuse'],
-    ['duckdb ~/.exodus/analytics/exodus.duckdb', 'refuse'],
-    ['ls ~/.exodus/backups*', 'refuse'],
-    // A copy of all of ~/.exodus is a copy of the database.
-    ['tar czf /tmp/x.tgz ~/.exodus', 'ask'],
+    ['cat ~/.actovia/lock.dat', 'refuse'],
+    ['ls ~/.actovia/tls', 'refuse'],
+    ['cd ~/.actovia && cat lock.dat', 'refuse'],
+    // Actovia's raw data (I4).
+    ['tar xzOf ~/.actovia/backups/x.tar.gz | strings | grep sk-', 'refuse'],
+    ['strings ~/.actovia/database/base/1/1259', 'refuse'],
+    ['cd ~/.actovia && tar c database | gzip', 'refuse'],
+    ['duckdb ~/.actovia/analytics/actovia.duckdb', 'refuse'],
+    ['ls ~/.actovia/backups*', 'refuse'],
+    // A copy of all of ~/.actovia is a copy of the database.
+    ['tar czf /tmp/x.tgz ~/.actovia', 'ask'],
     // Token files and CLI token stores (I3).
     ['cat ~/.git-credentials', 'ask'],
     ['cat ~/.npmrc', 'ask'],
@@ -838,13 +838,13 @@ describe('sensitiveTarget — terminal heuristics', () => {
     ['pgrep -af node', 'ask'],
     ['pgrep -lf node', 'ask'],
     ['pgrep -fa node', 'ask'],
-    // Globs and relative names that reach ~/.exodus's raw data (m3).
-    ['strings ~/.exodus/*/* | grep sk-', 'refuse'],
-    ['cat ~/.exodus/d?tabase/base/1/1259', 'refuse'],
-    ['cat ~/.exodus/[bd]*/x', 'refuse'],
-    ['grep -a sk- ~/.exodus/**', 'refuse'],
-    ['tar czf /tmp/a.tgz -C ~ .exodus', 'ask'],
-    ['ls ~/.exo*', 'ask'],
+    // Globs and relative names that reach ~/.actovia's raw data (m3).
+    ['strings ~/.actovia/*/* | grep sk-', 'refuse'],
+    ['cat ~/.actovia/d?tabase/base/1/1259', 'refuse'],
+    ['cat ~/.actovia/[bd]*/x', 'refuse'],
+    ['grep -a sk- ~/.actovia/**', 'refuse'],
+    ['tar czf /tmp/a.tgz -C ~ .actovia', 'ask'],
+    ['ls ~/.act*', 'ask'],
     // More credential stores (m4).
     ['cat ~/.pgpass', 'ask'],
     ['cat ~/.my.cnf', 'ask'],
@@ -881,9 +881,9 @@ describe('sensitiveTarget — terminal heuristics', () => {
     ['cat .envrc', null],
     ['openssl genrsa -out server.key 2048', null],
     ['curl https://example.com/cert.pem', null],
-    ['ls ~/.exodus/workspace', null],
-    ['ls ~/.exodus/workspace/*', null],
-    ['cat ~/.exodus/media/*/x.png', null],
+    ['ls ~/.actovia/workspace', null],
+    ['ls ~/.actovia/workspace/*', null],
+    ['cat ~/.actovia/media/*/x.png', null],
     ['git status', null],
     ['ps', null],
     ['pgrep node', null],
@@ -961,7 +961,7 @@ describe('sensitiveTarget — terminal heuristics', () => {
       'security find-generic-password'
     ],
     ['tar czf k.tgz .ssh', '.ssh'],
-    ['cat ~/.exodus/lock.dat', '.exodus/lock.dat'],
+    ['cat ~/.actovia/lock.dat', '.actovia/lock.dat'],
     ['gh auth token', 'gh auth token'],
     ['ps -axo args', 'ps -axo'],
     ['cat /proc/1/environ', '/proc/1/environ']
@@ -999,11 +999,11 @@ describe('sensitiveTarget — call_mcp_tool (I2)', () => {
     ).toBe('ask')
   })
 
-  it("Exodus's own files are refused", async () => {
+  it("Actovia's own files are refused", async () => {
     expect(
-      (await mcp({ path: `${env.home}/.exodus/backups/x.tar.gz` }))?.kind
+      (await mcp({ path: `${env.home}/.actovia/backups/x.tar.gz` }))?.kind
     ).toBe('refuse')
-    expect((await mcp({ path: `${env.home}/.exodus/lock.dat` }))?.kind).toBe(
+    expect((await mcp({ path: `${env.home}/.actovia/lock.dat` }))?.kind).toBe(
       'refuse'
     )
   })
@@ -1039,7 +1039,7 @@ describe('sensitiveTarget — call_mcp_tool (I2)', () => {
     // Leading zeros: WHATWG URL reads the port as 60223 (re-review m2).
     'http://localhost:060223/api/v1/settings',
     'http://127.0.0.1:0063129/'
-  ])("a URL at Exodus's own API (%s) is refused", async (url) => {
+  ])("a URL at Actovia's own API (%s) is refused", async (url) => {
     const result = await check(M, {
       server: 'fetch',
       tool: 'fetch',
@@ -1155,7 +1155,7 @@ describe('sanitizeSummary', () => {
     ['DEL becomes �', 'a\u007Fb', 'a�b'],
     ['a C1 control becomes �', 'a\u0090b', 'a�b'],
     ['plain text is unchanged', 'cat ~/.ssh/id_rsa', 'cat ~/.ssh/id_rsa'],
-    // Unpaired UTF-16 surrogates (the exodus-ios `JSONDecoder` break):
+    // Unpaired UTF-16 surrogates (the actovia-ios `JSONDecoder` break):
     // well-formed last, so a name/path a model wrote that happens to carry
     // a lone surrogate can never reach a client whose native string type
     // (Swift's) rejects one. Built with `String.fromCharCode` rather than a

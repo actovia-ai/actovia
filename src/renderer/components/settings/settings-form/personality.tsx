@@ -1,4 +1,4 @@
-import type { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 

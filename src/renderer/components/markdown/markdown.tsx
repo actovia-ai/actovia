@@ -1,5 +1,5 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
-import { entityTitle } from '@exodus/shared/utils/entity-link'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { entityTitle } from '@actovia/shared/utils/entity-link'
 import {
   Tick02Icon,
   Copy01Icon,
@@ -217,7 +217,7 @@ export function Markdown({
       ...citationComponents,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
       code({ className, children, node, ...rest }: any) {
-        // `[\w-]`: a fence named `exodus-ask` is labelled that, not `exodus`.
+        // `[\w-]`: a fence named `actovia-ask` is labelled that, not `actovia`.
         // A fence with no language (an ASCII diagram, plain output) is still
         // a code block, labelled Text; its text ends in a newline, which
         // inline code never does.

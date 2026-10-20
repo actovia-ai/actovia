@@ -1,4 +1,4 @@
-import type { ApprovalOutcome } from '@exodus/shared/types/chat'
+import type { ApprovalOutcome } from '@actovia/shared/types/chat'
 
 /**
  * Tool calls paused for the user's approval (see `approval.ts`), keyed by

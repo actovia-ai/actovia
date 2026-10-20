@@ -44,7 +44,7 @@ export interface SecretsStatus {
 /**
  * `moved`: what a destination move cleared (`moved.ts`) — listed with the
  * decrypt failures, one name each. The list stays plain names (the desktop
- * notice and exodus-ios read it as such); the notice's copy covers both.
+ * notice and actovia-ios read it as such); the notice's copy covers both.
  */
 export function getSecretsStatus(moved: string[] = []): SecretsStatus {
   return {

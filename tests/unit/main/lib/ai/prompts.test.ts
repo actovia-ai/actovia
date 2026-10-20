@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import { getSystemPrompt } from '@main/lib/ai/prompts'
 import { describe, expect, it } from 'vitest'
 
@@ -31,12 +31,12 @@ describe('getSystemPrompt', () => {
     expect(bare).not.toContain('<skills>')
 
     const full = getSystemPrompt({
-      workspaceDir: '/home/u/.exodus/workspace/abc',
+      workspaceDir: '/home/u/.actovia/workspace/abc',
       skillsIndex:
-        '- alpha: Draw charts — /home/u/.exodus/skills/alpha/SKILL.md'
+        '- alpha: Draw charts — /home/u/.actovia/skills/alpha/SKILL.md'
     })
     expect(full).toContain('<workspace>')
-    expect(full).toContain('/home/u/.exodus/workspace/abc')
+    expect(full).toContain('/home/u/.actovia/workspace/abc')
     expect(full).toContain('<skills>')
     expect(full).toContain('- alpha: Draw charts')
     // The rule that makes the index work: read, then follow, without asking.
@@ -99,7 +99,7 @@ describe('getSystemPrompt', () => {
     expect(prompt).toContain('【N-source】')
   })
 
-  // The more the user talks to Exodus, the better it knows them: a lasting
+  // The more the user talks to Actovia, the better it knows them: a lasting
   // fact goes into memory when it is said, not only when the user asks.
   it('has the model keep the memory current as facts come up', () => {
     const prompt = getSystemPrompt({})

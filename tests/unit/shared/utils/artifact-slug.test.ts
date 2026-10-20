@@ -1,7 +1,7 @@
 import {
   artifactShortId,
   artifactSlug
-} from '@exodus/shared/utils/artifact-slug'
+} from '@actovia/shared/utils/artifact-slug'
 import { describe, expect, it } from 'vitest'
 
 describe('artifactSlug', () => {

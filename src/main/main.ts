@@ -4,7 +4,7 @@
 import './lib/remote-debugging-guard'
 import { join } from 'path'
 
-import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
+import { APP_DISPLAY_NAME } from '@actovia/shared/constants/brand'
 import { app, BrowserWindow, globalShortcut, powerMonitor } from 'electron'
 import started from 'electron-squirrel-startup'
 
@@ -35,7 +35,7 @@ import { getLockManager } from './lib/lock/lock-manager'
 import { hasPin as lockHasPin } from './lib/lock/pin-store'
 import { cleanupOldLogs, logger } from './lib/logger'
 import { setupMenu } from './lib/menu'
-import { ensureExodusDirs, getExodusHome } from './lib/paths'
+import { ensureActoviaDirs, getActoviaHome } from './lib/paths'
 import { secretSafeWriteError } from './lib/secrets'
 import { secretsAtRestStartup } from './lib/secrets/migrate'
 import { hardenRenderers } from './lib/security'
@@ -51,14 +51,14 @@ declare const MAIN_WINDOW_VITE_NAME: string
 // Before `ready`: a scheme can only be made privileged up front.
 registerArtifactScheme()
 
-// The runtime name stays "Exodus" (Keychain item, userData, lock); only what a
+// The runtime name stays "Actovia" (Keychain item, userData, lock); only what a
 // person sees says Actovia.
 app.setAboutPanelOptions({
   applicationName: APP_DISPLAY_NAME,
   applicationVersion: app.getVersion()
 })
 app.userAgentFallback = app.userAgentFallback.replace(
-  /\bExodus\//,
+  /\bActovia\//,
   `${APP_DISPLAY_NAME}/`
 )
 
@@ -83,18 +83,18 @@ process.on('unhandledRejection', (reason) => {
 app.on('ready', async () => {
   setDevDockIcon()
 
-  // The ~/.exodus directory tree.
-  ensureExodusDirs()
+  // The ~/.actovia directory tree.
+  ensureActoviaDirs()
   cleanupOldLogs()
 
-  // Which data directory this run uses (~/.exodus unless EXODUS_HOME says
+  // Which data directory this run uses (~/.actovia unless ACTOVIA_HOME says
   // otherwise, see paths.ts) — the first thing to check if data seems missing.
   logger.info('app', 'Data directory', {
-    dir: getExodusHome(),
+    dir: getActoviaHome(),
     packaged: app.isPackaged
   })
 
-  app.setAppUserModelId('app.yancey.exodus')
+  app.setAppUserModelId('app.yancey.actovia')
 
   // Must run before setupIPC() / createWindow() — both assume the schema
   // is already migrated once a renderer can issue DB queries.

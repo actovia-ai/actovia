@@ -2,7 +2,7 @@ import type {
   MemorySection,
   MemorySnapshot,
   UsedMemory
-} from '@exodus/shared/types/memory'
+} from '@actovia/shared/types/memory'
 import { and, desc, eq, inArray } from 'drizzle-orm'
 import { v4 as uuidV4 } from 'uuid'
 

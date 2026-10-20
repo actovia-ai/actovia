@@ -1,8 +1,8 @@
 // What Copy puts on the clipboard: the answer with its citations as [n] and
 // the sources listed under it, the way the Deep Research PDF does — never
-// the raw 【N-source】 markers. exodus-ios implements the same rule; these
+// the raw 【N-source】 markers. actovia-ios implements the same rule; these
 // vectors are shared with its tests.
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { describe, expect, it } from 'vitest'
 
 import { withReferences } from '@/lib/citation-references'
@@ -49,7 +49,7 @@ describe('withReferences', () => {
   })
 
   it('writes a page once where one marker names it twice', () => {
-    // Ranks 1 and 3 are the same page: `[1]`, not `[1][1]` — as exodus-ios.
+    // Ranks 1 and 3 are the same page: `[1]`, not `[1][1]` — as actovia-ios.
     expect(copy('A【1,3-source】').split('\n')[0]).toBe('A[1]')
     expect(copy('A【2,1,3-source】').split('\n')[0]).toBe('A[1][2]')
   })

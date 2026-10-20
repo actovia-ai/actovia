@@ -5,8 +5,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const report = vi.fn()

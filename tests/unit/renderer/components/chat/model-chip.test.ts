@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 // The chip in the header: which model answers, and a pick that saves it.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

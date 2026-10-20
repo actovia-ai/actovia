@@ -1,5 +1,5 @@
-import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
-import { EXODUS_WEBSITE } from '@exodus/shared/constants/external-urls'
+import { APP_DISPLAY_NAME } from '@actovia/shared/constants/brand'
+import { ACTOVIA_WEBSITE } from '@actovia/shared/constants/external-urls'
 import { Menu, MenuItemConstructorOptions, shell } from 'electron'
 
 import { mainT } from './i18n'
@@ -154,7 +154,7 @@ export function buildMenu(): MenuItemConstructorOptions[] {
         {
           label: mainT('menu:learnMore', 'Learn More'),
           click: async () => {
-            await shell.openExternal(EXODUS_WEBSITE)
+            await shell.openExternal(ACTOVIA_WEBSITE)
           }
         }
       ]

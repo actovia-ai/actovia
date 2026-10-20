@@ -1,4 +1,4 @@
-// The spec's §4 examples; exodus-ios's HealthWireTests holds the same JSON,
+// The spec's §4 examples; actovia-ios's HealthWireTests holds the same JSON,
 // so the two sides agree on the wire.
 export const SNAPSHOT = {
   date: '2026-10-01',

@@ -23,7 +23,7 @@ export function useDbIo() {
       const blob = await exportDataService()
       downloadFile(
         blob,
-        `exodus-export-${new Date().toISOString().slice(0, 10)}.zip`
+        `actovia-export-${new Date().toISOString().slice(0, 10)}.zip`
       )
       sileo.success({ title: t('dataControls.export.successToast') })
     } catch (e) {

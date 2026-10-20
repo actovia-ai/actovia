@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 // Copy hands out the answer with its references, not with the markers the
 // model wrote for the chips.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -34,7 +34,7 @@ let root: ReturnType<typeof createRoot>
 let writeText: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
-  writeText = vi.fn().mockResolvedValue(undefined)
+  writeText = vi.fn().mockResolvedValue()
   Object.defineProperty(window.navigator, 'clipboard', {
     configurable: true,
     value: { writeText }

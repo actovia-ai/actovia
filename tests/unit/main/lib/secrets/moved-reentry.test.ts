@@ -1,23 +1,23 @@
 // S3 review I2: a secret the server clears because its destination moved
 // (ruling R1 — a stored key never follows a new host) is listed in
 // `GET /api/v1/settings/secrets-status` `needsReentry`, persisted under
-// `~/.exodus` so the prompt survives a restart (and reaches exodus-ios), until
+// `~/.actovia` so the prompt survives a restart (and reaches actovia-ios), until
 // a new value is saved for it. Settings fields and MCP servers alike.
 //
 // Real SQL on an in-memory PGlite and the real routes; safeStorage is faked,
-// EXODUS_HOME is a temp dir.
+// ACTOVIA_HOME is a temp dir.
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { resetFakeSafeStorage } from '../../../helpers/fake-safe-storage'
 
-const home = mkdtempSync(join(tmpdir(), 'exodus-moved-reentry-'))
-process.env.EXODUS_HOME = home
+const home = mkdtempSync(join(tmpdir(), 'actovia-moved-reentry-'))
+process.env.ACTOVIA_HOME = home
 
 vi.mock('electron', async () => {
   const { fakeSafeStorage } = await import('../../../helpers/fake-safe-storage')
@@ -54,7 +54,7 @@ const { default: settingsRouter } =
 afterAll(async () => {
   await pglite.close()
   rmSync(home, { recursive: true, force: true })
-  delete process.env.EXODUS_HOME
+  delete process.env.ACTOVIA_HOME
 })
 
 function app() {

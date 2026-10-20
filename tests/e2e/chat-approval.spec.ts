@@ -1,5 +1,5 @@
 /**
- * E2E: the approval gate for secrets outside Exodus. The faux provider
+ * E2E: the approval gate for secrets outside Actovia. The faux provider
  * (`faux-boot.ts`) answers `SECRET_READ_MESSAGE` with a `read_file` of
  * `~/.ssh/id_rsa` — under the fixture's scratch `$HOME` — which the kernel
  * pauses: the run's foot shows what it wants to read with Allow once / Deny,
@@ -14,7 +14,7 @@ import {
 import { ApiClient } from '../fixtures/api-client'
 import { electronTest as test, expect } from '../fixtures/electron'
 
-test.describe('approval for a secret outside Exodus', () => {
+test.describe('approval for a secret outside Actovia', () => {
   test('a sensitive read waits for the user; Deny declines it', async ({
     mainWindow
   }) => {

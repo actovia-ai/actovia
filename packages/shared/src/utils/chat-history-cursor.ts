@@ -2,7 +2,7 @@
 // `"<createdAt ISO>|<id>"` of the last chat of a page — the `(createdAt, id)`
 // pair the list is ordered by, newest first. The ISO part never holds a `|`,
 // so the split is on the first one and an id may contain anything.
-// exodus-ios builds and reads the same string.
+// actovia-ios builds and reads the same string.
 
 const SEPARATOR = '|'
 

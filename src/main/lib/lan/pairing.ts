@@ -2,7 +2,7 @@ import { randomBytes, timingSafeEqual } from 'crypto'
 import { Resolver } from 'dns/promises'
 import type { NetworkInterfaceInfo } from 'os'
 
-import { PAIRING_TTL_MS } from '@exodus/shared/constants/systems'
+import { PAIRING_TTL_MS } from '@actovia/shared/constants/systems'
 
 export { PAIRING_TTL_MS }
 export const MAX_PAIRING_ATTEMPTS = 5
@@ -79,7 +79,7 @@ export function createPairing(deps: {
   }
 }
 
-/** What the QR code says — see exodus-ios `PairingLink` for the reader. */
+/** What the QR code says — see actovia-ios `PairingLink` for the reader. */
 export function buildPairingLink(p: {
   hosts: string[]
   port: number
@@ -94,7 +94,7 @@ export function buildPairingLink(p: {
     f: p.fingerprint,
     n: p.name
   })
-  return `exodus://pair?${query.toString()}`
+  return `actovia://pair?${query.toString()}`
 }
 
 /** Every address a phone on the LAN might reach this machine by. */
@@ -128,7 +128,7 @@ async function magicDnsReverse(address: string): Promise<string[]> {
  * machine over Tailscale by its MagicDNS name (`name.tailnet.ts.net`), never by
  * its bare 100.x address: iOS only lets an app trust a self-signed certificate
  * by its pin where App Transport Security allows it — local networks, and the
- * `ts.net` exception exodus-ios carries — and 100.64.0.0/10 is neither. So the
+ * `ts.net` exception actovia-ios carries — and 100.64.0.0/10 is neither. So the
  * name leads the list and the bare tailnet address it stands for is left out;
  * without a name (MagicDNS off, the lookup failing) the list is `lanHosts`'.
  */

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { HttpError } from '@exodus/shared/utils/http'
+import { HttpError } from '@actovia/shared/utils/http'
 import {
   focusManager,
   type QueryClient,
@@ -131,7 +131,7 @@ function deferred<T>() {
 
 const pairingInfo = {
   expiresAt: 1_800_000_000_000,
-  link: 'exodus://pair?h=192.168.1.5&p=63129&c=123456&f=abc&n=Mac'
+  link: 'actovia://pair?h=192.168.1.5&p=63129&c=123456&f=abc&n=Mac'
 }
 const iphone = {
   id: 'dev-1',

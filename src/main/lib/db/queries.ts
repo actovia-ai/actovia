@@ -1,7 +1,7 @@
-import { ErrorCode, DatabaseError } from '@exodus/shared'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
-import { chatHistoryCursor } from '@exodus/shared/utils/chat-history-cursor'
+import { ErrorCode, DatabaseError } from '@actovia/shared'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
+import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
 import { and, asc, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm'
 
 import { logger } from '../logger'
@@ -435,7 +435,7 @@ export async function getSettings(): Promise<Settings> {
 /**
  * A settings write in its stored form (spec 2026-09-25 §2.2–2.3): posted masks
  * back to the stored plaintext (the API hands out masks only, and a client
- * that posts one back — the desktop autosave posts whole sections, exodus-ios
+ * that posts one back — the desktop autosave posts whole sections, actovia-ios
  * whole columns — means "unchanged"), a secret whose destination moves
  * cleared, and every secret encrypted. See `prepareSettingsWrite`.
  */

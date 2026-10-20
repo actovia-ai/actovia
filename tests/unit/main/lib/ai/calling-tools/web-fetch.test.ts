@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { webFetch } from '@main/lib/ai/calling-tools/web-fetch'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -93,7 +93,7 @@ describe('webFetch', () => {
     }
   )
 
-  describe('cannot reach Exodus’s own API', () => {
+  describe('cannot reach Actovia’s own API', () => {
     it.each([
       'http://127.0.0.1:60223/api/v1/settings',
       'http://localhost:60223/api/v1/settings',

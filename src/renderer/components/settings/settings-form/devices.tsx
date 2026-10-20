@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { SmartPhone01Icon, Tablet01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'

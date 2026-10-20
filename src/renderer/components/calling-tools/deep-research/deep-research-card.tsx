@@ -1,4 +1,4 @@
-import { WebSearchResult } from '@exodus/shared/types/web-search'
+import { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   AlertCircleIcon,
   DownloadIcon,

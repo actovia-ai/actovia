@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { AttachmentRequest } from '@exodus/shared/types/attachment-actions'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { AttachmentRequest } from '@actovia/shared/types/attachment-actions'
 import {
   Cancel01Icon,
   ArrowLeft01Icon,

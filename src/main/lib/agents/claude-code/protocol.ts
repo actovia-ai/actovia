@@ -3,7 +3,7 @@ import type {
   AgentQuestion,
   CliQuota,
   QuotaState
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
 import { toMs } from '../epoch'

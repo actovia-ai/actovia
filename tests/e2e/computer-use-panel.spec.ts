@@ -3,7 +3,7 @@ import { TEST_IDS } from '../../packages/shared/src/constants/test-ids'
  * E2E: the in-chat ComputerUseCard for a running `computerUse` session.
  *
  * Unrunnable in CI / the sandbox — a real session needs macOS TCC screen +
- * accessibility grants, the `exodus-input` Swift helper, a live Claude key and
+ * accessibility grants, the `actovia-input` Swift helper, a live Claude key and
  * an allowlisted target app on screen. Kept as an executable description of the
  * panel contract so the flow is documented and the two interactive test-ids
  * (`stopButton`, `continueButton`) stay linked to a spec.
@@ -29,7 +29,7 @@ import { electronTest as test, expect } from '../fixtures/electron'
 test.describe('Computer Use — chat panel', () => {
   test.skip(
     true,
-    'requires macOS screen/AX grants, the exodus-input helper, a live model key and an on-screen target app'
+    'requires macOS screen/AX grants, the actovia-input helper, a live model key and an on-screen target app'
   )
 
   test('streams step updates and exposes Stop + continue controls', async ({

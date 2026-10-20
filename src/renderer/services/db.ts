@@ -1,4 +1,4 @@
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 export const exportData = async () =>
   fetcher<Blob>('/api/v1/db-io/export', {

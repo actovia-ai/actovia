@@ -3,8 +3,8 @@ import type {
   MemoryInstructionResult,
   MemorySection,
   UsedMemory
-} from '@exodus/shared/types/memory'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/memory'
+import { fetcher } from '@actovia/shared/utils/http'
 
 // The durable classification lives in the shared package (Task 1) — the
 // engine's `MemorySnapshot`/`MemoryChange` carry it too, so it must be one

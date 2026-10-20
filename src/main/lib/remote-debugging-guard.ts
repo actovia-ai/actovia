@@ -18,7 +18,7 @@ if (
     exit: (code) => app.exit(code),
     log: (message, attributes) => {
       process.stderr.write(
-        `[exodus] ${message} ${JSON.stringify(attributes)}\n`
+        `[actovia] ${message} ${JSON.stringify(attributes)}\n`
       )
     }
   })

@@ -1,6 +1,6 @@
 // src/main/lib/server/routes/workspace.ts — GET /api/v1/workspace/:chatId/file,
 // mounted in a bare Hono app behind the real authGate and errorHandler, the
-// way app.ts mounts it. Files live in a scratch EXODUS_HOME.
+// way app.ts mounts it. Files live in a scratch ACTOVIA_HOME.
 import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -18,11 +18,11 @@ vi.mock('@main/lib/lan/devices', () => ({
   )
 }))
 
-const home = mkdtempSync(join(tmpdir(), 'exodus-workspace-route-'))
-const originalExodusHome = process.env.EXODUS_HOME
-process.env.EXODUS_HOME = home
+const home = mkdtempSync(join(tmpdir(), 'actovia-workspace-route-'))
+const originalActoviaHome = process.env.ACTOVIA_HOME
+process.env.ACTOVIA_HOME = home
 afterAll(() => {
-  process.env.EXODUS_HOME = originalExodusHome
+  process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 const { default: workspaceRouter } =
@@ -31,7 +31,7 @@ const { authGate } = await import('@main/lib/server/middlewares/auth-gate')
 const { errorHandler } =
   await import('@main/lib/server/middlewares/error-handler')
 const { WORKSPACE_FILE_MAX_BYTES } =
-  await import('@exodus/shared/types/workspace-files')
+  await import('@actovia/shared/types/workspace-files')
 
 const CHAT = '11111111-1111-4111-8111-111111111111'
 const OTHER = '22222222-2222-4222-8222-222222222222'

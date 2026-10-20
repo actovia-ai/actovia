@@ -1,4 +1,4 @@
-import type { InstalledSkill } from '@exodus/shared/types/skills'
+import type { InstalledSkill } from '@actovia/shared/types/skills'
 import {
   type QueryClient,
   useMutation,
@@ -21,7 +21,7 @@ export function useInstalledSkills() {
   const { data, isLoading } = useQuery({
     queryKey: installedSkillsKeys.all,
     queryFn: () => getInstalledSkills(),
-    // `exodus-cli` installs into the same ~/.exodus/skills directory, so the
+    // `actovia-cli` installs into the same ~/.actovia/skills directory, so the
     // list can change under a running app; the window coming back is when
     // the user would look for it. Off app-wide, on for this one read.
     refetchOnWindowFocus: true

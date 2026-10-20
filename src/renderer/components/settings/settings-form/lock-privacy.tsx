@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
@@ -115,42 +115,7 @@ export function LockPrivacy() {
       <p className="text-muted-foreground text-sm">
         {t('lock:privacy.thirdParty')}
       </p>
-      {!status.hasPin ? (
-        <Card className="gap-4 px-5.5 py-5">
-          <p className="text-muted-foreground text-sm">
-            {t('lock:privacy.enroll.description')}
-          </p>
-          {step === 'enter' ? (
-            <PinBlock label={t('lock:privacy.enroll.enterLabel')}>
-              <PinInput
-                key="enter"
-                value={pin}
-                onChange={handlePinChange}
-                autoFocus
-                testId={TEST_IDS.lock.enablePinInput}
-              />
-            </PinBlock>
-          ) : (
-            <PinBlock label={t('lock:privacy.enroll.confirmLabel')}>
-              <PinInput
-                key="confirm"
-                value={confirm}
-                onChange={handleConfirmChange}
-                autoFocus
-                testId={TEST_IDS.lock.confirmPinInput}
-              />
-              <Button
-                variant="link"
-                size="xs"
-                onClick={resetEnroll}
-                className="text-muted-foreground h-auto self-start p-0"
-              >
-                {t('lock:privacy.enroll.startOver')}
-              </Button>
-            </PinBlock>
-          )}
-        </Card>
-      ) : (
+      {status.hasPin ? (
         <>
           <SettingsSection>
             {status.touchIdAvailable && (
@@ -242,6 +207,41 @@ export function LockPrivacy() {
             </AlertDialogContent>
           </AlertDialog>
         </>
+      ) : (
+        <Card className="gap-4 px-5.5 py-5">
+          <p className="text-muted-foreground text-sm">
+            {t('lock:privacy.enroll.description')}
+          </p>
+          {step === 'enter' ? (
+            <PinBlock label={t('lock:privacy.enroll.enterLabel')}>
+              <PinInput
+                key="enter"
+                value={pin}
+                onChange={handlePinChange}
+                autoFocus
+                testId={TEST_IDS.lock.enablePinInput}
+              />
+            </PinBlock>
+          ) : (
+            <PinBlock label={t('lock:privacy.enroll.confirmLabel')}>
+              <PinInput
+                key="confirm"
+                value={confirm}
+                onChange={handleConfirmChange}
+                autoFocus
+                testId={TEST_IDS.lock.confirmPinInput}
+              />
+              <Button
+                variant="link"
+                size="xs"
+                onClick={resetEnroll}
+                className="text-muted-foreground h-auto self-start p-0"
+              >
+                {t('lock:privacy.enroll.startOver')}
+              </Button>
+            </PinBlock>
+          )}
+        </Card>
       )}
     </SettingsSection>
   )

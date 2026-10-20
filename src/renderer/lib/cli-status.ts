@@ -1,4 +1,4 @@
-import type { CliStatus } from '@exodus/shared/types/agents'
+import type { CliStatus } from '@actovia/shared/types/agents'
 import type { ParseKeys } from 'i18next'
 
 const VIEW: Record<

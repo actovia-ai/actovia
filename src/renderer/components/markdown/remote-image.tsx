@@ -1,6 +1,6 @@
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { Image01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { createContext, useContext, useReducer } from 'react'
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
  * `markdown.tsx`'s `img` override. A remote `src` in model output can be a
  * tracking pixel or carry data out through its query string (prompt
  * injection), so it loads only when the user asks for it — see
- * docs/security-hardening.md, "Remote images in chat". exodus-ios applies the
+ * docs/security-hardening.md, "Remote images in chat". actovia-ios applies the
  * same rule (`MarkdownImagePolicy.tapToLoadRemote`).
  *
  * What loads without a tap: a `data:` URL whose MIME is a raster image type,

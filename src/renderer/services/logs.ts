@@ -1,5 +1,5 @@
-import { fetcher } from '@exodus/shared/utils/http'
-import type { LogHistogram } from '@exodus/shared/utils/log-query'
+import { fetcher } from '@actovia/shared/utils/http'
+import type { LogHistogram } from '@actovia/shared/utils/log-query'
 
 export interface LogRecord {
   timestamp: string

@@ -372,7 +372,7 @@ describe('useUpdateMcpServer', () => {
   })
 
   it('a secret the server asks for again is left to the form: reported, never toasted', async () => {
-    const { HttpError } = await import('@exodus/shared/utils/http')
+    const { HttpError } = await import('@actovia/shared/utils/http')
     updateMcpServerService.mockRejectedValue(
       new HttpError(400, 'SECRET_REENTRY_REQUIRED', 're-enter', {
         field: 'args'
@@ -395,7 +395,7 @@ describe('useUpdateMcpServer', () => {
 
 describe('useDeleteMcpServer', () => {
   it('deletes by id alone, toasts the removed name once, and marks the mcp family stale', async () => {
-    deleteMcpServerService.mockResolvedValue(undefined)
+    deleteMcpServerService.mockResolvedValue()
     const { queryClient, api } = await mountHook(useDeleteMcpServer)
     seedCaches(queryClient)
 

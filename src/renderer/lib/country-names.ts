@@ -1,4 +1,4 @@
-import { WEB_SEARCH_COUNTRY_CODES } from '@exodus/shared/constants/country-codes'
+import { WEB_SEARCH_COUNTRY_CODES } from '@actovia/shared/constants/country-codes'
 
 // `uk` is what the search API calls Great Britain; ISO says `GB`.
 const ISO_ALIASES: Record<string, string> = { uk: 'GB' }

@@ -6,7 +6,7 @@ import { logger } from '../../logger'
 import { type Bindings, listenerOf } from '../types'
 
 /**
- * The server has no authentication and listens on every interface (exodus-ios
+ * The server has no authentication and listens on every interface (actovia-ios
  * reaches it over the LAN), and its API hands out the saved provider keys and
  * can run the `terminal` tool. A browser is the one client that will talk to it
  * on someone else's behalf: any page the user has open can `fetch()`
@@ -21,7 +21,7 @@ const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]'])
  * A request may carry no `Origin` — or, in a dev build, the Vite renderer's.
  * Nothing else.
  *
- * No `Origin` is every legitimate client but one: exodus-ios, exodus-cli, curl,
+ * No `Origin` is every legitimate client but one: actovia-ios, actovia-cli, curl,
  * the API tests, and the packaged renderer itself — measured, not assumed: a
  * `file://` page in Electron sends none, on GET, JSON POST and PUT alike, and
  * is not preflighted. The one client that does send it is the dev renderer,
@@ -31,7 +31,7 @@ const LOOPBACK_HOSTNAMES = new Set(['localhost', '127.0.0.1', '[::1]'])
  *
  * So `null` is refused (it is what a sandboxed iframe on a hostile page
  * presents), and so is any other scheme: a browser extension, and the artifact
- * sandbox's own `exodus-artifact://`.
+ * sandbox's own `actovia-artifact://`.
  */
 export function isAllowedOrigin(
   origin: string | undefined,
@@ -60,7 +60,7 @@ function isLoopbackAddress(address: string | undefined): boolean {
  * 127.0.0.1, and its now same-origin requests arrive with no `Origin` header
  * to check. What gives it away is the pairing — a connection from this machine
  * that addresses the server by a public name. Only loopback peers are held to
- * it, so exodus-ios may use whatever name the user gave it (an IP, `mac.local`,
+ * it, so actovia-ios may use whatever name the user gave it (an IP, `mac.local`,
  * a tailnet name); loopback clients get `localhost`, an IP literal or `.local`.
  */
 export function isAllowedHost(

@@ -2,7 +2,7 @@
 // What the header's panel lists, derived from the chat's messages: the
 // user's pictures and what the tools made (newest first), every tool called
 // with its count, and the sources found, grouped by the run's question.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import {

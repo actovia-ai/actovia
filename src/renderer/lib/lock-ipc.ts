@@ -4,7 +4,7 @@ import {
   type LockNotification,
   type LockStatus,
   type UnlockResult
-} from '@exodus/shared/types/lock'
+} from '@actovia/shared/types/lock'
 import type { IpcRendererEvent } from 'electron'
 
 const ipc = () => window.electron.ipcRenderer

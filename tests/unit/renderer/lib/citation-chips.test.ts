@@ -1,7 +1,7 @@
 // Citation chips are small print set into an answer: one chip where the
 // model cited, however many sources it named there — "Example A +1" — so the
 // sources do not outweigh the sentence they stand behind.
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { describe, expect, it } from 'vitest'
 
 import { chipLabel, splitCitations } from '@/lib/citation-chips'

@@ -3,12 +3,12 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import type { SkillDetail } from '@exodus/shared/types/skills'
+import type { SkillDetail } from '@actovia/shared/types/skills'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
 
-const root = mkdtempSync(join(tmpdir(), 'exodus-skills-store-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-skills-store-'))
 let skillsDir: string
 
 const detail: SkillDetail = {

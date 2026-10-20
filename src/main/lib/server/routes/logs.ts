@@ -1,13 +1,13 @@
 import { existsSync, readdirSync, readFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
 
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { REPORTED_STACK_MAX_CHARS } from '@exodus/shared/constants/systems'
-import { NotFoundError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { REPORTED_STACK_MAX_CHARS } from '@actovia/shared/constants/systems'
+import { NotFoundError } from '@actovia/shared/errors/app-error'
 import {
   buildLogHistogram,
   parseLogQuery
-} from '@exodus/shared/utils/log-query'
+} from '@actovia/shared/utils/log-query'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -136,7 +136,7 @@ const MAX_ATTRIBUTE_CHARS = 8000
 const MAX_BATCH_REPORTS = 50
 
 // Who filed the report: the renderer (default, unchanged wire shape for
-// existing callers) or a paired exodus-ios device reporting its own local
+// existing callers) or a paired actovia-ios device reporting its own local
 // errors over the LAN listener. Becomes the scope prefix below.
 const reportSchema = z.object({
   level: z.enum(['warn', 'error']),
@@ -187,7 +187,7 @@ function withMappedStacks(
 }
 
 // POST /api/v1/logs — an error a client caught: the renderer (an error
-// boundary, a route error) or a paired exodus-ios device. Client errors
+// boundary, a route error) or a paired actovia-ios device. Client errors
 // otherwise live only on-device; this puts them in the same JSONL the Logger
 // tab reads, under a `renderer/<scope>` or `ios/<scope>` surface, so a card
 // that failed to render is diagnosable after the fact.

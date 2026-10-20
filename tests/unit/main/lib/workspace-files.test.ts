@@ -24,7 +24,7 @@ const {
 } = await import('@main/lib/workspace-files')
 
 // realpath: on macOS the tmp dir is itself behind a symlink (/var → /private/var).
-const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'exodus-ws-files-')))
+const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'actovia-ws-files-')))
 const root = join(scratch, 'workspace')
 const chat = join(root, 'chat-1')
 const outside = join(scratch, 'outside')

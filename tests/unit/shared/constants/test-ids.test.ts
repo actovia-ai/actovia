@@ -1,4 +1,4 @@
-import { flattenTestIds } from '@exodus/shared/constants/test-ids'
+import { flattenTestIds } from '@actovia/shared/constants/test-ids'
 import { describe, expect, it } from 'vitest'
 
 describe('TEST_IDS', () => {
@@ -20,7 +20,7 @@ describe('TEST_IDS', () => {
       const path = accessor
         .replace(/^TEST_IDS\./, '')
         .split('.')
-        .map((seg) => seg.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`))
+        .map((seg) => seg.replaceAll(/[A-Z]/g, (m) => `-${m.toLowerCase()}`))
         .join('.')
       expect(value).toBe(path)
     }

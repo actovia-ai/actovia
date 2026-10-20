@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
   Tick02Icon,
   Clock01Icon,

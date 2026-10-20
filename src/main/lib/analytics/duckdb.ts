@@ -1,10 +1,10 @@
-import type { QueryResult } from '@exodus/shared/types/analytics'
+import type { QueryResult } from '@actovia/shared/types/analytics'
 
 import { logger } from '../logger'
 import { getAnalyticsDbPath } from '../paths'
 
 /**
- * DuckDB wrapper for the chat-audit snapshot (`~/.exodus/analytics/exodus.duckdb`).
+ * DuckDB wrapper for the chat-audit snapshot (`~/.actovia/analytics/actovia.duckdb`).
  *
  * - Lazy: the native library is ~100 MB and takes seconds to load cold, so it
  *   is `import()`ed on first use (Settings → Developer → Chat Audit), never at

@@ -11,7 +11,7 @@ import { net, protocol } from 'electron'
  * `sandbox` attribute now isolates it: `window.parent` is cross-origin. The
  * origin gate refuses this origin and the permission handler denies it.
  */
-const SCHEME = 'exodus-artifact'
+const SCHEME = 'actovia-artifact'
 export const ARTIFACT_ORIGIN = `${SCHEME}://sandbox`
 
 /** Must run before `app` is ready — a scheme can only be made privileged up front. */

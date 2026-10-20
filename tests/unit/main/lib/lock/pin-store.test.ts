@@ -19,7 +19,7 @@ vi.mock('@main/lib/logger', () => ({
 }))
 
 beforeEach(() => {
-  tmpFile = `/tmp/exodus-lock-test-${Math.random().toString(36).slice(2)}.dat`
+  tmpFile = `/tmp/actovia-lock-test-${Math.random().toString(36).slice(2)}.dat`
 })
 afterEach(async () => {
   const { rmSync, existsSync } = await import('fs')
@@ -62,7 +62,7 @@ describe('pin-store', () => {
     const { logger } = await import('@main/lib/logger')
     // "v10" is Chromium's OSCrypt tag — mimics a file encrypted by a foreign
     // keychain / build that this machine can no longer decrypt into JSON.
-    writeFileSync(tmpFile, Buffer.from('v10\x01\x02\x03broken', 'binary'))
+    writeFileSync(tmpFile, Buffer.from('v10\u0001\u0002\u0003broken', 'binary'))
     const store = await import('@main/lib/lock/pin-store')
     expect(() => store.hasPin()).not.toThrow()
     expect(store.hasPin()).toBe(false)

@@ -1,5 +1,5 @@
-import { languageCodes } from '@exodus/shared/constants/language-codes'
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { languageCodes } from '@actovia/shared/constants/language-codes'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { useMemo } from 'react'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'

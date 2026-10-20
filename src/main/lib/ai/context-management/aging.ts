@@ -1,5 +1,5 @@
+import { TOOL_NAMES, type ToolName } from '@actovia/shared/constants/tool-names'
 import type { Message } from '@earendil-works/pi-ai'
-import { TOOL_NAMES, type ToolName } from '@exodus/shared/constants/tool-names'
 
 /**
  * Tool output in the model's context ages (spec 2026-10-01 §B). A tool's

@@ -1,4 +1,4 @@
-import type { CliId } from '@exodus/shared/types/agents'
+import type { CliId } from '@actovia/shared/types/agents'
 import { useTranslation } from 'react-i18next'
 
 import { useAgentQuotas } from '@/hooks/use-agent-quota'
@@ -57,7 +57,7 @@ function partition(
     })
   }
   groups.push(...teamGroups)
-  if (unassigned.length) {
+  if (unassigned.length > 0) {
     groups.push({
       key: '__unassigned__',
       label: unassignedLabel,
@@ -232,7 +232,7 @@ function MemberRow({
         <div className="text-muted-foreground truncate text-xs">
           {modelLabel === 'Default' ? t('employees.model.default') : modelLabel}
         </div>
-        {member.runtime !== 'exodus' && (
+        {member.runtime !== 'actovia' && (
           <QuotaLine cli={member.runtime as CliId} />
         )}
         <div

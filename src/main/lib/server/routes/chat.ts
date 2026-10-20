@@ -1,14 +1,17 @@
-import type { Message } from '@earendil-works/pi-ai'
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import { NotFoundError, ValidationError } from '@exodus/shared/errors/app-error'
-import { AdvancedTools } from '@exodus/shared/types/ai'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import {
+  NotFoundError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
+import { AdvancedTools } from '@actovia/shared/types/ai'
 import type {
   ChatMessage,
   ChatUserMessage,
   ToolNotice
-} from '@exodus/shared/types/chat'
-import { runAttemptInfos, runsForContext } from '@exodus/shared/utils/attempts'
+} from '@actovia/shared/types/chat'
+import { runAttemptInfos, runsForContext } from '@actovia/shared/utils/attempts'
+import type { Message } from '@earendil-works/pi-ai'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -140,7 +143,7 @@ chat.post('/approval', async (c) => {
  * answer → `folded` (`lib/chat/attempts.ts`). 404 `RUN_NOT_FOUND`, 409
  * `ATTEMPT_LOCKED` once a later run exists. Not behind the presence gate
  * (`PRESENCE_PATHS`): it only picks which of the user's own answers the model
- * sees next — no secret, no approval — and exodus-ios calls it over the LAN.
+ * sees next — no secret, no approval — and actovia-ios calls it over the LAN.
  */
 chat.post('/:chatId/choose', async (c) => {
   const chatId = validateSchema(

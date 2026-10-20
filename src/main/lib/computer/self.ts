@@ -8,13 +8,13 @@ import { app, BrowserWindow } from 'electron'
  * the session's re-check of the resolved window — refuse a target that is
  * Actovia, and the Settings app picker never offers it.
  *
- * Actovia is recognised by its bundle id (the packaged `app.yancey.exodus`;
+ * Actovia is recognised by its bundle id (the packaged `app.yancey.actovia`;
  * in a dev run the prebuilt Electron.app, `com.github.Electron`) and by the
- * CGWindowIDs of its own windows. Not by name: "Exodus" is also the name of
+ * CGWindowIDs of its own windows. Not by name: "Actovia" is also the name of
  * unrelated apps. The helper does not report a window's owner pid, so the
  * window ids stand in for it.
  */
-export const EXODUS_BUNDLE_ID = 'app.yancey.exodus'
+export const ACTOVIA_BUNDLE_ID = 'app.yancey.actovia'
 const DEV_BUNDLE_ID = 'com.github.electron'
 
 export interface SelfIdentity {
@@ -24,7 +24,7 @@ export interface SelfIdentity {
 }
 
 function currentIdentity(): SelfIdentity {
-  const bundleIds = [EXODUS_BUNDLE_ID]
+  const bundleIds = [ACTOVIA_BUNDLE_ID]
   let windowIds: number[] = []
   try {
     if (!app.isPackaged) bundleIds.push(DEV_BUNDLE_ID)

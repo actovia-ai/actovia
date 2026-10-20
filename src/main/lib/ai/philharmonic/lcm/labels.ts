@@ -1,4 +1,4 @@
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+import { CLI_NAMES } from '@actovia/shared/types/agents'
 
 import { cliOf, isCliId } from '../../../agents/drivers'
 

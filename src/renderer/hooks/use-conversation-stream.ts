@@ -1,11 +1,11 @@
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import type { AgentCard } from '@exodus/shared/types/agents'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import type { AgentCard } from '@actovia/shared/types/agents'
 import type {
   PhilharmonicSseEvent,
   PlanDto,
   StepDto,
   StepPatch
-} from '@exodus/shared/types/philharmonic'
+} from '@actovia/shared/types/philharmonic'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
@@ -63,12 +63,12 @@ function applyStepPatch(step: StepDto, patch: StepPatch): StepDto {
   return {
     ...step,
     ...patch,
-    output: patch.output !== undefined ? patch.output : step.output,
-    note: patch.note !== undefined ? patch.note : step.note,
+    output: patch.output === undefined ? step.output : patch.output,
+    note: patch.note === undefined ? step.note : patch.note,
     assignedAgentId:
-      patch.assignedAgentId !== undefined
-        ? patch.assignedAgentId
-        : step.assignedAgentId
+      patch.assignedAgentId === undefined
+        ? step.assignedAgentId
+        : patch.assignedAgentId
   }
 }
 

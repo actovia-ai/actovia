@@ -1,6 +1,6 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
-import type { MemoryChange, MemorySnapshot } from '@exodus/shared/types/memory'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
+import type { MemoryChange, MemorySnapshot } from '@actovia/shared/types/memory'
 import {
   Tick02Icon,
   ArrowDown01Icon,

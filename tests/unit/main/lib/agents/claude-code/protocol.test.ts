@@ -51,14 +51,14 @@ describe('Claude Code protocol', () => {
           kind: 'permission',
           requestId: parsed.control!.requestId,
           tool: 'Write',
-          summary: '/tmp/exodus-project/hello.txt',
-          detail: '/tmp/exodus-project/hello.txt\n\nhi from exodus'
+          summary: '/tmp/actovia-project/hello.txt',
+          detail: '/tmp/actovia-project/hello.txt\n\nhi from actovia'
         }
       }
     ])
     expect(parsed.control).toMatchObject({
       toolName: 'Write',
-      input: { file_path: '/tmp/exodus-project/hello.txt' }
+      input: { file_path: '/tmp/actovia-project/hello.txt' }
     })
   })
 

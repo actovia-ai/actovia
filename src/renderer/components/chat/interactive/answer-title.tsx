@@ -1,4 +1,4 @@
-import type { AnswerHead } from '@exodus/shared/utils/interactive-answer'
+import type { AnswerHead } from '@actovia/shared/utils/interactive-answer'
 import {
   CheckmarkCircle01Icon,
   CancelCircleIcon,

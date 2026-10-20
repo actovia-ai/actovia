@@ -1,4 +1,4 @@
-import type { SkillsView } from '@exodus/shared/types/skills'
+import type { SkillsView } from '@actovia/shared/types/skills'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { RELAY_RETRY } from '@/lib/relay-retry'

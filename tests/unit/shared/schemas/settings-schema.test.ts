@@ -4,7 +4,7 @@ import {
   EffortLevelSchema,
   ModelSnapshotSchema,
   ProviderConfigSchema
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { describe, expect, it } from 'vitest'
 
 describe('EffortLevelSchema', () => {

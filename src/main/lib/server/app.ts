@@ -1,4 +1,4 @@
-import { SERVER_PORT } from '@exodus/shared/constants/systems'
+import { SERVER_PORT } from '@actovia/shared/constants/systems'
 import { serve, ServerType } from '@hono/node-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
@@ -113,7 +113,7 @@ export function createApp() {
 
   // Routes — every business endpoint lives under one version prefix so a
   // breaking change can ship as /api/v2 next to it instead of on top of it.
-  // Clients (the renderer, tests/api, exodus-ios) address /api/v1/....
+  // Clients (the renderer, tests/api, actovia-ios) address /api/v1/....
   const v1 = new Hono<{ Variables: Variables }>()
   v1.route('/chat', chatRouter)
   v1.route('/lcm', lcmStatusRouter)

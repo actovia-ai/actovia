@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { levelOfSeverity } from '@exodus/shared/utils/log-query'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { levelOfSeverity } from '@actovia/shared/utils/log-query'
 import {
   ArrowDown01Icon,
   ArrowUp01Icon,

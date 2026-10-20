@@ -1,8 +1,8 @@
-import { TOOL_NAMES, type ToolName } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES, type ToolName } from '@actovia/shared/constants/tool-names'
 import type {
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import type { ParseKeys } from 'i18next'
 import type { ComponentType } from 'react'
 import type { FieldPath } from 'react-hook-form'

@@ -124,7 +124,7 @@ describe('fetchPinned', () => {
     expect(seen).toHaveLength(1)
   })
 
-  it("refuses Exodus's own API ports on this machine before connecting", async () => {
+  it("refuses Actovia's own API ports on this machine before connecting", async () => {
     for (const p of [60223, 63129]) {
       await expect(
         fetchPinned(new URL(`http://rebound.invalid:${p}/api/v1/settings`))

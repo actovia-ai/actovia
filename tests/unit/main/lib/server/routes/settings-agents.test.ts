@@ -5,7 +5,7 @@ vi.mock('@main/lib/logger', () => ({
 }))
 vi.mock('@main/lib/db/db', () => ({ db: {}, pglite: {} }))
 vi.mock('electron', () => ({}))
-vi.mock('@main/lib/paths', () => ({ getExodusHome: () => '/data/exodus' }))
+vi.mock('@main/lib/paths', () => ({ getActoviaHome: () => '/data/actovia' }))
 const updateSettings = vi.fn(async () => ({}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({
@@ -100,9 +100,14 @@ describe('settings write keeps the CLI path and projects folder', () => {
     })
   })
 
-  it('the window may not point projectsDir at Exodus data, home or root', async () => {
+  it('the window may not point projectsDir at Actovia data, home or root', async () => {
     const headers = { [PRESENCE_HEADER]: getPresenceToken() }
-    for (const dir of ['/', '/data/exodus', '/data/exodus/projects', '/data']) {
+    for (const dir of [
+      '/',
+      '/data/actovia',
+      '/data/actovia/projects',
+      '/data'
+    ]) {
       const res = await save(
         headers,
         undefined,
@@ -117,7 +122,7 @@ describe('settings write keeps the CLI path and projects folder', () => {
         id: 1,
         agents: {
           worktrees: true,
-          projectsDir: '/Volumes/work/Exodus Projects'
+          projectsDir: '/Volumes/work/Actovia Projects'
         }
       })
     )
@@ -129,7 +134,7 @@ describe('settings write keeps the CLI path and projects folder', () => {
     expect(written().projectsDir).toBe('/good')
   })
 
-  it('but the Exodus window changes them', async () => {
+  it('but the Actovia window changes them', async () => {
     await save({ [PRESENCE_HEADER]: getPresenceToken() })
     expect(written()).toMatchObject({
       cliPaths: { 'claude-code': '/evil/claude' },

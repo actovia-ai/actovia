@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   cliModelSuggestions,
   employeeModelLabel,
-  exodusModelOptions,
+  actoviaModelOptions,
   parseModelValue
 } from '@/lib/employee-model'
 
@@ -20,7 +20,7 @@ const settings = {
 
 describe('employee model', () => {
   it('offers only the models of providers with a key', () => {
-    const opts = exodusModelOptions(settings)
+    const opts = actoviaModelOptions(settings)
     expect(opts.map((o) => o.value)).toEqual([
       'Anthropic Claude::claude-opus-5-5'
     ])
@@ -38,14 +38,14 @@ describe('employee model', () => {
   it('labels an employee by what it runs on', () => {
     expect(
       employeeModelLabel(
-        { runtime: 'exodus', provider: null, model: null } as never,
+        { runtime: 'actovia', provider: null, model: null } as never,
         settings
       )
     ).toBe('Default')
     expect(
       employeeModelLabel(
         {
-          runtime: 'exodus',
+          runtime: 'actovia',
           provider: 'Anthropic Claude',
           model: 'claude-opus-5-5'
         } as never,
@@ -69,7 +69,7 @@ describe('employee model', () => {
 
 describe('cliModelSuggestions', () => {
   it('knows Claude Code’s aliases and takes the rest from the CLI', () => {
-    expect(cliModelSuggestions('claude-code', undefined)).toEqual([
+    expect(cliModelSuggestions('claude-code')).toEqual([
       'opus',
       'sonnet',
       'haiku'
@@ -77,6 +77,6 @@ describe('cliModelSuggestions', () => {
     expect(
       cliModelSuggestions('codex', { models: ['gpt-x'] } as never)
     ).toEqual(['gpt-x'])
-    expect(cliModelSuggestions('codex', undefined)).toEqual([])
+    expect(cliModelSuggestions('codex')).toEqual([])
   })
 })

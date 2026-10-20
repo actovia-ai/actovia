@@ -1,8 +1,8 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { MemoryChange } from '@actovia/shared/types/memory'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import type { Model } from '@earendil-works/pi-ai'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { MemoryChange } from '@exodus/shared/types/memory'
 
 import { runMemoryInstruction } from '../memory/manager'
 

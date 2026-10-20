@@ -153,7 +153,7 @@ export const ComputerUseSchema = z.object({
 /**
  * Coding-agent employees (spec 2026-10-09). Unset numbers take their
  * defaults where they are used (`src/main/lib/agents/settings.ts`): the
- * projects folder `~/Exodus Projects`, 2 running at once, 10 minutes kept.
+ * projects folder `~/Actovia Projects`, 2 running at once, 10 minutes kept.
  */
 export const AgentsSettingsSchema = z.object({
   projectsDir: z.string().nullish(),

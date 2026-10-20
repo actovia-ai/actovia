@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { resolve } from 'node:path'
 import { inspect, promisify } from 'node:util'
 
-import { EXODUS_REPO } from '@exodus/shared/constants/external-urls'
+import { ACTOVIA_REPO } from '@actovia/shared/constants/external-urls'
 import { app, autoUpdater, BrowserWindow, net } from 'electron'
 import { updateElectronApp } from 'update-electron-app'
 
@@ -46,7 +46,7 @@ let payload: UpdaterPayload = {
 
 let autoUpdateEnabled = true
 let modeReady: Promise<UpdateMode> = Promise.resolve('auto')
-const RELEASES_LATEST_URL = `${EXODUS_REPO}/releases/latest`
+const RELEASES_LATEST_URL = `${ACTOVIA_REPO}/releases/latest`
 const FEED_HOST = 'https://update.electronjs.org'
 const FEED_TIMEOUT_MS = 15_000
 
@@ -91,12 +91,12 @@ export async function detectUpdateMode(): Promise<UpdateMode> {
  */
 async function checkFeed(): Promise<void> {
   setState('checking')
-  const url = `${FEED_HOST}/${new URL(EXODUS_REPO).pathname.slice(1)}/${process.platform}-${process.arch}/${app.getVersion()}`
+  const url = `${FEED_HOST}/${new URL(ACTOVIA_REPO).pathname.slice(1)}/${process.platform}-${process.arch}/${app.getVersion()}`
   try {
     logger.info('app', 'Updater: checking feed', { url })
     const res = await net.fetch(url, {
       headers: {
-        'User-Agent': `exodus/${app.getVersion()} (${process.platform}: ${process.arch})`
+        'User-Agent': `actovia/${app.getVersion()} (${process.platform}: ${process.arch})`
       },
       signal: AbortSignal.timeout(FEED_TIMEOUT_MS)
     })

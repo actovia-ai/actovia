@@ -4,18 +4,18 @@
 // fences: steps with only the run's own search thumbnails as pictures, the
 // chart as TradingView's embed in a sandboxed frame that falls back to a card
 // when it cannot load. Copy takes the block's words.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   ChatMessage,
   SendMessageOptions,
   TurnBlock
-} from '@exodus/shared/types/chat'
-import type { EntitySummary } from '@exodus/shared/types/entity'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/chat'
+import type { EntitySummary } from '@actovia/shared/types/entity'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   tradingViewEmbedUrl,
   tradingViewSymbolPageUrl
-} from '@exodus/shared/utils/stock-chart'
+} from '@actovia/shared/utils/stock-chart'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Provider as JotaiProvider } from 'jotai'
 import { act, createElement, type ReactElement } from 'react'
@@ -178,7 +178,7 @@ describe('illustrated steps in a reply', () => {
   it('are drawn as a numbered list in place of the code, with the title', async () => {
     await show(
       createElement(Turn, {
-        body: `How to:\n\n${fence('exodus-steps', STEPS)}`,
+        body: `How to:\n\n${fence('actovia-steps', STEPS)}`,
         results: RESULTS
       })
     )
@@ -192,7 +192,7 @@ describe('illustrated steps in a reply', () => {
   it("draws a picture only when it is one of the run's search thumbnails", async () => {
     await show(
       createElement(Turn, {
-        body: fence('exodus-steps', STEPS),
+        body: fence('actovia-steps', STEPS),
         results: RESULTS
       })
     )
@@ -210,7 +210,7 @@ describe('illustrated steps in a reply', () => {
   })
 
   it('draws no pictures when the run searched nothing', async () => {
-    await show(createElement(Turn, { body: fence('exodus-steps', STEPS) }))
+    await show(createElement(Turn, { body: fence('actovia-steps', STEPS) }))
     expect(allById(TEST_IDS.chat.richBlocks.step)).toHaveLength(4)
     expect(allById(TEST_IDS.chat.richBlocks.stepImage)).toHaveLength(0)
   })
@@ -218,7 +218,7 @@ describe('illustrated steps in a reply', () => {
   it('a second block in the reply stays code', async () => {
     await show(
       createElement(Turn, {
-        body: `${fence('exodus-steps', STEPS)}\n\n${fence('exodus-stock', STOCK)}`
+        body: `${fence('actovia-steps', STEPS)}\n\n${fence('actovia-stock', STOCK)}`
       })
     )
     expect(byId(TEST_IDS.chat.richBlocks.steps)).not.toBeNull()
@@ -229,7 +229,7 @@ describe('illustrated steps in a reply', () => {
 
 describe('a stock chart in a reply', () => {
   it("is TradingView's embed in a sandboxed frame, with the note and the symbol's page under it", async () => {
-    await show(createElement(Turn, { body: fence('exodus-stock', STOCK) }))
+    await show(createElement(Turn, { body: fence('actovia-stock', STOCK) }))
     const frame = byId(TEST_IDS.chat.richBlocks.stockFrame)
     expect(frame?.getAttribute('src')).toBe(
       tradingViewEmbedUrl({
@@ -256,7 +256,7 @@ describe('a stock chart in a reply', () => {
   it('takes 1D when the block names no range', async () => {
     await show(
       createElement(Turn, {
-        body: fence('exodus-stock', { symbol: 'NYSE:BRK.B' })
+        body: fence('actovia-stock', { symbol: 'NYSE:BRK.B' })
       })
     )
     expect(
@@ -265,7 +265,7 @@ describe('a stock chart in a reply', () => {
   })
 
   it('falls back to a card when the frame fails', async () => {
-    await show(createElement(Turn, { body: fence('exodus-stock', STOCK) }))
+    await show(createElement(Turn, { body: fence('actovia-stock', STOCK) }))
     await act(async () => {
       byId(TEST_IDS.chat.richBlocks.stockFrame)?.dispatchEvent(
         new Event('error')
@@ -275,9 +275,7 @@ describe('a stock chart in a reply', () => {
     const fallback = byId(TEST_IDS.chat.richBlocks.stockFallback)
     expect(fallback?.textContent).toContain('NASDAQ:AAPL')
     expect(fallback?.textContent).toContain('richBlocks.chartUnavailable')
-    expect(
-      byId(TEST_IDS.chat.richBlocks.stock)?.getAttribute('data-state')
-    ).toBe('failed')
+    expect(byId(TEST_IDS.chat.richBlocks.stock)?.dataset.state).toBe('failed')
     // The note and the page link stay.
     expect(host.textContent).toContain('Up 12% since the call.')
   })
@@ -285,7 +283,7 @@ describe('a stock chart in a reply', () => {
   it('falls back when the frame says nothing for ten seconds', async () => {
     vi.useFakeTimers()
     try {
-      await show(createElement(Turn, { body: fence('exodus-stock', STOCK) }))
+      await show(createElement(Turn, { body: fence('actovia-stock', STOCK) }))
       await act(async () => {
         vi.advanceTimersByTime(10_001)
       })
@@ -298,7 +296,7 @@ describe('a stock chart in a reply', () => {
   it('falls back at once when the app is offline', async () => {
     const onLine = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
     try {
-      await show(createElement(Turn, { body: fence('exodus-stock', STOCK) }))
+      await show(createElement(Turn, { body: fence('actovia-stock', STOCK) }))
       expect(byId(TEST_IDS.chat.richBlocks.stockFallback)).not.toBeNull()
       expect(byId(TEST_IDS.chat.richBlocks.stockFrame)).toBeNull()
     } finally {
@@ -307,7 +305,7 @@ describe('a stock chart in a reply', () => {
   })
 
   it('re-arms when the chart URL changes', async () => {
-    await show(createElement(Turn, { body: fence('exodus-stock', STOCK) }))
+    await show(createElement(Turn, { body: fence('actovia-stock', STOCK) }))
     await act(async () => {
       byId(TEST_IDS.chat.richBlocks.stockFrame)?.dispatchEvent(
         new Event('error')
@@ -316,7 +314,7 @@ describe('a stock chart in a reply', () => {
     expect(byId(TEST_IDS.chat.richBlocks.stockFallback)).not.toBeNull()
     await show(
       createElement(Turn, {
-        body: fence('exodus-stock', { ...STOCK, range: '1M' })
+        body: fence('actovia-stock', { ...STOCK, range: '1M' })
       })
     )
     expect(byId(TEST_IDS.chat.richBlocks.stockFallback)).toBeNull()
@@ -329,7 +327,7 @@ describe('a stock chart in a reply', () => {
   it('a symbol the widget would not take stays code', async () => {
     await show(
       createElement(Turn, {
-        body: fence('exodus-stock', { symbol: 'nasdaq:aapl' })
+        body: fence('actovia-stock', { symbol: 'nasdaq:aapl' })
       })
     )
     expect(byId(TEST_IDS.chat.richBlocks.stock)).toBeNull()
@@ -339,7 +337,7 @@ describe('a stock chart in a reply', () => {
 
 describe('copy and read aloud take the block’s words', () => {
   it("Copy writes the stock block's symbol and note, not its JSON", async () => {
-    const content = `Here:\n\n${fence('exodus-stock', STOCK)}`
+    const content = `Here:\n\n${fence('actovia-stock', STOCK)}`
     await show(createElement(MessageAction, { content }))
     const row = byId(TEST_IDS.chat.messageAction)
     // The copy button sits inside the tooltip's trigger button.
@@ -347,7 +345,7 @@ describe('copy and read aloud take the block’s words', () => {
     expect(handleCopy).toHaveBeenCalledTimes(1)
     const copied = handleCopy.mock.calls[0]![0] as string
     expect(copied).toContain('NASDAQ:AAPL — Up 12% since the call.')
-    expect(copied).not.toContain('exodus-stock')
+    expect(copied).not.toContain('actovia-stock')
   })
 })
 
@@ -359,10 +357,7 @@ describe('an entity link in a reply', () => {
       })
     )
     const links = allById(TEST_IDS.chat.richBlocks.entityLink)
-    expect(links.map((l) => l.getAttribute('data-entity'))).toEqual([
-      'Marie_Curie',
-      'Kyoto'
-    ])
+    expect(links.map((l) => l.dataset.entity)).toEqual(['Marie_Curie', 'Kyoto'])
     expect(links[0].tagName).toBe('BUTTON')
     expect(links[0].textContent).toBe('Marie Curie')
     expect(host.querySelector('a[href^="entity:"]')).toBeNull()

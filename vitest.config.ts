@@ -17,10 +17,10 @@ export default defineConfig({
     // A scratch data dir per test file, under the default below.
     setupFiles: ['tests/unit/setup/isolated-home.ts'],
     env: {
-      // Dev builds use the real ~/.exodus, so a test that imports the real
+      // Dev builds use the real ~/.actovia, so a test that imports the real
       // db/db.ts (instead of mocking it) would open — and could write to — the
       // user's actual database. Point every test at a scratch data dir instead.
-      EXODUS_HOME: resolve(tmpdir(), 'exodus-unit-tests-home')
+      ACTOVIA_HOME: resolve(tmpdir(), 'actovia-unit-tests-home')
     },
     coverage: {
       provider: 'v8',

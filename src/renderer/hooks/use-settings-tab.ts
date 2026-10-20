@@ -28,7 +28,7 @@ export const SETTINGS_TAB_SLUGS: Record<SettingsLabel, string> = {
   [SettingsLabel.Logger]: 'logger',
   [SettingsLabel.ChatAudit]: 'chat-audit',
   [SettingsLabel.Devices]: 'devices',
-  [SettingsLabel.AboutExodus]: 'about'
+  [SettingsLabel.AboutActovia]: 'about'
 }
 
 const SLUG_TO_LABEL = Object.fromEntries(

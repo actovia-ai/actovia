@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { AttachmentRequest } from '@exodus/shared/types/attachment-actions'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { AttachmentRequest } from '@actovia/shared/types/attachment-actions'
 import { DownloadIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { MouseEvent, ReactElement, ReactNode } from 'react'

@@ -7,15 +7,15 @@ import type {
   SkillDetail,
   SkillFile,
   SkillsLockfile
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 
 import { getSkillsDir } from '../../paths'
 
 /**
  * On-disk skill store: `<skillsDir>/<slug>/…` plus `<skillsDir>/.lock.json`.
- * Same layout and lockfile shape as exodus-cli's `skills-store.ts`, so a
+ * Same layout and lockfile shape as actovia-cli's `skills-store.ts`, so a
  * skill installed by either is visible to both. `skillsDir` is a parameter
- * (defaulting to `~/.exodus/skills`) so tests run against a temp dir.
+ * (defaulting to `~/.actovia/skills`) so tests run against a temp dir.
  */
 
 const LOCK_FILE = '.lock.json'

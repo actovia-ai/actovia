@@ -2,13 +2,13 @@ import type {
   WebSearchMediaKind,
   WebSearchMediaResult,
   WebSearchResult
-} from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/web-search'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import * as cheerio from 'cheerio'
 import TurndownService from 'turndown'
 
 import {
-  assertNotExodusApi,
+  assertNotActoviaApi,
   LocalApiTargetError
 } from '../../net/local-api-guard'
 import { fetchPinned } from '../../net/pinned-fetch'
@@ -23,7 +23,7 @@ const TURNDOWN_OPTIONS = {
 const BRAVE_API_BASE = 'https://api.search.brave.com/res/v1'
 
 // A page webFetch loads directly (not through Jina) may redirect; each hop
-// is re-checked against assertNotExodusApi (see loadDocumentBuiltin) so a
+// is re-checked against assertNotActoviaApi (see loadDocumentBuiltin) so a
 // redirect can't land on Actovia's own API even when the original URL didn't.
 const MAX_BUILTIN_REDIRECTS = 5
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
@@ -31,7 +31,7 @@ const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
 /**
  * A GET through `fetchPinned` (the connection pinned to the addresses it
  * judged; it never follows a redirect), following redirects here so every
- * hop — including the first — passes `assertNotExodusApi` before the request
+ * hop — including the first — passes `assertNotActoviaApi` before the request
  * for it is made. Only `http:` / `https:` hops are followed.
  */
 async function fetchFollowingLocalGuard(initial: URL, signal?: AbortSignal) {
@@ -40,7 +40,7 @@ async function fetchFollowingLocalGuard(initial: URL, signal?: AbortSignal) {
     if (current.protocol !== 'http:' && current.protocol !== 'https:') {
       throw new Error(`Refused: ${current.protocol} is not http(s)`)
     }
-    await assertNotExodusApi(current)
+    await assertNotActoviaApi(current)
     const response = await fetchPinned(current, { signal })
     if (!REDIRECT_STATUSES.has(response.status)) return response
     const location = response.headers.get('location')

@@ -1,4 +1,4 @@
-import type { Attempt, ChatMessage } from '@exodus/shared/types/chat'
+import type { Attempt, ChatMessage } from '@actovia/shared/types/chat'
 import {
   applyAttempts,
   attemptsAfterChoice,
@@ -7,7 +7,7 @@ import {
   excludedRuns,
   runAttemptInfos,
   runsForContext
-} from '@exodus/shared/utils/attempts'
+} from '@actovia/shared/utils/attempts'
 import { describe, expect, it } from 'vitest'
 
 // Runs are named by their user message: `G` the group's first run, `R1`, `R2`

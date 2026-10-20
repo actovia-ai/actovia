@@ -1,8 +1,8 @@
-import type { AskBlock, AskQuestion } from '@exodus/shared/types/interactive'
+import type { AskBlock, AskQuestion } from '@actovia/shared/types/interactive'
 import {
   composeAskAnswer,
   type QuestionResponse
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { type FormEvent, type KeyboardEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -36,7 +36,7 @@ export interface BlockProps<B> {
 }
 
 /** The value of a question's "Other…" choice. */
-const OTHER = '__exodus_other__'
+const OTHER = '__actovia_other__'
 
 const CARD = 'bg-card text-card-foreground rounded-2xl border p-4'
 

@@ -1,7 +1,7 @@
 // The PM's decision trail (spec 2026-10-17 §2): every agentLoop event of a
 // round that tells why it did what it did, in order, masked, written as it
 // happens. Best-effort: a failed write is logged and never fails the round.
-import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 
 import { appendRoundEvent } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
@@ -135,7 +135,7 @@ export function createRoundRecorder(
     roundId,
     input: (trigger, text) => write('input', { trigger, text }),
     reports: (messages) => {
-      if (messages.length) write('reports', { messages })
+      if (messages.length > 0) write('reports', { messages })
     },
     onEvent(event) {
       try {

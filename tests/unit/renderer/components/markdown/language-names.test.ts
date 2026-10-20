@@ -27,7 +27,7 @@ describe("a code block's language name", () => {
   })
 
   it('keeps an unknown name with a capital first letter, and an empty one empty', () => {
-    expect(languageName('exodus-ask')).toBe('Exodus-ask')
+    expect(languageName('actovia-ask')).toBe('Actovia-ask')
     expect(languageName('foo')).toBe('Foo')
     expect(languageName('')).toBe('')
   })

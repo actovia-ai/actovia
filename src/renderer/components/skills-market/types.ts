@@ -2,7 +2,7 @@ import type {
   InstalledSkill,
   SkillListItem,
   SkillsView
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 
 /** The registry's leaderboard views, plus its curated publishers list. */
 export type BrowseView = SkillsView | 'curated'

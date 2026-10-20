@@ -14,7 +14,7 @@ function deny(c: Context, status: 401 | 403, code: string, message: string) {
 
 /**
  * The LAN listener's door. Loopback has none: a local process can read
- * ~/.exodus directly, and browsers are turned away by the origin gate. A LAN
+ * ~/.actovia directly, and browsers are turned away by the origin gate. A LAN
  * request needs the token of a paired device — except the one request that
  * obtains a token, which the pairing window guards instead.
  *

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { HttpError } from '@exodus/shared/utils/http'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { HttpError } from '@actovia/shared/utils/http'
 import { focusManager, QueryClientProvider } from '@tanstack/react-query'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -114,7 +114,7 @@ const dialogButton = (label: string) =>
 
 const pairingInfo = {
   expiresAt: 1_800_000_000_000,
-  link: 'exodus://pair?h=192.168.1.5&p=63129&c=123456&f=abc&n=Mac'
+  link: 'actovia://pair?h=192.168.1.5&p=63129&c=123456&f=abc&n=Mac'
 }
 const iphone = {
   id: 'dev-1',
@@ -167,7 +167,7 @@ describe('Devices: what its buttons write', () => {
     getDevicesService
       .mockResolvedValueOnce(stateOf({ pairing: pairingInfo }))
       .mockResolvedValue(stateOf())
-    cancelPairingService.mockResolvedValue(undefined)
+    cancelPairingService.mockResolvedValue()
     await mount()
     await flush()
 
@@ -184,7 +184,7 @@ describe('Devices: what its buttons write', () => {
     getDevicesService
       .mockResolvedValueOnce(stateOf({ devices: [iphone] }))
       .mockResolvedValue(stateOf())
-    revokeDeviceService.mockResolvedValue(undefined)
+    revokeDeviceService.mockResolvedValue()
     await mount()
     await flush()
     expect(byTestId(TEST_IDS.devices.deviceRow)).not.toBeNull()
@@ -208,7 +208,7 @@ describe('Devices: what its buttons write', () => {
     getDevicesService
       .mockResolvedValueOnce(stateOf({ devices: [iphone] }))
       .mockResolvedValue(stateOf())
-    resetDevicesService.mockResolvedValue(undefined)
+    resetDevicesService.mockResolvedValue()
     await mount()
     await flush()
 

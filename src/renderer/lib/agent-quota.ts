@@ -1,4 +1,4 @@
-import type { CliQuota, QuotaWindow } from '@exodus/shared/types/agents'
+import type { CliQuota, QuotaWindow } from '@actovia/shared/types/agents'
 
 export interface QuotaPart {
   key: 'fiveHour' | 'sevenDay' | 'other'

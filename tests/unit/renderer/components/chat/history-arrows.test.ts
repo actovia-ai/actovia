@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // The `←` `→` beside the sidebar toggle: enabled by the app's own page
 // history, each going to the entry's own path.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'

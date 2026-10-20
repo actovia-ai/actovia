@@ -2,7 +2,7 @@
 // While `create_artifact`'s arguments stream, the artifact's place in the
 // answer shows the code being written (the draft card); the result replaces
 // it in place, and a run stopped before the result leaves nothing.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'
@@ -157,17 +157,13 @@ describe('a create_artifact call whose arguments are still streaming', () => {
       callWith({ title: 'Sales', code: 'const A = () => (\n  <div cl' })
     ])
     const draft = host.querySelector('[data-draft]')
-    expect(draft?.getAttribute('data-draft')).toBe('Sales')
-    expect(draft?.getAttribute('data-code')).toBe(
-      'const A = () => (\n  <div cl'
-    )
+    expect(draft?.dataset.draft).toBe('Sales')
+    expect(draft?.dataset.code).toBe('const A = () => (\n  <div cl')
   })
 
   it('shows a draft before the title has arrived', async () => {
     const { host } = await render('streaming', [user, callWith({})])
-    expect(host.querySelector('[data-draft]')?.getAttribute('data-code')).toBe(
-      ''
-    )
+    expect(host.querySelector('[data-draft]')?.dataset.code).toBe('')
   })
 
   it('is replaced in place by the card once the result lands', async () => {

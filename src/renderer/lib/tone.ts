@@ -1,10 +1,10 @@
 import {
   ColorToneSchema,
   type ColorTone
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 
 /** localStorage mirror of `settings.colorTone`, so the tone paints before React. */
-export const COLOR_TONE_STORAGE_KEY = 'exodus-color-tone'
+export const COLOR_TONE_STORAGE_KEY = 'actovia-color-tone'
 export const DEFAULT_COLOR_TONE: ColorTone = 'neutral'
 
 /** Set `data-tone` on <html> (what globals.css keys its palettes on) + cache it. */

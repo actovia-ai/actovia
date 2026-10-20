@@ -1,7 +1,7 @@
 import { electronTest as test, expect } from '../fixtures/electron'
 
 const SANDBOX_URL =
-  'exodus-artifact://sandbox/src/renderer/sub-apps/artifacts/index.html'
+  'actovia-artifact://sandbox/src/renderer/sub-apps/artifacts/index.html'
 
 // What a hostile artifact would try — and a web page can talk the model into
 // writing one. It renders what it managed to reach.
@@ -63,7 +63,7 @@ test.describe('Artifact sandbox isolation', () => {
           )
         })
         frame.src = url
-        document.body.appendChild(frame)
+        document.body.append(frame)
       },
       { url: SANDBOX_URL, code: PROBE }
     )

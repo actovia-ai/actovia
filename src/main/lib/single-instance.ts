@@ -7,7 +7,7 @@ import { app } from 'electron'
  * One Actovia process per data directory.
  *
  * PGlite has no cross-process lock: a second process on the same
- * `~/.exodus/database` corrupts it. The second instance did fail — but only at
+ * `~/.actovia/database` corrupts it. The second instance did fail — but only at
  * binding port 60223, by which point it had opened the database, run the
  * migrations and written the startup clean-ups. So the lock is taken by
  * `db/db.ts`, before it constructs PGlite: no lock, no database.

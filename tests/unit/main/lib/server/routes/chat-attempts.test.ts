@@ -264,7 +264,7 @@ describe('regenerate through POST /api/v1/chat', () => {
 })
 
 describe('POST /api/v1/chat/:chatId/choose', () => {
-  it('is not behind the presence gate (exodus-ios calls it over the LAN)', () => {
+  it('is not behind the presence gate (actovia-ios calls it over the LAN)', () => {
     expect(needsPresence(`/api/v1/chat/${randomUUID()}/choose`)).toBe(false)
   })
 

@@ -1,10 +1,10 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatAssistantMessage,
   ChatMessage,
   ChatToolResultMessage
-} from '@exodus/shared/types/chat'
-import type { MemoryChange } from '@exodus/shared/types/memory'
+} from '@actovia/shared/types/chat'
+import type { MemoryChange } from '@actovia/shared/types/memory'
 
 export interface RunMemoryChanges {
   /** An `update_memory` call is out with no result yet. */

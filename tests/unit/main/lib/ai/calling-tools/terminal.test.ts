@@ -6,7 +6,7 @@ import { terminal } from '@main/lib/ai/calling-tools/terminal'
 import { afterAll, describe, expect, it } from 'vitest'
 
 // realpath: macOS's tmpdir is a symlink, and `pwd` prints the real path.
-const base = realpathSync(mkdtempSync(join(tmpdir(), 'exodus-terminal-')))
+const base = realpathSync(mkdtempSync(join(tmpdir(), 'actovia-terminal-')))
 afterAll(() => rmSync(base, { recursive: true, force: true }))
 
 describe('terminal', () => {

@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   File01Icon,
   SparklesIcon,
@@ -115,19 +115,21 @@ export function ChatPanel() {
 
       {panel.open && (
         <div ref={bodyRef} className="bg-background flex-1 overflow-y-auto p-3">
-          {!hasPanelItems(items) ? (
+          {hasPanelItems(items) ? (
+            panel.section === 'files' ? (
+              <FilesSection items={items} />
+            ) : panel.section === 'tools' ? (
+              <ToolsSection tools={items.tools} />
+            ) : (
+              <SourcesSection groups={items.sources} />
+            )
+          ) : (
             <p
               className="text-muted-foreground px-3 py-6 text-center text-sm"
               data-testid={TEST_IDS.chat.panel.empty}
             >
               {t('panel.empty')}
             </p>
-          ) : panel.section === 'files' ? (
-            <FilesSection items={items} />
-          ) : panel.section === 'tools' ? (
-            <ToolsSection tools={items.tools} />
-          ) : (
-            <SourcesSection groups={items.sources} />
           )}
         </div>
       )}

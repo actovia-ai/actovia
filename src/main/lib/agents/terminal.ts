@@ -4,7 +4,7 @@ import { constants } from 'fs'
 import { lstat, mkdir, open, readdir, unlink } from 'fs/promises'
 import { join } from 'path'
 
-import { getExodusHome } from '../paths'
+import { getActoviaHome } from '../paths'
 
 export const shellQuote = (s: string) => `'${s.replaceAll("'", `'\\''`)}'`
 export const appleScriptString = (s: string) =>
@@ -26,7 +26,7 @@ export const resumeScript = (cwd: string, binPath: string, args: string[]) =>
   `#!/bin/sh\nrm -f -- "$0"\ncd ${shellQuote(cwd)} && exec ${[binPath, ...args].map((word) => shellQuote(word)).join(' ')}\n`
 
 /** Actovia' own data, out of every agent's reach (assertWorkableFolder refuses it and its ancestors). */
-export const terminalDir = () => join(getExodusHome(), 'run', 'terminal')
+export const terminalDir = () => join(getActoviaHome(), 'run', 'terminal')
 
 async function assertPrivateDir(dir: string): Promise<void> {
   await mkdir(dir, { mode: 0o700 }).catch((e: NodeJS.ErrnoException) => {
@@ -44,8 +44,8 @@ export async function writeResumeScript(
   args: string[]
 ): Promise<string> {
   const dir = terminalDir()
-  await mkdir(join(getExodusHome(), 'run'), { recursive: true, mode: 0o700 })
-  await assertPrivateDir(join(getExodusHome(), 'run'))
+  await mkdir(join(getActoviaHome(), 'run'), { recursive: true, mode: 0o700 })
+  await assertPrivateDir(join(getActoviaHome(), 'run'))
   await assertPrivateDir(dir)
   const target = join(dir, `${randomUUID()}.sh`)
   const handle = await open(
@@ -67,7 +67,7 @@ export async function writeResumeScript(
 /** At start: scripts Terminal never ran are not left lying around. */
 export async function sweepResumeScripts(maxAgeMs = 3_600_000): Promise<void> {
   const dir = terminalDir()
-  for (const d of [join(getExodusHome(), 'run'), dir]) {
+  for (const d of [join(getActoviaHome(), 'run'), dir]) {
     const info = await lstat(d).catch(() => null)
     if (!info?.isDirectory() || info.isSymbolicLink()) return
   }

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { getDefaultStore } from 'jotai'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -71,7 +71,7 @@ afterEach(() => {
 describe('useKeyboardShortcuts', () => {
   it('Mod+Shift+E focuses the composer, found by its test id — not its placeholder', () => {
     const composer = document.createElement('textarea')
-    composer.setAttribute('data-testid', TEST_IDS.composer.textarea)
+    composer.dataset.testid = TEST_IDS.composer.textarea
     composer.placeholder = 'Ask anything'
     document.body.append(composer)
 

@@ -3,7 +3,7 @@ import {
   periodDirection,
   periodReportRequestSchema,
   periodReportSchema
-} from '@exodus/shared/types/health'
+} from '@actovia/shared/types/health'
 import { describe, expect, it } from 'vitest'
 
 import { PERIOD_REPORT, PERIOD_REQUEST } from './health-period-fixtures'

@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createStore, Provider as JotaiProvider } from 'jotai'
 import { act, createElement } from 'react'

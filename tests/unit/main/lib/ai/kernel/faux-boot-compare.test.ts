@@ -20,7 +20,7 @@ describe('the e2e provider answers the comparison question', () => {
   let model: NonNullable<ReturnType<typeof bootFauxProviderIfRequested>>
 
   beforeAll(() => {
-    vi.stubEnv('EXODUS_FAUX_PROVIDER', '1')
+    vi.stubEnv('ACTOVIA_FAUX_PROVIDER', '1')
     model = bootFauxProviderIfRequested()!
   })
   afterAll(() => {

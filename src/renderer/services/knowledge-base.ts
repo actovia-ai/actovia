@@ -1,8 +1,8 @@
 import type {
   KnowledgeDocData,
   LightRagHealthDto
-} from '@exodus/shared/types/knowledge-base'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/knowledge-base'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/knowledge-base'
 

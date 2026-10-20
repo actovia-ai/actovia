@@ -1,6 +1,6 @@
 import http2 from 'http2'
 
-import { LAN_SERVER_PORT } from '@exodus/shared/constants/systems'
+import { LAN_SERVER_PORT } from '@actovia/shared/constants/systems'
 import type { serve as honoServe, ServerType } from '@hono/node-server'
 
 import { logger } from '../logger'

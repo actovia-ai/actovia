@@ -1,9 +1,9 @@
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
 import {
   fetcher,
   getHttpErrorMessage,
   toErrorI18n
-} from '@exodus/shared/utils/http'
+} from '@actovia/shared/utils/http'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'

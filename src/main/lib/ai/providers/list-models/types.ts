@@ -1,4 +1,4 @@
-import type { ModelSnapshot } from '@exodus/shared/schemas/settings-schema'
+import type { ModelSnapshot } from '@actovia/shared/schemas/settings-schema'
 
 export interface NormalizedModel {
   id: string

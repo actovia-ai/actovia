@@ -1,6 +1,6 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { AssistantTurn } from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { AssistantTurn } from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'

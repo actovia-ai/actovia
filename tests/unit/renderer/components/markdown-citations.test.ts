@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // The chip as drawn: one link per place cited, reading its first source and
 // how many stand behind it.
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'

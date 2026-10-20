@@ -1,7 +1,7 @@
 import {
   DEFAULT_AVATAR_STYLE,
   randomAvatarSeed
-} from '@exodus/shared/constants/avatar'
+} from '@actovia/shared/constants/avatar'
 
 import { createAgent, getAllAgents } from '../../db/philharmonic-queries'
 import { getSettings } from '../../db/queries'

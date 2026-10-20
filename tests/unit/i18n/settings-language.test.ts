@@ -1,5 +1,5 @@
-import { LOCALE_IDS } from '@exodus/shared/i18n/locales'
-import { SettingsSchema } from '@exodus/shared/schemas/settings-schema'
+import { LOCALE_IDS } from '@actovia/shared/i18n/locales'
+import { SettingsSchema } from '@actovia/shared/schemas/settings-schema'
 import { describe, expect, it } from 'vitest'
 
 const base = { id: 'global', createdAt: new Date(), updatedAt: new Date() }

@@ -3,8 +3,8 @@ import type {
   AgentCard,
   AgentPrompt,
   AgentQuestion
-} from '@exodus/shared/types/agents'
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
+import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { capitalCase } from 'change-case'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'

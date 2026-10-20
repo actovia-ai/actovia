@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import { LOCALE_IDS } from '@exodus/shared/i18n/locales'
-import { NAMESPACES } from '@exodus/shared/i18n/namespaces'
+import { LOCALE_IDS } from '@actovia/shared/i18n/locales'
+import { NAMESPACES } from '@actovia/shared/i18n/namespaces'
 
 const ROOT = join(
   __dirname,

@@ -1,17 +1,17 @@
 // A block's answer as the user's next message, read back as a card and as the
-// picks that freeze the block. exodus-ios's InteractiveAnswerTests holds the
+// picks that freeze the block. actovia-ios's InteractiveAnswerTests holds the
 // same vectors — keep them in step.
 import {
   askBlockSchema,
   confirmBlockSchema
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import {
   composeAskAnswer,
   composeConfirmAnswer,
   readPicks,
   splitAnswer,
   type AnswerLabels
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { describe, expect, it } from 'vitest'
 
 const ASK_SOURCE =
@@ -38,19 +38,19 @@ const EN: AnswerLabels = {
 }
 
 const ANSWER_CJK =
-  '```exodus-answer\n{"block":"ask","ref":"a9f2","title":"我想先确认一下你的具体情况"}\n```\n\n' +
+  '```actovia-answer\n{"block":"ask","ref":"a9f2","title":"我想先确认一下你的具体情况"}\n```\n\n' +
   '**哪里最痒？** 小腿\n**什么时候最痒？** 洗澡后, 晚上\n**补充:** 用的是丝塔芙润肤乳'
 const ANSWER_OTHER =
-  '```exodus-answer\n{"block":"ask","ref":"a9f2","title":"我想先确认一下你的具体情况"}\n```\n\n' +
+  '```actovia-answer\n{"block":"ask","ref":"a9f2","title":"我想先确认一下你的具体情况"}\n```\n\n' +
   '**哪里最痒？** 其他: 脚踝 和脚背\n**什么时候最痒？** —'
 const ANSWER_COMMAS =
-  '```exodus-answer\n{"block":"ask","ref":"r-2","title":"Pick a plan"}\n```\n\n' +
+  '```actovia-answer\n{"block":"ask","ref":"r-2","title":"Pick a plan"}\n```\n\n' +
   '**Which sizes?** Small, cheap, Large, roomy, Other'
 const ANSWER_APPROVE =
-  '```exodus-answer\n{"block":"confirm","decision":"approve","ref":"c1","title":"要我把这份行程写进日历吗？"}\n```\n\n' +
+  '```actovia-answer\n{"block":"confirm","decision":"approve","ref":"c1","title":"要我把这份行程写进日历吗？"}\n```\n\n' +
   '**要我把这份行程写进日历吗？** 同意\n**备注:** 第三天换成京都'
 const ANSWER_REJECT =
-  '```exodus-answer\n{"block":"confirm","decision":"reject","ref":"c2","title":"Send \\"Q3/Q4\\" report?"}\n```\n\n' +
+  '```actovia-answer\n{"block":"confirm","decision":"reject","ref":"c2","title":"Send \\"Q3/Q4\\" report?"}\n```\n\n' +
   '**Send "Q3/Q4" report?** Rejected'
 
 const ask = (source: string) => askBlockSchema.parse(JSON.parse(source))
@@ -134,19 +134,19 @@ describe('splitAnswer', () => {
 
   it('reads a fence with nothing after it', () => {
     expect(
-      splitAnswer('```exodus-answer\n{"block":"confirm","ref":"r"}\n```')
+      splitAnswer('```actovia-answer\n{"block":"confirm","ref":"r"}\n```')
     ).toEqual({ answer: { block: 'confirm', ref: 'r' }, body: '' })
   })
 
   it.each([
     ['an ordinary message', 'hello'],
-    ['not JSON', '```exodus-answer\n{oops}\n```\n\nhi'],
+    ['not JSON', '```actovia-answer\n{oops}\n```\n\nhi'],
     [
       'an unknown block',
-      '```exodus-answer\n{"block":"poll","ref":"r"}\n```\n\nhi'
+      '```actovia-answer\n{"block":"poll","ref":"r"}\n```\n\nhi'
     ],
-    ['no ref', '```exodus-answer\n{"block":"ask"}\n```\n\nhi'],
-    ['a fence never closed', '```exodus-answer\n{"block":"ask","ref":"r"}']
+    ['no ref', '```actovia-answer\n{"block":"ask"}\n```\n\nhi'],
+    ['a fence never closed', '```actovia-answer\n{"block":"ask","ref":"r"}']
   ])('%s is not an answer', (_name, text) => {
     expect(splitAnswer(text)).toEqual({ answer: null, body: text })
   })

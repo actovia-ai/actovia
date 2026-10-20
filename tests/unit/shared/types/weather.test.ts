@@ -1,7 +1,7 @@
 import {
   conditionNameOf,
   weatherClockHours
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
 import { describe, expect, it } from 'vitest'
 
 describe('weatherClockHours', () => {

@@ -12,7 +12,7 @@ import { createSecureContext } from 'tls'
 
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-const tlsDir = mkdtempSync(join(tmpdir(), 'exodus-tls-'))
+const tlsDir = mkdtempSync(join(tmpdir(), 'actovia-tls-'))
 let encryptionAvailable = true
 
 // safeStorage stand-in: reversible, and visibly not the plaintext.
@@ -45,7 +45,7 @@ describe('LAN certificate', () => {
     const { certPem } = await loadOrCreateCertificate()
     const parsed = new X509Certificate(certPem)
 
-    expect(parsed.subject).toContain('CN=Exodus')
+    expect(parsed.subject).toContain('CN=Actovia')
     const years = (Date.parse(parsed.validTo) - Date.now()) / (365 * 864e5)
     expect(years).toBeGreaterThan(9.9)
     expect(years).toBeLessThan(10.1)
@@ -83,7 +83,7 @@ describe('LAN certificate', () => {
     ])
     const bare = await x509.X509CertificateGenerator.createSelfSigned({
       serialNumber: '01',
-      name: 'CN=Exodus',
+      name: 'CN=Actovia',
       keys,
       signingAlgorithm: alg,
       notBefore: new Date(),

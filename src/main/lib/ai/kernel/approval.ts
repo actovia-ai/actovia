@@ -3,8 +3,8 @@ import { homedir } from 'os'
 import { basename, dirname, isAbsolute, join, resolve, sep } from 'path'
 import { fileURLToPath } from 'url'
 
-import { LAN_SERVER_PORT, SERVER_PORT } from '@exodus/shared/constants/systems'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { LAN_SERVER_PORT, SERVER_PORT } from '@actovia/shared/constants/systems'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 
 import { GREP_SKIP_DIRS } from '../calling-tools/grep-skip-dirs'
 
@@ -19,14 +19,14 @@ import { GREP_SKIP_DIRS } from '../calling-tools/grep-skip-dirs'
  * (`POST /api/v1/chat/approval`), a timeout or Stop settles it.
  *
  * Some of Actovia's own files are never the user's decision, and a call that
- * touches them is refused without asking: `~/.exodus/lock.dat` (the PIN
- * secret), `~/.exodus/tls/` (the LAN certificate's key), and the raw data —
- * `~/.exodus/database` (PGlite), `~/.exodus/backups` (its archives) and
- * `~/.exodus/analytics` (the DuckDB copy). Those last three are ciphertext
+ * touches them is refused without asking: `~/.actovia/lock.dat` (the PIN
+ * secret), `~/.actovia/tls/` (the LAN certificate's key), and the raw data —
+ * `~/.actovia/database` (PGlite), `~/.actovia/backups` (its archives) and
+ * `~/.actovia/analytics` (the DuckDB copy). Those last three are ciphertext
  * only while encryption at rest is on: a backup written before it existed,
  * and every file while `safeStorage` is unavailable, holds keys in plaintext
  * — and no tool has a use for raw database files (chats are read through
- * `lcm_*`). The rest of `~/.exodus` (the chat workspaces, media, logs) stays
+ * `lcm_*`). The rest of `~/.actovia` (the chat workspaces, media, logs) stays
  * readable.
  *
  * The terminal rule is a documented heuristic, not a shell parser: a command
@@ -54,7 +54,7 @@ export interface SensitiveTarget {
 
 export interface MatchEnv {
   home: string
-  exodusHome: string
+  actoviaHome: string
   /** Where a relative path given to a file tool lands (the process's cwd). */
   cwd: string
   /**
@@ -69,7 +69,7 @@ function defaultEnv(): MatchEnv {
   const home = homedir()
   return {
     home,
-    exodusHome: process.env.EXODUS_HOME || join(home, '.exodus'),
+    actoviaHome: process.env.ACTOVIA_HOME || join(home, '.actovia'),
     cwd: process.cwd()
   }
 }
@@ -153,8 +153,8 @@ const HOME_SECRET_ROOTS = [
  */
 const HOME_CREDENTIAL_NAME_DIRS = ['.config', '.cargo', '.terraform.d']
 
-/** Actovia's own files no tool ever touches (relative to `~/.exodus`). */
-const EXODUS_REFUSED = ['lock.dat', 'tls', 'database', 'backups', 'analytics']
+/** Actovia's own files no tool ever touches (relative to `~/.actovia`). */
+const ACTOVIA_REFUSED = ['lock.dat', 'tls', 'database', 'backups', 'analytics']
 
 /** Keychains outside home. */
 const SYSTEM_SECRET_ROOTS = ['/Library/Keychains', '/System/Library/Keychains']
@@ -358,8 +358,8 @@ interface Roots {
   secret: string[]
   /** Where a file named `*credentials*` is one. */
   credentialDirs: string[]
-  /** `~/.exodus` itself — a copy of all of it copies the database. */
-  exodusHome: string[]
+  /** `~/.actovia` itself — a copy of all of it copies the database. */
+  actoviaHome: string[]
   workspace: string[]
 }
 
@@ -370,23 +370,23 @@ async function rootsOf(
 ): Promise<Roots> {
   const all = async (paths: string[]) =>
     (await Promise.all(paths.map((p) => resolver.rootForms(p)))).flat()
-  const [refused, secret, credentialDirs, workspace, exodusHome] =
+  const [refused, secret, credentialDirs, workspace, actoviaHome] =
     await Promise.all([
-      all(EXODUS_REFUSED.map((r) => join(env.exodusHome, r))),
+      all(ACTOVIA_REFUSED.map((r) => join(env.actoviaHome, r))),
       all([
         ...HOME_SECRET_ROOTS.map((r) => join(env.home, r)),
         ...SYSTEM_SECRET_ROOTS
       ]),
       all(HOME_CREDENTIAL_NAME_DIRS.map((r) => join(env.home, r))),
       workspaceDir ? all([resolve(workspaceDir)]) : Promise.resolve([]),
-      all([env.exodusHome])
+      all([env.actoviaHome])
     ])
   return {
     resolver,
     refused,
     secret,
     credentialDirs,
-    exodusHome,
+    actoviaHome,
     workspace
   }
 }
@@ -697,15 +697,15 @@ function processArgsTrigger(command: string): string | undefined {
 const SECRET_MENTION =
   /(?:^|[\s'"=:(/`])(?:\.ssh|\.aws|\.gnupg|\.kube|\.netrc|\.docker\/config\.json|Library\/Keychains|\.npmrc|\.yarnrc\.yml|\.pypirc|\.git-credentials|\.vault-token|\.azure|\.password-store|\.pgpass|\.my\.cnf|\.s3cfg|\.boto|\.gem\/credentials|\.m2\/settings\.xml|\.local\/share\/keyrings|\.mozilla|\.config\/(?:gh|gcloud|op|hub|rclone\/rclone\.conf|google-chrome(?:-beta|-unstable)?|chromium|BraveSoftware|microsoft-edge|vivaldi|opera)|\.cargo\/credentials[\w.-]*|\.terraform\.d\/credentials[\w.-]*|Library\/Cookies|Library\/Application(?:\\?[ \t]|%20)Support\/(?:Google\/Chrome(?:\\?[ \t](?:Beta|Canary|Dev))?|Vivaldi|com\.operasoftware\.Opera|Chromium|BraveSoftware|Microsoft(?:\\?[ \t]|%20)Edge|Firefox|Arc))(?=$|[\s'"/;|&)<>`])/iu
 
-const EXODUS_REFUSED_WORDS = 'lock\\.dat|tls|database|backups|analytics'
+const ACTOVIA_REFUSED_WORDS = 'lock\\.dat|tls|database|backups|analytics'
 const REFUSED_MENTION = new RegExp(
-  `\\.exodus\\/(?:${EXODUS_REFUSED_WORDS})(?=$|[\\s'"/;|&)<>\`*])`,
+  `\\.actovia\\/(?:${ACTOVIA_REFUSED_WORDS})(?=$|[\\s'"/;|&)<>\`*])`,
   'iu'
 )
-/** `cd ~/.exodus && cat lock.dat` — the directory and the file named apart. */
-const EXODUS_MENTION = /\.exodus(?=$|[\s'"/;|&)<>`])/iu
+/** `cd ~/.actovia && cat lock.dat` — the directory and the file named apart. */
+const ACTOVIA_MENTION = /\.actovia(?=$|[\s'"/;|&)<>`])/iu
 const LOCK_OR_TLS_WORD = new RegExp(
-  `(?:^|[\\s'"/])(?:${EXODUS_REFUSED_WORDS})(?=$|[\\s'"/;|&)<>\`*])`,
+  `(?:^|[\\s'"/])(?:${ACTOVIA_REFUSED_WORDS})(?=$|[\\s'"/;|&)<>\`*])`,
   'iu'
 )
 
@@ -734,7 +734,7 @@ function globSegment(segment: string): RegExp {
 
 /**
  * Whether a path with glob characters can expand to `root` or into it — a
- * `strings` over `~/.exodus` with a `*` for each level reads the database the
+ * `strings` over `~/.actovia` with a `*` for each level reads the database the
  * literal forms are refused for (re-review m3). Compared segment by segment, case-folded like
  * every other path here; a `**` segment reaches everything below it.
  */
@@ -759,8 +759,8 @@ function globReaches(pattern: string, root: string, env: MatchEnv): boolean {
   return true
 }
 
-/** `tar czf out.tgz -C ~ .exodus`: the data directory named on its own. */
-const BARE_EXODUS_WORD = /^\.exodus\/?$/iu
+/** `tar czf out.tgz -C ~ .actovia`: the data directory named on its own. */
+const BARE_ACTOVIA_WORD = /^\.actovia\/?$/iu
 
 /** Paths considered per command — a heredoc script is not walked word by word. */
 const MAX_COMMAND_TOKENS = 2000
@@ -849,7 +849,7 @@ const OTHER_CONTROLS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/gu
  * so `capSummary()`'s surrogate-pair-aware boundary still sees a
  * well-formed string to cut.
  *
- * A client outside this repo (exodus-ios) that renders its own copy of the
+ * A client outside this repo (actovia-ios) that renders its own copy of the
  * summary must apply the same four rules before display.
  */
 export function sanitizeSummary(text: string): string {
@@ -928,7 +928,7 @@ async function matchCommand(
 ): Promise<SensitiveTarget | null> {
   const refusedMention =
     REFUSED_MENTION.exec(command)?.[0] ??
-    (EXODUS_MENTION.test(command)
+    (ACTOVIA_MENTION.test(command)
       ? LOCK_OR_TLS_WORD.exec(command)?.[0].trim()
       : undefined)
   if (refusedMention) {
@@ -961,10 +961,10 @@ async function matchCommand(
           summary: withTrigger(display(abs, env), command)
         }
       }
-      // `~/.exo*` is all of ~/.exodus; `~/.exodus/workspace/*` is not.
+      // `~/.exo*` is all of ~/.actovia; `~/.actovia/workspace/*` is not.
       const reachesSecret =
         roots.secret.some((r) => globReaches(abs, r, env)) ||
-        roots.exodusHome.some(
+        roots.actoviaHome.some(
           (r) =>
             globReaches(abs, r, env) &&
             canon(abs, env).split(sep).length ===
@@ -979,15 +979,15 @@ async function matchCommand(
         summary: withTrigger(display(abs, env), command)
       }
     }
-    // `tar c ~/.exodus`, `cp -r ~/.exodus …`: all of it holds the database.
-    const wholeExodus =
-      !hit && roots.exodusHome.some((r) => canon(abs, env) === canon(r, env))
-    if ((hit || wholeExodus) && !pathTrigger) pathTrigger = display(abs, env)
+    // `tar c ~/.actovia`, `cp -r ~/.actovia …`: all of it holds the database.
+    const wholeActovia =
+      !hit && roots.actoviaHome.some((r) => canon(abs, env) === canon(r, env))
+    if ((hit || wholeActovia) && !pathTrigger) pathTrigger = display(abs, env)
   }
 
   const trigger =
     pathTrigger ??
-    tokens.find((t) => BARE_EXODUS_WORD.test(t)) ??
+    tokens.find((t) => BARE_ACTOVIA_WORD.test(t)) ??
     SECRET_MENTION.exec(command)?.[0].replace(/^[\s'"=:(/`]/u, '') ??
     KEYCHAIN_COMMAND.exec(command)?.[0] ??
     CREDENTIAL_COMMAND.exec(command)?.[0] ??

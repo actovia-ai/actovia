@@ -1,12 +1,12 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import {
   isAppError,
   NotFoundError,
   RateLimitError,
   ServiceError,
   ValidationError
-} from '@exodus/shared/errors/app-error'
-import type { SkillsView } from '@exodus/shared/types/skills'
+} from '@actovia/shared/errors/app-error'
+import type { SkillsView } from '@actovia/shared/types/skills'
 import { Hono } from 'hono'
 import { z } from 'zod'
 

@@ -1,5 +1,5 @@
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import type { Model, TextContent } from '@earendil-works/pi-ai'
-import type { ChatMessage } from '@exodus/shared/types/chat'
 
 import { logger } from '../../logger'
 import { titleGenerationPrompt } from '../prompts'
@@ -49,7 +49,7 @@ export async function generateTitleFromUserMessage({
   // (or empty) title request falls back to the opening of the message — a
   // blank title is what the sidebar used to get.
   const fallback = userText
-    .replace(/\s+/g, ' ')
+    .replaceAll(/\s+/g, ' ')
     .trim()
     .slice(0, TITLE_FALLBACK_CHARS)
   try {
@@ -105,7 +105,7 @@ export function cleanTitle(raw: string): string | null {
   const title = (lines[0] ?? '')
     .replace(/^[#*"'“”「『\s]+/, '')
     .replace(/[*"'“”」』\s]+$/, '')
-    .replace(/\s+/g, ' ')
+    .replaceAll(/\s+/g, ' ')
     .trim()
   return title.length > TITLE_MAX_CHARS ? null : title
 }

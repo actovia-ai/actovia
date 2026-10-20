@@ -6,7 +6,7 @@ import {
   type WorkspaceFileReadResult,
   type WorkspaceFileStatResult,
   type WorkspaceRoots
-} from '@exodus/shared/types/workspace-files'
+} from '@actovia/shared/types/workspace-files'
 import type { TFunction } from 'i18next'
 import { sileo } from 'sileo'
 

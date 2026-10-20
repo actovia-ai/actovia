@@ -5,7 +5,7 @@ import { access, constants, unlink } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-import type { CliId, CliQuota, CliStatus } from '@exodus/shared/types/agents'
+import type { CliId, CliQuota, CliStatus } from '@actovia/shared/types/agents'
 
 import { quotaFromCodex } from './codex/protocol'
 import { loginShellEnv } from './login-shell'
@@ -140,7 +140,7 @@ function askAppServer<T>(
   pick: (result: unknown) => T | null,
   timeoutMs: number
 ): Promise<T | null> {
-  const logPath = join(tmpdir(), `exodus-codex-models-${randomUUID()}.log`)
+  const logPath = join(tmpdir(), `actovia-codex-models-${randomUUID()}.log`)
   return new Promise((resolve) => {
     let settled = false
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -182,7 +182,7 @@ function askAppServer<T>(
       id: 1,
       method: 'initialize',
       params: {
-        clientInfo: { name: 'exodus', title: 'Actovia', version: '1' },
+        clientInfo: { name: 'actovia', title: 'Actovia', version: '1' },
         capabilities: null
       }
     })

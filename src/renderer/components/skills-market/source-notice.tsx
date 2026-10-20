@@ -1,4 +1,4 @@
-import { SKILLS_SH_HOMEPAGE } from '@exodus/shared/constants/external-urls'
+import { SKILLS_SH_HOMEPAGE } from '@actovia/shared/constants/external-urls'
 import { Trans } from 'react-i18next'
 
 /**

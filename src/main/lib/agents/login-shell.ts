@@ -5,8 +5,8 @@ import { join } from 'path'
 
 import { logger } from '../logger'
 
-const MARK = '__EXODUS_ENV__'
-const DROP = /^(EXODUS_|ELECTRON_|VITE_)/
+const MARK = '__ACTOVIA_ENV__'
+const DROP = /^(ACTOVIA_|ELECTRON_|VITE_)/
 /** Where CLIs install when the login shell cannot tell us (spec §3). */
 const FALLBACK_DIRS = [
   join(homedir(), '.local/bin'),

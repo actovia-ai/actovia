@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 
 // Built-in tools that have either a dedicated card OR are intentionally
 // rendered as a no-op (their output surfaces elsewhere in the UI). Anything

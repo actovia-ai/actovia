@@ -1,5 +1,5 @@
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 

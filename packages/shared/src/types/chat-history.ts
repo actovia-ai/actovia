@@ -2,7 +2,7 @@
  * `GET /api/v1/history?limit=N[&before=<cursor>]`: the chat list a page at a
  * time (backlog 24, 2026-10-06). Without `limit` the route answers the whole
  * list as a bare array, as it always has. The cursor's format lives in
- * `utils/chat-history-cursor.ts`; exodus-ios mirrors it.
+ * `utils/chat-history-cursor.ts`; actovia-ios mirrors it.
  */
 
 /** A chat row as the list carries it (`createdAt` an ISO string on the wire). */

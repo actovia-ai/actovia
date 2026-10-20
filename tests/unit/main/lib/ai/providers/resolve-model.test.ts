@@ -1,7 +1,7 @@
 import {
   ModelSnapshotSchema,
   type ModelSnapshot
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { resolveModel } from '@main/lib/ai/providers/resolve-model'
 import { thinkingLevelFor } from '@main/lib/ai/providers/thinking-level'
 import { describe, expect, it } from 'vitest'
@@ -300,7 +300,7 @@ describe('resolveModel', () => {
         'anthropic-messages',
         snap
       )
-      expect(thinkingLevelFor(model, undefined)).toBe('low')
+      expect(thinkingLevelFor(model)).toBe('low')
       expect(thinkingLevelFor(model, 'high')).toBe('high')
     })
 
@@ -312,7 +312,7 @@ describe('resolveModel', () => {
         'anthropic-messages',
         snap
       )
-      expect(thinkingLevelFor(model, undefined)).toBeUndefined()
+      expect(thinkingLevelFor(model)).toBeUndefined()
     })
   })
 })

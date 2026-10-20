@@ -2,7 +2,7 @@ import type { MenuItemConstructorOptions } from 'electron'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({
-  app: { name: 'Exodus' },
+  app: { name: 'Actovia' },
   shell: { openExternal: vi.fn() }
 }))
 vi.mock('@main/lib/i18n', () => ({
@@ -88,6 +88,6 @@ describe('buildMenu', () => {
     expect(settings?.accelerator).toBe('Ctrl+,')
 
     // No separate app-name menu off Windows/Linux.
-    expect(menu.some((m) => m.label === 'Exodus')).toBe(false)
+    expect(menu.some((m) => m.label === 'Actovia')).toBe(false)
   })
 })

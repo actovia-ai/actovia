@@ -1,7 +1,7 @@
 // src/main/lib/server/routes/deep-research.ts — POST /api/v1/deep-research:
 // when the research step throws (or the job is otherwise interrupted), the
 // job must end 'failed' with a short, secret-scrubbed message instead of
-// staying 'streaming' forever (the desktop card, and exodus-ios's 15-minute
+// staying 'streaming' forever (the desktop card, and actovia-ios's 15-minute
 // stall check, both key off jobStatus). Mounted in a bare Hono app with the
 // real errorHandler; the settings variable is what app.ts injects per request.
 import { Hono } from 'hono'

@@ -1,7 +1,7 @@
 import {
   DeepResearchProgress,
   ReportProgressPayload
-} from '@exodus/shared/types/deep-research'
+} from '@actovia/shared/types/deep-research'
 import {
   AlertCircleIcon,
   RoboticIcon,

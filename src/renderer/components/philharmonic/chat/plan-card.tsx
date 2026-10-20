@@ -1,4 +1,4 @@
-import type { PlanDto, StepStatus } from '@exodus/shared/types/philharmonic'
+import type { PlanDto, StepStatus } from '@actovia/shared/types/philharmonic'
 import {
   Tick02Icon,
   ArrowDown01Icon,

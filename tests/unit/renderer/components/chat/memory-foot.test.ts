@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import type {
   MemoryChange,
   MemorySnapshot,
   UsedMemory
-} from '@exodus/shared/types/memory'
+} from '@actovia/shared/types/memory'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactElement } from 'react'
 import { createRoot } from 'react-dom/client'

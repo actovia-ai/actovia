@@ -1,5 +1,5 @@
 /** Who runs an employee's turn: Actovia' own loop, or a CLI on the owner's machine. */
-export const AGENT_RUNTIMES = ['exodus', 'claude-code', 'codex'] as const
+export const AGENT_RUNTIMES = ['actovia', 'claude-code', 'codex'] as const
 export type AgentRuntime = (typeof AGENT_RUNTIMES)[number]
 
 /** The CLIs Actovia can drive. */

@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it, vi } from 'vitest'
 
 // Mock the modules that transitively import Electron/DB
@@ -71,7 +71,7 @@ describe('cleanTitle', () => {
 
   it('refuses an answer: several lines, or longer than a title', () => {
     expect(cleanTitle(ANSWER)).toBeNull()
-    expect(cleanTitle(ANSWER.replace(/\n/g, ''))).toBeNull()
+    expect(cleanTitle(ANSWER.replaceAll('\n', ''))).toBeNull()
   })
 })
 

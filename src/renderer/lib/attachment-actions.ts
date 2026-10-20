@@ -2,7 +2,7 @@ import {
   ATTACHMENT_CHANNELS,
   type AttachmentRequest,
   type AttachmentResult
-} from '@exodus/shared/types/attachment-actions'
+} from '@actovia/shared/types/attachment-actions'
 import type { TFunction } from 'i18next'
 import { sileo } from 'sileo'
 

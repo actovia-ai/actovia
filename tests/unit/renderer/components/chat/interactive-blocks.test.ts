@@ -8,16 +8,16 @@ import type {
   ChatStatus,
   SendMessageOptions,
   TurnBlock
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import {
   askBlockSchema,
   confirmBlockSchema
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import {
   composeAskAnswer,
   composeConfirmAnswer,
   type AnswerLabels
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -155,9 +155,9 @@ const button = (label: string) =>
 
 describe('a questionnaire in a reply', () => {
   it('is drawn in place of its code, and Submit sends the composed answer', async () => {
-    await show(`Before I answer:\n\n${fence('exodus-ask', ASK)}`)
-    expect(block()?.getAttribute('data-interactive')).toBe('ask')
-    expect(block()?.getAttribute('data-state')).toBe('open')
+    await show(`Before I answer:\n\n${fence('actovia-ask', ASK)}`)
+    expect(block()?.dataset.interactive).toBe('ask')
+    expect(block()?.dataset.state).toBe('open')
     expect(host.querySelector('pre')).toBeNull()
 
     const arms = host.querySelector<HTMLInputElement>('input[value="Arms"]')
@@ -188,10 +188,10 @@ describe('a questionnaire in a reply', () => {
       '',
       LABELS
     )
-    await show(fence('exodus-ask', ASK), {
+    await show(fence('actovia-ask', ASK), {
       messages: [userMessage('u2', answer)]
     })
-    expect(block()?.getAttribute('data-state')).toBe('answered')
+    expect(block()?.dataset.state).toBe('answered')
     expect(host.querySelector('button[type="submit"]')).toBeNull()
     // The questionnaire as it was asked: every choice, the pick checked, none
     // taking input.
@@ -201,7 +201,7 @@ describe('a questionnaire in a reply', () => {
     expect(choices.length).toBeGreaterThan(1)
     expect(
       choices
-        .filter((n) => n.hasAttribute('data-checked'))
+        .filter((n) => n.dataset.checked !== undefined)
         .map((n) => n.textContent)
     ).toEqual(['Legs'])
     expect(host.querySelector('input')).toBeNull()
@@ -219,7 +219,7 @@ describe('a questionnaire in a reply', () => {
       '',
       LABELS
     )
-    await show(fence('exodus-ask', ASK), {
+    await show(fence('actovia-ask', ASK), {
       messages: [userMessage('u2', answer)]
     })
     const group = block()
@@ -230,7 +230,7 @@ describe('a questionnaire in a reply', () => {
   })
 
   it('moves focus to the answered summary after Submit (the form is gone)', async () => {
-    const body = fence('exodus-ask', ASK)
+    const body = fence('actovia-ask', ASK)
     await show(body)
     const arms = host.querySelector<HTMLInputElement>('input[value="Arms"]')
     await act(async () => arms?.click())
@@ -244,7 +244,7 @@ describe('a questionnaire in a reply', () => {
     const sent = send.mock.calls[0]?.[0].text ?? ''
     // The chat now holds the answer: the block freezes in place.
     await show(body, { messages: [userMessage('u2', sent)] })
-    expect(block()?.getAttribute('data-state')).toBe('answered')
+    expect(block()?.dataset.state).toBe('answered')
     expect(document.activeElement).toBe(block())
   })
 
@@ -256,7 +256,7 @@ describe('a questionnaire in a reply', () => {
       '',
       LABELS
     )
-    await show(fence('exodus-ask', ASK), {
+    await show(fence('actovia-ask', ASK), {
       messages: [userMessage('u2', answer)]
     })
     expect(document.activeElement).not.toBe(block())
@@ -264,18 +264,16 @@ describe('a questionnaire in a reply', () => {
 
   describe('while a reply streams (no answer can be sent)', () => {
     it('Skip on the last question is disabled and skips nothing', async () => {
-      await show(fence('exodus-ask', ASK), { status: 'streaming' })
+      await show(fence('actovia-ask', ASK), { status: 'streaming' })
       const skip = button('interactive.skip')
       expect(skip?.disabled).toBe(true)
       await act(async () => skip?.click())
-      expect(
-        host.querySelector('fieldset')?.getAttribute('data-status')
-      ).not.toBe('skipped')
+      expect(host.querySelector('fieldset')?.dataset.status).not.toBe('skipped')
       expect(send).not.toHaveBeenCalled()
     })
 
     it('Cmd+Enter does not submit the form', async () => {
-      await show(fence('exodus-ask', ASK), { status: 'streaming' })
+      await show(fence('actovia-ask', ASK), { status: 'streaming' })
       const arms = host.querySelector<HTMLInputElement>('input[value="Arms"]')
       await act(async () => arms?.click())
       const submits = vi.fn()
@@ -296,7 +294,7 @@ describe('a questionnaire in a reply', () => {
     })
 
     it('Cmd+Enter submits once the reply is done', async () => {
-      await show(fence('exodus-ask', ASK))
+      await show(fence('actovia-ask', ASK))
       const arms = host.querySelector<HTMLInputElement>('input[value="Arms"]')
       await act(async () => arms?.click())
       await act(async () => {
@@ -317,8 +315,8 @@ describe('a questionnaire in a reply', () => {
 
 describe('a confirmation in a reply', () => {
   it('Approve sends the decision and the note', async () => {
-    await show(fence('exodus-confirm', CONFIRM))
-    expect(block()?.getAttribute('data-state')).toBe('open')
+    await show(fence('actovia-confirm', CONFIRM))
+    expect(block()?.dataset.state).toBe('open')
     expect(host.querySelector('strong')?.textContent).toBe('Ann')
 
     const note = host.querySelector('textarea')
@@ -340,24 +338,24 @@ describe('a confirmation in a reply', () => {
   it('does not load a remote picture in its details before a tap', async () => {
     const src = 'https://tracker.example/p.png?d=secret'
     await show(
-      fence('exodus-confirm', { ...CONFIRM, details: `See ![x](${src})` })
+      fence('actovia-confirm', { ...CONFIRM, details: `See ![x](${src})` })
     )
-    expect(block()?.getAttribute('data-interactive')).toBe('confirm')
+    expect(block()?.dataset.interactive).toBe('confirm')
     expect(host.querySelector(`img[src="${src}"]`)).toBeNull()
   })
 
   it('moves focus to the decision after Approve (the buttons are gone)', async () => {
-    const body = fence('exodus-confirm', CONFIRM)
+    const body = fence('actovia-confirm', CONFIRM)
     await show(body)
     await act(async () => button('interactive.approve')?.click())
     const sent = send.mock.calls[0]?.[0].text ?? ''
     await show(body, { messages: [userMessage('u2', sent)] })
-    expect(block()?.getAttribute('data-state')).toBe('approve')
+    expect(block()?.dataset.state).toBe('approve')
     expect(document.activeElement?.textContent).toBe('interactive.approved')
   })
 
   it('sends nothing while a reply streams', async () => {
-    await show(fence('exodus-confirm', CONFIRM), { status: 'streaming' })
+    await show(fence('actovia-confirm', CONFIRM), { status: 'streaming' })
     expect(button('interactive.approve')?.disabled).toBe(true)
     expect(button('interactive.reject')?.disabled).toBe(true)
     await act(async () => button('interactive.approve')?.click())
@@ -365,8 +363,8 @@ describe('a confirmation in a reply', () => {
   })
 
   it('sends nothing from an answer still being compared (no answer path)', async () => {
-    await show(fence('exodus-confirm', CONFIRM), { answerable: false })
-    expect(block()?.getAttribute('data-state')).toBe('open')
+    await show(fence('actovia-confirm', CONFIRM), { answerable: false })
+    expect(block()?.dataset.state).toBe('open')
     expect(button('interactive.approve')?.disabled).toBe(true)
     expect(button('interactive.reject')?.disabled).toBe(true)
     await act(async () => button('interactive.approve')?.click())
@@ -381,10 +379,10 @@ describe('a confirmation in a reply', () => {
       '',
       LABELS
     )
-    await show(fence('exodus-confirm', CONFIRM), {
+    await show(fence('actovia-confirm', CONFIRM), {
       messages: [userMessage('u2', answer)]
     })
-    expect(block()?.getAttribute('data-state')).toBe('reject')
+    expect(block()?.dataset.state).toBe('reject')
     expect(host.textContent).toContain('interactive.rejected')
     expect(button('interactive.approve')).toBeUndefined()
   })
@@ -392,22 +390,22 @@ describe('a confirmation in a reply', () => {
 
 describe('what stays code', () => {
   it('a block over the limits', async () => {
-    await show(fence('exodus-ask', { ...ASK, questions: [] }))
+    await show(fence('actovia-ask', { ...ASK, questions: [] }))
     expect(block()).toBeNull()
     expect(host.querySelector('pre')).not.toBeNull()
   })
 
   it('a second block in the reply', async () => {
     await show(
-      `${fence('exodus-confirm', CONFIRM)}\n\n${fence('exodus-ask', ASK)}`
+      `${fence('actovia-confirm', CONFIRM)}\n\n${fence('actovia-ask', ASK)}`
     )
     expect(host.querySelectorAll('[data-interactive]')).toHaveLength(1)
-    expect(block()?.getAttribute('data-interactive')).toBe('confirm')
+    expect(block()?.dataset.interactive).toBe('confirm')
     expect(host.querySelectorAll('pre')).toHaveLength(1)
   })
 
   it('a second block with the same text as the first', async () => {
-    await show(`${fence('exodus-ask', ASK)}\n\n${fence('exodus-ask', ASK)}`)
+    await show(`${fence('actovia-ask', ASK)}\n\n${fence('actovia-ask', ASK)}`)
     expect(host.querySelectorAll('[data-interactive]')).toHaveLength(1)
     expect(host.querySelectorAll('pre')).toHaveLength(1)
     // The first one is the control, the second its code.
@@ -420,7 +418,7 @@ describe('what stays code', () => {
 
   it('a tilde fence, and a fence whose info string says more than the name', async () => {
     const json = JSON.stringify(ASK)
-    for (const opening of ['~~~exodus-ask', '```exodus-ask x']) {
+    for (const opening of ['~~~actovia-ask', '```actovia-ask x']) {
       const close = opening.startsWith('~') ? '~~~' : '```'
       await show(`${opening}\n${json}\n${close}`)
       expect(block()).toBeNull()
@@ -430,7 +428,7 @@ describe('what stays code', () => {
 
   it('the same text in a tilde fence above the real block', async () => {
     await show(
-      `~~~exodus-ask\n${JSON.stringify(ASK)}\n~~~\n\n${fence('exodus-ask', ASK)}`
+      `~~~actovia-ask\n${JSON.stringify(ASK)}\n~~~\n\n${fence('actovia-ask', ASK)}`
     )
     expect(host.querySelectorAll('[data-interactive]')).toHaveLength(1)
     const pre = host.querySelector('pre')
@@ -442,8 +440,8 @@ describe('what stays code', () => {
   })
 
   it('a second block with the same text, in a later text block of the run', async () => {
-    const first = `Before I answer:\n\n${fence('exodus-ask', ASK)}`
-    const second = `After a tool call:\n\n${fence('exodus-ask', ASK)}`
+    const first = `Before I answer:\n\n${fence('actovia-ask', ASK)}`
+    const second = `After a tool call:\n\n${fence('actovia-ask', ASK)}`
     await show(`${first}\n\n${second}`, { texts: [first, second] })
     expect(host.querySelectorAll('[data-interactive]')).toHaveLength(1)
     expect(host.querySelectorAll('pre')).toHaveLength(1)
@@ -457,7 +455,7 @@ describe('what stays code', () => {
   it('a fence still being written: code, not a form, frame after frame', async () => {
     const json = JSON.stringify(ASK)
     for (const end of [12, 40, json.length]) {
-      const partial = `Before I answer:\n\n\`\`\`exodus-ask\n${json.slice(0, end)}`
+      const partial = `Before I answer:\n\n\`\`\`actovia-ask\n${json.slice(0, end)}`
       await show(partial)
       expect(block()).toBeNull()
       expect(host.querySelector('form')).toBeNull()
@@ -466,7 +464,7 @@ describe('what stays code', () => {
   })
 
   it('a block outside a turn (a user message, a tool description)', async () => {
-    await show(fence('exodus-ask', ASK), {}, false)
+    await show(fence('actovia-ask', ASK), {}, false)
     expect(block()).toBeNull()
     expect(host.querySelector('pre')).not.toBeNull()
   })
@@ -474,12 +472,12 @@ describe('what stays code', () => {
 
 describe('a reply written with CRLF line ends', () => {
   it('still draws its block', async () => {
-    const crlf = `Before I answer:\n\n${fence('exodus-confirm', {
+    const crlf = `Before I answer:\n\n${fence('actovia-confirm', {
       ...CONFIRM,
       details: 'line one'
     })}\n`.replaceAll('\n', '\r\n')
     await show(crlf)
-    expect(block()?.getAttribute('data-interactive')).toBe('confirm')
+    expect(block()?.dataset.interactive).toBe('confirm')
     expect(host.querySelector('pre')).toBeNull()
   })
 })

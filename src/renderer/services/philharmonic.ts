@@ -1,4 +1,4 @@
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 import type { AgentData, TeamData } from '@/stores/philharmonic'

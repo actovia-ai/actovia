@@ -1,5 +1,5 @@
 // The phone's daily health snapshot (aggregates only — never raw samples) and
-// the report the desktop writes from it. exodus-ios mirrors both in
+// the report the desktop writes from it. actovia-ios mirrors both in
 // Sources/Models/HealthWire.swift.
 import { z } from 'zod'
 
@@ -255,11 +255,11 @@ export function parseHealthSummary(value: unknown): HealthSummary | null {
   return withoutSuggestion.success ? withoutSuggestion.data : null
 }
 
-// ── Period reports (exodus-ios trends, phase 2) ─────────────────────────────
+// ── Period reports (actovia-ios trends, phase 2) ─────────────────────────────
 // A finished week, month, quarter or year: the phone sends that period's
 // aggregates (and the period before's), the daily notes it kept, and the
 // habits it tracks; the desktop answers with the report and keeps nothing.
-// exodus-ios mirrors both in Sources/HealthFeature/Report/PeriodReport.swift
+// actovia-ios mirrors both in Sources/HealthFeature/Report/PeriodReport.swift
 // and PeriodReportInput.swift.
 
 const wireDay = z.string().regex(/^\d{4}-\d{2}-\d{2}$/)

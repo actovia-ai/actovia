@@ -1,4 +1,4 @@
-import type { MemoryChange, UsedMemory } from '@exodus/shared/types/memory'
+import type { MemoryChange, UsedMemory } from '@actovia/shared/types/memory'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useRef } from 'react'
 

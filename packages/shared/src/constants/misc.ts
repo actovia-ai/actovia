@@ -1,1 +1,1 @@
-export const QUICK_CHAT_KEY = 'EXODUS_QUICK_CHAT'
+export const QUICK_CHAT_KEY = 'ACTOVIA_QUICK_CHAT'

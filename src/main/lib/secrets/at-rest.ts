@@ -246,14 +246,14 @@ type SecretFn = (
 export type SecretKeyPath = ReadonlyArray<string | number>
 
 /** Marks a sealed number, so opening it gives the number back. */
-const NUMBER_ENVELOPE = 'exodus-number:'
+const NUMBER_ENVELOPE = 'actovia-number:'
 /**
  * Marks a sealed string that itself starts with one of these markers, so a
- * secret whose text is `exodus-number:7` opens as that text, not as 7
+ * secret whose text is `actovia-number:7` opens as that text, not as 7
  * (S1 M-c). Any other string is sealed as it is (rows written before this
  * opened the same way).
  */
-const STRING_ENVELOPE = 'exodus-string:'
+const STRING_ENVELOPE = 'actovia-string:'
 
 function escapeSealedString(v: string): string {
   return v.startsWith(NUMBER_ENVELOPE) || v.startsWith(STRING_ENVELOPE)

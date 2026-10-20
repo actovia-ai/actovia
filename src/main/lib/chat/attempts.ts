@@ -10,9 +10,9 @@
 // Each transition reads the chat's user rows and writes inside one
 // transaction, so two quick clicks apply one after the other, never
 // interleaved — and every transition is idempotent.
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ConflictError, NotFoundError } from '@exodus/shared/errors/app-error'
-import type { Attempt } from '@exodus/shared/types/chat'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ConflictError, NotFoundError } from '@actovia/shared/errors/app-error'
+import type { Attempt } from '@actovia/shared/types/chat'
 import { and, asc, eq, inArray } from 'drizzle-orm'
 
 import { db } from '../db/db'
@@ -295,4 +295,4 @@ export function getChatAttempts(
 
 // `messages` with each user message's `attempt` replaced by the stored one:
 // the same function a client applies the server's answer with.
-export { applyAttempts } from '@exodus/shared/utils/attempts'
+export { applyAttempts } from '@actovia/shared/utils/attempts'

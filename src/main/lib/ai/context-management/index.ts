@@ -1,5 +1,5 @@
+import type { CurrentRun } from '@actovia/shared/utils/attempts'
 import type { Model } from '@earendil-works/pi-ai'
-import type { CurrentRun } from '@exodus/shared/utils/attempts'
 
 import { logger } from '../../logger'
 import { runFullCompaction } from './compaction'

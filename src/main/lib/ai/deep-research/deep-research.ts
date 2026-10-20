@@ -1,11 +1,11 @@
-import type { Model } from '@earendil-works/pi-ai'
 import {
   DeepResearchProgress,
   Learning,
   QueryWithResearchGoal,
   ReportProgressPayload
-} from '@exodus/shared/types/deep-research'
-import { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/deep-research'
+import { WebSearchResult } from '@actovia/shared/types/web-search'
+import type { Model } from '@earendil-works/pi-ai'
 
 import { generateSerpQueries } from './generate-queries'
 import { processSerpResult } from './process-search-results'

@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 // The ▾ beside the title: the sidebar row's actions for the chat on screen,
 // and the two exports.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -146,7 +146,7 @@ const render = (...args: [Chat | undefined] | []) =>
       createElement(
         Provider,
         { store },
-        createElement(ChatMenu, { chat: args.length ? args[0] : chat })
+        createElement(ChatMenu, { chat: args.length > 0 ? args[0] : chat })
       )
     )
   )

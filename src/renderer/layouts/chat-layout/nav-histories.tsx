@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   ArrowRight01Icon,
   Copy01Icon,

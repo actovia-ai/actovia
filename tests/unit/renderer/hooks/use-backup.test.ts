@@ -7,8 +7,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQueryClient } from '../../helpers/query-test-utils'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 vi.mock('react-i18next', () => ({
@@ -91,7 +91,7 @@ async function mountHookOnAppClient<T>(hook: () => T) {
 
 const status = { autoBackup: true, lastBackupAt: '2026-09-23T03:00:00.000Z' }
 const backups = [
-  { name: 'exodus-2026-09-23.zip', size: 2048, createdAt: status.lastBackupAt }
+  { name: 'actovia-2026-09-23.zip', size: 2048, createdAt: status.lastBackupAt }
 ]
 
 const settings = {

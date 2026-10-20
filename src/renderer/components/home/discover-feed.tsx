@@ -1,9 +1,9 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   DiscoverArticle,
   DiscoverGroup
-} from '@exodus/shared/types/discover'
-import { getHttpErrorMessage, toErrorI18n } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/discover'
+import { getHttpErrorMessage, toErrorI18n } from '@actovia/shared/utils/http'
 import { RefreshIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { formatDistanceToNow } from 'date-fns'

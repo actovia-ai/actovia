@@ -1,14 +1,14 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   LOCALE_IDS,
   LOCALES,
   type LanguageSetting
-} from '@exodus/shared/i18n/locales'
+} from '@actovia/shared/i18n/locales'
 import {
   COLOR_TONES,
   type ColorTone,
   type UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import {
   Globe02Icon,
   MoonIcon,

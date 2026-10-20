@@ -113,7 +113,7 @@ const skills = [
     displayName: 'PDF',
     version: '1.0.0',
     isActive: true,
-    installPath: '/home/.exodus/skills/pdf',
+    installPath: '/home/.actovia/skills/pdf',
     installedAt: 1
   },
   {
@@ -121,7 +121,7 @@ const skills = [
     displayName: 'SQL',
     version: '0.2.0',
     isActive: false,
-    installPath: '/home/.exodus/skills/sql',
+    installPath: '/home/.actovia/skills/sql',
     installedAt: 2
   }
 ]
@@ -217,7 +217,7 @@ describe('useInstalledSkills', () => {
 })
 
 describe('useInstalledSkills on window focus', () => {
-  it('reads again when the window regains focus, so an install by exodus-cli shows up, and only this read does', async () => {
+  it('reads again when the window regains focus, so an install by actovia-cli shows up, and only this read does', async () => {
     getInstalledService
       .mockResolvedValueOnce(skills)
       .mockResolvedValueOnce([skills[1]])
@@ -290,7 +290,7 @@ describe('useInstallSkill', () => {
 
 describe('useUninstallSkill', () => {
   it('uninstalls by slug alone, toasts the uninstalled name once, and marks the list stale', async () => {
-    uninstallService.mockResolvedValue(undefined)
+    uninstallService.mockResolvedValue()
     const { queryClient, api } = await mountHook(useUninstallSkill)
     seedCaches(queryClient)
 
@@ -330,7 +330,7 @@ describe('useUninstallSkill', () => {
 
 describe('useToggleSkill', () => {
   it('sets the skill active state with its slug and the flag, marks the list stale, and toasts nothing', async () => {
-    toggleService.mockResolvedValue(undefined)
+    toggleService.mockResolvedValue()
     const { queryClient, api } = await mountHook(useToggleSkill)
     seedCaches(queryClient)
 
@@ -347,7 +347,7 @@ describe('useToggleSkill', () => {
   })
 
   it('passes the flag through both ways', async () => {
-    toggleService.mockResolvedValue(undefined)
+    toggleService.mockResolvedValue()
     const { api } = await mountHook(useToggleSkill)
 
     await act(async () => {
@@ -387,14 +387,14 @@ describe('the refresh after a write', () => {
     },
     {
       name: 'an uninstall',
-      arrange: () => uninstallService.mockResolvedValue(undefined),
+      arrange: () => uninstallService.mockResolvedValue(),
       hook: useUninstallSkill,
       run: (m: { mutateAsync: (v: never) => Promise<unknown> }) =>
         m.mutateAsync({ slug: 'pdf', displayName: 'PDF' } as never)
     },
     {
       name: 'a toggle',
-      arrange: () => toggleService.mockResolvedValue(undefined),
+      arrange: () => toggleService.mockResolvedValue(),
       hook: useToggleSkill,
       run: (m: { mutateAsync: (v: never) => Promise<unknown> }) =>
         m.mutateAsync({ slug: 'pdf', isActive: false } as never)

@@ -1,11 +1,11 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import type {
   KnowledgeDocData,
   KnowledgeIndexStatus,
   LightRagHealthDto
-} from '@exodus/shared/types/knowledge-base'
-import { getHttpErrorMessage, toErrorI18n } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/knowledge-base'
+import { getHttpErrorMessage, toErrorI18n } from '@actovia/shared/utils/http'
 import {
   File01Icon,
   Loading03Icon,
@@ -340,9 +340,9 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
       const parts = [
         `LLM: ${h.llmModel ?? '?'}`,
         `${t('knowledgeBase:toast.embeddingLabel')}: ${h.embeddingModel ?? '?'}${h.embeddingDim ? ` (${h.embeddingDim}d)` : ''}`,
-        h.documentCount != null
-          ? t('knowledgeBase:toast.docsCount', { count: h.documentCount })
-          : null
+        h.documentCount == null
+          ? null
+          : t('knowledgeBase:toast.docsCount', { count: h.documentCount })
       ].filter(Boolean)
       sileo.success({
         title: t('knowledgeBase:toast.connected'),

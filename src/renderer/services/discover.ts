@@ -1,5 +1,5 @@
-import type { DiscoverFeedDto } from '@exodus/shared/types/discover'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { DiscoverFeedDto } from '@actovia/shared/types/discover'
+import { fetcher } from '@actovia/shared/utils/http'
 
 export const getDiscoverFeed = () =>
   fetcher<DiscoverFeedDto>('/api/v1/discover')

@@ -1,12 +1,12 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
   ChatToolResultMessage,
   ChatUserMessage,
   ImageContent,
   ImageGenerationDetails
-} from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 
 import { imageSrcOf } from '@/lib/generated-image'
 import { userMessageText } from '@/lib/user-message-text'
@@ -75,7 +75,7 @@ export function questionsByRun(messages: ChatMessage[]): Map<string, string> {
     questions.set(
       message.runId,
       userMessageText(message)
-        .replace(/\s+/gu, ' ')
+        .replaceAll(/\s+/gu, ' ')
         .trim()
         .slice(0, QUESTION_LENGTH)
     )

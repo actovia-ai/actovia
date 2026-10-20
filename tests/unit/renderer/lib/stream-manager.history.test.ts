@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { ChatSseEvent } from '@exodus/shared/types/chat'
+import type { ChatSseEvent } from '@actovia/shared/types/chat'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { historyKeys } from '@/hooks/use-chat-history'

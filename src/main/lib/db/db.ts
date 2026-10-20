@@ -17,8 +17,8 @@ import { holdSingleInstanceLock } from '../single-instance'
 holdSingleInstanceLock()
 
 // PGlite's own dataDir mkdir isn't recursive — it needs the parent
-// (`getExodusHome()`) to already exist. This module is evaluated at import
-// time (ES module hoisting), before `app.on('ready')`'s `ensureExodusDirs()`
+// (`getActoviaHome()`) to already exist. This module is evaluated at import
+// time (ES module hoisting), before `app.on('ready')`'s `ensureActoviaDirs()`
 // call ever runs, so it can't rely on that — it must create its own
 // directory tree up front.
 const dbPath = getDatabaseDir()

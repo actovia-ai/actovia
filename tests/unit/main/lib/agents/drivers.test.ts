@@ -14,10 +14,10 @@ describe('drivers', () => {
     ])
     expect(DRIVERS.codex.resumeArgs('abc')).toEqual(['resume', 'abc'])
   })
-  it('maps a CLI runtime and refuses Exodus’ own', () => {
+  it('maps a CLI runtime and refuses Actovia’ own', () => {
     expect(cliOf('codex')).toBe('codex')
     expect(cliOf('claude-code')).toBe('claude-code')
-    expect(() => cliOf('exodus')).toThrow()
+    expect(() => cliOf('actovia')).toThrow()
     expect(() => cliOf('nope')).toThrow()
   })
 })

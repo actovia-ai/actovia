@@ -1,4 +1,4 @@
-import type { PmRoundEventDto } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventDto } from '@actovia/shared/types/pm-round'
 
 export type RoundLine =
   | { kind: 'trigger'; scheduled: boolean; text: string }

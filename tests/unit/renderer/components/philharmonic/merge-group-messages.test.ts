@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import type { AgentCard } from '@exodus/shared/types/agents'
+import type { AgentCard } from '@actovia/shared/types/agents'
 import i18n from 'i18next'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'

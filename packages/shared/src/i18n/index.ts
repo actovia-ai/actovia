@@ -9,7 +9,7 @@ import { MAIN_NAMESPACES, NAMESPACES } from './namespaces'
 // runtime `import(`./locales/${lng}/${ns}.json`)` template and relies on
 // Vite recognizing the pattern and glob-expanding it at build time. That
 // works when the calling module is under the app's own src/ tree, but not
-// here: this module is reached through the `@exodus/shared` workspace
+// here: this module is reached through the `@actovia/shared` workspace
 // package (a node_modules symlink), and Vite's dynamic-import-with-vars
 // transform doesn't reach through that boundary — verified by inspecting a
 // real `electron-forge package` output, where the import survived

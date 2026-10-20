@@ -59,7 +59,7 @@ function buildContextMenu(): Menu {
       enabled: !!win
     },
     { type: 'separator' },
-    { role: 'quit', label: mainT('menu:tray.quitExodus', 'Quit Actovia') }
+    { role: 'quit', label: mainT('menu:tray.quitActovia', 'Quit Actovia') }
   ])
 }
 

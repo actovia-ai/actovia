@@ -1,5 +1,8 @@
 // @vitest-environment happy-dom
-import type { SkillListResponse, SkillsView } from '@exodus/shared/types/skills'
+import type {
+  SkillListResponse,
+  SkillsView
+} from '@actovia/shared/types/skills'
 import { act, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 

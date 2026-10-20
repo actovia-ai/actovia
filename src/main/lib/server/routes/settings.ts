@@ -1,6 +1,6 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ValidationError } from '@exodus/shared/errors/app-error'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ValidationError } from '@actovia/shared/errors/app-error'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { Hono } from 'hono'
 
 import { assertProjectsDirAllowed } from '../../agents/projects-dir'

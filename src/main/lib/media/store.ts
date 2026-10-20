@@ -6,8 +6,8 @@ import { logger } from '../logger'
 import { getMediaDir } from '../paths'
 
 /**
- * Generated media on disk: `~/.exodus/media/<chatId>/<uuid>.<ext>` for a chat,
- * `~/.exodus/media/_groups/<conversationId>/…` for a Philharmonic Group. A
+ * Generated media on disk: `~/.actovia/media/<chatId>/<uuid>.<ext>` for a chat,
+ * `~/.actovia/media/_groups/<conversationId>/…` for a Philharmonic Group. A
  * file is written once and never changed, so the route can cache it forever.
  */
 

@@ -23,8 +23,8 @@ import {
 } from '@main/lib/agents/terminal'
 import { describe, expect, it, vi } from 'vitest'
 
-const home = mkdtempSync(join(tmpdir(), 'exodus-home-'))
-vi.mock('@main/lib/paths', () => ({ getExodusHome: () => home }))
+const home = mkdtempSync(join(tmpdir(), 'actovia-home-'))
+vi.mock('@main/lib/paths', () => ({ getActoviaHome: () => home }))
 
 const { writeResumeScript, sweepResumeScripts, terminalDir } =
   await import('@main/lib/agents/terminal')
@@ -66,8 +66,8 @@ describe('Continue in Terminal', () => {
   })
 
   it('escapes a path so one word reaches any shell', () => {
-    expect(shellEscapePath('/Users/o/Exodus Projects/x-1/.exodus/s.sh')).toBe(
-      '/Users/o/Exodus\\ Projects/x-1/.exodus/s.sh'
+    expect(shellEscapePath('/Users/o/Actovia Projects/x-1/.actovia/s.sh')).toBe(
+      '/Users/o/Actovia\\ Projects/x-1/.actovia/s.sh'
     )
   })
 
@@ -79,7 +79,7 @@ describe('Continue in Terminal', () => {
     expect(isCliSessionId('abc')).toBe(false)
   })
 
-  it('writes the hand-off script under Exodus data, 0700, deleting itself first', async () => {
+  it('writes the hand-off script under Actovia data, 0700, deleting itself first', async () => {
     const path = await writeResumeScript('/p', '/bin/claude', [
       '--resume',
       'abc-12345'

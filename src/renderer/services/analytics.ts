@@ -2,8 +2,8 @@ import type {
   AnalyticsStatus,
   QueryResult,
   SnapshotMeta
-} from '@exodus/shared/types/analytics'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/analytics'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/analytics'
 
@@ -30,7 +30,7 @@ export function resultToCsv(result: QueryResult): string {
     if (value === null || value === undefined) return ''
     const text =
       typeof value === 'object' ? JSON.stringify(value) : String(value)
-    return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+    return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text
   }
   const header = result.columns.map((c) => escape(c.name)).join(',')
   const lines = result.rows.map((row) =>

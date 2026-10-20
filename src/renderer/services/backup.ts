@@ -1,4 +1,4 @@
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 export interface BackupInfo {
   name: string

@@ -1,5 +1,5 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
-import { mergeRun } from '@exodus/shared/utils/run-merge'
+import type { ChatMessage } from '@actovia/shared/types/chat'
+import { mergeRun } from '@actovia/shared/utils/run-merge'
 import { describe, expect, it } from 'vitest'
 
 const user = (id: string, extra: object = {}): ChatMessage =>

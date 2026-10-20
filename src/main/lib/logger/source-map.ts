@@ -108,7 +108,7 @@ function parseFrame(text: string): Frame | null {
   let start = at[0].length
   if (closed) {
     // `at name (location)`. The first ` (`, not the last: a path can hold
-    // one ("Exodus (1).app"), a function name does not.
+    // one ("Actovia (1).app"), a function name does not.
     const open = text.indexOf(' (', start - 1)
     if (open < 0 || open >= lineAt) return null
     start = open + 2

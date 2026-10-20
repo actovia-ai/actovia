@@ -1,9 +1,9 @@
+import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
+import type { Attachment } from '@actovia/shared/types/chat'
 // src/main/lib/ai/philharmonic/pm-coordinator.ts
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'
-import { CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
-import type { Attachment } from '@exodus/shared/types/chat'
 import { v4 as uuidV4 } from 'uuid'
 
 import { cliOf, isCliId } from '../../agents/drivers'
@@ -105,9 +105,9 @@ function rosterText(
     .map((a) => {
       const teamName = a.teamId ? teamNameById.get(a.teamId) : null
       const cli =
-        a.runtime !== 'exodus'
-          ? ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})`
-          : ''
+        a.runtime === 'actovia'
+          ? ''
+          : ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})`
       return `- ${a.name}${cli}${teamName ? ` [${teamName}]` : ''}: ${a.description ?? 'no description'}`
     })
     .join('\n')
@@ -194,7 +194,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     id: e.id,
     name: e.name,
     description:
-      e.runtime === 'exodus'
+      e.runtime === 'actovia'
         ? e.description
         : `${e.description ?? ''} [Coding agent — ${CLI_NAMES[cliOf(e.runtime)]} (model: ${e.model || 'CLI default'}) on the owner's machine; it works in this group's folder${conversationRow?.projectId ? '' : ' — UNAVAILABLE: this group has no folder yet'}. Give it whole tasks with a clear "done"; its reply says what it changed.]`.trim()
   }))
@@ -288,7 +288,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     const w = blockedUntil(getQuota(emp.runtime), emp.model)
     if (!w) return null
     const reset =
-      w.resetsAt !== null ? formatWhen(new Date(w.resetsAt)) : 'an unknown time'
+      w.resetsAt === null ? 'an unknown time' : formatWhen(new Date(w.resetsAt))
     return `Not started: ${emp.name}'s ${CLI_NAMES[emp.runtime]} quota is used up (${quotaWindowLabel(w)} ${Math.round(w.usedPercent)} %), resets ${reset}. Give the step to another employee, or call waitForQuota. If you had marked the step running, set it back to pending, or call waitForQuota.`
   }
 

@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatSseEvent } from '@exodus/shared/types/chat'
+import type { ChatMessage, ChatSseEvent } from '@actovia/shared/types/chat'
 import {
   createSseWriter,
   STREAM_FLUSH_INTERVAL_MS

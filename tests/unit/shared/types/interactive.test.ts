@@ -1,10 +1,10 @@
 // The two blocks a reply can ask with, their limits, and which fence of a
-// reply is its block. exodus-ios's InteractiveBlockTests holds the same
+// reply is its block. actovia-ios's InteractiveBlockTests holds the same
 // vectors — keep them in step.
 import {
   findInteractiveBlock,
   parseInteractiveBlock
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import { describe, expect, it } from 'vitest'
 
 const ASK_SOURCE =
@@ -260,25 +260,25 @@ const STOCK_CASES: Array<[string, string, boolean]> = [
 ]
 
 describe('parseInteractiveBlock', () => {
-  it.each(ASK_CASES)('exodus-ask: %s → valid: %s', (_name, source, valid) => {
+  it.each(ASK_CASES)('actovia-ask: %s → valid: %s', (_name, source, valid) => {
     expect(parseInteractiveBlock('ask', source) !== null).toBe(valid)
   })
 
   it.each(CONFIRM_CASES)(
-    'exodus-confirm: %s → valid: %s',
+    'actovia-confirm: %s → valid: %s',
     (_name, source, valid) => {
       expect(parseInteractiveBlock('confirm', source) !== null).toBe(valid)
     }
   )
 
   it.each(STEPS_CASES)(
-    'exodus-steps: %s → valid: %s',
+    'actovia-steps: %s → valid: %s',
     (_name, source, valid) => {
       expect(parseInteractiveBlock('steps', source) !== null).toBe(valid)
     }
   )
   it.each(STOCK_CASES)(
-    'exodus-stock: %s → valid: %s',
+    'actovia-stock: %s → valid: %s',
     (_name, source, valid) => {
       expect(parseInteractiveBlock('stock', source) !== null).toBe(valid)
     }
@@ -312,88 +312,88 @@ const FIND_CASES: Array<
 > = [
   [
     'a questionnaire after a paragraph',
-    `Intro\n\n\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\`\n\nAfter`,
+    `Intro\n\n\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\`\n\nAfter`,
     'ask'
   ],
   [
     'a fence still open (a reply streaming)',
-    `Intro\n\n\`\`\`exodus-ask\n${ASK_SOURCE}`,
+    `Intro\n\n\`\`\`actovia-ask\n${ASK_SOURCE}`,
     null
   ],
   [
     'two blocks: only the first counts',
-    `\`\`\`exodus-confirm\n${CONFIRM_SOURCE}\n\`\`\`\n\n\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-confirm\n${CONFIRM_SOURCE}\n\`\`\`\n\n\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\``,
     'confirm'
   ],
   [
     'a first block that does not validate: none',
-    `\`\`\`exodus-ask\n{oops}\n\`\`\`\n\n\`\`\`exodus-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-ask\n{oops}\n\`\`\`\n\n\`\`\`actovia-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
     null
   ],
   [
     'inside a longer backtick fence',
-    `\`\`\`\`md\n\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\`\n\`\`\`\``,
+    `\`\`\`\`md\n\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\`\n\`\`\`\``,
     null
   ],
   [
     'inside a tilde fence',
-    `~~~\n\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\`\n~~~`,
+    `~~~\n\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\`\n~~~`,
     null
   ],
   [
     'indented under a list item',
-    `- item\n\n  \`\`\`exodus-ask\n  ${ASK_SOURCE}\n  \`\`\``,
+    `- item\n\n  \`\`\`actovia-ask\n  ${ASK_SOURCE}\n  \`\`\``,
     null
   ],
   [
     'after an ordinary code block',
-    `\`\`\`js\nlet a = 1\n\`\`\`\n\n\`\`\`exodus-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
+    `\`\`\`js\nlet a = 1\n\`\`\`\n\n\`\`\`actovia-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
     'confirm'
   ],
   [
     'trailing spaces after the name',
-    `\`\`\`exodus-confirm  \n${CONFIRM_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-confirm  \n${CONFIRM_SOURCE}\n\`\`\``,
     'confirm'
   ],
   [
     'after a line of inline code that looks like a fence',
-    `Install it with\n\`\`\`npm i\`\`\`\n\n\`\`\`exodus-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
+    `Install it with\n\`\`\`npm i\`\`\`\n\n\`\`\`actovia-confirm\n${CONFIRM_SOURCE}\n\`\`\``,
     'confirm'
   ],
   [
     'a closing line with a no-break space after it: not a closer',
-    `\`\`\`exodus-confirm\n${CONFIRM_SOURCE}\n\`\`\` \u00A0`,
+    `\`\`\`actovia-confirm\n${CONFIRM_SOURCE}\n\`\`\` \u00A0`,
     null
   ],
   [
     'an ideographic space after the name: another name',
-    `\`\`\`exodus-ask\u3000\n${ASK_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-ask\u3000\n${ASK_SOURCE}\n\`\`\``,
     null
   ],
   [
     'a tab after the name and after the closing fence',
-    `\`\`\`exodus-confirm\t\n${CONFIRM_SOURCE}\n\`\`\`\t`,
+    `\`\`\`actovia-confirm\t\n${CONFIRM_SOURCE}\n\`\`\`\t`,
     'confirm'
   ],
   [
     'another name',
-    `\`\`\`exodus-answer\n{"block":"ask","ref":"r"}\n\`\`\``,
+    `\`\`\`actovia-answer\n{"block":"ask","ref":"r"}\n\`\`\``,
     null
   ],
   [
     'a steps block',
-    `Here:\n\n\`\`\`exodus-steps\n${STEPS_SOURCE}\n\`\`\``,
+    `Here:\n\n\`\`\`actovia-steps\n${STEPS_SOURCE}\n\`\`\``,
     'steps'
   ],
-  ['a stock block', `\`\`\`exodus-stock\n${STOCK_SOURCE}\n\`\`\``, 'stock'],
+  ['a stock block', `\`\`\`actovia-stock\n${STOCK_SOURCE}\n\`\`\``, 'stock'],
   [
     'a stock block after a questionnaire: the questionnaire',
-    `\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\`\n\n\`\`\`exodus-stock\n${STOCK_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\`\n\n\`\`\`actovia-stock\n${STOCK_SOURCE}\n\`\`\``,
     'ask'
   ],
   [
     'a stock block that does not validate, then steps: none',
-    `\`\`\`exodus-stock\n{"symbol":"aapl"}\n\`\`\`\n\n\`\`\`exodus-steps\n${STEPS_SOURCE}\n\`\`\``,
+    `\`\`\`actovia-stock\n{"symbol":"aapl"}\n\`\`\`\n\n\`\`\`actovia-steps\n${STEPS_SOURCE}\n\`\`\``,
     null
   ]
 ]
@@ -404,7 +404,7 @@ describe('findInteractiveBlock', () => {
   })
 
   it("gives the block's fence text, to know its code block by", () => {
-    const markdown = `Intro\n\n\`\`\`exodus-ask\n${ASK_SOURCE}\n\`\`\`\n`
+    const markdown = `Intro\n\n\`\`\`actovia-ask\n${ASK_SOURCE}\n\`\`\`\n`
     expect(findInteractiveBlock(markdown)?.source).toBe(ASK_SOURCE)
   })
 })

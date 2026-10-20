@@ -4,7 +4,7 @@
 // asks for it, and shown as text it reads as the answer. This splits those
 // spans out so they travel as reasoning: the kernel applies it to every
 // assistant text block as it streams (`kernel/run.ts`), and the renderer to
-// messages stored before that (`messages.tsx`). exodus-ios has the same
+// messages stored before that (`messages.tsx`). actovia-ios has the same
 // splitter (`ThinkingTags`), held to the same vectors.
 //
 // What counts as a span, conservatively:
@@ -236,13 +236,13 @@ export function splitThinkingTagsInContent<T extends { type: string }>(
     for (const part of parts) {
       if (part.type === 'thinking') {
         out.push({ type: 'thinking', thinking: part.text })
-      } else if (!signed) {
+      } else if (signed) {
+        const { textSignature: _signature, ...rest } = textBlock
+        out.push({ ...rest, text: part.text })
+      } else {
         // A text signature (OpenAI's message item) belongs to one block.
         signed = true
         out.push({ ...textBlock, text: part.text })
-      } else {
-        const { textSignature: _signature, ...rest } = textBlock
-        out.push({ ...rest, text: part.text })
       }
     }
   }

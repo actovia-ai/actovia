@@ -1,8 +1,8 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   weatherClockHours,
   type WeatherResult
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
 import {
   ArrowDown01Icon,
   SunriseIcon,

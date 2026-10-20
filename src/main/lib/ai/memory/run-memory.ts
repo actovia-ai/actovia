@@ -1,5 +1,5 @@
+import type { UsedMemory } from '@actovia/shared/types/memory'
 import type { Message } from '@earendil-works/pi-ai'
-import type { UsedMemory } from '@exodus/shared/types/memory'
 
 import type { MemoryRow } from '../../db/memory-queries'
 

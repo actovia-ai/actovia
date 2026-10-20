@@ -66,7 +66,7 @@ export async function runDelegatedTask(args: {
 
   try {
     const outcome: DelegatedOutput =
-      agent.runtime === 'exodus'
+      agent.runtime === 'actovia'
         ? {
             output: await withRetry(
               () =>
@@ -116,7 +116,7 @@ export async function runDelegatedTask(args: {
           })
     const output = outcome.output
     // Actovia' loop closes its own execution row; a CLI run leaves it to us.
-    if (agent.runtime !== 'exodus')
+    if (agent.runtime !== 'actovia')
       await updateTaskExecution(execution.id, {
         status: 'completed',
         completedAt: new Date()

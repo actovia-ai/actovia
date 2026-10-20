@@ -2,12 +2,12 @@
 // A regenerate group on screen (spec 2026-09-26): two answers side by side —
 // tabs in a narrow window — each with "Use this one"; once settled, the
 // chosen answer with a link to the other.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   AssistantTurn,
   ChatMessage,
   CompareSegment
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -109,9 +109,7 @@ const all = (testId: string, within: ParentNode = document.body) => [
   ...within.querySelectorAll<HTMLElement>(`[data-testid="${testId}"]`)
 ]
 const turnsShown = (within: ParentNode = host) =>
-  [...within.querySelectorAll('[data-turn]')].map((el) =>
-    el.getAttribute('data-turn')
-  )
+  [...within.querySelectorAll('[data-turn]')].map((el) => el.dataset.turn)
 const click = (el: HTMLElement) =>
   act(async () => {
     el.click()
@@ -146,8 +144,8 @@ describe('<CompareTurns> while two answers are compared', () => {
   it('only the newer answer streams', async () => {
     await show(segment({}), { streaming: true })
 
-    const streaming = [...host.querySelectorAll('[data-turn]')].map((el) =>
-      el.getAttribute('data-streaming')
+    const streaming = [...host.querySelectorAll('[data-turn]')].map(
+      (el) => el.dataset.streaming
     )
     expect(streaming).toEqual(['false', 'true'])
   })
@@ -155,16 +153,14 @@ describe('<CompareTurns> while two answers are compared', () => {
   it("gives neither answer's questionnaire or confirmation an answer path", async () => {
     await show(segment({}))
     expect(
-      [...host.querySelectorAll('[data-turn]')].map((el) =>
-        el.getAttribute('data-answerable')
+      [...host.querySelectorAll('[data-turn]')].map(
+        (el) => el.dataset.answerable
       )
     ).toEqual(['false', 'false'])
 
     wide = false
     await show(segment({}))
-    expect(
-      host.querySelector('[data-turn]')?.getAttribute('data-answerable')
-    ).toBe('false')
+    expect(host.querySelector('[data-turn]')?.dataset.answerable).toBe('false')
   })
 
   it('in a narrow window shows one answer at a time, behind tabs, the newer first', async () => {
@@ -206,9 +202,7 @@ describe('<CompareTurns> once an answer was chosen', () => {
 
     expect(turnsShown()).toEqual(['r1'])
     // The kept answer is the conversation's: its block can be answered.
-    expect(
-      host.querySelector('[data-turn]')?.getAttribute('data-answerable')
-    ).toBe('true')
+    expect(host.querySelector('[data-turn]')?.dataset.answerable).toBe('true')
     expect(all(TEST_IDS.chat.compare.useThis)).toHaveLength(0)
     const [link] = all(TEST_IDS.chat.compare.otherVersionLink)
     expect(link.textContent).toBe('compare.otherVersion {"count":1}')
@@ -227,13 +221,13 @@ describe('<CompareTurns> once an answer was chosen', () => {
     const dialog = document.body.querySelector('[role="dialog"]')!
     expect(turnsShown(dialog)).toEqual(['g'])
     // An answer that is not in the conversation is not one to regenerate.
-    expect(
-      dialog.querySelector('[data-turn]')?.getAttribute('data-can-regenerate')
-    ).toBe('false')
+    expect(dialog.querySelector('[data-turn]')?.dataset.canRegenerate).toBe(
+      'false'
+    )
     // Nor one whose questionnaire or confirmation could be answered.
-    expect(
-      dialog.querySelector('[data-turn]')?.getAttribute('data-answerable')
-    ).toBe('false')
+    expect(dialog.querySelector('[data-turn]')?.dataset.answerable).toBe(
+      'false'
+    )
 
     await click(all(TEST_IDS.chat.compare.useInstead, dialog)[0])
     expect(choose).toHaveBeenCalledWith('g')

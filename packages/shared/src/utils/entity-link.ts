@@ -1,7 +1,7 @@
 // `[Marie Curie](entity:Marie_Curie)` — a link in a reply that opens a small
-// panel about the person, place or thing (exodus-ios spec 2026-10-07 §2.2).
+// panel about the person, place or thing (actovia-ios spec 2026-10-07 §2.2).
 // The target is a Wikipedia article title, and only something that could be
-// one is a link; anything else is plain text. exodus-ios's
+// one is a link; anything else is plain text. actovia-ios's
 // `MarkdownEntityLink` has the same rule, held to the same vectors.
 
 export const ENTITY_SCHEME = 'entity:'

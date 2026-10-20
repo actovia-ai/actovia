@@ -1,8 +1,8 @@
 // What a question asked from the phone's Health workspace carried (the JSON
 // of `splitHealth`), as the bubble draws it: a row of chips, and a list of
-// labelled values behind them. The chips follow exodus-ios's
+// labelled values behind them. The chips follow actovia-ios's
 // `HealthContextCard.chips` rule for rule. Display only.
-import type { HealthSnapshot } from '@exodus/shared/types/health'
+import type { HealthSnapshot } from '@actovia/shared/types/health'
 
 import {
   categoryTitle,
@@ -27,7 +27,7 @@ export {
   type HealthFormat
 } from '@/components/chat/health/health-format'
 
-/** The chips over the question — exodus-ios `HealthContextCard.chips`. */
+/** The chips over the question — actovia-ios `HealthContextCard.chips`. */
 export function healthChips(json: string, f: HealthFormat): HealthChip[] {
   const value = parse(json)
   const s = snapshotOf(value)

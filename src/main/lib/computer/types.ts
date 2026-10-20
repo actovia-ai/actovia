@@ -2,9 +2,9 @@
 //
 // The block below is spec §2.1 ("The Runtime → Types") copied verbatim, with
 // `export` added so the rest of the module can import it. `HelperCommand` and
-// `InputHelper` (the `exodus-input` client contract) follow at the bottom.
+// `InputHelper` (the `actovia-input` client contract) follow at the bottom.
 
-import type { InstalledApp } from '@exodus/shared/types/computer-use'
+import type { InstalledApp } from '@actovia/shared/types/computer-use'
 
 export type { InstalledApp }
 
@@ -82,10 +82,10 @@ export interface SessionResult {
   finalScreenshot?: ComputerState['screenshot']
 }
 
-// --- exodus-input client contract -----------------------------------------
+// --- actovia-input client contract -----------------------------------------
 
 /**
- * The primitive-level JSON `exodus-input input` reads from stdin, one object
+ * The primitive-level JSON `actovia-input input` reads from stdin, one object
  * per line. `hands.ts` produces these; `helper.ts` serialises + sends them.
  */
 export type HelperCommand =

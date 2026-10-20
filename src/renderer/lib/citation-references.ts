@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 
 // Matches 【1-source】 or 【1,2-source】
 const MARKER = /【([\d,\s]+)-source】/gu
@@ -26,7 +26,7 @@ function referenceLine(n: number, source: WebSearchResult): string {
  * Sources are numbered in the order the answer first cites them; a source is
  * its link, so two ranks of one page share a number. A number no source
  * answers to is dropped. Nothing is listed when nothing was cited. The same
- * rule, string for string, is exodus-ios's `CopiedAnswer`.
+ * rule, string for string, is actovia-ios's `CopiedAnswer`.
  */
 export function withReferences(
   markdown: string,

@@ -1,10 +1,10 @@
-import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
+import { APP_DISPLAY_NAME } from '@actovia/shared/constants/brand'
 import {
-  EXODUS_REPO,
-  EXODUS_TWITTER,
-  EXODUS_WEBSITE
-} from '@exodus/shared/constants/external-urls'
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+  ACTOVIA_REPO,
+  ACTOVIA_TWITTER,
+  ACTOVIA_WEBSITE
+} from '@actovia/shared/constants/external-urls'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { LinkSquare02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect } from 'react'
@@ -131,13 +131,13 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
 
       <SettingsSection title={t('about.sections.links')}>
         <SettingsRow label={t('about.github')}>
-          <ExternalLink href={EXODUS_REPO}>actovia-ai/actovia</ExternalLink>
+          <ExternalLink href={ACTOVIA_REPO}>actovia-ai/actovia</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.twitter')}>
-          <ExternalLink href={EXODUS_TWITTER}>@YanceyOfficial</ExternalLink>
+          <ExternalLink href={ACTOVIA_TWITTER}>@YanceyOfficial</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.website')}>
-          <ExternalLink href={EXODUS_WEBSITE}>actovia.yancey.app</ExternalLink>
+          <ExternalLink href={ACTOVIA_WEBSITE}>actovia.yancey.app</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.license')}>
           <Value>MIT</Value>

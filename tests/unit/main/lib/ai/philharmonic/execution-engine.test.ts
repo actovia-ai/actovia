@@ -48,8 +48,8 @@ beforeEach(() => {
 })
 
 describe('runDelegatedTask', () => {
-  it('runs an Exodus employee in its own loop, retrying a transient failure', async () => {
-    agentRow = { id: 'a1', name: 'Avery', runtime: 'exodus', isActive: true }
+  it('runs an Actovia employee in its own loop, retrying a transient failure', async () => {
+    agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }
     runEmployeeLoop
       .mockRejectedValueOnce(new Error('ECONNRESET'))
       .mockResolvedValueOnce('the report')

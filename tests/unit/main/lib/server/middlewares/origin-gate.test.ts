@@ -14,7 +14,7 @@ const DEV = 'http://localhost:5173'
 describe('isAllowedOrigin', () => {
   // Measured on the packaged build: a file:// page in Electron sends no Origin
   // at all — so neither does anything else of ours, except the dev renderer.
-  it('allows a request with no Origin (the packaged app, exodus-ios, exodus-cli, curl)', () => {
+  it('allows a request with no Origin (the packaged app, actovia-ios, actovia-cli, curl)', () => {
     expect(isAllowedOrigin(undefined)).toBe(true)
     expect(isAllowedOrigin(undefined, DEV)).toBe(true)
   })
@@ -34,12 +34,12 @@ describe('isAllowedOrigin', () => {
     // Some other dev server on this machine — or an XSS on one.
     ['another loopback port', 'http://localhost:3000'],
     ['the same port on another loopback name', 'http://127.0.0.1:5173'],
-    // What a sandboxed iframe on a hostile page sends. Exodus never does.
+    // What a sandboxed iframe on a hostile page sends. Actovia never does.
     ['an opaque origin', 'null'],
     ['a browser extension', 'chrome-extension://abcdefghijklmnop'],
     ['a file origin', 'file://'],
     // Model-written code; see src/main/lib/artifact-protocol.ts.
-    ['the artifact sandbox', 'exodus-artifact://sandbox'],
+    ['the artifact sandbox', 'actovia-artifact://sandbox'],
     ['garbage', 'not a url']
   ])('rejects %s, in dev and packaged alike', (_label, origin) => {
     expect(isAllowedOrigin(origin)).toBe(false)
@@ -142,7 +142,7 @@ describe('createOriginGate', () => {
     expect(res.status).toBe(403)
   })
 
-  // exodus-ios may reach the computer by whatever name the user gave it.
+  // actovia-ios may reach the computer by whatever name the user gave it.
   it('does not hold the lan listener to the Host check', async () => {
     const res = await buildApp().request(
       '/api/v1/settings',

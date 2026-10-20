@@ -1,12 +1,12 @@
-import type { ChatAssistantMessage } from '@exodus/shared/types/chat'
+import type { ChatAssistantMessage } from '@actovia/shared/types/chat'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({
   app: { getPath: () => '/tmp', isPackaged: false }
 }))
-const saveMessages = vi.fn(async () => undefined)
+const saveMessages = vi.fn(async () => {})
 vi.mock('@main/lib/db/queries', () => ({ saveMessages }))
-const enqueueAndProcess = vi.fn(async () => undefined)
+const enqueueAndProcess = vi.fn(async () => {})
 vi.mock('@main/lib/jobs/worker', () => ({
   enqueueAndProcess,
   logEnqueueFailure: vi.fn()

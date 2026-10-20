@@ -1,6 +1,6 @@
 // Computer Runtime — capture + downscale.
 //
-// Screenshots the target window through the `exodus-input` helper and shrinks
+// Screenshots the target window through the `actovia-input` helper and shrinks
 // the PNG so the model's per-frame token cost stays bounded. Alongside the image
 // travels `scaleFactor` — screenshot pixels per window POINT — which
 // `hands.decompose` uses to map the model's screenshot-space coordinates back to

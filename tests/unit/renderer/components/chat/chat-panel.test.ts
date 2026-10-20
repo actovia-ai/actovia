@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 // The header's panel: what the chat produced and used, in three sections,
 // each row a way back to its run.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'

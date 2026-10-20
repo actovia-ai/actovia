@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import {
   ArrowLeft02Icon,
   ArrowUpIcon,

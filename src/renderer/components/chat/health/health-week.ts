@@ -1,5 +1,5 @@
 // A detail page's question carries its category's last days instead of the
-// day's snapshot (exodus-ios `HealthHistory`): listed by day.
+// day's snapshot (actovia-ios `HealthHistory`): listed by day.
 import {
   formatDay,
   formatMinutes,

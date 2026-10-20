@@ -1,5 +1,5 @@
+import type { ModelSnapshot } from '@actovia/shared/schemas/settings-schema'
 import type { Api, KnownProvider, Model } from '@earendil-works/pi-ai'
-import type { ModelSnapshot } from '@exodus/shared/schemas/settings-schema'
 
 import { getKernelModels } from '../kernel/models'
 
@@ -194,9 +194,9 @@ export function resolveModel(
     | Model<string>
     | undefined
   if (registered) {
-    return baseUrl !== registered.baseUrl
-      ? { ...registered, baseUrl }
-      : registered
+    return baseUrl === registered.baseUrl
+      ? registered
+      : { ...registered, baseUrl }
   }
   {
     const fallback = MODEL_METADATA_FALLBACK[id]

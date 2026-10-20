@@ -1,5 +1,5 @@
 // src/main/lib/agents/codex/protocol.ts
-import type { AgentQuestion, CliQuota } from '@exodus/shared/types/agents'
+import type { AgentQuestion, CliQuota } from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from '../driver'
 import { toMs } from '../epoch'

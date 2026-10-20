@@ -1,9 +1,9 @@
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import type {
   AssistantMessage,
   ToolResultMessage,
   UserMessage
 } from '@earendil-works/pi-ai'
-import type { ChatMessage } from '@exodus/shared/types/chat'
 import { and, eq } from 'drizzle-orm'
 
 import { storedUsage } from '../ai/utils/usage'

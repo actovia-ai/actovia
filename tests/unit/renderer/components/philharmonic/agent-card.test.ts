@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import type { AgentCard } from '@exodus/shared/types/agents'
+import type { AgentCard } from '@actovia/shared/types/agents'
 import i18n from 'i18next'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -184,10 +184,10 @@ describe('AgentCardView', () => {
     const html = render(AgentCardView, {
       messageId: 'm1',
       superseded: false,
-      card: card({ model: 'opus', branch: 'exodus/fix' })
+      card: card({ model: 'opus', branch: 'actovia/fix' })
     })
     expect(html).toContain('Claude Code (opus)')
-    expect(html).toContain('Atlas · exodus/fix')
+    expect(html).toContain('Atlas · actovia/fix')
     expect(html).toContain('Working')
     expect(html).toContain('Stop')
   })

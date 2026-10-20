@@ -3,7 +3,7 @@
 // while the image was being made — stops showing "Generating" once the run
 // is over: the card shows only while the run streams, or once a result is in
 // (CLAUDE.md, the image_generation note; from the iOS C3 review).
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'

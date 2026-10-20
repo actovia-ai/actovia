@@ -1,7 +1,7 @@
 import type {
   PmRoundEventDto,
   PmRoundEventKind
-} from '@exodus/shared/types/pm-round'
+} from '@actovia/shared/types/pm-round'
 import { describe, expect, it } from 'vitest'
 
 import {

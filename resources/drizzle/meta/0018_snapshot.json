@@ -92,7 +92,7 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'exodus'"
+          "default": "'actovia'"
         },
         "permissionMode": {
           "name": "permissionMode",
@@ -2863,7 +2863,7 @@
     "public.agent_runtime": {
       "name": "agent_runtime",
       "schema": "public",
-      "values": ["exodus", "claude-code", "codex"]
+      "values": ["actovia", "claude-code", "codex"]
     },
     "public.agent_session_state": {
       "name": "agent_session_state",

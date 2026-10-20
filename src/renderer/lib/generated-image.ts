@@ -1,5 +1,5 @@
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import type { GeneratedImage } from '@exodus/shared/types/chat'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import type { GeneratedImage } from '@actovia/shared/types/chat'
 
 /**
  * Where a generated image loads from: the local media route, by the chat and

@@ -1,4 +1,4 @@
-import { normalizeBaseUrl } from '@exodus/shared/utils/base-url'
+import { normalizeBaseUrl } from '@actovia/shared/utils/base-url'
 import { get, set } from 'lodash-es'
 
 /**

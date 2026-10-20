@@ -8,7 +8,7 @@ vi.mock('electron', () => ({
   app: { getVersion: () => '1.2.3', getPath: () => '/tmp' }
 }))
 
-const appendMock = vi.fn().mockResolvedValue(undefined)
+const appendMock = vi.fn().mockResolvedValue()
 vi.mock('fs/promises', () => ({
   appendFile: (...a: unknown[]) => appendMock(...a)
 }))
@@ -32,7 +32,7 @@ describe('logger.write', () => {
     expect(r.body).toBe('hello')
     expect(r.scope).toEqual({ name: 'chat' })
     expect(r.attributes).toEqual({ chatId: 'c1' })
-    expect(r.resource['service.name']).toBe('exodus')
+    expect(r.resource['service.name']).toBe('actovia')
     expect(r.timestamp).toMatch(/^\d{4}-\d\d-\d\dT/)
     expect(r.traceId).toBeUndefined()
   })

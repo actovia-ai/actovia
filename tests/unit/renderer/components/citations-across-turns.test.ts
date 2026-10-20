@@ -1,5 +1,5 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { ChatMessage } from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { postRequestBodySchema } from '@main/lib/server/schemas/chat'
 import { describe, expect, it } from 'vitest'
 

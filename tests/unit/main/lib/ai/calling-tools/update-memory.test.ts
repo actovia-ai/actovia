@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+import type { MemoryChange } from '@actovia/shared/types/memory'
 import type { Model } from '@earendil-works/pi-ai'
-import type { MemoryChange } from '@exodus/shared/types/memory'
 import { describe, expect, it, vi } from 'vitest'
 
 const runMemoryInstruction = vi.fn()

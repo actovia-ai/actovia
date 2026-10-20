@@ -1,8 +1,8 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   SkillAuditResponse,
   SkillAuditStatus
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 import {
   ShieldAlertIcon,
   ShieldCheckIcon,

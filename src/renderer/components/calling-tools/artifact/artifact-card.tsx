@@ -1,7 +1,7 @@
 import {
   artifactShortId,
   artifactSlug
-} from '@exodus/shared/utils/artifact-slug'
+} from '@actovia/shared/utils/artifact-slug'
 import { Maximize01Icon, Minimize01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
@@ -38,7 +38,7 @@ const ARTIFACT_SANDBOX_PAGE = 'src/renderer/sub-apps/artifacts/index.html'
 // rather than from this window's origin, where `window.parent` would hand that
 // code the IPC bridge and the API. Same URL in dev and packaged. A literal, as
 // the renderer cannot import main-process code.
-const ARTIFACT_ORIGIN = 'exodus-artifact://sandbox'
+const ARTIFACT_ORIGIN = 'actovia-artifact://sandbox'
 
 function getArtifactSandboxUrl(): string {
   return `${ARTIFACT_ORIGIN}/${ARTIFACT_SANDBOX_PAGE}`

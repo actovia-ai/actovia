@@ -1,4 +1,4 @@
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 

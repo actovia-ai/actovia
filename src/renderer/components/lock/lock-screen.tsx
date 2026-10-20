@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { LockNotification, LockStatus } from '@exodus/shared/types/lock'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { LockNotification, LockStatus } from '@actovia/shared/types/lock'
 import { FingerPrintIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useState } from 'react'

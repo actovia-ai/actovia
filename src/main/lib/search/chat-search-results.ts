@@ -1,7 +1,7 @@
 import type {
   ChatSearchResult,
   ChatSearchSnippet
-} from '@exodus/shared/types/chat-search'
+} from '@actovia/shared/types/chat-search'
 
 import { buildSnippet } from './snippet'
 

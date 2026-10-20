@@ -1,8 +1,8 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import { AdvancedTools, McpTools } from '@actovia/shared/types/ai'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import type { Model } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import { AdvancedTools, McpTools } from '@exodus/shared/types/ai'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
 
 import { Settings } from '../../db/schema'
 import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-base'
@@ -60,7 +60,7 @@ export function bindCallingTools({
   // tool is skipped there (artifacts are a chat-UI affordance).
   chatId?: string
   // Philharmonic's conversation id: where a Group's generated images are
-  // saved (`~/.exodus/media/_groups/<id>`), since it has no chat.
+  // saved (`~/.actovia/media/_groups/<id>`), since it has no chat.
   groupId?: string
   // The highest number a source of the chat carries so far
   // (`highestSourceRank`): this request's sources are numbered after it.
@@ -117,8 +117,7 @@ export function bindCallingTools({
   // is what they read unless the model names another conversation by its id.
   const lcmEnabled = setting.memory?.lcmEnabled !== false
   if (lcmEnabled) {
-    tools.push(lcmGrep(chatId))
-    tools.push(lcmDescribe)
+    tools.push(lcmGrep(chatId), lcmDescribe)
     if (chatModel && apiKey) {
       tools.push(lcmExpand(chatModel, apiKey, chatId))
     }

@@ -1,4 +1,4 @@
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { DeepResearch, DeepResearchMessage } from '@/types/db'
 

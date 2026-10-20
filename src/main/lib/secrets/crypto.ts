@@ -76,7 +76,7 @@ export function encryptionState(): EncryptionState {
   }
 }
 
-const SELF_CHECK_PROBE = 'exodus-envelope-self-check'
+const SELF_CHECK_PROBE = 'actovia-envelope-self-check'
 let selfCheck: boolean | null = null
 
 /**

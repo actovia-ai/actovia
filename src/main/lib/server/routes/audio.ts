@@ -1,5 +1,8 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { NotFoundError, ValidationError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import {
+  NotFoundError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import OpenAI from 'openai'
 

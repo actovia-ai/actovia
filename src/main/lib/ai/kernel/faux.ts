@@ -1,3 +1,5 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { WeatherResult } from '@actovia/shared/types/weather'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
   Type,
@@ -5,15 +7,13 @@ import {
   type FauxProviderHandle,
   type RegisterFauxProviderOptions
 } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { WeatherResult } from '@exodus/shared/types/weather'
 
 import { getKernelModels } from './models'
 
 /**
  * pi's scripted provider, registered on the kernel's collection. Unit tests
  * script replies with `setResponses([...])`; the Electron e2e registers it at
- * boot when `EXODUS_FAUX_PROVIDER=1` (`faux-boot.ts`).
+ * boot when `ACTOVIA_FAUX_PROVIDER=1` (`faux-boot.ts`).
  */
 export function registerFauxProvider(
   options?: RegisterFauxProviderOptions

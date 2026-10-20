@@ -1,6 +1,6 @@
 /**
  * Skills: the on-disk install record (shared with `the Actovia CLI`, which writes
- * the same `~/.exodus/skills/.lock.json`) and the skills.sh registry shapes
+ * the same `~/.actovia/skills/.lock.json`) and the skills.sh registry shapes
  * the main process proxies to the renderer through `/api/v1/skills`.
  */
 

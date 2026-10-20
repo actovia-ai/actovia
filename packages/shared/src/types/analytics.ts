@@ -9,7 +9,7 @@ export interface SnapshotMeta {
   builtAt: string
   durationMs: number
   tables: SnapshotTable[]
-  /** Whether a `logs` view over ~/.exodus/logs/*.jsonl was created. */
+  /** Whether a `logs` view over ~/.actovia/logs/*.jsonl was created. */
   logsIncluded: boolean
   sizeBytes: number
   /** `CHAT_AUDIT_SCHEMA_VERSION` when it was built; absent before 2026-10-01. */

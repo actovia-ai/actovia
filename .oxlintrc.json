@@ -10,7 +10,7 @@
     // The business code migrated from universal-client (whose oxlint config
     // only enforced `correctness`) trips these seven style rules in ~70
     // places. It is being ported as-is — behavior parity over polish — so
-    // they stay warnings instead of edits to code that has no exodus-side
+    // they stay warnings instead of edits to code that has no actovia-side
     // test coverage of its own (an unattended auto-fix already turned a
     // 32-bit `| 0` wrap into a non-equivalent `Math.trunc`). New code should
     // still avoid them.

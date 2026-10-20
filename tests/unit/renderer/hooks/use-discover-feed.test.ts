@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { DiscoverFeedDto } from '@exodus/shared/types/discover'
+import type { DiscoverFeedDto } from '@actovia/shared/types/discover'
 import {
   focusManager,
   type QueryClient,

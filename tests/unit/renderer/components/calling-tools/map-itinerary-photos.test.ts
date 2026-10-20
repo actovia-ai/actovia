@@ -1,6 +1,6 @@
-// The map card's Places photos go through Exodus's own proxy: the URL an
+// The map card's Places photos go through Actovia's own proxy: the URL an
 // `<img>` loads names the photo, never the user's key (final review I5).
-import { BASE_URL } from '@exodus/shared/constants/systems'
+import { BASE_URL } from '@actovia/shared/constants/systems'
 import { describe, expect, it } from 'vitest'
 
 import { buildPlacePhotoUrl } from '@/components/calling-tools/map-itinerary/types'

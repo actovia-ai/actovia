@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { SidebarRightIcon } from '@hugeicons/core-free-icons'
 import { useAtom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'

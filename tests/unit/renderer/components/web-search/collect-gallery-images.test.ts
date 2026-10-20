@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { describe, expect, it } from 'vitest'
 
 import { collectGalleryImages } from '@/components/web-search/collect-gallery-images'
@@ -62,6 +62,6 @@ describe('collectGalleryImages', () => {
   })
 
   it('handles missing media', () => {
-    expect(collectGalleryImages([res(undefined)])).toEqual([])
+    expect(collectGalleryImages([res()])).toEqual([])
   })
 })

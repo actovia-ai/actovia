@@ -20,7 +20,7 @@ const LAN_PORT = 63129
  * an unverified peer. `rejectUnauthorized: false` is not "skip verification"
  * here: the certificate is self-signed by design, so there is no CA to verify
  * against, and the fingerprint comparison below *is* the verification. This is
- * the order exodus-ios gets for free from URLSession's challenge callback.
+ * the order actovia-ios gets for free from URLSession's challenge callback.
  */
 function pinnedSocket(pin: string) {
   return new Promise<tls.TLSSocket>((resolve, reject) => {
@@ -40,7 +40,7 @@ function pinnedSocket(pin: string) {
   })
 }
 
-/** What exodus-ios does: trust the pinned certificate, and nothing else. */
+/** What actovia-ios does: trust the pinned certificate, and nothing else. */
 async function pinned(
   pin: string,
   path: string,
@@ -132,13 +132,13 @@ test.describe('LAN pairing', () => {
     // The link the QR code encodes, as a phone's camera would read it.
     const state = await (
       await fetch('http://localhost:60223/api/v1/devices', {
-        headers: { 'x-exodus-presence': presence }
+        headers: { 'x-actovia-presence': presence }
       })
     ).json()
     const link = new URL(state.pairing.link)
     const pin = link.searchParams.get('f')!
     const code = link.searchParams.get('c')!
-    expect(link.protocol).toBe('exodus:')
+    expect(link.protocol).toBe('actovia:')
     expect(link.searchParams.get('p')).toBe(String(LAN_PORT))
 
     // Unpaired: the API is shut, and a wrong code is refused.

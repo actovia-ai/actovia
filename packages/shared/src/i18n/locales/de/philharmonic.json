@@ -253,7 +253,7 @@
     },
     "runtime": {
       "label": "Läuft auf",
-      "exodus": "Actovia"
+      "actovia": "Actovia"
     },
     "model": {
       "label": "Modell",

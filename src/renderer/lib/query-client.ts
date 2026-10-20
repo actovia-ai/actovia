@@ -2,7 +2,7 @@ import {
   getHttpErrorMessage,
   HttpError,
   toErrorI18n
-} from '@exodus/shared/utils/http'
+} from '@actovia/shared/utils/http'
 import {
   focusManager,
   MutationCache,
@@ -70,7 +70,7 @@ export function createAppQueryClient(): QueryClient {
         // Off app-wide: a revalidating settings GET brings back a bumped
         // `updatedAt` that resets the form and re-fires autosave
         // (use-settings.ts). Individual queries whose data an outside writer
-        // can change (exodus-ios, exodus-cli, the phone) opt back in with
+        // can change (actovia-ios, actovia-cli, the phone) opt back in with
         // `refetchOnWindowFocus: true` — see "Server state (React Query)" in
         // CLAUDE.md for the current list.
         refetchOnWindowFocus: false,

@@ -3,8 +3,8 @@
 // corner (hover / focus), one in the zoomed view and the lightbox, and the
 // native menu on right-click — each a call to the main process, which shows
 // the save dialog.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { ATTACHMENT_CHANNELS } from '@exodus/shared/types/attachment-actions'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { ATTACHMENT_CHANNELS } from '@actovia/shared/types/attachment-actions'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

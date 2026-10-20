@@ -558,7 +558,7 @@
     },
     "autoBackup": {
       "label": "自動備份",
-      "description": "每天凌晨 3:00 備份你的資料，備份會儲存在本機的 ~/.exodus/backups/。"
+      "description": "每天凌晨 3:00 備份你的資料，備份會儲存在本機的 ~/.actovia/backups/。"
     },
     "lastBackup": {
       "label": "上次備份",

@@ -1,4 +1,4 @@
-import type { MemoryChange } from '@exodus/shared/types/memory'
+import type { MemoryChange } from '@actovia/shared/types/memory'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))

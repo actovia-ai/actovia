@@ -2,7 +2,7 @@
 // A question asked from the phone's Health workspace opens with the numbers
 // it was about: the bubble draws them as chips over the question, and opens
 // them into a labelled list — never as the raw block.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -42,7 +42,7 @@ const snapshot = JSON.stringify({
   odyState: 'rested'
 })
 const asked = (body: string) =>
-  `\`\`\`exodus-health\n${snapshot}\n\`\`\`\n\n${body}`
+  `\`\`\`actovia-health\n${snapshot}\n\`\`\`\n\n${body}`
 
 let host: HTMLDivElement
 let root: ReturnType<typeof createRoot>
@@ -72,7 +72,7 @@ describe('the bubble of a question asked from Health', () => {
     expect(trigger?.textContent).toContain('7h 12m')
     expect(trigger?.textContent).toContain('8,123')
     expect(host.querySelector('p')?.textContent).toBe('How did I sleep?')
-    expect(host.textContent).not.toContain('exodus-health')
+    expect(host.textContent).not.toContain('actovia-health')
     expect(host.textContent).not.toContain('asleepMin')
   })
 
@@ -106,7 +106,7 @@ describe('the bubble of a question asked from Health', () => {
   })
 
   it('shows a block it cannot read as it was sent once opened', async () => {
-    await show('```exodus-health\nnot json\n```\n\nWell?')
+    await show('```actovia-health\nnot json\n```\n\nWell?')
     const trigger = find(TEST_IDS.chat.health.trigger)!
     expect(trigger.textContent).toContain('health.fallback')
 
@@ -117,7 +117,7 @@ describe('the bubble of a question asked from Health', () => {
   })
 
   it('is the Markdown it was sent as without one', async () => {
-    await show('```exodus-health is a fence\n\nok')
+    await show('```actovia-health is a fence\n\nok')
 
     // No card: the line opens an ordinary (unclosed) code fence.
     expect(find(TEST_IDS.chat.health.trigger)).toBeNull()

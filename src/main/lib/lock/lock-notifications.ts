@@ -1,5 +1,5 @@
-import type { LockNotification } from '@exodus/shared/types/lock'
-import { LOCK_CHANNELS } from '@exodus/shared/types/lock'
+import type { LockNotification } from '@actovia/shared/types/lock'
+import { LOCK_CHANNELS } from '@actovia/shared/types/lock'
 import { v4 as uuidV4 } from 'uuid'
 
 import { notifyIfBackground } from '../philharmonic-notifications'

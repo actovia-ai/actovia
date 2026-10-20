@@ -1,13 +1,13 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   DEFAULT_STOCK_RANGE,
   type StockBlock as StockBlockData
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import {
   STOCK_CHART_HEIGHT,
   tradingViewEmbedUrl,
   tradingViewSymbolPageUrl
-} from '@exodus/shared/utils/stock-chart'
+} from '@actovia/shared/utils/stock-chart'
 import { useTheme } from 'next-themes'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,7 @@ const firstPhase = (): Phase =>
     : 'loading'
 
 /**
- * A reply's stock chart (`exodus-stock`): TradingView's Mini Chart as its
+ * A reply's stock chart (`actovia-stock`): TradingView's Mini Chart as its
  * own embed URL in a sandboxed frame — no script of theirs in our document;
  * the frame cannot navigate us or open windows — the model's note under it,
  * and "Chart by TradingView" with the symbol's page. The frame is not lazy:

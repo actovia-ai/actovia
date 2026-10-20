@@ -1,5 +1,5 @@
+import { AiProviders } from '@actovia/shared/types/ai'
 import type { Api, KnownProvider, Model } from '@earendil-works/pi-ai'
-import { AiProviders } from '@exodus/shared/types/ai'
 
 import type { Settings } from '../../db/schema'
 import { getOllama } from './ollama'

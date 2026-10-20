@@ -7,7 +7,7 @@ function env(
   const switches = new Set(over.switches ?? [])
   return {
     isPackaged: over.isPackaged ?? true,
-    argv: over.argv ?? ['/Applications/Exodus.app/Contents/MacOS/Exodus'],
+    argv: over.argv ?? ['/Applications/Actovia.app/Contents/MacOS/Actovia'],
     commandLine: {
       hasSwitch: vi.fn((name: string) => switches.has(name)),
       removeSwitch: vi.fn((name: string) => {
@@ -38,13 +38,13 @@ describe('refuseRemoteDebugging', () => {
     '--remote-debugging-pipe',
     '--REMOTE-DEBUGGING-ADDRESS=0.0.0.0'
   ])('a relaunch passing %s in argv exits', (arg) => {
-    const e = env({ argv: ['/x/Exodus', arg] })
+    const e = env({ argv: ['/x/Actovia', arg] })
     expect(refuseRemoteDebugging(e)).toBe(true)
     expect(e.exit).toHaveBeenCalledWith(1)
   })
 
   it('a packaged build without them starts, switches still stripped', () => {
-    const e = env({ argv: ['/x/Exodus', '--remote-debugging-portfolio'] })
+    const e = env({ argv: ['/x/Actovia', '--remote-debugging-portfolio'] })
     expect(refuseRemoteDebugging(e)).toBe(false)
     expect(e.exit).not.toHaveBeenCalled()
     expect(e.commandLine.removeSwitch).toHaveBeenCalledTimes(3)

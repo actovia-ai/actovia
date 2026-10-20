@@ -1,7 +1,7 @@
 /**
  * E2E: a whole conversation with a tool call, on the kernel's scripted
  * provider — no API key. The electron fixture starts the app with
- * `EXODUS_FAUX_PROVIDER=1` (`src/main/lib/ai/kernel/faux-boot.ts`): every
+ * `ACTOVIA_FAUX_PROVIDER=1` (`src/main/lib/ai/kernel/faux-boot.ts`): every
  * send is answered with a call to `weather` for Oslo, then "It is sunny in
  * Oslo." This is the base for all chat e2e from here on; the specs that need
  * a real model stay behind their key.

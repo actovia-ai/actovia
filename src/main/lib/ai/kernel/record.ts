@@ -1,8 +1,8 @@
-import type { Model } from '@earendil-works/pi-ai'
 import type {
   ChatAssistantMessage,
   ChatMessage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
+import type { Model } from '@earendil-works/pi-ai'
 
 import { saveChatSources, sourcesOfRows } from '../../chat/sources'
 import { saveMessages } from '../../db/queries'

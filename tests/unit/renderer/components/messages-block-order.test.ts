@@ -3,7 +3,7 @@
 // produced them — not every card above all of the text — and doing so costs
 // the streaming path nothing: text that is settled is not rendered again
 // while the text after a card streams.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -153,7 +153,7 @@ const regenerate = vi.fn()
 const pieces = () =>
   [...host.querySelectorAll('[data-piece]')]
     .filter((el) => !el.closest('.bg-bubble'))
-    .map((el) => el.getAttribute('data-piece'))
+    .map((el) => el.dataset.piece)
 
 beforeEach(() => {
   markdownRenders.clear()

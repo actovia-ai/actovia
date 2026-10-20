@@ -5,7 +5,7 @@ import {
   confirmBlockSchema,
   stepsBlockSchema,
   stockBlockSchema
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
@@ -47,19 +47,19 @@ describe('the interactive blocks section', () => {
     const prompt = getSystemPrompt({})
     expect(prompt).toContain(INTERACTIVE_BLOCKS_PROMPT)
     expect(prompt).toContain(
-      `\`\`\`exodus-ask\n${JSON.stringify(ASK_EXAMPLE)}\n\`\`\``
+      `\`\`\`actovia-ask\n${JSON.stringify(ASK_EXAMPLE)}\n\`\`\``
     )
     expect(prompt).toContain(
-      `\`\`\`exodus-confirm\n${JSON.stringify(CONFIRM_EXAMPLE)}\n\`\`\``
+      `\`\`\`actovia-confirm\n${JSON.stringify(CONFIRM_EXAMPLE)}\n\`\`\``
     )
     expect(prompt).toContain(
-      `\`\`\`exodus-steps\n${JSON.stringify(STEPS_EXAMPLE)}\n\`\`\``
+      `\`\`\`actovia-steps\n${JSON.stringify(STEPS_EXAMPLE)}\n\`\`\``
     )
     expect(prompt).toContain(
-      `\`\`\`exodus-stock\n${JSON.stringify(STOCK_EXAMPLE)}\n\`\`\``
+      `\`\`\`actovia-stock\n${JSON.stringify(STOCK_EXAMPLE)}\n\`\`\``
     )
     expect(prompt).toContain('[Marie Curie](entity:Marie_Curie)')
-    expect(prompt).toContain('```exodus-answer')
+    expect(prompt).toContain('```actovia-answer')
     // Before the response format, after the citations.
     expect(prompt.indexOf('<interactive_blocks>')).toBeGreaterThan(
       prompt.indexOf('</citation_rules>')
@@ -88,7 +88,7 @@ describe('the interactive blocks section', () => {
 
   it("reads an answer by the message's text: run memory is a part of its own", () => {
     expect(INTERACTIVE_BLOCKS_PROMPT).toContain(
-      'A user message whose text opens with ```exodus-answer'
+      'A user message whose text opens with ```actovia-answer'
     )
   })
 
@@ -110,10 +110,10 @@ describe('the interactive blocks section', () => {
       HEALTH_SUMMARY_SYSTEM,
       HEALTH_PERIOD_REPORT_SYSTEM
     ]) {
-      expect(other).not.toContain('exodus-ask')
-      expect(other).not.toContain('exodus-confirm')
-      expect(other).not.toContain('exodus-steps')
-      expect(other).not.toContain('exodus-stock')
+      expect(other).not.toContain('actovia-ask')
+      expect(other).not.toContain('actovia-confirm')
+      expect(other).not.toContain('actovia-steps')
+      expect(other).not.toContain('actovia-stock')
       expect(other).not.toContain('(entity:')
     }
   })

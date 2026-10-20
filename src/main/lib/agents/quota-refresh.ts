@@ -1,6 +1,6 @@
 // Read the quotas that can be read without spending any before the PM deals
 // (spec 2026-10-16 §3): Codex answers any time; Claude Code only reports in a run.
-import type { CliId, CliQuota, CliStatus } from '@exodus/shared/types/agents'
+import type { CliId, CliQuota, CliStatus } from '@actovia/shared/types/agents'
 
 import { logger } from '../logger'
 import { getCliStatus, readCodexQuota } from './cli-check'

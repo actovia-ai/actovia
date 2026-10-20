@@ -1,7 +1,7 @@
-import { CHAT_AUDIT_PRESETS } from '@exodus/shared/constants/chat-audit-presets'
-import { CHAT_AUDIT_SCHEMA_VERSION } from '@exodus/shared/constants/chat-audit-schema'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { getHttpErrorMessage, toErrorI18n } from '@exodus/shared/utils/http'
+import { CHAT_AUDIT_PRESETS } from '@actovia/shared/constants/chat-audit-presets'
+import { CHAT_AUDIT_SCHEMA_VERSION } from '@actovia/shared/constants/chat-audit-schema'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { getHttpErrorMessage, toErrorI18n } from '@actovia/shared/utils/http'
 import {
   DownloadIcon,
   FolderOpenIcon,
@@ -60,7 +60,7 @@ function downloadCsv(result: QueryResult) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `chat-audit-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.csv`
+  a.download = `chat-audit-${new Date().toISOString().slice(0, 19).replaceAll(/[:T]/g, '-')}.csv`
   a.click()
   URL.revokeObjectURL(url)
 }

@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import { shouldShowMessageSpinner } from '@/components/chat/message-spinner'
@@ -27,7 +27,7 @@ describe('shouldShowMessageSpinner', () => {
       assistant('a1', []),
       assistant('a2', [{ type: 'text', text: '' }])
     ])
-    expect(segments[segments.length - 1]?.type).toBe('user')
+    expect(segments.at(-1)?.type).toBe('user')
     expect(shouldShowMessageSpinner(segments, true)).toBe(true)
   })
 

@@ -1,4 +1,4 @@
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
 import { describe, expect, it } from 'vitest'
 
 import { buildSettingsSave } from '@/lib/settings-autosave'

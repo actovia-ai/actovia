@@ -15,7 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 ).IS_REACT_ACT_ENVIRONMENT = true
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', () => ({
+vi.mock('@actovia/shared/utils/http', () => ({
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 vi.mock('@/lib/i18n', () => ({ i18n: { t: (key: string) => key } }))
@@ -124,9 +124,7 @@ describe('<ChatDetail>', () => {
     await act(async () => messages.resolve(pageOf([row('u1'), row('u2')])))
 
     await vi.waitFor(() => expect(mounts).toEqual([['u1', 'u2']]))
-    expect(host.querySelector('[data-chat]')?.getAttribute('data-chat')).toBe(
-      'u1,u2'
-    )
+    expect(host.querySelector('[data-chat]')?.dataset.chat).toBe('u1,u2')
   })
 
   it('seeds a chat opened for the first time as soon as its messages arrive', async () => {

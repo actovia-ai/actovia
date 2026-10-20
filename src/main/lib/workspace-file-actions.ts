@@ -5,7 +5,7 @@ import {
   type WorkspaceFileActionResult,
   type WorkspaceFileMenuResult,
   type WorkspaceRoots
-} from '@exodus/shared/types/workspace-files'
+} from '@actovia/shared/types/workspace-files'
 import {
   BrowserWindow,
   ipcMain,
@@ -27,7 +27,7 @@ import {
  * Open / Reveal / Quick look for a file a chat's tools wrote (see
  * `WORKSPACE_FILE_CHANNELS`). The page names a path; every channel checks it
  * against the workspace root (`statWorkspaceFile`: a regular file whose real
- * path is inside `~/.exodus/workspace`) before it touches it, so the bridge
+ * path is inside `~/.actovia/workspace`) before it touches it, so the bridge
  * cannot open, reveal or read anything else on the machine.
  */
 

@@ -1,5 +1,5 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { ChatToolResultMessage } from '@exodus/shared/types/chat'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { ChatToolResultMessage } from '@actovia/shared/types/chat'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { capitalCase } from 'change-case'

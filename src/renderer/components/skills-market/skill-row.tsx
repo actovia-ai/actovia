@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { SkillListItem } from '@exodus/shared/types/skills'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { SkillListItem } from '@actovia/shared/types/skills'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type React from 'react'
@@ -44,7 +44,7 @@ export function Installs({
   )
 }
 
-/** Already in ~/.exodus/skills — green, the audit panel's "pass" colour. */
+/** Already in ~/.actovia/skills — green, the audit panel's "pass" colour. */
 export function InstalledBadge() {
   const { t } = useTranslation('settings')
   return (

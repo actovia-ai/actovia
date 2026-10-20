@@ -19,7 +19,7 @@ import {
  * scheduled one has nobody at all — so a call the chat would ask about is
  * refused here, with a result the model reads; Actovia's own lock/TLS secrets
  * are refused as everywhere. The Group's workspace is
- * `~/.exodus/groups/<conversationId>`.
+ * `~/.actovia/groups/<conversationId>`.
  */
 export function groupBeforeToolCall(conversationId: string) {
   const workspaceDir = join(getGroupsDir(), conversationId)

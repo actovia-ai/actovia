@@ -1,11 +1,11 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import type {
   ChatPage,
   ChatPageQuestion,
   ChatPageRow,
   ChatPageSource
-} from '@exodus/shared/types/chat-page'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/chat-page'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef, useState } from 'react'
 

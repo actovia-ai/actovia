@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { InstalledApp } from '@exodus/shared/types/computer-use'
+import type { InstalledApp } from '@actovia/shared/types/computer-use'
 import {
   focusManager,
   QueryClient,

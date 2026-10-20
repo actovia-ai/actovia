@@ -17,7 +17,7 @@
   "tray": {
     "showApp": "App anzeigen",
     "hideApp": "App ausblenden",
-    "quitExodus": "Actovia beenden"
+    "quitActovia": "Actovia beenden"
   },
   "notification": {
     "philharmonicGroupError": "In der Gruppe „{{title}}“ ist ein Fehler aufgetreten",

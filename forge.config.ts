@@ -27,12 +27,12 @@ const config: ForgeConfig = {
     icon: './build/icon',
     extraResource: ['./resources'],
     // The bundle a person sees is Actovia; package.json's productName stays
-    // "Exodus" (the runtime name: Keychain item, userData, single-instance
-    // lock). Windows keeps Exodus.exe: a Squirrel update would otherwise leave
-    // an Exodus.lnk pointing at a missing exe.
+    // "Actovia" (the runtime name: Keychain item, userData, single-instance
+    // lock). Windows keeps Actovia.exe: a Squirrel update would otherwise leave
+    // an Actovia.lnk pointing at a missing exe.
     name: APP_DISPLAY_NAME,
-    executableName: process.platform === 'win32' ? 'Exodus' : APP_DISPLAY_NAME,
-    appBundleId: 'app.yancey.exodus',
+    executableName: process.platform === 'win32' ? 'Actovia' : APP_DISPLAY_NAME,
+    appBundleId: 'app.yancey.actovia',
     appCategoryType: 'public.app-category.utilities',
     // macOS permission prompts' purpose strings (carried over from
     // universal-client's electron-builder `mac.extendInfo`). Signing with
@@ -131,7 +131,7 @@ const config: ForgeConfig = {
     new MakerZIP({}, ['darwin']),
     new MakerDMG({}, ['darwin']),
     // The Linux executable follows `executableName` ("Actovia"), but these two
-    // makers default `bin` to package.json's `name` ("exodus") and fail with
+    // makers default `bin` to package.json's `name` ("actovia") and fail with
     // "could not find the Electron app binary" — Linux paths are case-sensitive.
     new MakerRpm({
       options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }

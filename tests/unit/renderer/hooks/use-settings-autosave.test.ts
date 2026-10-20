@@ -9,7 +9,7 @@ import type {
   Settings,
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { act, createElement } from 'react'
 import { useForm } from 'react-hook-form'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -17,8 +17,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQueryClient } from '../../helpers/query-test-utils'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const updateSettingsService = vi.fn()
@@ -87,7 +87,7 @@ describe('useSettingsAutosave: URL, blur, then a new key', () => {
             landFirst = resolve
           })
       )
-      .mockResolvedValue(undefined)
+      .mockResolvedValue()
     await renderWithQueryClient(createElement(Page))
     await settle()
     expect(form.getValues('providers.openaiApiKey')).toBe('•••• abcd')

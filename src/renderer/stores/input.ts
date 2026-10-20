@@ -1,4 +1,4 @@
-import type { ChatStatus } from '@exodus/shared/types/chat'
+import type { ChatStatus } from '@actovia/shared/types/chat'
 import { atom } from 'jotai'
 
 export const chatInputAtom = atom('')

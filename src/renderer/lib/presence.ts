@@ -6,7 +6,7 @@
  * local process could read).
  */
 const PRESENCE_CHANNEL = 'api:presence-token'
-const PRESENCE_HEADER = 'x-exodus-presence'
+const PRESENCE_HEADER = 'x-actovia-presence'
 
 let pending: Promise<string | null> | null = null
 

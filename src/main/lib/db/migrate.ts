@@ -1,4 +1,4 @@
-import { APP_DISPLAY_NAME } from '@exodus/shared/constants/brand'
+import { APP_DISPLAY_NAME } from '@actovia/shared/constants/brand'
 import { migrate } from 'drizzle-orm/pglite/migrator'
 import { Notification } from 'electron'
 

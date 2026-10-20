@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { SkillListItem, SkillsView } from '@exodus/shared/types/skills'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { SkillListItem, SkillsView } from '@actovia/shared/types/skills'
 import {
   ArrowDown01Icon,
   Loading03Icon,

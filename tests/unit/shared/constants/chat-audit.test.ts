@@ -1,12 +1,12 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import { CHAT_AUDIT_PRESETS } from '@exodus/shared/constants/chat-audit-presets'
+import { CHAT_AUDIT_PRESETS } from '@actovia/shared/constants/chat-audit-presets'
 import {
   CHAT_AUDIT_SCHEMA,
   CHAT_AUDIT_SCHEMA_VERSION,
   schemaFingerprint
-} from '@exodus/shared/constants/chat-audit-schema'
+} from '@actovia/shared/constants/chat-audit-schema'
 import { describe, expect, it } from 'vitest'
 
 import { PRESET_KEYS } from '@/components/settings/settings-form/chat-audit-preset-keys'

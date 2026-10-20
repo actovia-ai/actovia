@@ -1,6 +1,6 @@
-import type { Attachment } from '@exodus/shared/types/chat'
-import type { PlanDto } from '@exodus/shared/types/philharmonic'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { Attachment } from '@actovia/shared/types/chat'
+import type { PlanDto } from '@actovia/shared/types/philharmonic'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 import type {

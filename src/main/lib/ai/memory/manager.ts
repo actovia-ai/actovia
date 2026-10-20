@@ -1,9 +1,9 @@
-import type { Model } from '@earendil-works/pi-ai'
 import type {
   MemoryChange,
   MemoryInstructionResult,
   MemorySnapshot
-} from '@exodus/shared/types/memory'
+} from '@actovia/shared/types/memory'
+import type { Model } from '@earendil-works/pi-ai'
 import z from 'zod'
 
 import {

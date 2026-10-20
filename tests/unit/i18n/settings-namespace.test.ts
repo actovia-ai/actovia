@@ -860,11 +860,11 @@ describe('skillsMarket <Trans> notices render the real components', () => {
 
   it('cli.title — <cli> is the repo link (the commands are not copy: they live in CliQuickStart)', async () => {
     const { CliTitle } = await import('@/components/skills-market/cli-notice')
-    const { EXODUS_CLI_REPO } =
-      await import('@exodus/shared/constants/external-urls')
+    const { ACTOVIA_CLI_REPO } =
+      await import('@actovia/shared/constants/external-urls')
     const html = await renderReal(CliTitle)
     expect(html).toBe(
-      `Prefer the terminal? Use <a href="${EXODUS_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">the Actovia CLI</a>`
+      `Prefer the terminal? Use <a href="${ACTOVIA_CLI_REPO}" target="_blank" rel="noopener noreferrer" class="text-foreground underline underline-offset-2">the Actovia CLI</a>`
     )
   })
 })

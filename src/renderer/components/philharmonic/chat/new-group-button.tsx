@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { PencilEdit02Icon } from '@hugeicons/core-free-icons'
 import { useTranslation } from 'react-i18next'
 

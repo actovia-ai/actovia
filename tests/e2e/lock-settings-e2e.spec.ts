@@ -6,8 +6,8 @@ import { TEST_IDS } from '../../packages/shared/src/constants/test-ids'
 import { electronTest as test, expect } from '../fixtures/electron'
 import { openSettings } from '../helpers/open-settings'
 
-const LOCK_DAT = join(homedir(), '.exodus', 'lock.dat')
-const LOCK_CFG = join(homedir(), '.exodus', 'lock-config.json')
+const LOCK_DAT = join(homedir(), '.actovia', 'lock.dat')
+const LOCK_CFG = join(homedir(), '.actovia', 'lock-config.json')
 
 function cleanLockFiles() {
   if (existsSync(LOCK_DAT)) rmSync(LOCK_DAT)

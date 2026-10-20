@@ -1,6 +1,6 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
-import type { InstalledApp } from '@exodus/shared/types/computer-use'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
+import type { InstalledApp } from '@actovia/shared/types/computer-use'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 

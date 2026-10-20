@@ -1,19 +1,19 @@
-import type { EffortLevel } from '@exodus/shared/schemas/settings-schema'
-import { AdvancedTools } from '@exodus/shared/types/ai'
-import { Attachment, ChatMessage } from '@exodus/shared/types/chat'
+import type { EffortLevel } from '@actovia/shared/schemas/settings-schema'
+import { AdvancedTools } from '@actovia/shared/types/ai'
+import { Attachment, ChatMessage } from '@actovia/shared/types/chat'
 import { atom } from 'jotai'
 
 import { Chat, DeepResearchMessage } from '@/types/db'
 
 export const isSearchChatsVisibleAtom = atom(false)
 
-export const toBeDeletedChatAtom = atom<Chat | undefined>(undefined)
+export const toBeDeletedChatAtom = atom<Chat | undefined>()
 
 export const activeDeepResearchIdAtom = atom('')
 
-export const deepResearchMessagesAtom = atom<DeepResearchMessage[] | undefined>(
-  undefined
-)
+export const deepResearchMessagesAtom = atom<
+  DeepResearchMessage[] | undefined
+>()
 
 export const renamedChatTitleAtom = atom({
   id: '',
@@ -21,7 +21,7 @@ export const renamedChatTitleAtom = atom({
   open: false
 })
 
-export const attachmentAtom = atom<Attachment[] | undefined>(undefined)
+export const attachmentAtom = atom<Attachment[] | undefined>()
 
 export const advancedToolsAtom = atom<AdvancedTools[]>([])
 

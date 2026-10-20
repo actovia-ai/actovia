@@ -3,7 +3,7 @@ import type {
   AgentPrompt,
   CliQuota,
   PermissionMode
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 
 /**
  * A model name safe to hand a CLI: a word of model-id characters that cannot

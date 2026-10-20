@@ -1,9 +1,9 @@
-// The chat list's cursor. exodus-ios reads and builds the same string — keep
+// The chat list's cursor. actovia-ios reads and builds the same string — keep
 // its tests' vectors in step.
 import {
   chatHistoryCursor,
   parseChatHistoryCursor
-} from '@exodus/shared/utils/chat-history-cursor'
+} from '@actovia/shared/utils/chat-history-cursor'
 import { describe, expect, it } from 'vitest'
 
 const ID = '0b6f7c4e-6a39-4d3e-9a51-2f1f0c6f4a10'

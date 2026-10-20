@@ -9,13 +9,13 @@ import {
   createInflateRaw
 } from 'zlib'
 
-import { assertAddressesNotExodusApi } from './local-api-guard'
+import { assertAddressesNotActoviaApi } from './local-api-guard'
 import { resolveAddresses, UnsafeUrlError } from './safe-fetch'
 
 /**
  * One GET of a model-chosen `http(s):` URL for `web_fetch`'s built-in loader,
  * with the connection pinned to the addresses that were judged (S5 minor):
- * the host is resolved once, `assertAddressesNotExodusApi` checks those
+ * the host is resolved once, `assertAddressesNotActoviaApi` checks those
  * addresses, and the socket connects to exactly them through a custom
  * `lookup` — so a DNS answer that changes between the check and the connect
  * (rebinding to 127.0.0.1:60223) is never used.
@@ -155,7 +155,7 @@ export async function fetchPinned(
   }
   const host = url.hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '')
   const addrs = await resolveAddresses(host)
-  assertAddressesNotExodusApi(
+  assertAddressesNotActoviaApi(
     url,
     addrs.map((a) => a.address)
   )

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { REPORTED_STACK_MAX_CHARS } from '@exodus/shared/constants/systems'
+import { REPORTED_STACK_MAX_CHARS } from '@actovia/shared/constants/systems'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const { installGlobalErrorReporting, reportRendererError } =

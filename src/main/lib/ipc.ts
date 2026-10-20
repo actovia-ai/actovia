@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { join, resolve, sep } from 'path'
 
-import { toAppError } from '@exodus/shared'
+import { toAppError } from '@actovia/shared'
 import {
   app,
   BrowserWindow,

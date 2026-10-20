@@ -1,4 +1,4 @@
-import type { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { useSetAtom } from 'jotai'
 import { get, isEqual, union } from 'lodash-es'
 import { useEffect, useRef } from 'react'

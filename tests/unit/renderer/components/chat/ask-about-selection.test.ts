@@ -2,7 +2,7 @@
 // "Ask about this": text selected in a message becomes a quote over the
 // composer, travels with the next message, and is drawn as a quote in the
 // bubble of the message that carried it.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { createStore, Provider } from 'jotai'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -164,7 +164,7 @@ describe('selecting text in a message', () => {
   }
 
   async function select(id: string, from: number, to: number) {
-    const text = document.getElementById(id)!.firstChild!
+    const text = document.querySelector(`#${id}`)!.firstChild!
     const range = document.createRange()
     range.setStart(text, from)
     range.setEnd(text, to)

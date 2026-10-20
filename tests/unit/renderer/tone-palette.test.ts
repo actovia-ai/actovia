@@ -1,6 +1,6 @@
 // The colour tones (Settings → General → Color tone). The accents are the
 // owner's reference — ChatGPT's accent colours, 2026-09-29 — and the same
-// ones exodus-ios draws; they are softer and lighter than a colour that can
+// ones actovia-ios draws; they are softer and lighter than a colour that can
 // carry text, so a tone has a fill (`--primary`) and an ink
 // (`--primary-ink`).
 import { readdirSync, readFileSync, statSync } from 'fs'
@@ -44,7 +44,7 @@ const palettes = [
 ]
 
 describe('colour tones', () => {
-  it('are the agreed accents, the ones exodus-ios draws', () => {
+  it('are the agreed accents, the ones actovia-ios draws', () => {
     for (const [tone, [light, dark]] of Object.entries(FILLS)) {
       // The formatter writes hex in lower case.
       expect(

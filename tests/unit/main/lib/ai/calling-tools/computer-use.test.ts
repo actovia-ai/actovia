@@ -53,13 +53,13 @@ describe('computerUse tool', () => {
     expect(runComputerSession).not.toHaveBeenCalled()
   })
 
-  it.each(['app.yancey.exodus', ' App.Yancey.Exodus '])(
-    'never targets Exodus itself (%s), even when allowlisted',
+  it.each(['app.yancey.actovia', ' App.Yancey.Actovia '])(
+    'never targets Actovia itself (%s), even when allowlisted',
     async (target) => {
       getSettings.mockResolvedValue({
         computerUse: {
           enabled: true,
-          targetAllowlist: ['app.yancey.exodus', 'App.Yancey.Exodus']
+          targetAllowlist: ['app.yancey.actovia', 'App.Yancey.Actovia']
         }
       })
       const res = await computerUse.execute('call-1', {

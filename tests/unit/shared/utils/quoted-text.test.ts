@@ -1,12 +1,12 @@
 // "Ask about this": a piece of an answer the user selected travels with
-// their next message as a markdown quote. exodus-ios holds the same three
+// their next message as a markdown quote. actovia-ios holds the same three
 // functions to the same vectors.
 import {
   composeQuoted,
   QUOTE_MAX_LENGTH,
   quoteBlock,
   splitQuoted
-} from '@exodus/shared/utils/quoted-text'
+} from '@actovia/shared/utils/quoted-text'
 import { describe, expect, it } from 'vitest'
 
 describe('quoteBlock', () => {

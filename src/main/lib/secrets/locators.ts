@@ -1,5 +1,5 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ValidationError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ValidationError } from '@actovia/shared/errors/app-error'
 import {
   AUTH_SCHEME,
   isCapabilitySegment,
@@ -10,7 +10,7 @@ import {
   safeDecode,
   scanArgs,
   URL_PARTS
-} from '@exodus/shared/utils/secret-detect'
+} from '@actovia/shared/utils/secret-detect'
 
 export { MASK_TOKEN, maskMcpArgs, maskMcpUrl }
 

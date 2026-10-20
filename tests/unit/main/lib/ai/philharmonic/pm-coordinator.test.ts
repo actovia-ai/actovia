@@ -58,7 +58,7 @@ const getActiveAgents = vi.fn(async () => [
     name: 'Avery',
     description: 'Analyst',
     isActive: true,
-    runtime: 'exodus'
+    runtime: 'actovia'
   }
 ])
 const createConversationMessage = vi.fn(async (d) => ({ id: 'm', ...d }))
@@ -171,7 +171,7 @@ describe('runPmCoordinator', () => {
   })
 })
 
-describe('runPmCoordinator — secrets outside Exodus', () => {
+describe('runPmCoordinator — secrets outside Actovia', () => {
   it('refuses a sensitive call outright, and the Group workspace .env is its own', async () => {
     agentLoopMock.mockReset()
     agentLoopMock.mockReturnValue(fakeStream([]))
@@ -191,10 +191,10 @@ describe('runPmCoordinator — secrets outside Exodus', () => {
         reason: 'Access to ~/.ssh/id_rsa is not available in a Group run.'
       }
     )
-    const { getExodusHome, getGroupsDir } = await import('@main/lib/paths')
+    const { getActoviaHome, getGroupsDir } = await import('@main/lib/paths')
     await expect(
       call('write_file', {
-        path: `${getExodusHome()}/tls/key.pem`,
+        path: `${getActoviaHome()}/tls/key.pem`,
         content: 'x'
       })
     ).resolves.toMatchObject({ reason: expect.stringContaining('is refused') })

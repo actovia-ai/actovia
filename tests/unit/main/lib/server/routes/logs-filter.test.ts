@@ -23,7 +23,7 @@ describe('minSeverityFromLevel', () => {
     expect(minSeverityFromLevel('warn')).toBe(13)
     expect(minSeverityFromLevel('error')).toBe(17)
     expect(minSeverityFromLevel('bogus')).toBe(0)
-    expect(minSeverityFromLevel(undefined)).toBe(0)
+    expect(minSeverityFromLevel()).toBe(0)
   })
 })
 
@@ -98,7 +98,7 @@ describe('levelsFromParam', () => {
   it('reads a comma list, none for a param naming no level', async () => {
     const { levelsFromParam } =
       await import('@main/lib/server/routes/logs-filter')
-    expect(levelsFromParam(undefined)).toBeUndefined()
+    expect(levelsFromParam()).toBeUndefined()
     expect([...levelsFromParam('error,warn,bogus')!]).toEqual(['error', 'warn'])
     expect(levelsFromParam('none')!.size).toBe(0)
   })
@@ -132,7 +132,7 @@ describe('filterRecords — the chart and the search box', () => {
   })
 
   it('applies a parsed query', async () => {
-    const { parseLogQuery } = await import('@exodus/shared/utils/log-query')
+    const { parseLogQuery } = await import('@actovia/shared/utils/log-query')
     const out = filterRecords(
       [
         rec({ body: 'tool failed', scope: { name: 'chat' } }),

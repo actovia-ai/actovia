@@ -7,8 +7,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQueryClient } from '../../helpers/query-test-utils'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const getAnalyticsStatusService = vi.fn()
@@ -79,7 +79,7 @@ const before = {
   available: true,
   version: '1.3.0',
   snapshot: null,
-  path: '/home/.exodus/analytics/exodus.duckdb'
+  path: '/home/.actovia/analytics/actovia.duckdb'
 }
 const after = {
   ...before,

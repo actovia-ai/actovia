@@ -1,4 +1,4 @@
-import { ColorToneSchema } from '@exodus/shared/schemas/settings-schema'
+import { ColorToneSchema } from '@actovia/shared/schemas/settings-schema'
 import { useEffect } from 'react'
 
 import { useSettings } from '@/hooks/use-settings'

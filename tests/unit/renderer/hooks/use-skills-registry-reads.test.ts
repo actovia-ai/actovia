@@ -4,7 +4,7 @@ import type {
   SkillCuratedResponse,
   SkillDetail,
   SkillSearchResponse
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 import type { QueryKey } from '@tanstack/react-query'
 import { act, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'

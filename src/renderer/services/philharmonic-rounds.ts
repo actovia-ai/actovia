@@ -1,5 +1,5 @@
-import type { PmRoundEventDto } from '@exodus/shared/types/pm-round'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { PmRoundEventDto } from '@actovia/shared/types/pm-round'
+import { fetcher } from '@actovia/shared/utils/http'
 
 /** A PM round's decision trail, in order (404 when nothing was recorded). */
 export const getPmRound = (conversationId: string, roundId: string) =>

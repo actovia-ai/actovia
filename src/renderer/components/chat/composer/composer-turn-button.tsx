@@ -1,4 +1,4 @@
-import type { ChatStatus } from '@exodus/shared/types/chat'
+import type { ChatStatus } from '@actovia/shared/types/chat'
 import { ArrowUpIcon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'

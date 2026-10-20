@@ -1,7 +1,7 @@
 import {
   AVATAR_STYLES,
   randomAvatarSeed
-} from '@exodus/shared/constants/avatar'
+} from '@actovia/shared/constants/avatar'
 import { RefreshIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'

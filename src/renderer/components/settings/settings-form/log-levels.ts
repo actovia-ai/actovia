@@ -1,4 +1,4 @@
-import type { LogLevelName } from '@exodus/shared/utils/log-query'
+import type { LogLevelName } from '@actovia/shared/utils/log-query'
 
 // One colour per level, shared by the chart, the list and the detail sheet.
 // Error is the destructive token; the rest have no token of their own, and a

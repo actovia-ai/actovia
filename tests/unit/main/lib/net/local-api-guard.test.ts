@@ -1,5 +1,5 @@
 // src/main/lib/net/local-api-guard.ts — web_fetch (and anything else that
-// fetches a model-chosen URL) must never reach Exodus's own API. DNS and the
+// fetches a model-chosen URL) must never reach Actovia's own API. DNS and the
 // machine's network interfaces are both mocked: nothing here inspects the
 // real machine.
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -12,7 +12,7 @@ type NetIf = { address: string; family: string; internal: boolean }
 const networkInterfaces = vi.fn<() => Record<string, NetIf[]>>(() => ({}))
 vi.mock('os', () => ({ networkInterfaces }))
 
-const { LocalApiTargetError, assertNotExodusApi } =
+const { LocalApiTargetError, assertNotActoviaApi } =
   await import('@main/lib/net/local-api-guard')
 
 afterEach(() => {
@@ -26,7 +26,7 @@ const LAN_SERVER_PORT = 63129
 
 async function refused(url: string): Promise<boolean> {
   try {
-    await assertNotExodusApi(new URL(url))
+    await assertNotActoviaApi(new URL(url))
     return false
   } catch (e) {
     expect(e).toBeInstanceOf(LocalApiTargetError)
@@ -35,7 +35,7 @@ async function refused(url: string): Promise<boolean> {
   }
 }
 
-describe('assertNotExodusApi — literal spellings, no DNS lookup', () => {
+describe('assertNotActoviaApi — literal spellings, no DNS lookup', () => {
   const spellings = [
     'localhost',
     '127.0.0.1',
@@ -78,7 +78,7 @@ describe('assertNotExodusApi — literal spellings, no DNS lookup', () => {
   })
 })
 
-describe('assertNotExodusApi — a hostname that DNS-resolves locally', () => {
+describe('assertNotActoviaApi — a hostname that DNS-resolves locally', () => {
   it('refuses a name resolving to 127.0.0.1 on the API port', async () => {
     dnsLookup.mockResolvedValue([{ address: '127.0.0.1', family: 4 }])
     expect(await refused(`http://evil.example:${SERVER_PORT}/x`)).toBe(true)
@@ -111,7 +111,7 @@ describe('assertNotExodusApi — a hostname that DNS-resolves locally', () => {
   })
 })
 
-describe('assertNotExodusApi — this machine’s own interfaces', () => {
+describe('assertNotActoviaApi — this machine’s own interfaces', () => {
   it('refuses a LAN interface IP on the LAN port', async () => {
     networkInterfaces.mockReturnValue({
       en0: [{ address: '192.168.1.50', family: 'IPv4', internal: false }]
@@ -145,7 +145,7 @@ describe('assertNotExodusApi — this machine’s own interfaces', () => {
   })
 })
 
-describe('assertNotExodusApi — other local/LAN services stay reachable', () => {
+describe('assertNotActoviaApi — other local/LAN services stay reachable', () => {
   it('allows another port on localhost', async () => {
     expect(await refused('http://localhost:3000/x')).toBe(false)
     expect(await refused('http://localhost:8080/x')).toBe(false)
@@ -155,7 +155,7 @@ describe('assertNotExodusApi — other local/LAN services stay reachable', () =>
     expect(await refused('http://127.0.0.1:3000/x')).toBe(false)
   })
 
-  it('allows a LAN IP on a non-Exodus port', async () => {
+  it('allows a LAN IP on a non-Actovia port', async () => {
     networkInterfaces.mockReturnValue({
       en0: [{ address: '192.168.1.50', family: 'IPv4', internal: false }]
     })

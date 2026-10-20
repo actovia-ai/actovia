@@ -82,7 +82,7 @@ async function create(): Promise<LanCertificate> {
   const name = hostname().replace(/\.local$/, '')
   const cert = await x509.X509CertificateGenerator.createSelfSigned({
     serialNumber: Date.now().toString(16),
-    name: 'CN=Exodus',
+    name: 'CN=Actovia',
     keys,
     signingAlgorithm: ALGORITHM,
     notBefore: new Date(),

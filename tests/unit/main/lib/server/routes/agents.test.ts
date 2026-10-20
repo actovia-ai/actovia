@@ -59,7 +59,7 @@ vi.mock('@main/lib/agents/default-employees', () => ({
   ensureDefaultCliEmployees: vi.fn(async () => {})
 }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
-  getConversationMessageById: async () => undefined,
+  getConversationMessageById: async () => {},
   updateConversationMessageParts: vi.fn()
 }))
 vi.mock('@main/lib/db/agent-session-queries', () => ({
@@ -224,7 +224,7 @@ describe('agents routes', () => {
   })
 
   it('Continue in Terminal refuses a session no CLI runs, writing nothing', async () => {
-    runtime = 'exodus'
+    runtime = 'actovia'
     stopSession.mockClear()
     writeResumeScript.mockClear()
     expect(

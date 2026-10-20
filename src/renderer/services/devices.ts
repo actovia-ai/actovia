@@ -1,4 +1,4 @@
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 
@@ -12,7 +12,7 @@ export interface PairedDeviceInfo {
 export interface PairingInfo {
   /** Epoch ms. */
   expiresAt: number
-  /** What the QR code encodes: `exodus://pair?h=&p=&c=&f=&n=`. */
+  /** What the QR code encodes: `actovia://pair?h=&p=&c=&f=&n=`. */
   link: string
 }
 

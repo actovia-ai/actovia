@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { UnfoldMoreIcon, SettingsIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import React from 'react'
@@ -105,7 +105,7 @@ export function NavFooter({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             {/* Future account-menu items (online/offline mode switch, sign
-                out) once those features exist — Exodus is local-first with
+                out) once those features exist — Actovia is local-first with
                 no external auth today (see CLAUDE.md), so there's nothing
                 to wire these to yet. */}
           </DropdownMenuContent>

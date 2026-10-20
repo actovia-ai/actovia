@@ -5,53 +5,53 @@ import { join } from 'path'
 import { app } from 'electron'
 
 /**
- * `~/.exodus` — packaged and unpackaged (dev) builds alike, so a dev build
+ * `~/.actovia` — packaged and unpackaged (dev) builds alike, so a dev build
  * sees the same chats, settings and memories as the real app. Actovia is the
  * successor of `universal-client`, which uses this same directory.
  *
  * PGlite is single-process: never run two Actovia processes (a dev build, the
  * packaged app, universal-client) against one data directory at the same
- * time — the database can be corrupted. Backups live in `~/.exodus/backups`.
+ * time — the database can be corrupted. Backups live in `~/.actovia/backups`.
  *
- * `EXODUS_HOME` points a run at another directory instead (e.g. a scratch
+ * `ACTOVIA_HOME` points a run at another directory instead (e.g. a scratch
  * dir); the e2e suite gets the same effect by sandboxing `$HOME`.
  */
-export function getExodusHome(): string {
-  return process.env.EXODUS_HOME || join(homedir(), '.exodus')
+export function getActoviaHome(): string {
+  return process.env.ACTOVIA_HOME || join(homedir(), '.actovia')
 }
 
 export function getDatabaseDir(): string {
-  return join(getExodusHome(), 'database')
+  return join(getActoviaHome(), 'database')
 }
 
 export function getLogsDir(): string {
-  const dir = join(getExodusHome(), 'logs')
+  const dir = join(getActoviaHome(), 'logs')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   return dir
 }
 
 export function getArtifactsDir(): string {
-  return join(getExodusHome(), 'artifacts')
+  return join(getActoviaHome(), 'artifacts')
 }
 
 /** Installed Agent Skills — one directory per slug plus `.lock.json`. The same
- *  directory `exodus-cli` installs into, so the two stay interchangeable. */
+ *  directory `actovia-cli` installs into, so the two stay interchangeable. */
 export function getSkillsDir(): string {
-  return join(getExodusHome(), 'skills')
+  return join(getActoviaHome(), 'skills')
 }
 
 /** Philharmonic Group workspace root, one directory per conversation. */
 export function getGroupsDir(): string {
-  return join(getExodusHome(), 'groups')
+  return join(getActoviaHome(), 'groups')
 }
 
 /** Per-chat workspaces: where the chat's file and shell tools work by default. */
 export function getWorkspacesDir(): string {
-  return join(getExodusHome(), 'workspace')
+  return join(getActoviaHome(), 'workspace')
 }
 
 /**
- * A chat's workspace, `~/.exodus/workspace/<chatId>`. Not created here — the
+ * A chat's workspace, `~/.actovia/workspace/<chatId>`. Not created here — the
  * terminal tool creates it on first use, and write_file makes parents — so a
  * chat that never touches a file leaves no directory behind.
  */
@@ -66,14 +66,14 @@ export function getGroupDir(conversationId: string): string {
 }
 
 /**
- * Generated media (image_generation results), `~/.exodus/media`. Files are
+ * Generated media (image_generation results), `~/.actovia/media`. Files are
  * written once and never edited — `<uuid>.<ext>` — and served read-only by
  * `GET /api/v1/media/:chatId/:file`. A chat's or a Group's own dir is named
  * only by `mediaDirFor()` in `src/main/lib/media/store.ts`, which refuses an
  * id that would leave this one.
  */
 export function getMediaDir(): string {
-  return join(getExodusHome(), 'media')
+  return join(getActoviaHome(), 'media')
 }
 
 /**
@@ -81,7 +81,7 @@ export function getMediaDir(): string {
  * purged (`secrets/migrate.ts`); holds `{ purgedAt }`.
  */
 export function getSecretsPurgeMarkerPath(): string {
-  return join(getExodusHome(), 'secrets-purge.json')
+  return join(getActoviaHome(), 'secrets-purge.json')
 }
 
 /**
@@ -90,7 +90,7 @@ export function getSecretsPurgeMarkerPath(): string {
  * prompt survives a restart (`secrets/moved.ts`).
  */
 export function getSecretsReentryPath(): string {
-  return join(getExodusHome(), 'secrets-reentry.json')
+  return join(getActoviaHome(), 'secrets-reentry.json')
 }
 
 /**
@@ -99,22 +99,22 @@ export function getSecretsReentryPath(): string {
  * gets its 401 and unpairs instead of finding nothing there.
  */
 export function getRevokedDevicesPath(): string {
-  return join(getExodusHome(), 'lan-revoked.json')
+  return join(getActoviaHome(), 'lan-revoked.json')
 }
 
-/** DuckDB chat-audit snapshot (`exodus.duckdb` + `snapshot.json`) — Settings → Developer. */
+/** DuckDB chat-audit snapshot (`actovia.duckdb` + `snapshot.json`) — Settings → Developer. */
 export function getAnalyticsDir(): string {
-  const dir = join(getExodusHome(), 'analytics')
+  const dir = join(getActoviaHome(), 'analytics')
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
   return dir
 }
 
 export function getAnalyticsDbPath(): string {
-  return join(getAnalyticsDir(), 'exodus.duckdb')
+  return join(getAnalyticsDir(), 'actovia.duckdb')
 }
 
 export function getBackupsDir(): string {
-  return join(getExodusHome(), 'backups')
+  return join(getActoviaHome(), 'backups')
 }
 
 export function getAutoBackupsDir(): string {
@@ -131,20 +131,20 @@ export function getManualBackupsDir(): string {
 
 /** The LAN listener's certificate and (encrypted) private key. */
 export function getTlsDir(): string {
-  return join(getExodusHome(), 'tls')
+  return join(getActoviaHome(), 'tls')
 }
 
 export function getLockSecretPath(): string {
-  return join(getExodusHome(), 'lock.dat')
+  return join(getActoviaHome(), 'lock.dat')
 }
 
 export function getLockConfigPath(): string {
-  return join(getExodusHome(), 'lock-config.json')
+  return join(getActoviaHome(), 'lock-config.json')
 }
 
-export function ensureExodusDirs(): void {
+export function ensureActoviaDirs(): void {
   const dirs = [
-    getExodusHome(),
+    getActoviaHome(),
     getDatabaseDir(),
     getLogsDir(),
     getArtifactsDir(),

@@ -2,8 +2,8 @@
 // schema has a decision: a secret (masked at the API boundary) or on the
 // commented non-secret list. A new `*Key` / `*Secret` / `*Password` /
 // `*Token` field added without one fails here.
-import { SettingsSchema } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { SettingsSchema } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { getTableColumns } from 'drizzle-orm'
 import { describe, expect, it } from 'vitest'
 import type { z } from 'zod'

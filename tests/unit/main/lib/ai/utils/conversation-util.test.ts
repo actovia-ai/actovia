@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it, vi } from 'vitest'
 
 // Mock the modules that transitively import Electron/DB

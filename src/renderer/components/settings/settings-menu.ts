@@ -43,7 +43,7 @@ export enum SettingsLabel {
   ChatAudit = 'Chat Audit',
   Devices = 'Devices',
   KeyboardShortcuts = 'Keyboard Shortcuts',
-  AboutExodus = 'About Exodus'
+  AboutActovia = 'About Actovia'
 }
 
 export type SettingsPage = SettingsLabel
@@ -83,7 +83,7 @@ export const NAV_TITLE_KEYS = {
   [SettingsLabel.ChatAudit]: 'nav.chatAudit.title',
   [SettingsLabel.Devices]: 'nav.devices.title',
   [SettingsLabel.KeyboardShortcuts]: 'nav.keyboardShortcuts.title',
-  [SettingsLabel.AboutExodus]: 'nav.about.title'
+  [SettingsLabel.AboutActovia]: 'nav.about.title'
 } as const satisfies Record<SettingsLabel, ParseKeys<'settings'>>
 
 // Flat menu — every entry is a top-level page. The content-side Cards provide
@@ -144,7 +144,9 @@ export const menus = {
     },
     {
       label: '',
-      items: [{ title: SettingsLabel.AboutExodus, icon: InformationCircleIcon }]
+      items: [
+        { title: SettingsLabel.AboutActovia, icon: InformationCircleIcon }
+      ]
     }
   ]
 } as const

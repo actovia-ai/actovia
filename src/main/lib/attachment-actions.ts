@@ -1,14 +1,14 @@
 import { readFile, writeFile } from 'fs/promises'
 import { basename, join } from 'path'
 
-import { BASE_URL } from '@exodus/shared/constants/systems'
+import { BASE_URL } from '@actovia/shared/constants/systems'
 import {
   ATTACHMENT_CHANNELS,
   type AttachmentFailure,
   type AttachmentKind,
   type AttachmentRequest,
   type AttachmentResult
-} from '@exodus/shared/types/attachment-actions'
+} from '@actovia/shared/types/attachment-actions'
 import {
   app,
   BrowserWindow,

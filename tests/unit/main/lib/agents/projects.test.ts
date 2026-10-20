@@ -18,7 +18,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // macOS' tmpdir is a symlink (/var → /private/var); the code works on real paths.
 const tmp = (prefix: string) =>
   realpathSync(mkdtempSync(join(tmpdir(), prefix)))
-const projectsDir = tmp('exodus-projects-')
+const projectsDir = tmp('actovia-projects-')
 const settings = { projectsDir }
 vi.mock('@main/lib/agents/settings', () => ({
   agentSettings: async () => ({
@@ -98,10 +98,10 @@ describe('projects', () => {
     const p = await P.createNewProject('Notes Prototype')
     expect(p.dir).toBe(join(projectsDir, 'notes-prototype'))
     expect(p.workDir).toBe(p.dir)
-    expect(existsSync(join(p.dir, '.exodus/sessions'))).toBe(true)
-    expect(existsSync(join(p.dir, '.exodus/logs'))).toBe(true)
+    expect(existsSync(join(p.dir, '.actovia/sessions'))).toBe(true)
+    expect(existsSync(join(p.dir, '.actovia/logs'))).toBe(true)
     const meta = JSON.parse(
-      readFileSync(join(p.dir, '.exodus/project.json'), 'utf8')
+      readFileSync(join(p.dir, '.actovia/project.json'), 'utf8')
     )
     expect(meta).toMatchObject({
       id: p.id,
@@ -126,7 +126,7 @@ describe('projects', () => {
     const alias = join(p.dir, p.name)
     expect(lstatSync(alias).isSymbolicLink()).toBe(true)
     expect(readlinkSync(alias)).toBe(folder)
-    expect(existsSync(join(folder, '.exodus'))).toBe(false)
+    expect(existsSync(join(folder, '.actovia'))).toBe(false)
   })
 
   it('opening the same folder twice returns the same project', async () => {
@@ -141,13 +141,13 @@ describe('projects', () => {
   it.each([
     ['home', homedir(), /home folder/],
     ['root', '/', /root folder/],
-    ["Exodus' data", process.env.EXODUS_HOME!, /data folder/]
+    ["Actovia' data", process.env.ACTOVIA_HOME!, /data folder/]
   ])('refuses %s', async (_label, folder, message) => {
     await expect(P.assertWorkableFolder(folder)).rejects.toThrow(message)
   })
 
-  it('refuses anything inside Exodus’ data and a file', async () => {
-    const inside = join(process.env.EXODUS_HOME!, 'groups', 'g')
+  it('refuses anything inside Actovia’ data and a file', async () => {
+    const inside = join(process.env.ACTOVIA_HOME!, 'groups', 'g')
     mkdirSync(inside, { recursive: true })
     await expect(P.assertWorkableFolder(inside)).rejects.toThrow(/data folder/)
     const file = join(tmp('f-'), 'x.txt')
@@ -161,10 +161,10 @@ describe('projects', () => {
     await P.bindConversation('c1', p.id)
     expect(convs.get('c1')!.projectId).toBe(p.id)
     expect(
-      JSON.parse(readFileSync(join(p.dir, '.exodus/project.json'), 'utf8'))
+      JSON.parse(readFileSync(join(p.dir, '.actovia/project.json'), 'utf8'))
         .conversationId
     ).toBe('c1')
-    expect((await P.planDirFor('c1')).dir).toBe(join(p.dir, '.exodus'))
+    expect((await P.planDirFor('c1')).dir).toBe(join(p.dir, '.actovia'))
     await P.bindConversation('c1', null)
     expect(convs.get('c1')!.projectId).toBeNull()
   })
@@ -180,10 +180,10 @@ describe('projects', () => {
     const dir = repo()
     const p = await P.openFolderAsProject(dir)
     const w = await P.prepareWorkDir(p, 'abcdef12-3456', true)
-    expect(w.branch).toBe('exodus/abcdef12')
-    expect(w.cwd).toBe(join(p.dir, '.exodus/worktrees/abcdef12-3456'))
+    expect(w.branch).toBe('actovia/abcdef12')
+    expect(w.cwd).toBe(join(p.dir, '.actovia/worktrees/abcdef12-3456'))
     expect(git(w.cwd, 'rev-parse', '--abbrev-ref', 'HEAD')).toBe(
-      'exodus/abcdef12'
+      'actovia/abcdef12'
     )
   })
 
@@ -213,14 +213,14 @@ describe('projects', () => {
       'i'
     )
     await P.prepareWorkDir(p, 'ffffffff-0000', true)
-    expect(readFileSync(join(p.dir, '.exodus/.gitignore'), 'utf8')).toBe('*\n')
+    expect(readFileSync(join(p.dir, '.actovia/.gitignore'), 'utf8')).toBe('*\n')
     expect(git(p.dir, 'status', '--porcelain')).toBe('')
   })
 
   it('falls back to the shared folder when the worktree cannot be made', async () => {
     const dir = repo()
     const p = await P.openFolderAsProject(dir)
-    git(dir, 'branch', 'exodus/deadbeef') // the branch it would create already exists
+    git(dir, 'branch', 'actovia/deadbeef') // the branch it would create already exists
     const w = await P.prepareWorkDir(p, 'deadbeef-0000', true)
     expect(w.cwd).toBe(dir)
     expect(w.note).toMatch(/^worktree-failed/)
@@ -231,7 +231,7 @@ describe('projects', () => {
       /contains your home folder/
     )
     await expect(
-      P.assertWorkableFolder(dirname(process.env.EXODUS_HOME!))
+      P.assertWorkableFolder(dirname(process.env.ACTOVIA_HOME!))
     ).rejects.toThrow(/contains your home folder/)
   })
 
@@ -254,7 +254,7 @@ describe('projects', () => {
     const p = await P.openFolderAsProject(join(dir, 'packages/app'))
     const w = await P.prepareWorkDir(p, 'abcdef99-0000', true)
     expect(w.cwd).toBe(
-      join(p.dir, '.exodus/worktrees/abcdef99-0000', 'packages/app')
+      join(p.dir, '.actovia/worktrees/abcdef99-0000', 'packages/app')
     )
     expect(existsSync(join(w.cwd, 'a.txt'))).toBe(true)
   })
@@ -272,7 +272,7 @@ describe('projects', () => {
         branch: null,
         note: 'not-git'
       })
-      expect(existsSync(join(p.dir, '.exodus/worktrees'))).toBe(false)
+      expect(existsSync(join(p.dir, '.actovia/worktrees'))).toBe(false)
     } finally {
       settings.projectsDir = saved
     }

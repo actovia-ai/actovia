@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
  *
  * `@main/lib/db/db` is still module-mocked, but only as dependency injection:
  * the factory hands back a genuine PGlite + drizzle pair instead of the app
- * singleton, which would otherwise open the user's real `~/.exodus/database`
+ * singleton, which would otherwise open the user's real `~/.actovia/database`
  * directory (and drag Electron in via `paths.ts`) at import time. No query
  * behavior is faked — `enqueueJob`, `readBatch` and `archiveMessage` below are
  * the real exported functions running real statements.
@@ -116,7 +116,7 @@ describe('job queue SQL against a real PGlite + pgmq instance', () => {
 
   it('processQueue deletes — and does not archive — a message whose handler succeeds', async () => {
     mockHandler.mockClear()
-    mockHandler.mockResolvedValue(undefined)
+    mockHandler.mockResolvedValue()
     const archivedBefore = await archiveDepth()
 
     await enqueueJob(QUEUE, { id: 'msg-2', chatId: 'chat-2' })

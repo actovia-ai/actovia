@@ -1,7 +1,7 @@
 import {
   weatherClockHours,
   type WeatherForecastDay
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 /**

@@ -6,21 +6,21 @@ import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // `os.homedir()` reads $HOME on POSIX at call time, so pointing it at a temp
 // dir keeps every directory these tests create out of the real home.
-const home = mkdtempSync(join(tmpdir(), 'exodus-paths-'))
+const home = mkdtempSync(join(tmpdir(), 'actovia-paths-'))
 const originalHome = process.env.HOME
 process.env.HOME = home
-// vitest.config.ts sets EXODUS_HOME for every test (so none can reach the real
+// vitest.config.ts sets ACTOVIA_HOME for every test (so none can reach the real
 // data dir); this file exercises the default resolution, so lift it here.
-const originalExodusHome = process.env.EXODUS_HOME
-delete process.env.EXODUS_HOME
+const originalActoviaHome = process.env.ACTOVIA_HOME
+delete process.env.ACTOVIA_HOME
 
 const electronApp = vi.hoisted(() => ({ isPackaged: true }))
 vi.mock('electron', () => ({ app: electronApp }))
 
 afterAll(() => {
   process.env.HOME = originalHome
-  if (originalExodusHome === undefined) delete process.env.EXODUS_HOME
-  else process.env.EXODUS_HOME = originalExodusHome
+  if (originalActoviaHome === undefined) delete process.env.ACTOVIA_HOME
+  else process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 describe('paths', () => {
@@ -32,31 +32,31 @@ describe('paths', () => {
     paths = await import('@main/lib/paths')
   })
 
-  it('getExodusHome is ~/.exodus when packaged', () => {
-    expect(paths.getExodusHome()).toBe(join(home, '.exodus'))
+  it('getActoviaHome is ~/.actovia when packaged', () => {
+    expect(paths.getActoviaHome()).toBe(join(home, '.actovia'))
   })
 
-  it('getExodusHome is the same ~/.exodus when unpackaged — dev sees the real data', () => {
+  it('getActoviaHome is the same ~/.actovia when unpackaged — dev sees the real data', () => {
     electronApp.isPackaged = false
-    expect(paths.getExodusHome()).toBe(join(home, '.exodus'))
+    expect(paths.getActoviaHome()).toBe(join(home, '.actovia'))
   })
 
-  it('EXODUS_HOME overrides the data dir, packaged or not', () => {
-    process.env.EXODUS_HOME = join(home, 'custom')
+  it('ACTOVIA_HOME overrides the data dir, packaged or not', () => {
+    process.env.ACTOVIA_HOME = join(home, 'custom')
     try {
       electronApp.isPackaged = false
-      expect(paths.getExodusHome()).toBe(join(home, 'custom'))
+      expect(paths.getActoviaHome()).toBe(join(home, 'custom'))
       expect(paths.getDatabaseDir()).toBe(join(home, 'custom', 'database'))
       electronApp.isPackaged = true
-      expect(paths.getExodusHome()).toBe(join(home, 'custom'))
+      expect(paths.getActoviaHome()).toBe(join(home, 'custom'))
     } finally {
-      delete process.env.EXODUS_HOME
+      delete process.env.ACTOVIA_HOME
     }
   })
 
   it('derives every data dir from the home', () => {
     electronApp.isPackaged = false
-    const root = join(home, '.exodus')
+    const root = join(home, '.actovia')
     expect(paths.getDatabaseDir()).toBe(join(root, 'database'))
     expect(paths.getLogsDir()).toBe(join(root, 'logs'))
     expect(paths.getArtifactsDir()).toBe(join(root, 'artifacts'))
@@ -66,10 +66,10 @@ describe('paths', () => {
     expect(existsSync(join(root, 'groups', 'c1'))).toBe(true)
   })
 
-  it('ensureExodusDirs creates the directory tree', () => {
-    paths.ensureExodusDirs()
+  it('ensureActoviaDirs creates the directory tree', () => {
+    paths.ensureActoviaDirs()
     for (const sub of ['database', 'logs', 'artifacts', 'backups/auto']) {
-      expect(existsSync(join(home, '.exodus', sub))).toBe(true)
+      expect(existsSync(join(home, '.actovia', sub))).toBe(true)
     }
   })
 })

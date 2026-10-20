@@ -1,9 +1,9 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import {
   ConfigurationError,
   ServiceError,
   ValidationError
-} from '@exodus/shared/errors/app-error'
+} from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 
 import { logger } from '../../logger'
@@ -24,7 +24,7 @@ import { Variables } from '../types'
  * `lh3.googleusercontent.com`). Neither the key nor the upstream URL appears
  * in an error or a log line.
  *
- * Mounted under `/api/v1`, so a paired device (exodus-ios) reaches it over the
+ * Mounted under `/api/v1`, so a paired device (actovia-ios) reaches it over the
  * LAN with its token, and the lock gate applies.
  */
 const maps = new Hono<{ Variables: Variables }>()

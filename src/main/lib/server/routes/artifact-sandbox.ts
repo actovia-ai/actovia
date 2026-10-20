@@ -61,8 +61,8 @@ export function resolveSandboxFile(
 /**
  * `GET /api/v1/artifacts/sandbox/*` — the artifact sandbox page and its
  * assets, for a paired phone to render an artifact the way the desktop's
- * iframe does (exodus-ios `ArtifactSchemeHandler` maps its own
- * `exodus-artifact://sandbox/<path>` here). Static, the built renderer; in dev
+ * iframe does (actovia-ios `ArtifactSchemeHandler` maps its own
+ * `actovia-artifact://sandbox/<path>` here). Static, the built renderer; in dev
  * the Vite server behind it, as `artifact-protocol.ts` does. Mounted under
  * `/api/v1`, so the LAN `authGate`, the lock gate and the origin gate apply.
  *

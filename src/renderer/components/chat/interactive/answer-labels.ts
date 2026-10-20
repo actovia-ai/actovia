@@ -1,4 +1,4 @@
-import type { AnswerLabels } from '@exodus/shared/utils/interactive-answer'
+import type { AnswerLabels } from '@actovia/shared/utils/interactive-answer'
 import type { TFunction } from 'i18next'
 
 /** The words this client writes an answer with, in the user's language. */

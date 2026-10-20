@@ -1,5 +1,5 @@
-import { REPORTED_STACK_MAX_CHARS } from '@exodus/shared/constants/systems'
-import { fetcher } from '@exodus/shared/utils/http'
+import { REPORTED_STACK_MAX_CHARS } from '@actovia/shared/constants/systems'
+import { fetcher } from '@actovia/shared/utils/http'
 
 /** A stack as it is sent: its head, the frames nearest the throw. */
 const bounded = (stack: unknown): string | undefined =>

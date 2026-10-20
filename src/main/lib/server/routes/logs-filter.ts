@@ -3,7 +3,7 @@ import {
   type LogQuery,
   levelOfSeverity,
   matchesLogQuery
-} from '@exodus/shared/utils/log-query'
+} from '@actovia/shared/utils/log-query'
 
 import type { LogRecord } from '../../logger'
 

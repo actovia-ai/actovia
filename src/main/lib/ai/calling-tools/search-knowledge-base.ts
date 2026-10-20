@@ -1,7 +1,7 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 // src/main/lib/ai/calling-tools/search-knowledge-base.ts
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 import type { LightRagClient } from '../../knowledge-base/lightrag-client'
 import { logger } from '../../logger'

@@ -1,11 +1,11 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
   ChatToolResultMessage,
   ChatUserMessage
-} from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
-import { withBlockText } from '@exodus/shared/utils/interactive-plain-text'
+} from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { withBlockText } from '@actovia/shared/utils/interactive-plain-text'
 
 import { withReferences } from '@/lib/citation-references'
 import { userMessageText } from '@/lib/user-message-text'

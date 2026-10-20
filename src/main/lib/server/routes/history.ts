@@ -1,7 +1,7 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ValidationError } from '@exodus/shared/errors/app-error'
-import type { ChatHistoryPage } from '@exodus/shared/types/chat-history'
-import { parseChatHistoryCursor } from '@exodus/shared/utils/chat-history-cursor'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ValidationError } from '@actovia/shared/errors/app-error'
+import type { ChatHistoryPage } from '@actovia/shared/types/chat-history'
+import { parseChatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
 import { Hono } from 'hono'
 
 import { getAllChats, getChatsPage, getFavoriteChats } from '../../db/queries'

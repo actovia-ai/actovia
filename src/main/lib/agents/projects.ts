@@ -12,7 +12,7 @@ import {
 import { homedir } from 'os'
 import { basename, join, relative, sep } from 'path'
 
-import { ErrorCode, ValidationError } from '@exodus/shared'
+import { ErrorCode, ValidationError } from '@actovia/shared'
 
 import {
   getConversationById,
@@ -26,7 +26,7 @@ import {
   updateProject
 } from '../db/project-queries'
 import type { AgentSession, Project } from '../db/schema'
-import { getExodusHome, getGroupDir } from '../paths'
+import { getActoviaHome, getGroupDir } from '../paths'
 import { assertMetaDir, writeMetaFile } from './meta-files'
 import { agentSettings } from './settings'
 
@@ -56,7 +56,7 @@ export async function assertWorkableFolder(folder: string): Promise<string> {
   if (real === '/') fail('The root folder cannot be used')
   if (real === (await realpath(homedir())))
     fail('Your home folder is too broad — choose a folder inside it')
-  const data = await realpath(getExodusHome()).catch(() => getExodusHome())
+  const data = await realpath(getActoviaHome()).catch(() => getActoviaHome())
   if (real === data || real.startsWith(data + sep))
     fail("Actovia's own data folder cannot be used")
   const home = await realpath(homedir())
@@ -68,7 +68,7 @@ export async function assertWorkableFolder(folder: string): Promise<string> {
 }
 
 export const metaDir = (project: Pick<Project, 'dir'>) =>
-  join(project.dir, '.exodus')
+  join(project.dir, '.actovia')
 /** Open the log with `openMetaLog`/O_NOFOLLOW after `assertMetaDir(project, 'logs')`; never follow a link. */
 export const sessionLogPath = (
   project: Pick<Project, 'dir'>,
@@ -109,10 +109,10 @@ async function writeProjectJson(
 }
 
 async function makeMeta(dir: string) {
-  await mkdir(join(dir, '.exodus', 'sessions'), { recursive: true })
-  await mkdir(join(dir, '.exodus', 'logs'), { recursive: true })
+  await mkdir(join(dir, '.actovia', 'sessions'), { recursive: true })
+  await mkdir(join(dir, '.actovia', 'logs'), { recursive: true })
   // Git ignores the whole meta in any repo, whenever the repo is created.
-  await writeFile(join(dir, '.exodus', '.gitignore'), '*\n')
+  await writeFile(join(dir, '.actovia', '.gitignore'), '*\n')
 }
 
 export async function createNewProject(name: string): Promise<Project> {
@@ -205,7 +205,7 @@ export async function prepareWorkDir(
   if (!project.useWorktrees || !othersRunning)
     return { cwd: project.workDir, branch: current, note: null }
 
-  const branch = `exodus/${sessionId.slice(0, 8)}`
+  const branch = `actovia/${sessionId.slice(0, 8)}`
   let worktree: string
   try {
     worktree = join(await assertMetaDir(project, 'worktrees'), sessionId)

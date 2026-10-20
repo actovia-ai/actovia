@@ -1,8 +1,8 @@
 import {
   DEFAULT_AVATAR_STYLE,
   randomAvatarSeed
-} from '@exodus/shared/constants/avatar'
-import { CLI_IDS, CLI_NAMES } from '@exodus/shared/types/agents'
+} from '@actovia/shared/constants/avatar'
+import { CLI_IDS, CLI_NAMES } from '@actovia/shared/types/agents'
 
 import { createAgent, getAllAgents } from '../db/philharmonic-queries'
 import { getSettings, updateSettingField } from '../db/queries'

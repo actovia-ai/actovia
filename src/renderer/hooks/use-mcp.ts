@@ -1,4 +1,4 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import {
   type QueryClient,
   useMutation,

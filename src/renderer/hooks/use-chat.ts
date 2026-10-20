@@ -5,12 +5,12 @@ import type {
   RunError,
   SendMessageOptions,
   Usage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import {
   applyAttempts,
   attemptsAfterRegenerate,
   attemptsAfterSettling
-} from '@exodus/shared/utils/attempts'
+} from '@actovia/shared/utils/attempts'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { v4 as uuidV4 } from 'uuid'
 

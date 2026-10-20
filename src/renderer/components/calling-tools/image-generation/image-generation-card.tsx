@@ -1,8 +1,8 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   ChatToolResultMessage,
   ImageGenerationDetails
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import { memo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

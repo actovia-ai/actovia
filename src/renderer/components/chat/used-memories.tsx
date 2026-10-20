@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { UsedMemory } from '@exodus/shared/types/memory'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { UsedMemory } from '@actovia/shared/types/memory'
 import { AiBrainIcon, EditIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'

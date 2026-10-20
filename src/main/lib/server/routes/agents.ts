@@ -3,13 +3,13 @@ import {
   ErrorCode,
   NotFoundError,
   ValidationError
-} from '@exodus/shared'
+} from '@actovia/shared'
 import {
   CLI_IDS,
   CLI_NAMES,
   type AgentCard,
   type CliId
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 import { shell } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'

@@ -1,10 +1,10 @@
-# Exodus Contributing Guide
+# Actovia Contributing Guide
 
-Hi! We are really excited that you are interested in contributing to Exodus. Before submitting your contribution, please make sure to take a moment and read through the following guide:
+Hi! We are really excited that you are interested in contributing to Actovia. Before submitting your contribution, please make sure to take a moment and read through the following guide:
 
 ## Repo Setup
 
-Exodus is an Electron app built on [electron-forge](https://www.electronforge.io/) + Vite + React.
+Actovia is an Electron app built on [electron-forge](https://www.electronforge.io/) + Vite + React.
 
 ```bash
 bun install

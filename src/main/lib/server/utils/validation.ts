@@ -1,6 +1,6 @@
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { ConfigurationError } from '@actovia/shared/errors/app-error'
 import { S3Client } from '@aws-sdk/client-s3'
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { ConfigurationError } from '@exodus/shared/errors/app-error'
 
 import { Settings } from '../../db/schema'
 

@@ -2,7 +2,7 @@ import {
   healthSnapshotSchema,
   healthSummarySchema,
   parseHealthSummary
-} from '@exodus/shared/types/health'
+} from '@actovia/shared/types/health'
 import { describe, expect, it } from 'vitest'
 
 import { REPORT, SNAPSHOT, SUMMARY } from './health-fixtures'

@@ -1,5 +1,5 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
-import type { MemoryChange } from '@exodus/shared/types/memory'
+import type { ChatMessage } from '@actovia/shared/types/chat'
+import type { MemoryChange } from '@actovia/shared/types/memory'
 import { describe, expect, it } from 'vitest'
 
 import { runMemoryChanges } from '@/lib/run-memory-changes'

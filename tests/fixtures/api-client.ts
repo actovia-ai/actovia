@@ -5,7 +5,7 @@
  * The Hono server returns data directly (no { code, data } wrapper).
  * DELETE endpoints return plain text, not JSON.
  */
-import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
+import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
 import { test as base } from '@playwright/test'
 
 const BASE_URL = 'http://localhost:60223'

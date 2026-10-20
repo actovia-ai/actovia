@@ -1,9 +1,9 @@
 import { stat as fsStat, readdir } from 'fs/promises'
 import { join } from 'path'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 const listDirectorySchema = Type.Object({
   path: Type.String({ description: 'Directory path to list.' }),

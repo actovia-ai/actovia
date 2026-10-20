@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { StepsBlock as StepsBlockData } from '@exodus/shared/types/interactive'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { StepsBlock as StepsBlockData } from '@actovia/shared/types/interactive'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,7 +10,7 @@ import {
 } from '@/components/markdown/remote-image'
 
 /**
- * A reply's illustrated steps (`exodus-steps`): a numbered list, each step
+ * A reply's illustrated steps (`actovia-steps`): a numbered list, each step
  * its text and, when its picture is one of the run's search thumbnails, that
  * picture — loaded on sight by `RemoteImage`, which admits the same URLs. A
  * picture that is anything else (an original, a URL the run never saw) is

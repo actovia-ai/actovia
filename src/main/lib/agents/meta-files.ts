@@ -6,7 +6,7 @@ import { dirname, join } from 'path'
 import type { Project } from '../db/schema'
 
 /**
- * A new project's agents work inside the folder that holds `.exodus/`, so
+ * A new project's agents work inside the folder that holds `.actovia/`, so
  * anything under it may have been swapped for a symlink. Actovia' writes there
  * go through these helpers and never follow a link.
  */
@@ -22,10 +22,10 @@ export async function assertMetaDir(
   project: Pick<Project, 'dir'>,
   ...subdirs: string[]
 ): Promise<string> {
-  const root = join(project.dir, '.exodus')
+  const root = join(project.dir, '.actovia')
   await mkdir(root, { recursive: true }).catch(() => {})
   await assertRealDir(root)
-  if ((await realpath(root)) !== join(await realpath(project.dir), '.exodus'))
+  if ((await realpath(root)) !== join(await realpath(project.dir), '.actovia'))
     throw new Error(`Refusing to use ${root}: it resolves elsewhere`)
   let current = root
   for (const part of subdirs.flatMap((s) => s.split('/').filter(Boolean))) {

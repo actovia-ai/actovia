@@ -313,7 +313,7 @@ describe('pickAgeLabel', () => {
   })
 })
 
-describe('loadDocumentBuiltin — cannot reach Exodus’s own API', () => {
+describe('loadDocumentBuiltin — cannot reach Actovia’s own API', () => {
   it('fetches a URL on another localhost port normally', async () => {
     pinnedMock.mockResolvedValue(
       htmlResponse(
@@ -330,7 +330,7 @@ describe('loadDocumentBuiltin — cannot reach Exodus’s own API', () => {
     expect(pinnedMock).toHaveBeenCalledTimes(1)
   })
 
-  it('fetches a URL on a LAN IP, non-Exodus port normally', async () => {
+  it('fetches a URL on a LAN IP, non-Actovia port normally', async () => {
     pinnedMock.mockResolvedValue(
       htmlResponse(
         200,
@@ -363,7 +363,7 @@ describe('loadDocumentBuiltin — cannot reach Exodus’s own API', () => {
     expect(pinnedMock).toHaveBeenCalledTimes(2)
   })
 
-  it('refuses a redirect from a public URL to Exodus’s own loopback API', async () => {
+  it('refuses a redirect from a public URL to Actovia’s own loopback API', async () => {
     pinnedMock.mockResolvedValueOnce(
       htmlResponse(302, {
         location: 'http://127.0.0.1:60223/api/v1/settings'

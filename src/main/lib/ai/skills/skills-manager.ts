@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { InstalledSkill } from '@exodus/shared/types/skills'
+import type { InstalledSkill } from '@actovia/shared/types/skills'
 
 import {
   listInstalledSkills as listFromStore,

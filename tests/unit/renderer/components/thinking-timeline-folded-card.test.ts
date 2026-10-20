@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { ChatToolResultMessage } from '@exodus/shared/types/chat'
+import type { ChatToolResultMessage } from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'

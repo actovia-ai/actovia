@@ -1,4 +1,4 @@
-import type { DiscoverFeedDto } from '@exodus/shared/types/discover'
+import type { DiscoverFeedDto } from '@actovia/shared/types/discover'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { getDiscoverFeed, refreshDiscoverFeed } from '@/services/discover'

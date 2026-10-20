@@ -3,7 +3,7 @@
 // (ruling a); a Keychain that refuses to encrypt fails the save with a clear,
 // value-free message, logged once (M2). Real SQL on an in-memory PGlite,
 // safeStorage faked.
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'

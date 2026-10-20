@@ -1,4 +1,4 @@
-import type { AgentCard, AgentCardStep } from '@exodus/shared/types/agents'
+import type { AgentCard, AgentCardStep } from '@actovia/shared/types/agents'
 
 /** The agent card among a message's persisted `parts`, if it has one. */
 export function agentCardFromParts(

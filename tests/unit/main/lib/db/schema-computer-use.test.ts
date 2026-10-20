@@ -1,7 +1,7 @@
 import {
   ComputerUseSchema,
   SettingsSchema
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { settings } from '@main/lib/db/schema'
 import { describe, expect, it } from 'vitest'
 

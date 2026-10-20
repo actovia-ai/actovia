@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { Key01Icon, ShieldAlertIcon } from '@hugeicons/core-free-icons'
 import type { ParseKeys, TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'

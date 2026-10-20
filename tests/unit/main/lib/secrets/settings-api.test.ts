@@ -3,8 +3,8 @@
 // "unchanged", null / "" clear, anything else sets, and list-models swaps a
 // posted mask for the stored key. Real SQL on an in-memory PGlite; the
 // in-process `getSettings()` keeps returning plaintext.
-import { isAppError } from '@exodus/shared/errors/app-error'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { isAppError } from '@actovia/shared/errors/app-error'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 

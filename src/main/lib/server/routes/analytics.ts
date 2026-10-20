@@ -1,11 +1,11 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import {
   isAppError,
   NotFoundError,
   ServiceError,
   ValidationError
-} from '@exodus/shared/errors/app-error'
-import type { AnalyticsStatus } from '@exodus/shared/types/analytics'
+} from '@actovia/shared/errors/app-error'
+import type { AnalyticsStatus } from '@actovia/shared/types/analytics'
 import { Hono } from 'hono'
 import { z } from 'zod'
 

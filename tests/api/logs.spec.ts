@@ -26,7 +26,7 @@ test.describe('Logs API', () => {
       expect(typeof e.severityNumber).toBe('number')
       expect(typeof e.body).toBe('string')
       expect(typeof e.scope.name).toBe('string')
-      expect(e.resource['service.name']).toBe('exodus')
+      expect(e.resource['service.name']).toBe('actovia')
     }
   })
 

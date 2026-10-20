@@ -1,7 +1,7 @@
 import type {
   ChatAssistantMessage,
   ChatUserMessage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import {
   stripId,
   toDbRow,

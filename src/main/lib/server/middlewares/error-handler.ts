@@ -2,7 +2,7 @@ import {
   AppError,
   isAppError,
   toAppError
-} from '@exodus/shared/errors/app-error'
+} from '@actovia/shared/errors/app-error'
 import { Context } from 'hono'
 
 import { logger } from '../../logger'

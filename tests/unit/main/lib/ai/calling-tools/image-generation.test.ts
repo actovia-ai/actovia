@@ -23,11 +23,11 @@ const fetchMock = vi.fn()
 vi.mock('@main/lib/net/safe-fetch', () => ({ fetchPublicHttps: fetchMock }))
 
 // A scratch data dir of this file's own: the tool writes real files.
-const home = mkdtempSync(join(tmpdir(), 'exodus-imagegen-'))
-const originalExodusHome = process.env.EXODUS_HOME
-process.env.EXODUS_HOME = home
+const home = mkdtempSync(join(tmpdir(), 'actovia-imagegen-'))
+const originalActoviaHome = process.env.ACTOVIA_HOME
+process.env.ACTOVIA_HOME = home
 afterAll(() => {
-  process.env.EXODUS_HOME = originalExodusHome
+  process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 const { imageGeneration } =
@@ -81,7 +81,7 @@ const run = (
 ) => imageGeneration(settings, target).execute('c1', { prompt: 'a fox' })
 
 describe('image_generation', () => {
-  it('writes a base64 result to ~/.exodus/media/<chatId> and puts only its id in details', async () => {
+  it('writes a base64 result to ~/.actovia/media/<chatId> and puts only its id in details', async () => {
     const bytes = png(3, 2)
     generate.mockResolvedValue({
       output_format: 'png',

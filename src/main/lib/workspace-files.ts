@@ -16,7 +16,7 @@ import {
   type WorkspaceFileInfo,
   type WorkspaceFileReadResult,
   type WorkspaceFileStatResult
-} from '@exodus/shared/types/workspace-files'
+} from '@actovia/shared/types/workspace-files'
 
 /**
  * A file the chat's tools wrote, checked before anything is done with it

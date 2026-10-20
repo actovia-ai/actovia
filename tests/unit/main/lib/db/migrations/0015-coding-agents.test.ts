@@ -3,14 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { createMigratedPglite } from '../../../../helpers/migrated-pglite'
 
 describe('migration 0015 — coding agents', () => {
-  it('adds runtime to agents with exodus as the default', async () => {
+  it('adds runtime to agents with actovia as the default', async () => {
     const pg = await createMigratedPglite('0015')
     await pg.exec(`INSERT INTO agent (name) VALUES ('Ada')`)
     const { rows } = await pg.query<{
       runtime: string
       permissionMode: string | null
     }>(`SELECT runtime, "permissionMode" FROM agent`)
-    expect(rows).toEqual([{ runtime: 'exodus', permissionMode: null }])
+    expect(rows).toEqual([{ runtime: 'actovia', permissionMode: null }])
     await pg.close()
   })
 

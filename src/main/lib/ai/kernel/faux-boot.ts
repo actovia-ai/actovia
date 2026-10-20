@@ -1,3 +1,4 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
   fauxAssistantMessage,
   fauxText,
@@ -8,7 +9,6 @@ import {
   type FauxResponseFactory,
   type Message
 } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 import { logger } from '../../logger'
 import { fauxHandle, registerFauxProvider, setFauxHandle } from './faux'
@@ -175,7 +175,7 @@ function respondToChatCall(ctx: Context): AssistantMessage {
 
 /**
  * The Electron e2e's provider: scripted, keyless, on when
- * `EXODUS_FAUX_PROVIDER=1`. Every send gets the same two steps — a call to
+ * `ACTOVIA_FAUX_PROVIDER=1`. Every send gets the same two steps — a call to
  * `weather` for Oslo, then the answer — so a spec can run a whole
  * conversation with a tool call and no key. `getModelFromProvider` hands out
  * its model while it is on, and `bindCallingTools` swaps in `fauxWeatherTool`
@@ -188,7 +188,7 @@ function respondToChatCall(ctx: Context): AssistantMessage {
  * each time it is asked — see the branches above.
  */
 export function bootFauxProviderIfRequested(): FauxProviderHandle | null {
-  if (process.env.EXODUS_FAUX_PROVIDER !== '1') return null
+  if (process.env.ACTOVIA_FAUX_PROVIDER !== '1') return null
   const existing = fauxHandle()
   if (existing) return existing
   const handle = registerFauxProvider({
@@ -210,7 +210,7 @@ export function bootFauxProviderIfRequested(): FauxProviderHandle | null {
   setFauxHandle(handle)
   logger.warn(
     'app',
-    'Faux provider is on (EXODUS_FAUX_PROVIDER=1) — no real model is reachable'
+    'Faux provider is on (ACTOVIA_FAUX_PROVIDER=1) — no real model is reachable'
   )
   return handle
 }

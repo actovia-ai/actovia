@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'
@@ -93,7 +93,7 @@ describe('allowedImageUrls', () => {
   })
 
   it('returns null with no results', () => {
-    expect(allowedImageUrls(undefined)).toBeNull()
+    expect(allowedImageUrls()).toBeNull()
     expect(allowedImageUrls([])).toBeNull()
   })
 })

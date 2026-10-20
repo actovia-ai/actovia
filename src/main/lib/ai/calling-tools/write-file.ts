@@ -1,9 +1,9 @@
 import { writeFile as fsWriteFile, mkdir, stat } from 'fs/promises'
 import { dirname } from 'path'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 const writeFileSchema = Type.Object({
   path: Type.String({

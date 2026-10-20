@@ -1,4 +1,4 @@
-import { excludedRuns } from '@exodus/shared/utils/attempts'
+import { excludedRuns } from '@actovia/shared/utils/attempts'
 
 import { getChatById } from '../../db/queries'
 import {

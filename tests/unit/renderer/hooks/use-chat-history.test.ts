@@ -9,8 +9,8 @@ import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const updateChatService = vi.fn()
@@ -157,7 +157,7 @@ describe('useChatHistory', () => {
 })
 
 describe('useChatHistory on window focus', () => {
-  it('reads again when the window regains focus, so a chat exodus-ios or the CLI edited shows up, although the app turns that off', async () => {
+  it('reads again when the window regains focus, so a chat actovia-ios or the CLI edited shows up, although the app turns that off', async () => {
     fetcherMock
       .mockResolvedValueOnce(chats)
       .mockResolvedValueOnce([...chats, { id: 'c2', title: 'From the phone' }])
@@ -210,7 +210,7 @@ describe('useChatPage', () => {
   })
 
   it('does not fetch, and is not loading, without an id', async () => {
-    const { api } = await mountHook(() => useChatPage(undefined))
+    const { api } = await mountHook(() => useChatPage())
 
     expect(fetchChatPageService).not.toHaveBeenCalled()
     expect(api().isLoading).toBe(false)

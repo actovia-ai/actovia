@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "exodus",
+      "name": "actovia",
       "dependencies": {
         "@aws-sdk/client-s3": "^3.1146.0",
         "@aws-sdk/s3-request-presigner": "^3.1146.0",
@@ -16,7 +16,7 @@
         "@electric-sql/pglite": "^0.5.8",
         "@electric-sql/pglite-pgmq": "^0.0.6",
         "@electric-sql/pglite-pgvector": "^0.0.9",
-        "@exodus/shared": "workspace:*",
+        "@actovia/shared": "workspace:*",
         "@googlemaps/places": "^3.0.1",
         "@hono/node-server": "^2.1.3",
         "@hugeicons/core-free-icons": "^4.3.5",
@@ -146,7 +146,7 @@
       },
     },
     "packages/shared": {
-      "name": "@exodus/shared",
+      "name": "@actovia/shared",
       "version": "0.0.0",
     },
   },
@@ -441,7 +441,7 @@
 
     "@esbuild/win32-x64": ["@esbuild/win32-x64@0.25.12", "", { "os": "win32", "cpu": "x64" }, "sha512-alJC0uCZpTFrSL0CCDjcgleBXPnCrEAhTBILpeAp7M/OFgoqtAetfBzX0xM00MUsVVPpVjlPuMbREqnZCXaTnA=="],
 
-    "@exodus/shared": ["@exodus/shared@workspace:packages/shared"],
+    "@actovia/shared": ["@actovia/shared@workspace:packages/shared"],
 
     "@floating-ui/core": ["@floating-ui/core@1.8.0", "", { "dependencies": { "@floating-ui/utils": "^0.2.12" } }, "sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ=="],
 

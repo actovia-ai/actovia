@@ -5,9 +5,9 @@ import {
   auditCatalogs,
   flattenCatalog,
   type NsMap
-} from '@exodus/shared/i18n/catalog-audit'
-import { LOCALE_IDS } from '@exodus/shared/i18n/locales'
-import { NAMESPACES } from '@exodus/shared/i18n/namespaces'
+} from '@actovia/shared/i18n/catalog-audit'
+import { LOCALE_IDS } from '@actovia/shared/i18n/locales'
+import { NAMESPACES } from '@actovia/shared/i18n/namespaces'
 
 const ROOT = join(
   __dirname,

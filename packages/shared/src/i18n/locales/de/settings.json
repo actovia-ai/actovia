@@ -558,7 +558,7 @@
     },
     "autoBackup": {
       "label": "Automatische Backups",
-      "description": "Sichert Ihre Daten täglich um 3:00 Uhr. Backups werden lokal unter ~/.exodus/backups/ gespeichert."
+      "description": "Sichert Ihre Daten täglich um 3:00 Uhr. Backups werden lokal unter ~/.actovia/backups/ gespeichert."
     },
     "lastBackup": {
       "label": "Letztes Backup",

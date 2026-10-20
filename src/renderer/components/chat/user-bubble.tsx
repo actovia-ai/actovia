@@ -1,6 +1,6 @@
-import { splitHealth } from '@exodus/shared/utils/health-context'
-import { splitAnswer } from '@exodus/shared/utils/interactive-answer'
-import { splitQuoted } from '@exodus/shared/utils/quoted-text'
+import { splitHealth } from '@actovia/shared/utils/health-context'
+import { splitAnswer } from '@actovia/shared/utils/interactive-answer'
+import { splitQuoted } from '@actovia/shared/utils/quoted-text'
 import { memo, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

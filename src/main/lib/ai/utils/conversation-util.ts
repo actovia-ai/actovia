@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 
 import { getTextFromMessage } from './chat-message-util'
 

@@ -15,7 +15,7 @@ describe('skills-sh-client', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock)
     fetchMock.mockReset()
-    delete process.env.EXODUS_SKILLS_BFF_URL
+    delete process.env.ACTOVIA_SKILLS_BFF_URL
   })
   afterEach(() => {
     vi.unstubAllGlobals()
@@ -57,8 +57,8 @@ describe('skills-sh-client', () => {
     expect([...url.searchParams.keys()]).toEqual([])
   })
 
-  it('honours EXODUS_SKILLS_BFF_URL', async () => {
-    process.env.EXODUS_SKILLS_BFF_URL = 'http://localhost:9999'
+  it('honours ACTOVIA_SKILLS_BFF_URL', async () => {
+    process.env.ACTOVIA_SKILLS_BFF_URL = 'http://localhost:9999'
     const { searchSkills } =
       await import('@main/lib/ai/skills/skills-sh-client')
     fetchMock.mockResolvedValue(

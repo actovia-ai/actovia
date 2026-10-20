@@ -7,7 +7,7 @@
 import type {
   ConversationMessageRole,
   PhilharmonicSseEvent
-} from '@exodus/shared/types/philharmonic'
+} from '@actovia/shared/types/philharmonic'
 
 /** Sentinel key used for the PM in the busyAgents map. The members panel
  * already uses this convention internally. */

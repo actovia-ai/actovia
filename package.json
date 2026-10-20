@@ -1,5 +1,5 @@
 {
-  "name": "exodus",
+  "name": "actovia",
   "version": "1.20.0",
   "private": true,
   "description": "ChatBot featuring MCP, Immersive Editor, RAG, AI Agents, Deep Research, and other modern capabilities.",
@@ -37,7 +37,7 @@
     "i18n:check": "bun run scripts/i18n-check.ts",
     "i18n:status": "bun run scripts/i18n-status.ts",
     "prepare": "husky",
-    "build:helper": "xcrun swiftc -O -o resources/bin/exodus-input helper-src/exodus-input/main.swift -target arm64-apple-macos13",
+    "build:helper": "xcrun swiftc -O -o resources/bin/actovia-input helper-src/actovia-input/main.swift -target arm64-apple-macos13",
     "test:e2e": "playwright test",
     "test:e2e:api": "playwright test --project=api",
     "test:e2e:electron": "electron-forge package && playwright test --project=e2e",
@@ -46,6 +46,7 @@
     "icons": "node scripts/render-icons.mjs"
   },
   "dependencies": {
+    "@actovia/shared": "workspace:*",
     "@aws-sdk/client-s3": "^3.1146.0",
     "@aws-sdk/s3-request-presigner": "^3.1146.0",
     "@base-ui/react": "^1.9.0",
@@ -57,7 +58,6 @@
     "@electric-sql/pglite": "^0.5.8",
     "@electric-sql/pglite-pgmq": "^0.0.6",
     "@electric-sql/pglite-pgvector": "^0.0.9",
-    "@exodus/shared": "workspace:*",
     "@googlemaps/places": "^3.0.1",
     "@hono/node-server": "^2.1.3",
     "@hugeicons/core-free-icons": "^4.3.5",
@@ -185,5 +185,5 @@
     "vite": "^8.3.3",
     "vitest": "^5.0.3"
   },
-  "productName": "Exodus"
+  "productName": "Actovia"
 }

@@ -23,7 +23,7 @@ vi.mock('@main/lib/logger', () => ({
 const { openWorkspaceFile, revealWorkspaceFile } =
   await import('@main/lib/workspace-file-actions')
 
-const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'exodus-ws-actions-')))
+const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'actovia-ws-actions-')))
 const root = join(scratch, 'workspace')
 mkdirSync(join(root, 'c1'), { recursive: true })
 writeFileSync(join(root, 'c1', 'rules.md'), '# Rules')

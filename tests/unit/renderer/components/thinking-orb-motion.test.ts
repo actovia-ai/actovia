@@ -3,7 +3,7 @@
 // A finished turn's "Thought for 1m 11s" kept the animated `solving` orb, so a
 // conversation that had ended looked like it was still loading (owner's report,
 // 2026-10-02).
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'

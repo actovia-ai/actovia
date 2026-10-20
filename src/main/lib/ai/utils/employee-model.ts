@@ -1,5 +1,5 @@
+import { ConfigurationError, ErrorCode } from '@actovia/shared'
 import type { Model } from '@earendil-works/pi-ai'
-import { ConfigurationError, ErrorCode } from '@exodus/shared'
 
 import type { Agent, Settings } from '../../db/schema'
 import { getModelFromProvider } from './model-util'

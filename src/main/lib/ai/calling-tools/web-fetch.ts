@@ -1,10 +1,10 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
 
 import {
-  assertNotExodusApi,
+  assertNotActoviaApi,
   LocalApiTargetError
 } from '../../net/local-api-guard'
 import { loadDocument } from '../utils/web-search-util'
@@ -71,7 +71,7 @@ export const webFetch = (
     }
 
     try {
-      await assertNotExodusApi(new URL(url))
+      await assertNotActoviaApi(new URL(url))
     } catch (error) {
       if (error instanceof LocalApiTargetError) throw error
       // Not a parseable URL — fall through and let loadDocument's own

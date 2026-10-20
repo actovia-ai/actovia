@@ -53,7 +53,7 @@ jobs:
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           GOOGLE_CLOUD: ${{ secrets.GOOGLE_CLOUD }}
-          EXODUS_DISABLE_AUTO_UPDATE: '1'
+          ACTOVIA_DISABLE_AUTO_UPDATE: '1'
       - name: Run API tests
         run: bun run test:e2e:api
         env:

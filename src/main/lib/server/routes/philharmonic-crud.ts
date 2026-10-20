@@ -1,10 +1,10 @@
-import { ErrorCode, ValidationError } from '@exodus/shared'
+import { ErrorCode, ValidationError } from '@actovia/shared'
 import {
   AGENT_RUNTIMES,
   CLI_NAMES,
   PERMISSION_MODES,
   type AgentRuntime
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -64,7 +64,7 @@ function assertCliModel(
   runtime: AgentRuntime | null | undefined,
   model: string | null | undefined
 ) {
-  if (!runtime || runtime === 'exodus' || model == null) return
+  if (!runtime || runtime === 'actovia' || model == null) return
   if (!isCliModel(model))
     throw new ValidationError(
       ErrorCode.VALIDATION_FAILED,

@@ -1,9 +1,9 @@
-import { createI18n } from '@exodus/shared/i18n'
+import { createI18n } from '@actovia/shared/i18n'
 import {
   getHttpErrorMessage,
   HttpError,
   toErrorI18n
-} from '@exodus/shared/utils/http'
+} from '@actovia/shared/utils/http'
 import { describe, expect, it } from 'vitest'
 
 describe('getHttpErrorMessage', () => {
@@ -20,7 +20,7 @@ describe('getHttpErrorMessage', () => {
 
   it('returns undefined for non-Error thrown values', () => {
     expect(getHttpErrorMessage('some string')).toBe(undefined)
-    expect(getHttpErrorMessage(undefined)).toBe(undefined)
+    expect(getHttpErrorMessage()).toBe(undefined)
   })
 })
 

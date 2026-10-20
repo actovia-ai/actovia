@@ -5,7 +5,7 @@ import { electronTest as test, expect } from '../fixtures/electron'
  * Settings → Skills Market against the real skills.sh relay. The registry
  * is fetched by the main process, so the renderer cannot stub it: when no
  * card shows up within the timeout the spec skips rather than fails.
- * Installs land in the scratch HOME's ~/.exodus/skills (the fixture wipes it).
+ * Installs land in the scratch HOME's ~/.actovia/skills (the fixture wipes it).
  */
 test.describe('Settings — Skills Market', () => {
   test('browses, opens a detail page, installs and uninstalls a skill', async ({

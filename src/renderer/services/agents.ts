@@ -3,8 +3,8 @@ import type {
   CliId,
   CliQuota,
   CliStatus
-} from '@exodus/shared/types/agents'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/agents'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 

@@ -1,9 +1,9 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import type {
   ApprovalOutcome,
   ApprovalRequiredEvent
-} from '@exodus/shared/types/chat'
-import { HttpError } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/chat'
+import { HttpError } from '@actovia/shared/utils/http'
 import {
   type QueryClient,
   useMutation,

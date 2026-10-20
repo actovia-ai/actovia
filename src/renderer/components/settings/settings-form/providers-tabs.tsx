@@ -1,5 +1,5 @@
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

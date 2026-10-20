@@ -95,8 +95,8 @@ describe('a CLI employee’s model', () => {
     expect(updateAgent).not.toHaveBeenCalled()
   })
 
-  it('leaves an Exodus employee’s model to Exodus', async () => {
-    stored = { runtime: 'exodus' }
+  it('leaves an Actovia employee’s model to Actovia', async () => {
+    stored = { runtime: 'actovia' }
     expect(
       (await send('PUT', '/agents/a1', { model: 'gpt 5 / mini' })).status
     ).toBe(200)
@@ -106,7 +106,7 @@ describe('a CLI employee’s model', () => {
   })
 
   it('checks the stored model when an edit switches the runtime to a CLI', async () => {
-    stored = { runtime: 'exodus', model: '--dangerously-skip-permissions' }
+    stored = { runtime: 'actovia', model: '--dangerously-skip-permissions' }
     expect(
       (await send('PUT', '/agents/a1', { runtime: 'claude-code' })).status
     ).toBe(400)

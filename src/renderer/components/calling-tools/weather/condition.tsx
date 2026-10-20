@@ -1,7 +1,7 @@
 import {
   conditionNameOf,
   type WeatherConditionName
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
 import {
   CloudIcon,
   CloudDrizzleIcon,

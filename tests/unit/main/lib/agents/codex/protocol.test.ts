@@ -55,7 +55,7 @@ describe('Codex protocol', () => {
     >
     expect(first.prompt).toMatchObject({ kind: 'permission', tool: 'Edit' })
     expect(first.prompt.kind === 'permission' && first.prompt.detail).toMatch(
-      /hello\.txt[\s\S]*hi from exodus/u
+      /hello\.txt[\s\S]*hi from actovia/u
     )
   })
 
@@ -68,7 +68,7 @@ describe('Codex protocol', () => {
         e.prompt.tool === 'Bash'
     ) as Extract<AgentEvent, { type: 'blocked' }>
     expect(cmd.prompt.kind === 'permission' && cmd.prompt.detail).toMatch(
-      /sleep 20 && echo done[\s\S]*\/tmp\/exodus-project/u
+      /sleep 20 && echo done[\s\S]*\/tmp\/actovia-project/u
     )
   })
 
@@ -198,7 +198,7 @@ describe('Codex protocol', () => {
     expect(t.pending).toBeUndefined()
   })
 
-  it("passes responses to Exodus' own requests through, and ignores noise", () => {
+  it("passes responses to Actovia' own requests through, and ignores noise", () => {
     const p = createCodexParser('n')
     expect(
       p.parse(JSON.stringify({ id: 2, result: { thread: { id: 't' } } }))
@@ -311,7 +311,7 @@ describe('Codex protocol', () => {
     ).toEqual([])
   })
 
-  it('says which request Codex resolved itself, as Exodus keys it', () => {
+  it('says which request Codex resolved itself, as Actovia keys it', () => {
     const p = createCodexParser('n')
     const out = p.parse(
       JSON.stringify({

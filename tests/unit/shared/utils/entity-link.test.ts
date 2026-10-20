@@ -1,12 +1,12 @@
 // An `entity:` link names a Wikipedia article; anything a reply could write
-// that is not one is plain text. exodus-ios's MarkdownLinkPolicyTests.entity
+// that is not one is plain text. actovia-ios's MarkdownLinkPolicyTests.entity
 // holds the same vectors — keep them in step.
 import {
   entityTitle,
   isWikipediaLang,
   isWikipediaTitle,
   wikipediaLang
-} from '@exodus/shared/utils/entity-link'
+} from '@actovia/shared/utils/entity-link'
 import { describe, expect, it } from 'vitest'
 
 const ENTITY_CASES: Array<[string, string, string | null]> = [
@@ -53,7 +53,7 @@ describe('entityTitle', () => {
   })
   it('is null for no href', () => {
     expect(entityTitle(null)).toBeNull()
-    expect(entityTitle(undefined)).toBeNull()
+    expect(entityTitle()).toBeNull()
   })
   it('isWikipediaTitle is the same rule on a bare title', () => {
     expect(isWikipediaTitle('Marie_Curie')).toBe(true)

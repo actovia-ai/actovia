@@ -1,4 +1,4 @@
-import { normalizeBaseUrl } from '@exodus/shared/utils/base-url'
+import { normalizeBaseUrl } from '@actovia/shared/utils/base-url'
 import { describe, expect, it } from 'vitest'
 
 // One implementation, shared by the main process (the destination rule that

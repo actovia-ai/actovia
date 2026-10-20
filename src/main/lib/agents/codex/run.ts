@@ -1,7 +1,7 @@
 // src/main/lib/agents/codex/run.ts
 import { randomUUID } from 'crypto'
 
-import type { AgentAnswer, PermissionMode } from '@exodus/shared/types/agents'
+import type { AgentAnswer, PermissionMode } from '@actovia/shared/types/agents'
 
 import type { AgentEvent, AgentRun, StartInput } from '../driver'
 import { superviseProcess } from '../process'
@@ -218,7 +218,7 @@ export function startCodex(input: StartInput): AgentRun {
   void (async () => {
     try {
       await request('initialize', {
-        clientInfo: { name: 'exodus', title: 'Actovia', version: '1' },
+        clientInfo: { name: 'actovia', title: 'Actovia', version: '1' },
         capabilities: null
       })
       proc.write({ method: 'initialized' })

@@ -1,4 +1,9 @@
 import type {
+  ChatMessage,
+  ChatToolResultMessage
+} from '@actovia/shared/types/chat'
+import type { ChatPageRow } from '@actovia/shared/types/chat-page'
+import type {
   Api,
   AssistantMessage,
   ProviderId,
@@ -7,11 +12,6 @@ import type {
   Usage,
   UserMessage
 } from '@earendil-works/pi-ai'
-import type {
-  ChatMessage,
-  ChatToolResultMessage
-} from '@exodus/shared/types/chat'
-import type { ChatPageRow } from '@exodus/shared/types/chat-page'
 import { clsx, type ClassValue } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
@@ -89,7 +89,7 @@ export function downloadFile(blob: Blob, fileName: string) {
   const a = document.createElement('a')
   a.href = url
   a.download = fileName
-  document.body.appendChild(a)
+  document.body.append(a)
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)

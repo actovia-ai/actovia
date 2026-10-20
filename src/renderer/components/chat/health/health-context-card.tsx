@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   ArrowDown01Icon,
   DropletIcon,
@@ -35,7 +35,7 @@ const ICONS: Record<HealthChipIcon, IconSvgElement> = {
 /**
  * A question asked from the phone's Health workspace opens with the numbers
  * it was asked about (`splitHealth`): drawn as a row of chips over the
- * question, as exodus-ios draws it. Opening it lists everything that was
+ * question, as actovia-ios draws it. Opening it lists everything that was
  * sent, labelled. Display only — the message itself is unchanged.
  */
 export function HealthContextCard({ json }: { json: string }) {

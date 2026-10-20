@@ -1,4 +1,4 @@
-import { SKILLS_SH_BFF_URL } from '@exodus/shared/constants/external-urls'
+import { SKILLS_SH_BFF_URL } from '@actovia/shared/constants/external-urls'
 import type {
   SkillAuditResponse,
   SkillCuratedResponse,
@@ -6,16 +6,16 @@ import type {
   SkillListResponse,
   SkillSearchResponse,
   SkillsView
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 
 /**
  * skills.sh registry client — a thin fetch wrapper around the BFF relay that
- * exodus-cli already talks to (same endpoints, same shapes). Kept free of
+ * actovia-cli already talks to (same endpoints, same shapes). Kept free of
  * Electron/DB imports so it is unit-testable with a mocked `fetch`.
  */
 
 export function resolveSkillsBffUrl(): string {
-  return process.env.EXODUS_SKILLS_BFF_URL || SKILLS_SH_BFF_URL
+  return process.env.ACTOVIA_SKILLS_BFF_URL || SKILLS_SH_BFF_URL
 }
 
 export class SkillsApiError extends Error {

@@ -1,4 +1,4 @@
-import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 import { and, asc, desc, eq } from 'drizzle-orm'
 
 import { db } from './db'

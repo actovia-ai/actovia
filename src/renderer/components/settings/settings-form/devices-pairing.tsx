@@ -1,5 +1,5 @@
-import { PAIRING_TTL_MS } from '@exodus/shared/constants/systems'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { PAIRING_TTL_MS } from '@actovia/shared/constants/systems'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   Tick02Icon,
   Copy01Icon,

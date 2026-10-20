@@ -3,8 +3,8 @@
 // the rows the app stores.
 import { randomUUID } from 'crypto'
 
-import { isAppError } from '@exodus/shared/errors/app-error'
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import { isAppError } from '@actovia/shared/errors/app-error'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))

@@ -1,4 +1,4 @@
-import { createI18n } from '@exodus/shared/i18n'
+import { createI18n } from '@actovia/shared/i18n'
 import { describe, expect, it } from 'vitest'
 
 describe('createI18n', () => {

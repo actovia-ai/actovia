@@ -1,10 +1,10 @@
-import { faviconUrl } from '@exodus/shared/constants/external-urls'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { faviconUrl } from '@actovia/shared/constants/external-urls'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatToolResultMessage,
   TimelineStep
-} from '@exodus/shared/types/chat'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/types/chat'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   AiBrainIcon,
   Tick02Icon,

@@ -253,7 +253,7 @@
     },
     "runtime": {
       "label": "Fonctionne sur",
-      "exodus": "Actovia"
+      "actovia": "Actovia"
     },
     "model": {
       "label": "Modèle",

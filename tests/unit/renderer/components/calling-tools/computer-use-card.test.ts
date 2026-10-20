@@ -2,7 +2,7 @@
 // src/renderer/components/calling-tools/computer-use/computer-use-card.tsx
 // — a call left without a result once its run stopped (Stop, or the stream
 // otherwise closing) must read as stopped, not as running forever.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'

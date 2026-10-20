@@ -1,6 +1,6 @@
 import { existsSync } from 'fs'
 
-import { NotFoundError } from '@exodus/shared'
+import { NotFoundError } from '@actovia/shared'
 import { dialog } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'

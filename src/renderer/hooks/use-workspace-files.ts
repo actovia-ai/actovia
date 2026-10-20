@@ -1,4 +1,4 @@
-import { workspacePathCandidate } from '@exodus/shared/types/workspace-files'
+import { workspacePathCandidate } from '@actovia/shared/types/workspace-files'
 import { useQuery } from '@tanstack/react-query'
 
 import {

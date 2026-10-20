@@ -153,7 +153,7 @@ function writeMarker(path: string, marker: PurgeMarker): void {
  * not keep the job keys from being stripped and vacuumed. Step 3 runs when
  * steps 1–2 changed something, or when no pass has completed yet — but while
  * a step keeps failing it is retried at most once a day (`RETRY_AFTER_MS`),
- * not on every launch. The marker (`~/.exodus/secrets-purge.json`) records
+ * not on every launch. The marker (`~/.actovia/secrets-purge.json`) records
  * the last attempt, and `purgedAt` once a pass completed every step
  * (encrypt, strip, purge, scrub); its `purgedAt` is the moment backups older
  * than it may still hold plaintext (`removeBackupsOlderThan` in `backup.ts`).

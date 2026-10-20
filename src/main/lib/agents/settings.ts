@@ -8,7 +8,7 @@ import { getSettings } from '../db/queries'
 export async function agentSettings() {
   const a = (await getSettings()).agents
   return {
-    projectsDir: a?.projectsDir || join(homedir(), 'Exodus Projects'),
+    projectsDir: a?.projectsDir || join(homedir(), 'Actovia Projects'),
     maxRunning: a?.maxRunning ?? 2,
     keepAliveMinutes: a?.keepAliveMinutes ?? 10,
     worktrees: a?.worktrees ?? true,

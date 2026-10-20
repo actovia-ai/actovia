@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // tests/unit/renderer/components/philharmonic/agent-card-answers.test.ts — what a question prompt sends
-import type { AgentCard, AgentPrompt } from '@exodus/shared/types/agents'
+import type { AgentCard, AgentPrompt } from '@actovia/shared/types/agents'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

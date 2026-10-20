@@ -58,7 +58,7 @@ export async function buildThrowingBundle(
 ): Promise<BuiltBundle> {
   // The real path: `require` resolves the symlink macOS keeps its temp dir
   // behind, and the frames carry what it resolved to.
-  const app = realpathSync(mkdtempSync(join(tmpdir(), 'exodus-built-')))
+  const app = realpathSync(mkdtempSync(join(tmpdir(), 'actovia-built-')))
   mkdirSync(join(app, 'src/main/lib'), { recursive: true })
   writeFileSync(join(app, 'src/main/lib/boom.ts'), BOOM)
   writeFileSync(join(app, 'src/main/main.ts'), MAIN)

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { ChatSseEvent } from '@exodus/shared/types/chat'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { ChatSseEvent } from '@actovia/shared/types/chat'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { memoryKeys } from '@/hooks/use-memory'

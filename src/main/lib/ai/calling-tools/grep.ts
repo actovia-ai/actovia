@@ -1,9 +1,9 @@
 import { lstat, readFile, readdir, stat } from 'fs/promises'
 import path from 'path'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 import { GREP_SKIP_DIRS } from './grep-skip-dirs'
 

@@ -126,7 +126,7 @@ describe('Claude Code run', () => {
       request_id: blocked.prompt.requestId,
       response: {
         behavior: 'allow',
-        updatedInput: { file_path: '/tmp/exodus-project/hello.txt' }
+        updatedInput: { file_path: '/tmp/actovia-project/hello.txt' }
       }
     })
     expect(run.cliSessionId).toMatch(/^[0-9a-f-]{36}$/)
@@ -350,7 +350,7 @@ describe('Claude Code run', () => {
     const { run } = start(
       'resume.jsonl',
       {},
-      { logPath: '/nonexistent-dir-for-exodus-test/raw.jsonl' }
+      { logPath: '/nonexistent-dir-for-actovia-test/raw.jsonl' }
     )
     run.send('hello')
     await next(run, (e) => e.type === 'turn_end')

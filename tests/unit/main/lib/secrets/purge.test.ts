@@ -10,7 +10,7 @@ import { gunzipSync } from 'zlib'
 
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
-const root = mkdtempSync(join(tmpdir(), 'exodus-purge-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-purge-'))
 const dataDir = join(root, 'database')
 
 vi.mock('electron', async () => {

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { HttpError } from '@exodus/shared/utils/http'
+import { HttpError } from '@actovia/shared/utils/http'
 import {
   focusManager,
   onlineManager,
@@ -92,7 +92,7 @@ describe('createAppQueryClient', () => {
         mutationFn: () => Promise.reject(new Error('write failed')),
         meta: { errorTitle: 'Could not save' }
       })
-      .execute(undefined)
+      .execute()
       .catch(() => {})
 
     expect(report).toHaveBeenCalledTimes(1)
@@ -115,7 +115,7 @@ describe('createAppQueryClient', () => {
         mutationFn: () => Promise.reject(new Error('write failed')),
         meta: { silent: true }
       })
-      .execute(undefined)
+      .execute()
       .catch(() => {})
 
     expect(report).toHaveBeenCalledTimes(1)
@@ -130,7 +130,7 @@ describe('createAppQueryClient', () => {
         mutationKey: ['untitled-mutation'],
         mutationFn: () => Promise.reject(new Error('write failed'))
       })
-      .execute(undefined)
+      .execute()
       .catch(() => {})
 
     expect(i18nT).toHaveBeenCalledWith('errors:generic')
@@ -148,7 +148,7 @@ describe('createAppQueryClient', () => {
         .build(client, {
           mutationFn: () => Promise.reject(new Error('write failed'))
         })
-        .execute(undefined)
+        .execute()
         .catch(() => {})
     await fail()
     i18nT.mockImplementationOnce(() => 'Etwas ist schiefgelaufen')
@@ -231,7 +231,7 @@ describe('createAppQueryClient', () => {
       const settled = client
         .getMutationCache()
         .build(client, { mutationKey: ['no-retry-mutation'], mutationFn })
-        .execute(undefined)
+        .execute()
         .catch(() => {})
 
       await vi.advanceTimersByTimeAsync(60_000)
@@ -252,7 +252,7 @@ describe('createAppQueryClient', () => {
           mutationFn: () => Promise.reject(thrown),
           meta
         })
-        .execute(undefined)
+        .execute()
         .catch(() => {})
     }
 
@@ -385,7 +385,7 @@ describe('createAppQueryClient', () => {
         mutationKey: ['offline-mutation'],
         mutationFn: () => Promise.resolve('saved')
       })
-      const result = await settle(mutation.execute(undefined))
+      const result = await settle(mutation.execute())
 
       expect(result).toBe('saved')
       expect(mutation.state.isPaused).toBe(false)

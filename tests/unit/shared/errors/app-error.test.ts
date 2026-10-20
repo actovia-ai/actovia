@@ -5,7 +5,7 @@ import {
   NotFoundError,
   isAppError,
   toAppError
-} from '@exodus/shared'
+} from '@actovia/shared'
 import { describe, expect, it } from 'vitest'
 
 describe('AppError', () => {

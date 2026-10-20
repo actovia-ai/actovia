@@ -1,4 +1,4 @@
-import { CLI_NAMES, type CliStatus } from '@exodus/shared/types/agents'
+import { CLI_NAMES, type CliStatus } from '@actovia/shared/types/agents'
 import { useTranslation } from 'react-i18next'
 
 import { cliStatusView } from '@/lib/cli-status'

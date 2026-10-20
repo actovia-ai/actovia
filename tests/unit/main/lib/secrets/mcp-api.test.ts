@@ -1,7 +1,7 @@
 // The MCP API hands out masks only (spec 2026-09-25 §2.2): every `env` and
 // `headers` value, and any secret-named value inside `extraConfig`, leaves as
 // a mask; a posted mask keeps what is stored. Real SQL on an in-memory PGlite.
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 

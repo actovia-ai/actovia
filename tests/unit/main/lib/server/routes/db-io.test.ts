@@ -43,7 +43,7 @@ describe('DELETE /api/v1/db-io/reset', () => {
     expect(forgetAllQuotas).toHaveBeenCalled()
   })
 
-  it('removes ~/.exodus/media after the data is reset', async () => {
+  it('removes ~/.actovia/media after the data is reset', async () => {
     const res = await buildApp().request('/reset', { method: 'DELETE' })
 
     expect(res.status).toBe(200)

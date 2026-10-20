@@ -1,7 +1,7 @@
 import {
   CONVERSATION_MESSAGE_ROLES,
   type PhilharmonicSseEvent
-} from '@exodus/shared/types/philharmonic'
+} from '@actovia/shared/types/philharmonic'
 // src/shared/types/philharmonic.test.ts
 import { describe, expect, it } from 'vitest'
 

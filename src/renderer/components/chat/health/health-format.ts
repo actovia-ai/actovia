@@ -4,7 +4,7 @@
 import {
   healthSnapshotSchema,
   type HealthSnapshot
-} from '@exodus/shared/types/health'
+} from '@actovia/shared/types/health'
 
 export type HealthChipIcon = 'sleep' | 'steps' | 'heart' | 'water' | 'health'
 

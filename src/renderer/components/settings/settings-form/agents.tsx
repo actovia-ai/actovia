@@ -1,5 +1,5 @@
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
-import { CLI_NAMES, type CliStatus } from '@exodus/shared/types/agents'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
+import { CLI_NAMES, type CliStatus } from '@actovia/shared/types/agents'
 import { useEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -119,7 +119,7 @@ export function Agents({ form }: { form: UseFormReturnType }) {
               <div className="flex items-center gap-2">
                 <Input
                   value={field.value ?? ''}
-                  placeholder="~/Exodus Projects"
+                  placeholder="~/Actovia Projects"
                   onChange={field.onChange}
                   className="w-64"
                 />

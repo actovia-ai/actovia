@@ -1,4 +1,3 @@
-import type { Usage } from '@earendil-works/pi-ai'
 import {
   AgentsSettingsSchema,
   VoiceSchema,
@@ -17,11 +16,12 @@ import {
   S3Schema,
   ToolsSchema,
   WebSearchSchema
-} from '@exodus/shared/schemas/settings-schema'
-import type { Attempt } from '@exodus/shared/types/chat'
-import type { DiscoverGroup } from '@exodus/shared/types/discover'
-import type { PmRoundEventKind } from '@exodus/shared/types/pm-round'
-import { WebSearchResult } from '@exodus/shared/types/web-search'
+} from '@actovia/shared/schemas/settings-schema'
+import type { Attempt } from '@actovia/shared/types/chat'
+import type { DiscoverGroup } from '@actovia/shared/types/discover'
+import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
+import { WebSearchResult } from '@actovia/shared/types/web-search'
+import type { Usage } from '@earendil-works/pi-ai'
 import { sql, type InferSelectModel } from 'drizzle-orm'
 import {
   boolean,
@@ -295,7 +295,7 @@ export const team = pgTable('team', {
 export type Team = InferSelectModel<typeof team>
 
 export const agentRuntimeEnum = pgEnum('agent_runtime', [
-  'exodus',
+  'actovia',
   'claude-code',
   'codex'
 ])
@@ -313,7 +313,7 @@ export const agent = pgTable('agent', {
   mcpServerNames: jsonb('mcpServerNames').$type<string[]>().default([]),
   model: text('model'),
   provider: text('provider'),
-  runtime: agentRuntimeEnum('runtime').notNull().default('exodus'),
+  runtime: agentRuntimeEnum('runtime').notNull().default('actovia'),
   /** A CLI employee's permission mode; null = the CLI's `default`. */
   permissionMode: text('permissionMode'),
   isActive: boolean('isActive').default(true),
@@ -353,7 +353,7 @@ export type AgentMemory = InferSelectModel<typeof agentMemory>
 
 // ─── Conversations (work groups) ──────────────────────────────────────────────
 
-/** A folder Philharmonic works in (spec §4): `dir` holds `.exodus/` meta; `workDir` is where agents work — `dir` for a new project, the owner's folder for an opened one. */
+/** A folder Philharmonic works in (spec §4): `dir` holds `.actovia/` meta; `workDir` is where agents work — `dir` for a new project, the owner's folder for an opened one. */
 export const project = pgTable('project', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
@@ -578,7 +578,7 @@ export type TaskExecutionEvent = InferSelectModel<typeof taskExecutionEvent>
 // Each Group keeps exactly one active conversation_plan. The PM lays out the
 // plan first, then delegates step-by-step; the UI mirrors progress live. The
 // DB is the source of truth and a markdown mirror is written to
-// ~/.exodus/groups/{conversationId}/plan.md on every change.
+// ~/.actovia/groups/{conversationId}/plan.md on every change.
 
 export const planStatusEnum = pgEnum('plan_status', [
   'drafting',

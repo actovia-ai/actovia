@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import { TOOL_REGISTRY } from '@exodus/shared/constants/tools'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import { TOOL_REGISTRY } from '@actovia/shared/constants/tools'
 import { describe, expect, it } from 'vitest'
 
 const { TOOL_CONFIG } =

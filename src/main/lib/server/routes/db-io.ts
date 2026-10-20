@@ -1,5 +1,8 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { DatabaseError, ValidationError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import {
+  DatabaseError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import JSZip from 'jszip'
 

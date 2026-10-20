@@ -5,7 +5,7 @@ import { join } from 'path'
 
 import { afterAll, describe, expect, it, vi } from 'vitest'
 
-const skillsDir = mkdtempSync(join(tmpdir(), 'exodus-skills-manager-'))
+const skillsDir = mkdtempSync(join(tmpdir(), 'actovia-skills-manager-'))
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
 vi.mock('@main/lib/paths', () => ({ getSkillsDir: () => skillsDir }))

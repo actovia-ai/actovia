@@ -1,9 +1,9 @@
 // src/main/lib/server/routes/history.ts — the chat list, whole or a page at a time.
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import {
   chatHistoryCursor,
   parseChatHistoryCursor
-} from '@exodus/shared/utils/chat-history-cursor'
+} from '@actovia/shared/utils/chat-history-cursor'
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

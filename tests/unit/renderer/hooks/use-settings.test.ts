@@ -1,13 +1,13 @@
 // @vitest-environment happy-dom
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
 import { act, createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { renderWithQueryClient } from '../../helpers/query-test-utils'
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const updateSettingsService = vi.fn()
@@ -30,7 +30,7 @@ vi.mock('react-i18next', () => ({
 }))
 
 const { useSettings, settingsKeys } = await import('@/hooks/use-settings')
-const { HttpError } = await import('@exodus/shared/utils/http')
+const { HttpError } = await import('@actovia/shared/utils/http')
 
 ;(
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }

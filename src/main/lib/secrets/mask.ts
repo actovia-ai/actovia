@@ -6,7 +6,7 @@
  * means "unchanged".
  */
 
-import { MASK_BULLETS, maskSecret } from '@exodus/shared/utils/secret-detect'
+import { MASK_BULLETS, maskSecret } from '@actovia/shared/utils/secret-detect'
 
 export { maskSecret }
 

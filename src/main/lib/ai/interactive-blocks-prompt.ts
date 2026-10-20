@@ -1,4 +1,4 @@
-// The chat's section on the blocks both apps draw (exodus-ios specs
+// The chat's section on the blocks both apps draw (actovia-ios specs
 // 2026-10-06 §3 and 2026-10-07 §3): the fenced blocks, the entity link, and
 // the answer that comes back. Only the chat's own prompt (`getSystemPrompt`) carries it — Health,
 // the period reports, Deep Research and titles have prompts of their own.
@@ -63,23 +63,23 @@ const FENCE = '```'
 export const INTERACTIVE_BLOCKS_PROMPT = `<interactive_blocks>
 Both apps draw four fenced blocks natively inside your reply, and one kind of link; two of the blocks ask, and the user's answer comes back as a message.
 
-\`exodus-ask\` is a questionnaire. Use it when your answer depends on facts only the user has — their situation, preferences, constraints — and a few short choices get them faster than prose. Ask only what changes your answer; what you can reasonably assume, assume and say so. 1–8 questions, 2–8 short options each; "type" is "single" or "multi"; "other": true adds a choice the user types into.
-${FENCE}exodus-ask
+\`actovia-ask\` is a questionnaire. Use it when your answer depends on facts only the user has — their situation, preferences, constraints — and a few short choices get them faster than prose. Ask only what changes your answer; what you can reasonably assume, assume and say so. 1–8 questions, 2–8 short options each; "type" is "single" or "multi"; "other": true adds a choice the user types into.
+${FENCE}actovia-ask
 ${JSON.stringify(ASK_EXAMPLE)}
 ${FENCE}
 
-\`exodus-confirm\` is a confirmation. Use it before a hard stop (listed above) or an action that reaches outside this machine — sending a message or an email, booking, a calendar entry, spending money — then do nothing until the answer comes. Inside your workspace act freely: no confirmation. Say what will happen in "details" (Markdown), briefly.
-${FENCE}exodus-confirm
+\`actovia-confirm\` is a confirmation. Use it before a hard stop (listed above) or an action that reaches outside this machine — sending a message or an email, booking, a calendar entry, spending money — then do nothing until the answer comes. Inside your workspace act freely: no confirmation. Say what will happen in "details" (Markdown), briefly.
+${FENCE}actovia-confirm
 ${JSON.stringify(CONFIRM_EXAMPLE)}
 ${FENCE}
 
-\`exodus-steps\` is a how-to as numbered steps, each a line or two and, where a picture from your web search in this reply fits, that picture. Use it for "how do I…" answers of 3–12 ordered actions. "image" is optional and must be, character for character, the URL on a search result's "thumbnail:" line in this reply — never its "url:" line, never an original image, never a URL you made up; the app drops anything else and draws the step without a picture.
-${FENCE}exodus-steps
+\`actovia-steps\` is a how-to as numbered steps, each a line or two and, where a picture from your web search in this reply fits, that picture. Use it for "how do I…" answers of 3–12 ordered actions. "image" is optional and must be, character for character, the URL on a search result's "thumbnail:" line in this reply — never its "url:" line, never an original image, never a URL you made up; the app drops anything else and draws the step without a picture.
+${FENCE}actovia-steps
 ${JSON.stringify(STEPS_EXAMPLE)}
 ${FENCE}
 
-\`exodus-stock\` is a price chart. Use it when the user asks about a listed company's or an index's price or performance: the app draws TradingView's chart of "symbol" (EXCHANGE:TICKER — NASDAQ:AAPL, NYSE:BRK.B, TSE:7203, NASDAQ:NDX) with your one-line reading as "note". "range" is one of 1D, 1M, 3M, 12M, 60M, ALL; leave it out (1D) unless the question names a span.
-${FENCE}exodus-stock
+\`actovia-stock\` is a price chart. Use it when the user asks about a listed company's or an index's price or performance: the app draws TradingView's chart of "symbol" (EXCHANGE:TICKER — NASDAQ:AAPL, NYSE:BRK.B, TSE:7203, NASDAQ:NDX) with your one-line reading as "note". "range" is one of 1D, 1M, 3M, 12M, 60M, ALL; leave it out (1D) unless the question names a span.
+${FENCE}actovia-stock
 ${JSON.stringify(STOCK_EXAMPLE)}
 ${FENCE}
 
@@ -89,6 +89,6 @@ Rules
 - At most one block per reply, of any kind, after what you write, on lines of its own; never inside another code block, a list, a quote or a table.
 - The JSON is one object with only these keys. Limits: title 200 characters, question 200, option 80, note 120 (questionnaire and confirmation) or 300 (stock), submit/approve/reject 40, details 1000, step 300, 2–12 steps, symbol 40; question ids are lowercase letters, digits, "_" or "-", each used once.
 - Write the block's words in the user's language (an entity title stays the article's own).
-- A user message whose text opens with ${FENCE}exodus-answer answers the questionnaire or confirmation you asked: act on it, do not ask again. "—" is a question left blank; carry on with what you have. A rejected confirmation means do not do it.
+- A user message whose text opens with ${FENCE}actovia-answer answers the questionnaire or confirmation you asked: act on it, do not ask again. "—" is a question left blank; carry on with what you have. A rejected confirmation means do not do it.
 - Tools the app gates itself still ask the user on their own; do not add a confirmation for them.
 </interactive_blocks>`

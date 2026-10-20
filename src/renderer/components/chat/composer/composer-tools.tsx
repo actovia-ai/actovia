@@ -1,6 +1,6 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { EffortLevel } from '@exodus/shared/schemas/settings-schema'
-import { AdvancedTools as AdvancedToolsType } from '@exodus/shared/types/ai'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { EffortLevel } from '@actovia/shared/schemas/settings-schema'
+import { AdvancedTools as AdvancedToolsType } from '@actovia/shared/types/ai'
 import {
   AiBrainIcon,
   AttachmentIcon,
@@ -280,10 +280,10 @@ export function ActiveToolPills() {
   // step 8).
   const active = TOGGLES.filter((tool) => advancedTools.includes(tool.key))
   const effortLabelKey =
-    reasoningEffort !== 'off'
-      ? (EFFORT_LEVELS.find((l) => l.value === reasoningEffort)?.labelKey ??
+    reasoningEffort === 'off'
+      ? null
+      : (EFFORT_LEVELS.find((l) => l.value === reasoningEffort)?.labelKey ??
         null)
-      : null
 
   if (active.length === 0 && !effortLabelKey) return null
 

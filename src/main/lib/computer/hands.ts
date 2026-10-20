@@ -1,7 +1,7 @@
 // Computer Runtime — the hands.
 //
 // Turns a high-level `Action` into the primitive-level `HelperCommand[]` the
-// Swift `exodus-input` binary executes, mapping the Agent's screenshot-space
+// Swift `actovia-input` binary executes, mapping the Agent's screenshot-space
 // coordinates back to the window's screen points along the way.
 //
 // Spec §2.4. `decompose` is pure (no I/O); `execute` is the thin async wrapper
@@ -210,7 +210,7 @@ function toScreen(
 }
 
 /**
- * Decompose one `Action` into the primitive `HelperCommand[]` `exodus-input`
+ * Decompose one `Action` into the primitive `HelperCommand[]` `actovia-input`
  * executes. Pure. `scaleFactor` is screenshot pixels per window point (see
  * `capture.screenshotWindow`); `origin` is the target window's `[x, y]`
  * top-left in screen points (`target.bounds` sliced to two).

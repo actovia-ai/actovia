@@ -129,7 +129,7 @@ export async function enqueueAndProcess(
  *
  * Deliberately logs neither `error.message` nor the payload: a Drizzle
  * `DrizzleQueryError`'s message embeds the failing query *and its bound
- * parameters* — the job's payload — which would otherwise land in plaintext in `~/.exodus/logs/*.jsonl`. `error.name` alone is safe and still
+ * parameters* — the job's payload — which would otherwise land in plaintext in `~/.actovia/logs/*.jsonl`. `error.name` alone is safe and still
  * distinguishes error types; the stack's frames (no message) say where.
  */
 export function logEnqueueFailure(queueName: QueueName, error: unknown): void {

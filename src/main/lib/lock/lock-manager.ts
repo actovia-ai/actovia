@@ -4,7 +4,7 @@ import type {
   LockConfig,
   LockStatus,
   UnlockResult
-} from '@exodus/shared/types/lock'
+} from '@actovia/shared/types/lock'
 
 import { logger } from '../logger'
 import { readConfig, writeConfig } from './lock-config'

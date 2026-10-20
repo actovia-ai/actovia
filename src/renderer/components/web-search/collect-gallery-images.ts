@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 
 export interface GalleryImage {
   /** The site's own file: the image's identity and nothing else — never

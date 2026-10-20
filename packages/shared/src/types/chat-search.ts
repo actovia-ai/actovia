@@ -1,6 +1,6 @@
 /**
  * `GET /api/v1/chat/search?query=<q>`: one row per chat, newest match first,
- * at most 30 (owner, 2026-10-14). exodus-ios decodes the same shape.
+ * at most 30 (owner, 2026-10-14). actovia-ios decodes the same shape.
  *
  * A chat matches when one of its user/assistant messages contains every word
  * of the query, or its title does (case-insensitive substrings, so CJK needs

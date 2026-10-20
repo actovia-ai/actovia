@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { CLI_IDS, CLI_NAMES, type CliId } from '@exodus/shared/types/agents'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { CLI_IDS, CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { TFunction } from 'i18next'

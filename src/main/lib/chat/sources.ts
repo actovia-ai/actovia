@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import { and, desc, eq, inArray, max } from 'drizzle-orm'
 
 import { db } from '../db/db'

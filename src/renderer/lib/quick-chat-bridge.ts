@@ -1,4 +1,4 @@
-import { QUICK_CHAT_KEY } from '@exodus/shared/constants/misc'
+import { QUICK_CHAT_KEY } from '@actovia/shared/constants/misc'
 
 import { subscribeQuickChatInput } from '@/lib/ipc'
 import { router } from '@/routes'

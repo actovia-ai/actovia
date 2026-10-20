@@ -14,8 +14,8 @@ vi.mock('@main/lib/db/queries', () => ({
   getSettings: vi.fn().mockResolvedValue({ autoBackup: true })
 }))
 vi.mock('@main/lib/paths', () => ({
-  getAutoBackupsDir: () => join(tmpdir(), 'exodus-test-backups'),
-  getLogsDir: () => join(tmpdir(), 'exodus-test-logs')
+  getAutoBackupsDir: () => join(tmpdir(), 'actovia-test-backups'),
+  getLogsDir: () => join(tmpdir(), 'actovia-test-logs')
 }))
 vi.mock('@main/lib/logger', () => ({
   logger: {
@@ -41,7 +41,7 @@ describe('removeBackupsOlderThan', () => {
   it('deletes only the .tar.gz backups written before the cutoff', async () => {
     const { mkdirSync, readdirSync, rmSync, utimesSync, writeFileSync } =
       await import('fs')
-    const dir = join(tmpdir(), 'exodus-test-backups')
+    const dir = join(tmpdir(), 'actovia-test-backups')
     rmSync(dir, { recursive: true, force: true })
     mkdirSync(dir, { recursive: true })
     const cutoff = new Date('2026-09-25T00:00:00Z')
@@ -69,7 +69,7 @@ describe('removeBackupsOlderThan', () => {
 
   it('does nothing when the backups dir is missing', async () => {
     const { rmSync } = await import('fs')
-    rmSync(join(tmpdir(), 'exodus-test-backups'), {
+    rmSync(join(tmpdir(), 'actovia-test-backups'), {
       recursive: true,
       force: true
     })

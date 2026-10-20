@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'fs'
 import { join } from 'path'
 
-import { flattenTestIds } from '@exodus/shared/constants/test-ids'
+import { flattenTestIds } from '@actovia/shared/constants/test-ids'
 import { describe, expect, it } from 'vitest'
 
 const ROOT = join(__dirname, '..', '..', '..', '..')

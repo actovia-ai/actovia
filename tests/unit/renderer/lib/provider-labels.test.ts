@@ -1,5 +1,5 @@
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -38,7 +38,7 @@ describe('provider labels', () => {
       configuredProvider(settings({ providerConfig: { provider: 'Nope' } }))
     ).toBeNull()
     expect(configuredProvider(settings({ providerConfig: null }))).toBeNull()
-    expect(configuredProvider(undefined)).toBeNull()
+    expect(configuredProvider()).toBeNull()
   })
 
   it('a provider has a key when its field holds one (a mask counts); Ollama needs none', () => {
@@ -55,7 +55,7 @@ describe('provider labels', () => {
         })
       )
     ).toBe(true)
-    expect(hasProviderKey(undefined)).toBe(false)
+    expect(hasProviderKey()).toBe(false)
   })
 
   it("labels the chip with the provider's short name and the model's display name, else its id", () => {

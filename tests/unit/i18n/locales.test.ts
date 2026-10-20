@@ -2,7 +2,7 @@ import {
   resolveLocale,
   isLocaleId,
   LOCALE_IDS
-} from '@exodus/shared/i18n/locales'
+} from '@actovia/shared/i18n/locales'
 import { describe, expect, it } from 'vitest'
 
 describe('resolveLocale', () => {

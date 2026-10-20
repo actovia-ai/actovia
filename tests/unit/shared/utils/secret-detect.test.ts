@@ -1,4 +1,7 @@
-import { argsHoldSecret, maskMcpArgs } from '@exodus/shared/utils/secret-detect'
+import {
+  argsHoldSecret,
+  maskMcpArgs
+} from '@actovia/shared/utils/secret-detect'
 import { describe, expect, it } from 'vitest'
 
 describe('argsHoldSecret — the MCP form notice (I1)', () => {

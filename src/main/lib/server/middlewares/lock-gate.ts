@@ -1,5 +1,5 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { AppError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { AppError } from '@actovia/shared/errors/app-error'
 import type { Context, Next } from 'hono'
 
 import { getLockManager } from '../../lock/lock-manager'

@@ -5,8 +5,8 @@ import type {
   CliQuota,
   CliStatus,
   PermissionMode
-} from '@exodus/shared/types/agents'
-import { CLI_NAMES } from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
+import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { v4 as uuidV4 } from 'uuid'
 
 import type { SseEmitter } from '../ai/philharmonic/employee-loop'

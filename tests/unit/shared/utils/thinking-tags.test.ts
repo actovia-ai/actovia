@@ -1,8 +1,8 @@
-// exodus-ios has the same splitter (`ThinkingTags`), held to these vectors.
+// actovia-ios has the same splitter (`ThinkingTags`), held to these vectors.
 import {
   splitThinkingTags,
   splitThinkingTagsInContent
-} from '@exodus/shared/utils/thinking-tags'
+} from '@actovia/shared/utils/thinking-tags'
 import { describe, expect, it } from 'vitest'
 
 const text = (t: string) => ({ type: 'text' as const, text: t })

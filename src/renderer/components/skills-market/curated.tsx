@@ -1,8 +1,8 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   SkillCuratedOwner,
   SkillListItem
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMemo, useState } from 'react'

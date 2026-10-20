@@ -5,12 +5,12 @@
 import {
   askBlockSchema,
   confirmBlockSchema
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import {
   composeAskAnswer,
   composeConfirmAnswer,
   type AnswerLabels
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -80,7 +80,7 @@ describe('an answer in the user bubble', () => {
       Array.from(host.querySelectorAll('strong')).map((s) => s.textContent)
     ).toEqual(['Where?', 'Also:'])
     expect(host.textContent).toContain('Legs')
-    expect(host.textContent).not.toContain('exodus-answer')
+    expect(host.textContent).not.toContain('actovia-answer')
     expect(host.querySelector('pre')).toBeNull()
   })
 
@@ -93,12 +93,12 @@ describe('an answer in the user bubble', () => {
   })
 
   it('an answer without a title reads "Your answer"', async () => {
-    await show('```exodus-answer\n{"block":"ask","ref":"r"}\n```\n\n**Q** A')
+    await show('```actovia-answer\n{"block":"ask","ref":"r"}\n```\n\n**Q** A')
     expect(title()).toBe('interactive.answer.title')
   })
 
   it('a malformed answer fence is an ordinary message', async () => {
-    await show('```exodus-answer\n{oops}\n```\n\nhello')
+    await show('```actovia-answer\n{oops}\n```\n\nhello')
     expect(host.querySelector('[data-answer]')).toBeNull()
     expect(title()).toBeUndefined()
     expect(host.querySelector('pre')).not.toBeNull()

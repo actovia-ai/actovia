@@ -1,8 +1,8 @@
-import { BASE_URL } from '@exodus/shared/constants/systems'
+import { BASE_URL } from '@actovia/shared/constants/systems'
 import {
   DeepResearchProgress,
   ReportProgressPayload
-} from '@exodus/shared/types/deep-research'
+} from '@actovia/shared/types/deep-research'
 import { domAnimation, LazyMotion, m } from 'framer-motion'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'

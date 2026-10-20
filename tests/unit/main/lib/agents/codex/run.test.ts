@@ -24,7 +24,7 @@ describe('Codex run', () => {
       const sent = recorded()
       expect(sent[0]).toMatchObject({
         method: 'initialize',
-        params: { clientInfo: { name: 'exodus' } }
+        params: { clientInfo: { name: 'actovia' } }
       })
       expect(sent[1]).toEqual({ method: 'initialized' })
       expect(sent[2]).toMatchObject({

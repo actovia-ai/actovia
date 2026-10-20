@@ -2,7 +2,7 @@
 // A chat's row in the sidebar: its menu copies the conversation's id, which
 // is what the user pastes into another chat to have that conversation read
 // (`lcm_describe` / `lcm_grep` with the id).
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { MemoryRouter } from 'react-router'
@@ -76,7 +76,7 @@ let writeText: ReturnType<typeof vi.fn>
 beforeEach(async () => {
   toast.success.mockReset()
   toast.error.mockReset()
-  writeText = vi.fn().mockResolvedValue(undefined)
+  writeText = vi.fn().mockResolvedValue()
   Object.defineProperty(window.navigator, 'clipboard', {
     configurable: true,
     value: { writeText }

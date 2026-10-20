@@ -4,25 +4,25 @@
 import {
   workspaceFileKind,
   workspacePathCandidate
-} from '@exodus/shared/types/workspace-files'
+} from '@actovia/shared/types/workspace-files'
 import { describe, expect, it } from 'vitest'
 
-const roots = { root: '/Users/me/.exodus/workspace', home: '/Users/me' }
+const roots = { root: '/Users/me/.actovia/workspace', home: '/Users/me' }
 
 describe('workspacePathCandidate', () => {
   it('takes an absolute or ~/ path to a file under the workspace root', () => {
     expect(
       workspacePathCandidate(
-        '/Users/me/.exodus/workspace/c1/investment-rules.md',
+        '/Users/me/.actovia/workspace/c1/investment-rules.md',
         roots
       )
-    ).toBe('/Users/me/.exodus/workspace/c1/investment-rules.md')
+    ).toBe('/Users/me/.actovia/workspace/c1/investment-rules.md')
     expect(
-      workspacePathCandidate('~/.exodus/workspace/c1/notes/a.txt', roots)
-    ).toBe('/Users/me/.exodus/workspace/c1/notes/a.txt')
+      workspacePathCandidate('~/.actovia/workspace/c1/notes/a.txt', roots)
+    ).toBe('/Users/me/.actovia/workspace/c1/notes/a.txt')
     expect(
-      workspacePathCandidate(' /Users/me/.exodus/workspace/c1/a.md ', roots)
-    ).toBe('/Users/me/.exodus/workspace/c1/a.md')
+      workspacePathCandidate(' /Users/me/.actovia/workspace/c1/a.md ', roots)
+    ).toBe('/Users/me/.actovia/workspace/c1/a.md')
   })
 
   it.each([
@@ -31,17 +31,17 @@ describe('workspacePathCandidate', () => {
     ['a path outside the workspace', '/Users/me/Desktop/a.md'],
     [
       'a sibling with the same prefix',
-      '/Users/me/.exodus/workspace-old/c1/a.md'
+      '/Users/me/.actovia/workspace-old/c1/a.md'
     ],
-    ['a traversal out', '/Users/me/.exodus/workspace/c1/../../lock.dat'],
-    ['a ~/ traversal out', '~/.exodus/workspace/../tls/key.pem'],
-    ['a ./ segment', '/Users/me/.exodus/workspace/./c1/a.md'],
-    ['the workspace root', '/Users/me/.exodus/workspace/'],
-    ['a chat workspace dir', '/Users/me/.exodus/workspace/c1'],
-    ['two lines', '/Users/me/.exodus/workspace/c1/a.md\n/etc/passwd'],
+    ['a traversal out', '/Users/me/.actovia/workspace/c1/../../lock.dat'],
+    ['a ~/ traversal out', '~/.actovia/workspace/../tls/key.pem'],
+    ['a ./ segment', '/Users/me/.actovia/workspace/./c1/a.md'],
+    ['the workspace root', '/Users/me/.actovia/workspace/'],
+    ['a chat workspace dir', '/Users/me/.actovia/workspace/c1'],
+    ['two lines', '/Users/me/.actovia/workspace/c1/a.md\n/etc/passwd'],
     ['a bare ~', '~'],
     ['a URL', 'https://example.com/a.md'],
-    ['an overlong text', `/Users/me/.exodus/workspace/c1/${'a'.repeat(2000)}`]
+    ['an overlong text', `/Users/me/.actovia/workspace/c1/${'a'.repeat(2000)}`]
   ])('refuses %s', (_label, text) => {
     expect(workspacePathCandidate(text, roots)).toBeNull()
   })

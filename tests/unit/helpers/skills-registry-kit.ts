@@ -4,7 +4,7 @@ import type {
   SkillDetail,
   SkillListResponse,
   SkillSearchResponse
-} from '@exodus/shared/types/skills'
+} from '@actovia/shared/types/skills'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'

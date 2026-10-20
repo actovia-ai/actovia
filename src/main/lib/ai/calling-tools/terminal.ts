@@ -3,9 +3,9 @@ import { mkdir } from 'fs/promises'
 import { homedir } from 'os'
 import { promisify } from 'util'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 
 const execAsync = promisify(exec)
 

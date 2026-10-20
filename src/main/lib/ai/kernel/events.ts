@@ -3,7 +3,7 @@ import type {
   ChatAssistantMessage,
   ChatMessage,
   ChatToolResultMessage
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 
 /**
  * What a run emits, in order, from `runAgent()`. Every event carries the

@@ -3,7 +3,7 @@
 export const SERVER_PORT = 60223
 
 // HTTPS, behind a per-device token, and only up while a device is paired or a
-// pairing window is open (src/main/lib/lan/). exodus-ios on a device connects
+// pairing window is open (src/main/lib/lan/). actovia-ios on a device connects
 // here. Changing either port means updating every client.
 export const LAN_SERVER_PORT = 63129
 

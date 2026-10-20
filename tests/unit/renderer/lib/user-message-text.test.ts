@@ -1,4 +1,4 @@
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import { userMessageText } from '@/lib/user-message-text'
@@ -25,6 +25,6 @@ describe('userMessageText', () => {
 
   it('is empty for an empty or non-array/non-string content', () => {
     expect(userMessageText(msg([]))).toBe('')
-    expect(userMessageText(msg(undefined))).toBe('')
+    expect(userMessageText(msg())).toBe('')
   })
 })

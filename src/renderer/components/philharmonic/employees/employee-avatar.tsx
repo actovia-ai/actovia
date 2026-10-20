@@ -1,11 +1,11 @@
+import {
+  type AvatarStyle,
+  DEFAULT_AVATAR_STYLE
+} from '@actovia/shared/constants/avatar'
 import { Avatar, Style } from '@dicebear/core'
 import adventurer from '@dicebear/styles/adventurer.json'
 import notionists from '@dicebear/styles/notionists.json'
 import thumbs from '@dicebear/styles/thumbs.json'
-import {
-  type AvatarStyle,
-  DEFAULT_AVATAR_STYLE
-} from '@exodus/shared/constants/avatar'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 

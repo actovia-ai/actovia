@@ -558,7 +558,7 @@
     },
     "autoBackup": {
       "label": "자동 백업",
-      "description": "매일 오전 3시에 데이터를 백업합니다. 백업은 ~/.exodus/backups/에 로컬로 저장됩니다."
+      "description": "매일 오전 3시에 데이터를 백업합니다. 백업은 ~/.actovia/backups/에 로컬로 저장됩니다."
     },
     "lastBackup": {
       "label": "마지막 백업",

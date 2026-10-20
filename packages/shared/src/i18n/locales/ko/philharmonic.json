@@ -252,7 +252,7 @@
     },
     "runtime": {
       "label": "실행 환경",
-      "exodus": "Actovia"
+      "actovia": "Actovia"
     },
     "model": {
       "label": "모델",

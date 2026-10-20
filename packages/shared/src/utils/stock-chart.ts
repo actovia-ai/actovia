@@ -1,6 +1,6 @@
 // TradingView's Mini Chart (`mini-symbol-overview`) as the URL its loader
 // script would put in an iframe, built here so no script of theirs runs in
-// our documents (exodus-ios spec 2026-10-07 §2.3). exodus-ios's `StockChart`
+// our documents (actovia-ios spec 2026-10-07 §2.3). actovia-ios's `StockChart`
 // builds the same bytes, held to the same vectors.
 import type { StockRange } from '../types/interactive'
 

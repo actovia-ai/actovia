@@ -1,5 +1,5 @@
-import { CHAT_AUDIT_SCHEMA } from '@exodus/shared/constants/chat-audit-schema'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { CHAT_AUDIT_SCHEMA } from '@actovia/shared/constants/chat-audit-schema'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { Loading03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { lazy, Suspense, useCallback, useEffect, useRef } from 'react'

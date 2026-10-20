@@ -1,4 +1,4 @@
-import type { PhilharmonicSseEvent } from '@exodus/shared/types/philharmonic'
+import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import { Hono } from 'hono'
 
 import type { Variables } from '../types'

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { ChatMessage, ChatSseEvent } from '@exodus/shared/types/chat'
+import type { ChatMessage, ChatSseEvent } from '@actovia/shared/types/chat'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/i18n', () => ({ i18n: { t: (key: string) => key } }))

@@ -1,20 +1,20 @@
-// exodus-input — the native input/perception helper for Exodus's Computer Use runtime.
+// actovia-input — the native input/perception helper for Actovia's Computer Use runtime.
 //
 // A single-file command-line tool with three subcommands:
 //
-//   exodus-input list-windows
-//       Prints a JSON array of on-screen, layer-0 windows (Exodus's own windows
+//   actovia-input list-windows
+//       Prints a JSON array of on-screen, layer-0 windows (Actovia's own windows
 //       excluded) to stdout:
 //         [{ "id": Number, "app": String, "bundleId": String,
 //            "title": String, "bounds": [x, y, w, h] }]
 //       `title` requires Screen Recording permission; without it the field is
 //       present but empty. This subcommand itself needs no TCC permission.
 //
-//   exodus-input screenshot --window <id>
+//   actovia-input screenshot --window <id>
 //       Writes PNG bytes for the given window to stdout. Exits 1 with a stderr
 //       message if the window is gone or capture fails (needs Screen Recording).
 //
-//   exodus-input input [--clamp x,y,w,h]
+//   actovia-input input [--clamp x,y,w,h]
 //       Reads newline-delimited JSON commands on stdin, one per line, and posts
 //       the matching CGEvent immediately (needs Accessibility):
 //         {"op":"move","x":N,"y":N}
@@ -29,9 +29,9 @@ import CoreGraphics
 import Foundation
 import ScreenCaptureKit
 
-enum ExodusInput {
-  static let ownBundleId = "app.yancey.exodus"
-  static let ownAppName = "Exodus"
+enum ActoviaInput {
+  static let ownBundleId = "app.yancey.actovia"
+  static let ownAppName = "Actovia"
 
   // MARK: - Small shared helpers
 
@@ -405,21 +405,21 @@ let arguments = Array(CommandLine.arguments.dropFirst())
 
 switch arguments.first {
 case "list-windows":
-  ExodusInput.listWindows()
+  ActoviaInput.listWindows()
 case "list-apps":
-  ExodusInput.listApps()
+  ActoviaInput.listApps()
 case "screenshot":
-  await ExodusInput.screenshot(arguments)
+  await ActoviaInput.screenshot(arguments)
 case "activate":
-  await ExodusInput.activate(arguments)
+  await ActoviaInput.activate(arguments)
 case "input":
-  ExodusInput.runInput(arguments)
+  ActoviaInput.runInput(arguments)
 default:
-  ExodusInput.stderr(
-    "usage: exodus-input <list-windows | list-apps | screenshot --window <id> | "
+  ActoviaInput.stderr(
+    "usage: actovia-input <list-windows | list-apps | screenshot --window <id> | "
       + "activate --app <name-or-bundle-id> | input [--clamp x,y,w,h]>")
   if let command = arguments.first {
-    ExodusInput.stderr("unknown command: \(command)")
+    ActoviaInput.stderr("unknown command: \(command)")
   }
   exit(2)
 }

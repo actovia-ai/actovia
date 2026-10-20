@@ -1,10 +1,10 @@
 import { unlink } from 'fs/promises'
 import { join } from 'path'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { ImageGenerationDetails } from '@actovia/shared/types/chat'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { ImageGenerationDetails } from '@exodus/shared/types/chat'
 import OpenAI from 'openai'
 import { ImageGenerateParams } from 'openai/resources/images'
 
@@ -77,7 +77,7 @@ export const imageGeneration = (
         { signal }
       )
       // GPT image models only answer in base64; DALL·E answers with a URL.
-      // Either way the image is saved under ~/.exodus/media right now, and
+      // Either way the image is saved under ~/.actovia/media right now, and
       // `details` carries only its id: base64 in the row would add megabytes
       // to every history load, and a DALL·E link is dead in an hour.
       const outputMime = `image/${response.output_format ?? 'png'}`

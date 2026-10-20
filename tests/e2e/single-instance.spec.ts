@@ -4,7 +4,7 @@ import path from 'node:path'
 import { electronTest as test, expect } from '../fixtures/electron'
 
 /**
- * PGlite has no cross-process lock, so a second Exodus on the same data
+ * PGlite has no cross-process lock, so a second Actovia on the same data
  * directory must never get as far as opening the database (see
  * src/main/lib/single-instance.ts). Launch a real second process against the
  * running app's profile and check that it bows out.
@@ -29,9 +29,9 @@ test.describe('Single instance', () => {
         {
           env: {
             ...process.env,
-            EXODUS_HOME: '',
+            ACTOVIA_HOME: '',
             NODE_ENV: 'test',
-            EXODUS_DISABLE_AUTO_UPDATE: '1'
+            ACTOVIA_DISABLE_AUTO_UPDATE: '1'
           },
           stdio: 'ignore'
         }

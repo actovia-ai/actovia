@@ -11,7 +11,7 @@ const send = vi.fn()
 const electronApp = {
   isPackaged: true,
   getVersion: () => '1.15.0',
-  getPath: () => '/Applications/Exodus.app/Contents/MacOS/Exodus'
+  getPath: () => '/Applications/Actovia.app/Contents/MacOS/Actovia'
 }
 const netFetch = vi.fn()
 vi.mock('electron', () => ({
@@ -48,15 +48,15 @@ vi.mock('node:child_process', async () => {
   return { execFile, default: { execFile } }
 })
 
-const ADHOC = `Executable=/Applications/Exodus.app/Contents/MacOS/Exodus
+const ADHOC = `Executable=/Applications/Actovia.app/Contents/MacOS/Actovia
 Identifier=com.github.Electron
 Format=app bundle with Mach-O thin (arm64)
 CodeDirectory v=20400 size=300 flags=0x2(adhoc) hashes=3+3 location=embedded
 Signature=adhoc
 TeamIdentifier=not set
 `
-const DEVELOPER_ID = `Executable=/Applications/Exodus.app/Contents/MacOS/Exodus
-Identifier=app.yancey.exodus
+const DEVELOPER_ID = `Executable=/Applications/Actovia.app/Contents/MacOS/Actovia
+Identifier=app.yancey.actovia
 CodeDirectory v=20500 size=900 flags=0x10000(runtime) hashes=20+7 location=embedded
 Authority=Developer ID Application: Someone (ABCDE12345)
 TeamIdentifier=ABCDE12345
@@ -100,7 +100,7 @@ describe('detectUpdateMode', () => {
     expect(await detectUpdateMode()).toBe('manual')
     expect(codesign.run).toHaveBeenCalledWith('/usr/bin/codesign', [
       '-dv',
-      '/Applications/Exodus.app'
+      '/Applications/Actovia.app'
     ])
   })
 
@@ -135,7 +135,7 @@ describe('auto mode (a signed build)', () => {
     await settle()
 
     const message =
-      'Code signature at URL file:///Users/x/Library/Caches/app.yancey.exodus.ShipIt/update.1/Exodus.app did not pass validation'
+      'Code signature at URL file:///Users/x/Library/Caches/app.yancey.actovia.ShipIt/update.1/Actovia.app did not pass validation'
     squirrel.emit('error', new Error(message))
 
     expect(updaterGetState()).toMatchObject({
@@ -248,7 +248,7 @@ describe('manual mode (an ad-hoc build that cannot validate its own updates)', (
     expect(url).toBe(
       `https://update.electronjs.org/actovia-ai/actovia/darwin-${process.arch}/1.15.0`
     )
-    expect(init.headers['User-Agent']).toMatch(/^exodus\/1\.15\.0/)
+    expect(init.headers['User-Agent']).toMatch(/^actovia\/1\.15\.0/)
     expect(updaterGetState()).toMatchObject({
       state: 'up-to-date',
       mode: 'manual'

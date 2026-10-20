@@ -1,5 +1,5 @@
 /**
- * The artifact's height, for an embedder that sizes its frame to it: exodus-ios
+ * The artifact's height, for an embedder that sizes its frame to it: actovia-ios
  * shows the artifact inline in a chat, as tall as it draws (up to a limit).
  * `{ type: 'artifact-sandbox-size', height }`, in whole CSS pixels, goes to the
  * parent after each render and whenever the content's height changes. The

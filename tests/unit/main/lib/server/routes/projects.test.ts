@@ -7,15 +7,15 @@ vi.mock('@main/lib/db/db', () => ({ db: {}, pglite: {} }))
 vi.mock('electron', () => ({ dialog: {}, shell: {} }))
 vi.mock('@main/lib/window', () => ({ getMainWindow: () => null }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
-  getConversationById: async () => undefined
+  getConversationById: async () => {}
 }))
 vi.mock('@main/lib/db/project-queries', () => ({
-  getProjectById: async () => undefined,
+  getProjectById: async () => {},
   listRecentProjects: async () => [],
   updateProject: vi.fn()
 }))
 vi.mock('@main/lib/agents/projects', async () => {
-  const { ErrorCode, ValidationError } = await import('@exodus/shared')
+  const { ErrorCode, ValidationError } = await import('@actovia/shared')
   return {
     bindConversation: vi.fn(),
     createNewProject: vi.fn(),

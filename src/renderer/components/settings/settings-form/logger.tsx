@@ -1,11 +1,11 @@
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   LOG_LEVELS,
   type LogLevelName,
   levelOfSeverity,
   parseLogQuery
-} from '@exodus/shared/utils/log-query'
+} from '@actovia/shared/utils/log-query'
 import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -319,7 +319,7 @@ export function Logger() {
       const a = document.createElement('a')
       a.href = url
       a.download = `logs-${date}.jsonl`
-      document.body.appendChild(a)
+      document.body.append(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)

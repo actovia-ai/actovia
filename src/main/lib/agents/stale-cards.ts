@@ -1,4 +1,4 @@
-import type { AgentCard } from '@exodus/shared/types/agents'
+import type { AgentCard } from '@actovia/shared/types/agents'
 
 import { markLiveSessionsStopped } from '../db/agent-session-queries'
 import {

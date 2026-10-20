@@ -1,4 +1,4 @@
-import type { WorkspaceFileFailure } from '@exodus/shared/types/workspace-files'
+import type { WorkspaceFileFailure } from '@actovia/shared/types/workspace-files'
 import { Hono } from 'hono'
 
 import { getChatWorkspaceDir } from '../../paths'

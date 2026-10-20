@@ -1,4 +1,4 @@
-import { AiProviders } from '@exodus/shared/types/ai'
+import { AiProviders } from '@actovia/shared/types/ai'
 
 /**
  * Every secret Actovia stores (spec 2026-09-25 §2.2). A registry field leaves
@@ -55,7 +55,7 @@ export const SETTINGS_NON_SECRET_PATHS: Record<string, string> = {
   'modelCatalog.*.[].snapshot.maxOutputTokens': 'token budget, a number'
 }
 
-export { isSecretName } from '@exodus/shared/utils/secret-detect'
+export { isSecretName } from '@actovia/shared/utils/secret-detect'
 
 /**
  * `mcp_server` columns whose every value is a secret: env vars handed to a

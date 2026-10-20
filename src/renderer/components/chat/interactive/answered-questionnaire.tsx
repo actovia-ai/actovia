@@ -1,8 +1,8 @@
-import type { AskBlock } from '@exodus/shared/types/interactive'
+import type { AskBlock } from '@actovia/shared/types/interactive'
 import {
   BLANK_ANSWER,
   readPicks
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef } from 'react'

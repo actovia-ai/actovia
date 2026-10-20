@@ -1,9 +1,9 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { NotFoundError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { NotFoundError } from '@actovia/shared/errors/app-error'
 import {
   DeepResearchProgress,
   ReportProgressPayload
-} from '@exodus/shared/types/deep-research'
+} from '@actovia/shared/types/deep-research'
 import type { JSONRPCNotification } from '@modelcontextprotocol/sdk/types.js'
 import { Hono } from 'hono'
 import { v4 as uuidV4 } from 'uuid'
@@ -151,7 +151,7 @@ deepResearch.post('/', async (c) => {
     // Whatever step threw — search, the LLM calls, a dropped connection, or
     // the run being aborted (the chat it was launched from was stopped) —
     // the job must not stay 'streaming' forever (the desktop card, and
-    // exodus-ios's 15-minute stall check, both key off jobStatus).
+    // actovia-ios's 15-minute stall check, both key off jobStatus).
     const errorMessage = summarizeDeepResearchError(error, [
       apiKey,
       braveApiKey

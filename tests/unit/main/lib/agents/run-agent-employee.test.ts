@@ -1,5 +1,5 @@
 // tests/unit/main/lib/agents/run-agent-employee.test.ts
-import type { CliId } from '@exodus/shared/types/agents'
+import type { CliId } from '@actovia/shared/types/agents'
 import type { AgentEvent, AgentRun, StartInput } from '@main/lib/agents/driver'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -13,8 +13,8 @@ const prepareWorkDir = vi.fn(
   async (_p: unknown, id: string, othersRunning: boolean) =>
     othersRunning
       ? {
-          cwd: `/x/notes/.exodus/worktrees/${id}`,
-          branch: `exodus/${id}`,
+          cwd: `/x/notes/.actovia/worktrees/${id}`,
+          branch: `actovia/${id}`,
           note: null
         }
       : { cwd: '/x/notes', branch: 'main', note: null }
@@ -73,11 +73,11 @@ vi.mock('@main/lib/db/agent-session-queries', () => ({
 vi.mock('@main/lib/agents/projects', () => ({
   prepareWorkDir,
   sessionLogPath: (_p: unknown, id: string) =>
-    `/x/notes/.exodus/logs/${id}.jsonl`,
+    `/x/notes/.actovia/logs/${id}.jsonl`,
   writeSessionMeta: async () => {}
 }))
 vi.mock('@main/lib/agents/meta-files', () => ({
-  assertMetaDir: async () => '/x/notes/.exodus/logs'
+  assertMetaDir: async () => '/x/notes/.actovia/logs'
 }))
 vi.mock('@main/lib/agents/settings', () => ({
   agentSettings: async () => ({
@@ -264,7 +264,7 @@ describe('runAgentEmployee', () => {
       permissionMode: 'default',
       resume: null
     })
-    expect(starts[0].logPath).toMatch(/\.exodus\/logs\/.+\.jsonl$/)
+    expect(starts[0].logPath).toMatch(/\.actovia\/logs\/.+\.jsonl$/)
     const types = emit.mock.calls.map((c) => c[0].type)
     expect(types[0]).toBe('message_start')
     expect(types).toContain('agent_card')
@@ -309,8 +309,8 @@ describe('runAgentEmployee', () => {
       id: 'sess-old',
       runtime: 'claude-code',
       cliSessionId: 'cli-old',
-      cwd: '/x/notes/.exodus/worktrees/w',
-      branch: 'exodus/w'
+      cwd: '/x/notes/.actovia/worktrees/w',
+      branch: 'actovia/w'
     }
     sessions.set('sess-old', { ...resumable })
     const starts: StartInput[] = []
@@ -320,7 +320,7 @@ describe('runAgentEmployee', () => {
     )
     expect(starts[0]).toMatchObject({
       resume: 'cli-old',
-      cwd: '/x/notes/.exodus/worktrees/w'
+      cwd: '/x/notes/.actovia/worktrees/w'
     })
     expect(prepareWorkDir).not.toHaveBeenCalled()
     expect(sessions.get('sess-old')?.messageId).toBe(out.messageId)
@@ -777,7 +777,7 @@ describe('runAgentEmployee', () => {
   it('refuses an employee whose runtime is no CLI', async () => {
     await expect(
       runAgentEmployee(
-        args({ agent: { ...(agent as object), runtime: 'exodus' } }),
+        args({ agent: { ...(agent as object), runtime: 'actovia' } }),
         deps(makeRun(happy))
       )
     ).rejects.toThrow(/not a coding-agent CLI/)

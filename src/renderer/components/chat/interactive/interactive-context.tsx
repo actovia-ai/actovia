@@ -3,16 +3,16 @@ import type {
   ChatStatus,
   SendMessageOptions,
   TurnBlock
-} from '@exodus/shared/types/chat'
+} from '@actovia/shared/types/chat'
 import {
   findInteractiveBlock,
   type InteractiveFence
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import {
   ANSWER_INFO_STRING,
   splitAnswer,
   type AnswerHead
-} from '@exodus/shared/utils/interactive-answer'
+} from '@actovia/shared/utils/interactive-answer'
 import { createContext, type ReactNode, useContext, useMemo } from 'react'
 
 /** A block's answer as the chat holds it: the fence's head and the lines after it. */

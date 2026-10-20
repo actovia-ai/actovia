@@ -1,10 +1,10 @@
-import type { Settings } from '@exodus/shared/schemas/settings-schema'
+import type { Settings } from '@actovia/shared/schemas/settings-schema'
 import {
   CLI_NAMES,
   type CliId,
   type CliStatus
-} from '@exodus/shared/types/agents'
-import type { AiProviders } from '@exodus/shared/types/ai'
+} from '@actovia/shared/types/agents'
+import type { AiProviders } from '@actovia/shared/types/ai'
 
 import type { AgentData } from '@/stores/philharmonic'
 
@@ -24,7 +24,7 @@ export function cliModelSuggestions(
 }
 
 /** The models an Actovia employee can be pinned to: every listed provider's catalog. */
-export function exodusModelOptions(settings: Settings | undefined) {
+export function actoviaModelOptions(settings: Settings | undefined) {
   return configuredProviders(settings).flatMap((provider) => {
     const catalog = modelCatalog(settings, provider)
     return catalog.map((m) => ({
@@ -52,7 +52,7 @@ export function employeeModelLabel(
   agent: Pick<AgentData, 'runtime' | 'provider' | 'model'>,
   settings: Settings | undefined
 ): string {
-  if (agent.runtime !== 'exodus') {
+  if (agent.runtime !== 'actovia') {
     const name = CLI_NAMES[agent.runtime]
     return agent.model ? `${name} · ${agent.model}` : name
   }

@@ -1,6 +1,6 @@
 /**
  * E2E: asking about selected text. Text selected in an answer gets an "Ask
- * Exodus" button; the selection sits over the composer as a quote, is sent
+ * Actovia" button; the selection sits over the composer as a quote, is sent
  * with the next message, and is drawn as a quote in that message's bubble.
  * On the kernel's scripted provider.
  */

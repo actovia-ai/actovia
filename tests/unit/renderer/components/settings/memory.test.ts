@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 // src/renderer/components/settings/settings-form/memory.tsx
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement, type ReactElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useForm } from 'react-hook-form'

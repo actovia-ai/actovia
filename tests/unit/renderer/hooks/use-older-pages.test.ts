@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import type { ChatMessage } from '@exodus/shared/types/chat'
-import type { ChatPage } from '@exodus/shared/types/chat-page'
+import type { ChatMessage } from '@actovia/shared/types/chat'
+import type { ChatPage } from '@actovia/shared/types/chat-page'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'

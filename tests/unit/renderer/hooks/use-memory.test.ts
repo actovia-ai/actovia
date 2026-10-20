@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { MemoryChange } from '@exodus/shared/types/memory'
+import type { MemoryChange } from '@actovia/shared/types/memory'
 import {
   focusManager,
   QueryClient,
@@ -660,7 +660,7 @@ describe('a memory.tsx-style consumer — regression round 3 (findings a & b)', 
       .mockReturnValueOnce(postCreateGet.promise) // handleNew's own settle-invalidate
       .mockResolvedValueOnce(finalList) // handleToggle's own settle-invalidate
     createMemoryService.mockResolvedValue(C)
-    updateMemoryService.mockResolvedValue(undefined)
+    updateMemoryService.mockResolvedValue()
 
     const { queryClient, api } =
       await mountHookOnAppClient(useMemoryPageHarness)
@@ -732,7 +732,7 @@ describe('a memory.tsx-style consumer — regression round 3 (findings a & b)', 
       .mockResolvedValueOnce([X, Y]) // initial mount load
       .mockReturnValueOnce(staleRead.promise) // some other read — in flight
       .mockResolvedValueOnce([Y]) // handleDelete's own settle-invalidate
-    deleteMemoryService.mockResolvedValue(undefined)
+    deleteMemoryService.mockResolvedValue()
 
     const { queryClient, api } =
       await mountHookOnAppClient(useMemoryPageHarness)

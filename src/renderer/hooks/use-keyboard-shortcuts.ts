@@ -1,4 +1,4 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useHotkeys } from '@tanstack/react-hotkeys'
 import type { ParseKeys } from 'i18next'
 import { useSetAtom } from 'jotai'

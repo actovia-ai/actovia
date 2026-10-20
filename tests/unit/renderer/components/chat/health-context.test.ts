@@ -1,5 +1,5 @@
 // The numbers a question from the phone's Health workspace carried, as the
-// bubble draws them. The chips follow exodus-ios's `HealthContextCard.chips`.
+// bubble draws them. The chips follow actovia-ios's `HealthContextCard.chips`.
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -33,7 +33,7 @@ function t(key: string, options: Record<string, unknown> = {}): string {
     template = lookup(`${key}_${options.count === 1 ? 'one' : 'other'}`)
   }
   if (typeof template !== 'string') throw new Error(`missing key ${key}`)
-  return template.replace(/\{\{(\w+)\}\}/g, (_, name: string) =>
+  return template.replaceAll(/\{\{(\w+)\}\}/g, (_, name: string) =>
     String(options[name])
   )
 }

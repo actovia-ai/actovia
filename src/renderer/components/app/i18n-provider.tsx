@@ -1,4 +1,4 @@
-import { isLocaleId } from '@exodus/shared/i18n/locales'
+import { isLocaleId } from '@actovia/shared/i18n/locales'
 import { useEffect, type ReactNode } from 'react'
 import { I18nextProvider } from 'react-i18next'
 

@@ -9,12 +9,12 @@ import type {
   TargetWindow
 } from './types'
 
-const BINARY_NAME = 'exodus-input'
+const BINARY_NAME = 'actovia-input'
 
 /**
  * Where the prebuilt Swift binary lives — `getResourcePath()` resolves both:
- * - dev: `<repo-root>/resources/bin/exodus-input` (committed)
- * - packaged: `Contents/Resources/resources/bin/exodus-input`
+ * - dev: `<repo-root>/resources/bin/actovia-input` (committed)
+ * - packaged: `Contents/Resources/resources/bin/actovia-input`
  *   (`packagerConfig.extraResource: ['./resources']` in forge.config.ts)
  */
 function resolveBinaryPath(): string {
@@ -22,7 +22,7 @@ function resolveBinaryPath(): string {
 }
 
 /**
- * Newline-delimited JSON, one command per line, exactly as `exodus-input input`
+ * Newline-delimited JSON, one command per line, exactly as `actovia-input input`
  * reads it from stdin. Pure — unit-tested directly.
  */
 export function serialize(commands: HelperCommand[]): string {
@@ -34,7 +34,7 @@ interface RunOptions {
   stdin?: string
 }
 
-/** Spawn `exodus-input <args>`, resolve stdout on exit 0, reject otherwise. */
+/** Spawn `actovia-input <args>`, resolve stdout on exit 0, reject otherwise. */
 function run(args: string[], options: RunOptions = {}): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const child = spawn(resolveBinaryPath(), args, {
@@ -57,7 +57,7 @@ function run(args: string[], options: RunOptions = {}): Promise<Buffer> {
       const message = Buffer.concat(stderr).toString('utf8').trim()
       reject(
         new Error(
-          `exodus-input ${args.join(' ')} exited with code ${code}${
+          `actovia-input ${args.join(' ')} exited with code ${code}${
             message ? `: ${message}` : ''
           }`
         )
@@ -80,7 +80,7 @@ interface RawWindow {
   bounds: [number, number, number, number]
 }
 
-/** Talks to the real `exodus-input` binary. macOS only. */
+/** Talks to the real `actovia-input` binary. macOS only. */
 export const realHelper: InputHelper = {
   async listWindows() {
     const out = await run(['list-windows'])
@@ -118,7 +118,7 @@ export const realHelper: InputHelper = {
 /**
  * In-memory `InputHelper` for tests: records every `send()` call, returns canned
  * `listWindows()` / `screenshot()` values. Selected by `getHelper()` when
- * `EXODUS_INPUT_MOCK` is set.
+ * `ACTOVIA_INPUT_MOCK` is set.
  */
 export interface MockHelper extends InputHelper {
   /** One entry per `send()` call, in order. */
@@ -198,8 +198,8 @@ export const mockHelper: MockHelper = {
 
 /**
  * The `InputHelper` the Runtime should use: `mockHelper` when
- * `EXODUS_INPUT_MOCK` is set to any truthy value, else the real binary client.
+ * `ACTOVIA_INPUT_MOCK` is set to any truthy value, else the real binary client.
  */
 export function getHelper(): InputHelper {
-  return process.env.EXODUS_INPUT_MOCK ? mockHelper : realHelper
+  return process.env.ACTOVIA_INPUT_MOCK ? mockHelper : realHelper
 }

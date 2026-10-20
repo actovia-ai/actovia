@@ -2,9 +2,9 @@ import { realpath } from 'fs/promises'
 import { homedir } from 'os'
 import { dirname, join, resolve, sep } from 'path'
 
-import { ErrorCode, ValidationError } from '@exodus/shared'
+import { ErrorCode, ValidationError } from '@actovia/shared'
 
-import { getExodusHome } from '../paths'
+import { getActoviaHome } from '../paths'
 
 /** The real path of `p` even when it does not exist yet: its nearest existing ancestor, resolved, plus the rest. */
 async function resolveLoosely(p: string): Promise<string> {
@@ -30,7 +30,7 @@ export async function assertProjectsDirAllowed(dir: string): Promise<void> {
   const expanded = dir.startsWith('~') ? join(homedir(), dir.slice(1)) : dir
   const target = await resolveLoosely(resolve(expanded))
   const home = await resolveLoosely(homedir())
-  const data = await resolveLoosely(getExodusHome())
+  const data = await resolveLoosely(getActoviaHome())
   if (target === sep) fail('The root folder cannot be used')
   if (target === home)
     fail('Your home folder is too broad — choose a folder inside it')

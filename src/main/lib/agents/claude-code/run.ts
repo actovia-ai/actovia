@@ -1,5 +1,5 @@
 // src/main/lib/agents/claude-code/run.ts
-import type { AgentAnswer } from '@exodus/shared/types/agents'
+import type { AgentAnswer } from '@actovia/shared/types/agents'
 
 import {
   isCliModel,

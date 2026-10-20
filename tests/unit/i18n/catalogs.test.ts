@@ -4,9 +4,9 @@ import { join } from 'path'
 import {
   auditCatalogs,
   flattenCatalog
-} from '@exodus/shared/i18n/catalog-audit'
-import { LOCALE_IDS } from '@exodus/shared/i18n/locales'
-import { NAMESPACES } from '@exodus/shared/i18n/namespaces'
+} from '@actovia/shared/i18n/catalog-audit'
+import { LOCALE_IDS } from '@actovia/shared/i18n/locales'
+import { NAMESPACES } from '@actovia/shared/i18n/namespaces'
 import { describe, expect, it } from 'vitest'
 
 const ROOT = join(

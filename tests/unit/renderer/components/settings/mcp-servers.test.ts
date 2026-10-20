@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -48,7 +48,7 @@ vi.mock('sileo', () => ({
 
 const { McpServers } =
   await import('@/components/settings/settings-form/mcp-servers')
-const { HttpError } = await import('@exodus/shared/utils/http')
+const { HttpError } = await import('@actovia/shared/utils/http')
 
 let host: HTMLDivElement
 let root: ReturnType<typeof createRoot>

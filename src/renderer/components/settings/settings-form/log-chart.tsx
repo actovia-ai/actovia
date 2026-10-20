@@ -1,9 +1,9 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   LOG_LEVELS,
   type LogHistogram,
   type LogLevelName
-} from '@exodus/shared/utils/log-query'
+} from '@actovia/shared/utils/log-query'
 import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

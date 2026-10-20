@@ -3,7 +3,7 @@ import {
   PERMISSION_MODES,
   type CliId,
   type CliStatus
-} from '@exodus/shared/types/agents'
+} from '@actovia/shared/types/agents'
 import { EditIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 // NOTE: useEffect to sync draft from employee prop removed — key={employee.id}
@@ -31,7 +31,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useSettings } from '@/hooks/use-settings'
 import {
   cliModelSuggestions,
-  exodusModelOptions,
+  actoviaModelOptions,
   parseModelValue
 } from '@/lib/employee-model'
 import { getClis } from '@/services/agents'
@@ -97,7 +97,7 @@ export function EmployeeEditor({
     }
   }, [employee.id, isNew])
 
-  const isExodus = draft.runtime === 'exodus'
+  const isActovia = draft.runtime === 'actovia'
   // Codex's levels mean something else than Claude Code's, so they read differently.
   const permissionNs = draft.runtime === 'codex' ? 'codex.' : ''
   const canSave = draft.name.trim().length > 0 && Boolean(draft.teamId)
@@ -223,14 +223,14 @@ export function EmployeeEditor({
           >
             <SelectTrigger className="border-border bg-muted w-full rounded-lg">
               <SelectValue>
-                {draft.runtime === 'exodus'
-                  ? t('philharmonic:employees.runtime.exodus')
+                {draft.runtime === 'actovia'
+                  ? t('philharmonic:employees.runtime.actovia')
                   : CLI_NAMES[draft.runtime]}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="exodus">
-                {t('philharmonic:employees.runtime.exodus')}
+              <SelectItem value="actovia">
+                {t('philharmonic:employees.runtime.actovia')}
               </SelectItem>
               {clis.map((c) => (
                 <SelectItem
@@ -245,7 +245,7 @@ export function EmployeeEditor({
           </Select>
         </div>
 
-        {isExodus ? (
+        {isActovia ? (
           <div>
             <FieldLabel>{t('philharmonic:employees.model.label')}</FieldLabel>
             <Select
@@ -268,7 +268,7 @@ export function EmployeeEditor({
                 <SelectItem value={DEFAULT_MODEL}>
                   {t('philharmonic:employees.model.default')}
                 </SelectItem>
-                {exodusModelOptions(settings).map((o) => (
+                {actoviaModelOptions(settings).map((o) => (
                   <SelectItem key={o.value} value={o.value}>
                     {o.label}
                   </SelectItem>
@@ -342,7 +342,7 @@ export function EmployeeEditor({
 
         <div>
           <FieldLabel>
-            {isExodus
+            {isActovia
               ? t('philharmonic:employees.editor.fields.systemPrompt')
               : t('philharmonic:employees.systemPrompt.cliLabel')}
           </FieldLabel>
@@ -358,7 +358,7 @@ export function EmployeeEditor({
           />
         </div>
 
-        {isExodus && (
+        {isActovia && (
           <>
             <div>
               <FieldLabel>

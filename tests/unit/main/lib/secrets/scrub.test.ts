@@ -22,7 +22,7 @@ const SECRET = 'sk-scrub-file-secret-0123456789'
 let dir: string
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'exodus-scrub-'))
+  dir = mkdtempSync(join(tmpdir(), 'actovia-scrub-'))
 })
 afterEach(() => {
   rmSync(dir, { recursive: true, force: true })

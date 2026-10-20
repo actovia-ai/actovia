@@ -1,4 +1,4 @@
-import { WEB_SEARCH_COUNTRY_CODES } from '@exodus/shared/constants/country-codes'
+import { WEB_SEARCH_COUNTRY_CODES } from '@actovia/shared/constants/country-codes'
 import { describe, expect, it } from 'vitest'
 
 import { countryName, countryOptions } from '@/lib/country-names'

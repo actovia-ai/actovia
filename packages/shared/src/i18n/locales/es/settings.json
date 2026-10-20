@@ -558,7 +558,7 @@
     },
     "autoBackup": {
       "label": "Copias de seguridad automáticas",
-      "description": "Haga una copia de seguridad de sus datos todos los días a las 3:00 a. m. Las copias se guardan localmente en ~/.exodus/backups/."
+      "description": "Haga una copia de seguridad de sus datos todos los días a las 3:00 a. m. Las copias se guardan localmente en ~/.actovia/backups/."
     },
     "lastBackup": {
       "label": "Última copia de seguridad",

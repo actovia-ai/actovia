@@ -1,4 +1,4 @@
-CREATE TYPE "public"."agent_runtime" AS ENUM('exodus', 'claude-code');--> statement-breakpoint
+CREATE TYPE "public"."agent_runtime" AS ENUM('actovia', 'claude-code');--> statement-breakpoint
 CREATE TYPE "public"."agent_session_state" AS ENUM('working', 'blocked', 'done', 'stopped', 'error');--> statement-breakpoint
 CREATE TABLE "agent_session" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE "project" (
 	CONSTRAINT "project_dir_unique" UNIQUE("dir")
 );
 --> statement-breakpoint
-ALTER TABLE "agent" ADD COLUMN "runtime" "agent_runtime" DEFAULT 'exodus' NOT NULL;--> statement-breakpoint
+ALTER TABLE "agent" ADD COLUMN "runtime" "agent_runtime" DEFAULT 'actovia' NOT NULL;--> statement-breakpoint
 ALTER TABLE "agent" ADD COLUMN "permissionMode" text;--> statement-breakpoint
 ALTER TABLE "conversation" ADD COLUMN "projectId" uuid;--> statement-breakpoint
 ALTER TABLE "settings" ADD COLUMN "agents" jsonb;--> statement-breakpoint

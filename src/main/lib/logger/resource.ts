@@ -4,7 +4,7 @@ import { release, type } from 'node:os'
 import { app } from 'electron'
 
 export interface Resource {
-  'service.name': 'exodus'
+  'service.name': 'actovia'
   'service.version': string
   'process.pid': number
   'process.runtime.name': 'electron'
@@ -32,7 +32,7 @@ function resolveVersion(): string {
 export function getResource(): Resource {
   if (cached) return cached
   cached = Object.freeze({
-    'service.name': 'exodus',
+    'service.name': 'actovia',
     'service.version': resolveVersion(),
     'process.pid': process.pid,
     'process.runtime.name': 'electron',

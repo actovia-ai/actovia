@@ -6,8 +6,8 @@ import type {
   SkillListResponse,
   SkillSearchResponse,
   SkillsView
-} from '@exodus/shared/types/skills'
-import { fetcher } from '@exodus/shared/utils/http'
+} from '@actovia/shared/types/skills'
+import { fetcher } from '@actovia/shared/utils/http'
 
 const BASE = '/api/v1/skills'
 

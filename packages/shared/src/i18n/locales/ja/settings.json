@@ -558,7 +558,7 @@
     },
     "autoBackup": {
       "label": "自動バックアップ",
-      "description": "毎日午前3:00にデータをバックアップします。バックアップは~/.exodus/backups/にローカル保存されます。"
+      "description": "毎日午前3:00にデータをバックアップします。バックアップは~/.actovia/backups/にローカル保存されます。"
     },
     "lastBackup": {
       "label": "最終バックアップ",

@@ -2,11 +2,11 @@
 // Quick look: a workspace file read over the bridge (mocked here), Markdown
 // through the chat's renderer, anything else monospaced, and a file too large
 // or not text said so — with Open still offered.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   WORKSPACE_FILE_CHANNELS,
   type WorkspaceFileReadResult
-} from '@exodus/shared/types/workspace-files'
+} from '@actovia/shared/types/workspace-files'
 import { act, createElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -34,7 +34,7 @@ const { WorkspaceFilePreview } =
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
 
-const FILE = '/Users/me/.exodus/workspace/c1/rules.md'
+const FILE = '/Users/me/.actovia/workspace/c1/rules.md'
 const info = { path: FILE, name: 'rules.md', size: 9, modifiedAt: 1 }
 let reply: WorkspaceFileReadResult
 const invoke = vi.fn(async (channel: string) =>

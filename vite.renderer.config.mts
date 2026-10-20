@@ -1,6 +1,6 @@
 import { resolve } from 'path'
 
-import { stripDataTestId } from '@exodus/shared/utils/strip-test-id'
+import { stripDataTestId } from '@actovia/shared/utils/strip-test-id'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
@@ -56,7 +56,7 @@ export default defineConfig({
       '@': resolve('src/renderer')
     },
     // @electron-forge/plugin-vite forces `preserveSymlinks: true`, which keeps
-    // the @exodus/shared workspace package at its node_modules path — so in dev
+    // the @actovia/shared workspace package at its node_modules path — so in dev
     // Vite treats it as a third-party dependency: its modules are served with
     // `?v=<hash>` URLs and `Cache-Control: max-age=31536000,immutable`, and the
     // file watcher ignores them. An edit to packages/shared then never reaches
@@ -90,7 +90,7 @@ export default defineConfig({
     // catalog loads and the UI shows raw keys (`messageList.greetingTitle`).
     // Production builds and unit tests were unaffected, which is how that went
     // unnoticed at first.
-    exclude: ['@exodus/shared']
+    exclude: ['@actovia/shared']
   },
   build: {
     // Hidden source maps, without the sources' text — see the note in

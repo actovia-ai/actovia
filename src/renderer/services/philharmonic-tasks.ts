@@ -1,5 +1,5 @@
 // src/renderer/services/philharmonic-tasks.ts
-import { fetcher } from '@exodus/shared/utils/http'
+import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
 import type { TaskData } from '@/stores/philharmonic'

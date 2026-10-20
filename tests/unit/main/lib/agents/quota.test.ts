@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
-import type { CliQuota } from '@exodus/shared/types/agents'
+import type { CliQuota } from '@actovia/shared/types/agents'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@main/lib/logger', () => ({ logger: { warn: vi.fn() } }))
@@ -17,9 +17,9 @@ const {
   quotaWindowLabel,
   toMs
 } = await import('@main/lib/agents/quota')
-const { getExodusHome } = await import('@main/lib/paths')
+const { getActoviaHome } = await import('@main/lib/paths')
 
-const file = () => join(getExodusHome(), 'agent-quota.json')
+const file = () => join(getActoviaHome(), 'agent-quota.json')
 const NOW = Date.UTC(2026, 9, 16, 10, 0)
 const claude = (over: Partial<CliQuota> = {}): CliQuota => ({
   cli: 'claude-code',

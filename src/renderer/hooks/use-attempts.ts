@@ -1,9 +1,9 @@
-import type { Attempt, ChatMessage } from '@exodus/shared/types/chat'
+import type { Attempt, ChatMessage } from '@actovia/shared/types/chat'
 import {
   applyAttempts,
   attemptsAfterChoice,
   chatAttempts
-} from '@exodus/shared/utils/attempts'
+} from '@actovia/shared/utils/attempts'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useRef } from 'react'
 

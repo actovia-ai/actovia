@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import type { LockStatus } from '@exodus/shared/types/lock'
+import type { LockStatus } from '@actovia/shared/types/lock'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'

@@ -1,6 +1,6 @@
 // src/main/lib/media/store.ts — generated media on disk under
-// ~/.exodus/media/<chatId>/<uuid>.<ext>. Every test runs against a scratch
-// EXODUS_HOME of its own, never the real data dir.
+// ~/.actovia/media/<chatId>/<uuid>.<ext>. Every test runs against a scratch
+// ACTOVIA_HOME of its own, never the real data dir.
 import {
   existsSync,
   mkdirSync,
@@ -20,11 +20,11 @@ vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: logError, debug: vi.fn() }
 }))
 
-const home = mkdtempSync(join(tmpdir(), 'exodus-media-'))
-const originalExodusHome = process.env.EXODUS_HOME
-process.env.EXODUS_HOME = home
+const home = mkdtempSync(join(tmpdir(), 'actovia-media-'))
+const originalActoviaHome = process.env.ACTOVIA_HOME
+process.env.ACTOVIA_HOME = home
 afterAll(() => {
-  process.env.EXODUS_HOME = originalExodusHome
+  process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 const store = await import('@main/lib/media/store')

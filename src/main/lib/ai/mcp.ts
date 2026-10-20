@@ -1,6 +1,6 @@
+import { McpTools } from '@actovia/shared/types/ai'
 import type { AgentTool, AgentToolResult } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
-import { McpTools } from '@exodus/shared/types/ai'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
@@ -120,7 +120,7 @@ async function connectMcpServer(server: McpServer): Promise<McpTools> {
   }
 
   const transport = createTransport(server)
-  const client = new Client({ name: 'exodus', version: '1.0.0' })
+  const client = new Client({ name: 'actovia', version: '1.0.0' })
   await client.connect(transport)
   logger.info('mcp', 'MCP server registered', {
     name: server.name,

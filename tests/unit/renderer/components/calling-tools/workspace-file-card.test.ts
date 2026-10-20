@@ -2,8 +2,8 @@
 // The workspace file card (write_file / edit_file) and the clickable path in
 // an answer: both ask main — over the bridge, mocked here — whether the file
 // is inside the workspace, and only then offer Open / Reveal / Quick look.
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import { WORKSPACE_FILE_CHANNELS } from '@exodus/shared/types/workspace-files'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { WORKSPACE_FILE_CHANNELS } from '@actovia/shared/types/workspace-files'
 import { act, createElement } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -38,7 +38,7 @@ const { WorkspacePathCode } =
   globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true
 
-const ROOT = '/Users/me/.exodus/workspace'
+const ROOT = '/Users/me/.actovia/workspace'
 const FILE = `${ROOT}/c1/investment-rules.md`
 const invoke = vi.fn()
 

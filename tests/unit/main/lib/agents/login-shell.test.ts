@@ -7,7 +7,7 @@ vi.mock('@main/lib/logger', () => ({ logger: { warn: vi.fn() } }))
 describe('login shell environment', () => {
   it('reads the NUL-separated dump between the markers, ignoring rc-file noise', () => {
     const out =
-      'Welcome to zsh\n__EXODUS_ENV__PATH=/opt/homebrew/bin:/usr/bin\0HOME=/Users/o\0A=b=c\0__EXODUS_ENV__\nbye'
+      'Welcome to zsh\n__ACTOVIA_ENV__PATH=/opt/homebrew/bin:/usr/bin\0HOME=/Users/o\0A=b=c\0__ACTOVIA_ENV__\nbye'
     expect(parseEnvDump(out)).toEqual({
       PATH: '/opt/homebrew/bin:/usr/bin',
       HOME: '/Users/o',
@@ -19,11 +19,11 @@ describe('login shell environment', () => {
     expect(parseEnvDump('no markers here')).toEqual({})
   })
 
-  it("drops Exodus', Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
+  it("drops Actovia', Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
     expect(
       scrubEnv({
         PATH: '/bin',
-        EXODUS_HOME: '/x',
+        ACTOVIA_HOME: '/x',
         ELECTRON_RUN_AS_NODE: '1',
         VITE_DEV_SERVER_URL: 'http://localhost',
         NODE_OPTIONS: '--inspect',

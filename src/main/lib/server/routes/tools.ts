@@ -1,5 +1,5 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { AppError, ServiceError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { AppError, ServiceError } from '@actovia/shared/errors/app-error'
 import { BrowserWindow, session } from 'electron'
 import { Hono } from 'hono'
 

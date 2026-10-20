@@ -1,5 +1,5 @@
-import type { ConfirmBlock } from '@exodus/shared/types/interactive'
-import { composeConfirmAnswer } from '@exodus/shared/utils/interactive-answer'
+import type { ConfirmBlock } from '@actovia/shared/types/interactive'
+import { composeConfirmAnswer } from '@actovia/shared/utils/interactive-answer'
 import { Tick02Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'

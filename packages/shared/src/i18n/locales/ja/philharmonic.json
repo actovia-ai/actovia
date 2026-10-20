@@ -252,7 +252,7 @@
     },
     "runtime": {
       "label": "実行環境",
-      "exodus": "Actovia"
+      "actovia": "Actovia"
     },
     "model": {
       "label": "モデル",

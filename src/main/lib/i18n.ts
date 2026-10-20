@@ -1,11 +1,11 @@
-import { createI18n } from '@exodus/shared/i18n'
+import { createI18n } from '@actovia/shared/i18n'
 import {
   isLocaleId,
   resolveLocale,
   type LanguageSetting,
   type LocaleId
-} from '@exodus/shared/i18n/locales'
-import { MAIN_NAMESPACES } from '@exodus/shared/i18n/namespaces'
+} from '@actovia/shared/i18n/locales'
+import { MAIN_NAMESPACES } from '@actovia/shared/i18n/namespaces'
 import { app, ipcMain } from 'electron'
 import type { ParseKeys } from 'i18next'
 

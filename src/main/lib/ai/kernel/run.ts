@@ -1,3 +1,10 @@
+import type {
+  ChatAssistantMessage,
+  ChatMessage,
+  ChatToolResultMessage,
+  ChatUserMessage
+} from '@actovia/shared/types/chat'
+import { splitThinkingTagsInContent } from '@actovia/shared/utils/thinking-tags'
 import {
   Agent,
   type AgentEvent,
@@ -10,13 +17,6 @@ import type {
   Model,
   ThinkingLevel
 } from '@earendil-works/pi-ai'
-import type {
-  ChatAssistantMessage,
-  ChatMessage,
-  ChatToolResultMessage,
-  ChatUserMessage
-} from '@exodus/shared/types/chat'
-import { splitThinkingTagsInContent } from '@exodus/shared/utils/thinking-tags'
 import { v4 as uuidV4 } from 'uuid'
 
 import { logger } from '../../logger'

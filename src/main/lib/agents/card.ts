@@ -1,4 +1,4 @@
-import { type AgentCard, CLI_NAMES } from '@exodus/shared/types/agents'
+import { type AgentCard, CLI_NAMES } from '@actovia/shared/types/agents'
 
 import type { AgentEvent } from './driver'
 

@@ -14,7 +14,7 @@ vi.mock('@main/lib/db/db', async () => {
 const { pglite } = await import('@main/lib/db/db')
 const { getChatsPage, getFavoriteChats } = await import('@main/lib/db/queries')
 const { parseChatHistoryCursor } =
-  await import('@exodus/shared/utils/chat-history-cursor')
+  await import('@actovia/shared/utils/chat-history-cursor')
 
 afterAll(async () => {
   await pglite.close()

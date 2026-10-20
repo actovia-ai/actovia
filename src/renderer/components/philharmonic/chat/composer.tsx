@@ -1,4 +1,4 @@
-import type { Attachment } from '@exodus/shared/types/chat'
+import type { Attachment } from '@actovia/shared/types/chat'
 import { ArrowUpIcon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { BorderBeam } from 'border-beam'

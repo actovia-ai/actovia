@@ -4,7 +4,7 @@ import {
   trimTrailingBlanks,
   type InteractiveFence as FenceData,
   type InteractiveKind
-} from '@exodus/shared/types/interactive'
+} from '@actovia/shared/types/interactive'
 import { createContext, type ReactNode, useContext, useMemo } from 'react'
 
 import { ErrorBoundary } from '@/components/app/card-error-boundary'

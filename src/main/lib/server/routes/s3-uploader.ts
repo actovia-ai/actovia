@@ -1,15 +1,15 @@
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import {
+  isAppError,
+  ServiceError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import {
-  isAppError,
-  ServiceError,
-  ValidationError
-} from '@exodus/shared/errors/app-error'
 import { Hono } from 'hono'
 
 import { getPresignedUrlSchema, uploadToS3Schema } from '../schemas/s3-uploader'

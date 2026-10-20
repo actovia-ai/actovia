@@ -1,4 +1,4 @@
-import type { DiscoverGroup } from '@exodus/shared/types/discover'
+import type { DiscoverGroup } from '@actovia/shared/types/discover'
 import { eq } from 'drizzle-orm'
 
 import { db } from './db'

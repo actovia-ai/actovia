@@ -1,5 +1,5 @@
 // src/main/lib/server/routes/analytics.ts
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -8,7 +8,7 @@ vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }))
 vi.mock('@main/lib/paths', () => ({
-  getAnalyticsDbPath: () => '/tmp/exodus.duckdb'
+  getAnalyticsDbPath: () => '/tmp/actovia.duckdb'
 }))
 
 const duck = vi.hoisted(() => ({
@@ -62,7 +62,7 @@ describe('/api/v1/analytics', () => {
       available: true,
       version: 'v1.5.5',
       snapshot: { builtAt: 'x' },
-      path: '/tmp/exodus.duckdb'
+      path: '/tmp/actovia.duckdb'
     })
   })
 

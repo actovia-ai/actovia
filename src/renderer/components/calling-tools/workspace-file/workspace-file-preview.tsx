@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { WorkspaceFileReadResult } from '@exodus/shared/types/workspace-files'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { WorkspaceFileReadResult } from '@actovia/shared/types/workspace-files'
 import {
   Tick02Icon,
   Copy01Icon,

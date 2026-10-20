@@ -14,7 +14,7 @@
 
 ## Introduction
 
-Actovia (formerly Exodus) is a high-performance, cross-platform AI chat application for desktop that is compatible with a variety of model providers. It runs a full local backend — an embedded Postgres database (PGlite + pgvector), a Hono HTTP server, and a durable job queue — so features like retrieval, memory consolidation, and multi-agent runs happen on your machine.
+Actovia is a high-performance, cross-platform AI chat application for desktop that is compatible with a variety of model providers. It runs a full local backend — an embedded Postgres database (PGlite + pgvector), a Hono HTTP server, and a durable job queue — so features like retrieval, memory consolidation, and multi-agent runs happen on your machine.
 
 ## LLM Providers
 
@@ -116,24 +116,24 @@ We have chosen [Electron](https://www.electronjs.org/) as our cross-platform fra
 
 ### Available Scripts
 
-| Command                     | Description                                                           |
-| --------------------------- | --------------------------------------------------------------------- |
-| `bun run dev`               | Start the app in development (Vite dev servers, hot reload)           |
-| `bun run package`           | Package the app for the current platform into `out/`                  |
-| `bun run make`              | Build distributables (macOS ZIP/DMG, Windows Squirrel, Linux deb/rpm) |
-| `bun run build:helper`      | Build the `exodus-input` helper for Computer Use (macOS, needs Xcode) |
-| `bun run test`              | Run unit tests (Vitest)                                               |
-| `bun run test:watch`        | Run tests in watch mode                                               |
-| `bun run test:coverage`     | Run tests with coverage report                                        |
-| `bun run test:e2e:electron` | Package the app, then run the Playwright Electron end-to-end tests    |
-| `bun run typecheck`         | Run TypeScript type checking (main, renderer and the shared package)  |
-| `bun run lint`              | Run oxlint (fast Rust-based linter)                                   |
-| `bun run lint:fix`          | Run oxlint with auto-fix                                              |
-| `bun run fmt`               | Format code with oxfmt (fast Rust-based formatter)                    |
-| `bun run fmt:check`         | Check formatting without modifying files                              |
-| `bun run i18n:check`        | Verify translation catalogs are complete across all locales           |
+| Command                     | Description                                                            |
+| --------------------------- | ---------------------------------------------------------------------- |
+| `bun run dev`               | Start the app in development (Vite dev servers, hot reload)            |
+| `bun run package`           | Package the app for the current platform into `out/`                   |
+| `bun run make`              | Build distributables (macOS ZIP/DMG, Windows Squirrel, Linux deb/rpm)  |
+| `bun run build:helper`      | Build the `actovia-input` helper for Computer Use (macOS, needs Xcode) |
+| `bun run test`              | Run unit tests (Vitest)                                                |
+| `bun run test:watch`        | Run tests in watch mode                                                |
+| `bun run test:coverage`     | Run tests with coverage report                                         |
+| `bun run test:e2e:electron` | Package the app, then run the Playwright Electron end-to-end tests     |
+| `bun run typecheck`         | Run TypeScript type checking (main, renderer and the shared package)   |
+| `bun run lint`              | Run oxlint (fast Rust-based linter)                                    |
+| `bun run lint:fix`          | Run oxlint with auto-fix                                               |
+| `bun run fmt`               | Format code with oxfmt (fast Rust-based formatter)                     |
+| `bun run fmt:check`         | Check formatting without modifying files                               |
+| `bun run i18n:check`        | Verify translation catalogs are complete across all locales            |
 
-Development builds use your real data directory, `~/.exodus` — see [CLAUDE.md](./CLAUDE.md) for the details, and don't run two Actovia processes on it at once.
+Development builds use your real data directory, `~/.actovia` — see [CLAUDE.md](./CLAUDE.md) for the details, and don't run two Actovia processes on it at once.
 
 ## Contributing
 

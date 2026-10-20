@@ -11,8 +11,8 @@ import { getAtPath } from './tree'
  * listed in `GET /api/v1/settings/secrets-status` `needsReentry` beside the
  * decrypt failures, until a new value is saved for it (S3 review I2).
  *
- * Persisted in `~/.exodus/secrets-reentry.json` so the prompt survives a
- * restart and reaches exodus-ios. Names only: a settings path
+ * Persisted in `~/.actovia/secrets-reentry.json` so the prompt survives a
+ * restart and reaches actovia-ios. Names only: a settings path
  * (`providers.openaiApiKey`), or an MCP server id with `<column>.<name>`
  * labels (`headers.Authorization`) — rendered with the server's current name
  * when read. Reads prune whatever has a value again, or is gone.

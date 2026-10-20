@@ -19,7 +19,7 @@ function current(): Buffer {
 }
 
 /** The header the renderer sends it in. */
-export const PRESENCE_HEADER = 'x-exodus-presence'
+export const PRESENCE_HEADER = 'x-actovia-presence'
 
 export function getPresenceToken(): string {
   return current().toString('base64url')

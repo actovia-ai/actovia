@@ -1,10 +1,10 @@
 // src/main/lib/server/routes/health.ts
-// exodus-ios's Health workspace: one report a day, written from the phone's
+// actovia-ios's Health workspace: one report a day, written from the phone's
 // aggregated snapshot, and one for each finished week, month, quarter and
 // year, written from that period's aggregates. Stateless — nothing is stored,
 // and the logs carry timings, never the numbers.
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { AIError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { AIError } from '@actovia/shared/errors/app-error'
 import {
   healthSnapshotSchema,
   parseHealthSummary,
@@ -13,7 +13,7 @@ import {
   periodReportRequestSchema,
   type HealthSnapshot,
   type PeriodReportRequest
-} from '@exodus/shared/types/health'
+} from '@actovia/shared/types/health'
 import { Hono } from 'hono'
 
 import {

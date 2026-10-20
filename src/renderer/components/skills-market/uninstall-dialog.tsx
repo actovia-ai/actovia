@@ -1,5 +1,5 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { InstalledSkill } from '@exodus/shared/types/skills'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { InstalledSkill } from '@actovia/shared/types/skills'
 import { useTranslation } from 'react-i18next'
 
 import {

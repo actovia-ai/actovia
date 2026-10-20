@@ -6,7 +6,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 
 // A scratch tree with a file *outside* the artifacts dir that a traversal
 // would reach: <root>/secret.tsx next to <root>/artifacts/.
-const root = mkdtempSync(join(tmpdir(), 'exodus-artifacts-'))
+const root = mkdtempSync(join(tmpdir(), 'actovia-artifacts-'))
 const artifactsDir = join(root, 'artifacts')
 mkdirSync(join(artifactsDir, 'chat-1'), { recursive: true })
 writeFileSync(join(artifactsDir, 'chat-1', 'a1.tsx'), 'export default 1')

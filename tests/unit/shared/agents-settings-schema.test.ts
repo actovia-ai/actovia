@@ -1,7 +1,7 @@
 import {
   AgentsSettingsSchema,
   SettingsSchema
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { describe, expect, it } from 'vitest'
 
 describe('agents settings schema', () => {

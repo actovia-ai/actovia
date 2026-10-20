@@ -94,7 +94,7 @@ export interface ToolNotice {
 
 /**
  * One generated image as `image_generation` records it: saved under
- * `~/.exodus/media/<chatId>/<mediaId>` and served by
+ * `~/.actovia/media/<chatId>/<mediaId>` and served by
  * `GET /api/v1/media/<chatId>/<mediaId>`. `chatId` is absent for a
  * Philharmonic Group's image (saved, never served).
  */
@@ -142,7 +142,7 @@ export type ChatSseEvent =
   // A tool call that touches a secret outside Actovia is paused until the
   // user answers (`POST /api/v1/chat/approval`). `summary` is the path or
   // command, never file contents; `expiresAt` (epoch ms) is when it is
-  // declined unanswered. Unknown to exodus-ios so far, which ignores it.
+  // declined unanswered. Unknown to actovia-ios so far, which ignores it.
   | ApprovalRequiredEvent
   // How that paused call was settled — by the user here or on another
   // client, by the timeout, or by Stop.

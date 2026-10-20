@@ -1,4 +1,4 @@
-import type { ChatMessage, TextContent } from '@exodus/shared/types/chat'
+import type { ChatMessage, TextContent } from '@actovia/shared/types/chat'
 
 /**
  * Flatten a message's content down to its plain text — a `string` body is

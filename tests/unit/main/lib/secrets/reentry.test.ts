@@ -14,7 +14,7 @@
 //
 // Real SQL on an in-memory PGlite, the real routes and MCP connect code;
 // safeStorage is faked and the SDK transports mocked.
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'

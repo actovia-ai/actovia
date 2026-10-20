@@ -2,7 +2,7 @@
 import type {
   WeatherForecastDay,
   WeatherResult
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { beforeAll, describe, expect, it, vi } from 'vitest'

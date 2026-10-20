@@ -1,8 +1,8 @@
+import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 // src/main/lib/ai/philharmonic/employee-loop.ts
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message, Usage } from '@earendil-works/pi-ai'
-import type { PhilharmonicSseEvent } from '@exodus/shared/types/philharmonic'
 import { v4 as uuidV4 } from 'uuid'
 
 import {
@@ -91,13 +91,14 @@ export async function runEmployeeLoop(
   // Memories are scoped per Group (P1-4): an employee's experience in one
   // conversation never bleeds into another's prompt.
   const memories = await getAgentMemories(agent.id, conversationId)
-  const memoryBlock = memories.length
-    ? '\n\nPast experience:\n' +
-      memories
-        .slice(0, 5)
-        .map((m) => `- ${JSON.stringify(m.value)}`)
-        .join('\n')
-    : ''
+  const memoryBlock =
+    memories.length > 0
+      ? '\n\nPast experience:\n' +
+        memories
+          .slice(0, 5)
+          .map((m) => `- ${JSON.stringify(m.value)}`)
+          .join('\n')
+      : ''
   const team = agent.teamId ? ((await getTeamById(agent.teamId)) ?? null) : null
   const systemPrompt =
     buildEmployeeSystemPrompt(agent, team) + memoryBlock + skillsContent

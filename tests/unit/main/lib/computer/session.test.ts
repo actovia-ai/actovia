@@ -495,30 +495,35 @@ describe('runComputerSession — allowlist', () => {
   it.each([
     [
       'its packaged bundle id',
-      { bundleId: 'app.yancey.exodus', cgWindowId: 7 }
+      { bundleId: 'app.yancey.actovia', cgWindowId: 7 }
     ],
     [
       'one of its own windows',
       { bundleId: 'com.example.other', cgWindowId: 42 }
     ]
   ])(
-    'never drives Exodus itself (%s), even when the user allowlisted it',
+    'never drives Actovia itself (%s), even when the user allowlisted it',
     async (_label, self) => {
       const { setSelfIdentityForTests } =
         await import('@main/lib/computer/self')
       setSelfIdentityForTests({
-        bundleIds: ['app.yancey.exodus'],
+        bundleIds: ['app.yancey.actovia'],
         windowIds: [42]
       })
       try {
         mockHelper.__setWindows([
-          { app: 'Exodus', title: 'Exodus', bounds: [0, 0, 800, 600], ...self }
+          {
+            app: 'Actovia',
+            title: 'Actovia',
+            bounds: [0, 0, 800, 600],
+            ...self
+          }
         ])
         const res = await runComputerSession({
           sessionId: 's-self',
           task: 'click Allow once',
-          target: 'Exodus',
-          allowlist: ['Exodus', 'app.yancey.exodus', 'com.example.other'],
+          target: 'Actovia',
+          allowlist: ['Actovia', 'app.yancey.actovia', 'com.example.other'],
           agent: looping({ kind: 'click', to: [10, 10] }),
           helper: mockHelper,
           settleMs: 0

@@ -1,8 +1,8 @@
 import type {
   CachedModelEntry,
   Settings
-} from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+} from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 
 /** The provider's short name, as the Settings tabs spell it. */
 export const PROVIDER_SHORT_LABELS: Record<AiProviders, string> = {

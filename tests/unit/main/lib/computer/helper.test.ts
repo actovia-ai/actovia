@@ -20,7 +20,7 @@ afterEach(() => {
 })
 
 describe('serialize', () => {
-  it('produces the newline-delimited JSON exodus-input expects', () => {
+  it('produces the newline-delimited JSON actovia-input expects', () => {
     expect(serialize([{ op: 'move', x: 1, y: 2 }])).toBe(
       '{"op":"move","x":1,"y":2}\n'
     )
@@ -135,18 +135,18 @@ describe('mockHelper', () => {
 })
 
 describe('getHelper', () => {
-  it('returns mockHelper when EXODUS_INPUT_MOCK is set', () => {
-    vi.stubEnv('EXODUS_INPUT_MOCK', '1')
+  it('returns mockHelper when ACTOVIA_INPUT_MOCK is set', () => {
+    vi.stubEnv('ACTOVIA_INPUT_MOCK', '1')
     expect(getHelper()).toBe(mockHelper)
   })
 
   it('treats any non-empty value as truthy', () => {
-    vi.stubEnv('EXODUS_INPUT_MOCK', 'yes')
+    vi.stubEnv('ACTOVIA_INPUT_MOCK', 'yes')
     expect(getHelper()).toBe(mockHelper)
   })
 
-  it('returns realHelper when EXODUS_INPUT_MOCK is unset', () => {
-    vi.stubEnv('EXODUS_INPUT_MOCK', '')
+  it('returns realHelper when ACTOVIA_INPUT_MOCK is unset', () => {
+    vi.stubEnv('ACTOVIA_INPUT_MOCK', '')
     expect(getHelper()).toBe(realHelper)
   })
 })

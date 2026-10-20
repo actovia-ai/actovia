@@ -1,4 +1,4 @@
-import { EXODUS_CLI_REPO } from '@exodus/shared/constants/external-urls'
+import { ACTOVIA_CLI_REPO } from '@actovia/shared/constants/external-urls'
 import { useState } from 'react'
 import { Trans } from 'react-i18next'
 
@@ -31,7 +31,7 @@ export function CliTitle() {
       components={{
         cli: (
           <a
-            href={EXODUS_CLI_REPO}
+            href={ACTOVIA_CLI_REPO}
             target="_blank"
             rel="noopener noreferrer"
             className="text-foreground underline underline-offset-2"

@@ -6,8 +6,8 @@
 // keeps a DAG of leaf and condensed summaries; for Philharmonic v1 we keep
 // one summary row per conversation. Future iterations can graduate if needed.
 
+import type { Attachment } from '@actovia/shared/types/chat'
 import type { Message, Model } from '@earendil-works/pi-ai'
-import type { Attachment } from '@exodus/shared/types/chat'
 
 import { getMessagesByConversationId } from '../../../db/conversation-queries'
 import { getAllAgents } from '../../../db/philharmonic-queries'
@@ -252,7 +252,7 @@ export class PhilharmonicLcm {
     if (target === 0) return // nothing to absorb — we're already minimal
 
     const toAbsorb = rows.slice(0, target)
-    const boundary = toAbsorb[toAbsorb.length - 1]
+    const boundary = toAbsorb.at(-1)
     if (!boundary) return
 
     logger.info('philharmonic', 'LCM compacting', {

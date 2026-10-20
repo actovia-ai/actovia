@@ -1,6 +1,6 @@
 // What leaves the app as words — Copy, read-aloud — of a reply that holds a
 // steps or stock block: the list a reader would say, the symbol and its
-// reading, in place of the fence's JSON (exodus-ios spec 2026-10-07 §4). The
+// reading, in place of the fence's JSON (actovia-ios spec 2026-10-07 §4). The
 // questionnaire and the confirmation are left as they are, as in phase 1.
 import {
   findInteractiveBlock,
@@ -29,7 +29,7 @@ export function blockText(fence: InteractiveFence): string | null {
 }
 
 /**
- * The reply with its block's fence — the lines from ```` ```exodus-… ```` to
+ * The reply with its block's fence — the lines from ```` ```actovia-… ```` to
  * the closing ```` ``` ```` — replaced by the block's words; the reply as it
  * was (line ends made `\n`) when it holds no such block.
  */

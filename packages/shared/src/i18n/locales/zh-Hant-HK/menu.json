@@ -17,7 +17,7 @@
   "tray": {
     "showApp": "顯示應用程式",
     "hideApp": "隱藏應用程式",
-    "quitExodus": "結束 Actovia"
+    "quitActovia": "結束 Actovia"
   },
   "notification": {
     "philharmonicGroupError": "群組「{{title}}」發生錯誤",

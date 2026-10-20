@@ -2,6 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
   Type,
@@ -9,7 +10,6 @@ import {
   fauxText,
   fauxToolCall
 } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
 import type { KernelEvent } from '@main/lib/ai/kernel/events'
 import { registerFauxProvider } from '@main/lib/ai/kernel/faux'
 import {
@@ -35,7 +35,7 @@ vi.mock('electron', () => ({
 const RUN_ID = '22222222-2222-4222-8222-222222222222'
 let home: string
 let keyPath: string
-const originalExodusHome = process.env.EXODUS_HOME
+const originalActoviaHome = process.env.ACTOVIA_HOME
 
 // A stand-in read_file: the gate keys on the tool's name and `path`, and
 // what it would read must never reach an event unless allowed.
@@ -52,18 +52,18 @@ const readFile: AgentTool = {
 }
 
 beforeAll(() => {
-  home = mkdtempSync(join(tmpdir(), 'exodus-run-approval-'))
+  home = mkdtempSync(join(tmpdir(), 'actovia-run-approval-'))
   mkdirSync(join(home, '.ssh'))
   keyPath = join(home, '.ssh', 'id_rsa')
   writeFileSync(keyPath, 'PRIVATE KEY')
-  mkdirSync(join(home, '.exodus'))
-  process.env.EXODUS_HOME = join(home, '.exodus')
+  mkdirSync(join(home, '.actovia'))
+  process.env.ACTOVIA_HOME = join(home, '.actovia')
 })
 
 afterAll(() => {
   rmSync(home, { recursive: true, force: true })
-  if (originalExodusHome === undefined) delete process.env.EXODUS_HOME
-  else process.env.EXODUS_HOME = originalExodusHome
+  if (originalActoviaHome === undefined) delete process.env.ACTOVIA_HOME
+  else process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 afterEach(() => {
@@ -97,7 +97,7 @@ function input(over: Partial<RunInput> & Pick<RunInput, 'model'>): RunInput {
     contextMessages: [],
     tools: [readFile],
     apiKey: 'k',
-    workspaceDir: join(home, '.exodus', 'workspace', 'c'),
+    workspaceDir: join(home, '.actovia', 'workspace', 'c'),
     ...over
   }
 }
@@ -248,7 +248,7 @@ describe('runAgent — the approval gate', () => {
   })
 
   it('lock.dat is refused without asking', async () => {
-    const faux = scripted(join(home, '.exodus', 'lock.dat'))
+    const faux = scripted(join(home, '.actovia', 'lock.dat'))
     const events = await run({ model: faux.getModel() })
     expect(events.some((e) => e.type === 'approval_required')).toBe(false)
     expect(execute).not.toHaveBeenCalled()

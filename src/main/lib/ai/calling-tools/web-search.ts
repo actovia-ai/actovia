@@ -1,7 +1,7 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { StringEnum, Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
 
 import { Settings } from '../../db/schema'
 import { getModelFromProvider } from '../utils/model-util'

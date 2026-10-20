@@ -1,4 +1,4 @@
-import { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import {
   addDays,
   differenceInCalendarDays,
@@ -50,7 +50,7 @@ function computeStreaks(activeDays: Set<string>): {
   }
   const today = format(new Date(), 'yyyy-MM-dd')
   const yesterday = format(addDays(new Date(), -1), 'yyyy-MM-dd')
-  const last = sorted[sorted.length - 1]
+  const last = sorted.at(-1)
   const current = last === today || last === yesterday ? run : 0
   return { current, longest }
 }

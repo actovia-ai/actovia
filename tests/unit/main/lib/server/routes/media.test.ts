@@ -1,6 +1,6 @@
 // src/main/lib/server/routes/media.ts — GET /api/v1/media/:chatId/:file,
 // mounted in a bare Hono app behind the real authGate and errorHandler, the
-// way app.ts mounts it. Files live in a scratch EXODUS_HOME.
+// way app.ts mounts it. Files live in a scratch ACTOVIA_HOME.
 import { mkdirSync, mkdtempSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -18,11 +18,11 @@ vi.mock('@main/lib/lan/devices', () => ({
   )
 }))
 
-const home = mkdtempSync(join(tmpdir(), 'exodus-media-route-'))
-const originalExodusHome = process.env.EXODUS_HOME
-process.env.EXODUS_HOME = home
+const home = mkdtempSync(join(tmpdir(), 'actovia-media-route-'))
+const originalActoviaHome = process.env.ACTOVIA_HOME
+process.env.ACTOVIA_HOME = home
 afterAll(() => {
-  process.env.EXODUS_HOME = originalExodusHome
+  process.env.ACTOVIA_HOME = originalActoviaHome
 })
 
 const { default: mediaRouter } = await import('@main/lib/server/routes/media')

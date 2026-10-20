@@ -60,7 +60,7 @@ describe('agent card', () => {
     expect(card.costUsd).toBeGreaterThan(0.1)
     expect(cardText(card)).toMatch(/You chose Blue!/u)
     expect(card.prompts).toEqual([])
-    expect(touchedFiles(card)).toEqual(['/tmp/exodus-project/hello.txt'])
+    expect(touchedFiles(card)).toEqual(['/tmp/actovia-project/hello.txt'])
   })
 
   it('is blocked while a prompt waits and working again once it is answered', () => {

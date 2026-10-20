@@ -7,13 +7,13 @@ import dotenv from 'dotenv'
 dotenv.config({ path: path.resolve(__dirname, '.env.test') })
 
 // Scratch $HOME for the whole run. The app under test keeps its data in
-// ~/.exodus, and the specs that seed lock files read the same path through
+// ~/.actovia, and the specs that seed lock files read the same path through
 // os.homedir() — a fixed dir (not mkdtemp: every worker re-evaluates this
 // file) keeps them in agreement without ever touching the real home. The
-// electron fixture refuses to run (it wipes ~/.exodus) unless HOME is this dir.
-process.env.HOME = path.join(tmpdir(), 'exodus-e2e-home')
-// ...and an EXODUS_HOME left in the shell must not override it.
-delete process.env.EXODUS_HOME
+// electron fixture refuses to run (it wipes ~/.actovia) unless HOME is this dir.
+process.env.HOME = path.join(tmpdir(), 'actovia-e2e-home')
+// ...and an ACTOVIA_HOME left in the shell must not override it.
+delete process.env.ACTOVIA_HOME
 
 // Bypass system proxy for localhost API calls
 process.env.no_proxy = (process.env.no_proxy || '') + ',localhost,127.0.0.1'

@@ -1,5 +1,5 @@
-import { ErrorCode } from '@exodus/shared/constants/error-codes'
-import { NotFoundError } from '@exodus/shared/errors/app-error'
+import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { NotFoundError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 
 import { getArtifact, listArtifacts } from '../../ai/artifacts'

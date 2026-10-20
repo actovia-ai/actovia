@@ -4,25 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Actovia (formerly Exodus) is a cross-platform desktop AI chat application built with Electron, React, and Node.js. The toolchain is electron-forge + Vite (via `@electron-forge/plugin-vite`) + bun, with a `packages/shared` workspace package (`@exodus/shared`). It features multi-provider LLM support, a knowledge base (RAG), Deep Research, Philharmonic (multi-agent Groups), MCP (Model Context Protocol) routes, an app lock, lossless context management (LCM), and a memory/personalization layer.
+Actovia is a cross-platform desktop AI chat application built with Electron, React, and Node.js. The toolchain is electron-forge + Vite (via `@electron-forge/plugin-vite`) + bun, with a `packages/shared` workspace package (`@actovia/shared`). It features multi-provider LLM support, a knowledge base (RAG), Deep Research, Philharmonic (multi-agent Groups), MCP (Model Context Protocol) routes, an app lock, lossless context management (LCM), and a memory/personalization layer.
 
 ### Naming
 
-The product is **Actovia** (formerly Exodus, renamed 2026-10-19). Visible names
+The product is **Actovia**. Visible names
 come from `APP_DISPLAY_NAME` (`packages/shared/src/constants/brand.ts`) and the
 i18n catalogs; the repo is `actovia-ai/actovia`, the site `actovia.yancey.app`,
 the CLI `@actovia-ai/cli` (command `actovia`). Internal identifiers that hold data
 or pair devices **keep the old name** — renaming them would orphan user data:
-`package.json` `name: "exodus"` / `productName: "Exodus"` (they derive the
-Keychain item "Exodus Safe Storage", Electron `userData` and the
+`package.json` `name: "actovia"` / `productName: "Actovia"` (they derive the
+Keychain item "Actovia Safe Storage", Electron `userData` and the
 single-instance lock — **never call `app.setName` or change `productName`**; a
-unit test guards it), the bundle ids, `~/.exodus` and every `EXODUS_*`
-variable, the Windows `Exodus.exe`, the LAN certificate subject `CN=Exodus`
-(devices pin its fingerprint), the `exodus://` and `exodus-artifact://`
-schemes, the `exodus-*` fences and `x-exodus-presence`, the DB enum value
-`'exodus'`, the `exodus-color-tone` localStorage key, `~/Exodus Projects`, the
-`exodus-input` helper, and code names such as `@exodus/shared`,
-`EXODUS_REPO` or `brand/Exodus.icon`. Spec:
+unit test guards it), the bundle ids, `~/.actovia` and every `ACTOVIA_*`
+variable, the Windows `Actovia.exe`, the LAN certificate subject `CN=Actovia`
+(devices pin its fingerprint), the `actovia://` and `actovia-artifact://`
+schemes, the `actovia-*` fences and `x-actovia-presence`, the DB enum value
+`'actovia'`, the `actovia-color-tone` localStorage key, `~/Actovia Projects`, the
+`actovia-input` helper, and code names such as `@actovia/shared`,
+`ACTOVIA_REPO` or `brand/Actovia.icon`. Spec:
 `docs/superpowers/specs/2026-10-19-actovia-rebrand-design.md`.
 
 ## Project Constraints (read first)
@@ -83,7 +83,7 @@ bun run dev              # Start the dev build via electron-forge (Vite dev serv
 bun run package          # Package the app for the current platform into out/ (keeps data-testid markers — e2e needs them)
 bun run make             # Build installers/archives (Squirrel, ZIP, DMG, deb, rpm); strips data-testid (STRIP_TEST_IDS=1)
 bun run publish          # Publish a release to GitHub (needs GITHUB_TOKEN)
-bun run build:helper     # Rebuild the macOS Swift computer-use helper into resources/bin/exodus-input
+bun run build:helper     # Rebuild the macOS Swift computer-use helper into resources/bin/actovia-input
 ```
 
 Every build (dev, `package`, `make`) writes hidden source maps beside the
@@ -110,7 +110,7 @@ bun run fmt:check     # Check formatting without modifying files
 bun run test             # Run all unit tests with Vitest
 bun run test:watch       # Run tests in watch mode
 bun run test:coverage    # Run tests with V8 coverage report
-bun run test:e2e:electron  # Playwright Electron E2E (packages first: it drives the production build in .vite/; the app boots pi's scripted provider — EXODUS_FAUX_PROVIDER=1 from the fixture — so chat specs need no key)
+bun run test:e2e:electron  # Playwright Electron E2E (packages first: it drives the production build in .vite/; the app boots pi's scripted provider — ACTOVIA_FAUX_PROVIDER=1 from the fixture — so chat specs need no key)
 bun run test:e2e:api       # Playwright API integration (needs a running app + .env.test)
 bun run test:e2e:providers # Provider compatibility (needs API keys in .env.test)
 ```
@@ -133,7 +133,7 @@ bun run icons            # Regenerate every icon, the tray glyph, web assets and
 
 ### Electron Process Model
 
-Exodus uses a three-process architecture:
+Actovia uses a three-process architecture:
 
 1. **Main Process** (`src/main/main.ts`):
    - Manages Electron app lifecycle, window creation, and IPC
@@ -156,40 +156,40 @@ Exodus uses a three-process architecture:
 
 ### Data directory, ports and isolation
 
-Exodus is the successor of the older `universal-client` app and shares its
-`~/.exodus` layout, so a dev build sees the same chats, settings and memories:
+Actovia is the successor of the older `universal-client` app and shares its
+`~/.actovia` layout, so a dev build sees the same chats, settings and memories:
 
-- **Data dir**: `~/.exodus` for packaged _and_ unpackaged runs (`bun run dev`,
-  `electron .`) — `getExodusHome()` in `src/main/lib/paths.ts`; startup logs the
-  directory in use (`Data directory`); `~/.exodus/analytics` holds the DuckDB
-  chat-audit snapshot; `~/.exodus/media/<chatId>/` holds generated images
+- **Data dir**: `~/.actovia` for packaged _and_ unpackaged runs (`bun run dev`,
+  `electron .`) — `getACTOVIAHome()` in `src/main/lib/paths.ts`; startup logs the
+  directory in use (`Data directory`); `~/.actovia/analytics` holds the DuckDB
+  chat-audit snapshot; `~/.actovia/media/<chatId>/` holds generated images
   (`getMediaDir()`, and a chat's or Group's own dir only through
   `mediaDirFor()` in `media/store.ts`, which refuses an id that would leave
   it; a Philharmonic Group's go to `media/_groups/<conversationId>/`). **PGlite is single-process: never run two
-  Exodus processes (a dev build, the packaged app, universal-client) against it
+  Actovia processes (a dev build, the packaged app, universal-client) against it
   at the same time** — the database can be corrupted (backups live in
-  `~/.exodus/backups`). Between Exodus builds this is enforced:
+  `~/.actovia/backups`). Between Actovia builds this is enforced:
   `src/main/lib/single-instance.ts` takes Electron's single-instance lock from
   `db/db.ts`, before PGlite is constructed (dev and packaged share `userData`,
   so they share the lock); a second launch exits and the running app raises its
   window, or — if the holder is quitting — waits for it. universal-client has
-  its own `userData` and is not covered. `EXODUS_HOME` points a run at another directory.
-- **Electron `userData`**: the default `~/Library/Application Support/Exodus`
+  its own `userData` and is not covered. `ACTOVIA_HOME` points a run at another directory.
+- **Electron `userData`**: the default `~/Library/Application Support/Actovia`
   for every build — it only holds Chromium state (localStorage, caches) and is
   where the legacy-location migration looks. There is no `-dev` variant of
   anything.
 - **Server ports** (`packages/shared/src/constants/systems.ts`): `SERVER_PORT =
   60223` is plaintext HTTP bound to loopback only (`127.0.0.1` and `::1`) — the
   renderer, the Actovia CLI, `tests/api` and the iOS Simulator; nothing on the LAN
-  can reach it. `LAN_SERVER_PORT = 63129` is what `exodus-ios` on a device
+  can reach it. `LAN_SERVER_PORT = 63129` is what `actovia-ios` on a device
   connects to. Don't change either without updating the clients.
 - **E2E**: `playwright.config.ts` points `$HOME` at a scratch dir
-  (`<tmpdir>/exodus-e2e-home`); the electron fixture wipes `~/.exodus` under it
+  (`<tmpdir>/actovia-e2e-home`); the electron fixture wipes `~/.actovia` under it
   before every test and throws at import unless `$HOME` is that dir. It also
   refuses to launch while anything answers on `localhost:60223`: the renderer
   always talks to that port, so a running dev build (`bun run dev`) would be
   driven by the suite instead of the app under test — reading and writing the
-  real `~/.exodus` through it. To test a
+  real `~/.actovia` through it. To test a
   packaged build by hand, sandbox `$HOME` and pass `--user-data-dir` the same way.
 
 ### Updates and code signing
@@ -225,7 +225,7 @@ the executable — that was the exact error every downloaded update failed with.
 - forge: `osxSign` (identity, hardened runtime, an entitlements file for
   Electron's JIT/unsigned-memory needs) and `osxNotarize`; the secrets and
   certificate import in `release.yml`. Every Mach-O in the bundle must be signed,
-  including the unpacked DuckDB `.node`/dylib and `resources/bin/exodus-input`,
+  including the unpacked DuckDB `.node`/dylib and `resources/bin/actovia-input`,
   or notarization fails.
 - The first signed release cannot be reached by auto-update from an ad-hoc one
   (the old requirement is a `cdhash`): users install it by hand once.
@@ -251,9 +251,9 @@ quality reasons). `src/main/lib/ai/skills/`:
 
 - `skills-sh-client.ts` — list / search / detail / audit against the BFF relay
   `SKILLS_SH_BFF_URL` (`https://skills-md.yancey.app`, the same relay
-  the Actovia CLI uses; `EXODUS_SKILLS_BFF_URL` overrides it).
+  the Actovia CLI uses; `ACTOVIA_SKILLS_BFF_URL` overrides it).
 - `skills-store.ts` — installs a skill's `files[]` under
-  `~/.exodus/skills/<slug>/` and records it in `~/.exodus/skills/.lock.json`
+  `~/.actovia/skills/<slug>/` and records it in `~/.actovia/skills/.lock.json`
   (files first, lockfile last; paths that escape the slug dir are refused).
   Same directory and lockfile shape as the Actovia CLI, so skills installed by
   either are visible to both.
@@ -294,9 +294,9 @@ snapshot of the user's data (`src/main/lib/analytics/`, route
 `/api/v1/analytics`, page `settings-form/chat-audit.tsx`). `snapshot.ts`
 copies `chat` / `message` (and Philharmonic's `conversation_message` and `pm_round_event` as
 `group_messages` / `pm_round_events`, scrubbed with the current secrets — empty when they cannot be read; preset `pmDecisions`) out of PGlite via NDJSON into
-`~/.exodus/analytics/exodus.duckdb` (usage flattened to `*_tokens` /
+`~/.actovia/analytics/actovia.duckdb` (usage flattened to `*_tokens` /
 `cost_usd` columns, `content` kept as JSON) and copies
-`~/.exodus/logs/*.jsonl` into a `logs` table; `duckdb.ts` lazy-`import()`s
+`~/.actovia/logs/*.jsonl` into a `logs` table; `duckdb.ts` lazy-`import()`s
 `@duckdb/node-api` on first use (never at boot), opens the file
 `READ_ONLY` for queries and `READ_WRITE` only while rebuilding, serialised
 on one promise chain, and caps results at 500 rows. The query instance runs
@@ -320,7 +320,7 @@ asar (the `.node` dlopens `libduckdb` beside itself). Research notes:
 ### Colour tone
 
 The accents are the owner's reference of 2026-09-29 (ChatGPT's accent
-colours) and the ones exodus-ios draws; neutral is shadcn's black and white.
+colours) and the ones actovia-ios draws; neutral is shadcn's black and white.
 They are too light to be text, so a tone is a fill (`--primary`, with
 `--primary-foreground` on it) and an ink (`--primary-ink`: links, tinted
 text, focus rings, thin lines — `text-primary-ink`, never `text-primary`),
@@ -337,7 +337,7 @@ group's transcript and composer (`group-chat.tsx`) are toned.
 
 **What leaves the app** (same date): Copy writes an answer's `【N-source】`
 markers as `[n]` with a References list under it (`lib/citation-references.ts`,
-the rule of the Deep Research PDF and of exodus-ios's copy); a `web_search`
+the rule of the Deep Research PDF and of actovia-ios's copy); a `web_search`
 brings back about ten sources in one Brave request — two per site, 8k
 tokens — and deep recall (three phrasings plus a breadth pass, six requests)
 is off unless switched on (`SEARCH_LIMITS` in `ai/utils/web-search-util.ts`;
@@ -355,7 +355,7 @@ renditions of one picture (`-1140x815` / `-120x86`) count once. The gallery
 under an answer and its lightbox show only the thumbnail Brave fetched,
 never the site's own file — it may refuse a hotlink, be gone or not answer
 (owner, 2026-09-30); an image with no thumbnail is left out
-(`collectGalleryImages()`; exodus-ios `SearchGallery`, `SearchViewerImage`).
+(`collectGalleryImages()`; actovia-ios `SearchGallery`, `SearchViewerImage`).
 
 Settings → General → Color tone (`generals.tsx`) persists `settings.colorTone`
 (`ColorToneSchema`: neutral | emerald | blue | violet | rose | orange | yellow;
@@ -363,7 +363,7 @@ a `text` column defaulting to `neutral`). The value becomes `data-tone` on
 `<html>`, and `globals.css` carries one `[data-tone='…']` /
 `.dark[data-tone='…']` token block per tone (neutral is the base
 `:root` / `.dark`). `src/renderer/lib/tone.ts` applies the attribute and
-mirrors it to localStorage (`exodus-color-tone`) so every entry (`main.tsx`
+mirrors it to localStorage (`actovia-color-tone`) so every entry (`main.tsx`
 
 - the three sub-apps) can call `bootTone()` before React mounts (no flash);
   `components/app/tone-bridge.tsx` follows `useSettings()` in the main window and
@@ -384,7 +384,7 @@ plus `iconutil`) renders everything from it:
   `brand/liquid-glass/light.png`, on Apple's 824-in-1024 grid with a drop
   shadow; `build/icon.ico`, `build/icon.png`, `build/<n>x<n>.png` for the
   other packagers
-- `build/icon.icon` — a copy of `brand/Exodus.icon`, the Icon Composer
+- `build/icon.icon` — a copy of `brand/Actovia.icon`, the Icon Composer
   document (layer order, glass, shadow; the background swaps to
   `background-dark.svg` in the dark appearance via `hidden-specializations`),
   with its layer SVGs refreshed from `brand/icon-composer/`. @electron/packager
@@ -439,7 +439,7 @@ The main process runs a **Hono HTTP server** that handles all business logic:
 
 **Server Routes** (`src/main/lib/server/routes/`, registered in `src/main/lib/server/app.ts`):
 
-Every business endpoint is mounted on one versioned sub-app (`app.route('/api/v1', v1)`), so the public paths are `/api/v1/<route>`; the lock/trace/settings middlewares still match `/api/*`. A breaking API change ships as a new `/api/v2` sub-app beside v1 rather than mutating v1 in place. Any client of this backend (the renderer, `tests/api`, `exodus-ios`) must address `/api/v1/...`.
+Every business endpoint is mounted on one versioned sub-app (`app.route('/api/v1', v1)`), so the public paths are `/api/v1/<route>`; the lock/trace/settings middlewares still match `/api/*`. A breaking API change ships as a new `/api/v2` sub-app beside v1 rather than mutating v1 in place. Any client of this backend (the renderer, `tests/api`, `actovia-ios`) must address `/api/v1/...`.
 
 `/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
 
@@ -447,10 +447,10 @@ The `/api/v1/settings` route includes `POST /api/v1/settings/models` — dispatc
 
 The `/api/v1/chat` route serves history a page at a time (spec `docs/superpowers/specs/2026-10-01-chat-history-and-context-design.md` §C3, `src/main/lib/chat/page.ts`): `GET /api/v1/chat/:id/page?runs=10&before=<runId>&through=<runId>` → `{ messages, sources, questions, hasOlder, olderCursor }` — the newest `runs` runs (1–50, default 10) before `before`'s group, reaching back at least to `through`'s (the outline's jump), whole runs and a regenerate group never split; `messages` in `GET /:id`'s row shape without what no client reads (`compactRow`: `searchText`, `chatId`, a successful result's text when `details` carry the payload — computer use keeps it for its screenshot — a search result's `content` extract, an artifact call's `code`), a row still over 64 KB cut to 8 KB per string with `truncated: true` (`limitRow`); `sources` every `chat_source` row of the chat without its text, each with its `runId`; `questions` one per run group (≤ 200 characters); `404 RUN_NOT_FOUND` for a cursor not of the chat. `GET /api/v1/chat/:id/messages/:messageId` is one row whole (`404 MESSAGE_NOT_FOUND`). `GET /api/v1/chat/:id` (every row, whole) is unchanged. Both clients open a chat on its newest page.
 
-The `/api/v1/chat` route includes `POST /api/v1/chat/:chatId/choose` (`{ runId }` → `{ attempts }`) — keeps one answer of a regenerate group (see Chat Flow); `404 RUN_NOT_FOUND` for a run not in a group of that chat, `409 ATTEMPT_LOCKED` once a later run exists (repeating the current choice always answers). Deliberately not in `PRESENCE_PATHS`: it only picks which of the user's own answers the model sees next, and exodus-ios calls it over the LAN.
+The `/api/v1/chat` route includes `POST /api/v1/chat/:chatId/choose` (`{ runId }` → `{ attempts }`) — keeps one answer of a regenerate group (see Chat Flow); `404 RUN_NOT_FOUND` for a run not in a group of that chat, `409 ATTEMPT_LOCKED` once a later run exists (repeating the current choice always answers). Deliberately not in `PRESENCE_PATHS`: it only picks which of the user's own answers the model sees next, and actovia-ios calls it over the LAN.
 
-**Secrets leave the main process as masks only** (`src/main/lib/secrets/`): `GET /api/v1/settings` and the `/api/v1/mcp` responses turn every registry field (`registry.ts` — provider keys, Google / Brave / LightRAG keys, S3 credentials, the legacy `mcpServers` blob; `mcp_server.env` / `headers` values, everything under a secret-named `extraConfig` key, and secrets inside an MCP `url` / `args`: userinfo, secret-named query values, capability path segments, `--token` / `--api-key=` / `--header "Authorization: …"` values) into `"•••• " + last4` (`"••••"` under 12 characters). A posted mask means "unchanged": `updateSettings` / `updateSettingField` and the MCP create/update swap it back for the stored value (read through `current.ts`'s plaintext accessors — the seam at-rest encryption plugs into), `null` / `""` clear, anything else sets — so the desktop autosave and exodus-ios, which post whole sections/columns back, need no knowledge of masks. `getSettings()` / `c.get('settings')` stay plaintext inside main. A write that moves a secret's destination (`SECRET_DESTINATIONS`: a provider base URL / Azure endpoint, the LightRAG URL; for MCP the effective `url` / `transportType` for `headers` and the `extraConfig` secrets, `command` / `args` — and any edit to `env` itself (an entry added, removed or changed: `PATH`, `npm_config_registry`, `HOME`, `BASH_ENV`… each can swap the program), which counts as a new command — for `env` — a partial PUT that leaves the secrets out clears them too, `prepareMcpUpdate` in `at-rest.ts`) while the secret comes back as its mask, or is not re-sent, clears it — a stored key is never carried to a new host. Secret `args` go only to the command they were saved with: a new `command` refuses masked args, and a PUT that changes `command` without sending `args` writes `args: []` (none of the stored ones follow). A url / args / env / headers / secret `extraConfig` value (or anything on an MCP create) that holds `••••` without being the exact mask is a 400 "re-enter the secret" (`SECRET_REENTRY_REQUIRED`, `params.field` naming the column: `url` / `args` / `env` / `headers` / `extraConfig`) — a mask is never stored. At rest the values are `enc:v1:…` (see Security Considerations); `GET /api/v1/settings/secrets-status` answers `{ encryption: 'on' | 'unavailable', needsReentry: string[] }` for the Settings notices — `needsReentry` holds both the secrets that do not decrypt and those a destination move cleared (`moved.ts`), as plain names. A new schema field whose name `isSecretName()` flags (`…key`, secret, password, token, auth, bearer, credential, cookie, session, `pat` — word by word, so `path` / `author` / `keyboard` are not, nor the allowlisted `max-tokens` / `token-limit` / `session-name` / `session-timeout` / `signature-version` / `pass-through`; a value after a secret flag or under a secret name is masked whatever its shape — all digits (`-u root -p 98765432`, `DB_PASSWORD=12345678`) included) fails `registry.test.ts` until it is put in the registry or on its commented non-secret list.
-**The desktop Settings form and masks** (`components/settings/secret-fields.tsx`, `lib/secrets.ts`): every key input is a `SecretInput` — the mask shows as text with a "Saved" addon (and is named for a screen reader as "Saved key ending in abcd" / "No key saved", never read out as bullets); typing (or pasting) replaces the whole mask and deleting from it clears the key (`replaceMask`); an untouched mask posts back as "unchanged", so the per-field autosave is unaware of it. A field a saved secret is sent to is a `DestinationInput`, which says from focus until its edit is saved that changing it clears the secret: `AddressInput` for the provider base URLs, the Azure endpoint, the LightRAG URL, and in the MCP form the url (clears the headers) and the command (with the args: clears the env and masked args). `buildSettingsSave` applies the same destination rule to the payload (`clearMovedSecrets`, a copy of `SECRET_DESTINATIONS` that `tests/unit/renderer/lib/secrets.test.ts` holds equal to main's, and the one shared `normalizeBaseUrl` from `@exodus/shared/utils/base-url`) and posts that key as `null`. The server records every secret a destination move cleared — settings keys and MCP `env` / `headers` / `extraConfig` values — in `needsReentry` until a new value is saved (`secrets/moved.ts`, names only, in `~/.exodus/secrets-reentry.json`, so the prompt survives a restart and reaches exodus-ios; a data reset clears it); the key input asks for it (`clearedSecretsAtom` only mirrors the move until that read lands), and the MCP server card and its form fields list theirs. The MCP form posts the `env` it shows (masks included — never `null`), and shows a `SECRET_REENTRY_REQUIRED` 400 under the field it names (the create/update hooks list that code in `meta.inlineCodes`, so it is not toasted too). Settings → General opens with the notices from `secrets-status` (`settings-form/secrets-notices.tsx`: keychain unavailable; each key to re-enter, by name, MCP servers included).
+**Secrets leave the main process as masks only** (`src/main/lib/secrets/`): `GET /api/v1/settings` and the `/api/v1/mcp` responses turn every registry field (`registry.ts` — provider keys, Google / Brave / LightRAG keys, S3 credentials, the legacy `mcpServers` blob; `mcp_server.env` / `headers` values, everything under a secret-named `extraConfig` key, and secrets inside an MCP `url` / `args`: userinfo, secret-named query values, capability path segments, `--token` / `--api-key=` / `--header "Authorization: …"` values) into `"•••• " + last4` (`"••••"` under 12 characters). A posted mask means "unchanged": `updateSettings` / `updateSettingField` and the MCP create/update swap it back for the stored value (read through `current.ts`'s plaintext accessors — the seam at-rest encryption plugs into), `null` / `""` clear, anything else sets — so the desktop autosave and actovia-ios, which post whole sections/columns back, need no knowledge of masks. `getSettings()` / `c.get('settings')` stay plaintext inside main. A write that moves a secret's destination (`SECRET_DESTINATIONS`: a provider base URL / Azure endpoint, the LightRAG URL; for MCP the effective `url` / `transportType` for `headers` and the `extraConfig` secrets, `command` / `args` — and any edit to `env` itself (an entry added, removed or changed: `PATH`, `npm_config_registry`, `HOME`, `BASH_ENV`… each can swap the program), which counts as a new command — for `env` — a partial PUT that leaves the secrets out clears them too, `prepareMcpUpdate` in `at-rest.ts`) while the secret comes back as its mask, or is not re-sent, clears it — a stored key is never carried to a new host. Secret `args` go only to the command they were saved with: a new `command` refuses masked args, and a PUT that changes `command` without sending `args` writes `args: []` (none of the stored ones follow). A url / args / env / headers / secret `extraConfig` value (or anything on an MCP create) that holds `••••` without being the exact mask is a 400 "re-enter the secret" (`SECRET_REENTRY_REQUIRED`, `params.field` naming the column: `url` / `args` / `env` / `headers` / `extraConfig`) — a mask is never stored. At rest the values are `enc:v1:…` (see Security Considerations); `GET /api/v1/settings/secrets-status` answers `{ encryption: 'on' | 'unavailable', needsReentry: string[] }` for the Settings notices — `needsReentry` holds both the secrets that do not decrypt and those a destination move cleared (`moved.ts`), as plain names. A new schema field whose name `isSecretName()` flags (`…key`, secret, password, token, auth, bearer, credential, cookie, session, `pat` — word by word, so `path` / `author` / `keyboard` are not, nor the allowlisted `max-tokens` / `token-limit` / `session-name` / `session-timeout` / `signature-version` / `pass-through`; a value after a secret flag or under a secret name is masked whatever its shape — all digits (`-u root -p 98765432`, `DB_PASSWORD=12345678`) included) fails `registry.test.ts` until it is put in the registry or on its commented non-secret list.
+**The desktop Settings form and masks** (`components/settings/secret-fields.tsx`, `lib/secrets.ts`): every key input is a `SecretInput` — the mask shows as text with a "Saved" addon (and is named for a screen reader as "Saved key ending in abcd" / "No key saved", never read out as bullets); typing (or pasting) replaces the whole mask and deleting from it clears the key (`replaceMask`); an untouched mask posts back as "unchanged", so the per-field autosave is unaware of it. A field a saved secret is sent to is a `DestinationInput`, which says from focus until its edit is saved that changing it clears the secret: `AddressInput` for the provider base URLs, the Azure endpoint, the LightRAG URL, and in the MCP form the url (clears the headers) and the command (with the args: clears the env and masked args). `buildSettingsSave` applies the same destination rule to the payload (`clearMovedSecrets`, a copy of `SECRET_DESTINATIONS` that `tests/unit/renderer/lib/secrets.test.ts` holds equal to main's, and the one shared `normalizeBaseUrl` from `@actovia/shared/utils/base-url`) and posts that key as `null`. The server records every secret a destination move cleared — settings keys and MCP `env` / `headers` / `extraConfig` values — in `needsReentry` until a new value is saved (`secrets/moved.ts`, names only, in `~/.actovia/secrets-reentry.json`, so the prompt survives a restart and reaches actovia-ios; a data reset clears it); the key input asks for it (`clearedSecretsAtom` only mirrors the move until that read lands), and the MCP server card and its form fields list theirs. The MCP form posts the `env` it shows (masks included — never `null`), and shows a `SECRET_REENTRY_REQUIRED` 400 under the field it names (the create/update hooks list that code in `meta.inlineCodes`, so it is not toasted too). Settings → General opens with the notices from `secrets-status` (`settings-form/secrets-notices.tsx`: keychain unavailable; each key to re-enter, by name, MCP servers included).
 
 **Middleware Pipeline** (order in `app.ts`):
 
@@ -461,11 +461,11 @@ The `/api/v1/chat` route includes `POST /api/v1/chat/:chatId/choose` (`{ runId }
    takes it — URLSession does over HTTPS by itself — else gzip; never an
    event stream (each frame must leave at once). A chat's history measured
    2.4 MB raw, 360 KB brotli, 725 KB gzip (2026-10-01)
-1. Origin gate (`createOriginGate`) — a request must carry no `Origin` (exodus-ios, the Actovia CLI, `tests/api`, and the packaged renderer: a `file://` page in Electron sends none) or, in a dev build only, exactly the Vite renderer's; anything else — a website, another loopback port, `null`, an extension, the artifact sandbox — gets `403`, as does a request on the loopback listener addressed by a public `Host` (DNS rebinding). Runs before CORS so a refused origin gets no `Access-Control-Allow-Origin`. Which listener took a request is in the bindings (`listenerOf(c)` in `server/types.ts`)
+1. Origin gate (`createOriginGate`) — a request must carry no `Origin` (actovia-ios, the Actovia CLI, `tests/api`, and the packaged renderer: a `file://` page in Electron sends none) or, in a dev build only, exactly the Vite renderer's; anything else — a website, another loopback port, `null`, an extension, the artifact sandbox — gets `403`, as does a request on the loopback listener addressed by a public `Host` (DNS rebinding). Runs before CORS so a refused origin gets no `Access-Control-Allow-Origin`. Which listener took a request is in the bindings (`listenerOf(c)` in `server/types.ts`)
 2. CORS middleware (`hono/cors`)
 3. Auth gate (`authGate`) — on the LAN listener a request needs `Authorization: Bearer <token>` of a paired device (`401` otherwise), except `POST /api/v1/pair`, which the pairing window guards; `/api/v1/devices*` is refused there outright (`403`). Loopback passes straight through. Ahead of the lock gate so an unauthenticated request learns nothing, not even that the app is locked
 4. Lock gate (`lockGate`) — rejects all `/api/*` with `423` while the app is locked. `POST /api/v1/lock/unlock` is mounted just before it (after `authGate`), so a paired device can unlock the app from the phone
-5. Presence gate (`presenceGate`) — `POST /api/v1/chat/approval` and every `/api/v1/devices*` route stand for "the user said so", and the model can reach loopback (`curl` through `terminal`): on loopback they need the `x-exodus-presence` header, a per-launch token held in main's memory and handed only to the main window's top frame over IPC (`api:presence-token`, `src/main/lib/presence.ts`; the renderer's `lib/presence.ts` attaches it) — `403 PRESENCE_REQUIRED` otherwise, so a model can neither approve its own paused call nor pair itself a device. On the LAN `authGate` already required a paired device's token
+5. Presence gate (`presenceGate`) — `POST /api/v1/chat/approval` and every `/api/v1/devices*` route stand for "the user said so", and the model can reach loopback (`curl` through `terminal`): on loopback they need the `x-actovia-presence` header, a per-launch token held in main's memory and handed only to the main window's top frame over IPC (`api:presence-token`, `src/main/lib/presence.ts`; the renderer's `lib/presence.ts` attaches it) — `403 PRESENCE_REQUIRED` otherwise, so a model can neither approve its own paused call nor pair itself a device. On the LAN `authGate` already required a paired device's token
 6. Trace gate (`traceMiddleware`) — wraps each `/api/*` request in an `AsyncLocalStorage` trace (see `src/main/lib/logger/`), sets the `x-trace-id` response header
 7. Settings injection — `getSettings()` set on the Hono context per request (served from a cache in `db/queries.ts` that `updateSettings` / `updateSettingField` invalidate — write the `settings` table only through those two)
 8. Error handler (`app.onError`, returns JSON errors)
@@ -476,7 +476,7 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
 
 **Database**: PGlite (embedded Postgres) with pgvector extension
 
-- Location: `~/.exodus/database` (`getDatabaseDir` in `src/main/lib/paths.ts`)
+- Location: `~/.actovia/database` (`getDatabaseDir` in `src/main/lib/paths.ts`)
 - ORM: Drizzle ORM with Zod schemas
 - Schema: `src/main/lib/db/schema.ts`
 - Migrations: `resources/drizzle/`
@@ -562,7 +562,7 @@ rendering work in.
 - `models.ts` — the `Models` collection and `streamFn` (above)
 - `run.ts` — `runAgent(input): AsyncIterable<KernelEvent>` wraps pi's `Agent`
   (`convertToLlm` asserts the run invariant, `beforeToolCall` blocks tools
-  disabled in settings and holds a call that touches a secret outside Exodus
+  disabled in settings and holds a call that touches a secret outside Actovia
   for approval) and yields the kernel's own events, each stamped with
   `runId`: `message_update` · `message_end` · `tool_start` · `tool_update` ·
   `tool_end` · `approval_required` / `approval_resolved` (between a paused
@@ -589,11 +589,11 @@ rendering work in.
   arguments (`ps` with options, `pgrep -a` / `-lf`, `/proc/<pid>/environ`), a
   documented heuristic; a `grep` root outside the workspace whose tree holds
   a secret-named file; a `call_mcp_tool` whose argument strings match any of
-  those), `refuse` (`~/.exodus/lock.dat`, `~/.exodus/tls/`, and the raw data
-  `~/.exodus/database`, `~/.exodus/backups`, `~/.exodus/analytics` — plaintext
+  those), `refuse` (`~/.actovia/lock.dat`, `~/.actovia/tls/`, and the raw data
+  `~/.actovia/database`, `~/.actovia/backups`, `~/.actovia/analytics` — plaintext
   in a pre-encryption backup or while encryption is unavailable, and a glob
   that can expand into them; a `call_mcp_tool` URL or bare port number at
-  Exodus's own API ports — blocked, never asked) or
+  Actovia's own API ports — blocked, never asked) or
   null.
   Paths compare case-folded on macOS / Windows and without the
   `/System/Volumes/Data` firmlink prefix; a command's summary leads with what
@@ -646,7 +646,7 @@ either client's chat code, and keep it true in the same change.
    server's clock (every read orders by `createdAt`). With `protocol: 2`,
    `done` is `{ messages: <the run: its question as stored, then its
    answer>, attempts: <every group's stored state> }` and the client merges
-   (`mergeRun()` in `packages/shared/src/utils/run-merge.ts`; exodus-ios
+   (`mergeRun()` in `packages/shared/src/utils/run-merge.ts`; actovia-ios
    `RunMerge`, same vectors); without it, `done` echoes the whole
    conversation (read from the database) as before
 2. Assemble the context (LCM, in whole runs) and bind built-in tools based on
@@ -680,7 +680,7 @@ either client's chat code, and keep it true in the same change.
    dangerous tail from the person approving it (I1 re-review). The desktop
    card renders the event's copy in full, wrapped (`break-all`), never
    CSS-truncated, in a scrolling max-height region, with a "N more
-   characters not shown" note when `truncated`; a future exodus-ios client
+   characters not shown" note when `truncated`; a future actovia-ios client
    mirrors the same rules) and later `approval_resolved` (`outcome`); the
    answer is
    `POST /api/v1/chat/approval` with `runId`, `toolCallId` and a `decision`
@@ -717,7 +717,7 @@ only — `hooks/use-maps-key.ts`, `lib/maps-key.ts`), and loads Places photos
 through `GET /api/v1/maps/photo?name=places/…/photos/…&maxWidth=<1–4800>`
 (`routes/maps.ts`: the name is validated, the key added in main, fetched with
 `fetchPublicHttps()` from the fixed Places host, `Cache-Control: private,
-max-age=86400`) — the same route exodus-ios uses over the LAN.
+max-age=86400`) — the same route actovia-ios uses over the LAN.
 
 `weather` is Open-Meteo (no key: a geocoding call, then seven days with 24
 hourly points, WMO codes, all in the place's local time). The card reads
@@ -737,7 +737,7 @@ headline, the readings and the week as range-bar rows.
 model's base64 decoded, a DALL·E link fetched at once (it expires in an hour)
 through `fetchPublicHttps()` (`src/main/lib/net/safe-fetch.ts`: https only,
 no loopback / private / link-local / metadata address, redirects re-checked,
-the connection pinned to the vetted address) — as `~/.exodus/media/<chatId>/<uuid>.<png|jpg|webp>` (`src/main/lib/media/
+the connection pinned to the vetted address) — as `~/.actovia/media/<chatId>/<uuid>.<png|jpg|webp>` (`src/main/lib/media/
 store.ts`; typed by magic bytes; one failed image fails the call and removes
 the files it already wrote). `ImageGenerationDetails` (`types/chat.ts`)
 carries per image `{ mediaId, chatId?, mimeType, width?, height?,
@@ -747,7 +747,7 @@ serves the file — no index, the path is the storage layout; both segments
 must match what `saveMedia` writes and resolve inside the media dir, else
 400 — with `Cache-Control: private, max-age=31536000, immutable`. Deleting a
 chat or a Group removes its media dir (best-effort,
-logged); "reset all data" removes `~/.exodus/media`; `db-io` export does not
+logged); "reset all data" removes `~/.actovia/media`; `db-io` export does not
 carry media. Rows written before this (`url`: a `data:` URL or an expired
 DALL·E link) still render through `imageSrcOf()`'s legacy branch (a `data:` URL only
 when it is a raster image, the chat's remote-image rule). The card
@@ -822,11 +822,11 @@ HTML and anything visual goes through `create_artifact`. `<workspace>`,
 `<skills>` and `<mcp_servers>` render only when given; citations live under
 `<citation_rules>`.
 
-**Chat workspace**: `getChatWorkspaceDir(chatId)` = `~/.exodus/workspace/<chatId>`
+**Chat workspace**: `getChatWorkspaceDir(chatId)` = `~/.actovia/workspace/<chatId>`
 (`paths.ts`; not created until used). `terminal(defaultCwd)` and
 `findFiles(defaultRoot)` are factories, bound to the workspace when
 `bindCallingTools` gets a `chatId` and to the user's home otherwise
-(Philharmonic keeps `~/.exodus/groups/<id>` as its own).
+(Philharmonic keeps `~/.actovia/groups/<id>` as its own).
 
 **Workspace files, opened from the chat** (`src/main/lib/workspace-files.ts`,
 shared contract `packages/shared/src/types/workspace-files.ts`): a write_file /
@@ -837,7 +837,7 @@ call's card; write_file's `details.created` says Created / Edited) with Open
 preview: Markdown through `Markdown`, anything else monospaced; past
 `WORKSPACE_FILE_MAX_BYTES` (1 MB) or binary it says so and offers Open). An
 inline code span in an answer that is an absolute or `~/` path to an existing
-file under `~/.exodus/workspace` becomes a link (`components/markdown/workspace-path-code.tsx`:
+file under `~/.actovia/workspace` becomes a link (`components/markdown/workspace-path-code.tsx`:
 click opens, right-click is the native Open / Reveal / Quick Look menu); the
 lexical rule is `workspacePathCandidate`, then main's cached stat
 (`hooks/use-workspace-files.ts`). Every action goes over IPC
@@ -853,7 +853,7 @@ modifiedAt, kind, content }`; `400 INVALID_PATH`, `403 OUTSIDE_WORKSPACE`,
 
 ### Knowledge Base (LightRAG)
 
-The knowledge base is backed by an **optional, self-hosted LightRAG server** the user runs (Exodus is a client only — see `docs/lightrag-setup.md`). `knowledge_doc` rows are the editable source-of-truth (Settings → Knowledge Base); the `kb-sync` job (`src/main/lib/jobs/handlers.ts`) pushes them into LightRAG via `src/main/lib/knowledge-base/lightrag-client.ts` (delete + re-insert on edit), and `reconcile.ts` on the jobs cron settles each row's `indexStatus` via LightRAG's `track_status`. `resolveKnowledgeBase(settings)` (never throws) gates the `searchKnowledgeBase` tool, bound by `bindCallingTools` for the main chat and every Philharmonic employee loop. Retrieval is context-only (`only_need_context: true`) — Exodus's own model writes the answer. No scoping: one shared KB.
+The knowledge base is backed by an **optional, self-hosted LightRAG server** the user runs (Actovia is a client only — see `docs/lightrag-setup.md`). `knowledge_doc` rows are the editable source-of-truth (Settings → Knowledge Base); the `kb-sync` job (`src/main/lib/jobs/handlers.ts`) pushes them into LightRAG via `src/main/lib/knowledge-base/lightrag-client.ts` (delete + re-insert on edit), and `reconcile.ts` on the jobs cron settles each row's `indexStatus` via LightRAG's `track_status`. `resolveKnowledgeBase(settings)` (never throws) gates the `searchKnowledgeBase` tool, bound by `bindCallingTools` for the main chat and every Philharmonic employee loop. Retrieval is context-only (`only_need_context: true`) — Actovia's own model writes the answer. No scoping: one shared KB.
 
 ### Deep Research
 
@@ -886,7 +886,7 @@ Multi-level recursive research with real-time progress streaming:
    - `jobStatus`: `streaming` → `archived` on success, or `failed` (with an
      `errorMessage`) for any thrown error — search, an LLM call, a dropped
      connection, or the run being stopped — so a job never stays `streaming`
-     forever (the desktop card and exodus-ios's 15-minute stall check both
+     forever (the desktop card and actovia-ios's 15-minute stall check both
      key off it)
    - Frontend polls for progress messages
 
@@ -907,7 +907,7 @@ the settings registry).
 2. **Tool execution**: through the MCP toolbox (`list_mcp_tools` /
    `call_mcp_tool`, see Tool Architecture). `call_mcp_tool` goes through the
    approval gate like the file tools: every string leaf of its `arguments` is
-   checked as a path and with the terminal heuristic, and a URL at Exodus's own
+   checked as a path and with the terminal heuristic, and a URL at Actovia's own
    API ports is refused (`kernel/approval.ts`).
 3. **stdio args are visible to other programs** while the server runs (`ps`
    shows a process's arguments), so the MCP form warns when an argument holds a
@@ -940,7 +940,7 @@ A durable, topic-consolidated memory of the user. Key functions:
    kept true: a fact the conversation shows has changed is updated, one that
    no longer holds is deleted, and two entries that are one subject are
    merged (update one, delete the other) — the owner's aim of 2026-09-30, the
-   more you talk to Exodus the better it knows you. Nobody watches this job,
+   more you talk to Actovia the better it knows you. Nobody watches this job,
    so its `delete` only switches the entry off (`softDeleteMemory`) and
    Settings → Memory can restore it.
 
@@ -1008,7 +1008,7 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
 - Main process: `src/main/lib/ai/philharmonic/` (employee loop, execution engine, agent memory/tools, knowledge-base tools)
 - Renderer: `src/renderer/components/philharmonic/`
 - Route: `/api/v1/philharmonic`
-- Each Group gets an isolated workspace under `~/.exodus/groups`
+- Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);
@@ -1019,7 +1019,7 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a
   minute, and not again for a minute after a failed or empty read) and its rolling updates (merged:
   they keep the stored verdict unless they report a reached limit) — becomes a `quota` agent event and one `CliQuota` per CLI in
-  `src/main/lib/agents/quota.ts` (`~/.exodus/agent-quota.json`; a data reset removes it; `toMs` lives
+  `src/main/lib/agents/quota.ts` (`~/.actovia/agent-quota.json`; a data reset removes it; `toMs` lives
   in the pure `agents/epoch.ts`). The PM's roster names each CLI employee's model and its CLI's quota,
   and its system message carries the active plan (`Active plan:`, a line per step: status, id, title,
   assignee, note); it deals by difficulty, downgrades or calls `waitForQuota({ stepId, employeeId,
@@ -1067,8 +1067,8 @@ A local PIN lock protects the app and gates all API access.
   the phone) stands in for it, the way Touch ID does locally — the trust is
   in holding a device token. `authGate` still runs first, so on the LAN only
   a paired device reaches it; on loopback any local process can, which the
-  threat model already trusts (it can read `~/.exodus`)
-- The encrypted PIN secret lives at `~/.exodus/lock.dat`
+  threat model already trusts (it can read `~/.actovia`)
+- The encrypted PIN secret lives at `~/.actovia/lock.dat`
 - Renderer: `src/renderer/components/lock/`
 
 ### LCM (lossless context management)
@@ -1204,7 +1204,7 @@ Their windows live in `src/main/lib/window.ts`.
   itself and toasts both outcomes directly, instead of going through a `useMutation`.
 - Defaults suit a LOCAL API: `retry: 1` at 500 ms, no focus/reconnect refetch, `networkMode:
   'always'`; `refetchOnWindowFocus: true` is opted in per query whose data an outside writer
-  (exodus-ios, the Actovia CLI, the phone) can change: chat history,
+  (actovia-ios, the Actovia CLI, the phone) can change: chat history,
   devices, installed skills, the three logs reads, the Discover feed, and the Ollama probe
   (`use-chat-history.ts`, `use-devices.ts`, `use-installed-skills.ts`,
   `use-logs.ts`, `use-discover-feed.ts`, `use-ollama-status.ts`, and the secrets status —
@@ -1237,16 +1237,16 @@ Their windows live in `src/main/lib/window.ts`.
 ### Path Aliases
 
 **Main Process** (`tsconfig.node.json`): no aliases — relative imports, plus the
-`@exodus/shared/*` workspace package. Main-process code imports DB row types
+`@actovia/shared/*` workspace package. Main-process code imports DB row types
 straight from `src/main/lib/db/schema.ts` (the shared package must not import the app).
 
 **Renderer Process** (`tsconfig.web.json`):
 
 - `@` → `src/renderer`
-- `@exodus/shared/*` → the `packages/shared` workspace package (subpath exports, see its `package.json`)
+- `@actovia/shared/*` → the `packages/shared` workspace package (subpath exports, see its `package.json`)
 - DB row types come from `@/types/db` (a renderer-side passthrough of `src/main/lib/db/schema.ts`)
 
-**Shared Code** (`packages/shared/src/`, imported as `@exodus/shared/...`):
+**Shared Code** (`packages/shared/src/`, imported as `@actovia/shared/...`):
 
 - `types/` - Shared TypeScript types
 - `constants/` - Constants used across processes
@@ -1328,7 +1328,7 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   drawn as a plain row, and not part of `blocks` or `body`; beside a tool
   with a card, `image_generation` or `update_memory` it stays in the
   answer, since that is often the answer itself (owner, 2026-09-30;
-  exodus-ios: `RunGrouper.narratingTools`, `ThinkingStep.isNarration`). Blocks are only ever added at the end and the last
+  actovia-ios: `RunGrouper.narratingTools`, `ThinkingStep.isNarration`). Blocks are only ever added at the end and the last
   text grows in place, which is what lets the text above a card sit out the
   frames of the text streaming below it. `body` — every text block joined —
   is what Copy, read-aloud and the panel's Sources section take as the answer. A
@@ -1414,7 +1414,7 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   the sources
   do not outweigh the sentence — 9px muted text, an 11px round icon, a faint
   pill 16px high raised 2px to the middle of the line (owner's call
-  2026-09-29; exodus-ios draws the same chip). The punctuation that closes
+  2026-09-29; actovia-ios draws the same chip). The punctuation that closes
   the sentence stays on the chip's line (`tail`): a chip is a box, and no
   line starts with "。". (A 2026-09-22
   spike compared streamdown, markdown-to-jsx and md4x: the splitter already
@@ -1451,18 +1451,18 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   be dead weight there).
 - **Asking about selected text** (2026-09-29): text selected inside an
   element marked `data-askable` (an answer's section, a user bubble) gets an
-  "Ask Exodus" button (`chat/selection-ask.tsx`, mounted once per chat, it
+  "Ask Actovia" button (`chat/selection-ask.tsx`, mounted once per chat, it
   listens to the document and holds no messages). The selection goes to
   `chatQuoteAtom` (keyed by chat), is shown over the composer, and is sent
   as plain markdown — `composeQuoted()` in
   `packages/shared/src/utils/quoted-text.ts`: `> ` lines, a blank line, the
   question — so no message shape changes and every provider reads it;
   `chat/user-bubble.tsx` draws it back as a quote via `splitQuoted()`.
-  exodus-ios implements the same three functions to the same vectors.
+  actovia-ios implements the same three functions to the same vectors.
 - **Questions from the phone's Health workspace** arrive opening with a
-  fenced `exodus-health` block of JSON (the day's snapshot, or a detail
+  fenced `actovia-health` block of JSON (the day's snapshot, or a detail
   page's week), then the question. `splitHealth()`
-  (`packages/shared/src/utils/health-context.ts`, exodus-ios's
+  (`packages/shared/src/utils/health-context.ts`, actovia-ios's
   `HealthContext.split`) takes it off before `splitQuoted()`; the bubble
   draws it as chips (`chat/health/health-context-card.tsx`, rules in
   `chat/health/health-context.ts`) that open into a labelled list. Display only —
@@ -1594,19 +1594,19 @@ audit that applied it is in the commit history (`style(motion): …`).
 - Windows run with `sandbox: true` + `contextIsolation: true`; `hardenRenderers()`
   (`src/main/lib/security.ts`) cancels navigation away from the app, denies new
   windows, opens only `http(s)` / `mailto` links externally, and grants
-  permissions only to Exodus's own pages. Never call `shell.openExternal`
+  permissions only to Actovia's own pages. Never call `shell.openExternal`
   directly — use `openExternalSafely`
-- **The artifact sandbox has an origin of its own** (`exodus-artifact://sandbox`,
+- **The artifact sandbox has an origin of its own** (`actovia-artifact://sandbox`,
   `src/main/lib/artifact-protocol.ts`), which is the whole of its isolation:
   model-written code there cannot reach `window.parent`, the preload bridge or
   the API (its CSP allows no network at all, and the origin gate refuses that
   origin). Never serve it from the app's origin again, and never add anything to
   it that needs the API — it gets its code by `postMessage`
 - **The API has two faces** (see Middleware Pipeline and `src/main/lib/lan/`):
-  plaintext on loopback, with no token — a local process can read `~/.exodus`
+  plaintext on loopback, with no token — a local process can read `~/.actovia`
   anyway, and browsers are stopped by the origin gate; and HTTPS on the LAN,
   where every request needs a paired device's token and the certificate is
-  pinned by the device. A paired device gets the whole API (exodus-ios edits
+  pinned by the device. A paired device gets the whole API (actovia-ios edits
   provider keys), which is why that path is TLS-only
 - **Loopback is not the user.** The model reaches loopback through
   `terminal`, so a route that acts on the user's say-so (answering a tool
@@ -1626,12 +1626,12 @@ audit that applied it is in the commit history (`style(motion): …`).
 
 Vitest v4 with the following configuration (`vitest.config.ts`):
 
-- Path aliases: `@main` → `src/main`, `@` → `src/renderer` (shared code is imported as `@exodus/shared/...` through the workspace package)
+- Path aliases: `@main` → `src/main`, `@` → `src/renderer` (shared code is imported as `@actovia/shared/...` through the workspace package)
 - Test files: `tests/unit/**/*.test.ts`
-- Data dir: every test file gets its own scratch `EXODUS_HOME`
+- Data dir: every test file gets its own scratch `ACTOVIA_HOME`
   (`tests/unit/setup/isolated-home.ts`, a `setupFiles` entry, under the config's
   scratch default) — files run in parallel and must never read each other's
-  `~/.exodus` state (logs, `secrets-reentry.json`)
+  `~/.actovia` state (logs, `secrets-reentry.json`)
 - Coverage: V8 provider targeting `packages/shared/src/` and `src/main/lib/`
 
 ### Writing Tests
@@ -1643,7 +1643,7 @@ Vitest v4 with the following configuration (`vitest.config.ts`):
   `createElement` rather than JSX (see
   `tests/unit/renderer/hooks/use-chat.test.ts`). Use it for render-count and
   identity guarantees; pure logic stays in `node`.
-- Import the module under test via the matching alias (`@main/...`, `@/...`, or `@exodus/shared/...`), not a relative path — relative paths would need to reach back out of `tests/unit/` into `src/`.
+- Import the module under test via the matching alias (`@main/...`, `@/...`, or `@actovia/shared/...`), not a relative path — relative paths would need to reach back out of `tests/unit/` into `src/`.
 - Tests for main-process code that transitively imports Electron/PGlite must mock those modules:
 
 ```typescript
@@ -1846,7 +1846,7 @@ Main process:
 - `src/main/lib/server/middlewares/` — LAN compression, origin gate, auth gate, lock gate, presence gate, trace, error handler
 - `src/main/lib/ai/providers/` — LLM provider resolution (`resolve-model.ts`)
 - `src/main/lib/ai/providers/list-models/` — Live model catalog handlers per provider (`anthropic.ts`, `openai.ts`, `google.ts`, `xai.ts`, `ollama.ts`); each normalizes that provider's list-models API response into `{ id, displayName, snapshot: ModelSnapshot }`, dispatched by `index.ts` and called from `POST /api/v1/settings/models`
-- `src/main/lib/ai/kernel/` — the chat kernel: `models.ts` (the `Models` collection, `streamFn`), `run.ts` (`runAgent()`), `record.ts` (`RunRecorder`), `invariant.ts` (`dropBrokenRuns()`), `approval.ts` + `pending-approvals.ts` (the approval gate for secrets outside Exodus), `events.ts`, `log-throws.ts` (`loggingThrows()`: pi keeps only the message of what is thrown into it, so `streamFn`, `convertToLlm`, `beforeToolCall` and the listener log the Error — scope `kernel`, once, with the chat and the run — and throw it on), `faux.ts` + `faux-boot.ts` (pi's scripted provider; `EXODUS_FAUX_PROVIDER=1`)
+- `src/main/lib/ai/kernel/` — the chat kernel: `models.ts` (the `Models` collection, `streamFn`), `run.ts` (`runAgent()`), `record.ts` (`RunRecorder`), `invariant.ts` (`dropBrokenRuns()`), `approval.ts` + `pending-approvals.ts` (the approval gate for secrets outside Actovia), `events.ts`, `log-throws.ts` (`loggingThrows()`: pi keeps only the message of what is thrown into it, so `streamFn`, `convertToLlm`, `beforeToolCall` and the listener log the Error — scope `kernel`, once, with the chat and the run — and throw it on), `faux.ts` + `faux-boot.ts` (pi's scripted provider; `ACTOVIA_FAUX_PROVIDER=1`)
 - `src/main/lib/chat/history.ts` — the conversation as the server reads it (`loadChatHistory()`, `rowToChatMessage()`); the chat route's history, never a client's. `findToolCall()`: an earlier call's arguments and stored result, for `recall`
 - `src/main/lib/chat/page.ts` — history a page at a time (`loadChatPage()`, `compactRow()`, `limitRow()`, `loadChatRow()`); wire types in `packages/shared/src/types/chat-page.ts`
 - `src/main/lib/chat/sources.ts` — the `chat_source` table: `sourcesOfRows()` (a run's sources from its rows), `saveChatSources()`, `ensureChatSources()` (fill in an older or imported chat), `highestSourceRank()`, `getChatSource()`, `listChatSources()`
@@ -1869,7 +1869,7 @@ Main process:
   retired one's `settings.fullTextSearch` column and launch drops its
   `index-message` queue). `GET
   /api/v1/chat/search?query=` answers one row per chat
-  (`@exodus/shared/types/chat-search`, exodus-ios decodes the same): title
+  (`@actovia/shared/types/chat-search`, actovia-ios decodes the same): title
   or message holding every word, newest match first, 30 chats, ≤ 3 plain-text
   snippets each (`snippet.ts`; `chat-search-results.ts` folds the hits).
   The desktop's Search chats dialog is cmdk over it
@@ -1898,7 +1898,7 @@ Main process:
   call signature unchanged), `secret-mask.ts` (every secret value decrypted
   so far — fed by the settings cache fill and each MCP row read — masked in
   each line before it is written). `withTrace` wraps the `/api/*` middleware, the
-  job worker, and the scheduler. JSONL at `~/.exodus/logs/`; read via
+  job worker, and the scheduler. JSONL at `~/.actovia/logs/`; read via
   `/api/v1/logs` (filters incl. `traceId`; `q` — the search box's words,
   `-word`, `scope:` and `trace:`, parsed by `parseLogQuery()` in
   `packages/shared/src/utils/log-query.ts`; `levels=error,warn`; a
@@ -1907,7 +1907,7 @@ Main process:
   `/api/v1/logs/scopes` and the Settings → Logger tab; `POST /api/v1/logs` is the renderer reporting an
   error it caught (`lib/report-error.ts`), written under a
   `renderer/<scope>` surface — or, with `source: 'ios'` in the body, a
-  paired exodus-ios device reporting its own local errors over the LAN
+  paired actovia-ios device reporting its own local errors over the LAN
   listener, written under `ios/<scope>` instead; either accepts a single
   report or `{ reports: [...] }` (capped at 50). See
   `docs/superpowers/specs/2026-09-06-standardized-logging-design.md`.
@@ -1936,10 +1936,10 @@ Main process:
   the logger as an Error — pi catches it and keeps its message; what the
   kernel's own functions throw is logged first (`kernel/log-throws.ts`)
 - `src/main/lib/computer/` — window-scoped screenshot-loop Computer Use V0: the
-  `exodus-input` Swift helper (list-windows / list-apps / screenshot / activate /
+  `actovia-input` Swift helper (list-windows / list-apps / screenshot / activate /
   CGEvent input), `capture`/`target`/`hands`/`guard`, `runComputerSession` (the
   perceive→act loop), `liveness` (the ⌥⇧⎋ kill switch); `target.resolveOrLaunch`
-  opens an allowlisted app that isn't running; `self.ts` — Exodus itself (its
+  opens an allowlisted app that isn't running; `self.ts` — Actovia itself (its
   bundle id, its own windows) is never a target, whatever the allowlist says,
   and never offered in the picker. The inner-loop agent is
   `src/main/lib/ai/computer-use/`. Bound as the `computerUse` calling-tool,
@@ -1960,25 +1960,25 @@ Main process:
   `src/renderer/lib/attachment-actions.ts` and
   `src/renderer/components/chat/attachment-frame.tsx` (the hover/focus download
   button, the zoomed view's toolbar button)
-- `src/main/lib/lan/` — access from the LAN (exodus-ios on a device). The app is
+- `src/main/lib/lan/` — access from the LAN (actovia-ios on a device). The app is
   served twice (`server/app.ts`): plaintext on loopback, and over HTTPS on
   `LAN_SERVER_PORT` behind `authGate` — but only while a device is paired, a
   pairing window is open, or a revoked device has yet to be told (see
   `revoked.ts`); otherwise nothing listens on the LAN at all.
   `pairing.ts` (the pairing window: a one-time code, two minutes, single use,
   five wrong guesses close it; pure, clock injected; also the
-  `exodus://pair?h=&p=&c=&f=&n=` link and LAN host discovery), `devices.ts`
+  `actovia://pair?h=&p=&c=&f=&n=` link and LAN host discovery), `devices.ts`
   (256-bit tokens stored as SHA-256 in `paired_device`; constant-time match
   through a cache every write drops, so a revocation bites on the next
   request), `certificate.ts` (self-signed P-256, ten years, key under
-  `safeStorage` in `~/.exodus/tls/`; its fingerprint is what devices pin — never
+  `safeStorage` in `~/.actovia/tls/`; its fingerprint is what devices pin — never
   rotated except by "Reset all"), `listener.ts` (`sync()` makes the HTTPS
   listener match "wanted"; resolves once listening), `index.ts` (the process's
   `pairing`, `syncLan()`, `openPairingWindow()`), `revoked.ts` (a device
   revoked here learns it only from a 401 on its next request, and the
   listener used to stop with the last device, so the phone found nothing and
   stayed "paired": each revocation keeps a token-hash record in
-  `~/.exodus/lan-revoked.json` that keeps the listener wanted until
+  `~/.actovia/lan-revoked.json` that keeps the listener wanted until
   `authGate` answers that token once, or 30 days pass; a reset replaces the
   certificate, so it keeps none and drops the rest). Routes: `POST
   /api/v1/pair` (code → token), `DELETE /api/v1/pair` (a paired device
@@ -1986,7 +1986,7 @@ Main process:
   list too), `/api/v1/devices` (list, open/close a window, revoke, reset —
   loopback only). Spec:
   `docs/superpowers/specs/2026-09-20-lan-pairing-sandbox-isolation-design.md`
-- `src/main/lib/artifact-protocol.ts` — the `exodus-artifact://sandbox` scheme
+- `src/main/lib/artifact-protocol.ts` — the `actovia-artifact://sandbox` scheme
   the artifact sandbox is served from, so model-written code has an origin of
   its own and cannot reach `window.parent` (path-guarded static files when
   packaged; a proxy to the Vite dev server in dev)
@@ -2005,14 +2005,14 @@ Main process:
   and three `pg_switch_wal()` / `CHECKPOINT` rounds so no plaintext survives in
   the heap, the WAL or a `dumpDataDir()` backup, and the raw log files are
   rewritten with secrets masked; each step fails on its own; marker
-  `~/.exodus/secrets-purge.json` — once that marker's `purgedAt` is on record
+  `~/.actovia/secrets-purge.json` — once that marker's `purgedAt` is on record
   and encryption reads `'on'`, `removeOldBackupsOnce()` also deletes every
-  `~/.exodus/backups` auto-backup older than it (the pre-encryption ones,
+  `~/.actovia/backups` auto-backup older than it (the pre-encryption ones,
   which held every key in the clear — owner's call 2026-09-26), once,
   recording `oldBackupsRemovedAt` in the same marker so it never repeats and
   never touches a backup made since), `status.ts` (what
   `GET /api/v1/settings/secrets-status` reports), `moved.ts` (the secrets a
-  destination move cleared, by name, in `~/.exodus/secrets-reentry.json`,
+  destination move cleared, by name, in `~/.actovia/secrets-reentry.json`,
   listed until re-entered), `url.ts` (re-exports the shared
   `normalizeBaseUrl`), `known.ts` + `scrub.ts`
   (every current secret value, and masking them out of copied text). The pure
@@ -2030,7 +2030,7 @@ Main process:
 - `src/main/lib/security.ts` — renderer hardening (`hardenRenderers()`:
   navigation guard, window-open handler, permission handler) and
   `openExternalSafely` / `isSafeExternalUrl`
-- `src/main/lib/paths.ts` — `~/.exodus` path helpers
+- `src/main/lib/paths.ts` — `~/.actovia` path helpers
 
 Preload:
 
@@ -2177,5 +2177,5 @@ Docs:
   README: what was fixed, and the migration to `@earendil-works/*` 0.85
   (done with the chat kernel, spec `2026-09-22-chat-kernel-design.md`)
 - `docs/lightrag-setup.md` — end-user guide for running the self-hosted
-  LightRAG server that backs the optional knowledge base (Exodus is a
+  LightRAG server that backs the optional knowledge base (Actovia is a
   client only, see `src/main/lib/knowledge-base/`)

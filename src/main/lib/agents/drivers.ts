@@ -1,5 +1,5 @@
 // src/main/lib/agents/drivers.ts
-import { CLI_IDS, type CliId } from '@exodus/shared/types/agents'
+import { CLI_IDS, type CliId } from '@actovia/shared/types/agents'
 
 import { startClaudeCode } from './claude-code/run'
 import { startCodex } from './codex/run'

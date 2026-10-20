@@ -252,7 +252,7 @@
     },
     "runtime": {
       "label": "執行於",
-      "exodus": "Actovia"
+      "actovia": "Actovia"
     },
     "model": {
       "label": "模型",

@@ -1,7 +1,7 @@
-// The chat as a document: each run as You / Exodus paragraphs, tool calls as
+// The chat as a document: each run as You / Actovia paragraphs, tool calls as
 // quoted lines, citations as numbered references resolved against the
 // sources found up to that run.
-import type { ChatMessage } from '@exodus/shared/types/chat'
+import type { ChatMessage } from '@actovia/shared/types/chat'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -12,7 +12,7 @@ import {
 
 const labels: ExportLabels = {
   you: 'You',
-  assistant: 'Exodus',
+  assistant: 'Actovia',
   references: 'References',
   pictures: (count) => `${count} picture${count === 1 ? '' : 's'} attached`,
   tool: (name) => `Tool: ${name}`
@@ -96,11 +96,11 @@ describe('chatToMarkdown', () => {
         '# Trip',
         '**You:**\n\nWho won?\n\n_1 picture attached_',
         '> Tool: web_search',
-        '**Exodus:**\n\nA won[1].\n\n---\n\n## References\n\n- [1] A title (a.example) https://a.example/x',
+        '**Actovia:**\n\nA won[1].\n\n---\n\n## References\n\n- [1] A title (a.example) https://a.example/x',
         '**You:**\n\nAnd then?',
         '> Tool: web_search',
         '> Tool: terminal',
-        '**Exodus:**\n\nB next[1].\n\n---\n\n## References\n\n- [1] B title (b.example) https://b.example/y'
+        '**Actovia:**\n\nB next[1].\n\n---\n\n## References\n\n- [1] B title (b.example) https://b.example/y'
       ].join('\n\n') + '\n'
     )
   })

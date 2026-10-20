@@ -214,11 +214,11 @@ describe('fetchPublicHttps', () => {
       'https://en.wikipedia.org/api/rest_v1/page/summary/X',
       {
         maxBytes: 1024,
-        headers: { 'User-Agent': 'Exodus/1 test', Accept: 'application/json' }
+        headers: { 'User-Agent': 'Actovia/1 test', Accept: 'application/json' }
       }
     )
     expect(requests.at(-1)?.headers).toEqual({
-      'User-Agent': 'Exodus/1 test',
+      'User-Agent': 'Actovia/1 test',
       Accept: 'application/json'
     })
   })

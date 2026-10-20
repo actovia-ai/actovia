@@ -1,10 +1,10 @@
 // @vitest-environment happy-dom
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
   SettingsInput,
   UseFormReturnType
-} from '@exodus/shared/schemas/settings-schema'
-import { AiProviders } from '@exodus/shared/types/ai'
+} from '@actovia/shared/schemas/settings-schema'
+import { AiProviders } from '@actovia/shared/types/ai'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { useForm } from 'react-hook-form'
@@ -15,8 +15,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 ).IS_REACT_ACT_ENVIRONMENT = true
 
 const fetcherMock = vi.fn()
-vi.mock('@exodus/shared/utils/http', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@exodus/shared/utils/http')>()),
+vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const sileoError = vi.fn()
@@ -32,7 +32,7 @@ vi.mock('react-i18next', () => ({
 
 const { ModelPicker } =
   await import('@/components/settings/settings-form/providers/model-picker')
-const { HttpError } = await import('@exodus/shared/utils/http')
+const { HttpError } = await import('@actovia/shared/utils/http')
 
 let host: HTMLDivElement
 let root: ReturnType<typeof createRoot>

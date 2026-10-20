@@ -1,5 +1,5 @@
 /**
- * Columns of the Chat Audit snapshot (`~/.exodus/analytics/exodus.duckdb`),
+ * Columns of the Chat Audit snapshot (`~/.actovia/analytics/actovia.duckdb`),
  * as DuckDB types. One definition serves both sides: the main process builds
  * the tables from it (`src/main/lib/analytics/snapshot.ts`) and the SQL
  * editor's autocomplete offers exactly these names.
@@ -56,7 +56,7 @@ export const CHAT_AUDIT_SCHEMA = {
     payload: 'JSON',
     created_at: 'TIMESTAMP'
   },
-  /** A view over ~/.exodus/logs/*.jsonl; typed so ragged `attributes` never break inference. */
+  /** A view over ~/.actovia/logs/*.jsonl; typed so ragged `attributes` never break inference. */
   logs: {
     timestamp: 'TIMESTAMP',
     severityNumber: 'INTEGER',

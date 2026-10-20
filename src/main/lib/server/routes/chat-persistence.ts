@@ -1,5 +1,5 @@
+import type { Attempt, ChatMessage } from '@actovia/shared/types/chat'
 import type { Message } from '@earendil-works/pi-ai'
-import type { Attempt, ChatMessage } from '@exodus/shared/types/chat'
 
 export function stripId(msg: ChatMessage): Message {
   // Regenerate-group state (`alternateOf`, `attempt`) is ours, not the

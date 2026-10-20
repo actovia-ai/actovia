@@ -2,13 +2,13 @@ import { existsSync, readdirSync, statSync } from 'fs'
 import { mkdir, readFile, rm, writeFile } from 'fs/promises'
 import { join } from 'path'
 
-import type { DuckDBConnection } from '@duckdb/node-api'
-import type { Usage } from '@earendil-works/pi-ai'
 import {
   CHAT_AUDIT_SCHEMA,
   CHAT_AUDIT_SCHEMA_VERSION
-} from '@exodus/shared/constants/chat-audit-schema'
-import type { SnapshotMeta } from '@exodus/shared/types/analytics'
+} from '@actovia/shared/constants/chat-audit-schema'
+import type { SnapshotMeta } from '@actovia/shared/types/analytics'
+import type { DuckDBConnection } from '@duckdb/node-api'
+import type { Usage } from '@earendil-works/pi-ai'
 
 import { db } from '../db/db'
 import { chat, conversationMessage, message, pmRoundEvent } from '../db/schema'

@@ -7,7 +7,7 @@ const { getResource } = await import('@main/lib/logger/resource')
 describe('getResource', () => {
   it('returns the OTel resource fields', () => {
     const r = getResource()
-    expect(r['service.name']).toBe('exodus')
+    expect(r['service.name']).toBe('actovia')
     expect(r['service.version']).toBe('9.9.9')
     expect(r['process.runtime.name']).toBe('electron')
     expect(typeof r['process.pid']).toBe('number')

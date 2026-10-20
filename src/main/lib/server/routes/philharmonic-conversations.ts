@@ -1,4 +1,4 @@
-import { NotFoundError } from '@exodus/shared/errors/app-error'
+import { NotFoundError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { z } from 'zod'
 

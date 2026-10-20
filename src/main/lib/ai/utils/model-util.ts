@@ -1,6 +1,6 @@
+import { ConfigurationError, ErrorCode, NotFoundError } from '@actovia/shared'
+import { AiProviders } from '@actovia/shared/types/ai'
 import type { Model } from '@earendil-works/pi-ai'
-import { ConfigurationError, ErrorCode, NotFoundError } from '@exodus/shared'
-import { AiProviders } from '@exodus/shared/types/ai'
 
 import { Settings } from '../../db/schema'
 import { fauxHandle } from '../kernel/faux'
@@ -41,7 +41,7 @@ export function getModelFromProvider(setting: Settings): {
   model: Model<string>
   apiKey: string
 } {
-  // The Electron e2e's scripted provider (EXODUS_FAUX_PROVIDER=1).
+  // The Electron e2e's scripted provider (ACTOVIA_FAUX_PROVIDER=1).
   const faux = fauxHandle()
   if (faux) return { model: faux.getModel(), apiKey: 'faux' }
 

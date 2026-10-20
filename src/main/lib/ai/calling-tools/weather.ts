@@ -1,11 +1,11 @@
-import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
   WMO_CODE,
   type WeatherForecastDay,
   type WeatherResult
-} from '@exodus/shared/types/weather'
+} from '@actovia/shared/types/weather'
+import type { AgentTool } from '@earendil-works/pi-agent-core'
+import { Type } from '@earendil-works/pi-ai'
 
 /**
  * Weather from Open-Meteo (open-meteo.com): no key, no account, a seven-day

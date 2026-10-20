@@ -2,7 +2,7 @@
 // their next message as a markdown quote — a block of `> ` lines, a blank
 // line, the question. Plain text, so every provider reads it as what it is
 // and nothing about a message's shape changes; the clients read it back
-// with `splitQuoted` to draw the quote as one. exodus-ios has the same
+// with `splitQuoted` to draw the quote as one. actovia-ios has the same
 // three functions (`QuotedText`), held to the same vectors.
 
 /** A selection longer than this is cut: it is a pointer, not an upload. */

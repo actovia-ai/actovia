@@ -1,5 +1,5 @@
 // src/main/lib/server/routes/skills.ts
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -144,8 +144,8 @@ describe('/api/v1/skills', () => {
   })
 
   it('DELETE /:slug and PATCH /:slug/toggle hit the store', async () => {
-    store.uninstallSkill.mockResolvedValue(undefined)
-    store.toggleSkillActive.mockResolvedValue(undefined)
+    store.uninstallSkill.mockResolvedValue()
+    store.toggleSkillActive.mockResolvedValue()
     const app = await buildApp()
 
     expect(

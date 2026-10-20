@@ -4,7 +4,7 @@ import {
   matchesLogQuery,
   MAX_BUCKETS,
   parseLogQuery
-} from '@exodus/shared/utils/log-query'
+} from '@actovia/shared/utils/log-query'
 import { describe, expect, it } from 'vitest'
 
 const rec = (over: Partial<Parameters<typeof matchesLogQuery>[0]> = {}) => ({
@@ -37,7 +37,7 @@ describe('parseLogQuery', () => {
 
   it('reads nothing from nothing', () => {
     expect(parseLogQuery('')).toEqual({ terms: [], excludes: [] })
-    expect(parseLogQuery(undefined)).toEqual({ terms: [], excludes: [] })
+    expect(parseLogQuery()).toEqual({ terms: [], excludes: [] })
     expect(parseLogQuery('   scope:  ""')).toEqual({ terms: [], excludes: [] })
   })
 

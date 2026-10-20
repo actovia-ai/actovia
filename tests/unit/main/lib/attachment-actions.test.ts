@@ -4,8 +4,8 @@
 import { mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
-import { BASE_URL } from '@exodus/shared/constants/systems'
-import { ATTACHMENT_CHANNELS } from '@exodus/shared/types/attachment-actions'
+import { BASE_URL } from '@actovia/shared/constants/systems'
+import { ATTACHMENT_CHANNELS } from '@actovia/shared/types/attachment-actions'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>()
@@ -124,7 +124,7 @@ describe('loadAttachment', () => {
     expect(mime).toBe('image/png')
   })
 
-  it("reads Exodus's own media off disk, never over HTTP", async () => {
+  it("reads Actovia's own media off disk, never over HTTP", async () => {
     const chatId = '11111111-1111-4111-8111-111111111111'
     const file = '22222222-2222-4222-8222-222222222222.webp'
     mkdirSync(join(getMediaDir(), chatId), { recursive: true })

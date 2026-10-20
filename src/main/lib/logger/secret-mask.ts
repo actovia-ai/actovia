@@ -3,7 +3,7 @@ import { scrubList, scrubWith, type ScrubEntry } from '../secrets/scrub'
 /**
  * Secret values the logger masks in every line it writes (final review M4):
  * an error message that quotes a key — a provider's error text, a request URL
- * with `?key=` — would otherwise land in `~/.exodus/logs` and
+ * with `?key=` — would otherwise land in `~/.actovia/logs` and
  * `GET /api/v1/logs` in plaintext. Fed from where secrets are decrypted (the
  * settings cache fill in `db/queries.ts`, every MCP row read in
  * `db/mcp-queries.ts`), so a value is known before anything can use it.

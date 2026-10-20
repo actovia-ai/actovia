@@ -1,13 +1,13 @@
 // The chart is TradingView's own embed URL in a frame: its settings travel in
 // the hash, exactly as the widget's loader script would put them (verified
-// 2026-10-07 to render alone). exodus-ios's StockChartTests holds the same
+// 2026-10-07 to render alone). actovia-ios's StockChartTests holds the same
 // vectors — keep them in step.
 import {
   STOCK_CHART_HEIGHT,
   tradingViewEmbedUrl,
   tradingViewLocale,
   tradingViewSymbolPageUrl
-} from '@exodus/shared/utils/stock-chart'
+} from '@actovia/shared/utils/stock-chart'
 import { describe, expect, it } from 'vitest'
 
 describe('tradingViewEmbedUrl', () => {

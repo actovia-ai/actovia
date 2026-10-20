@@ -4,12 +4,12 @@ import config from '../../../vite.renderer.config.mts'
 
 describe('vite.renderer.config', () => {
   // Guards a dev-only failure that unit tests and production builds can't see:
-  // @exodus/shared's i18n loader uses `import.meta.glob`, which Vite's dev
+  // @actovia/shared's i18n loader uses `import.meta.glob`, which Vite's dev
   // pre-bundler silently replaces with `Object.assign({})` — no catalog ever
   // loads and the UI shows raw keys (`messageList.greetingTitle`). Serving the
   // package as source (not pre-bundled) is what keeps the glob working.
-  it('keeps the @exodus/shared workspace package out of dev pre-bundling', () => {
-    expect(config.optimizeDeps?.exclude).toContain('@exodus/shared')
+  it('keeps the @actovia/shared workspace package out of dev pre-bundling', () => {
+    expect(config.optimizeDeps?.exclude).toContain('@actovia/shared')
   })
 
   // The second dev-only trap: @electron-forge/plugin-vite forces

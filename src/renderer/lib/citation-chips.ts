@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 
 // Matches 【1-source】 or 【1,2-source】
 const MARKER = /【([\d,\s]+)-source】/gu

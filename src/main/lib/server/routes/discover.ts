@@ -1,4 +1,4 @@
-import type { DiscoverFeedDto } from '@exodus/shared/types/discover'
+import type { DiscoverFeedDto } from '@actovia/shared/types/discover'
 import { Hono } from 'hono'
 
 import { getDiscoverFeed, setDiscoverFeed } from '../../db/discover-queries'

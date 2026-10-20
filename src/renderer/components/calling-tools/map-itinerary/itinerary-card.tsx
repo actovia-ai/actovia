@@ -1,4 +1,4 @@
-import type { ToolNotice } from '@exodus/shared/types/chat'
+import type { ToolNotice } from '@actovia/shared/types/chat'
 import {
   Tick02Icon,
   Copy01Icon,
@@ -36,7 +36,7 @@ const MODE_TO_GMAPS_PARAM: Record<
 const MAP_DEFAULT_CENTER = { lat: 0, lng: 0 }
 const MAP_DEFAULT_ZOOM = 2
 const MAP_LIBRARIES: ['geometry'] = ['geometry']
-const MAP_ID = 'exodus-itinerary'
+const MAP_ID = 'actovia-itinerary'
 
 /** Build a Google Maps deep-link that opens the day's route with all
  *  waypoints in order. */

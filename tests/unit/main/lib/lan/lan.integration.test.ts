@@ -14,10 +14,10 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 /**
  * The whole LAN path with nothing faked but the database table and Electron:
  * a real certificate, a real HTTPS listener (on an ephemeral port), the real
- * auth gate and pairing route, and a client that — like exodus-ios — trusts
+ * auth gate and pairing route, and a client that — like actovia-ios — trusts
  * the pinned certificate and nothing else.
  */
-const tlsDir = mkdtempSync(join(tmpdir(), 'exodus-lan-'))
+const tlsDir = mkdtempSync(join(tmpdir(), 'actovia-lan-'))
 
 vi.mock('electron', () => ({
   safeStorage: { isEncryptionAvailable: () => false }

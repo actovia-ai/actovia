@@ -1,9 +1,9 @@
 import {
   githubRepoUrl,
   skillsShSkill
-} from '@exodus/shared/constants/external-urls'
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
-import type { InstalledSkill, SkillDetail } from '@exodus/shared/types/skills'
+} from '@actovia/shared/constants/external-urls'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { InstalledSkill, SkillDetail } from '@actovia/shared/types/skills'
 import {
   ArrowLeft02Icon,
   ArrowDown01Icon,

@@ -5,7 +5,7 @@ import { join } from 'path'
 import { findFiles } from '@main/lib/ai/calling-tools/find-files'
 import { afterAll, describe, expect, it } from 'vitest'
 
-const base = mkdtempSync(join(tmpdir(), 'exodus-find-files-'))
+const base = mkdtempSync(join(tmpdir(), 'actovia-find-files-'))
 mkdirSync(join(base, 'ws', 'sub'), { recursive: true })
 writeFileSync(join(base, 'ws', 'a.ts'), '')
 writeFileSync(join(base, 'ws', 'sub', 'b.ts'), '')

@@ -1,4 +1,4 @@
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { webSearch } from '@main/lib/ai/calling-tools/web-search'
 import { fetchWebSearch } from '@main/lib/ai/utils/web-search-util'
 import type { Settings } from '@main/lib/db/schema'

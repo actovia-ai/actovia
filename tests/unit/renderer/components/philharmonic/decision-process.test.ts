@@ -2,7 +2,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
-import type { PmRoundEventDto } from '@exodus/shared/types/pm-round'
+import type { PmRoundEventDto } from '@actovia/shared/types/pm-round'
 import i18n from 'i18next'
 import { act, createElement } from 'react'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
@@ -19,7 +19,7 @@ vi.mock('@/services/philharmonic-rounds', () => ({ getPmRound }))
 
 const { DecisionProcess } =
   await import('@/components/philharmonic/chat/decision-process')
-const { TEST_IDS } = await import('@exodus/shared/constants/test-ids')
+const { TEST_IDS } = await import('@actovia/shared/constants/test-ids')
 
 const philharmonic = JSON.parse(
   readFileSync(
@@ -143,7 +143,7 @@ const agents: Record<
   { name: string; runtime: string; model: string | null }
 > = {
   a1: { name: 'Ada', runtime: 'claude-code', model: 'sonnet' },
-  a2: { name: 'Bea', runtime: 'exodus', model: 'gpt-5' },
+  a2: { name: 'Bea', runtime: 'actovia', model: 'gpt-5' },
   a3: { name: 'Cy', runtime: 'codex', model: null }
 }
 
@@ -211,7 +211,7 @@ describe('DecisionProcess', () => {
     const text = host.textContent ?? ''
     expect(text).toContain('You wrote')
     expect(text).toContain('Build the site')
-    // A CLI employee reads with its CLI and model; an Exodus one by name.
+    // A CLI employee reads with its CLI and model; an Actovia one by name.
     expect(text).toContain('Gave a step to Ada · Claude Code · sonnet')
     expect(text).toContain('Gave a step to Bea')
     expect(text).not.toContain('Bea · ')

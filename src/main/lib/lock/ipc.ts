@@ -1,5 +1,5 @@
-import type { LockConfig } from '@exodus/shared/types/lock'
-import { LOCK_CHANNELS } from '@exodus/shared/types/lock'
+import type { LockConfig } from '@actovia/shared/types/lock'
+import { LOCK_CHANNELS } from '@actovia/shared/types/lock'
 import { ipcMain, safeStorage, systemPreferences } from 'electron'
 
 import { logger } from '../logger'

@@ -1,4 +1,4 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   AssistantTurn,
   ChatAssistantMessage,
@@ -12,11 +12,11 @@ import type {
   TextContent,
   TimelineStep,
   TurnBlock
-} from '@exodus/shared/types/chat'
-import type { ChatPageQuestion } from '@exodus/shared/types/chat-page'
-import type { WebSearchResult } from '@exodus/shared/types/web-search'
-import { isLocked, runAttemptInfos } from '@exodus/shared/utils/attempts'
-import { splitThinkingTagsInContent } from '@exodus/shared/utils/thinking-tags'
+} from '@actovia/shared/types/chat'
+import type { ChatPageQuestion } from '@actovia/shared/types/chat-page'
+import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { isLocked, runAttemptInfos } from '@actovia/shared/utils/attempts'
+import { splitThinkingTagsInContent } from '@actovia/shared/utils/thinking-tags'
 import { ArrowDownIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { capitalCase } from 'change-case'

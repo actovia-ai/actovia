@@ -1,10 +1,10 @@
 // A questionnaire's or a confirmation's answer, as the user's next message: a
-// leading ```exodus-answer fence naming the block it answers, a blank line,
+// leading ```actovia-answer fence naming the block it answers, a blank line,
 // then the answer in plain words — a line a question. Plain text, like a quote
 // (`quoted-text.ts`) or a Health question (`health-context.ts`), so every
 // provider reads it as what it is; the clients read it back with
 // `splitAnswer` to draw it as a card and to freeze the block it names.
-// exodus-ios has the same rules (`InteractiveAnswer`), held to the same
+// actovia-ios has the same rules (`InteractiveAnswer`), held to the same
 // vectors.
 import type {
   AskBlock,
@@ -12,7 +12,7 @@ import type {
   InteractiveKind
 } from '../types/interactive'
 
-export const ANSWER_INFO_STRING = 'exodus-answer'
+export const ANSWER_INFO_STRING = 'actovia-answer'
 /** An unanswered question's line. */
 export const BLANK_ANSWER = '—'
 
@@ -51,7 +51,7 @@ function oneLine(text: string): string {
 }
 
 function fence(head: AnswerHead): string {
-  // The keys in sorted order, as exodus-ios's encoder writes them.
+  // The keys in sorted order, as actovia-ios's encoder writes them.
   const json = JSON.stringify({
     block: head.block,
     ...(head.decision ? { decision: head.decision } : {}),

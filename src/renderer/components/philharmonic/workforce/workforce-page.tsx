@@ -1,7 +1,7 @@
 import {
   DEFAULT_AVATAR_STYLE,
   randomAvatarSeed
-} from '@exodus/shared/constants/avatar'
+} from '@actovia/shared/constants/avatar'
 import {
   Building03Icon,
   ArrowRight01Icon,
@@ -332,7 +332,7 @@ function emptyEmployeeDraft(teamId: string): AgentData {
     mcpServerNames: null,
     model: null,
     provider: null,
-    runtime: 'exodus',
+    runtime: 'actovia',
     permissionMode: null,
     isActive: true,
     createdAt: '',

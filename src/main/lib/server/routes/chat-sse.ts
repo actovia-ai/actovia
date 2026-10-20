@@ -1,8 +1,8 @@
-import type { ChatMessage, ChatSseEvent } from '@exodus/shared/types/chat'
+import type { ChatMessage, ChatSseEvent } from '@actovia/shared/types/chat'
 
 /**
  * How often a streaming message is re-sent, at most. Every `message_update`
- * carries the whole message so far (the renderer and exodus-ios replace by
+ * carries the whole message so far (the renderer and actovia-ios replace by
  * id), so relaying each provider delta costs O(n²) bytes over a long answer —
  * a fast model emits 100+ deltas a second, each one re-serialized here and
  * re-parsed + re-rendered on the other side. ~25 frames a second still reads

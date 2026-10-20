@@ -1,4 +1,4 @@
-import type { Segment } from '@exodus/shared/types/chat'
+import type { Segment } from '@actovia/shared/types/chat'
 import { ThinkingOrb } from 'thinking-orbs'
 
 /**

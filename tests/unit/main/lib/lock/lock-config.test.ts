@@ -7,7 +7,7 @@ vi.mock('@main/lib/logger', () => ({
 }))
 
 beforeEach(() => {
-  tmpFile = `/tmp/exodus-lockcfg-${Math.random().toString(36).slice(2)}.json`
+  tmpFile = `/tmp/actovia-lockcfg-${Math.random().toString(36).slice(2)}.json`
 })
 afterEach(async () => {
   const { rmSync, existsSync } = await import('fs')

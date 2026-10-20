@@ -1,5 +1,5 @@
-import type { ChatSearchResult } from '@exodus/shared/types/chat-search'
-import { fetcher } from '@exodus/shared/utils/http'
+import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
+import { fetcher } from '@actovia/shared/utils/http'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import { useDebouncedValue } from '@/hooks/use-debounce'

@@ -1,7 +1,7 @@
 import {
   SettingsSchema,
   type Settings
-} from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/schemas/settings-schema'
 import { cloneDeep, get, isEqual, set } from 'lodash-es'
 
 import { clearMovedSecrets } from '@/lib/secrets'

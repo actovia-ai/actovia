@@ -52,7 +52,7 @@ const MODULE_REGISTRY: Record<string, unknown> = {
 /**
  * Tells the embedder how the last render went: `artifact-sandbox-rendered`, or
  * `artifact-sandbox-error` with the message the page shows. The desktop's card
- * ignores both; exodus-ios, which loads this page as its own top-level window
+ * ignores both; actovia-ios, which loads this page as its own top-level window
  * (so `window.parent` is the page itself), waits for one of them before it
  * shows the artifact, and says to view it on the computer when it is an error.
  */
@@ -200,7 +200,7 @@ export function ArtifactSandbox() {
       // Intentional: this is the artifact sandbox execution engine. AI-generated
       // artifact code must be dynamically evaluated so users can run components
       // the LLM produces. Isolation is enforced at the iframe level: this page
-      // is served from its own origin (`exodus-artifact://sandbox`, see
+      // is served from its own origin (`actovia-artifact://sandbox`, see
       // src/main/lib/artifact-protocol.ts), so `window.parent` is cross-origin,
       // and its CSP allows no network access at all. Keep it that way — nothing
       // added here may need the API.
@@ -257,7 +257,7 @@ export function ArtifactSandbox() {
     // iframe mounts every time.
     window.parent?.postMessage({ type: 'artifact-sandbox-ready' }, '*')
     // The artifact's height, as it changes (see size-report.ts).
-    const root = document.getElementById('artifact-root')
+    const root = document.querySelector('#artifact-root')
     size.current = root
       ? observeSize(root, (message) => window.parent?.postMessage(message, '*'))
       : null

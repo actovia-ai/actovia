@@ -6,7 +6,7 @@
 // or overwritten by an unrelated save. Also the destination rule (ledger R1):
 // a secret posted back as its mask while its destination changes is cleared.
 // Real SQL on an in-memory PGlite.
-import { isAppError } from '@exodus/shared/errors/app-error'
+import { isAppError } from '@actovia/shared/errors/app-error'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -564,14 +564,14 @@ describe('secrets nested under a secret-named key (review S1 M2)', () => {
       name: 'marker-lookalike',
       transportType: 'stdio',
       command: 'node',
-      env: { WEIRD: 'exodus-number:7', OTHER: 'exodus-string:x' },
-      extraConfig: { apiKey: 'exodus-number:42', pin: 42 }
+      env: { WEIRD: 'actovia-number:7', OTHER: 'actovia-string:x' },
+      extraConfig: { apiKey: 'actovia-number:42', pin: 42 }
     })
     const read = await mcpQueries.getMcpServerById(created.id)
     expect(read!.env).toEqual({
-      WEIRD: 'exodus-number:7',
-      OTHER: 'exodus-string:x'
+      WEIRD: 'actovia-number:7',
+      OTHER: 'actovia-string:x'
     })
-    expect(read!.extraConfig).toEqual({ apiKey: 'exodus-number:42', pin: 42 })
+    expect(read!.extraConfig).toEqual({ apiKey: 'actovia-number:42', pin: 42 })
   })
 })

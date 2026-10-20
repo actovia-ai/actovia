@@ -1,12 +1,12 @@
-import { TOOL_NAMES } from '@exodus/shared/constants/tool-names'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
   ChatSseEvent,
   ChatStatus,
   ToolNoticeLevel
-} from '@exodus/shared/types/chat'
-import type { UsedMemory } from '@exodus/shared/types/memory'
-import { mergeRun } from '@exodus/shared/utils/run-merge'
+} from '@actovia/shared/types/chat'
+import type { UsedMemory } from '@actovia/shared/types/memory'
+import { mergeRun } from '@actovia/shared/utils/run-merge'
 import { sileo } from 'sileo'
 
 import {

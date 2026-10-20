@@ -1,11 +1,11 @@
-import { TEST_IDS } from '@exodus/shared/constants/test-ids'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   GROUP_TITLE_KEYS,
   TOOL_GROUPS,
   TOOL_REGISTRY,
   type ToolMeta
-} from '@exodus/shared/constants/tools'
-import type { UseFormReturnType } from '@exodus/shared/schemas/settings-schema'
+} from '@actovia/shared/constants/tools'
+import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
