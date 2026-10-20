@@ -1,3 +1,4 @@
+// src/main/lib/server/routes/philharmonic-conversations.ts
 import { NotFoundError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 import { z } from 'zod'
@@ -21,7 +22,6 @@ import { getActivePlanByConversationId } from '../../db/plan-queries'
 import { listRoundEvents } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
-// src/main/lib/server/routes/philharmonic-conversations.ts
 import type { Variables } from '../types'
 import {
   deletionSuccessResponse,

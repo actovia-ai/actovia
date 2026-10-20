@@ -22,7 +22,7 @@ async function resolveLoosely(p: string): Promise<string> {
   }
 }
 
-/** Where agents work must not be `/`, the home folder, Actovia' data, or hold either. */
+/** Where agents work must not be `/`, the home folder, Actovia's data, or hold either. */
 export async function assertProjectsDirAllowed(dir: string): Promise<void> {
   const fail = (m: string): never => {
     throw new ValidationError(ErrorCode.VALIDATION_FAILED, m)

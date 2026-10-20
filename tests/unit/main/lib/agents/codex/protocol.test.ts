@@ -198,7 +198,7 @@ describe('Codex protocol', () => {
     expect(t.pending).toBeUndefined()
   })
 
-  it("passes responses to Actovia' own requests through, and ignores noise", () => {
+  it("passes responses to Actovia's own requests through, and ignores noise", () => {
     const p = createCodexParser('n')
     expect(
       p.parse(JSON.stringify({ id: 2, result: { thread: { id: 't' } } }))

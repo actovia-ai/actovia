@@ -1,3 +1,4 @@
+// src/main/lib/server/routes/philharmonic-crud.ts
 import { ErrorCode, ValidationError } from '@actovia/shared'
 import {
   AGENT_RUNTIMES,
@@ -25,7 +26,6 @@ import {
   getAllTeams,
   updateTeam
 } from '../../db/team-queries'
-// src/main/lib/server/routes/philharmonic-crud.ts
 import type { Variables } from '../types'
 import {
   deletionSuccessResponse,

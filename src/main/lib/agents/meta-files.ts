@@ -7,7 +7,7 @@ import type { Project } from '../db/schema'
 
 /**
  * A new project's agents work inside the folder that holds `.actovia/`, so
- * anything under it may have been swapped for a symlink. Actovia' writes there
+ * anything under it may have been swapped for a symlink. Actovia's writes there
  * go through these helpers and never follow a link.
  */
 

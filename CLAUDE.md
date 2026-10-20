@@ -8,22 +8,20 @@ Actovia is a cross-platform desktop AI chat application built with Electron, Rea
 
 ### Naming
 
-The product is **Actovia**. Visible names
-come from `APP_DISPLAY_NAME` (`packages/shared/src/constants/brand.ts`) and the
-i18n catalogs; the repo is `actovia-ai/actovia`, the site `actovia.yancey.app`,
-the CLI `@actovia-ai/cli` (command `actovia`). Internal identifiers that hold data
-or pair devices **keep the old name** — renaming them would orphan user data:
-`package.json` `name: "actovia"` / `productName: "Actovia"` (they derive the
-Keychain item "Actovia Safe Storage", Electron `userData` and the
-single-instance lock — **never call `app.setName` or change `productName`**; a
-unit test guards it), the bundle ids, `~/.actovia` and every `ACTOVIA_*`
-variable, the Windows `Actovia.exe`, the LAN certificate subject `CN=Actovia`
-(devices pin its fingerprint), the `actovia://` and `actovia-artifact://`
-schemes, the `actovia-*` fences and `x-actovia-presence`, the DB enum value
-`'actovia'`, the `actovia-color-tone` localStorage key, `~/Actovia Projects`, the
-`actovia-input` helper, and code names such as `@actovia/shared`,
-`ACTOVIA_REPO` or `brand/Actovia.icon`. Spec:
-`docs/superpowers/specs/2026-10-19-actovia-rebrand-design.md`.
+The product is **Actovia**. Visible names come from `APP_DISPLAY_NAME`
+(`packages/shared/src/constants/brand.ts`) and the i18n catalogs; the repo is
+`actovia-ai/actovia`, the site `actovia.yancey.app`, the CLI `@actovia-ai/cli`
+(command `actovia`). Every internal identifier is Actovia too: `package.json`
+`name: "actovia"` / `productName: "Actovia"`, the bundle ids, `~/.actovia` and
+every `ACTOVIA_*` variable, the Windows `Actovia.exe`, the LAN certificate
+subject `CN=Actovia` (devices pin its fingerprint), the `actovia://` and
+`actovia-artifact://` schemes, the `actovia-*` fences and `x-actovia-presence`,
+the DB enum value `'actovia'`, the `actovia-color-tone` localStorage key,
+`~/Actovia Projects`, the `actovia-input` helper, `@actovia/shared`,
+`ACTOVIA_REPO` and `brand/Actovia.icon`. `productName` derives the Keychain
+item "Actovia Safe Storage", Electron `userData` and the single-instance lock,
+so **never call `app.setName` or change `productName`** without migrating that
+data; a unit test guards it.
 
 ## Project Constraints (read first)
 
@@ -160,7 +158,7 @@ Actovia is the successor of the older `universal-client` app and shares its
 `~/.actovia` layout, so a dev build sees the same chats, settings and memories:
 
 - **Data dir**: `~/.actovia` for packaged _and_ unpackaged runs (`bun run dev`,
-  `electron .`) — `getACTOVIAHome()` in `src/main/lib/paths.ts`; startup logs the
+  `electron .`) — `getActoviaHome()` in `src/main/lib/paths.ts`; startup logs the
   directory in use (`Data directory`); `~/.actovia/analytics` holds the DuckDB
   chat-audit snapshot; `~/.actovia/media/<chatId>/` holds generated images
   (`getMediaDir()`, and a chat's or Group's own dir only through

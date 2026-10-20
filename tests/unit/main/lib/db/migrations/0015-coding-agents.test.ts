@@ -54,3 +54,23 @@ describe('migration 0015 — coding agents', () => {
     await pg.close()
   })
 })
+
+describe('a fresh database', () => {
+  it('has agent_runtime = {actovia, claude-code, codex}, defaulting to actovia', async () => {
+    const pg = await createMigratedPglite('9999')
+    const labels = await pg.query<{ enumlabel: string }>(
+      `SELECT e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid = e.enumtypid WHERE t.typname = 'agent_runtime' ORDER BY e.enumlabel`
+    )
+    expect(labels.rows.map((r) => r.enumlabel)).toEqual([
+      'actovia',
+      'claude-code',
+      'codex'
+    ])
+    await pg.exec(`INSERT INTO agent (name) VALUES ('Ada')`)
+    const { rows } = await pg.query<{ runtime: string }>(
+      `SELECT runtime FROM agent`
+    )
+    expect(rows[0].runtime).toBe('actovia')
+    await pg.close()
+  })
+})

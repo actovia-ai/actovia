@@ -141,7 +141,7 @@ describe('projects', () => {
   it.each([
     ['home', homedir(), /home folder/],
     ['root', '/', /root folder/],
-    ["Actovia' data", process.env.ACTOVIA_HOME!, /data folder/]
+    ["Actovia's data", process.env.ACTOVIA_HOME!, /data folder/]
   ])('refuses %s', async (_label, folder, message) => {
     await expect(P.assertWorkableFolder(folder)).rejects.toThrow(message)
   })

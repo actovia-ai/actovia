@@ -27,7 +27,7 @@ export function parseEnvDump(out: string): Record<string, string> {
   return env
 }
 
-/** The child never sees Actovia' own variables (spec §7.4). */
+/** The child never sees Actovia's own variables (spec §7.4). */
 export function scrubEnv(
   env: Record<string, string | undefined>
 ): Record<string, string> {

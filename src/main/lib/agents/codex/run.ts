@@ -7,7 +7,7 @@ import type { AgentEvent, AgentRun, StartInput } from '../driver'
 import { superviseProcess } from '../process'
 import { createCodexParser, type PendingRequest } from './protocol'
 
-/** Spec §4: Actovia' modes by meaning; the sandbox is always workspace-write. */
+/** Spec §4: Actovia's modes by meaning; the sandbox is always workspace-write. */
 export const CODEX_APPROVAL: Record<
   PermissionMode,
   'untrusted' | 'on-request' | 'never'

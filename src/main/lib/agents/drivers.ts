@@ -22,7 +22,7 @@ export const DRIVERS: Record<CliId, CliDriver> = {
 export const isCliId = (runtime: string): runtime is CliId =>
   (CLI_IDS as readonly string[]).includes(runtime)
 
-/** The CLI behind a runtime; Actovia' own (or an unknown one) has none. */
+/** The CLI behind a runtime; Actovia's own (or an unknown one) has none. */
 export function cliOf(runtime: string): CliId {
   if (!isCliId(runtime))
     throw new Error(`Runtime "${runtime}" is not a coding-agent CLI`)

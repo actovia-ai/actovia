@@ -1,6 +1,6 @@
+// src/main/lib/ai/philharmonic/pm-coordinator.ts
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import type { Attachment } from '@actovia/shared/types/chat'
-// src/main/lib/ai/philharmonic/pm-coordinator.ts
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'

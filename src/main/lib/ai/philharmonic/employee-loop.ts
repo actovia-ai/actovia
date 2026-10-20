@@ -1,5 +1,5 @@
-import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 // src/main/lib/ai/philharmonic/employee-loop.ts
+import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message, Usage } from '@earendil-works/pi-ai'
