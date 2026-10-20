@@ -1,3 +1,16 @@
+# [2.1.0](https://github.com/actovia-ai/actovia/compare/v2.0.0...v2.1.0) (2026-10-20)
+
+
+### Bug Fixes
+
+* **lock:** ten guesses at the PIN through the CLI pass, not unlimited ([bf84b7c](https://github.com/actovia-ai/actovia/commit/bf84b7c3b730b1e5f9b3d5c252c7c224432f606c))
+
+
+### Features
+
+* **chat:** pictures are fitted before a model sees them — 2048 px, JPEG 0.85, on the desktop and on the server ([d9aa661](https://github.com/actovia-ai/actovia/commit/d9aa661d34619b21fb8cd7341dceefab98c67784))
+* **lock:** a PIN-bought pass that lets the CLI manage devices from a shell ([61d41d3](https://github.com/actovia-ai/actovia/commit/61d41d3cc492f26af8c7454fe5876692af44bad1))
+
 # [2.0.0](https://github.com/actovia-ai/actovia/compare/v1.20.0...v2.0.0) (2026-10-20)
 
 
