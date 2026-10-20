@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/actovia-ai/actovia/compare/v1.20.0...v2.0.0) (2026-10-20)
+
+
+* refactor!: the product's identifiers are Actovia's — package, data dir, env vars, bundle id, fences, helper ([0547b68](https://github.com/actovia-ai/actovia/commit/0547b687d1c1a61147fefcd426d21f5d703fa3e0))
+
+
+### BREAKING CHANGES
+
+* the data directory, bundle id, Keychain item, env vars and
+fence markers have new names; existing data is moved once by hand.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
 # [1.20.0](https://github.com/actovia-ai/actovia/compare/v1.19.0...v1.20.0) (2026-10-19)
 
 
