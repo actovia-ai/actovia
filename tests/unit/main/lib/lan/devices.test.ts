@@ -117,7 +117,9 @@ describe('devices', () => {
   it('keeps a record of a revoked device until it is told', async () => {
     const { deviceId, token } = await registerDevice('iPhone')
     await revokeDevice(deviceId)
-    expect(rememberRevoked).toHaveBeenCalledWith([hashToken(token)])
+    expect(rememberRevoked).toHaveBeenCalledWith([
+      { hash: hashToken(token), name: 'iPhone' }
+    ])
   })
 
   // A reset also replaces the certificate: no phone can complete a TLS

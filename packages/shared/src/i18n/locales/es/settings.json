@@ -1044,6 +1044,11 @@
     "toast": {
       "failedTitle": "No ha funcionado",
       "pairedTitle": "Dispositivo vinculado"
+    },
+    "revoked": {
+      "heading": "Revocados, aún sin avisar",
+      "row": "Revocado {{date}} · lo sabrá la próxima vez que se conecte",
+      "unnamed": "Un dispositivo"
     }
   },
   "secrets": {

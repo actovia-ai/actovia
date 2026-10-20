@@ -24,7 +24,7 @@ import {
   useRevokeDevice
 } from '@/hooks/use-devices'
 import { useFormat } from '@/lib/format'
-import type { PairedDeviceInfo } from '@/services/devices'
+import type { PairedDeviceInfo, RevokedDeviceInfo } from '@/services/devices'
 
 import {
   ENTER_UP,
@@ -80,6 +80,33 @@ function DeviceRow({
         >
           {t('devices.row.revoke')}
         </Button>
+      }
+    />
+  )
+}
+
+/**
+ * A device revoked here that has not come back to learn it: it still thinks
+ * it is paired until its next request is refused (src/main/lib/lan/revoked.ts).
+ */
+function RevokedRow({ device }: { device: RevokedDeviceInfo }) {
+  const { t } = useTranslation('settings')
+  const format = useFormat()
+  return (
+    <SettingsItem
+      className={ENTER_UP}
+      icon={<HugeiconsIcon icon={SmartPhone01Icon} />}
+      title={
+        <span className="text-muted-foreground truncate">
+          {device.name ?? t('devices.revoked.unnamed')}
+        </span>
+      }
+      description={
+        <p className="truncate text-xs">
+          {t('devices.revoked.row', {
+            date: format.relativeTime(new Date(device.revokedAt))
+          })}
+        </p>
       }
     />
   )
@@ -161,6 +188,17 @@ export function Devices() {
               />
             ))
           )}
+        </SettingsSection>
+      )}
+
+      {data?.revoked && data.revoked.length > 0 && (
+        <SettingsSection title={t('devices.revoked.heading')}>
+          {data.revoked.map((device) => (
+            <RevokedRow
+              key={`${device.revokedAt}-${device.name ?? ''}`}
+              device={device}
+            />
+          ))}
         </SettingsSection>
       )}
 

@@ -58,6 +58,20 @@ describe('revoked devices', () => {
     expect(revoked.takeRevoked('tok', now + revoked.KEEP_MS + 1)).toBe(false)
   })
 
+  it('lists what is pending by name and time, never a hash, until the device is told', async () => {
+    const revoked = await fresh()
+    revoked.rememberRevoked([{ hash: hashToken('tok'), name: 'iPhone' }], 1_000)
+    revoked.rememberRevoked([hashToken('old')], 2_000)
+    expect(revoked.pendingRevocations(3_000)).toEqual([
+      { name: 'iPhone', revokedAt: 1_000 },
+      { name: null, revokedAt: 2_000 }
+    ])
+    expect(revoked.takeRevoked('tok', 3_000)).toBe(true)
+    expect(revoked.pendingRevocations(3_000)).toEqual([
+      { name: null, revokedAt: 2_000 }
+    ])
+  })
+
   it('forgets everything on a reset', async () => {
     const revoked = await fresh()
     revoked.rememberRevoked([hashToken('a'), hashToken('b')])

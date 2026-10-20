@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { pairing, syncLan } from '../../lan'
-import { leaveDevice, registerDevice } from '../../lan/devices'
+import { findDevice, leaveDevice, registerDevice } from '../../lan/devices'
 import { logger } from '../../logger'
 import type { Variables } from '../types'
 import { successResponse, validateSchema } from '../utils'
@@ -48,6 +48,20 @@ pairRouter.post('/', async (c) => {
   logger.info('lan', 'Device paired', { deviceId: device.deviceId, deviceName })
   await syncLan()
   return successResponse(c, device)
+})
+
+/**
+ * A paired device asking whether it still is: authGate has matched its token
+ * (a revoked one got a 401 and never reaches this), so the answer is who it
+ * is here. The iOS app checks each computer it is paired with this way when
+ * Settings → Computer opens. Loopback has no device, and no route.
+ */
+pairRouter.get('/', async (c) => {
+  const deviceId = c.get('deviceId')
+  if (!deviceId) return c.notFound()
+  const device = await findDevice(deviceId)
+  if (!device) return c.notFound()
+  return successResponse(c, { deviceId: device.id, name: device.name })
 })
 
 /**

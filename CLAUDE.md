@@ -1982,11 +1982,15 @@ Main process:
   `pairing`, `syncLan()`, `openPairingWindow()`), `revoked.ts` (a device
   revoked here learns it only from a 401 on its next request, and the
   listener used to stop with the last device, so the phone found nothing and
-  stayed "paired": each revocation keeps a token-hash record in
+  stayed "paired": each revocation keeps a token-hash record (and the device's
+  name: `GET /api/v1/devices` lists them as `revoked`, Settings → Devices and
+  `actovia devices` show them as "not told yet") in
   `~/.actovia/lan-revoked.json` that keeps the listener wanted until
   `authGate` answers that token once, or 30 days pass; a reset replaces the
   certificate, so it keeps none and drops the rest). Routes: `POST
-  /api/v1/pair` (code → token), `DELETE /api/v1/pair` (a paired device
+  /api/v1/pair` (code → token), `GET /api/v1/pair` (a paired device asking
+  whether it still is — `{ deviceId, name }`; a revoked token gets authGate's
+  401; the iOS app asks each computer when Settings → Computer opens), `DELETE /api/v1/pair` (a paired device
   unpairing itself — authenticated by its own token, it leaves the Devices
   list too), `/api/v1/devices` (list, open/close a window, revoke, reset —
   loopback only). Spec:

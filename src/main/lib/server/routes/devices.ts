@@ -14,6 +14,7 @@ import {
   pairingHosts,
   type PairingWindow
 } from '../../lan/pairing'
+import { pendingRevocations } from '../../lan/revoked'
 import type { Variables } from '../types'
 import { getRequiredParam, successResponse } from '../utils'
 
@@ -46,7 +47,12 @@ devicesRouter.get('/', async (c) => {
   return successResponse(c, {
     devices,
     pairing: await describeWindow(pairing.current()),
-    lanRunning: isLanRunning()
+    lanRunning: isLanRunning(),
+    // Revoked here, and the device has not come back to learn it yet.
+    revoked: pendingRevocations().map((r) => ({
+      name: r.name,
+      revokedAt: new Date(r.revokedAt).toISOString()
+    }))
   })
 })
 

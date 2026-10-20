@@ -16,10 +16,18 @@ export interface PairingInfo {
   link: string
 }
 
+/** Revoked here; the device has not come back to learn it yet. */
+export interface RevokedDeviceInfo {
+  name: string | null
+  revokedAt: string
+}
+
 export interface DevicesState {
   devices: PairedDeviceInfo[]
   pairing: PairingInfo | null
   lanRunning: boolean
+  /** Absent from an Actovia older than the list. */
+  revoked?: RevokedDeviceInfo[]
 }
 
 export const DEVICES_URL = '/api/v1/devices'

@@ -17,6 +17,8 @@ export const KEEP_MS = 30 * 24 * 60 * 60 * 1000
 interface Revoked {
   hash: string
   revokedAt: number
+  /** The device's name when it was revoked, for Settings → Devices and `actovia devices`. */
+  name?: string
 }
 
 let cache: Revoked[] | null = null
@@ -53,10 +55,33 @@ function save(records: Revoked[]): void {
   }
 }
 
-export function rememberRevoked(hashes: string[], now = Date.now()): void {
-  if (hashes.length === 0) return
+export function rememberRevoked(
+  entries: Array<string | { hash: string; name: string }>,
+  now = Date.now()
+): void {
+  if (entries.length === 0) return
+  const records = entries.map((e) =>
+    typeof e === 'string'
+      ? { hash: e, revokedAt: now }
+      : { hash: e.hash, revokedAt: now, name: e.name }
+  )
+  const hashes = records.map((r) => r.hash)
   const kept = load(now).filter((r) => !hashes.includes(r.hash))
-  save([...kept, ...hashes.map((hash) => ({ hash, revokedAt: now }))])
+  save([...kept, ...records])
+}
+
+/**
+ * The devices revoked here that have not come back to learn it — what
+ * Settings → Devices and `actovia devices` list as "not told yet". No hash
+ * leaves this module.
+ */
+export function pendingRevocations(
+  now = Date.now()
+): Array<{ name: string | null; revokedAt: number }> {
+  return load(now).map((r) => ({
+    name: r.name ?? null,
+    revokedAt: r.revokedAt
+  }))
 }
 
 export function hasPendingRevocations(now = Date.now()): boolean {

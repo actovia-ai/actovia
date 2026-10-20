@@ -35,6 +35,11 @@ export async function listDevices(): Promise<PairedDevice[]> {
   return rows()
 }
 
+/** One paired device, by id (the one a LAN request authenticated as). */
+export async function findDevice(id: string): Promise<PairedDevice | null> {
+  return (await rows()).find((d) => d.id === id) ?? null
+}
+
 export async function hasDevices(): Promise<boolean> {
   return (await rows()).length > 0
 }
@@ -79,7 +84,7 @@ export async function authenticate(token: string): Promise<string | null> {
 export async function revokeDevice(id: string): Promise<void> {
   const device = (await rows()).find((d) => d.id === id)
   await leaveDevice(id)
-  if (device) rememberRevoked([device.tokenHash])
+  if (device) rememberRevoked([{ hash: device.tokenHash, name: device.name }])
 }
 
 /**

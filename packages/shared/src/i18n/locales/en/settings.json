@@ -1044,6 +1044,11 @@
     "toast": {
       "failedTitle": "That didn't work",
       "pairedTitle": "Device paired"
+    },
+    "revoked": {
+      "heading": "Revoked, not told yet",
+      "row": "Revoked {{date}} · it learns the next time it connects",
+      "unnamed": "A device"
     }
   },
   "secrets": {

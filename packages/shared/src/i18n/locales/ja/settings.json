@@ -1039,6 +1039,11 @@
     "toast": {
       "failedTitle": "操作に失敗しました",
       "pairedTitle": "デバイスをペアリングしました"
+    },
+    "revoked": {
+      "heading": "取り消し済み・未通知",
+      "row": "{{date}}に取り消し · 次回の接続時に通知されます",
+      "unnamed": "デバイス"
     }
   },
   "secrets": {

@@ -1039,6 +1039,11 @@
     "toast": {
       "failedTitle": "操作失敗",
       "pairedTitle": "裝置已配對"
+    },
+    "revoked": {
+      "heading": "已撤銷，尚未通知",
+      "row": "{{date}}撤銷 · 下次連線時會得知",
+      "unnamed": "一部裝置"
     }
   },
   "secrets": {

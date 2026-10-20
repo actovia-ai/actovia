@@ -1044,6 +1044,11 @@
     "toast": {
       "failedTitle": "Das hat nicht funktioniert",
       "pairedTitle": "Gerät gekoppelt"
+    },
+    "revoked": {
+      "heading": "Widerrufen, noch nicht mitgeteilt",
+      "row": "Widerrufen {{date}} · erfährt es bei der nächsten Verbindung",
+      "unnamed": "Ein Gerät"
     }
   },
   "secrets": {

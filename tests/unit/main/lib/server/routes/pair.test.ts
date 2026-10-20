@@ -14,9 +14,13 @@ const registerDevice = vi.fn(async () => ({
   token: 'TOKEN'
 }))
 const leaveDevice = vi.fn(async () => {})
+const findDevice = vi.fn(async (id: string) =>
+  id === 'dev-1' ? { id: 'dev-1', name: 'iPhone' } : null
+)
 vi.mock('@main/lib/lan/devices', () => ({
   registerDevice: (name: string) => registerDevice(name),
-  leaveDevice: (id: string) => leaveDevice(id)
+  leaveDevice: (id: string) => leaveDevice(id),
+  findDevice: (id: string) => findDevice(id)
 }))
 vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
@@ -116,5 +120,26 @@ describe('DELETE /api/v1/pair', () => {
     const res = await app.request('/api/v1/pair', { method: 'DELETE' })
     expect(res.status).toBe(404)
     expect(leaveDevice).not.toHaveBeenCalled()
+  })
+})
+
+describe('GET /api/v1/pair', () => {
+  it('answers a paired device who it is here', async () => {
+    const res = await app.request('/api/v1/pair', {
+      headers: { 'x-test-device': 'dev-1' }
+    })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ deviceId: 'dev-1', name: 'iPhone' })
+  })
+
+  it('does not exist on loopback (no device) or for a device gone since', async () => {
+    expect((await app.request('/api/v1/pair')).status).toBe(404)
+    expect(
+      (
+        await app.request('/api/v1/pair', {
+          headers: { 'x-test-device': 'gone' }
+        })
+      ).status
+    ).toBe(404)
   })
 })

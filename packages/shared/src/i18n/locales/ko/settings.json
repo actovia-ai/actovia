@@ -1039,6 +1039,11 @@
     "toast": {
       "failedTitle": "작업에 실패했습니다",
       "pairedTitle": "기기 페어링 완료"
+    },
+    "revoked": {
+      "heading": "취소됨, 아직 알리지 않음",
+      "row": "{{date}}에 취소됨 · 다음 연결 시 알게 됩니다",
+      "unnamed": "기기"
     }
   },
   "secrets": {

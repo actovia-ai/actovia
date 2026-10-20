@@ -41,7 +41,10 @@ export function useDevices() {
     // A paired phone's `lastSeenAt` changes without the desktop's involvement
     // (the phone calls the LAN API); coming back to the window is when the
     // user would look. Off app-wide (settings autosave), on for this read.
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    // Opening the page reads afresh: a phone may have unpaired itself, or
+    // learnt of a revocation, since the list was cached.
+    refetchOnMount: 'always'
   })
   return { data }
 }

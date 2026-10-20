@@ -1044,6 +1044,11 @@
     "toast": {
       "failedTitle": "L’opération a échoué",
       "pairedTitle": "Appareil jumelé"
+    },
+    "revoked": {
+      "heading": "Révoqués, pas encore informés",
+      "row": "Révoqué {{date}} · il l’apprendra à sa prochaine connexion",
+      "unnamed": "Un appareil"
     }
   },
   "secrets": {
