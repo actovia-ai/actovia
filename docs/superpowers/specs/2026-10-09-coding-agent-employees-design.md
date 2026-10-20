@@ -51,7 +51,7 @@ Observed behaviours the design must hold to:
 1. **A `result` is not the end.** A background command the agent started finished 30 s after our last message and the CLI ran a turn of its own, unprompted. Actovia keeps reading for as long as the process lives.
 2. After an interrupt the process lives on and the session continues; the model knows it was cut off.
 3. `--resume <id>` in a new process continues the same session (same id, full memory). A process can exit between turns at no cost.
-4. Read-only work (`ls`) does not prompt; writes do in the default mode. What prompts is the CLI's rule, not Actovia'.
+4. Read-only work (`ls`) does not prompt; writes do in the default mode. What prompts is the CLI's rule, not Actovia's.
 5. The user's own hooks, MCP servers, skills and CLAUDE.md load. Behaviour varies by user; Actovia does not normalise it.
 6. Unknown event types and fields appear (`hook_started`, `thinking_tokens`, `status`…). The parser ignores what it does not know.
 

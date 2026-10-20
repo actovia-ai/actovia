@@ -19,7 +19,7 @@ describe('login shell environment', () => {
     expect(parseEnvDump('no markers here')).toEqual({})
   })
 
-  it("drops Actovia', Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
+  it("drops Actovia's, Electron's and Vite's variables and NODE_OPTIONS, keeps the owner's own", () => {
     expect(
       scrubEnv({
         PATH: '/bin',

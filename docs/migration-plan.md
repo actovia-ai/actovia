@@ -186,7 +186,7 @@ until you actually run the full pipeline, not just `tsc`).
   copied `schema.ts` is a reasonable alternative to carrying migration
   history verbatim, if starting actovia with a fresh data directory is
   acceptable (it should be — different `~/.actovia/database` state isn't
-  shared with `universal-client`'s users regardless).
+  shared with anyone else regardless).
 - Add dependencies: `@electric-sql/pglite`, `@electric-sql/pglite-pgmq`,
   `@electric-sql/pglite-pgvector`, `drizzle-orm`, `drizzle-kit` (dev).
 - This is the single highest-leverage phase — nearly everything downstream
@@ -220,34 +220,8 @@ until you actually run the full pipeline, not just `tsc`).
   UNWIRED** — no IPC handler calls any of them yet (that's Phase 6/IPC
   work). `knip` correctly flags them as unused files; this is expected,
   same situation as the pre-installed shadcn UI kit components.
-- **`~/.actovia` collides with `universal-client` in dev — this was wrong
-  in the plan above, and caused a real incident.** The assumption that
-  "different `~/.actovia/database` state isn't shared... regardless" is
-  only true for separate END USERS. On this machine, in dev, actovia and
-  `universal-client` both resolve `getActoviaHome()` to the literal same
-  `~/.actovia`. Running actovia's `bun run dev` after wiring the DB layer
-  ran real migrations and the new task-cleanup UPDATE against
-  `universal-client`'s live dev database (confirmed: 14 real chats, 176
-  messages). No data loss resulted (the `task` table was empty, and the
-  queries that ran either no-opped against already-applied migrations or
-  failed outright before any write) — confirmed via a read-only PGlite
-  inspection script — but it could have gone worse. **Fix**: `getActoviaHome()`
-  now appends `-dev` to the directory name whenever `!app.isPackaged`,
-  leaving the packaged (production) path unsuffixed and unchanged — actovia
-  is meant to eventually ship AS the real Actovia app, sharing that
-  directory with other installs by design; only unpackaged dev runs needed
-  isolating. **Standing rule**: never run `bun run dev`/`package`/`make`
-  for this repo against the real `~/.actovia` — always verify the active
-  binary resolved the suffixed dev path (or a sandboxed `$HOME` for
-  packaged-build testing) before trusting a DB-touching test.
-  **Superseded (2026-09-19, after the migration):** the `-dev` split existed
-  because actovia was then a half-built base that mutated a live database.
-  Once actovia became a faithful port — same schema, same 3 migrations,
-  verified on a copy of the real database — it hid the user's data in dev
-  ("where did my chats go?"), so at the user's request unpackaged builds now
-  use `~/.actovia` too (`getActoviaHome()` no longer looks at
-  `app.isPackaged`). The standing rule became: **never run two Actovia
-  processes — a dev build, the packaged app, universal-client — against one
+- **Data directory.** Dev and packaged runs both use `~/.actovia`. The standing rule:
+  **never run two Actovia processes — a dev build and the packaged app — against one
   data directory at once (PGlite is single-process)**; the e2e suite sandboxes
   `$HOME` and its fixture refuses to run otherwise. `ACTOVIA_HOME` remains as an
   explicit override.

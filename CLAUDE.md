@@ -154,8 +154,8 @@ Actovia uses a three-process architecture:
 
 ### Data directory, ports and isolation
 
-Actovia is the successor of the older `universal-client` app and shares its
-`~/.actovia` layout, so a dev build sees the same chats, settings and memories:
+Actovia keeps its data in `~/.actovia`, and a dev build sees the same chats,
+settings and memories as the packaged app:
 
 - **Data dir**: `~/.actovia` for packaged _and_ unpackaged runs (`bun run dev`,
   `electron .`) — `getActoviaHome()` in `src/main/lib/paths.ts`; startup logs the
@@ -164,14 +164,13 @@ Actovia is the successor of the older `universal-client` app and shares its
   (`getMediaDir()`, and a chat's or Group's own dir only through
   `mediaDirFor()` in `media/store.ts`, which refuses an id that would leave
   it; a Philharmonic Group's go to `media/_groups/<conversationId>/`). **PGlite is single-process: never run two
-  Actovia processes (a dev build, the packaged app, universal-client) against it
+  Actovia processes (a dev build and the packaged app) against it
   at the same time** — the database can be corrupted (backups live in
   `~/.actovia/backups`). Between Actovia builds this is enforced:
   `src/main/lib/single-instance.ts` takes Electron's single-instance lock from
   `db/db.ts`, before PGlite is constructed (dev and packaged share `userData`,
   so they share the lock); a second launch exits and the running app raises its
-  window, or — if the holder is quitting — waits for it. universal-client has
-  its own `userData` and is not covered. `ACTOVIA_HOME` points a run at another directory.
+  window, or — if the holder is quitting — waits for it. `ACTOVIA_HOME` points a run at another directory.
 - **Electron `userData`**: the default `~/Library/Application Support/Actovia`
   for every build — it only holds Chromium state (localStorage, caches) and is
   where the legacy-location migration looks. There is no `-dev` variant of
