@@ -48,7 +48,51 @@ export function isCliPass(
   return false
 }
 
+/**
+ * Guesses at the PIN through `POST /api/v1/lock/cli-pass`. The lock screen's
+ * own lockout lets five wrong PINs through every thirty seconds, which a
+ * loop of `curl` from the model's terminal could keep up for days; this one
+ * is stricter, and counts misses across lockouts: past
+ * `CLI_PIN_FREE_MISSES` each further miss doubles the wait, and after
+ * `CLI_PIN_MAX_MISSES` no pass is issued at all until the PIN is typed on
+ * Actovia's own lock screen (`resetCliPinMisses`, from `LockManager.unlock`)
+ * or the app restarts. A right PIN clears the count.
+ */
+export const CLI_PIN_FREE_MISSES = 5
+export const CLI_PIN_MAX_MISSES = 10
+const CLI_PIN_BASE_DELAY_MS = 30_000
+
+let misses = 0
+let blockedUntil = 0
+
+export type CliPinGate =
+  | { open: true }
+  | { open: false; disabled: true }
+  | { open: false; disabled: false; retryAfterMs: number }
+
+export function cliPinGate(now: number = Date.now()): CliPinGate {
+  if (misses >= CLI_PIN_MAX_MISSES) return { open: false, disabled: true }
+  if (blockedUntil > now)
+    return { open: false, disabled: false, retryAfterMs: blockedUntil - now }
+  return { open: true }
+}
+
+export function recordCliPinMiss(now: number = Date.now()): void {
+  misses++
+  if (misses >= CLI_PIN_FREE_MISSES && misses < CLI_PIN_MAX_MISSES) {
+    blockedUntil =
+      now + CLI_PIN_BASE_DELAY_MS * 2 ** (misses - CLI_PIN_FREE_MISSES)
+  }
+}
+
+/** A right PIN through the CLI, or one typed on the lock screen. */
+export function resetCliPinMisses(): void {
+  misses = 0
+  blockedUntil = 0
+}
+
 /** Tests only. */
 export function clearCliPasses(): void {
   passes.clear()
+  resetCliPinMisses()
 }

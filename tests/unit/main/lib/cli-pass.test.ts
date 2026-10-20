@@ -42,3 +42,42 @@ describe('CLI pass', () => {
     expect(a).toMatch(/^[\w-]{43}$/u)
   })
 })
+
+describe('guesses at the PIN', () => {
+  it('lets the first misses through, then doubles the wait, then stops issuing passes', async () => {
+    const {
+      cliPinGate,
+      recordCliPinMiss,
+      resetCliPinMisses,
+      CLI_PIN_FREE_MISSES,
+      CLI_PIN_MAX_MISSES
+    } = await import('@main/lib/cli-pass')
+    const now = 1_000_000
+    for (let i = 1; i < CLI_PIN_FREE_MISSES; i++) {
+      recordCliPinMiss(now)
+      expect(cliPinGate(now)).toEqual({ open: true })
+    }
+    recordCliPinMiss(now) // 5th
+    expect(cliPinGate(now)).toEqual({
+      open: false,
+      disabled: false,
+      retryAfterMs: 30_000
+    })
+    recordCliPinMiss(now) // 6th
+    expect(cliPinGate(now)).toEqual({
+      open: false,
+      disabled: false,
+      retryAfterMs: 60_000
+    })
+    expect(cliPinGate(now + 60_000)).toEqual({ open: true })
+    for (let i = 7; i <= CLI_PIN_MAX_MISSES; i++) recordCliPinMiss(now)
+    // Disabled for good, however long one waits.
+    expect(cliPinGate(now + 365 * 86_400_000)).toEqual({
+      open: false,
+      disabled: true
+    })
+
+    resetCliPinMisses()
+    expect(cliPinGate(now)).toEqual({ open: true })
+  })
+})

@@ -6,6 +6,7 @@ import type {
   UnlockResult
 } from '@actovia/shared/types/lock'
 
+import { resetCliPinMisses } from '../cli-pass'
 import { logger } from '../logger'
 import { readConfig, writeConfig } from './lock-config'
 import * as pinStore from './pin-store'
@@ -85,6 +86,10 @@ export class LockManager extends EventEmitter {
         : { ok: false, reason: 'wrong-pin', retryAfterMs: 0 }
     }
     this.completeUnlock()
+    // Typed on the lock screen, by the person at the computer: the CLI may
+    // ask for a pass again (cli-pass.ts). Not in completeUnlock(), which a
+    // paired device's or a loopback `/lock/unlock` reaches too.
+    resetCliPinMisses()
     return { ok: true }
   }
 

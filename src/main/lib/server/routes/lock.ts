@@ -1,6 +1,11 @@
 import { Hono } from 'hono'
 
-import { issueCliPass } from '../../cli-pass'
+import {
+  cliPinGate,
+  issueCliPass,
+  recordCliPinMiss,
+  resetCliPinMisses
+} from '../../cli-pass'
 import { getLockManager } from '../../lock/lock-manager'
 import { logger } from '../../logger'
 import { listenerOf, type Variables } from '../types'
@@ -38,12 +43,14 @@ const PIN_REFUSALS = {
 // to a homelab Mac): the app-lock PIN, typed by the person, buys a pass that
 // opens the device routes for ten minutes (cli-pass.ts, presence-gate.ts).
 // The model reaches loopback too, but does not know the PIN; wrong guesses
-// count toward the lock screen's own lockout. Loopback only: on the LAN a
+// count toward the lock screen's own lockout and a stricter one of the CLI's
+// (cli-pass.ts: doubling waits, then no pass at all after ten misses until
+// the PIN is typed on the lock screen). Loopback only: on the LAN a
 // paired device already holds what the device routes ask for, and they are
 // refused there anyway.
 lockRouter.post('/cli-pass', async (c) => {
   const refuse = (
-    status: 400 | 401 | 403 | 409 | 429,
+    status: 400 | 401 | 403 | 409 | 423 | 429,
     code: string,
     extra: Record<string, unknown> = {}
   ) =>
@@ -56,12 +63,25 @@ lockRouter.post('/cli-pass', async (c) => {
   if (typeof pin !== 'string' || pin.length === 0 || pin.length > 64) {
     return refuse(400, 'VALIDATION_FAILED')
   }
+  // The CLI's own, stricter limit on guesses (cli-pass.ts), checked before
+  // the PIN is even looked at.
+  const gate = cliPinGate()
+  if (!gate.open) {
+    logger.warn('app', 'CLI pass refused', {
+      reason: gate.disabled ? 'disabled' : 'backoff'
+    })
+    return gate.disabled
+      ? refuse(423, 'CLI_PIN_DISABLED')
+      : refuse(429, 'PIN_LOCKED_OUT', { retryAfterMs: gate.retryAfterMs })
+  }
   const result = getLockManager().confirmPin(pin)
   if (!result.ok) {
+    if (result.reason !== 'no-pin') recordCliPinMiss()
     const { status, code } = PIN_REFUSALS[result.reason]
     logger.warn('app', 'CLI pass refused', { reason: result.reason })
     return refuse(status, code, { retryAfterMs: result.retryAfterMs })
   }
+  resetCliPinMisses()
   logger.info('app', 'CLI pass issued')
   return successResponse(c, issueCliPass())
 })

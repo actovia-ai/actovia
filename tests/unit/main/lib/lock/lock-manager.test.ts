@@ -155,6 +155,20 @@ describe('LockManager', () => {
     expect(n.isLocked()).toBe(false)
   })
 
+  it('a PIN typed on the lock screen lets the CLI ask again; Touch ID or a remote unlock does not', async () => {
+    const { LockManager } = await import('@main/lib/lock/lock-manager')
+    const pass = await import('@main/lib/cli-pass')
+    for (let i = 0; i < pass.CLI_PIN_MAX_MISSES; i++) pass.recordCliPinMiss()
+    const m = new LockManager()
+    m.lock('idle')
+    m.completeUnlock()
+    expect(pass.cliPinGate()).toEqual({ open: false, disabled: true })
+    m.lock('idle')
+    pinStore.verify.mockReturnValue(true)
+    expect(m.unlock('123456')).toEqual({ ok: true })
+    expect(pass.cliPinGate()).toEqual({ open: true })
+  })
+
   it('confirmPin refuses when no PIN is set', async () => {
     const { LockManager } = await import('@main/lib/lock/lock-manager')
     pinStore.hasPin.mockReturnValue(false)

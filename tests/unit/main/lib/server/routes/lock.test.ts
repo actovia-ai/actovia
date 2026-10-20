@@ -123,6 +123,40 @@ describe('POST /api/v1/lock/cli-pass', () => {
     expect(confirmPin).not.toHaveBeenCalled()
   })
 
+  it('stops issuing passes after ten wrong PINs, with no PIN checked meanwhile', async () => {
+    confirmPin.mockReturnValue({
+      ok: false,
+      reason: 'wrong-pin',
+      retryAfterMs: 0
+    })
+    const { recordCliPinMiss } = await import('@main/lib/cli-pass')
+    for (let i = 0; i < 9; i++) recordCliPinMiss(0)
+    expect((await ask({ pin: '0000' })).status).toBe(401) // the 10th miss
+    confirmPin.mockClear()
+    confirmPin.mockReturnValue({ ok: true })
+    const res = await ask({ pin: '123456' })
+    expect(res.status).toBe(423)
+    expect((await res.json()).error.code).toBe('CLI_PIN_DISABLED')
+    expect(confirmPin).not.toHaveBeenCalled()
+  })
+
+  it('waits out the backoff without looking at the PIN', async () => {
+    const { recordCliPinMiss } = await import('@main/lib/cli-pass')
+    for (let i = 0; i < 5; i++) recordCliPinMiss()
+    const res = await ask({ pin: '123456' })
+    expect(res.status).toBe(429)
+    expect((await res.json()).error.retryAfterMs).toBeGreaterThan(0)
+    expect(confirmPin).not.toHaveBeenCalled()
+  })
+
+  it('a right PIN clears the misses', async () => {
+    const { recordCliPinMiss, cliPinGate } = await import('@main/lib/cli-pass')
+    for (let i = 0; i < 3; i++) recordCliPinMiss()
+    confirmPin.mockReturnValue({ ok: true })
+    expect((await ask({ pin: '123456' })).status).toBe(200)
+    expect(cliPinGate()).toEqual({ open: true })
+  })
+
   it('is loopback only', async () => {
     const res = await ask({ pin: '123456' }, 'lan')
     expect(res.status).toBe(403)
