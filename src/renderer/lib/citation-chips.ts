@@ -122,7 +122,7 @@ function holdClosingPunctuation(
   return held
 }
 
-function hostOf(link: string): string {
+export function hostOf(link: string): string {
   try {
     return new URL(link).hostname
   } catch {

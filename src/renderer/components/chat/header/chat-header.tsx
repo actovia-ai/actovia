@@ -63,7 +63,7 @@ function TitleGroup({ id }: { id: string }) {
           data-streaming=""
         />
       )}
-      <ModelChip />
+      <ModelChip chatId={id} />
       <ChatMenu chat={chat} />
     </div>
   )

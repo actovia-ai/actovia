@@ -47,6 +47,7 @@ import {
   resolveRegenerateGroup,
   settleOpenComparison
 } from '../../chat/attempts'
+import { settingsForChat } from '../../chat/chat-model'
 import { loadChatHistory } from '../../chat/history'
 import { loadChatPage, loadChatRow } from '../../chat/page'
 import { highestSourceRank } from '../../chat/sources'
@@ -214,7 +215,10 @@ chat.post('/', async (c) => {
       'Invalid request body'
     )
   bindTraceAttributes({ chatId: id })
-  const setting = c.get('settings')
+  // The chat answers with its own model (`chat.provider` / `chat.model`);
+  // one older than those columns, or a new one, with the default.
+  const existingChat = await getChatById({ id })
+  const setting = settingsForChat(c.get('settings'), existingChat)
   const { model, apiKey } = getModelFromProvider(setting)
 
   // The new question: `message`, or the last of an older client's whole
@@ -250,11 +254,16 @@ chat.post('/', async (c) => {
     last.id
   )
 
-  // Create chat record if new
-  const existingChat = await getChatById({ id })
+  // Create chat record if new, keeping the model it starts with: a later
+  // change of the default in Settings leaves this chat as it is.
   let titlePromise: Promise<string> | null = null
   if (!existingChat) {
-    await saveChat({ id, title: 'New chat' })
+    await saveChat({
+      id,
+      title: 'New chat',
+      provider: setting.providerConfig?.provider ?? null,
+      model: setting.providerConfig?.model ?? null
+    })
     titlePromise = generateTitleFromUserMessage({
       message: userMessage,
       model,

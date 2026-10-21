@@ -197,7 +197,6 @@ export function PhilharmonicContainer({
           teamsById={teamsById}
           members={members}
           stream={stream}
-          onRename={handleRename}
           membersOpen={membersOpen}
           onToggleMembers={() => setMembersOpen((v) => !v)}
           onCreateGroup={handleCreate}
@@ -244,6 +243,7 @@ export function PhilharmonicContainer({
             onSelect={handleSelect}
             onCreate={handleCreate}
             onDelete={handleDelete}
+            onRename={handleRename}
             onNavigateConfig={handleNavigateConfig}
           />
         }

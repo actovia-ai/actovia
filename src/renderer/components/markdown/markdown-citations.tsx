@@ -5,7 +5,7 @@ import { createContext, memo, useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import removeMd from 'remove-markdown'
 
-import { chipLabel, sourcesOf } from '@/lib/citation-chips'
+import { chipLabel, hostOf, sourcesOf } from '@/lib/citation-chips'
 import { CITATION_ELEMENT } from '@/lib/remark-citations'
 import { cn } from '@/lib/utils'
 
@@ -47,6 +47,31 @@ export const WebSearchRankMapContext = createContext<Map<
   WebSearchResult
 > | null>(null)
 
+/**
+ * The picture of a source that brought none (or whose picture failed): its
+ * site's icon on a quiet field, so every card of a chip has the same frame
+ * and paging between them does not leave a hole where a picture was.
+ */
+function SourceCover({ source }: { source: WebSearchResult }) {
+  return (
+    <div
+      data-source-cover=""
+      className="from-muted to-muted/40 flex h-32 w-full flex-col items-center justify-center gap-2 bg-linear-to-br"
+    >
+      <span className="bg-background ring-border flex size-10 items-center justify-center rounded-xl shadow-xs ring-1">
+        <SourceFavicon
+          link={source.link}
+          favicon={source.favicon}
+          className="size-5 rounded-sm"
+        />
+      </span>
+      <span className="text-muted-foreground text-2xs max-w-[80%] truncate">
+        {hostOf(source.link).replace(/^www\./u, '') || chipLabel([source]).name}
+      </span>
+    </div>
+  )
+}
+
 /** A source, as the card of its chip shows it. */
 function SourceCard({
   source,
@@ -66,12 +91,15 @@ function SourceCard({
       aria-hidden={hidden || undefined}
       className={cn('col-start-1 row-start-1 block', hidden && 'invisible')}
     >
-      {source.thumbnail && (
+      {source.thumbnail ? (
         <LazyLoadImage
           src={source.thumbnail}
           alt={source.title}
           className="h-32 w-full"
+          fallback={<SourceCover source={source} />}
         />
+      ) : (
+        <SourceCover source={source} />
       )}
       <div className="flex flex-col gap-1 p-3">
         <div className="text-muted-foreground flex items-center gap-1.5 text-xs">

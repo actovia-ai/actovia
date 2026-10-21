@@ -487,6 +487,11 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
 **Key Tables**:
 
 - `settings` - Global settings (models, API keys, preferences, `colorTone`)
+- `chat.provider` / `chat.model` - the model a chat runs on (migration 0019):
+  a new chat is saved with the default of the moment, the header's chip
+  changes it for that chat alone, and null (a chat older than the columns)
+  follows the default. The chat route applies it with `settingsForChat()`
+  (`src/main/lib/chat/chat-model.ts`), the snapshot from `settings.modelCatalog`
 - `knowledge_doc` - Knowledge base source documents + per-doc LightRAG sync status
 - `deep_research` / `deep_research_message` - Deep research jobs and progress updates
 - `memory` / `memory_usage_log` - User memory and audit trail
@@ -1347,9 +1352,11 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   once by `useRouteHistoryRecorder` in `layouts/chat-layout/index.tsx`, walked
   by the arrows and by `Mod+[` / `Mod+]` (`Mod+W` closes the chat on screen:
   home, nothing deleted); on a chat page the title (the history list's, live)
-  with a dot while replying, `model-chip.tsx` (the provider and model from
-  `providerConfig`, a pick from the cached `modelCatalog` saved with its
-  snapshot) and `chat-menu.tsx` (rename, favourite, export as Markdown / PDF
+  with a dot while replying, `model-chip.tsx` (the chat's own model — `chat.provider` /
+  `chat.model`, read through `hooks/use-chat-model.ts`, else the default in
+  `providerConfig`; a pick from the cached `modelCatalog` of the providers
+  with a key is saved on that chat alone through `PUT /api/v1/chat`
+  (`useSetChatModel`), never on the default) and `chat-menu.tsx` (rename, favourite, export as Markdown / PDF
   through `lib/chat-export.ts` and the `md-to-pdf` route's print sheet
   `main/lib/pdf/print-document.ts`, delete); and the toggle of
   `components/chat/panel/chat-panel.tsx` — files, tools and sources derived
@@ -1877,7 +1884,13 @@ Main process:
   (`@actovia/shared/types/chat-search`, actovia-ios decodes the same): title
   or message holding every word, newest match first, 30 chats, ≤ 3 plain-text
   snippets each (`snippet.ts`; `chat-search-results.ts` folds the hits).
-  The desktop's Search chats dialog is cmdk over it
+  Each snippet names its message and its `runId`. The desktop's Search
+  chats dialog is cmdk over it; a hit opens the chat at that run
+  (`lib/reveal-search-hit.ts`, `hooks/use-reveal-search-hit.ts`: the run is
+  loaded back `through` if it is on an older page, the query's words in it
+  are marked with the CSS Custom Highlight API — `::highlight(actovia-search-hit)`
+  — and the first is scrolled a third of the way down, looked at again once
+  late layout settles); a title-only hit opens at the newest
 - `src/main/lib/knowledge-base/` — optional LightRAG knowledge base: HTTP
   client, `resolveKnowledgeBase()` (never-throws), and the `kb-sync`
   index-status `reconcile.ts`

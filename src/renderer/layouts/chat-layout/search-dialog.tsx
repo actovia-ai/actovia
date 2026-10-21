@@ -25,6 +25,7 @@ import {
   compactRelativeTime,
   parseLocalishCreatedAt
 } from '@/lib/relative-time'
+import type { SearchReveal } from '@/lib/reveal-search-hit'
 import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
 /** How many of the newest chats an empty query lists. */
@@ -56,6 +57,7 @@ function SearchRow({
   snippet,
   at,
   words,
+  reveal,
   onOpen
 }: {
   chatId: string
@@ -63,12 +65,14 @@ function SearchRow({
   snippet?: string
   at: Date
   words: string[]
-  onOpen: (chatId: string) => void
+  /** Where the chat opens: the message the snippet is from. */
+  reveal?: SearchReveal
+  onOpen: (chatId: string, reveal?: SearchReveal) => void
 }) {
   return (
     <CommandItem
       value={chatId}
-      onSelect={() => onOpen(chatId)}
+      onSelect={() => onOpen(chatId, reveal)}
       className="items-start gap-3 px-3 py-2"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -111,26 +115,36 @@ export function SearchDialog() {
     setIsOpen(open)
     if (!open) setQuery('')
   }
-  const openChat = (chatId: string) => {
+  // A hit in a message opens the chat there, its words marked
+  // (`hooks/use-reveal-search-hit.ts`); a title-only hit at the newest.
+  const openChat = (chatId: string, reveal?: SearchReveal) => {
     onOpenChange(false)
-    void navigate(`/chat/${chatId}`)
+    void navigate(`/chat/${chatId}`, reveal ? { state: reveal } : undefined)
   }
 
   let list
   if (typed) {
     list =
       results.length > 0
-        ? results.map((result) => (
-            <SearchRow
-              key={result.chatId}
-              chatId={result.chatId}
-              title={result.title}
-              snippet={result.snippets[0]?.text}
-              at={new Date(result.matchedAt)}
-              words={words}
-              onOpen={openChat}
-            />
-          ))
+        ? results.map((result) => {
+            const hit = result.snippets[0]
+            return (
+              <SearchRow
+                key={result.chatId}
+                chatId={result.chatId}
+                title={result.title}
+                snippet={hit?.text}
+                at={new Date(result.matchedAt)}
+                words={words}
+                reveal={
+                  hit?.runId
+                    ? { runId: hit.runId, role: hit.role, words }
+                    : undefined
+                }
+                onOpen={openChat}
+              />
+            )
+          })
         : !isSearching && (
             <Note>{t('sidebar.search.noResults', { query: typed })}</Note>
           )

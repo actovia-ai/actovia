@@ -87,18 +87,21 @@ describe('searchChats', () => {
       snippets: [
         {
           messageId: m4,
+          runId: m4,
           role: 'assistant',
           text: 'The last DUCK',
           createdAt: at(4).toISOString()
         },
         {
           messageId: m3,
+          runId: m3,
           role: 'user',
           text: 'Duck sauce',
           createdAt: at(3).toISOString()
         },
         {
           messageId: m2,
+          runId: m2,
           role: 'assistant',
           text: 'More duck facts',
           createdAt: at(2).toISOString()
