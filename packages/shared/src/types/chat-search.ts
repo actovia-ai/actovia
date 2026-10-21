@@ -17,6 +17,12 @@ export interface ChatSearchResult {
 
 export interface ChatSearchSnippet {
   messageId: string
+  /**
+   * The run the message belongs to (`message.runId`), so a client can load
+   * the chat's history back through it and open there. Absent on a row no
+   * run claimed.
+   */
+  runId?: string
   role: 'user' | 'assistant'
   /**
    * Plain text of at most ~160 characters around the first matched word

@@ -1,6 +1,7 @@
 import {
   SearchIcon,
   Delete02Icon,
+  EditIcon,
   DashboardSquare01Icon,
   UserGroupIcon
 } from '@hugeicons/core-free-icons'
@@ -30,8 +31,10 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
+import { Input } from '@/components/ui/input'
 import {
   InputGroup,
   InputGroupAddon,
@@ -111,6 +114,7 @@ export function ConversationList({
   onSelect,
   onCreate,
   onDelete,
+  onRename,
   onNavigateConfig
 }: {
   conversations: ConversationData[]
@@ -120,6 +124,7 @@ export function ConversationList({
   onSelect: (id: string) => void
   onCreate: () => void
   onDelete: (id: string) => void | Promise<void>
+  onRename: (id: string, title: string) => void | Promise<void>
   onNavigateConfig: (page: ConfigPage) => void
 }) {
   const { t } = useTranslation(['common', 'philharmonic'])
@@ -139,6 +144,19 @@ export function ConversationList({
     [t]
   )
   const [confirming, setConfirming] = useState<ConversationData | null>(null)
+  // The group being renamed and the title typed so far; as Chat's sidebar
+  // does it, from the row's menu, not in the group's header.
+  const [renaming, setRenaming] = useState<{
+    id: string
+    title: string
+  } | null>(null)
+  const commitRename = () => {
+    if (!renaming) return
+    const title = renaming.title.trim()
+    const before = conversations.find((c) => c.id === renaming.id)?.title
+    setRenaming(null)
+    if (title && title !== before) void onRename(renaming.id, title)
+  }
   const [query, setQuery] = useState('')
   const isFullscreen = useIsFullscreen()
 
@@ -262,6 +280,18 @@ export function ConversationList({
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                       <ContextMenuItem
+                        onClick={() =>
+                          setRenaming({ id: c.id, title: c.title })
+                        }
+                      >
+                        <HugeiconsIcon
+                          icon={EditIcon}
+                          className="mr-1.5 h-3.5 w-3.5"
+                        />
+                        {t('philharmonic:chat.conversationList.rename')}
+                      </ContextMenuItem>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
                         variant="destructive"
                         onClick={() => setConfirming(c)}
                       >
@@ -299,6 +329,42 @@ export function ConversationList({
           })}
         </SidebarMenu>
       </SidebarFooter>
+
+      <AlertDialog
+        open={renaming !== null}
+        onOpenChange={(o) => !o && setRenaming(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t('philharmonic:chat.conversationList.renameDialog.title')}
+            </AlertDialogTitle>
+          </AlertDialogHeader>
+          <Input
+            value={renaming?.title ?? ''}
+            onChange={(e) =>
+              setRenaming((r) => r && { ...r, title: e.target.value })
+            }
+            onKeyDown={(e) => {
+              // An IME's Enter commits its composition, not the name.
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                e.preventDefault()
+                commitRename()
+              }
+            }}
+            autoFocus
+          />
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('action.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!renaming?.title.trim()}
+              onClick={commitRename}
+            >
+              {t('action.save')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={confirming !== null}

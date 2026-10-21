@@ -160,6 +160,10 @@
       "deleteDialog": {
         "title": "刪除此群組？",
         "description": "<0>{{title}}</0> 及其所有訊息、任務與執行紀錄都將被永久移除。"
+      },
+      "rename": "重新命名",
+      "renameDialog": {
+        "title": "重新命名群組"
       }
     },
     "dateLabels": {
@@ -167,7 +171,6 @@
       "yesterday": "昨天"
     },
     "groupChat": {
-      "renameTitle": "點擊以重新命名",
       "errorTitle": "群組發生錯誤",
       "memberCount_other": "{{count}} 位成員",
       "toggleMembersAria": "切換成員面板",

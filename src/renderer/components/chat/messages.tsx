@@ -28,6 +28,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { useDelayed } from '@/hooks/use-delayed'
 import { useDiscoverFeed } from '@/hooks/use-discover-feed'
 import { useOlderHistoryScroll } from '@/hooks/use-older-history-scroll'
+import { useRevealSearchHit } from '@/hooks/use-reveal-search-hit'
 import { useSettings } from '@/hooks/use-settings'
 import { i18n } from '@/lib/i18n'
 import { ENTER_UP } from '@/lib/motion'
@@ -159,6 +160,7 @@ const UserSegment = memo(function UserSegment({
   return (
     <div
       data-user-msg-id={message.id}
+      data-run-id={message.runId ?? message.id}
       className={cn(
         'mb-8 flex flex-col items-end first:mt-0 last:mb-4',
         fresh && ENTER_UP
@@ -859,6 +861,9 @@ function Messages({
     loadingOlder,
     loadOlder
   })
+
+  // Opened from Search chats: at the message that matched, its words marked.
+  useRevealSearchHit(chatBoxRef, requestOlder)
 
   const handleScroll = useCallback(() => {
     const $el = chatBoxRef.current

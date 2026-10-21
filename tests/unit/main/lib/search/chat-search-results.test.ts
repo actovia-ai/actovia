@@ -112,4 +112,17 @@ describe('buildChatSearchResults', () => {
       ['a', '2026-01-02T00:00:00.000Z', 0]
     ])
   })
+
+  it('carries the run a snippet is from, so the chat can open there', () => {
+    const [result] = buildChatSearchResults(
+      [{ chatId: 'c1', title: 'One', activityAt: '2026-01-01T00:00:00.000Z' }],
+      [
+        message('m2', 'c1', '2026-01-01T00:00:02.000Z', { runId: 'r1' }),
+        message('m1', 'c1', '2026-01-01T00:00:01.000Z', { runId: null })
+      ],
+      ['needle']
+    )
+    expect(result.snippets[0].runId).toBe('r1')
+    expect(result.snippets[1]).not.toHaveProperty('runId')
+  })
 })

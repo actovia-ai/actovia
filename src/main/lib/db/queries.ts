@@ -295,7 +295,7 @@ export async function searchChats(query: string): Promise<ChatSearchResult[]> {
 
     const result = await db.execute(sql`
       WITH hit AS (
-        SELECT m.id, m."chatId", m.role, m."searchText", m."createdAt",
+        SELECT m.id, m."chatId", m."runId", m.role, m."searchText", m."createdAt",
           row_number() OVER (PARTITION BY m."chatId" ORDER BY m."createdAt" DESC) AS rank
         FROM ${message} m
         WHERE m.role IN ('user', 'assistant')
@@ -316,7 +316,7 @@ export async function searchChats(query: string): Promise<ChatSearchResult[]> {
       )
       SELECT f.id AS "chatId", f.title,
         ${isoText(sql`f."matchedAt"`)} AS "matchedAt",
-        h.id AS "messageId", h.role, h."searchText",
+        h.id AS "messageId", h."runId", h.role, h."searchText",
         ${isoText(sql`h."createdAt"`)} AS "createdAt"
       FROM found f
       LEFT JOIN hit h ON h."chatId" = f.id AND h.rank <= ${SNIPPETS_PER_CHAT}
@@ -329,6 +329,7 @@ export async function searchChats(query: string): Promise<ChatSearchResult[]> {
           title: string
           matchedAt: string
           messageId: string | null
+          runId: string | null
           role: string | null
           searchText: string | null
           createdAt: string | null
@@ -342,6 +343,7 @@ export async function searchChats(query: string): Promise<ChatSearchResult[]> {
       messages.push({
         id: row.messageId,
         chatId: row.chatId,
+        runId: row.runId,
         role: row.role,
         searchText: row.searchText,
         createdAt: row.createdAt

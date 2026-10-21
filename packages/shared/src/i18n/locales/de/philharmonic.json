@@ -160,6 +160,10 @@
       "deleteDialog": {
         "title": "Diese Gruppe löschen?",
         "description": "<0>{{title}}</0> sowie alle zugehörigen Nachrichten, Aufgaben und Ausführungen werden endgültig entfernt."
+      },
+      "rename": "Umbenennen",
+      "renameDialog": {
+        "title": "Gruppe umbenennen"
       }
     },
     "dateLabels": {
@@ -167,7 +171,6 @@
       "yesterday": "Gestern"
     },
     "groupChat": {
-      "renameTitle": "Zum Umbenennen klicken",
       "errorTitle": "Bei der Gruppe ist ein Fehler aufgetreten",
       "memberCount_one": "{{count}} Mitglied",
       "memberCount_other": "{{count}} Mitglieder",

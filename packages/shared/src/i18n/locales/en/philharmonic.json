@@ -160,6 +160,10 @@
       "deleteDialog": {
         "title": "Delete this group?",
         "description": "<0>{{title}}</0> and all its messages, tasks, and executions will be permanently removed."
+      },
+      "rename": "Rename",
+      "renameDialog": {
+        "title": "Rename group"
       }
     },
     "dateLabels": {
@@ -167,7 +171,6 @@
       "yesterday": "Yesterday"
     },
     "groupChat": {
-      "renameTitle": "Click to rename",
       "errorTitle": "Group encountered an error",
       "memberCount_one": "{{count}} member",
       "memberCount_other": "{{count}} members",

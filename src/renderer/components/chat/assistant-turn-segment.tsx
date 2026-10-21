@@ -206,6 +206,7 @@ export const AssistantTurnSegment = memo(
 
     return (
       <div
+        data-run-id={turn.runId}
         className={cn(
           'mb-8 flex flex-col items-start last:mb-4',
           fresh && ENTER

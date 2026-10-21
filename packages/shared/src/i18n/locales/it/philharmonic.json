@@ -160,6 +160,10 @@
       "deleteDialog": {
         "title": "Eliminare questo gruppo?",
         "description": "<0>{{title}}</0> e tutti i suoi messaggi, attività ed esecuzioni verranno rimossi definitivamente."
+      },
+      "rename": "Rinomina",
+      "renameDialog": {
+        "title": "Rinomina gruppo"
       }
     },
     "dateLabels": {
@@ -167,7 +171,6 @@
       "yesterday": "Ieri"
     },
     "groupChat": {
-      "renameTitle": "Clicca per rinominare",
       "errorTitle": "Il gruppo ha riscontrato un errore",
       "memberCount_one": "{{count}} membro",
       "memberCount_other": "{{count}} membri",

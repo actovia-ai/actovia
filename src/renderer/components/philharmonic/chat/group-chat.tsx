@@ -51,7 +51,6 @@ export function GroupChat({
   teamsById,
   members,
   stream,
-  onRename,
   membersOpen,
   onToggleMembers,
   onCreateGroup
@@ -63,7 +62,6 @@ export function GroupChat({
   /** Aggregated SSE stream, hoisted from the container so the Members panel
    * sees the same busy state. */
   stream: ConversationStream
-  onRename: (id: string, title: string) => void | Promise<void>
   membersOpen: boolean
   onToggleMembers: () => void
   onCreateGroup: () => void
@@ -76,37 +74,7 @@ export function GroupChat({
   const { bubbles, askUser, error, revision, plan, pmRunning, agentCards } =
     stream
   const [answer, setAnswer] = useState('')
-  const [editingTitle, setEditingTitle] = useState(false)
-  const [draftTitle, setDraftTitle] = useState(conversation.title)
-  // Track the conversation id + title we last synced from so we can reset
-  // draftTitle/editingTitle during render when they change — the React-blessed
-  // "store previous prop" approach (avoids stale state on the first render that
-  // a useEffect-based reset would cause).
-  const [prevConversationId, setPrevConversationId] = useState(conversationId)
-  const [prevConversationTitle, setPrevConversationTitle] = useState(
-    conversation.title
-  )
   const scrollRef = useRef<HTMLDivElement>(null)
-
-  if (
-    conversationId !== prevConversationId ||
-    conversation.title !== prevConversationTitle
-  ) {
-    setPrevConversationId(conversationId)
-    setPrevConversationTitle(conversation.title)
-    setDraftTitle(conversation.title)
-    setEditingTitle(false)
-  }
-
-  const commitTitle = () => {
-    const next = draftTitle.trim()
-    setEditingTitle(false)
-    if (!next || next === conversation.title) {
-      setDraftTitle(conversation.title)
-      return
-    }
-    onRename(conversation.id, next)
-  }
 
   const load = useCallback(() => {
     getConversationMessages(conversationId).then(setHistory)
@@ -171,33 +139,10 @@ export function GroupChat({
             <span className="text-base">{conversation.icon ?? '💬'}</span>
           )}
           <div className="min-w-0">
-            {editingTitle ? (
-              <Input
-                value={draftTitle}
-                onChange={(e) => setDraftTitle(e.target.value)}
-                onBlur={commitTitle}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    commitTitle()
-                  } else if (e.key === 'Escape') {
-                    setDraftTitle(conversation.title)
-                    setEditingTitle(false)
-                  }
-                }}
-                autoFocus
-                className="border-border bg-muted h-7 rounded-lg text-sm font-semibold"
-              />
-            ) : (
-              <button
-                type="button"
-                onClick={() => setEditingTitle(true)}
-                title={t('chat.groupChat.renameTitle')}
-                className="text-foreground truncate text-left text-sm font-semibold tracking-tight transition-colors hover:underline"
-              >
-                {conversation.title}
-              </button>
-            )}
+            {/* Renamed from the sidebar's menu, as a chat is. */}
+            <h1 className="text-foreground truncate text-sm font-semibold tracking-tight">
+              {conversation.title}
+            </h1>
             <div className="text-muted-foreground text-2xs">
               {t('chat.groupChat.memberCount', { count: memberCount })}
               {primaryTeam ? ` · ${primaryTeam}` : ''}

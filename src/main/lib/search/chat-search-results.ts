@@ -21,6 +21,8 @@ export interface ChatHit {
 export interface MessageHit {
   id: string
   chatId: string
+  /** The run the message belongs to; null on a row no run claimed. */
+  runId?: string | null
   role: string
   searchText: string | null
   createdAt: Date | string
@@ -57,6 +59,7 @@ export function buildChatSearchResults(
       .slice(0, SNIPPETS_PER_CHAT)
       .map((m): ChatSearchSnippet => ({
         messageId: m.id,
+        ...(m.runId ? { runId: m.runId } : {}),
         role: m.role as ChatSearchSnippet['role'],
         text: buildSnippet(m.searchText ?? '', words),
         createdAt: iso(m.createdAt)

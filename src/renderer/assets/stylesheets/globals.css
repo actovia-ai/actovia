@@ -621,6 +621,15 @@
   --sidebar-ring: var(--toned-sidebar-ring);
 }
 
+/* A search hit a chat was opened at (`lib/reveal-search-hit.ts`): marked
+   like the Search chats dialog marks its words, a shade stronger to be found
+   in a whole answer. A highlight, not an element — the Markdown tree stays
+   as it was rendered. */
+::highlight(actovia-search-hit) {
+  background-color: color-mix(in oklab, var(--primary) 28%, transparent);
+  color: inherit;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50 font-light;

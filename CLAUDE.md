@@ -1877,7 +1877,13 @@ Main process:
   (`@actovia/shared/types/chat-search`, actovia-ios decodes the same): title
   or message holding every word, newest match first, 30 chats, ≤ 3 plain-text
   snippets each (`snippet.ts`; `chat-search-results.ts` folds the hits).
-  The desktop's Search chats dialog is cmdk over it
+  Each snippet names its message and its `runId`. The desktop's Search
+  chats dialog is cmdk over it; a hit opens the chat at that run
+  (`lib/reveal-search-hit.ts`, `hooks/use-reveal-search-hit.ts`: the run is
+  loaded back `through` if it is on an older page, the query's words in it
+  are marked with the CSS Custom Highlight API — `::highlight(actovia-search-hit)`
+  — and the first is scrolled a third of the way down, looked at again once
+  late layout settles); a title-only hit opens at the newest
 - `src/main/lib/knowledge-base/` — optional LightRAG knowledge base: HTTP
   client, `resolveKnowledgeBase()` (never-throws), and the `kb-sync`
   index-status `reconcile.ts`

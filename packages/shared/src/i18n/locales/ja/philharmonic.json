@@ -160,6 +160,10 @@
       "deleteDialog": {
         "title": "このグループを削除しますか?",
         "description": "<0>{{title}}</0>とそのすべてのメッセージ、タスク、実行履歴が完全に削除されます。"
+      },
+      "rename": "名前を変更",
+      "renameDialog": {
+        "title": "グループ名を変更"
       }
     },
     "dateLabels": {
@@ -167,7 +171,6 @@
       "yesterday": "昨日"
     },
     "groupChat": {
-      "renameTitle": "クリックして名前を変更",
       "errorTitle": "グループでエラーが発生しました",
       "memberCount_other": "{{count}}人のメンバー",
       "toggleMembersAria": "メンバーの表示切り替え",
