@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SettingsIntro } from '@/components/settings/settings-kit'
+import { SettingsSelect } from '@/components/settings/settings-select'
 import {
   InputGroup,
   InputGroupAddon,
@@ -121,21 +122,36 @@ export function SkillsMarket() {
         </TabsList>
 
         <TabsContent value="discover" className="flex flex-col gap-4">
-          <InputGroup>
-            <InputGroupInput
-              ref={searchRef}
-              data-testid={TEST_IDS.skillsMarket.searchInput}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('skillsMarket.searchPlaceholder')}
+          {/* One row: the search, and the leaderboard it falls back to.
+              The board is a choice of list, not a second tab strip under
+              the first. */}
+          <div className="flex items-center gap-2">
+            <InputGroup className="flex-1">
+              <InputGroupInput
+                ref={searchRef}
+                data-testid={TEST_IDS.skillsMarket.searchInput}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t('skillsMarket.searchPlaceholder')}
+              />
+              <InputGroupAddon align="inline-start">
+                <HugeiconsIcon icon={SearchIcon} />
+              </InputGroupAddon>
+              <InputGroupAddon align="inline-end">
+                <Kbd>{'/'}</Kbd>
+              </InputGroupAddon>
+            </InputGroup>
+            <SettingsSelect
+              testId={TEST_IDS.skillsMarket.viewToggle}
+              value={view}
+              onValueChange={(v) => setView(v as BrowseView)}
+              disabled={!!debouncedQuery}
+              options={BROWSE_VIEWS.map((v) => ({
+                value: v,
+                label: viewLabel(v)
+              }))}
             />
-            <InputGroupAddon align="inline-start">
-              <HugeiconsIcon icon={SearchIcon} />
-            </InputGroupAddon>
-            <InputGroupAddon align="inline-end">
-              <Kbd>{'/'}</Kbd>
-            </InputGroupAddon>
-          </InputGroup>
+          </div>
 
           {debouncedQuery ? (
             <SearchResults
@@ -144,18 +160,7 @@ export function SkillsMarket() {
               onOpen={(item) => setSelected(refFromListItem(item))}
             />
           ) : (
-            <Tabs
-              value={view}
-              onValueChange={(v) => setView(v as BrowseView)}
-              className="flex flex-col gap-4"
-            >
-              <TabsList data-testid={TEST_IDS.skillsMarket.viewToggle}>
-                {BROWSE_VIEWS.map((v) => (
-                  <TabsTrigger key={v} value={v} className="px-3">
-                    {viewLabel(v)}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <div className="flex flex-col gap-4">
               {view === 'curated' ? (
                 <CuratedOwners
                   installedSlugs={installedSlugs}
@@ -168,7 +173,7 @@ export function SkillsMarket() {
                   onOpen={(item) => setSelected(refFromListItem(item))}
                 />
               )}
-            </Tabs>
+            </div>
           )}
         </TabsContent>
 

@@ -10,10 +10,10 @@ import {
   type UseFormReturnType
 } from '@actovia/shared/schemas/settings-schema'
 import {
+  ComputerIcon,
   Globe02Icon,
   MoonIcon,
-  Sun03Icon,
-  MoonCloudIcon
+  Sun03Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import type { ParseKeys } from 'i18next'
@@ -24,6 +24,11 @@ import { useTranslation } from 'react-i18next'
 import { Flag } from '@/components/app/flag'
 import { Theme } from '@/components/app/theme-provider'
 import { Switch } from '@/components/ui/switch'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 import { setLoginItem, setMenuBar } from '@/lib/ipc'
 import { applyTone } from '@/lib/tone'
 import { cn } from '@/lib/utils'
@@ -56,7 +61,7 @@ const APPEARANCE_MODES: {
   labelKey: ParseKeys<'settings'>
   icon: IconSvgElement
 }[] = [
-  { value: 'system', labelKey: 'general.theme.system', icon: MoonCloudIcon },
+  { value: 'system', labelKey: 'general.theme.system', icon: ComputerIcon },
   { value: 'light', labelKey: 'general.theme.light', icon: Sun03Icon },
   { value: 'dark', labelKey: 'general.theme.dark', icon: MoonIcon }
 ]
@@ -78,14 +83,23 @@ function AppearanceSwitcher() {
             checked={theme === value}
             onChange={(event) => setTheme(event.target.value)}
           />
-          <label
-            htmlFor={`appearance-mode-${value}`}
-            data-testid={`${TEST_IDS.settings.themeMode}-${value}`}
-            aria-label={t(labelKey)}
-            className="text-muted-foreground peer-checked:bg-background peer-checked:text-foreground flex size-7 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm"
-          >
-            <HugeiconsIcon icon={Icon} className="size-4" />
-          </label>
+          {/* Three bare glyphs: each names itself on hover, and to a
+              screen reader through its label. */}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <label
+                  htmlFor={`appearance-mode-${value}`}
+                  data-testid={`${TEST_IDS.settings.themeMode}-${value}`}
+                  aria-label={t(labelKey)}
+                  className="text-muted-foreground peer-checked:bg-background peer-checked:text-foreground peer-focus-visible:ring-ring/50 flex size-7 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm peer-focus-visible:ring-2"
+                />
+              }
+            >
+              <HugeiconsIcon icon={Icon} className="size-4" />
+            </TooltipTrigger>
+            <TooltipContent>{t(labelKey)}</TooltipContent>
+          </Tooltip>
         </span>
       ))}
     </div>

@@ -26,7 +26,7 @@ interface ProviderFieldsProps {
 export function ProviderFields({ form, fields }: ProviderFieldsProps) {
   return (
     <SettingsSection>
-      {fields.map((field, index) => (
+      {fields.map((field) => (
         <Controller
           key={field.name}
           control={form.control}
@@ -43,7 +43,6 @@ export function ProviderFields({ form, fields }: ProviderFieldsProps) {
                   {...formField}
                   value={formField.value as string | null | undefined}
                   placeholder={field.placeholder}
-                  autoFocus={index === 0}
                 />
               ) : destinationSecretOf(field.name) ? (
                 <AddressInput
@@ -51,14 +50,12 @@ export function ProviderFields({ form, fields }: ProviderFieldsProps) {
                   settingsForm={form}
                   isDirty={fieldState.isDirty}
                   placeholder={field.placeholder}
-                  autoFocus={index === 0}
                   value={(formField.value as string | null | undefined) ?? ''}
                 />
               ) : (
                 <Input
                   type="text"
                   placeholder={field.placeholder}
-                  autoFocus={index === 0}
                   {...formField}
                   value={formField.value ?? ''}
                 />

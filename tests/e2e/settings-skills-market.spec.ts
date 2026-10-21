@@ -51,20 +51,16 @@ test.describe('Settings — Skills Market', () => {
     }
 
     // Curated: publishers, each opening to its skills.
-    await mainWindow
-      .getByTestId(TEST_IDS.skillsMarket.viewToggle)
-      .getByRole('tab', { name: 'Curated' })
-      .click()
+    await mainWindow.getByTestId(TEST_IDS.skillsMarket.viewToggle).click()
+    await mainWindow.getByRole('option', { name: 'Curated' }).click()
     const owner = mainWindow
       .getByTestId(TEST_IDS.skillsMarket.curatedOwnerButton)
       .first()
     await expect(owner).toBeVisible({ timeout: 30_000 })
     await owner.click()
     await expect(firstRow).toBeVisible()
-    await mainWindow
-      .getByTestId(TEST_IDS.skillsMarket.viewToggle)
-      .getByRole('tab', { name: /All time/ })
-      .click()
+    await mainWindow.getByTestId(TEST_IDS.skillsMarket.viewToggle).click()
+    await mainWindow.getByRole('option', { name: /All time/ }).click()
 
     // Search narrows the list to results.
     await mainWindow

@@ -112,9 +112,6 @@ export function LockPrivacy() {
 
   return (
     <SettingsSection title={t('lock:privacy.title')} plain>
-      <p className="text-muted-foreground text-sm">
-        {t('lock:privacy.thirdParty')}
-      </p>
       {status.hasPin ? (
         <>
           <SettingsSection>
@@ -218,7 +215,6 @@ export function LockPrivacy() {
                 key="enter"
                 value={pin}
                 onChange={handlePinChange}
-                autoFocus
                 testId={TEST_IDS.lock.enablePinInput}
               />
             </PinBlock>
@@ -243,6 +239,10 @@ export function LockPrivacy() {
           )}
         </Card>
       )}
+      {/* The lock comes first; what a third party sees is a footnote. */}
+      <p className="text-muted-foreground px-1 text-xs leading-relaxed">
+        {t('lock:privacy.thirdParty')}
+      </p>
     </SettingsSection>
   )
 }

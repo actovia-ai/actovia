@@ -261,7 +261,12 @@
       "placeholder": "チャットを検索…",
       "ariaLabel": "チャットを検索",
       "recent": "最近",
-      "noResults": "「{{query}}」に一致するチャットはありません"
+      "noResults": "「{{query}}」に一致するチャットはありません",
+      "hint": {
+        "move": "移動",
+        "open": "開く",
+        "close": "閉じる"
+      }
     }
   },
   "run": {

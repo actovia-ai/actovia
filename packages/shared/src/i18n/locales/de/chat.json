@@ -271,7 +271,12 @@
       "placeholder": "Chats durchsuchen…",
       "ariaLabel": "Chats durchsuchen",
       "recent": "Zuletzt",
-      "noResults": "Keine Chats zu „{{query}}“"
+      "noResults": "Keine Chats zu „{{query}}“",
+      "hint": {
+        "move": "Bewegen",
+        "open": "Öffnen",
+        "close": "Schließen"
+      }
     }
   },
   "run": {

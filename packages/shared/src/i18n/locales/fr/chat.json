@@ -271,7 +271,12 @@
       "placeholder": "Rechercher des conversations…",
       "ariaLabel": "Rechercher des conversations",
       "recent": "Récentes",
-      "noResults": "Aucune conversation ne correspond à « {{query}} »"
+      "noResults": "Aucune conversation ne correspond à « {{query}} »",
+      "hint": {
+        "move": "Naviguer",
+        "open": "Ouvrir",
+        "close": "Fermer"
+      }
     }
   },
   "run": {

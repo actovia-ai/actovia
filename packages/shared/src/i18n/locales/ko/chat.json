@@ -261,7 +261,12 @@
       "placeholder": "채팅 검색…",
       "ariaLabel": "채팅 검색",
       "recent": "최근",
-      "noResults": "“{{query}}”와(과) 일치하는 채팅이 없습니다"
+      "noResults": "“{{query}}”와(과) 일치하는 채팅이 없습니다",
+      "hint": {
+        "move": "이동",
+        "open": "열기",
+        "close": "닫기"
+      }
     }
   },
   "run": {

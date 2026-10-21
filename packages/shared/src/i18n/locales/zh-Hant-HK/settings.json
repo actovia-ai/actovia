@@ -162,7 +162,8 @@
       "new-line": {
         "label": "換行"
       }
-    }
+    },
+    "alwaysOn": "永遠開啟"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "選擇一個供應商"
     },
     "keys": {
-      "sectionTitle": "供應商金鑰"
+      "sectionTitle": "供應商金鑰",
+      "description": "每個分頁存放一個供應商的金鑰。編輯分頁不會改變正在使用的供應商，那是上方的「供應商」。",
+      "inUse": "使用中"
     },
     "fields": {
       "apiKey": {
@@ -813,7 +816,7 @@
     "settings": {
       "sections": {
         "memory": "記憶",
-        "context": "上下文管理"
+        "context": "長對話"
       },
       "autoCapture": {
         "label": "擷取記憶",
@@ -821,19 +824,19 @@
       },
       "useInChat": {
         "label": "在聊天中使用記憶",
-        "description": "在回覆開始時，將與你的訊息相關的記憶項目帶入助理的內容脈絡中。"
+        "description": "助理開始回覆時，帶入與你的訊息相關的記憶。"
       },
       "lcmEnabled": {
-        "label": "無損內容管理",
-        "description": "自動將長對話壓縮成階層式摘要 DAG，即使聊天超出模型的內容視窗，亦不會遺失任何資訊。"
+        "label": "摘要長對話",
+        "description": "當對話超出模型一次能讀取的範圍時，較舊的部分會被摘要而不是捨棄。不會刪除任何內容：助理仍可查閱原始訊息。"
       },
       "contextWindowPercent": {
-        "label": "壓縮閾值",
-        "description": "當對話達到模型內容視窗的此百分比（50-95%）時，觸發內容壓縮。預設值：75%。"
+        "label": "開始摘要的比例",
+        "description": "當對話佔用模型情境視窗的這個比例時開始摘要（50–95%）。預設：75%。"
       },
       "freshTailSize": {
-        "label": "保留訊息數量",
-        "description": "不受壓縮影響的最近回合數量（2-24）。一個回合是你的一則訊息，連同回應它的每一個模型步驟和工具結果。這些回合會一律以原文傳送給模型。預設值：6。"
+        "label": "逐字保留的最近對話",
+        "description": "你最近的多少則訊息（連同各自的完整回答）一律原樣傳送、永不摘要（2–24）。預設：6。"
       },
       "newMemoryDefaultKey": "新記憶",
       "storedMemoriesHeading": "已儲存的記憶",
@@ -998,7 +1001,7 @@
     "heading": "已配對的裝置",
     "description": "可透過區域網絡使用 Actovia 的手機和平板電腦。裝置必須先在這裡配對；在配對任何裝置之前，網絡上完全無法連接到 Actovia。",
     "empty": "尚未配對任何裝置",
-    "emptyHint": "已配對的裝置會顯示在這裡，你可以隨時撤銷。",
+    "emptyHint": "配對你的 iPhone，就能在手機上與這部電腦的 Actovia 對話、使用它的工具及解鎖。你可隨時撤銷裝置。",
     "pair": "配對裝置",
     "pairCard": {
       "title": "連接 iPhone 或 iPad",

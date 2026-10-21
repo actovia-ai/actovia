@@ -261,7 +261,12 @@
       "placeholder": "搜尋聊天…",
       "ariaLabel": "搜尋聊天",
       "recent": "最近",
-      "noResults": "沒有符合「{{query}}」的聊天"
+      "noResults": "沒有符合「{{query}}」的聊天",
+      "hint": {
+        "move": "移動",
+        "open": "開啟",
+        "close": "關閉"
+      }
     }
   },
   "run": {

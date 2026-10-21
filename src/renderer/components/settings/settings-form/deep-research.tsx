@@ -23,7 +23,6 @@ export function DeepResearch({ form }: { form: UseFormReturnType }) {
               placeholder="4"
               type="number"
               id="deep-research-breadth-input"
-              autoFocus
               {...field}
               value={field.value ?? ''}
               className="w-fit"

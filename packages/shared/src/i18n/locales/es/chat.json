@@ -271,7 +271,12 @@
       "placeholder": "Buscar chats…",
       "ariaLabel": "Buscar chats",
       "recent": "Recientes",
-      "noResults": "Ningún chat coincide con «{{query}}»"
+      "noResults": "Ningún chat coincide con «{{query}}»",
+      "hint": {
+        "move": "Moverse",
+        "open": "Abrir",
+        "close": "Cerrar"
+      }
     }
   },
   "run": {
