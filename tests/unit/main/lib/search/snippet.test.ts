@@ -25,6 +25,13 @@ describe('plainSearchText', () => {
     ).toBe('Rates rose again.')
   })
 
+  it('takes the space before a marker with it', () => {
+    expect(plainSearchText('around December 11 【3-source】. Spot')).toBe(
+      'around December 11. Spot'
+    )
+    expect(plainSearchText('a 【1-source】 b')).toBe('a b')
+  })
+
   it('removes table pipes and rules', () => {
     expect(plainSearchText('| a | b |\n|---|:--:|\n| 1 | 2 |')).toBe('a b 1 2')
   })
