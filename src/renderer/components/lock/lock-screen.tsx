@@ -5,6 +5,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { OdyMark } from '@/components/app/ody-mark'
 import { Button } from '@/components/ui/button'
 import {
   getRecentLockNotifications,
@@ -79,7 +80,8 @@ export function LockScreen({
     <div className="bg-background text-foreground fixed inset-0 z-[100] flex flex-col items-center justify-center gap-10">
       {/* Frameless-window drag strip: the window can be moved while locked. */}
       <div className="draggable absolute inset-x-0 top-0 h-16" />
-      <div className="text-center">
+      <div className="flex flex-col items-center text-center">
+        <OdyMark className="mb-6 size-10 opacity-90" />
         <div className="text-5xl font-extralight tabular-nums">
           {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
@@ -92,14 +94,17 @@ export function LockScreen({
         </div>
       </div>
 
-      <PinInput
-        value={pin}
-        onChange={setPin}
-        autoFocus
-        shake={shake}
-        slotClassName="size-12 text-lg"
-        testId={TEST_IDS.lock.pinInput}
-      />
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-muted-foreground text-sm">{t('screen.prompt')}</p>
+        <PinInput
+          value={pin}
+          onChange={setPin}
+          autoFocus
+          shake={shake}
+          slotClassName="size-12 text-lg"
+          testId={TEST_IDS.lock.pinInput}
+        />
+      </div>
 
       <div className="text-destructive h-5 text-sm">{error}</div>
 

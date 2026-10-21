@@ -329,7 +329,8 @@
     },
     "conversationCostList": {
       "title": "Coût par conversation",
-      "empty": "Aucune donnée d'utilisation par conversation pour le moment"
+      "empty": "Aucune donnée d'utilisation par conversation pour le moment",
+      "deleted": "Groupe supprimé"
     }
   },
   "workforce": {

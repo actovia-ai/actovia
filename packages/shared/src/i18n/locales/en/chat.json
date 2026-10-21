@@ -34,8 +34,8 @@
     "deepResearch": "Deep research"
   },
   "messageList": {
-    "greetingTitle": "Hello there!",
-    "greetingSubtitle": "How can I assist you today?",
+    "greetingTitle": "Where to today?",
+    "greetingSubtitle": "Ask anything, research a topic, or hand off a task.",
     "attachmentAlt": "attachment",
     "scrollToBottom": "Scroll to bottom",
     "moreImages": "Show {{count}} more",
@@ -271,7 +271,12 @@
       "placeholder": "Search chats…",
       "ariaLabel": "Search chats",
       "recent": "Recent",
-      "noResults": "No chats match “{{query}}”"
+      "noResults": "No chats match “{{query}}”",
+      "hint": {
+        "move": "Move",
+        "open": "Open",
+        "close": "Close"
+      }
     }
   },
   "run": {

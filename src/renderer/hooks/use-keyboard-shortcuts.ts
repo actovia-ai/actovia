@@ -15,6 +15,25 @@ const isMac = navigator.platform.toUpperCase().includes('MAC')
 /** Readable modifier label for the current platform */
 export const MOD_KEY = isMac ? '⌘' : 'Ctrl'
 
+/**
+ * How a key of `ShortcutDef.keys` is drawn: on a Mac every modifier is its
+ * glyph (⌘ ⇧ ⌥ ↩), as the menu bar draws them; elsewhere their names.
+ */
+export function keyLabel(key: string): string {
+  switch (key) {
+    case 'Shift':
+    case '⇧':
+      return isMac ? '⇧' : 'Shift'
+    case 'Alt':
+    case '⌥':
+      return isMac ? '⌥' : 'Alt'
+    case 'Enter':
+      return isMac ? '↩' : 'Enter'
+    default:
+      return key
+  }
+}
+
 export type ShortcutDef = {
   id: string
   keys: string[]

@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "Qualcosa è andato storto",
-    "description": "Si è verificato un errore imprevisto.",
+    "description": "Actovia ha avuto un problema nel mostrare questa pagina. È stato registrato e di solito basta ricaricare.",
     "fallbackDescription": "Non è stato possibile caricare la pagina.",
     "backToHome": "Torna alla home",
-    "reload": "Ricarica"
+    "reload": "Ricarica",
+    "details": "Dettagli",
+    "copyDetails": "Copia dettagli"
   }
 }

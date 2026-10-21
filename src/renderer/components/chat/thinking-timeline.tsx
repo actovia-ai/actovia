@@ -204,7 +204,7 @@ function FoldedCard({
         />
         <span
           className={cn(
-            exitCode === 0 && 'text-green-500',
+            // Success is the quiet default; only a failure takes a colour.
             exitCode !== null && exitCode !== 0 && 'text-destructive'
           )}
         >

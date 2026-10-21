@@ -92,7 +92,9 @@ export const NavItems = memo(function NavItems({
         isActive={chat.id === id}
         render={<Link to={`/chat/${chat.id}`} />}
       >
-        <span className="min-w-0 flex-1 truncate">{chat.title}</span>
+        {/* pr-3 on top of the button's pr-8: room for the age ("11mo")
+            that sits over the row's right edge. */}
+        <span className="min-w-0 flex-1 truncate pr-3">{chat.title}</span>
       </SidebarMenuButton>
       {/* The row's age sits where the menu button does; the button takes its
           place on hover and while its menu is open (owner, 2026-10-08): the

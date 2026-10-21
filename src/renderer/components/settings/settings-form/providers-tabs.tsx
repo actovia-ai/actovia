@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { SettingsSection } from '../settings-row'
-import { ProviderConfig } from './provider-config'
+import { PROVIDER_LABELS, ProviderConfig } from './provider-config'
 import { AnthropicClaude } from './providers/anthropic-claude'
 import { AzureOpenAi } from './providers/azure-openai'
 import { GoogleGemini } from './providers/google-gemini'
@@ -15,12 +15,20 @@ import { OpenAiGpt } from './providers/openai-gpt'
 import { XaiGrok } from './providers/xai-grok'
 
 const PROVIDER_TABS = [
-  { value: 'openai', label: 'OpenAI', Component: OpenAiGpt },
-  { value: 'azure', label: 'Azure', Component: AzureOpenAi },
-  { value: 'claude', label: 'Claude', Component: AnthropicClaude },
-  { value: 'gemini', label: 'Gemini', Component: GoogleGemini },
-  { value: 'grok', label: 'Grok', Component: XaiGrok },
-  { value: 'ollama', label: 'Ollama', Component: Ollama }
+  { value: 'openai', provider: AiProviders.OpenAiGpt, Component: OpenAiGpt },
+  { value: 'azure', provider: AiProviders.AzureOpenAi, Component: AzureOpenAi },
+  {
+    value: 'claude',
+    provider: AiProviders.AnthropicClaude,
+    Component: AnthropicClaude
+  },
+  {
+    value: 'gemini',
+    provider: AiProviders.GoogleGemini,
+    Component: GoogleGemini
+  },
+  { value: 'grok', provider: AiProviders.XaiGrok, Component: XaiGrok },
+  { value: 'ollama', provider: AiProviders.Ollama, Component: Ollama }
 ] as const
 
 type ProviderTab = (typeof PROVIDER_TABS)[number]['value']
@@ -64,10 +72,23 @@ export function ProvidersTabs({ form }: { form: UseFormReturnType }) {
           onValueChange={(value) => setTab(value as ProviderTab)}
           className="gap-5"
         >
+          <p className="text-muted-foreground px-1 text-sm">
+            {t('providers.keys.description')}
+          </p>
           <TabsList className="w-full">
-            {PROVIDER_TABS.map((t) => (
-              <TabsTrigger key={t.value} value={t.value}>
-                {t.label}
+            {PROVIDER_TABS.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {PROVIDER_LABELS[tab.provider]}
+                {tab.provider === provider && (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      title={t('providers.keys.inUse')}
+                      className="bg-primary-ink size-1.5 shrink-0 rounded-full"
+                    />
+                    <span className="sr-only">{t('providers.keys.inUse')}</span>
+                  </>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>

@@ -162,7 +162,8 @@
       "new-line": {
         "label": "Nova linha"
       }
-    }
+    },
+    "alwaysOn": "Sempre ativo"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "Selecione um provedor"
     },
     "keys": {
-      "sectionTitle": "Chaves do provedor"
+      "sectionTitle": "Chaves do provedor",
+      "description": "Cada aba guarda as chaves de um provedor. Editar uma aba não muda o provedor em uso — esse é o Provedor acima.",
+      "inUse": "Em uso"
     },
     "fields": {
       "apiKey": {
@@ -817,7 +820,7 @@
     "settings": {
       "sections": {
         "memory": "Memória",
-        "context": "Gerenciamento de contexto"
+        "context": "Conversas longas"
       },
       "autoCapture": {
         "label": "Capturar memórias",
@@ -825,19 +828,19 @@
       },
       "useInChat": {
         "label": "Usar memória nos chats",
-        "description": "Trazer as entradas de memória relevantes para sua mensagem ao contexto do assistente no início de uma resposta."
+        "description": "Traz as memórias relacionadas à sua mensagem quando o assistente começa a responder."
       },
       "lcmEnabled": {
-        "label": "Gerenciamento de contexto sem perdas",
-        "description": "Comprime automaticamente conversas longas em um resumo hierárquico em DAG, para que nada se perca mesmo quando os chats excedem a janela de contexto."
+        "label": "Resumir conversas longas",
+        "description": "Quando um chat passa do que o modelo consegue ler de uma vez, a parte mais antiga é resumida em vez de descartada. Nada é apagado: o assistente ainda pode consultar as mensagens originais."
       },
       "contextWindowPercent": {
-        "label": "Limite de compactação",
-        "description": "Acionar a compactação de contexto quando a conversa atingir esta porcentagem da janela de contexto do modelo (50-95%). Padrão: 75%."
+        "label": "Resumir em",
+        "description": "Começa a resumir quando uma conversa ocupa esta parte da janela de contexto do modelo (50–95%). Padrão: 75%."
       },
       "freshTailSize": {
-        "label": "Tamanho da cauda recente",
-        "description": "Número de execuções recentes — uma mensagem sua com cada etapa do modelo e resultado de ferramenta que a respondeu — protegidas contra compactação (2-24). Elas são sempre enviadas ao modelo sem alterações. Padrão: 6."
+        "label": "Trocas recentes na íntegra",
+        "description": "Quantas das suas mensagens mais recentes, cada uma com a resposta completa, são sempre enviadas como estão e nunca resumidas (2–24). Padrão: 6."
       },
       "newMemoryDefaultKey": "Nova memória",
       "storedMemoriesHeading": "Memórias armazenadas",
@@ -1003,7 +1006,7 @@
     "heading": "Dispositivos pareados",
     "description": "Celulares e tablets que podem usar o Actovia pela sua rede local. O dispositivo precisa ser pareado aqui primeiro; até que haja algum pareado, o Actovia não fica acessível pela rede de forma alguma.",
     "empty": "Nenhum dispositivo pareado",
-    "emptyHint": "Os dispositivos que você parear aparecem aqui. Você pode revogar qualquer um a qualquer momento.",
+    "emptyHint": "Pareie seu iPhone para conversar com o Actovia neste computador, usar as ferramentas dele e desbloqueá-lo pelo celular. Você pode revogar um dispositivo a qualquer momento.",
     "pair": "Parear um dispositivo",
     "pairCard": {
       "title": "Conecte um iPhone ou iPad",

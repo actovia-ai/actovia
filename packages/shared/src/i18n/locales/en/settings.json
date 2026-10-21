@@ -162,7 +162,8 @@
       "new-line": {
         "label": "New line"
       }
-    }
+    },
+    "alwaysOn": "Always on"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "Select a provider"
     },
     "keys": {
-      "sectionTitle": "Provider keys"
+      "sectionTitle": "Provider keys",
+      "description": "Each tab holds one provider's keys. Editing a tab doesn't change the provider in use — that's the Provider above.",
+      "inUse": "In use"
     },
     "fields": {
       "apiKey": {
@@ -817,7 +820,7 @@
     "settings": {
       "sections": {
         "memory": "Memory",
-        "context": "Context management"
+        "context": "Long conversations"
       },
       "autoCapture": {
         "label": "Capture memories",
@@ -825,19 +828,19 @@
       },
       "useInChat": {
         "label": "Use memory in chats",
-        "description": "Surface the memory entries relevant to your message into the assistant's context at the start of a reply."
+        "description": "Bring in the memories that relate to your message when the assistant starts a reply."
       },
       "lcmEnabled": {
-        "label": "Lossless context management",
-        "description": "Automatically compress long conversations into a hierarchical summary DAG, so nothing is ever lost even when chats exceed the context window."
+        "label": "Summarize long conversations",
+        "description": "When a chat outgrows what the model can read at once, its older part is summarized instead of dropped. Nothing is deleted: the assistant can still look up the original messages."
       },
       "contextWindowPercent": {
-        "label": "Compaction threshold",
-        "description": "Trigger context compaction when the conversation reaches this percentage of the model's context window (50-95%). Default: 75%."
+        "label": "Summarize at",
+        "description": "Start summarizing when a conversation fills this much of the model's context window (50–95%). Default: 75%."
       },
       "freshTailSize": {
-        "label": "Fresh tail size",
-        "description": "Number of recent runs — a message of yours with every model step and tool result that answered it — protected from compaction (2-24). They are always sent to the model verbatim. Default: 6."
+        "label": "Recent exchanges kept word for word",
+        "description": "How many of your latest messages, each with the whole answer to it, are always sent as they are and never summarized (2–24). Default: 6."
       },
       "newMemoryDefaultKey": "New memory",
       "storedMemoriesHeading": "Stored memories",
@@ -1003,7 +1006,7 @@
     "heading": "Paired devices",
     "description": "Phones and tablets that may use Actovia over your local network. A device has to be paired here first; until one is, Actovia is not reachable from the network at all.",
     "empty": "No paired devices",
-    "emptyHint": "Devices you pair show up here. You can revoke one at any time.",
+    "emptyHint": "Pair your iPhone to chat with Actovia on this computer, use its tools and unlock it from the phone. You can revoke a device at any time.",
     "pair": "Pair a device",
     "pairCard": {
       "title": "Connect an iPhone or iPad",

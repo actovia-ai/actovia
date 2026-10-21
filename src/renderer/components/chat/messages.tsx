@@ -23,6 +23,7 @@ import { capitalCase } from 'change-case'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { OdyMark } from '@/components/app/ody-mark'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { useDelayed } from '@/hooks/use-delayed'
@@ -886,7 +887,9 @@ function Messages({
           'no-scrollbar @container flex flex-1 flex-col items-center gap-8 overflow-y-scroll px-16 pt-4 transition-[padding] duration-200 ease-out [overflow-anchor:none]',
           // Room for the floating composer to clear the last message — but
           // only once it's floating (the landing screen keeps it in flow).
-          messages.length === 0 ? 'pb-6' : 'pb-36'
+          // The height of the dock in `chat.tsx`: its 48px fade, the pill
+          // and the 24px under it.
+          messages.length === 0 ? 'pb-6' : 'pb-40'
         )}
         data-chat-scroll=""
         ref={chatBoxRef}
@@ -895,7 +898,8 @@ function Messages({
         {messages.length === 0 && (
           <div
             className={cn(
-              'animate-fade-in-up mx-auto flex size-full max-w-3xl flex-col px-8',
+              ENTER_UP,
+              'mx-auto flex size-full max-w-3xl flex-col px-8',
               discoverHasContent
                 ? 'justify-start pt-4'
                 : 'justify-center md:mt-20'
@@ -905,10 +909,11 @@ function Messages({
                 the screen — drop it and let Discover be the landing content. */}
             {!discoverHasContent && (
               <>
-                <p className="text-3xl font-bold tracking-tight">
+                <OdyMark className="mb-5 -ml-1 size-13" />
+                <p className="text-3xl font-semibold tracking-tight text-balance">
                   {t('messageList.greetingTitle')}
                 </p>
-                <p className="text-muted-foreground mt-2 text-lg">
+                <p className="text-muted-foreground mt-2 text-base">
                   {t('messageList.greetingSubtitle')}
                 </p>
               </>
@@ -941,27 +946,29 @@ function Messages({
             const turnIsStreaming = isLoading && isLastSegment
 
             if (segment.type === 'compare') {
-              // While two answers are compared the group — its question
-              // too — takes the width of the chat.
+              // While two answers are compared they take the width of the
+              // chat; the question stays in the reading column, where every
+              // other question is.
               return (
-                <div
-                  key={`group-${segment.groupId}`}
-                  className={cn(segment.columns.length > 1 && COMPARE_FRAME)}
-                >
+                <div key={`group-${segment.groupId}`}>
                   <UserSegment
                     message={segment.question}
                     fresh={isFresh(segment.groupId)}
                   />
-                  <CompareTurns
-                    chatId={chatId}
-                    segment={segment}
-                    citationSources={citationSourcesByTurn}
-                    streaming={turnIsStreaming}
-                    regenerate={isLastSegment ? regenerate : undefined}
-                    choose={chooseAttempt}
-                    runError={runError}
-                    opened={openedWith}
-                  />
+                  <div
+                    className={cn(segment.columns.length > 1 && COMPARE_FRAME)}
+                  >
+                    <CompareTurns
+                      chatId={chatId}
+                      segment={segment}
+                      citationSources={citationSourcesByTurn}
+                      streaming={turnIsStreaming}
+                      regenerate={isLastSegment ? regenerate : undefined}
+                      choose={chooseAttempt}
+                      runError={runError}
+                      opened={openedWith}
+                    />
+                  </div>
                 </div>
               )
             }
@@ -1010,7 +1017,7 @@ function Messages({
           variant="secondary"
           size="icon-lg"
           onClick={() => scrollToBottom('smooth')}
-          className="absolute bottom-24 left-1/2 z-10 -translate-x-1/2 rounded-full border shadow-md"
+          className="absolute bottom-22 left-1/2 z-30 -translate-x-1/2 rounded-full border shadow-md"
           aria-label={t('messageList.scrollToBottom')}
         >
           <HugeiconsIcon icon={ArrowDownIcon} />

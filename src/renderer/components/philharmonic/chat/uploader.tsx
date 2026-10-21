@@ -1,4 +1,4 @@
-import { Loading03Icon, AttachmentIcon } from '@hugeicons/core-free-icons'
+import { Loading03Icon, Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { type ChangeEvent, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -33,7 +33,7 @@ export function ComposerUploader() {
           className="animate-spin"
         />
       ) : (
-        <HugeiconsIcon icon={AttachmentIcon} />
+        <HugeiconsIcon icon={Add01Icon} />
       )}
       <input
         ref={inputRef}

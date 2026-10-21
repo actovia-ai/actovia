@@ -329,7 +329,8 @@
     },
     "conversationCostList": {
       "title": "Cost by conversation",
-      "empty": "No conversation usage data yet"
+      "empty": "No conversation usage data yet",
+      "deleted": "Deleted group"
     }
   },
   "workforce": {

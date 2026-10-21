@@ -162,7 +162,8 @@
       "new-line": {
         "label": "Neue Zeile"
       }
-    }
+    },
+    "alwaysOn": "Immer aktiv"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "Anbieter auswählen"
     },
     "keys": {
-      "sectionTitle": "Anbieter-Schlüssel"
+      "sectionTitle": "Anbieter-Schlüssel",
+      "description": "Jeder Tab enthält die Schlüssel eines Anbieters. Das Bearbeiten eines Tabs ändert nicht den verwendeten Anbieter – das ist der Anbieter oben.",
+      "inUse": "In Verwendung"
     },
     "fields": {
       "apiKey": {
@@ -817,7 +820,7 @@
     "settings": {
       "sections": {
         "memory": "Gedächtnis",
-        "context": "Kontextverwaltung"
+        "context": "Lange Unterhaltungen"
       },
       "autoCapture": {
         "label": "Gedächtnis erfassen",
@@ -825,19 +828,19 @@
       },
       "useInChat": {
         "label": "Gedächtnis in Chats verwenden",
-        "description": "Blendet die für Ihre Nachricht relevanten Gedächtniseinträge zu Beginn einer Antwort in den Kontext des Assistenten ein."
+        "description": "Bezieht beim Antworten die Erinnerungen ein, die zu deiner Nachricht passen."
       },
       "lcmEnabled": {
-        "label": "Verlustfreies Kontextmanagement",
-        "description": "Komprimiert lange Unterhaltungen automatisch zu einem hierarchischen Zusammenfassungs-DAG, sodass nichts verloren geht, selbst wenn Chats das Kontextfenster überschreiten."
+        "label": "Lange Unterhaltungen zusammenfassen",
+        "description": "Wird ein Chat länger, als das Modell auf einmal lesen kann, wird sein älterer Teil zusammengefasst statt verworfen. Nichts wird gelöscht: Der Assistent kann die Originalnachrichten weiterhin nachschlagen."
       },
       "contextWindowPercent": {
-        "label": "Komprimierungsschwelle",
-        "description": "Löst die Kontextkomprimierung aus, sobald die Unterhaltung diesen Prozentsatz des Kontextfensters des Modells erreicht (50-95 %). Standard: 75 %."
+        "label": "Zusammenfassen ab",
+        "description": "Beginnt mit dem Zusammenfassen, wenn eine Unterhaltung diesen Anteil des Kontextfensters des Modells füllt (50–95 %). Standard: 75 %."
       },
       "freshTailSize": {
-        "label": "Anzahl aktueller Nachrichten",
-        "description": "Anzahl der neuesten Durchläufe – eine Nachricht von dir mit jedem Modellschritt und Werkzeugergebnis, das sie beantwortet hat –, die von der Komprimierung ausgenommen sind (2–24). Sie werden dem Modell immer unverändert gesendet. Standard: 6."
+        "label": "Letzte Wechsel wörtlich behalten",
+        "description": "Wie viele deiner neuesten Nachrichten, jeweils mit der ganzen Antwort darauf, immer unverändert gesendet und nie zusammengefasst werden (2–24). Standard: 6."
       },
       "newMemoryDefaultKey": "Neuer Gedächtniseintrag",
       "storedMemoriesHeading": "Gespeicherte Gedächtniseinträge",
@@ -1003,7 +1006,7 @@
     "heading": "Gekoppelte Geräte",
     "description": "Smartphones und Tablets, die Actovia über Ihr lokales Netzwerk nutzen dürfen. Ein Gerät muss zuerst hier gekoppelt werden; solange keines gekoppelt ist, ist Actovia aus dem Netzwerk überhaupt nicht erreichbar.",
     "empty": "Keine gekoppelten Geräte",
-    "emptyHint": "Gekoppelte Geräte erscheinen hier. Sie können den Zugriff jederzeit widerrufen.",
+    "emptyHint": "Kopple dein iPhone, um vom Telefon aus mit Actovia auf diesem Computer zu chatten, seine Werkzeuge zu nutzen und es zu entsperren. Du kannst ein Gerät jederzeit widerrufen.",
     "pair": "Gerät koppeln",
     "pairCard": {
       "title": "iPhone oder iPad verbinden",

@@ -31,7 +31,6 @@ export function Ollama({ form }: { form: UseFormReturnType }) {
               <Input
                 type="text"
                 placeholder="http://localhost:11434"
-                autoFocus
                 {...field}
                 value={field.value ?? ''}
               />

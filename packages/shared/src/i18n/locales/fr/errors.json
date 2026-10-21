@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "Une erreur est survenue",
-    "description": "Une erreur inattendue est survenue.",
+    "description": "Actovia n’a pas pu afficher cette page. L’erreur a été journalisée ; recharger suffit généralement.",
     "fallbackDescription": "La page n'a pas pu être chargée.",
     "backToHome": "Retour à l'accueil",
-    "reload": "Recharger"
+    "reload": "Recharger",
+    "details": "Détails",
+    "copyDetails": "Copier les détails"
   }
 }

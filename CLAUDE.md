@@ -273,7 +273,8 @@ publishers, each with every skill it maintains — ~2 MB, no parameters), `GET
 (`src/renderer/components/skills-market/`), built from the Settings kit like
 every other page (one-line list rows — rank, name, source, an "Installed"
 badge, installs on the right; no icon tiles, no mono outside commands and file
-paths): Discover (search; All time / Trending / Hot leaderboards, same-repo
+paths): Discover (search, with the board — All time / Trending / Hot /
+Curated — a select on the same row; leaderboards list same-repo
 rows collapsed behind "+N more"; Curated — `curated.tsx`, publishers sorted by
 installs, each opening to its skills with the registry's featured pick
 badged) → detail page (security audit card, the copyable `actovia skills
@@ -1375,9 +1376,10 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   the choose route still work); `hidden`
   attempts are drawn nowhere. `components/chat/compare-turns.tsx` draws it
   with an `AssistantTurnSegment` (`chat/assistant-turn-segment.tsx`) per
-  answer: side by side where the group is at least 880 px wide — it takes
-  the chat's width then, not the reading column's (`COMPARE_FRAME`, `cqw`
-  of the scroll area) — and behind shadcn `Tabs` below that; which one is
+  answer: side by side where the group is at least 880 px wide — the
+  answers take the chat's width then, not the reading column's
+  (`COMPARE_FRAME`, `cqw` of the scroll area; the question stays in the
+  column with every other question) — and behind shadcn `Tabs` below that; which one is
   measured (`hooks/use-min-width.ts`), since it changes what is mounted.
   The states are the server's: `useChat().regenerate` sends the last
   question with `alternateOf` and applies the same rules locally until
@@ -1498,7 +1500,10 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   controls) · `text-base`+ for titles. No `text-[Npx]`; the only sizes under
   11 are the citation chip and a map pin's numeral. `cn()` knows `2xs` / `ui`
   as sizes (`lib/utils.ts`) — tailwind-merge would otherwise drop `text-ui`
-  beside a text colour
+  beside a text colour. The app's weight is light (`* { font-light }`), but
+  `text-2xs` / `text-xs` are 400 — they and what sits inside them — so small
+  muted meta is not faint; set once in globals.css (`--text-*--font-weight`),
+  never per call site
 - React Query hooks (`hooks/use-<domain>.ts`) for server data fetching with automatic revalidation
 - Always use path alias `@` for renderer imports
 - Tailwind + Radix UI for consistent styling
@@ -1594,7 +1599,14 @@ audit that applied it is in the commit history (`style(motion): …`).
 - **Colour:** the light neutral base is `oklch(0.985)` (page) / `0.995`
   (card, popover) / `0.975` (sidebar) — never pure white; dark is `0.145`.
   No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces and no
-  `bg-black`/`bg-white` except an overlay scrim; use the tokens.
+  `bg-black`/`bg-white` except an overlay scrim; use the tokens. `--accent`
+  (a hover, a chip, a selected item) stays at least 0.03 L from `--muted`,
+  and the light `--sidebar-accent` (the active row) 0.035 under `--sidebar`
+  (`tone-palette.test.ts`); a chip on a muted card is `bg-background` with
+  `ring-1 ring-border`.
+- **Ody in the UI:** `components/app/ody-mark.tsx` (`OdyMark`, the app
+  icon's Liquid Glass export, still) on the landing and the lock screen,
+  small; the boot splash is the only place he moves.
 
 ### Security Considerations
 

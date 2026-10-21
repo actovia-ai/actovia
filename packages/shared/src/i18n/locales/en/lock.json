@@ -1,6 +1,7 @@
 {
   "incorrectPin": "Incorrect PIN",
   "screen": {
+    "prompt": "Enter your PIN to unlock Actovia",
     "unlockWithTouchId": "Unlock with Touch ID",
     "tooManyAttempts": "Too many attempts. Try again in {{seconds}}s."
   },

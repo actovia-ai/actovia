@@ -34,8 +34,8 @@
     "deepResearch": "Deep Research"
   },
   "messageList": {
-    "greetingTitle": "Hallo!",
-    "greetingSubtitle": "Wie kann ich Ihnen heute helfen?",
+    "greetingTitle": "Wohin geht’s heute?",
+    "greetingSubtitle": "Frag etwas, recherchiere ein Thema oder gib eine Aufgabe ab.",
     "attachmentAlt": "Anhang",
     "scrollToBottom": "Nach unten scrollen",
     "moreImages": "{{count}} weitere anzeigen",
@@ -271,7 +271,12 @@
       "placeholder": "Chats durchsuchen…",
       "ariaLabel": "Chats durchsuchen",
       "recent": "Zuletzt",
-      "noResults": "Keine Chats zu „{{query}}“"
+      "noResults": "Keine Chats zu „{{query}}“",
+      "hint": {
+        "move": "Bewegen",
+        "open": "Öffnen",
+        "close": "Schließen"
+      }
     }
   },
   "run": {

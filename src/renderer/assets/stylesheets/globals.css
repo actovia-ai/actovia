@@ -74,6 +74,11 @@
 @theme {
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: calc(1 / 0.6875);
+  /* The two small steps are set at 400, not the app's light 300: muted meta
+     at 11–12px in a light weight read faint (2026-10-21). An explicit weight
+     utility beside them still wins. */
+  --text-2xs--font-weight: 400;
+  --text-xs--font-weight: 400;
   --text-ui: 0.8125rem;
   --text-ui--line-height: calc(1.25 / 0.8125);
 }
@@ -106,7 +111,7 @@
      code on a tinted panel read as part of the decoration (owner,
      2026-10-08). Only :root and .dark set it. */
   --code: oklch(0.97 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.935 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
@@ -122,7 +127,7 @@
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.935 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
@@ -145,7 +150,7 @@
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --code: oklch(0.269 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.3 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -199,7 +204,7 @@
   --secondary-foreground: oklch(0.2 0.02 141);
   --muted: oklch(0.955 0.01 141);
   --muted-foreground: oklch(0.5 0.015 141);
-  --accent: oklch(0.94 0.02 141);
+  --accent: oklch(0.925 0.02 141);
   --accent-foreground: oklch(0.2 0.02 141);
   --border: oklch(0.905 0.012 141);
   --input: oklch(0.905 0.012 141);
@@ -209,7 +214,7 @@
   --sidebar-foreground: oklch(0.16 0.02 141);
   --sidebar-primary: #6cb362;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #6cb362 l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 141);
   --sidebar-accent-foreground: oklch(0.2 0.02 141);
   --sidebar-border: oklch(0.905 0.012 141);
   --sidebar-ring: #3b8131;
@@ -230,7 +235,7 @@
   --secondary-foreground: oklch(0.2 0.02 265);
   --muted: oklch(0.955 0.01 265);
   --muted-foreground: oklch(0.5 0.015 265);
-  --accent: oklch(0.94 0.02 265);
+  --accent: oklch(0.925 0.02 265);
   --accent-foreground: oklch(0.2 0.02 265);
   --border: oklch(0.905 0.012 265);
   --input: oklch(0.905 0.012 265);
@@ -240,7 +245,7 @@
   --sidebar-foreground: oklch(0.16 0.02 265);
   --sidebar-primary: #5480f0;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(from #5480f0 l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 265);
   --sidebar-accent-foreground: oklch(0.2 0.02 265);
   --sidebar-border: oklch(0.905 0.012 265);
   --sidebar-ring: #426bd9;
@@ -261,7 +266,7 @@
   --secondary-foreground: oklch(0.2 0.02 294);
   --muted: oklch(0.955 0.01 294);
   --muted-foreground: oklch(0.5 0.015 294);
-  --accent: oklch(0.94 0.02 294);
+  --accent: oklch(0.925 0.02 294);
   --accent-foreground: oklch(0.2 0.02 294);
   --border: oklch(0.905 0.012 294);
   --input: oklch(0.905 0.012 294);
@@ -271,7 +276,7 @@
   --sidebar-foreground: oklch(0.16 0.02 294);
   --sidebar-primary: #8553e7;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(from #8553e7 l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 294);
   --sidebar-accent-foreground: oklch(0.2 0.02 294);
   --sidebar-border: oklch(0.905 0.012 294);
   --sidebar-ring: #8452e6;
@@ -292,7 +297,7 @@
   --secondary-foreground: oklch(0.2 0.02 351);
   --muted: oklch(0.955 0.01 351);
   --muted-foreground: oklch(0.5 0.015 351);
-  --accent: oklch(0.94 0.02 351);
+  --accent: oklch(0.925 0.02 351);
   --accent-foreground: oklch(0.2 0.02 351);
   --border: oklch(0.905 0.012 351);
   --input: oklch(0.905 0.012 351);
@@ -302,7 +307,7 @@
   --sidebar-foreground: oklch(0.16 0.02 351);
   --sidebar-primary: #e17ead;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #e17ead l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 351);
   --sidebar-accent-foreground: oklch(0.2 0.02 351);
   --sidebar-border: oklch(0.905 0.012 351);
   --sidebar-ring: #b05280;
@@ -323,7 +328,7 @@
   --secondary-foreground: oklch(0.2 0.02 53);
   --muted: oklch(0.955 0.01 53);
   --muted-foreground: oklch(0.5 0.015 53);
-  --accent: oklch(0.94 0.02 53);
+  --accent: oklch(0.925 0.02 53);
   --accent-foreground: oklch(0.2 0.02 53);
   --border: oklch(0.905 0.012 53);
   --input: oklch(0.905 0.012 53);
@@ -333,7 +338,7 @@
   --sidebar-foreground: oklch(0.16 0.02 53);
   --sidebar-primary: #de8344;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #de8344 l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 53);
   --sidebar-accent-foreground: oklch(0.2 0.02 53);
   --sidebar-border: oklch(0.905 0.012 53);
   --sidebar-ring: #b15a11;
@@ -354,7 +359,7 @@
   --secondary-foreground: oklch(0.2 0.02 91);
   --muted: oklch(0.955 0.01 91);
   --muted-foreground: oklch(0.5 0.015 91);
-  --accent: oklch(0.94 0.02 91);
+  --accent: oklch(0.925 0.02 91);
   --accent-foreground: oklch(0.2 0.02 91);
   --border: oklch(0.905 0.012 91);
   --input: oklch(0.905 0.012 91);
@@ -364,7 +369,7 @@
   --sidebar-foreground: oklch(0.16 0.02 91);
   --sidebar-primary: #edc859;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #edc859 l c h / 10%);
+  --sidebar-accent: oklch(0.935 0.018 91);
   --sidebar-accent-foreground: oklch(0.2 0.02 91);
   --sidebar-border: oklch(0.905 0.012 91);
   --sidebar-ring: #8b6e00;
@@ -385,7 +390,7 @@
   --secondary-foreground: oklch(0.93 0.006 141);
   --muted: oklch(0.22 0.025 141);
   --muted-foreground: oklch(0.62 0.015 141);
-  --accent: oklch(0.22 0.035 141);
+  --accent: oklch(0.255 0.035 141);
   --accent-foreground: oklch(0.93 0.006 141);
   --border: oklch(1 0.02 141 / 12%);
   --input: oklch(1 0.02 141 / 16%);
@@ -416,7 +421,7 @@
   --secondary-foreground: oklch(0.93 0.006 265);
   --muted: oklch(0.22 0.025 265);
   --muted-foreground: oklch(0.62 0.015 265);
-  --accent: oklch(0.22 0.035 265);
+  --accent: oklch(0.255 0.035 265);
   --accent-foreground: oklch(0.93 0.006 265);
   --border: oklch(1 0.02 265 / 12%);
   --input: oklch(1 0.02 265 / 16%);
@@ -447,7 +452,7 @@
   --secondary-foreground: oklch(0.93 0.006 294);
   --muted: oklch(0.22 0.025 294);
   --muted-foreground: oklch(0.62 0.015 294);
-  --accent: oklch(0.22 0.035 294);
+  --accent: oklch(0.255 0.035 294);
   --accent-foreground: oklch(0.93 0.006 294);
   --border: oklch(1 0.02 294 / 12%);
   --input: oklch(1 0.02 294 / 16%);
@@ -478,7 +483,7 @@
   --secondary-foreground: oklch(0.93 0.006 351);
   --muted: oklch(0.22 0.025 351);
   --muted-foreground: oklch(0.62 0.015 351);
-  --accent: oklch(0.22 0.035 351);
+  --accent: oklch(0.255 0.035 351);
   --accent-foreground: oklch(0.93 0.006 351);
   --border: oklch(1 0.02 351 / 12%);
   --input: oklch(1 0.02 351 / 16%);
@@ -509,7 +514,7 @@
   --secondary-foreground: oklch(0.93 0.006 53);
   --muted: oklch(0.22 0.025 53);
   --muted-foreground: oklch(0.62 0.015 53);
-  --accent: oklch(0.22 0.035 53);
+  --accent: oklch(0.255 0.035 53);
   --accent-foreground: oklch(0.93 0.006 53);
   --border: oklch(1 0.02 53 / 12%);
   --input: oklch(1 0.02 53 / 16%);
@@ -540,7 +545,7 @@
   --secondary-foreground: oklch(0.93 0.006 91);
   --muted: oklch(0.22 0.025 91);
   --muted-foreground: oklch(0.62 0.015 91);
-  --accent: oklch(0.22 0.035 91);
+  --accent: oklch(0.255 0.035 91);
   --accent-foreground: oklch(0.93 0.006 91);
   --border: oklch(1 0.02 91 / 12%);
   --input: oklch(1 0.02 91 / 16%);
@@ -584,7 +589,7 @@
   --primary-foreground: oklch(0.985 0 0);
   --primary-ink: oklch(0.205 0 0);
   --bubble: oklch(0.97 0 0);
-  --accent: oklch(0.97 0 0);
+  --accent: oklch(0.935 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -598,7 +603,7 @@
   --primary-foreground: oklch(0.205 0 0);
   --primary-ink: oklch(0.922 0 0);
   --bubble: oklch(0.269 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.3 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -633,6 +638,11 @@
 @layer base {
   * {
     @apply border-border outline-ring/50 font-light;
+  }
+  /* What sits inside a 2xs / xs element takes its 400 too (the theme's
+     `--text-*--font-weight` above sets the element itself). */
+  :where(.text-2xs, .text-xs) * {
+    font-weight: 400;
   }
   /* Pin the app shell to the viewport so route layouts can rely on `h-full`
      cascading down — without this a tall page (a long chat) grows the

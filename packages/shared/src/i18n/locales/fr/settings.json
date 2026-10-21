@@ -162,7 +162,8 @@
       "new-line": {
         "label": "Nouvelle ligne"
       }
-    }
+    },
+    "alwaysOn": "Toujours actif"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "Sélectionner un fournisseur"
     },
     "keys": {
-      "sectionTitle": "Clés des fournisseurs"
+      "sectionTitle": "Clés des fournisseurs",
+      "description": "Chaque onglet contient les clés d’un fournisseur. Modifier un onglet ne change pas le fournisseur utilisé : c’est le Fournisseur ci-dessus.",
+      "inUse": "Utilisé"
     },
     "fields": {
       "apiKey": {
@@ -817,7 +820,7 @@
     "settings": {
       "sections": {
         "memory": "Mémoire",
-        "context": "Gestion du contexte"
+        "context": "Longues conversations"
       },
       "autoCapture": {
         "label": "Capturer les mémoires",
@@ -825,19 +828,19 @@
       },
       "useInChat": {
         "label": "Utiliser la mémoire dans les conversations",
-        "description": "Fait remonter les entrées de mémoire pertinentes pour votre message dans le contexte de l'assistant au début d'une réponse."
+        "description": "Intègre les souvenirs liés à votre message quand l’assistant commence à répondre."
       },
       "lcmEnabled": {
-        "label": "Gestion du contexte sans perte",
-        "description": "Compresse automatiquement les longues conversations en un DAG hiérarchique de résumés, afin que rien ne soit jamais perdu même lorsque les conversations dépassent la fenêtre de contexte."
+        "label": "Résumer les longues conversations",
+        "description": "Quand une conversation dépasse ce que le modèle peut lire d’un coup, sa partie la plus ancienne est résumée au lieu d’être abandonnée. Rien n’est supprimé : l’assistant peut toujours consulter les messages d’origine."
       },
       "contextWindowPercent": {
-        "label": "Seuil de compactage",
-        "description": "Déclenche le compactage du contexte lorsque la conversation atteint ce pourcentage de la fenêtre de contexte du modèle (50 à 95 %). Par défaut : 75 %."
+        "label": "Résumer à",
+        "description": "Commence à résumer quand une conversation remplit cette part de la fenêtre de contexte du modèle (50–95 %). Par défaut : 75 %."
       },
       "freshTailSize": {
-        "label": "Taille de la fenêtre récente",
-        "description": "Nombre d'exécutions récentes — un de vos messages avec chaque étape du modèle et résultat d'outil qui y a répondu — protégées du compactage (2 à 24). Elles sont toujours envoyées au modèle telles quelles. Par défaut : 6."
+        "label": "Échanges récents mot pour mot",
+        "description": "Combien de vos derniers messages, chacun avec sa réponse complète, sont toujours envoyés tels quels et jamais résumés (2–24). Par défaut : 6."
       },
       "newMemoryDefaultKey": "Nouvelle mémoire",
       "storedMemoriesHeading": "Mémoires enregistrées",
@@ -1003,7 +1006,7 @@
     "heading": "Appareils jumelés",
     "description": "Téléphones et tablettes autorisés à utiliser Actovia sur votre réseau local. Un appareil doit d’abord être jumelé ici ; tant qu’aucun ne l’est, Actovia est totalement inaccessible depuis le réseau.",
     "empty": "Aucun appareil jumelé",
-    "emptyHint": "Les appareils que vous jumelez apparaissent ici. Vous pouvez en révoquer un à tout moment.",
+    "emptyHint": "Associez votre iPhone pour discuter avec Actovia sur cet ordinateur, utiliser ses outils et le déverrouiller depuis le téléphone. Vous pouvez révoquer un appareil à tout moment.",
     "pair": "Jumeler un appareil",
     "pairCard": {
       "title": "Connecter un iPhone ou un iPad",

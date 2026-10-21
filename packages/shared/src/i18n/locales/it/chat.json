@@ -34,8 +34,8 @@
     "deepResearch": "Ricerca approfondita"
   },
   "messageList": {
-    "greetingTitle": "Ciao!",
-    "greetingSubtitle": "Come posso esserti utile oggi?",
+    "greetingTitle": "Dove si va oggi?",
+    "greetingSubtitle": "Chiedi qualsiasi cosa, approfondisci un argomento o affida un compito.",
     "attachmentAlt": "allegato",
     "scrollToBottom": "Scorri fino in fondo",
     "moreImages": "Mostra altri {{count}}",
@@ -271,7 +271,12 @@
       "placeholder": "Cerca chat…",
       "ariaLabel": "Cerca chat",
       "recent": "Recenti",
-      "noResults": "Nessuna chat corrisponde a “{{query}}”"
+      "noResults": "Nessuna chat corrisponde a “{{query}}”",
+      "hint": {
+        "move": "Sposta",
+        "open": "Apri",
+        "close": "Chiudi"
+      }
     }
   },
   "run": {

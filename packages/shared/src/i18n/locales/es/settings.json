@@ -162,7 +162,8 @@
       "new-line": {
         "label": "Nueva línea"
       }
-    }
+    },
+    "alwaysOn": "Siempre activo"
   },
   "about": {
     "sections": {
@@ -284,7 +285,9 @@
       "placeholder": "Seleccione un proveedor"
     },
     "keys": {
-      "sectionTitle": "Claves de proveedor"
+      "sectionTitle": "Claves de proveedor",
+      "description": "Cada pestaña guarda las claves de un proveedor. Editar una pestaña no cambia el proveedor en uso: ese es el Proveedor de arriba.",
+      "inUse": "En uso"
     },
     "fields": {
       "apiKey": {
@@ -817,7 +820,7 @@
     "settings": {
       "sections": {
         "memory": "Memoria",
-        "context": "Gestión del contexto"
+        "context": "Conversaciones largas"
       },
       "autoCapture": {
         "label": "Capturar memorias",
@@ -825,19 +828,19 @@
       },
       "useInChat": {
         "label": "Usar memoria en los chats",
-        "description": "Mostrar las entradas de memoria relevantes para su mensaje en el contexto del asistente al comenzar una respuesta."
+        "description": "Incorpora los recuerdos relacionados con tu mensaje cuando el asistente empieza a responder."
       },
       "lcmEnabled": {
-        "label": "Gestión de contexto sin pérdidas",
-        "description": "Comprima automáticamente las conversaciones largas en un resumen jerárquico en forma de DAG, de modo que nunca se pierda nada, incluso cuando los chats superen la ventana de contexto."
+        "label": "Resumir conversaciones largas",
+        "description": "Cuando un chat supera lo que el modelo puede leer de una vez, su parte más antigua se resume en lugar de descartarse. No se borra nada: el asistente puede consultar los mensajes originales."
       },
       "contextWindowPercent": {
-        "label": "Umbral de compactación",
-        "description": "Active la compactación de contexto cuando la conversación alcance este porcentaje de la ventana de contexto del modelo (50-95 %). Predeterminado: 75 %."
+        "label": "Resumir al",
+        "description": "Empieza a resumir cuando una conversación ocupa este porcentaje de la ventana de contexto del modelo (50–95 %). Predeterminado: 75 %."
       },
       "freshTailSize": {
-        "label": "Tamaño de la cola reciente",
-        "description": "Número de ejecuciones recientes (un mensaje tuyo con cada paso del modelo y resultado de herramienta que lo respondió) protegidas de la compactación (2-24). Siempre se envían al modelo tal cual. Predeterminado: 6."
+        "label": "Intercambios recientes palabra por palabra",
+        "description": "Cuántos de tus mensajes más recientes, cada uno con su respuesta completa, se envían siempre tal cual y nunca se resumen (2–24). Predeterminado: 6."
       },
       "newMemoryDefaultKey": "Nueva memoria",
       "storedMemoriesHeading": "Memorias almacenadas",
@@ -1003,7 +1006,7 @@
     "heading": "Dispositivos vinculados",
     "description": "Teléfonos y tabletas que pueden usar Actovia a través de tu red local. Primero hay que vincular el dispositivo aquí; hasta que haya alguno vinculado, Actovia no es accesible desde la red en absoluto.",
     "empty": "No hay dispositivos vinculados",
-    "emptyHint": "Los dispositivos que vincules aparecerán aquí. Puedes revocar cualquiera en todo momento.",
+    "emptyHint": "Empareja tu iPhone para chatear con Actovia en este ordenador, usar sus herramientas y desbloquearlo desde el teléfono. Puedes revocar un dispositivo en cualquier momento.",
     "pair": "Vincular un dispositivo",
     "pairCard": {
       "title": "Conecta un iPhone o iPad",

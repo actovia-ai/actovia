@@ -329,7 +329,8 @@
     },
     "conversationCostList": {
       "title": "Kosten nach Unterhaltung",
-      "empty": "Noch keine Unterhaltungsnutzungsdaten"
+      "empty": "Noch keine Unterhaltungsnutzungsdaten",
+      "deleted": "Gelöschte Gruppe"
     }
   },
   "workforce": {

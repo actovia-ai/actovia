@@ -327,7 +327,8 @@
     },
     "conversationCostList": {
       "title": "대화별 비용",
-      "empty": "아직 대화 사용 데이터가 없습니다"
+      "empty": "아직 대화 사용 데이터가 없습니다",
+      "deleted": "삭제된 그룹"
     }
   },
   "workforce": {

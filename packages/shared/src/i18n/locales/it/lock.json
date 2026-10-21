@@ -1,6 +1,7 @@
 {
   "incorrectPin": "PIN errato",
   "screen": {
+    "prompt": "Inserisci il PIN per sbloccare Actovia",
     "unlockWithTouchId": "Sblocca con Touch ID",
     "tooManyAttempts": "Troppi tentativi. Riprovi tra {{seconds}}s."
   },

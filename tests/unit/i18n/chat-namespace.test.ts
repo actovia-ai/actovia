@@ -55,9 +55,9 @@ describe('chat namespace (en)', () => {
   })
 
   it('has the messageList keys', () => {
-    expect(chat.messageList.greetingTitle).toBe('Hello there!')
+    expect(chat.messageList.greetingTitle).toBe('Where to today?')
     expect(chat.messageList.greetingSubtitle).toBe(
-      'How can I assist you today?'
+      'Ask anything, research a topic, or hand off a task.'
     )
     expect(chat.messageList.attachmentAlt).toBe('attachment')
     expect(chat.messageList.scrollToBottom).toBe('Scroll to bottom')

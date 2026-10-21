@@ -23,7 +23,8 @@ import { canDrawCurve, TemperatureCurve } from './temperature-curve'
 /**
  * The weather card: compact in the transcript, the whole picture on
  * "Details". Closed, it is a line of now (icon, temperature, feels like,
- * condition · place; the selected day's hi/lo on the right), the day's
+ * condition · place; another day's hi/lo, or the scrubbed hour, on the
+ * right), the day's
  * temperature curve, and the first three days as a segmented control.
  * Open, the header becomes a headline, the readings and the curve's
  * caption grow in above the curve, and the segmented days become the
@@ -145,15 +146,20 @@ export function WeatherCard({ toolResult }: { toolResult: WeatherResult }) {
               {location}
             </div>
           </div>
-          {day && (
-            <div
-              className="flex flex-col items-end text-xs tabular-nums"
-              aria-live="polite"
-            >
-              <div>{value}</div>
-              <div className="text-muted-foreground">{detail}</div>
-            </div>
-          )}
+          {/* Today's hi/lo is already the first segment below, and its
+              condition is the line on the left: the corner speaks only for
+              another day, or for the hour being scrubbed. */}
+          <div
+            className="flex flex-col items-end text-xs tabular-nums"
+            aria-live="polite"
+          >
+            {day && (dayIndex !== 0 || active) && (
+              <>
+                <div>{value}</div>
+                <div className="text-muted-foreground">{detail}</div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* open: the headline */}

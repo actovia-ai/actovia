@@ -1,6 +1,7 @@
 {
   "incorrectPin": "PIN이 올바르지 않습니다",
   "screen": {
+    "prompt": "PIN을 입력해 Actovia 잠금을 해제하세요",
     "unlockWithTouchId": "Touch ID로 잠금 해제",
     "tooManyAttempts": "시도 횟수가 너무 많습니다. {{seconds}}초 후 다시 시도해 주세요."
   },

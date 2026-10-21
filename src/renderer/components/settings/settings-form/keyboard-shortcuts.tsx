@@ -5,6 +5,7 @@ import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { Switch } from '@/components/ui/switch'
 import {
   CATEGORY_TITLE_KEYS,
+  keyLabel,
   SHORTCUT_MAP,
   ShortcutDef
 } from '@/hooks/use-keyboard-shortcuts'
@@ -25,8 +26,8 @@ function ShortcutRow({
   const { t } = useTranslation('settings')
 
   // Same shape as every other settings row: what it is on the left, the
-  // control on the right. The switch keeps its slot when a shortcut can't be
-  // turned off, so the keys stay in one column.
+  // control on the right. A shortcut that can't be turned off says so in
+  // the switch's slot, so the keys stay in one column.
   return (
     <div className="flex items-center gap-4">
       <span
@@ -39,15 +40,19 @@ function ShortcutRow({
       </span>
       <KbdGroup className={cn('transition-opacity', disabled && 'opacity-50')}>
         {shortcut.keys.map((key) => (
-          <Kbd key={key}>{key}</Kbd>
+          <Kbd key={key}>{keyLabel(key)}</Kbd>
         ))}
       </KbdGroup>
-      <div className="flex w-9 shrink-0 justify-end">
-        {shortcut.toggleable !== false && (
+      <div className="flex min-w-9 shrink-0 justify-end">
+        {shortcut.toggleable !== false ? (
           <Switch
             checked={!disabled}
             onCheckedChange={(checked) => onToggle(shortcut.id, checked)}
           />
+        ) : (
+          <span className="text-muted-foreground text-xs whitespace-nowrap">
+            {t('keyboardShortcuts.alwaysOn')}
+          </span>
         )}
       </div>
     </div>
