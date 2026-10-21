@@ -231,6 +231,18 @@ export async function runDiscoverRefresh(
       searched.push({ ...item, pool: outcome.value })
     })
 
+    // Every query failed (a bad key, no quota, no network): that is not an
+    // empty feed. Saved as one, it blanked the landing page until the feed
+    // went stale (~20h) with nothing said; failing keeps the feed it had.
+    const failures = settled.filter((o) => o.status === 'rejected')
+    if (kept.length > 0 && failures.length === kept.length) {
+      const reason = (failures[0] as PromiseRejectedResult).reason
+      throw new Error(
+        `Every Brave News query failed: ${reason instanceof Error ? reason.message : String(reason)}`,
+        { cause: reason }
+      )
+    }
+
     // The freshest of what is about the topic; a topic left with nothing is
     // dropped. Unjudged (the check failed), Brave's own relevance order, never
     // the raw pool by recency.
