@@ -1,4 +1,8 @@
-import { freshest, searchBraveNews } from '@main/lib/discover/brave-news-client'
+import {
+  freshest,
+  searchBraveNews,
+  withoutSourceSuffix
+} from '@main/lib/discover/brave-news-client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const fetchMock = vi.fn()
@@ -166,5 +170,26 @@ describe('searchBraveNews', () => {
   it('throws on a non-2xx response', async () => {
     fetchMock.mockResolvedValue(jsonResponse({}, false, 401))
     await expect(searchBraveNews('bad', 'q', { count: 3 })).rejects.toThrow()
+  })
+})
+
+describe('withoutSourceSuffix', () => {
+  it('drops the outlet a site appends when it is the source shown', async () => {
+    expect(
+      withoutSourceSuffix(
+        'In tourist-weary Kyoto, a college targets deeper ties - The Japan Times',
+        'The Japan Times'
+      )
+    ).toBe('In tourist-weary Kyoto, a college targets deeper ties')
+    expect(withoutSourceSuffix('Rates rise | Reuters', 'reuters')).toBe(
+      'Rates rise'
+    )
+  })
+
+  it('keeps a dash that is part of the title', () => {
+    expect(
+      withoutSourceSuffix('Xcode 27.1 - what changed', 'The Mac Observer')
+    ).toBe('Xcode 27.1 - what changed')
+    expect(withoutSourceSuffix('Only a title', '')).toBe('Only a title')
   })
 })

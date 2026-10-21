@@ -34,6 +34,19 @@ function safeHostname(url: string): string {
   }
 }
 
+/**
+ * A title without the outlet a site appends to it ("… - The Japan Times"): the
+ * card already names the source right under it. Only when the tail is that
+ * source, so a title that merely contains a dash keeps it.
+ */
+export function withoutSourceSuffix(title: string, source: string): string {
+  const name = source.trim().toLowerCase()
+  if (!name) return title
+  const match = /^(.*\S)\s+[-–—|]\s+([^-–—|]+)$/u.exec(title.trim())
+  if (!match) return title
+  return match[2].trim().toLowerCase() === name ? match[1] : title
+}
+
 /** Brave's `page_age` is UTC but usually ships without the trailing `Z`. */
 function normalizeIso(s: string | undefined): string | undefined {
   if (!s) return undefined
@@ -110,22 +123,25 @@ export async function searchBraveNews(
 
   return (body.results ?? [])
     .filter((r) => r.title && r.url)
-    .map((r) => ({
-      title: r.title!,
-      url: r.url!,
-      description: r.description ?? '',
-      source:
+    .map((r) => {
+      const source =
         r.profile?.name ??
         r.profile?.long_name ??
         r.source ??
         r.meta_url?.hostname ??
-        safeHostname(r.url!),
-      favicon: r.meta_url?.favicon,
-      thumbnail: r.thumbnail?.src,
-      age: r.age,
-      publishedAt: normalizeIso(r.page_age),
-      publishedMs: publishedAtMs(r)
-    }))
+        safeHostname(r.url!)
+      return {
+        title: withoutSourceSuffix(r.title!, source),
+        url: r.url!,
+        description: r.description ?? '',
+        source,
+        favicon: r.meta_url?.favicon,
+        thumbnail: r.thumbnail?.src,
+        age: r.age,
+        publishedAt: normalizeIso(r.page_age),
+        publishedMs: publishedAtMs(r)
+      }
+    })
 }
 
 /**
