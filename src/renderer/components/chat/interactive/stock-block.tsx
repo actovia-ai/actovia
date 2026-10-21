@@ -111,7 +111,10 @@ export function StockBlock({ block }: { block: StockBlockData }) {
           sandbox="allow-scripts allow-same-origin"
           referrerPolicy="no-referrer"
           height={STOCK_CHART_HEIGHT}
-          className="block w-full border-0"
+          // The widget's page declares no color-scheme. A frame whose own
+          // (dark, inherited) differs from its page's gets an opaque white
+          // canvas, so the dark chart, drawn transparent, lands on white.
+          className="block w-full border-0 [color-scheme:light]"
           onLoad={() => setPhase('loaded')}
         />
       )}

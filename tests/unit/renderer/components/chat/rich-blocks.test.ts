@@ -243,6 +243,8 @@ describe('a stock chart in a reply', () => {
       'allow-scripts allow-same-origin'
     )
     expect(frame?.getAttribute('referrerpolicy')).toBe('no-referrer')
+    // Its page declares no color-scheme; a dark frame would paint it on white.
+    expect(frame?.className).toContain('[color-scheme:light]')
     expect(frame?.getAttribute('height')).toBe('380')
     expect(host.textContent).toContain('Up 12% since the call.')
     expect(host.textContent).toContain('richBlocks.chartBy')
