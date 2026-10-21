@@ -44,7 +44,13 @@ export const chat = pgTable('chat', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   title: text('title').notNull(),
-  favorite: boolean().default(false)
+  favorite: boolean().default(false),
+  // The model this chat answers with (owner, 2026-10-21: the model belongs to
+  // the chat). Set to the default when the chat is created and by the
+  // header's model chip; null on a chat older than the columns, which follows
+  // the default in Settings.
+  provider: varchar('provider'),
+  model: varchar('model')
 })
 
 export type Chat = InferSelectModel<typeof chat>

@@ -1,8 +1,6 @@
 import { EffortLevelSchema } from '@actovia/shared/schemas/settings-schema'
-import { AdvancedTools } from '@actovia/shared/types/ai'
+import { AdvancedTools, AiProviders } from '@actovia/shared/types/ai'
 import { z } from 'zod'
-
-import { Chat } from '../../db/schema'
 
 // Chat routes schemas
 export const createChatSchema = z.object({
@@ -11,7 +9,25 @@ export const createChatSchema = z.object({
   advancedTools: z.array(z.enum(AdvancedTools))
 })
 
-export const updateChatSchema = z.custom<Chat>()
+/**
+ * `PUT /api/v1/chat`: what a client may change of a chat — its title, its
+ * star, its model (a provider and a model id together, or both null to
+ * follow the default again). Anything else sent is dropped.
+ */
+export const updateChatSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().max(500).optional(),
+    favorite: z.boolean().nullish(),
+    provider: z.enum(AiProviders).nullish(),
+    model: z.string().min(1).max(200).nullish()
+  })
+  .refine(
+    (c) =>
+      (c.provider === undefined) === (c.model === undefined) &&
+      (c.provider === null) === (c.model === null),
+    { message: 'provider and model are set together' }
+  )
 
 /** `POST /api/v1/chat/approval` — the answer to a paused tool call. */
 export const approvalDecisionSchema = z.object({

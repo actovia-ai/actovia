@@ -62,6 +62,37 @@ export function useUpdateChat() {
   })
 }
 
+/**
+ * Sets the model a chat answers with (`PUT /api/v1/chat` with `provider` and
+ * `model`). Applied to the cached list at once, so the chip and the
+ * composer's reasoning levels follow the click; put back on a failure (which
+ * the client toasts). No success toast: the chip shows the change.
+ */
+export function useSetChatModel() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: Pick<Chat, 'id' | 'provider' | 'model'>) =>
+      updateChat(payload),
+    meta: { errorTitle: i18n.t('errors:generic') },
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({
+        queryKey: historyKeys.all,
+        exact: true
+      })
+      const before = queryClient.getQueryData<Chat[]>(historyKeys.all)
+      queryClient.setQueryData<Chat[]>(historyKeys.all, (list) =>
+        list?.map((c) => (c.id === payload.id ? { ...c, ...payload } : c))
+      )
+      return { before }
+    },
+    onError: (_error, _payload, context) => {
+      if (context?.before)
+        queryClient.setQueryData(historyKeys.all, context.before)
+    },
+    onSettled: () => void invalidateHistory(queryClient)
+  })
+}
+
 export function useDeleteChat() {
   const queryClient = useQueryClient()
   return useMutation({

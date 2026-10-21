@@ -14,6 +14,7 @@ import { produce } from 'immer'
 import { useAtom } from 'jotai'
 import { ChangeEvent, useMemo, useRef, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import { useParams } from 'react-router'
 
 import Markdown from '@/components/markdown/markdown'
 import {
@@ -36,8 +37,8 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { useChatModel } from '@/hooks/use-chat-model'
 import { useMcpTools } from '@/hooks/use-mcp'
-import { useSettings } from '@/hooks/use-settings'
 import { useUpload } from '@/hooks/use-upload'
 import { cn } from '@/lib/utils'
 import { advancedToolsAtom, reasoningEffortAtom } from '@/stores/chat'
@@ -96,10 +97,10 @@ function useAdvancedToolToggle() {
   return { advancedTools, toggle, reasoningEffort, setEffort }
 }
 
-/** Levels the currently-selected model actually supports, off first. */
+/** Levels the open chat's model actually supports, off first. */
 function useAvailableEffortLevels(): typeof EFFORT_LEVELS {
-  const { data: settings } = useSettings()
-  const supported = settings?.providerConfig?.modelSnapshot?.reasoningLevels
+  const { id } = useParams<{ id: string }>()
+  const supported = useChatModel(id).snapshot?.reasoningLevels
   return useMemo(
     () =>
       supported && supported.length > 0

@@ -47,16 +47,29 @@ function logDbError(logMessage: string, error: unknown) {
   })
 }
 
-export async function saveChat({ title, id }: { id: string; title: string }) {
+export async function saveChat({
+  title,
+  id,
+  provider = null,
+  model = null
+}: {
+  id: string
+  title: string
+  /** The model the chat starts with: the default at the time. */
+  provider?: string | null
+  model?: string | null
+}) {
   try {
-    return await db.insert(chat).values({ id, title })
+    return await db.insert(chat).values({ id, title, provider, model })
   } catch (error) {
     logDbError('Failed to save chat', error)
     throw error
   }
 }
 
-export async function updateChat(payload: Omit<Chat, 'createdAt'>) {
+export async function updateChat(
+  payload: Pick<Chat, 'id'> & Partial<Omit<Chat, 'createdAt'>>
+) {
   try {
     return await db.update(chat).set(payload).where(eq(chat.id, payload.id))
   } catch (error) {

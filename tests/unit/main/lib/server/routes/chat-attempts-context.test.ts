@@ -23,7 +23,7 @@ vi.mock('@main/lib/db/db', async () => {
   const { drizzle } = await import('drizzle-orm/pglite')
   const { createMigratedPglite } =
     await import('../../../../helpers/migrated-pglite')
-  const pglite = await createMigratedPglite('0012')
+  const pglite = await createMigratedPglite('9999')
   return { pglite, db: drizzle(pglite) }
 })
 vi.mock('@main/lib/ai/mcp', () => ({ getMcpTools: vi.fn(async () => []) }))
