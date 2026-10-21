@@ -49,7 +49,7 @@ export function RouteErrorBoundary() {
     details = error.stack?.includes(error.message)
       ? error.stack
       : `${error.message}\n${error.stack ?? ''}`.trim()
-  } else if (error != null) {
+  } else if (error !== null && error !== undefined) {
     details = String(error)
   }
 

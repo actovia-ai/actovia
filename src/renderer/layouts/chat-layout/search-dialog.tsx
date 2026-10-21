@@ -29,6 +29,9 @@ import {
 import type { SearchReveal } from '@/lib/reveal-search-hit'
 import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
+/** The Escape key's cap as the keyboard prints it — a key, not prose. */
+const ESC_KEYCAP = 'esc'
+
 /** How many of the newest chats an empty query lists. */
 const RECENT_CHATS = 8
 
@@ -211,7 +214,7 @@ export function SearchDialog() {
             {t('sidebar.search.hint.open')}
           </span>
           <span className="flex items-center gap-1.5">
-            <Kbd>esc</Kbd>
+            <Kbd>{ESC_KEYCAP}</Kbd>
             {t('sidebar.search.hint.close')}
           </span>
         </footer>
