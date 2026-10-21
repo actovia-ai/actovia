@@ -19,9 +19,9 @@ import { OtherVersionDialog } from './other-version-dialog'
 const SIDE_BY_SIDE_MIN_WIDTH = 880
 
 /**
- * Where a group stands while its answers are compared, question included: as
- * wide as the chat allows (the scroll area is the query container, `cqw`),
- * centred on the reading column it is in.
+ * Where a group's answers stand while they are compared: as wide as the chat
+ * allows (the scroll area is the query container, `cqw`), centred on the
+ * reading column it is in. The question above them stays in the column.
  */
 export const COMPARE_FRAME =
   'relative left-1/2 w-[max(100%,min(100cqw,72rem))] -translate-x-1/2'

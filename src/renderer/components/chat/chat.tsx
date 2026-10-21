@@ -197,8 +197,13 @@ export function Chat({
           // scrolls its full height behind it and dissolves into a scrim just
           // above the input (ChatGPT-style). `pointer-events-none` on the dock
           // lets a wheel over the scrim still scroll the list; its children
-          // opt back in so the pill and status card stay interactive.
-          <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t to-transparent pb-6 [&>*]:pointer-events-auto">
+          // opt back in so the pill and status card stay interactive. The
+          // scrim is the chat surface's own colour (`bg-card`, the
+          // SidebarInset), solid behind the pill and fading over the 48px
+          // above it, so a run never reads through the composer; a plain
+          // gradient, no blur. `messages.tsx`'s bottom padding is this
+          // dock's height.
+          <div className="from-card via-card/85 pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-45% via-70% to-transparent pt-12 pb-6 [&>*]:pointer-events-auto">
             {composer}
           </div>
         )}

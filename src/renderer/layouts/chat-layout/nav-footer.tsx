@@ -38,34 +38,32 @@ export function NavFooter({
     <SidebarMenu {...props}>
       <SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger className="w-full">
-            <SidebarMenuButton
-              size="lg"
-              isActive={onSettings}
-              data-testid={TEST_IDS.chatLayout.account}
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar size="sm">
-                <AvatarImage
-                  src={settings?.userAvatar ?? undefined}
-                  alt={nickname}
-                />
-                <AvatarFallback className="rounded-full">
-                  {initial}
-                </AvatarFallback>
-              </Avatar>
-              <div className="text-ui grid flex-1 text-left leading-tight">
-                <span className="truncate font-medium">{nickname}</span>
-                <span className="truncate text-xs">
-                  {t('state.runOnLocal')}
-                </span>
-              </div>
-              <HugeiconsIcon
-                icon={UnfoldMoreIcon}
-
-                className="ml-auto size-4"
+          {/* The trigger renders as the menu button itself: one <button>,
+              never a button inside a button. */}
+          <DropdownMenuTrigger
+            render={
+              <SidebarMenuButton
+                size="lg"
+                isActive={onSettings}
+                data-testid={TEST_IDS.chatLayout.account}
+                className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
               />
-            </SidebarMenuButton>
+            }
+          >
+            <Avatar size="sm">
+              <AvatarImage
+                src={settings?.userAvatar ?? undefined}
+                alt={nickname}
+              />
+              <AvatarFallback className="rounded-full">
+                {initial}
+              </AvatarFallback>
+            </Avatar>
+            <div className="text-ui grid flex-1 text-left leading-tight">
+              <span className="truncate font-medium">{nickname}</span>
+              <span className="truncate text-xs">{t('state.runOnLocal')}</span>
+            </div>
+            <HugeiconsIcon icon={UnfoldMoreIcon} className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="min-w-56 rounded-lg"
