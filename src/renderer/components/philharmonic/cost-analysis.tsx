@@ -1,5 +1,13 @@
+import {
+  BubbleChatIcon,
+  Dollar01Icon,
+  FlashIcon,
+  UserGroupIcon
+} from '@hugeicons/core-free-icons'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
 import {
@@ -10,27 +18,42 @@ import {
 } from '@/components/ui/chart'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
+import { useFormat } from '@/lib/format'
 import { getAgents } from '@/services/philharmonic'
 import {
+  getConversations,
   getPhilharmonicCosts,
   type PhilharmonicCostSummary
 } from '@/services/philharmonic-chat'
-import type { AgentData } from '@/stores/philharmonic'
+import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
 import { EmployeeAvatar } from './employees/employee-avatar'
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function formatCost(usd: number) {
-  if (usd < 0.01) return `$${usd.toFixed(4)}`
-  if (usd < 1) return `$${usd.toFixed(3)}`
-  return `$${usd.toFixed(2)}`
-}
-
-function formatTokens(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-  return n.toLocaleString()
+/**
+ * Money and token counts the locale's way: dollars to the cent, or to four
+ * places under a cent (a cheap round would read "$0.00"); tokens compact
+ * ("1.8M", "1,8 Mio.").
+ */
+function useCostFormat() {
+  const { number } = useFormat()
+  return useMemo(
+    () => ({
+      cost: (usd: number) => {
+        const digits = usd > 0 && usd < 0.01 ? 4 : 2
+        return number(usd, {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: digits,
+          maximumFractionDigits: digits
+        })
+      },
+      tokens: (n: number) =>
+        number(n, { notation: 'compact', maximumFractionDigits: 1 })
+    }),
+    [number]
+  )
 }
 
 // ─── KPI card ────────────────────────────────────────────────────────────────
@@ -39,29 +62,22 @@ function KpiCard({
   label,
   value,
   icon,
-  iconBg,
-  iconColor,
   hint
 }: {
   label: string
   value: string
-  icon: string
-  iconBg: string
-  iconColor: string
+  icon: IconSvgElement
   hint?: string
 }) {
   return (
     <div className="bg-muted rounded-xl p-3.5">
       <div className="mb-2 flex items-start justify-between">
         <span className="text-muted-foreground text-xs">{label}</span>
-        <span
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-sm"
-          style={{ background: iconBg, color: iconColor }}
-        >
-          {icon}
+        <span className="bg-card text-muted-foreground flex size-7 items-center justify-center rounded-lg">
+          <HugeiconsIcon icon={icon} strokeWidth={1.5} className="size-4" />
         </span>
       </div>
-      <div className="text-foreground text-2xl font-bold tabular-nums">
+      <div className="text-foreground text-2xl font-semibold tabular-nums">
         {value}
       </div>
       {hint && (
@@ -81,6 +97,7 @@ function AgentCostList({
   agentsById: Record<string, AgentData>
 }) {
   const { t } = useTranslation('philharmonic')
+  const fmt = useCostFormat()
   return (
     <div className="bg-muted rounded-xl p-3.5">
       <div className="text-foreground text-ui mb-2 font-semibold">
@@ -115,12 +132,12 @@ function AgentCostList({
                   </div>
                   <div className="text-muted-foreground text-2xs">
                     {t('costAnalysis.agentCostList.tokens', {
-                      tokens: formatTokens(r.tokens)
+                      tokens: fmt.tokens(r.tokens)
                     })}
                   </div>
                 </div>
                 <div className="text-foreground text-xs font-semibold tabular-nums">
-                  {formatCost(r.cost)}
+                  {fmt.cost(r.cost)}
                 </div>
               </div>
             )
@@ -132,11 +149,14 @@ function AgentCostList({
 }
 
 function ConversationCostList({
-  rows
+  rows,
+  groupsById
 }: {
   rows: PhilharmonicCostSummary['byConversation']
+  groupsById: Record<string, ConversationData>
 }) {
   const { t } = useTranslation('philharmonic')
+  const fmt = useCostFormat()
   return (
     <div className="bg-muted rounded-xl p-3.5">
       <div className="text-foreground text-ui mb-2 font-semibold">
@@ -148,22 +168,45 @@ function ConversationCostList({
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
-          {rows.map((r) => (
-            <div
-              key={r.conversationId}
-              className="bg-card flex items-center gap-2.5 rounded-lg px-2 py-2"
-            >
-              <div className="text-muted-foreground text-2xs min-w-0 flex-1 truncate">
-                {r.conversationId.slice(0, 12)}…
+          {rows.map((r) => {
+            const group = groupsById[r.conversationId]
+            const cells = (
+              <>
+                {group ? (
+                  <span className="text-foreground min-w-0 flex-1 truncate text-xs font-medium">
+                    {group.icon ? `${group.icon} ` : ''}
+                    {group.title}
+                  </span>
+                ) : (
+                  // Costs outlive their group; the row stays, unlinked.
+                  <span className="text-muted-foreground min-w-0 flex-1 truncate text-xs italic">
+                    {t('costAnalysis.conversationCostList.deleted')}
+                  </span>
+                )}
+                <span className="text-muted-foreground text-2xs tabular-nums">
+                  {fmt.tokens(r.tokens)}
+                </span>
+                <span className="text-foreground text-xs font-semibold tabular-nums">
+                  {fmt.cost(r.cost)}
+                </span>
+              </>
+            )
+            const row =
+              'bg-card flex items-center gap-2.5 rounded-lg px-2.5 py-2'
+            return group ? (
+              <Link
+                key={r.conversationId}
+                to={`/philharmonic/groups/${r.conversationId}`}
+                className={`${row} hover:bg-card/70 focus-visible:ring-ring/50 outline-none focus-visible:ring-2`}
+              >
+                {cells}
+              </Link>
+            ) : (
+              <div key={r.conversationId} className={row}>
+                {cells}
               </div>
-              <div className="text-muted-foreground text-2xs tabular-nums">
-                {formatTokens(r.tokens)}
-              </div>
-              <div className="text-foreground text-xs font-semibold tabular-nums">
-                {formatCost(r.cost)}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -178,6 +221,17 @@ export function CostAnalysis() {
   const { t } = useTranslation('philharmonic')
   const [data, setData] = useState<PhilharmonicCostSummary | null>(null)
   const [agentsById, setAgentsById] = useState<Record<string, AgentData>>({})
+  const [groupsById, setGroupsById] = useState<
+    Record<string, ConversationData>
+  >({})
+  const fmt = useCostFormat()
+  const { dateTime } = useFormat()
+  // A day of the chart ("2026-10-08") as the locale writes a short date.
+  const day = useCallback(
+    (v: string) =>
+      dateTime(new Date(`${v}T00:00:00`), { month: 'short', day: 'numeric' }),
+    [dateTime]
+  )
   const [period, setPeriod] = useState<Period>('all')
 
   const chartConfig = useMemo(
@@ -192,12 +246,14 @@ export function CostAnalysis() {
   )
 
   const load = useCallback(async () => {
-    const [costs, agents] = await Promise.all([
+    const [costs, agents, groups] = await Promise.all([
       getPhilharmonicCosts(),
-      getAgents()
+      getAgents(),
+      getConversations()
     ])
     setData(costs)
     setAgentsById(Object.fromEntries(agents.map((a) => [a.id, a])))
+    setGroupsById(Object.fromEntries(groups.map((g) => [g.id, g])))
   }, [])
 
   useEffect(() => {
@@ -245,34 +301,26 @@ export function CostAnalysis() {
         <div className="mb-4 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
           <KpiCard
             label={t('costAnalysis.kpi.totalCost')}
-            value={formatCost(data.totalCost)}
-            icon="$"
-            iconBg="var(--accent)"
-            iconColor="var(--accent-foreground)"
+            value={fmt.cost(data.totalCost)}
+            icon={Dollar01Icon}
             hint={t('costAnalysis.kpi.totalCostHint', { count: agentCount })}
           />
           <KpiCard
             label={t('costAnalysis.kpi.tokens')}
-            value={formatTokens(data.totalTokens)}
-            icon="⚡"
-            iconBg="var(--ph-hue-lilac-fill)"
-            iconColor="var(--ph-hue-lilac-ring)"
+            value={fmt.tokens(data.totalTokens)}
+            icon={FlashIcon}
             hint={t('costAnalysis.kpi.tokensHint')}
           />
           <KpiCard
             label={t('costAnalysis.kpi.employees')}
             value={agentCount.toLocaleString()}
-            icon="👥"
-            iconBg="var(--ph-hue-sky-fill)"
-            iconColor="var(--ph-hue-sky-ring)"
+            icon={UserGroupIcon}
             hint={t('costAnalysis.kpi.employeesHint')}
           />
           <KpiCard
             label={t('costAnalysis.kpi.conversations')}
             value={data.byConversation.length.toLocaleString()}
-            icon="💬"
-            iconBg="var(--ph-hue-peach-fill)"
-            iconColor="var(--ph-hue-peach-ring)"
+            icon={BubbleChatIcon}
             hint={t('costAnalysis.kpi.conversationsHint')}
           />
         </div>
@@ -314,14 +362,15 @@ export function CostAnalysis() {
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(v: string) => v.slice(5)}
+                  tickFormatter={day}
+                  minTickGap={24}
                   style={{ fontSize: 11 }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
                   tickMargin={8}
-                  tickFormatter={(v: number) => `$${v.toFixed(2)}`}
+                  tickFormatter={fmt.cost}
                   width={56}
                   style={{ fontSize: 11 }}
                 />
@@ -329,14 +378,14 @@ export function CostAnalysis() {
                   cursor={false}
                   content={
                     <ChartTooltipContent
-                      labelFormatter={(v) => v}
+                      labelFormatter={(v) => day(String(v))}
                       indicator="dot"
                     />
                   }
                 />
                 <Area
                   dataKey="cost"
-                  type="natural"
+                  type="monotone"
                   fill="url(#ph-cost-fill)"
                   stroke="var(--primary-ink)"
                 />
@@ -348,7 +397,10 @@ export function CostAnalysis() {
         {/* Breakdown lists */}
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
           <AgentCostList rows={data.byAgent} agentsById={agentsById} />
-          <ConversationCostList rows={data.byConversation} />
+          <ConversationCostList
+            rows={data.byConversation}
+            groupsById={groupsById}
+          />
         </div>
       </div>
     </div>

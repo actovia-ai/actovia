@@ -329,7 +329,8 @@
     },
     "conversationCostList": {
       "title": "Custo por conversa",
-      "empty": "Ainda não há dados de uso de conversas"
+      "empty": "Ainda não há dados de uso de conversas",
+      "deleted": "Grupo excluído"
     }
   },
   "workforce": {

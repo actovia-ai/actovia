@@ -137,11 +137,7 @@ export function GroupMessageBubble({
         <div className="bg-primary text-primary-foreground ring-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-[3px]">
           {t('philharmonic:chat.roles.pm')}
         </div>
-      ) : isUser ? (
-        <div className="bg-accent text-accent-foreground flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
-          {t('state.you')}
-        </div>
-      ) : (
+      ) : isUser ? null : (
         <EmployeeAvatar
           seed={agent?.avatarSeed ?? null}
           style={agent?.avatarStyle ?? null}
@@ -154,7 +150,8 @@ export function GroupMessageBubble({
           isUser && 'items-end'
         )}
       >
-        {headerLine}
+        {/* Your own message is the bubble alone, as in Chat. */}
+        {!isUser && headerLine}
         {bubble.attachments && bubble.attachments.length > 0 && (
           <div
             className={cn(
@@ -193,16 +190,13 @@ export function GroupMessageBubble({
           bubble.text.length > 0 && (
             <div
               className={cn(
-                'px-3.5 py-2.5 text-sm leading-relaxed',
+                'text-foreground px-4 py-2.5 text-sm leading-relaxed wrap-break-word',
+                // The user's message is Chat's bubble (`--bubble`, the tone
+                // far toward the page); the group's voices stay on muted.
                 isUser
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-foreground'
+                  ? 'bg-bubble rounded-2xl rounded-br-sm'
+                  : 'bg-muted rounded-2xl rounded-tl-sm'
               )}
-              style={{
-                borderRadius: isUser
-                  ? '16px 6px 16px 16px'
-                  : '6px 16px 16px 16px'
-              }}
             >
               <BubbleMarkdown text={bubble.text} />
             </div>
@@ -257,7 +251,7 @@ export function GroupMessageBubble({
                   <HugeiconsIcon
                     icon={Tick02Icon}
 
-                    className="h-3.5 w-3.5 text-emerald-500"
+                    className="text-muted-foreground h-3.5 w-3.5"
                   />
                 )}
               </div>

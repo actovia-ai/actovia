@@ -40,7 +40,9 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { useSettings } from '@/hooks/use-settings'
 import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
+import { employeeModelLabel } from '@/lib/employee-model'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import {
@@ -65,15 +67,21 @@ interface EmployeeCardProps {
 
 function EmployeeCard({ employee, onEdit, onAskDelete }: EmployeeCardProps) {
   const { t } = useTranslation('common')
+  const { data: settings } = useSettings()
+  // The catalog's name ("Claude Opus 5", "Claude Code · opus"), never the
+  // raw id the employee was saved with.
   const modelChip = employee.model
+    ? employeeModelLabel(employee, settings)
+    : null
   const tools = employee.toolAllowList ?? []
   return (
     <ContextMenu>
-      <ContextMenuTrigger>
+      {/* Full height, so a row of cards is one height whatever each says. */}
+      <ContextMenuTrigger className="h-full">
         <button
           type="button"
           onClick={() => onEdit(employee)}
-          className="group bg-muted hover:bg-accent flex w-full items-start gap-3 rounded-xl px-3.5 py-3 text-left transition-colors"
+          className="group bg-muted hover:bg-accent flex h-full w-full items-start gap-3 rounded-xl px-3.5 py-3 text-left transition-colors"
         >
           <EmployeeAvatar
             seed={employee.avatarSeed}
@@ -92,20 +100,20 @@ function EmployeeCard({ employee, onEdit, onAskDelete }: EmployeeCardProps) {
             {(modelChip || tools.length > 0) && (
               <div className="mt-2 flex flex-wrap gap-1">
                 {modelChip && (
-                  <span className="bg-accent text-accent-foreground text-2xs rounded-md px-1.5 py-0.5">
+                  <span className="bg-background text-foreground ring-border text-2xs rounded-md px-1.5 py-0.5 ring-1">
                     {modelChip}
                   </span>
                 )}
                 {tools.slice(0, 2).map((tool) => (
                   <span
                     key={tool}
-                    className="bg-background text-muted-foreground text-2xs rounded-md px-1.5 py-0.5"
+                    className="bg-background text-muted-foreground ring-border text-2xs rounded-md px-1.5 py-0.5 ring-1"
                   >
                     {tool}
                   </span>
                 ))}
                 {tools.length > 2 && (
-                  <span className="bg-background text-muted-foreground text-2xs rounded-md px-1.5 py-0.5">
+                  <span className="bg-background text-muted-foreground ring-border text-2xs rounded-md px-1.5 py-0.5 ring-1">
                     +{tools.length - 2}
                   </span>
                 )}

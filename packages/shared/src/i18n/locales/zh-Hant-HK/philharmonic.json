@@ -327,7 +327,8 @@
     },
     "conversationCostList": {
       "title": "各對話花費",
-      "empty": "尚無對話使用量資料"
+      "empty": "尚無對話使用量資料",
+      "deleted": "已刪除的群組"
     }
   },
   "workforce": {
