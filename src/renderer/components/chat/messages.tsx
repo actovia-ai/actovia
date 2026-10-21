@@ -31,6 +31,7 @@ import { useDiscoverFeed } from '@/hooks/use-discover-feed'
 import { useOlderHistoryScroll } from '@/hooks/use-older-history-scroll'
 import { useRevealSearchHit } from '@/hooks/use-reveal-search-hit'
 import { useSettings } from '@/hooks/use-settings'
+import { displayFilePath } from '@/lib/display-path'
 import { i18n } from '@/lib/i18n'
 import { ENTER_UP } from '@/lib/motion'
 import { userMessageText } from '@/lib/user-message-text'
@@ -205,7 +206,10 @@ function getToolCallPreview(
     case TOOL_NAMES.readFile:
     case TOOL_NAMES.writeFile:
     case TOOL_NAMES.editFile:
-      return withInline(label, pick('path') || pick('filePath'))
+      return withInline(
+        label,
+        displayFilePath(pick('path') || pick('filePath'))
+      )
     case 'weather':
       return withInline(label, pick('location'))
     case TOOL_NAMES.mapItinerary: {
