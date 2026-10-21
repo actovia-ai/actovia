@@ -10,9 +10,6 @@ import { test as base } from '@playwright/test'
 
 const BASE_URL = 'http://localhost:60223'
 
-// Bypass system proxy for localhost requests
-process.env.no_proxy = (process.env.no_proxy || '') + ',localhost,127.0.0.1'
-
 export class ApiClient {
   constructor(private baseUrl = BASE_URL) {}
 

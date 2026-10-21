@@ -15,9 +15,6 @@ process.env.HOME = path.join(tmpdir(), 'actovia-e2e-home')
 // ...and an ACTOVIA_HOME left in the shell must not override it.
 delete process.env.ACTOVIA_HOME
 
-// Bypass system proxy for localhost API calls
-process.env.no_proxy = (process.env.no_proxy || '') + ',localhost,127.0.0.1'
-
 export default defineConfig({
   testDir: './tests',
   fullyParallel: false,

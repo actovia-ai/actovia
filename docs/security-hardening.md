@@ -152,12 +152,11 @@ leaves open, in one place:
   `file://`, so `Sec-Fetch-Site` / CORP cannot tell them apart). It can
   display the image but not read its pixels, and it has to know two random
   uuids (the chat's and the file's) to name one.
-- The image-download guard deliberately allows 198.18.0.0/15 (a TUN proxy's
-  "fake-ip" range — every name resolves into it under Clash / Surge /
-  sing-box) and Teredo 2001::/32 (poisoned resolvers answer `2001::1` for
-  real hosts). Under fake-ip the proxy, not Actovia, resolves the real host:
-  a proxy rule that sends an attacker's name DIRECT could still reach a
-  private address.
+- The image-download guard deliberately allows Teredo 2001::/32 (poisoned
+  resolvers answer `2001::1` for real hosts). It refuses 198.18.0.0/15, so
+  under a TUN proxy's "fake-ip" mode (Clash / Surge / sing-box), where every
+  name resolves into that range, no download goes through: Actovia does not
+  accommodate proxies (owner, 2026-10-21).
 - `web_fetch`'s built-in loader pins its connection to the addresses its
   own-API guard judged ("`web_fetch` cannot reach Actovia" under In place),
   which closes DNS rebinding between the check and the connect — except

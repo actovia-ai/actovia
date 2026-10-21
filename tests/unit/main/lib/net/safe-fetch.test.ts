@@ -110,8 +110,7 @@ describe('isPublicAddress', () => {
     [PUBLIC_V4, true],
     ['172.32.0.1', true],
     ['100.128.0.1', true],
-    // A TUN proxy's fake-ip range: every name resolves into it there.
-    ['198.18.0.1', true],
+    ['198.18.0.1', false],
     // IPv6
     ['::', false],
     ['::1', false],

@@ -86,9 +86,7 @@ const V4_BLOCKED: Array<[Bytes, number]> = [
   [[192, 0, 2, 0], 24], // documentation
   [[192, 88, 99, 0], 24], // 6to4 relay anycast
   [[192, 168, 0, 0], 16], // private
-  // 198.18.0.0/15 (benchmarking) is deliberately NOT here: a proxy in TUN
-  // "fake-ip" mode (Clash, Surge, sing-box) answers every name with an
-  // address from it, and refusing it would refuse every download there.
+  [[198, 18, 0, 0], 15], // benchmarking
   [[198, 51, 100, 0], 24], // documentation
   [[203, 0, 113, 0], 24], // documentation
   [[224, 0, 0, 0], 4], // multicast
