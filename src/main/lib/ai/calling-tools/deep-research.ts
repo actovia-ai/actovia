@@ -1,11 +1,12 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
-import { fetcher } from '@actovia/shared/utils/http'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
-import { saveDeepResearch } from '../../db/queries'
+import { getSettings, saveDeepResearch } from '../../db/queries'
 import { DeepResearch } from '../../db/schema'
+import { logger } from '../../logger'
+import { runDeepResearchJob } from '../../server/routes/deep-research'
 
 const deepResearchSchema = Type.Object({
   subject: Type.String({ description: 'The subject to research' })
@@ -20,6 +21,7 @@ export const deepResearch: AgentTool<typeof deepResearchSchema> = {
   execute: async (toolCallId, { subject }, signal) => {
     if (signal?.aborted) throw new Error('Aborted')
     try {
+      const settings = await getSettings()
       const newDeepResearch: DeepResearch = {
         id: uuidV4(),
         toolCallId,
@@ -33,13 +35,17 @@ export const deepResearch: AgentTool<typeof deepResearchSchema> = {
       }
 
       await saveDeepResearch(newDeepResearch)
-      fetcher('/api/v1/deep-research', {
-        method: 'POST',
-        body: {
-          deepResearchId: newDeepResearch.id,
-          query: subject
+      // Runs on after this call returns; the card follows it over SSE. The
+      // job ends archived or failed by itself — this catch is only for a
+      // failure that could not be saved.
+      void runDeepResearchJob(newDeepResearch.id, subject, settings).catch(
+        (error: unknown) => {
+          logger.error('deep-research', 'Deep research job did not end', {
+            deepResearchId: newDeepResearch.id,
+            error
+          })
         }
-      })
+      )
 
       const details = {
         id: newDeepResearch.id,
