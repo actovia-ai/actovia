@@ -152,7 +152,7 @@ export function ComposerToolsButton() {
           aria-label={t('action.add')}
           className={cn(
             'text-muted-foreground hover:bg-muted hover:text-foreground data-popup-open:bg-muted flex size-8 shrink-0 items-center justify-center rounded-full transition-colors [&_svg]:size-[18px]',
-            hasActiveTool && 'text-[#0285ff] dark:text-[#48aaff]'
+            hasActiveTool && 'text-primary-ink hover:text-primary-ink'
           )}
         >
           <HugeiconsIcon icon={Add01Icon} />
@@ -293,7 +293,7 @@ export function ActiveToolPills() {
         <button
           type="button"
           onClick={() => setEffort('off')}
-          className="flex items-center gap-1 rounded-full bg-[#0285ff]/10 px-2 py-0.5 text-xs font-medium text-[#0285ff] transition-colors hover:bg-[#0285ff]/16 dark:text-[#48aaff] [&_svg]:size-3.5"
+          className="bg-primary/10 text-primary-ink hover:bg-primary/15 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors [&_svg]:size-3.5"
         >
           <HugeiconsIcon icon={AiBrainIcon} />
           {t('composer.reasoningPill', { label: t(effortLabelKey) })}
@@ -309,7 +309,7 @@ export function ActiveToolPills() {
           key={key}
           type="button"
           onClick={() => toggle(key)}
-          className="flex items-center gap-1 rounded-full bg-[#0285ff]/10 px-2 py-0.5 text-xs font-medium text-[#0285ff] transition-colors hover:bg-[#0285ff]/16 dark:text-[#48aaff] [&_svg]:size-3.5"
+          className="bg-primary/10 text-primary-ink hover:bg-primary/15 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors [&_svg]:size-3.5"
         >
           <HugeiconsIcon icon={Icon} />
           {t(labelKey)}

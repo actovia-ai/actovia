@@ -88,6 +88,30 @@ describe('colour tones', () => {
     ).toBeGreaterThanOrEqual(3)
   })
 
+  // A hover, a chip or a selected row is `--accent` / `--sidebar-accent`; a
+  // light accent equal to `--muted` vanished on a muted card, and the active
+  // sidebar row at 0.97 on 0.975 was 1.01:1 (2026-10-21). Each stays a
+  // visible step from the surface it sits on.
+  const lightnessOf = (value: string) => {
+    const m = /^oklch\(\s*([\d.]+)\s/u.exec(value)
+    if (!m) throw new Error(`not an opaque oklch: ${value}`)
+    return Number(m[1])
+  }
+  it.each(palettes)('$name: the accent is a step from muted', ({ tokens }) => {
+    expect(
+      Math.abs(lightnessOf(tokens['--accent']) - lightnessOf(tokens['--muted']))
+    ).toBeGreaterThanOrEqual(0.03 - 1e-9)
+  })
+  it.each(palettes.filter((p) => p.name.endsWith('light')))(
+    '$name: the active sidebar row shows on the sidebar',
+    ({ tokens }) => {
+      expect(
+        lightnessOf(tokens['--sidebar']) -
+          lightnessOf(tokens['--sidebar-accent'])
+      ).toBeGreaterThanOrEqual(0.035 - 1e-9)
+    }
+  )
+
   it.each(palettes.filter((p) => p.name.endsWith('light')))(
     '$name: send is a white arrow on the ink',
     ({ tokens }) => {
