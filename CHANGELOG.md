@@ -1,3 +1,17 @@
+# [2.2.0](https://github.com/actovia-ai/actovia/compare/v2.1.0...v2.2.0) (2026-10-21)
+
+
+### Bug Fixes
+
+* **net:** no proxy accommodation — 198.18.0.0/15 is refused, tests set no no_proxy ([9df6209](https://github.com/actovia-ai/actovia/commit/9df62092185b9fffb4163e1089a05d6db1566c43))
+
+
+### Features
+
+* **chat:** a stock chart is TradingView's Symbol Overview — price, change, market status and range tabs ([b6876b1](https://github.com/actovia-ai/actovia/commit/b6876b1fe151e72ecab2fcb1f598190cd31d2f11))
+* **devices:** a phone can ask whether it is still paired; revocations not told yet are listed ([5fd7b10](https://github.com/actovia-ai/actovia/commit/5fd7b10b9afca0676fd166a40c27c61770967f05))
+* **host:** status, lock, quit and restart for the CLI; releases publish SHA256SUMS ([6424403](https://github.com/actovia-ai/actovia/commit/6424403f24477e1a9eaf4ef9915287aaca854fad))
+
 # [2.1.0](https://github.com/actovia-ai/actovia/compare/v2.0.0...v2.1.0) (2026-10-20)
 
 
