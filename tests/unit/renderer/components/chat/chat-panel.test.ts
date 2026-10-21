@@ -194,7 +194,8 @@ describe('<ChatPanel>', () => {
     ).toEqual([
       'files:panel.files3',
       'tools:panel.tools3',
-      'sources:panel.sources1'
+      // Every source, not the one run they are grouped under.
+      'sources:panel.sources2'
     ])
   })
 

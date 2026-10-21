@@ -75,7 +75,8 @@ export function ChatPanel() {
   const counts = {
     files: items.files.length,
     tools: items.tools.length,
-    sources: items.sources.length
+    // Every source, not the runs they are grouped under.
+    sources: items.sources.reduce((n, group) => n + group.results.length, 0)
   }
 
   return (
