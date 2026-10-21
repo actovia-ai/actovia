@@ -42,6 +42,23 @@ describe('provider labels', () => {
     expect(configuredProvider()).toBeNull()
   })
 
+  it('leaves out of a saved catalog what cannot chat', () => {
+    expect(
+      modelCatalog(
+        settings({
+          modelCatalog: {
+            [AiProviders.OpenAiGpt]: [
+              entry('gpt-5.5', 'gpt-5.5'),
+              entry('gpt-image-2', 'gpt-image-2'),
+              entry('whisper-1', 'whisper-1')
+            ]
+          }
+        } as Partial<Settings>),
+        AiProviders.OpenAiGpt
+      ).map((m) => m.id)
+    ).toEqual(['gpt-5.5'])
+  })
+
   it('a provider has a key when its field holds one (a mask counts); Ollama needs none', () => {
     expect(hasProviderKey(settings({}))).toBe(true)
     expect(

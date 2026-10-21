@@ -32,6 +32,7 @@
     "./constants/systems": "./src/constants/systems.ts",
     "./constants/setting-defaults": "./src/constants/setting-defaults.ts",
     "./utils/http": "./src/utils/http.ts",
+    "./utils/chat-models": "./src/utils/chat-models.ts",
     "./utils/base-url": "./src/utils/base-url.ts",
     "./utils/image-fit": "./src/utils/image-fit.ts",
     "./utils/secret-detect": "./src/utils/secret-detect.ts",

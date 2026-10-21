@@ -3,6 +3,7 @@ import type {
   Settings
 } from '@actovia/shared/schemas/settings-schema'
 import { AiProviders } from '@actovia/shared/types/ai'
+import { isChatModelId } from '@actovia/shared/utils/chat-models'
 
 /** The provider's short name, as the Settings tabs spell it. */
 export const PROVIDER_SHORT_LABELS: Record<AiProviders, string> = {
@@ -63,12 +64,18 @@ export function configuredProviders(
   )
 }
 
-/** The catalog the Settings picker lists for the provider; empty until a Refresh fetched it. */
+/**
+ * The catalog the Settings picker lists for the provider; empty until a
+ * Refresh fetched it. A catalog saved before the list was cut to chat
+ * models still holds the others, so they are left out here too.
+ */
 export function modelCatalog(
   settings: Settings | undefined,
   provider: AiProviders
 ): CachedModelEntry[] {
-  return settings?.modelCatalog?.[provider] ?? []
+  return (settings?.modelCatalog?.[provider] ?? []).filter((m) =>
+    isChatModelId(m.id)
+  )
 }
 
 /** "Claude · Claude Sonnet 5.5": the provider's short name and the model's display name, else its id. */
