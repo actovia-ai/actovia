@@ -81,6 +81,25 @@ const ADAPTIVE_CLAUDE =
 const ALWAYS_THINKING_CLAUDE = /^claude-(opus-5|sonnet-5|fable-|mythos-)/
 
 /**
+ * Where we keep thinking on although pi-ai's registry says it can be turned
+ * off. pi-ai 1.3 lets Opus 5 send `{type:"disabled"}` (the API accepts it at
+ * effort `high` or below), but with thinking disabled Opus 5 sometimes writes a
+ * tool call into its visible text — the call never runs — and can leak
+ * `<thinking>` tags; Anthropic recommends low effort instead.
+ */
+const KEEP_THINKING_CLAUDE = /^claude-opus-5(-\d{8})?$/
+
+/** `map` with "off" marked unsupported for a model we keep thinking on. */
+function keepThinkingOn(
+  provider: KnownProvider,
+  id: string,
+  map: ThinkingLevelMap | undefined
+): ThinkingLevelMap | undefined {
+  if (provider !== 'anthropic' || !KEEP_THINKING_CLAUDE.test(id)) return map
+  return { ...map, off: null }
+}
+
+/**
  * How an Anthropic model not in pi-ai's registry thinks: from the snapshot's
  * live capability when it has one, else from the id rule above. Adaptive-only
  * (adaptive, no budget form) also means thinking can't be disabled.
@@ -146,11 +165,11 @@ export function resolveModel(
     const derived = known ? undefined : claudeThinking(provider, id, snapshot)
 
     const thinkingLevelMap: ThinkingLevelMap | undefined = hasReasoning
-      ? {
+      ? keepThinkingOn(provider, id, {
           ...levelMap,
           ...known?.thinkingLevelMap,
           ...(derived?.canDisable === false ? { off: null } : {})
-        }
+        })
       : undefined
 
     const compat = known?.compat
@@ -194,9 +213,13 @@ export function resolveModel(
     | Model<string>
     | undefined
   if (registered) {
-    return baseUrl === registered.baseUrl
+    const thinkingLevelMap = registered.reasoning
+      ? keepThinkingOn(provider, id, registered.thinkingLevelMap)
+      : registered.thinkingLevelMap
+    return baseUrl === registered.baseUrl &&
+      thinkingLevelMap === registered.thinkingLevelMap
       ? registered
-      : { ...registered, baseUrl }
+      : { ...registered, baseUrl, thinkingLevelMap }
   }
   {
     const fallback = MODEL_METADATA_FALLBACK[id]

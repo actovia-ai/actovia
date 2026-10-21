@@ -10,6 +10,10 @@ import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
+// The queries are mocked below; without this the route's imports would still
+// open a real PGlite in the file's scratch dir, which is deleted after the
+// file — sometimes while PGlite is still writing to it.
+vi.mock('@main/lib/db/db', () => ({ pglite: {}, db: {} }))
 
 const runAgentMock = vi.fn()
 vi.mock('@main/lib/ai/kernel/run', () => ({

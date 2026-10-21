@@ -22,6 +22,15 @@ export default defineConfig({
       // user's actual database. Point every test at a scratch data dir instead.
       ACTOVIA_HOME: resolve(tmpdir(), 'actovia-unit-tests-home')
     },
+    // happy-dom rejects a cancelled animation's `finished` promise without
+    // marking it handled, as the Web Animations spec says to, so motion (14.4+
+    // reads `finished`) stopping an animation surfaces as an unhandled
+    // rejection that a browser never reports. Only that one is ignored.
+    onUnhandledError: (error) =>
+      !(
+        error.name === 'AbortError' &&
+        error.message === 'The animation was canceled.'
+      ),
     coverage: {
       provider: 'v8',
       include: ['packages/shared/src/**', 'src/main/lib/**'],

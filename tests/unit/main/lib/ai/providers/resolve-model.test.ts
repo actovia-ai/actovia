@@ -304,6 +304,17 @@ describe('resolveModel', () => {
       expect(thinkingLevelFor(model, 'high')).toBe('high')
     })
 
+    it('keeps Opus 5 thinking on from the registry alone, with no snapshot', () => {
+      const model = resolveModel(
+        'anthropic',
+        'claude-opus-5',
+        'https://api.anthropic.com',
+        'anthropic-messages'
+      )
+      expect(model.thinkingLevelMap?.off).toBeNull()
+      expect(thinkingLevelFor(model)).toBe('low')
+    })
+
     it('leaves "off" off where thinking can be disabled', () => {
       const model = resolveModel(
         'anthropic',
