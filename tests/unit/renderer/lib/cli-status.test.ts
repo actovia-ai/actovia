@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { cliStatusView } from '@/lib/cli-status'
+import { cliStatusView, displayCliPath } from '@/lib/cli-status'
 
 const s = (state: string) =>
   ({
@@ -32,5 +32,19 @@ describe('cliStatusView', () => {
     ]
   ])('%s', (state, tone, labelKey, hintKey) => {
     expect(cliStatusView(s(state))).toEqual({ tone, labelKey, hintKey })
+  })
+})
+
+describe('displayCliPath', () => {
+  it.each([
+    ['/Users/alex/.local/bin/claude', '~/.local/bin/claude'],
+    [
+      '/home/alex/.nvm/versions/node/v24/bin/codex',
+      '~/.nvm/versions/node/v24/bin/codex'
+    ],
+    ['C:\\Users\\alex\\AppData\\bin\\codex.exe', '~\\AppData\\bin\\codex.exe'],
+    ['/opt/homebrew/bin/claude', '/opt/homebrew/bin/claude']
+  ])('%s → %s', (path, shown) => {
+    expect(displayCliPath(path)).toBe(shown)
   })
 })

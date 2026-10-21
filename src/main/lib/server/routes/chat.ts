@@ -1,4 +1,5 @@
 import { ErrorCode } from '@actovia/shared/constants/error-codes'
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
   NotFoundError,
@@ -288,7 +289,9 @@ chat.post('/', async (c) => {
   const lcm = lcmEnabled
     ? new LcmManager(id, model, apiKey, {
         freshTailRuns: freshTailRuns(memoryConfig),
-        contextWindowPercent: memoryConfig?.contextWindowPercent ?? 75
+        contextWindowPercent:
+          memoryConfig?.contextWindowPercent ??
+          SETTING_DEFAULTS.memory.contextWindowPercent
       })
     : null
 
@@ -458,7 +461,9 @@ chat.post('/', async (c) => {
     lcm: lcm
       ? {
           freshTailRuns: freshTailRuns(memoryConfig),
-          contextWindowPercent: memoryConfig?.contextWindowPercent ?? 75
+          contextWindowPercent:
+            memoryConfig?.contextWindowPercent ??
+            SETTING_DEFAULTS.memory.contextWindowPercent
         }
       : null,
     memoryCapture

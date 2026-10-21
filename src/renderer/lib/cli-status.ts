@@ -33,3 +33,15 @@ const VIEW: Record<
 }
 
 export const cliStatusView = (status: CliStatus) => VIEW[status.state]
+
+/**
+ * A CLI's path as the row shows it: the home directory folded to `~`, so the
+ * row does not spell out the account name (it shows on every screenshot) and
+ * the line stays short. The renderer is not told the home directory; these are
+ * the layouts macOS, Linux and Windows give it.
+ */
+export function displayCliPath(path: string): string {
+  return path
+    .replace(/^\/(?:Users|home)\/[^/]+(?=\/|$)/u, '~')
+    .replace(/^[A-Za-z]:\\Users\\[^\\]+(?=\\|$)/u, '~')
+}

@@ -19,6 +19,8 @@ export interface ModelCost {
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
+  /** Every token of the model's requests, cache included — the measure Lifetime sums. */
+  totalTokens: number
   requests: number
 }
 
@@ -38,6 +40,7 @@ usage.get('/', async (c) => {
       inputTokens: number
       outputTokens: number
       cacheReadTokens: number
+      totalTokens: number
       requests: number
     }
   >()
@@ -66,12 +69,14 @@ usage.get('/', async (c) => {
       inputTokens: 0,
       outputTokens: 0,
       cacheReadTokens: 0,
+      totalTokens: 0,
       requests: 0
     }
     model.cost += cost
     model.inputTokens += u.input ?? 0
     model.outputTokens += u.output ?? 0
     model.cacheReadTokens += u.cacheRead ?? 0
+    model.totalTokens += tokens
     model.requests += 1
     modelMap.set(modelKey, model)
   }

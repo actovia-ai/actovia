@@ -13,6 +13,7 @@ export interface ModelCost {
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
+  totalTokens: number
   requests: number
 }
 

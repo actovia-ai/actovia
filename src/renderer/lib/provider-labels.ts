@@ -81,6 +81,18 @@ export function modelLabel(
   return `${PROVIDER_SHORT_LABELS[provider]} · ${entry?.displayName ?? model}`
 }
 
+/** The model's display name from the provider's fetched catalog, else its id. */
+export function modelDisplayName(
+  settings: Settings | undefined,
+  provider: string,
+  model: string
+): string {
+  return (
+    settings?.modelCatalog?.[provider]?.find((m) => m.id === model)
+      ?.displayName ?? model
+  )
+}
+
 /**
  * Whether a model the provider is shutting down is still to go (`retiring`) or
  * already gone (`retired`), against today in the reader's own time zone; none

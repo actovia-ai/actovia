@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // Computer Runtime — the perceive→act session loop.
 //
 // The integration hub: wires the Runtime (target resolution, capture, guard,
@@ -31,8 +32,8 @@ import type {
 } from './types'
 
 /** Loop-control defaults (spec §3.5). All overridable per call / by settings. */
-const DEFAULT_MAX_STEPS = 25
-const DEFAULT_SETTLE_MS = 800
+const DEFAULT_MAX_STEPS = SETTING_DEFAULTS.computerUse.maxSteps
+const DEFAULT_SETTLE_MS = SETTING_DEFAULTS.computerUse.settleMs
 const DEFAULT_ASK_HUMAN_TIMEOUT_MS = 300_000
 const DEFAULT_STEP_TIMEOUT_MS = 120_000
 const DEFAULT_OP_TIMEOUT_MS = 30_000

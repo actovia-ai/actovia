@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // src/main/lib/ai/philharmonic/pm-coordinator.ts
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import type { Attachment } from '@actovia/shared/types/chat'
@@ -231,7 +232,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // messages, and 16 is what it always kept.
   const lcm = new PhilharmonicLcm(conversationId, model, apiKey, {
     enabled: setting.memory?.lcmEnabled ?? true,
-    contextWindowPercent: setting.memory?.contextWindowPercent ?? 75,
+    contextWindowPercent:
+      setting.memory?.contextWindowPercent ??
+      SETTING_DEFAULTS.memory.contextWindowPercent,
     freshTailSize: 16
   })
   const history = await lcm.assembleContext(excludeMessageId)

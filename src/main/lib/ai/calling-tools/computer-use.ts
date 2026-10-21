@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
@@ -87,8 +88,10 @@ export const computerUse: AgentTool<typeof schema> = {
           target,
           agent,
           guard,
-          maxSteps: s.computerUse.maxSteps ?? 25,
-          settleMs: s.computerUse.settleMs ?? 800,
+          maxSteps:
+            s.computerUse.maxSteps ?? SETTING_DEFAULTS.computerUse.maxSteps,
+          settleMs:
+            s.computerUse.settleMs ?? SETTING_DEFAULTS.computerUse.settleMs,
           askHumanTimeoutMs: s.computerUse.askHumanTimeoutMs ?? 300_000,
           // Re-checked against the *resolved* window inside the session — the
           // exact match above only gates the model's `target` string.

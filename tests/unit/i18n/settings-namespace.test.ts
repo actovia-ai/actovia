@@ -159,7 +159,7 @@ describe('settings namespace (en)', () => {
     expect(settings.about.twitter).toBe('X (Twitter)')
     expect(settings.about.website).toBe('Website')
     expect(settings.about.license).toBe('License')
-    expect(settings.about.autoUpdate.label).toBe('Auto Update')
+    expect(settings.about.autoUpdate.label).toBe('Auto update')
     expect(settings.about.autoUpdate.description).toBe(
       'Automatically download and install updates when available'
     )
@@ -206,7 +206,7 @@ describe('settings namespace (en)', () => {
     })
     expect(settings.personality.warm).toBe('Warm')
     expect(settings.personality.enthusiastic).toBe('Enthusiastic')
-    expect(settings.personality.headersAndLists).toBe('Headers & Lists')
+    expect(settings.personality.headersAndLists).toBe('Headers & lists')
     expect(settings.personality.emoji).toBe('Emoji')
     expect(settings.personality.customInstructions.label).toBe(
       'Custom instructions'
@@ -420,12 +420,12 @@ describe('settings namespace (en)', () => {
       description: 'The quality level of the generated image.'
     })
     expect(settings.tools.imageGeneration.outputFormat).toMatchObject({
-      label: 'Output Format',
+      label: 'Output format',
       description:
         'If the background is transparent, the output format should be set to either png (default) or webp.'
     })
     expect(settings.tools.imageGeneration.generatedCounts).toMatchObject({
-      label: 'Generated Counts',
+      label: 'Generated counts',
       description: 'The number of images to generate. Must be between 1 and 10.'
     })
     expect(settings.tools.imageGeneration.background).toMatchObject({
@@ -453,7 +453,7 @@ describe('settings namespace (en)', () => {
       empty: 'No language found.'
     })
     expect(settings.tools.webSearch.maxResults).toMatchObject({
-      label: 'Max Results',
+      label: 'Max results',
       description: 'Sources a search brings back (1–20). Default: 10.'
     })
     expect(settings.tools.webSearch.deepRecall).toMatchObject({
@@ -461,7 +461,7 @@ describe('settings namespace (en)', () => {
       description:
         'Search three phrasings of the question and add a broader pass — forums, news, pages the first search drops. More sources and more tokens per search, and about six Brave requests instead of one.'
     })
-    expect(settings.tools.webSearch.recency.label).toBe('Recency Filter')
+    expect(settings.tools.webSearch.recency.label).toBe('Recency filter')
     expect(settings.tools.webSearch.recency.description).toBe(
       'Only return results from a recent time period.'
     )
@@ -474,7 +474,7 @@ describe('settings namespace (en)', () => {
       year: 'Past year'
     })
     expect(settings.tools.webSearch.domainFilter).toMatchObject({
-      label: 'Domain Filter',
+      label: 'Domain filter',
       description:
         'Comma-separated. Prefix with - to exclude. e.g. "nature.com, .edu" or "-reddit.com"'
     })
@@ -498,7 +498,7 @@ describe('settings namespace (en)', () => {
       description: 'Voice persona for generated speech'
     })
     expect(settings.tools.voice.outputFormat).toMatchObject({
-      label: 'Output Format',
+      label: 'Output format',
       description: 'Audio format for generated speech'
     })
     expect(settings.tools.voice.speed).toMatchObject({
@@ -506,7 +506,7 @@ describe('settings namespace (en)', () => {
       description: 'Playback speed (0.25 – 4.0, default 1.0)'
     })
     expect(settings.tools.voice.instructions).toMatchObject({
-      label: 'Voice Instructions',
+      label: 'Voice instructions',
       description:
         'Natural-language instructions to control tone, emotion and style (gpt-4o-mini-tts only)',
       placeholder:
@@ -537,7 +537,7 @@ describe('settings namespace (en)', () => {
 
   it('has the Data Controls tab keys', () => {
     expect(settings.dataControls.autoBackup).toMatchObject({
-      label: 'Automatic Backups'
+      label: 'Automatic backups'
     })
     expect(settings.dataControls.recentBackups).toMatchObject({
       description_one: '{{count}} backup stored',
@@ -545,7 +545,7 @@ describe('settings namespace (en)', () => {
     })
     expect(settings.dataControls.delete).toMatchObject({
       confirmPrompt: 'Type <strong>DELETE</strong> to confirm:',
-      confirmButton: 'Delete Everything'
+      confirmButton: 'Delete everything'
     })
   })
 

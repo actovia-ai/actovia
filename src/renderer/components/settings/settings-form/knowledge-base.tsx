@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import type {
@@ -7,6 +8,7 @@ import type {
 } from '@actovia/shared/types/knowledge-base'
 import { getHttpErrorMessage, toErrorI18n } from '@actovia/shared/utils/http'
 import {
+  ArrowDown01Icon,
   File01Icon,
   Loading03Icon,
   EditIcon,
@@ -69,6 +71,7 @@ import {
 } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { SettingsSelect } from '../settings-select'
+import { ShownDefault } from '../shown-default'
 
 const isBusy = (docs: KnowledgeDocData[]) =>
   docs.some(
@@ -474,8 +477,12 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
         />
 
         <Collapsible>
-          <CollapsibleTrigger className="text-muted-foreground hover:text-foreground text-xs font-medium">
+          <CollapsibleTrigger className="group text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs font-medium">
             {t('knowledgeBase:advancedToggle')}
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              className="size-3.5 transition-transform duration-200 ease-out group-data-[state=open]:rotate-180"
+            />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-3 flex flex-col gap-4">
             <Controller
@@ -487,16 +494,23 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
                   description={t('knowledgeBase:topK.description')}
                   error={fieldState.error}
                 >
-                  <Input
-                    type="number"
-                    min={1}
-                    max={200}
-                    className="w-20"
-                    placeholder="60"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
+                  <ShownDefault
+                    value={field.value}
+                    fallback={SETTING_DEFAULTS.knowledgeBase.topK}
+                    onBlur={field.onBlur}
+                  >
+                    {(shown) => (
+                      <Input
+                        type="number"
+                        min={1}
+                        max={200}
+                        className="w-20"
+                        {...field}
+                        {...shown}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    )}
+                  </ShownDefault>
                 </SettingsRow>
               )}
             />
@@ -509,16 +523,23 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
                   description={t('knowledgeBase:chunkTopK.description')}
                   error={fieldState.error}
                 >
-                  <Input
-                    type="number"
-                    min={1}
-                    max={100}
-                    className="w-20"
-                    placeholder="10"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
+                  <ShownDefault
+                    value={field.value}
+                    fallback={SETTING_DEFAULTS.knowledgeBase.chunkTopK}
+                    onBlur={field.onBlur}
+                  >
+                    {(shown) => (
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        className="w-20"
+                        {...field}
+                        {...shown}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    )}
+                  </ShownDefault>
                 </SettingsRow>
               )}
             />

@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import type { CurrentRun } from '@actovia/shared/utils/attempts'
 import type { Model } from '@earendil-works/pi-ai'
 
@@ -15,7 +16,7 @@ export type { AssembledContext }
 // Used when the setting doesn't specify an explicit limit
 const DEFAULT_CONTEXT_WINDOW = 128_000
 
-export const DEFAULT_FRESH_TAIL_RUNS = 6
+export const DEFAULT_FRESH_TAIL_RUNS = SETTING_DEFAULTS.memory.freshTailSize
 const MIN_FRESH_TAIL_RUNS = 2
 const MAX_FRESH_TAIL_RUNS = 24
 
@@ -107,7 +108,9 @@ export class LcmManager {
     this.model = model
     this.apiKey = apiKey
     this.freshTailRuns = options.freshTailRuns ?? DEFAULT_FRESH_TAIL_RUNS
-    this.contextWindowPercent = options.contextWindowPercent ?? 75
+    this.contextWindowPercent =
+      options.contextWindowPercent ??
+      SETTING_DEFAULTS.memory.contextWindowPercent
     this.contextWindow = options.contextWindow ?? DEFAULT_CONTEXT_WINDOW
   }
 

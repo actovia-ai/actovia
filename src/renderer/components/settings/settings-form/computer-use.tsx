@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import type { InstalledApp } from '@actovia/shared/types/computer-use'
@@ -21,6 +22,7 @@ import { useInstalledApps } from '@/hooks/use-installed-apps'
 
 import { SettingsIntro } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
+import { ShownDefault } from '../shown-default'
 
 function AppIcon({
   app,
@@ -132,20 +134,27 @@ export function ComputerUse({ form }: { form: UseFormReturnType }) {
               description={t('maxSteps.description')}
               error={fieldState.error}
             >
-              <Input
-                type="number"
-                min={1}
-                max={100}
-                className="w-20"
-                placeholder="25"
-                {...field}
-                value={field.value ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === '' ? null : Number(e.target.value)
-                  )
-                }
-              />
+              <ShownDefault
+                value={field.value}
+                fallback={SETTING_DEFAULTS.computerUse.maxSteps}
+                onBlur={field.onBlur}
+              >
+                {(shown) => (
+                  <Input
+                    type="number"
+                    min={1}
+                    max={100}
+                    className="w-20"
+                    {...field}
+                    {...shown}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === '' ? null : Number(e.target.value)
+                      )
+                    }
+                  />
+                )}
+              </ShownDefault>
             </SettingsRow>
           )}
         />
@@ -159,20 +168,27 @@ export function ComputerUse({ form }: { form: UseFormReturnType }) {
               description={t('settleDelay.description')}
               error={fieldState.error}
             >
-              <Input
-                type="number"
-                min={100}
-                max={5000}
-                className="w-24"
-                placeholder="800"
-                {...field}
-                value={field.value ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.target.value === '' ? null : Number(e.target.value)
-                  )
-                }
-              />
+              <ShownDefault
+                value={field.value}
+                fallback={SETTING_DEFAULTS.computerUse.settleMs}
+                onBlur={field.onBlur}
+              >
+                {(shown) => (
+                  <Input
+                    type="number"
+                    min={100}
+                    max={5000}
+                    className="w-24"
+                    {...field}
+                    {...shown}
+                    onChange={(e) =>
+                      field.onChange(
+                        e.target.value === '' ? null : Number(e.target.value)
+                      )
+                    }
+                  />
+                )}
+              </ShownDefault>
             </SettingsRow>
           )}
         />

@@ -10,7 +10,7 @@
   },
   "queryMode": {
     "label": "Query mode",
-    "description": "mix blends the knowledge graph and vector search — best quality, slightly slower.",
+    "description": "Mix blends the knowledge graph and vector search — best quality, slightly slower.",
     "options": {
       "naive": "Naive",
       "local": "Local",
@@ -32,7 +32,7 @@
     "label": "Connection",
     "description": "Verify Actovia can reach your LightRAG server.",
     "testingLabel": "Testing…",
-    "testButton": "Test Connection"
+    "testButton": "Test connection"
   },
   "documents": {
     "title": "Documents",

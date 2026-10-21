@@ -6,6 +6,7 @@ import {
   configuredProvider,
   hasProviderKey,
   modelCatalog,
+  modelDisplayName,
   modelLabel,
   modelRetirement
 } from '@/lib/provider-labels'
@@ -89,5 +90,18 @@ describe('modelRetirement', () => {
     expect(modelRetirement(undefined, now)).toBeNull()
     expect(modelRetirement(null, now)).toBeNull()
     expect(modelRetirement('', now)).toBeNull()
+  })
+})
+
+describe('modelDisplayName', () => {
+  it('names a model by its catalog entry, else by its id', () => {
+    const s = settings({})
+    expect(
+      modelDisplayName(s, AiProviders.AnthropicClaude, 'claude-sonnet-5-5')
+    ).toBe('Claude Sonnet 5.5')
+    expect(
+      modelDisplayName(s, AiProviders.AnthropicClaude, 'claude-haiku-5-5')
+    ).toBe('claude-haiku-5-5')
+    expect(modelDisplayName(undefined, 'unknown', 'gpt-x')).toBe('gpt-x')
   })
 })

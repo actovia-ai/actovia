@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // src/main/lib/ai/calling-tools/search-knowledge-base.ts
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
@@ -34,8 +35,8 @@ export function searchKnowledgeBase(
       try {
         const { context, references } = await client.retrieve(query, {
           mode: cfg?.queryMode ?? 'mix',
-          topK: cfg?.topK ?? 60,
-          chunkTopK: cfg?.chunkTopK ?? 10
+          topK: cfg?.topK ?? SETTING_DEFAULTS.knowledgeBase.topK,
+          chunkTopK: cfg?.chunkTopK ?? SETTING_DEFAULTS.knowledgeBase.chunkTopK
         })
         const text = context.trim()
           ? context

@@ -37,6 +37,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useAnalyticsStatus } from '@/hooks/use-analytics'
+import { keyLabel, MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
 import { useFormat } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import {
@@ -278,8 +279,8 @@ export function ChatAudit() {
           </p>
           <div className="flex items-center gap-3">
             <KbdGroup className="text-muted-foreground">
-              <Kbd>⌘</Kbd>
-              <Kbd>↩</Kbd>
+              <Kbd>{MOD_KEY}</Kbd>
+              <Kbd>{keyLabel('Enter')}</Kbd>
             </KbdGroup>
             <Button
               size="sm"

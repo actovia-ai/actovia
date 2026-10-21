@@ -17,6 +17,7 @@ import { useInstalledSkills } from '@/hooks/use-installed-skills'
 import { useSettings } from '@/hooks/use-settings'
 import { useUsage } from '@/hooks/use-usage'
 import { monthLabels } from '@/lib/heatmap-months'
+import { modelDisplayName } from '@/lib/provider-labels'
 import { cn } from '@/lib/utils'
 
 import { SettingsSection } from '../settings-row'
@@ -266,8 +267,8 @@ export function Profile({ form }: { form: UseFormReturnType }) {
               .map((m) => (
                 <InsightRow
                   key={m.model}
-                  label={m.model}
-                  value={compact(m.inputTokens + m.outputTokens)}
+                  label={modelDisplayName(settings, m.provider, m.model)}
+                  value={compact(m.totalTokens)}
                 />
               ))
           ) : (
