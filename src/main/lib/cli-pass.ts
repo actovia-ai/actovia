@@ -2,17 +2,18 @@ import { randomBytes, timingSafeEqual } from 'crypto'
 
 /**
  * A short-lived stand-in for the presence token, for `actovia pair` /
- * `actovia devices` run in a shell on this machine (over SSH on a homelab Mac
- * nobody looks at). The CLI gets one from `POST /api/v1/lock/cli-pass` by
- * sending the app-lock PIN — something a person types and the model, which
- * reaches loopback through `terminal` too, does not know — and sends it in
- * the presence header. It opens the device routes only (`CLI_PASS_PATHS`),
+ * `devices` / `lock` / `app quit|restart` run in a shell on this machine (over
+ * SSH on a homelab Mac nobody looks at). The CLI gets one from
+ * `POST /api/v1/lock/cli-pass` by sending the app-lock PIN — something a
+ * person types and the model, which reaches loopback through `terminal` too,
+ * does not know — and sends it in the presence header. It opens the device
+ * and host routes only (`CLI_PASS_PATHS`),
  * never a tool approval or anything else behind the presence gate, and
  * lapses after `CLI_PASS_TTL_MS`. Held in memory only; a restart drops
  * every pass.
  */
 export const CLI_PASS_TTL_MS = 10 * 60 * 1000
-export const CLI_PASS_PATHS = ['/api/v1/devices']
+export const CLI_PASS_PATHS = ['/api/v1/devices', '/api/v1/host']
 
 const passes = new Map<string, number>()
 

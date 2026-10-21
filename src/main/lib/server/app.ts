@@ -33,6 +33,7 @@ import discoverRouter from './routes/discover'
 import entityRouter from './routes/entity'
 import healthRouter from './routes/health'
 import historyRouter from './routes/history'
+import { hostRouter, hostStatusRouter } from './routes/host'
 import knowledgeBaseRouter from './routes/knowledge-base'
 import lcmStatusRouter from './routes/lcm-status'
 import lockRouter from './routes/lock'
@@ -90,6 +91,9 @@ export function createApp() {
   // Unlock, registered ahead of the lock gate so it is reachable while
   // locked — the one API route that has to be. Still behind authGate above.
   app.route('/api/v1/lock', lockRouter)
+  // What the app is and whether it is locked, for `actovia status` — answered
+  // while locked too (host.ts). The host routes that act sit in v1 below.
+  app.route('/api/v1/host', hostStatusRouter)
 
   // Lock gate: reject all API access while the app is locked (423).
   app.use('/api/*', lockGate)
@@ -136,6 +140,7 @@ export function createApp() {
   v1.route('/usage', usageRouter)
   v1.route('/logs', logsRouter)
   v1.route('/backup', backupRouter)
+  v1.route('/host', hostRouter)
   // Ahead of `/artifacts/:chatId/:artifactId`, which would take `sandbox/x`.
   v1.route('/artifacts/sandbox', artifactSandboxRouter)
   v1.route('/artifacts', artifactsRouter)

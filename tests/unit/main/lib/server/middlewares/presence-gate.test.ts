@@ -12,6 +12,7 @@ app.use('/api/*', presenceGate)
 app.post('/api/v1/chat/approval', (c) => c.text('answered'))
 app.get('/api/v1/devices', (c) => c.text('devices'))
 app.post('/api/v1/devices/pairing', (c) => c.text('pairing open'))
+app.post('/api/v1/host/quit', (c) => c.text('quitting'))
 app.post('/api/v1/chat', (c) => c.text('chat'))
 app.all('/api/v1/agents/*', (c) => c.text('agents'))
 app.all('/api/v1/projects/*', (c) => c.text('projects'))
@@ -33,7 +34,9 @@ describe('presenceGate', () => {
     ['GET', '/api/v1/devices'],
     // Opening a pairing window hands out its code: the model could pair
     // itself a device and approve over the LAN.
-    ['POST', '/api/v1/devices/pairing']
+    ['POST', '/api/v1/devices/pairing'],
+    // The model must not quit or lock the app the user is using.
+    ['POST', '/api/v1/host/quit']
   ])(
     'refuses %s %s on loopback without the window token (a curl from the terminal tool)',
     async (method, path) => {
@@ -118,7 +121,7 @@ describe('presenceGate', () => {
     expect((await app.request('/api/v1/philharmonic/agents')).status).toBe(200)
   })
 
-  it('a CLI pass (from the PIN) opens the device routes and nothing else', async () => {
+  it('a CLI pass (from the PIN) opens the device and host routes and nothing else', async () => {
     const { issueCliPass, clearCliPasses } = await import('@main/lib/cli-pass')
     const pass = { headers: { [PRESENCE_HEADER]: issueCliPass().token } }
     expect((await app.request('/api/v1/devices', pass)).status).toBe(200)
@@ -129,6 +132,10 @@ describe('presenceGate', () => {
           ...pass
         })
       ).status
+    ).toBe(200)
+    expect(
+      (await app.request('/api/v1/host/quit', { method: 'POST', ...pass }))
+        .status
     ).toBe(200)
     // Never a tool approval, an employee edit or a group message.
     for (const [method, path] of [

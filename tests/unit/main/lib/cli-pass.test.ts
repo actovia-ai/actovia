@@ -9,9 +9,11 @@ import { beforeEach, describe, expect, it } from 'vitest'
 beforeEach(() => clearCliPasses())
 
 describe('CLI pass', () => {
-  it('opens the device routes only', () => {
+  it('opens the device and host routes only', () => {
     const { token } = issueCliPass()
     expect(isCliPass(token, '/api/v1/devices')).toBe(true)
+    expect(isCliPass(token, '/api/v1/host/lock')).toBe(true)
+    expect(isCliPass(token, '/api/v1/hostile')).toBe(false)
     expect(isCliPass(token, '/api/v1/devices/pairing')).toBe(true)
     expect(isCliPass(token, '/api/v1/devices/d1')).toBe(true)
     expect(isCliPass(token, '/api/v1/chat/approval')).toBe(false)

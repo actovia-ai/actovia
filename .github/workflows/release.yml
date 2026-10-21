@@ -148,6 +148,8 @@ jobs:
         run: |
           mkdir -p release-assets
           find all-artifacts -type f -not -path "*/\.*" | xargs -I {} cp {} release-assets/
+          # `actovia app update` refuses a download these do not vouch for.
+          (cd release-assets && sha256sum -- * > SHA256SUMS)
           ls -la release-assets
 
       - name: Run semantic-release
