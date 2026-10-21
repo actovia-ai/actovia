@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "Es ist ein Fehler aufgetreten",
-    "description": "Es ist ein unerwarteter Fehler aufgetreten.",
+    "description": "Actovia konnte diese Seite nicht anzeigen. Der Fehler wurde protokolliert; Neuladen behebt ihn meist.",
     "fallbackDescription": "Die Seite konnte nicht geladen werden.",
     "backToHome": "Zurück zur Startseite",
-    "reload": "Neu laden"
+    "reload": "Neu laden",
+    "details": "Details",
+    "copyDetails": "Details kopieren"
   }
 }

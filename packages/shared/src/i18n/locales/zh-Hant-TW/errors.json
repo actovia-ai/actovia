@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "發生錯誤",
-    "description": "發生了非預期的錯誤。",
+    "description": "Actovia 顯示此頁面時發生問題。已記錄到日誌，重新載入通常就能解決。",
     "fallbackDescription": "無法載入此頁面。",
     "backToHome": "返回首頁",
-    "reload": "重新載入"
+    "reload": "重新載入",
+    "details": "詳細資料",
+    "copyDetails": "複製詳細資料"
   }
 }

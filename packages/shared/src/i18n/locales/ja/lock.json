@@ -1,6 +1,7 @@
 {
   "incorrectPin": "PINが正しくありません",
   "screen": {
+    "prompt": "PIN を入力して Actovia のロックを解除",
     "unlockWithTouchId": "Touch IDでロック解除",
     "tooManyAttempts": "試行回数が多すぎます。{{seconds}}秒後にもう一度お試しください。"
   },

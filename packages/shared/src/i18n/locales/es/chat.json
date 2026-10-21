@@ -34,8 +34,8 @@
     "deepResearch": "Investigación profunda"
   },
   "messageList": {
-    "greetingTitle": "¡Hola!",
-    "greetingSubtitle": "¿En qué puedo ayudarle hoy?",
+    "greetingTitle": "¿Adónde vamos hoy?",
+    "greetingSubtitle": "Pregunta lo que quieras, investiga un tema o delega una tarea.",
     "attachmentAlt": "adjunto",
     "scrollToBottom": "Desplazarse al final",
     "moreImages": "Mostrar {{count}} más",

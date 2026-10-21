@@ -29,7 +29,9 @@ function MaskedSlot({
       data-slot="input-otp-slot"
       data-active={isActive}
       className={cn(
-        'border-input bg-input/50 data-[active=true]:border-ring data-[active=true]:ring-ring/30 relative flex size-8 items-center justify-center border-y border-r text-sm transition-[color,box-shadow] duration-200 outline-none first:rounded-l-2xl first:border-l last:rounded-r-2xl data-[active=true]:z-10 data-[active=true]:ring-3',
+        // The active slot's ring is drawn inside it: an outer ring round a
+        // slot whose neighbours share its edges read as a clipped square.
+        'border-input bg-input/50 data-[active=true]:border-ring data-[active=true]:ring-ring/40 relative flex size-8 items-center justify-center border-y border-r text-sm transition-[color,box-shadow] duration-200 outline-none first:rounded-l-2xl first:border-l last:rounded-r-2xl data-[active=true]:z-10 data-[active=true]:ring-2 data-[active=true]:ring-inset',
         className
       )}
     >

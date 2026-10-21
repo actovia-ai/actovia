@@ -5,13 +5,13 @@ test.describe('Home — Discover', () => {
   test('shows no Discover section when the feature is off (the default)', async ({
     mainWindow
   }) => {
-    await expect(mainWindow.getByText('Hello there!')).toBeVisible()
+    await expect(mainWindow.getByText('Where to today?')).toBeVisible()
     await expect(
       mainWindow.getByTestId(TEST_IDS.discover.section)
     ).not.toBeAttached()
     // Dark-by-default: the greeting stays vertically centered, not top-aligned.
     await expect(
-      mainWindow.getByText('Hello there!').locator('..')
+      mainWindow.getByText('Where to today?').locator('..')
     ).toHaveClass(/justify-center/)
   })
 })

@@ -34,8 +34,8 @@
     "deepResearch": "ディープリサーチ"
   },
   "messageList": {
-    "greetingTitle": "こんにちは!",
-    "greetingSubtitle": "今日はどのようなご用件ですか?",
+    "greetingTitle": "今日はどこへ行きましょう？",
+    "greetingSubtitle": "質問でも、調べものでも、作業の依頼でもどうぞ。",
     "attachmentAlt": "添付ファイル",
     "scrollToBottom": "最下部へスクロール",
     "moreImages": "さらに{{count}}件を表示",

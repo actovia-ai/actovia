@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "問題が発生しました",
-    "description": "予期しないエラーが発生しました。",
+    "description": "このページの表示中に問題が発生しました。ログに記録済みです。再読み込みでたいてい解決します。",
     "fallbackDescription": "ページを読み込めませんでした。",
     "backToHome": "ホームに戻る",
-    "reload": "再読み込み"
+    "reload": "再読み込み",
+    "details": "詳細",
+    "copyDetails": "詳細をコピー"
   }
 }

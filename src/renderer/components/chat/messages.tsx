@@ -23,6 +23,7 @@ import { capitalCase } from 'change-case'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { OdyMark } from '@/components/app/ody-mark'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { useDelayed } from '@/hooks/use-delayed'
@@ -897,7 +898,8 @@ function Messages({
         {messages.length === 0 && (
           <div
             className={cn(
-              'animate-fade-in-up mx-auto flex size-full max-w-3xl flex-col px-8',
+              ENTER_UP,
+              'mx-auto flex size-full max-w-3xl flex-col px-8',
               discoverHasContent
                 ? 'justify-start pt-4'
                 : 'justify-center md:mt-20'
@@ -907,10 +909,11 @@ function Messages({
                 the screen — drop it and let Discover be the landing content. */}
             {!discoverHasContent && (
               <>
-                <p className="text-3xl font-bold tracking-tight">
+                <OdyMark className="mb-5 -ml-1 size-13" />
+                <p className="text-3xl font-semibold tracking-tight text-balance">
                   {t('messageList.greetingTitle')}
                 </p>
-                <p className="text-muted-foreground mt-2 text-lg">
+                <p className="text-muted-foreground mt-2 text-base">
                   {t('messageList.greetingSubtitle')}
                 </p>
               </>

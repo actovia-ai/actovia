@@ -69,7 +69,8 @@ describe('errors namespace (en)', () => {
   it('has the Phase 5 routeBoundary.* keys (RouteErrorBoundary)', () => {
     expect(errors.routeBoundary).toMatchObject({
       title: 'Something went wrong',
-      description: 'An unexpected error occurred.',
+      description:
+        'Actovia ran into a problem showing this page. It has been logged, and reloading usually clears it.',
       fallbackDescription: 'The page could not be loaded.',
       backToHome: 'Back to Home',
       reload: 'Reload'

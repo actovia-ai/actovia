@@ -1,6 +1,7 @@
 {
   "incorrectPin": "Falsche PIN",
   "screen": {
+    "prompt": "Gib deine PIN ein, um Actovia zu entsperren",
     "unlockWithTouchId": "Mit Touch ID entsperren",
     "tooManyAttempts": "Zu viele Versuche. Versuchen Sie es in {{seconds}}s erneut."
   },

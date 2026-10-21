@@ -34,8 +34,8 @@
     "deepResearch": "Recherche approfondie"
   },
   "messageList": {
-    "greetingTitle": "Bonjour !",
-    "greetingSubtitle": "Comment puis-je vous aider aujourd'hui ?",
+    "greetingTitle": "On va où aujourd’hui ?",
+    "greetingSubtitle": "Posez une question, explorez un sujet ou confiez une tâche.",
     "attachmentAlt": "pièce jointe",
     "scrollToBottom": "Défiler vers le bas",
     "moreImages": "Afficher {{count}} de plus",

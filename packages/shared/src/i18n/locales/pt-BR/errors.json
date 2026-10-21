@@ -73,9 +73,11 @@
   },
   "routeBoundary": {
     "title": "Algo deu errado",
-    "description": "Ocorreu um erro inesperado.",
+    "description": "O Actovia teve um problema ao mostrar esta página. Isso foi registrado, e recarregar costuma resolver.",
     "fallbackDescription": "Não foi possível carregar a página.",
     "backToHome": "Voltar para o início",
-    "reload": "Recarregar"
+    "reload": "Recarregar",
+    "details": "Detalhes",
+    "copyDetails": "Copiar detalhes"
   }
 }
