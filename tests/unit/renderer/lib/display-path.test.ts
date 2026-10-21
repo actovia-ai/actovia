@@ -33,4 +33,11 @@ describe('displayFilePath', () => {
       '~/.actovia/workspace/bb2a8151-1260-4d4a-a12c-11eb32d942d0'
     )
   })
+  it('never shortens a path that climbs out with ..', () => {
+    expect(displayFilePath(`${ws}/../../.ssh/id_rsa`)).toBe(
+      '~/.actovia/workspace/bb2a8151-1260-4d4a-a12c-11eb32d942d0/../../.ssh/id_rsa'
+    )
+    expect(displayFilePath(`${ws}/a/..`)).toContain('/a/..')
+    expect(displayFilePath(`${ws}/..notes.md`)).toBe('..notes.md')
+  })
 })
