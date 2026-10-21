@@ -14,7 +14,13 @@ import { listenerOf } from '../types'
  * `presence.ts`); on the LAN listener `authGate` has already required a
  * paired device's token, which is what the user in person holds there.
  */
-export const PRESENCE_PATHS = ['/api/v1/chat/approval', '/api/v1/devices']
+export const PRESENCE_PATHS = [
+  '/api/v1/chat/approval',
+  '/api/v1/devices',
+  // Locking, quitting and restarting the app (host.ts). `GET /host/status`
+  // is answered ahead of this gate, by a router of its own.
+  '/api/v1/host'
+]
 
 export function needsPresence(path: string): boolean {
   return PRESENCE_PATHS.some((p) => path === p || path.startsWith(`${p}/`))
@@ -59,8 +65,9 @@ export async function presenceGate(c: Context, next: Next) {
   if (listenerOf(c) === 'lan') return next()
   const presented = c.req.header(PRESENCE_HEADER)
   if (isPresenceToken(presented)) return next()
-  // `actovia pair` / `actovia devices`: a pass the CLI got with the app-lock
-  // PIN (cli-pass.ts) opens the device routes, nothing else.
+  // `actovia pair` / `devices` / `lock` / `app quit|restart`: a pass the CLI
+  // got with the app-lock PIN (cli-pass.ts) opens the device and host routes,
+  // nothing else.
   if (isCliPass(presented, c.req.path)) return next()
   return c.json(
     {
