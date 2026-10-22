@@ -200,7 +200,11 @@ chat.get('/:id/messages/:messageId', async (c) => {
 })
 
 chat.get('/:id', async (c) => {
-  const id = getRequiredParam(c, 'id')
+  const id = validateSchema(
+    z.uuid(),
+    getRequiredParam(c, 'id'),
+    'Invalid chat id'
+  )
   const messages = await handleDatabaseOperation(
     () => getMessagesByChatId({ id }),
     'Failed to get messages'

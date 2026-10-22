@@ -486,3 +486,27 @@ describe('GET /api/v1/chat/search', () => {
     expect(vi.mocked(searchChats)).toHaveBeenLastCalledWith('')
   })
 })
+
+describe('GET /api/v1/chat/:id', () => {
+  it('answers an id that is not a uuid with a 400, never reaching the database', async () => {
+    const { getMessagesByChatId } = await import('@main/lib/db/queries')
+    vi.mocked(getMessagesByChatId).mockClear()
+
+    const { errorHandler } =
+      await import('@main/lib/server/middlewares/error-handler')
+    const app = buildApp()
+    app.onError(errorHandler)
+
+    const res = await app.request('/history')
+
+    expect(res.status).toBe(400)
+    expect(vi.mocked(getMessagesByChatId)).not.toHaveBeenCalled()
+  })
+
+  it('answers a chat’s rows', async () => {
+    const res = await buildApp().request(`/${CHAT_ID}`)
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual([])
+  })
+})
