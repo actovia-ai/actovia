@@ -38,3 +38,21 @@ export function resultToCsv(result: QueryResult): string {
   )
   return [header, ...lines].join('\n')
 }
+
+/**
+ * The columns drawn right-aligned, header and cells alike: those whose every
+ * value is a number (nulls aside). Judged per column, not per cell, so a
+ * header always sits over its figures.
+ */
+export function numericColumns(result: QueryResult): Set<string> {
+  return new Set(
+    result.columns
+      .map((c) => c.name)
+      .filter((name) => {
+        const values = result.rows
+          .map((row) => row[name])
+          .filter((v) => v !== null && v !== undefined)
+        return values.length > 0 && values.every((v) => typeof v === 'number')
+      })
+  )
+}
