@@ -26,6 +26,7 @@
     "queriesForTopic_one": "Se generó {{count}} consulta de búsqueda para \"{{query}}\"",
     "queriesForTopic_other": "Se generaron {{count}} consultas de búsqueda para \"{{query}}\"",
     "searchedFor": "Se buscó \"{{query}}\"",
+    "moreSources": "+{{n}} más",
     "writingReport": {
       "title": "Comenzando a escribir el informe final...",
       "description": "La fase de investigación profunda se completó. Su informe final se está generando y se presentará en breve."

@@ -11,6 +11,9 @@ import { cn } from '@/lib/utils'
 import { parseCitations } from '../markdown/markdown-citations'
 import { FAVICON_BACKING } from '../markdown/source-favicon'
 
+/** How many of a search's sources a step of the Activity timeline lists. */
+const COMPACT_SOURCES = 3
+
 function SourceItemLink({
   item,
   compact
@@ -91,11 +94,30 @@ export function SourceItem({
   const cited = webSearchResults.filter((r) => citedRanks.has(r.rank))
   const more = webSearchResults.filter((r) => !citedRanks.has(r.rank))
 
+  if (compact) {
+    // A search brings back ten or twenty pages; listed whole, they buried the
+    // timeline's steps. The full list is the Sources tab.
+    const shown = webSearchResults.slice(0, COMPACT_SOURCES)
+    const rest = webSearchResults.length - shown.length
+    return (
+      <div className="flex flex-col gap-0.5">
+        {shown.map((item) => (
+          <SourceItemLink key={item.link} item={item} compact />
+        ))}
+        {rest > 0 && (
+          <p className="text-muted-foreground pt-0.5 text-xs">
+            {t('messages.moreSources', { n: rest })}
+          </p>
+        )}
+      </div>
+    )
+  }
+
   if (citedRanks.size === 0) {
     return (
       <div className="flex flex-col gap-1">
         {webSearchResults.map((item) => (
-          <SourceItemLink key={item.link} item={item} compact={compact} />
+          <SourceItemLink key={item.link} item={item} />
         ))}
       </div>
     )

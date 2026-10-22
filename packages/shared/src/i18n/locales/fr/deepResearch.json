@@ -26,6 +26,7 @@
     "queriesForTopic_one": "{{count}} requête de recherche générée pour « {{query}} »",
     "queriesForTopic_other": "{{count}} requêtes de recherche générées pour « {{query}} »",
     "searchedFor": "Recherche effectuée pour « {{query}} »",
+    "moreSources": "+{{n}} de plus",
     "writingReport": {
       "title": "Début de la rédaction du rapport final...",
       "description": "La phase de recherche approfondie est terminée. Votre rapport final est en cours de génération et sera présenté sous peu."

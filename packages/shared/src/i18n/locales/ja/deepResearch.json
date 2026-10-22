@@ -22,6 +22,7 @@
     "queriesDeeper_other": "これまでのリサーチをもとに{{count}}件の検索クエリを生成しました",
     "queriesForTopic_other": "「{{query}}」について{{count}}件の検索クエリを生成しました",
     "searchedFor": "「{{query}}」を検索しました",
+    "moreSources": "他 {{n}} 件",
     "writingReport": {
       "title": "最終レポートの作成を開始しています...",
       "description": "ディープリサーチの段階が完了しました。最終レポートを生成中です。まもなく表示されます。"
