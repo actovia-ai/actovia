@@ -70,13 +70,13 @@ export function PermissionPrompt({
           tool: capitalCase(prompt.tool)
         })}
         {prompt.summary && (
-          <code className="text-muted-foreground ml-1 font-mono text-xs break-all">
+          <code className="text-muted-foreground ml-1 font-mono text-xs wrap-anywhere">
             {prompt.summary}
           </code>
         )}
       </p>
       {/* Everything the owner is approving, whole — never clipped. */}
-      <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">
         {prompt.detail}
       </pre>
       {/* Codex's decline carries no words, so it is not asked for one. */}

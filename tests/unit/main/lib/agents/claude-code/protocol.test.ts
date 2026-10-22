@@ -239,6 +239,17 @@ describe('Claude Code protocol', () => {
     ).toContain('--- old\nc\n+++ new\nd')
   })
 
+  it("leaves out an edit's default replace_all: false", () => {
+    expect(
+      describeInput('Edit', {
+        file_path: '/a.ts',
+        old_string: 'a',
+        new_string: 'b',
+        replace_all: false
+      })
+    ).toBe('/a.ts\n\n--- old\na\n+++ new\nb')
+  })
+
   it('never cuts a long command', () => {
     const command = 'x'.repeat(25_000)
     expect(describeInput('Bash', { command })).toBe(command)

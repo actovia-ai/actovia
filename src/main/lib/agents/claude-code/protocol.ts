@@ -76,6 +76,9 @@ export function describeInput(tool: string, input: Json): string {
     main = `${path()}\n\n${str(input.old_string) !== null && str(input.new_string) !== null ? edit(input) : ''}`
     if (consumed.includes('old_string') !== consumed.includes('new_string'))
       consumed = consumed.filter((k) => k === 'file_path')
+    // `replace_all: false` is Edit's default and says nothing to approve;
+    // `true` changes what the edit does, so it stays in Other fields.
+    if (input.replace_all === false) consumed.push('replace_all')
   } else if (tool === 'MultiEdit' && Array.isArray(input.edits)) {
     main = `${path()}\n\n${input.edits.map(editOf).join('\n\n')}`
     consumed = [
