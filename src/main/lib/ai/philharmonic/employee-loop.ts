@@ -35,6 +35,9 @@ export interface RunEmployeeLoopArgs {
   /** Extra tools (e.g. none for employees in v1). */
   extraTools?: AgentTool[]
   signal?: AbortSignal
+  /** The id its live bubble streams under — the saved row takes the same one,
+   * so the transcript shows it once. A fresh one when not given. */
+  messageId?: string
 }
 
 function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
@@ -109,7 +112,7 @@ export async function runEmployeeLoop(
     timestamp: Date.now()
   }
 
-  const messageId = uuidV4()
+  const messageId = args.messageId ?? uuidV4()
   emit({
     type: 'message_start',
     conversationId,

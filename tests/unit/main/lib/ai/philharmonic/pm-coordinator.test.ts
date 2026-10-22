@@ -168,6 +168,14 @@ describe('runPmCoordinator', () => {
     expect(emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'message_start', role: 'pm' })
     )
+    // Saved under the id it streamed with, so the live bubble and the row
+    // are one message in the transcript.
+    const started = emit.mock.calls.find(
+      ([e]) => e.type === 'message_start' && e.role === 'pm'
+    )![0]
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'pm', id: started.messageId })
+    )
   })
 })
 
@@ -285,6 +293,24 @@ describe('runPmCoordinator — the group’s members', () => {
     expect(joined(emit)).toEqual([
       [{ type: 'member_joined', conversationId: 'c1', agentId: 'a1' }]
     ])
+  })
+
+  it('an employee’s report is saved under the id its bubble streamed with', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    vi.mocked(engine.runDelegatedTask).mockResolvedValueOnce({
+      output: 'the report',
+      liveMessageId: 'live-1'
+    })
+    createConversationMessage.mockClear()
+    const { delegate } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'live-1',
+        role: 'employee',
+        content: 'the report'
+      })
+    )
   })
 
   it('a member already in the group is not added again', async () => {

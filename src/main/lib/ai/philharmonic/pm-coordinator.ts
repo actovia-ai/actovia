@@ -451,7 +451,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           retryCount: 0
         })
         try {
-          const { output, messageId } = await runDelegatedTask({
+          const { output, messageId, liveMessageId } = await runDelegatedTask({
             taskId: childTask.id,
             agentId: employeeId,
             conversationId,
@@ -463,6 +463,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           // agent's step saved its own as it began (its card lives there).
           if (!messageId)
             await createConversationMessage({
+              id: liveMessageId,
               conversationId,
               role: 'employee',
               agentId: employeeId,
@@ -803,7 +804,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // The collapsed decision disclosure reads its counts from this part, so a
   // closed one fetches nothing.
   const counts = await recorder.finish()
+  // Under the id the answer streamed with: the live bubble and the row are
+  // one message, never two (the transcript drops a bubble once its row loads).
   await createConversationMessage({
+    id: messageId,
     conversationId,
     role: 'pm',
     content: finalText,

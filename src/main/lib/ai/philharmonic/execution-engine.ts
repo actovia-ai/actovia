@@ -1,4 +1,6 @@
 // src/main/lib/ai/philharmonic/execution-engine.ts
+import { v4 as uuidV4 } from 'uuid'
+
 import {
   runAgentEmployee,
   type DelegatedOutput
@@ -64,20 +66,25 @@ export async function runDelegatedTask(args: {
     tokenUsage: null
   })
 
+  // Each attempt streams a bubble of its own; the last one's id is the report's.
+  let liveMessageId: string | undefined
   try {
     const outcome: DelegatedOutput =
       agent.runtime === 'actovia'
         ? {
             output: await withRetry(
-              () =>
-                runEmployeeLoop({
+              () => {
+                liveMessageId = uuidV4()
+                return runEmployeeLoop({
                   agent,
                   instructions,
                   executionId: execution.id,
                   conversationId,
                   emit,
-                  signal
-                }),
+                  signal,
+                  messageId: liveMessageId
+                })
+              },
               {
                 policy,
                 signal,
@@ -104,7 +111,8 @@ export async function runDelegatedTask(args: {
                   })
                 }
               }
-            )
+            ),
+            liveMessageId
           }
         : await runAgentEmployee({
             agent,
