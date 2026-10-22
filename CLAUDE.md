@@ -1994,7 +1994,13 @@ Main process:
 - `src/main/lib/computer/` — window-scoped screenshot-loop Computer Use V0: the
   `actovia-input` Swift helper (list-windows / list-apps / screenshot / activate /
   CGEvent input), `capture`/`target`/`hands`/`guard`, `runComputerSession` (the
-  perceive→act loop), `liveness` (the ⌥⇧⎋ kill switch); `target.resolveOrLaunch`
+  perceive→act loop; input is screen-coordinate HID events, so before every
+  action `front.ts`'s `bringToFront()` raises the target app and the action is
+  skipped — the model told why — unless the target window is on screen, its
+  app frontmost and no other app's window, nor an Actovia one, overlaps it; a
+  window the app replaced or a Space it moved to is followed by
+  `refreshOrRaise()`, which re-runs the self and allowlist checks),
+  `liveness` (the ⌥⇧⎋ kill switch); `target.resolveOrLaunch`
   opens an allowlisted app that isn't running; `self.ts` — Actovia itself (its
   bundle id, its own windows) is never a target, whatever the allowlist says,
   and never offered in the picker. The inner-loop agent is
