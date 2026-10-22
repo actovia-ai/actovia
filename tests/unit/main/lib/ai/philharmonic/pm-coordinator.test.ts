@@ -249,6 +249,52 @@ describe('runPmCoordinator — a Claude Code employee', () => {
   })
 })
 
+describe('runPmCoordinator — the group’s members', () => {
+  async function delegateTool(memberAgentIds: string[]) {
+    const convs = await import('@main/lib/db/conversation-queries')
+    vi.mocked(convs.getConversationById).mockResolvedValueOnce({
+      id: 'c1',
+      title: 'Group X',
+      memberAgentIds
+    } as never)
+    vi.mocked(convs.addMemberToConversation).mockClear()
+    const emit = vi.fn()
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({ conversationId: 'c1', userText: 'go', emit })
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    return {
+      delegate: tools.find((t) => t.name === 'delegateTask')!,
+      add: vi.mocked(convs.addMemberToConversation),
+      emit
+    }
+  }
+  const joined = (emit: ReturnType<typeof vi.fn>) =>
+    emit.mock.calls.filter(([e]) => e.type === 'member_joined')
+
+  it('an employee handed a step joins the group, once', async () => {
+    const { delegate, add, emit } = await delegateTool([])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    await delegate.execute('y', { employeeId: 'a1', instructions: 'two' })
+    expect(add).toHaveBeenCalledTimes(1)
+    expect(add).toHaveBeenCalledWith('c1', 'a1')
+    expect(joined(emit)).toEqual([
+      [{ type: 'member_joined', conversationId: 'c1', agentId: 'a1' }]
+    ])
+  })
+
+  it('a member already in the group is not added again', async () => {
+    const { delegate, add, emit } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    expect(add).not.toHaveBeenCalled()
+    expect(joined(emit)).toEqual([])
+  })
+})
+
 describe('runPmCoordinator — the plan mirror', () => {
   it('never fails a step: a mirror that throws is logged and the delegation still succeeds', async () => {
     const plans = await import('@main/lib/db/plan-queries')

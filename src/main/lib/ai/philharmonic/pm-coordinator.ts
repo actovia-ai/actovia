@@ -279,6 +279,29 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       if (cur) await writePlanMirror(conversationId, cur.plan, cur.steps)
     })
 
+  // Whoever the PM hands a step to is one of the group's members — the header
+  // and the Members panel list them. Only a recruit used to join, so a group
+  // run by existing employees read "0 members". A failed write is logged and
+  // never fails the step.
+  const memberIds = new Set<string>(
+    (conversationRow?.memberAgentIds as string[] | null) ?? []
+  )
+  const joinGroup = async (agentId: string) => {
+    if (memberIds.has(agentId)) return
+    memberIds.add(agentId)
+    try {
+      await addMemberToConversation(conversationId, agentId)
+      emit({ type: 'member_joined', conversationId, agentId })
+    } catch (error) {
+      memberIds.delete(agentId)
+      logger.warn('philharmonic', 'group member not added', {
+        conversationId,
+        agentId,
+        message: error instanceof Error ? error.message : String(error)
+      })
+    }
+  }
+
   // P1-7: createReport pushes here; attached as message parts at turn end so
   // ArtifactCard can render on history reload, not just from the live stream.
   const pendingArtifacts: PendingArtifact[] = []
@@ -398,6 +421,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         // A CLI that has rejected this employee's model starts no process.
         const blocked = quotaBlock(employeeId)
         if (blocked) return blocked
+        if (roster.some((r) => r.id === employeeId)) await joinGroup(employeeId)
         if (stepId) await cancelQuotaWait(stepId)
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
@@ -478,8 +502,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     ),
     createRecruitEmployeeTool(async ({ role, skills, name }) => {
       const emp = await autoCreateEmployee({ role, skills, name })
-      await addMemberToConversation(conversationId, emp.id)
-      emit({ type: 'member_joined', conversationId, agentId: emp.id })
+      await joinGroup(emp.id)
       roster.push({ id: emp.id, name: emp.name, description: null })
       return { id: emp.id, name: emp.name }
     }),
