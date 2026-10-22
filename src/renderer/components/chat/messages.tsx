@@ -899,9 +899,11 @@ function Messages({
           'no-scrollbar @container flex flex-1 flex-col items-center gap-8 overflow-y-scroll px-16 pt-4 transition-[padding] duration-200 ease-out [overflow-anchor:none]',
           // Room for the floating composer to clear the last message — but
           // only once it's floating (the landing screen keeps it in flow).
-          // The height of the dock in `chat.tsx`: its 48px fade, the pill
-          // and the 24px under it.
-          messages.length === 0 ? 'pb-6' : 'pb-40'
+          // The height of the dock in `chat.tsx` (`--composer-dock`: its
+          // 48px fade, the pill and the 24px under it), never under 10rem.
+          messages.length === 0
+            ? 'pb-6'
+            : 'pb-[max(10rem,calc(var(--composer-dock,0px)+1rem))]'
         )}
         data-chat-scroll=""
         ref={chatBoxRef}
@@ -1029,7 +1031,7 @@ function Messages({
           variant="secondary"
           size="icon-lg"
           onClick={() => scrollToBottom('smooth')}
-          className="absolute bottom-22 left-1/2 z-30 -translate-x-1/2 rounded-full border shadow-md"
+          className="absolute bottom-[max(5.5rem,calc(var(--composer-dock,0px)-3.375rem))] left-1/2 z-30 -translate-x-1/2 rounded-full border shadow-md"
           aria-label={t('messageList.scrollToBottom')}
         >
           <HugeiconsIcon icon={ArrowDownIcon} />
