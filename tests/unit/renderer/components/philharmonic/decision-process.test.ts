@@ -126,6 +126,11 @@ const round: PmRoundEventDto[] = [
     isError: false
   }),
   ev('tool_call', {
+    toolCallId: 't6b',
+    name: 'escalateToUser',
+    args: { question: 'Which folder?' }
+  }),
+  ev('tool_call', {
     toolCallId: 't7',
     name: 'createPlan',
     args: { steps: [{ title: 'a' }, { title: 'b' }, { title: 'c' }] }
@@ -224,6 +229,8 @@ describe('DecisionProcess', () => {
     )
     expect(text).not.toContain("Waited for Bea's quota")
     expect(text).toContain('Marked a step done')
+    expect(text).toContain('Asked you')
+    expect(text).not.toContain('escalateToUser')
     expect(text).toContain('Planned steps: 3')
     expect(text).toContain('1,200 in · 300 out · $0.0123')
     // The instructions are one clamped line under the delegation.
