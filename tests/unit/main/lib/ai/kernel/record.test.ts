@@ -66,6 +66,14 @@ beforeEach(() => {
 })
 
 describe('RunRecorder', () => {
+  it('stamps the duration at run_end, before persist: the route sends these messages in done first', () => {
+    const r = recorder()
+    const messages = [{ ...assistant }]
+    r.observe({ type: 'run_end', runId: RUN_ID, messages, durationMs: 4321 })
+    expect(messages[0]).toMatchObject({ durationMs: 4321 })
+    expect(saveMessages).not.toHaveBeenCalled()
+  })
+
   it('persists the run_end messages with durationMs on the last assistant message and enqueues the jobs', async () => {
     const r = recorder()
     r.observe({

@@ -240,7 +240,7 @@ comments, and nothing is resent on reconnect. Events in the order they can occur
 | `notice`            | `{ level: "warning" \| "info", message }`                                                                                      | A tool's non-fatal heads-up (e.g. an expired key that only degraded enrichment). The text is the server's; show it as it is |
 | `tool_call_end`     | `{ toolCallId, toolName, isError }`                                                                                            | The tool finished; its result was the `message_update` just before                                                          |
 | `title`             | `{ title }`                                                                                                                    | A new chat's generated title, before `done`                                                                                 |
-| `done`              | protocol 2: `{ messages: [userMessage, …run], attempts: { [runId]: Attempt } }` · otherwise `{ messages: [...history, …run] }` | The run ended and its messages are final                                                                                    |
+| `done`              | protocol 2: `{ messages: [userMessage, …run], attempts: { [runId]: Attempt } }` · otherwise `{ messages: [...history, …run] }` | The run ended and its messages are final, the last assistant one with its `durationMs`                                      |
 | `error`             | `{ error: string }`                                                                                                            | The run failed (a friendly sentence, `toFriendlyChatError`); after `done` when the provider failed midway                   |
 
 Guarantees:

@@ -40,6 +40,17 @@ export class RunRecorder {
     if (event.type === 'run_end') {
       this.done = event.messages
       this.durationMs = event.durationMs
+      // "Worked for X seconds" reads the last assistant message of the run.
+      // Stamped here, not at persist: the route sends these same messages in
+      // `done` before it persists, and a client that merged them unstamped
+      // showed "Thought" with no time until the chat was opened again.
+      for (let i = this.done.length - 1; i >= 0; i--) {
+        const m = this.done[i]
+        if (m.role === 'assistant') {
+          ;(m as ChatAssistantMessage).durationMs ??= this.durationMs
+          break
+        }
+      }
     }
   }
 
@@ -52,15 +63,6 @@ export class RunRecorder {
     if (this.persisted || this.done.length === 0) return
     this.persisted = true
     const { chatId, model, lcm, memoryCapture } = this.deps
-
-    // "Worked for X seconds" reads the last assistant message of the run.
-    for (let i = this.done.length - 1; i >= 0; i--) {
-      const m = this.done[i]
-      if (m.role === 'assistant') {
-        ;(m as ChatAssistantMessage).durationMs ??= this.durationMs
-        break
-      }
-    }
 
     const rows = this.done.map((m) => toDbRow(m, chatId))
     // Rows are read back ORDER BY createdAt. A tool result is stamped at
