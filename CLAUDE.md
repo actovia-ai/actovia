@@ -484,6 +484,19 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
 - ORM: Drizzle ORM with Zod schemas
 - Schema: `src/main/lib/db/schema.ts`
 - Migrations: `resources/drizzle/`
+- **Time zone**: every column is `timestamp` without a zone, which drizzle
+  writes and reads as UTC wall clock, so the session runs in UTC:
+  `pinSessionUtc()` (`src/main/lib/db/session.ts`) is queued right after
+  `new PGlite` in `db/db.ts`, ahead of every other query, and
+  `createMigratedPglite()` does the same. Before it the session ran in the
+  zone PGlite's initdb wrote into the data dir's `postgresql.conf` (the OS
+  zone as a fixed offset, `Etc/GMT-8` in Shanghai), so every `DEFAULT now()`
+  stamped local wall clock that read back shifted by the offset; migration
+  0020 (`0020_utc_timestamps.sql`) moved those values onto UTC, reading the
+  old zone as TimeZone's `reset_val`. Read timestamps through drizzle, not
+  `db.execute` (which returns the zone-less text), and bucket by day with
+  `localDateStr()` (`src/main/lib/local-date.ts`), never
+  `toISOString().slice(0, 10)`
 
 **Key Tables**:
 
@@ -1280,7 +1293,8 @@ straight from `src/main/lib/db/schema.ts` (the shared package must not import th
 - Always use Drizzle ORM queries (`src/main/lib/db/queries.ts`)
 - Schema changes require running `bun run db:generate` to create migrations
 - Vector searches use `cosineDistance()` from pgvector
-- All timestamps use `timestamp('created_at').notNull().defaultNow()`
+- All timestamps use `timestamp('created_at').notNull().defaultNow()` — UTC,
+  since the session is pinned to it (see Database Layer)
 
 ### When Working with Tools
 
