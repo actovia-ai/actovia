@@ -51,7 +51,8 @@
     "mapItineraryStopCount_other": "{{count}}件の立ち寄り先",
     "mapItinerarySummary": "{{days}}、{{stops}}",
     "toolFailed": "{{tool}}が失敗しました",
-    "webSearchResultCount_other": "{{count}}件の結果"
+    "webSearchResultCount_other": "{{count}}件の結果",
+    "webSearchResultCountFor_other": "「{{query}}」の結果 {{count}}件"
   },
   "toolFailedToast": {
     "title": "ツールが失敗しました: {{tool}}"

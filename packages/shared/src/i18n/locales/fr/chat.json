@@ -54,7 +54,9 @@
     "mapItinerarySummary": "{{days}}, {{stops}}",
     "toolFailed": "Échec de {{tool}}",
     "webSearchResultCount_one": "{{count}} résultat",
-    "webSearchResultCount_other": "{{count}} résultats"
+    "webSearchResultCount_other": "{{count}} résultats",
+    "webSearchResultCountFor_one": "{{count}} résultat pour « {{query}} »",
+    "webSearchResultCountFor_other": "{{count}} résultats pour « {{query}} »"
   },
   "toolFailedToast": {
     "title": "Échec de l'outil : {{tool}}"

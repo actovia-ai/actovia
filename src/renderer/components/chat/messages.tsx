@@ -340,6 +340,24 @@ function buildAssistantTurn(
   const pendingToolCalls: AssistantTurn['pendingToolCalls'] = []
   const toolCards: ChatToolResultMessage[] = []
   const webSearchResults: WebSearchResult[] = []
+  // A run that searched more than once names each result row's query: rows
+  // of parallel searches look alike otherwise.
+  const searchQueries = new Map<string, string>()
+  for (const msg of turnMessages) {
+    if (msg.role !== 'assistant') continue
+    for (const block of (msg as ChatAssistantMessage).content) {
+      const query = (block as { arguments?: { query?: unknown } }).arguments
+        ?.query
+      if (
+        block.type === 'toolCall' &&
+        block.name === TOOL_NAMES.webSearch &&
+        typeof query === 'string' &&
+        query.trim()
+      )
+        searchQueries.set(block.id, query.trim())
+    }
+  }
+  const namesQueries = searchQueries.size > 1
 
   for (const msg of turnMessages) {
     if (msg.role === 'assistant') {
@@ -421,9 +439,15 @@ function buildAssistantTurn(
         webSearchResults.push(...results)
         steps.push({
           type: 'toolResult',
-          text: i18n.t('chat:toolPreview.webSearchResultCount', {
-            count: results.length
-          }),
+          text:
+            namesQueries && searchQueries.has(toolResult.toolCallId)
+              ? i18n.t('chat:toolPreview.webSearchResultCountFor', {
+                  count: results.length,
+                  query: searchQueries.get(toolResult.toolCallId)
+                })
+              : i18n.t('chat:toolPreview.webSearchResultCount', {
+                  count: results.length
+                }),
           toolName: TOOL_NAMES.webSearch,
           webSearchResults: results
         })
