@@ -55,10 +55,15 @@ const pass =
           ),
           children as ReactNode
         )
+let initialFocus: { current: HTMLElement | null } | undefined
+const content = pass('div')
 vi.mock('@/components/ui/popover', () => ({
   Popover: pass('div'),
   PopoverTrigger: pass('button'),
-  PopoverContent: pass('div')
+  PopoverContent: (props: Record<string, unknown>) => {
+    initialFocus = props.initialFocus as typeof initialFocus
+    return content(props)
+  }
 }))
 
 const { ModelChip } = await import('@/components/chat/header/model-chip')
@@ -170,6 +175,14 @@ describe('<ModelChip>', () => {
         if (descriptor) Object.defineProperty(proto, key, descriptor)
         else delete (proto as unknown as Record<string, unknown>)[key]
     }
+  })
+
+  it('the popup focuses the checked row as it opens, not the first row', () => {
+    // Base UI's default focus went to the first row, and focusing it scrolled
+    // the list back to the top right after it had been centred.
+    settings = configured()
+    render()
+    expect(initialFocus?.current?.dataset.model).toBe('claude-sonnet-5-5')
   })
 
   it('a pick is saved on the chat, never on the settings', async () => {

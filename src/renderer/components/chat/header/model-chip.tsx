@@ -2,7 +2,7 @@ import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { AiProviders } from '@actovia/shared/types/ai'
 import { ArrowDown01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
@@ -42,6 +42,11 @@ export function ModelChip({ chatId }: { chatId: string }) {
   const { provider, model } = useChatModel(chatId)
   const { mutate: setChatModel } = useSetChatModel()
   const [open, setOpen] = useState(false)
+  const checkedRow = useRef<HTMLButtonElement | null>(null)
+  const holdCheckedRow = useCallback((row: HTMLButtonElement | null) => {
+    checkedRow.current = row
+    centerInList(row)
+  }, [])
 
   if (!settings || !provider || !model || !providerHasKey(settings, provider)) {
     return (
@@ -91,7 +96,11 @@ export function ModelChip({ chatId }: { chatId: string }) {
           className="size-3 shrink-0 opacity-60"
         />
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-72 p-1">
+      <PopoverContent
+        align="center"
+        className="w-72 p-1"
+        initialFocus={checkedRow}
+      >
         <div
           role="menu"
           className="relative flex max-h-80 flex-col overflow-y-auto"
@@ -118,7 +127,7 @@ export function ModelChip({ chatId }: { chatId: string }) {
                       aria-checked={checked}
                       data-testid={TEST_IDS.chat.header.modelOption}
                       data-model={entry.id}
-                      ref={checked ? centerInList : undefined}
+                      ref={checked ? holdCheckedRow : undefined}
                       onClick={() => choose(p, entry.id)}
                       className={cn(
                         'hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm',
@@ -163,6 +172,8 @@ export function ModelChip({ chatId }: { chatId: string }) {
  * The list opens on the chat's model, not on the first provider's top: with
  * a long catalog above it, the checked row was out of sight. The list's own
  * scroll, never `scrollIntoView`, which would also scroll the window's shell.
+ * The popup focuses this row as it opens (`initialFocus`): its default, the
+ * first row, scrolled the list straight back to the top.
  */
 function centerInList(row: HTMLButtonElement | null) {
   const list = row?.closest<HTMLElement>('[role="menu"]')
