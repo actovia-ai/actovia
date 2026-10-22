@@ -81,6 +81,22 @@ describe('describeRound', () => {
     ])
   })
 
+  it("counts the cached part of the prompt as read — '14 in' was a 32k round", () => {
+    const [line] = describeRound(
+      [
+        ev('usage', {
+          inputTokens: 14,
+          outputTokens: 3727,
+          cacheReadTokens: 32498,
+          cacheWriteTokens: 100,
+          costUsd: 0.1
+        })
+      ],
+      ''
+    )
+    expect(line).toMatchObject({ kind: 'usage', inputTokens: 32612 })
+  })
+
   it('a call without a result has result null', () => {
     const [line] = describeRound(
       [call('t1', 'delegateTask', { employeeId: 'a1' })],

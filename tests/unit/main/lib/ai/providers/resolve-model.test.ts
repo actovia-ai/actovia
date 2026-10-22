@@ -245,6 +245,19 @@ describe('resolveModel', () => {
       expect(model.thinkingLevelMap?.off).toBeUndefined()
     })
 
+    it("prices a live model its list API gives no price for from pi's registry, cache rates included", () => {
+      const model = resolveModel(
+        'anthropic',
+        'claude-opus-5-5',
+        'https://api.anthropic.com',
+        'anthropic-messages',
+        live({ cost: null })
+      )
+      expect(model.cost.input).toBeGreaterThan(0)
+      expect(model.cost.output).toBeGreaterThan(0)
+      expect(model.cost.cacheRead).toBeGreaterThan(0)
+    })
+
     it('falls back to the id rule for a stored snapshot saved before the capability fields', () => {
       const stored = ModelSnapshotSchema.parse({
         contextWindow: 1_000_000,

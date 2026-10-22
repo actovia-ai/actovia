@@ -93,6 +93,7 @@ export function createRoundRecorder(
     inputTokens: 0,
     outputTokens: 0,
     cacheReadTokens: 0,
+    cacheWriteTokens: 0,
     costUsd: 0,
     seen: false
   }
@@ -192,6 +193,8 @@ export function createRoundRecorder(
         usage.outputTokens += typeof u.output === 'number' ? u.output : 0
         usage.cacheReadTokens +=
           typeof u.cacheRead === 'number' ? u.cacheRead : 0
+        usage.cacheWriteTokens +=
+          typeof u.cacheWrite === 'number' ? u.cacheWrite : 0
         usage.costUsd +=
           isObj(u.cost) && typeof u.cost.total === 'number' ? u.cost.total : 0
       }

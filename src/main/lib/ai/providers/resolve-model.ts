@@ -201,9 +201,11 @@ export function resolveModel(
       // discount. This is a known gap in the schema, not fixed here (too
       // large/risky for a one-shot fix) — revisit if ModelSnapshotSchema
       // ever gains cache-rate fields.
+      // Anthropic's list API carries no prices at all (`cost: null`): the
+      // registry's, cache rates included, rather than $0 for every request.
       cost: snapshot.cost
         ? { ...snapshot.cost, cacheRead: 0, cacheWrite: 0 }
-        : { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
+        : (known?.cost ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 })
     } as Model<string>
   }
 
