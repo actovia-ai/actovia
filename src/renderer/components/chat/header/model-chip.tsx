@@ -92,7 +92,10 @@ export function ModelChip({ chatId }: { chatId: string }) {
         />
       </PopoverTrigger>
       <PopoverContent align="center" className="w-72 p-1">
-        <div role="menu" className="flex max-h-80 flex-col overflow-y-auto">
+        <div
+          role="menu"
+          className="relative flex max-h-80 flex-col overflow-y-auto"
+        >
           {providers.map((p) => {
             const catalog = modelCatalog(settings, p)
             return (
@@ -115,6 +118,7 @@ export function ModelChip({ chatId }: { chatId: string }) {
                       aria-checked={checked}
                       data-testid={TEST_IDS.chat.header.modelOption}
                       data-model={entry.id}
+                      ref={checked ? centerInList : undefined}
                       onClick={() => choose(p, entry.id)}
                       className={cn(
                         'hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm',
@@ -153,4 +157,15 @@ export function ModelChip({ chatId }: { chatId: string }) {
       </PopoverContent>
     </Popover>
   )
+}
+
+/**
+ * The list opens on the chat's model, not on the first provider's top: with
+ * a long catalog above it, the checked row was out of sight. The list's own
+ * scroll, never `scrollIntoView`, which would also scroll the window's shell.
+ */
+function centerInList(row: HTMLButtonElement | null) {
+  const list = row?.closest<HTMLElement>('[role="menu"]')
+  if (!row || !list) return
+  list.scrollTop = row.offsetTop - (list.clientHeight - row.offsetHeight) / 2
 }
