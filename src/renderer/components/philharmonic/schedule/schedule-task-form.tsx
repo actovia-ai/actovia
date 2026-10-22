@@ -27,6 +27,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { useFormat } from '@/lib/format'
 import { createScheduledTask } from '@/services/philharmonic-tasks'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
@@ -42,6 +43,7 @@ export function ScheduleTaskForm({
   onCreated: (task: TaskData) => void
 }) {
   const { t } = useTranslation('philharmonic')
+  const { dateTime } = useFormat()
   const cronPresets = useMemo(
     () => [
       {
@@ -130,7 +132,7 @@ export function ScheduleTaskForm({
               id="schedule-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Weekly status report"
+              placeholder={t('schedule.form.titlePlaceholder')}
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -141,14 +143,19 @@ export function ScheduleTaskForm({
               id="schedule-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What should the team do?"
+              placeholder={t('schedule.form.descriptionPlaceholder')}
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t('schedule.form.groupLabel')}</Label>
+            {/* `items` lets the trigger show a group's title, not its id. */}
             <Select
               value={conversationId}
               onValueChange={(v) => v && setConversationId(v)}
+              items={conversations.map((c) => ({
+                value: c.id,
+                label: c.title
+              }))}
             >
               <SelectTrigger>
                 <SelectValue
@@ -189,7 +196,7 @@ export function ScheduleTaskForm({
                   render={
                     <Button type="button" variant="outline" className="flex-1">
                       {runAtDate
-                        ? runAtDate.toDateString()
+                        ? dateTime(runAtDate, { dateStyle: 'full' })
                         : t('schedule.form.pickDateButton')}
                     </Button>
                   }
@@ -214,6 +221,7 @@ export function ScheduleTaskForm({
               <Select
                 value={cronPreset}
                 onValueChange={(v) => v && setCronPreset(v)}
+                items={cronPresets}
               >
                 <SelectTrigger>
                   <SelectValue />
