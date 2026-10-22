@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import { plainText } from '@/lib/plain-text'
 import { cn } from '@/lib/utils'
 
 import { parseCitations } from '../markdown/markdown-citations'
@@ -47,7 +48,7 @@ function SourceItemLink({ item }: { item: WebSearchResult }) {
         </div>
         {item.snippet ? (
           <div className="text-muted-foreground mt-1 line-clamp-2 text-xs leading-snug">
-            {item.snippet}
+            {plainText(item.snippet)}
           </div>
         ) : null}
       </div>

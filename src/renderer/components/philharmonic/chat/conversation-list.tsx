@@ -9,7 +9,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { differenceInCalendarDays, isToday, isYesterday } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import removeMd from 'remove-markdown'
 
 import { WorkspaceSwitcher } from '@/components/app/workspace-switcher'
 import { PhilharmonicEmptyState } from '@/components/philharmonic/empty-state'
@@ -49,6 +48,7 @@ import {
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
+import { plainText } from '@/lib/plain-text'
 import { cn } from '@/lib/utils'
 import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
@@ -94,7 +94,7 @@ export function previewLine(
 ): string {
   if (!latest) return ''
   // The PM writes Markdown; `**Line 77:**` and backticks read as noise here.
-  const text = removeMd(latest.content).replace(/\s+/g, ' ').trim()
+  const text = plainText(latest.content)
   if (latest.role === 'system') return text
   const senderLabel =
     latest.role === 'user'
