@@ -58,15 +58,18 @@ export async function processSerpResult(
     `as well as any exact metrics, numbers, or dates.\n` +
     `The learnings will be used to research the topic further.\n` +
     `Also return up to ${numFollowUpQuestions} follow-up questions.\n` +
-    // The user reads the learnings as they arrive: a query about Dutch
-    // programs, searched in Dutch, gave Dutch learnings to an English question.
-    `Write the learnings and follow-up questions in the language of this research topic, whatever language the query and contents are in: <topic>${topic}</topic>\n` +
     searchResults
       .map(
         ({ content, rank, title }) =>
           `<content>\n[Source: ${rank}]\n[Title: ${title}]\n${content}\n</content>`
       )
       .join('\n') +
+    // Last, after the contents: the user reads the learnings as they arrive,
+    // and a query about Dutch programs, searched in Dutch, gave Dutch
+    // learnings to an English question. Asked for before the contents, the
+    // model still wrote in the contents' language.
+    `\n\nThe research topic is: <topic>${topic}</topic>\n` +
+    `Write every learning and follow-up question in the language of the research topic, translating what the contents say. Do not write them in the language of the query or the contents unless it is the same language. Keep names of programs, laws and places as they are, with a translation in brackets where it helps.` +
     `\n\nRespond with a JSON object: {"learnings": [{"learning": string, "citations": [number], "image": string|null}], "followUpQuestions": [string]}`
 
   const result = await completeSimple(

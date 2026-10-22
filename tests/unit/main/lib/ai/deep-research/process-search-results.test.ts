@@ -20,7 +20,14 @@ describe('processSerpResult', () => {
       {
         topic: 'How do Dutch apartment buildings pay for heat pumps?',
         query: 'collectieve warmtepomp VvE kosten per appartement',
-        searchResults: []
+        searchResults: [
+          {
+            rank: 1,
+            title: 'Collectieve warmtepomp',
+            link: 'https://example.nl',
+            content: 'Een collectieve warmtepomp kost netto €4.000–7.000.'
+          } as never
+        ]
       },
       { model: { id: 'm', provider: 'p', api: 'a' } as never, apiKey: 'k' }
     )
@@ -29,8 +36,13 @@ describe('processSerpResult', () => {
       { messages: { content: { text: string }[] }[] }
     ][]
     const prompt = calls[0][1].messages[0].content[0].text
-    expect(prompt).toContain(
-      'in the language of this research topic, whatever language the query and contents are in: <topic>How do Dutch apartment buildings pay for heat pumps?</topic>'
+    // After the contents, where the model reads it last.
+    const topic = prompt.indexOf(
+      'The research topic is: <topic>How do Dutch apartment buildings pay for heat pumps?</topic>'
+    )
+    expect(topic).toBeGreaterThan(prompt.lastIndexOf('</content>'))
+    expect(prompt.slice(topic)).toContain(
+      'Write every learning and follow-up question in the language of the research topic'
     )
   })
 })
