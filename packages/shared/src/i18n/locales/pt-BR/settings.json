@@ -104,7 +104,8 @@
       "integrations": "Integrações",
       "storage": "Armazenamento",
       "developer": "Desenvolvedor"
-    }
+    },
+    "experimental": "Experimental"
   },
   "common": {
     "searchPlaceholder": "Pesquisar configurações…",

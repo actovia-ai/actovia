@@ -2,6 +2,7 @@ import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import type { InstalledApp } from '@actovia/shared/types/computer-use'
+import { TestTube01Icon } from '@hugeicons/core-free-icons'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
@@ -20,7 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { useInstalledApps } from '@/hooks/use-installed-apps'
 
-import { SettingsIntro } from '../settings-kit'
+import { SettingsIntro, SettingsNotice } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { ShownDefault } from '../shown-default'
 
@@ -58,6 +59,7 @@ export function ComputerUse({ form }: { form: UseFormReturnType }) {
   return (
     <>
       <SettingsIntro>{t('alert')}</SettingsIntro>
+      <SettingsNotice icon={TestTube01Icon}>{t('experimental')}</SettingsNotice>
 
       <SettingsSection>
         <SettingsRow

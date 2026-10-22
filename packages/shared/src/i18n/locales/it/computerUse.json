@@ -1,4 +1,5 @@
 {
+  "experimental": "Computer Use è sperimentale. È lento, può leggere male lo schermo o fare clic nel punto sbagliato e agisce solo finché l’app è davanti a tutte le altre finestre. Tienilo d’occhio mentre lavora e fermalo con ⌥⇧⎋.",
   "alert": "Computer Use consente all'AI di operare una finestra sul tuo Mac con un mouse e una tastiera virtuali: vede uno screenshot a ogni passaggio e agisce come farebbe una persona. Richiede un modello AI con capacità di visione. Interagisce solo con le app aggiunte all'elenco consentiti qui sotto (e ne aprirà una se non è già in esecuzione); puoi interromperla in qualsiasi momento con ⌥⇧⎋, e ogni sessione viene registrata. Disattivato per impostazione predefinita.",
   "enable": {
     "label": "Attiva Computer Use",

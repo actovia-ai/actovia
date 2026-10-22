@@ -2000,7 +2000,7 @@ Main process:
   app frontmost and no other app's window, nor an Actovia one, overlaps it; a
   window the app replaced or a Space it moved to is followed by
   `refreshOrRaise()`, which re-runs the self and allowlist checks),
-  `liveness` (the ⌥⇧⎋ kill switch); `target.resolveOrLaunch`
+  `liveness` (the ⌥⇧⎋ kill switch). Marked **Experimental** (owner, 2026-10-22: much still to polish) — a badge on its Settings sidebar item (`experimental: true` in `settings-menu.ts`) and a notice on its page; `target.resolveOrLaunch`
   opens an allowlisted app that isn't running; `self.ts` — Actovia itself (its
   bundle id, its own windows) is never a target, whatever the allowlist says,
   and never offered in the picker. The inner-loop agent is

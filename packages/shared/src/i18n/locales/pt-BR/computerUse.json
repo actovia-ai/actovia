@@ -1,4 +1,5 @@
 {
+  "experimental": "O Computer Use é experimental. Ele é lento, pode interpretar mal a tela ou clicar no lugar errado e só age enquanto o app está na frente de todas as outras janelas. Acompanhe enquanto ele trabalha e pare com ⌥⇧⎋.",
   "alert": "O Uso do Computador permite que a IA opere uma janela no seu Mac com um mouse e teclado virtuais — ela vê uma captura de tela a cada etapa e age como uma pessoa. Requer um modelo de IA com capacidade de visão. Ele só interage com os apps que você adicionar à lista de permissões abaixo (e abrirá um que ainda não estiver em execução); você pode pará-lo a qualquer momento com ⌥⇧⎋, e cada sessão é registrada. Desativado por padrão.",
   "enable": {
     "label": "Ativar Uso do Computador",

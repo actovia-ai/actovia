@@ -104,7 +104,8 @@
       "integrations": "整合",
       "storage": "儲存空間",
       "developer": "開發者"
-    }
+    },
+    "experimental": "實驗性"
   },
   "common": {
     "searchPlaceholder": "搜尋設定…",

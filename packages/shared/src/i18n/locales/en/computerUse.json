@@ -1,4 +1,5 @@
 {
+  "experimental": "Computer Use is experimental. It is slow, it can misread the screen or click the wrong thing, and it only acts while the app is in front of every other window. Watch it while it works, and stop it with ⌥⇧⎋.",
   "alert": "Computer Use lets the AI operate one window on your Mac with a virtual mouse and keyboard — it sees a screenshot each step and acts like a person. It needs a vision-capable AI model. It only touches apps you add to the allowlist below (and will open one that isn't already running), you can stop it any time with ⌥⇧⎋, and every session is logged. Off by default.",
   "enable": {
     "label": "Enable Computer Use",

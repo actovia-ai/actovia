@@ -120,7 +120,11 @@ export const menus = {
       label: 'nav.group.integrations',
       items: [
         { title: SettingsLabel.KnowledgeBase, icon: NetworkIcon },
-        { title: SettingsLabel.ComputerUse, icon: MousePointer2 },
+        {
+          title: SettingsLabel.ComputerUse,
+          icon: MousePointer2,
+          experimental: true
+        },
         { title: SettingsLabel.Agents, icon: CodeIcon },
         { title: SettingsLabel.McpServers, icon: HammerIcon },
         { title: SettingsLabel.SkillsMarket, icon: ShoppingBagIcon },

@@ -1,4 +1,5 @@
 {
+  "experimental": "Computer Use ist experimentell. Es ist langsam, kann den Bildschirm falsch lesen oder danebenklicken und handelt nur, solange die App vor allen anderen Fenstern liegt. Behalte es im Blick, während es arbeitet, und stoppe es mit ⌥⇧⎋.",
   "alert": "Computer Use ermöglicht es der KI, ein Fenster auf Ihrem Mac mit einer virtuellen Maus und Tastatur zu bedienen — sie sieht bei jedem Schritt einen Screenshot und handelt wie ein Mensch. Dafür ist ein KI-Modell mit Bildverständnis erforderlich. Sie greift nur auf Apps zu, die Sie unten zur Zulassungsliste hinzufügen (und öffnet eine App, die noch nicht läuft). Sie können sie jederzeit mit ⌥⇧⎋ stoppen, und jede Sitzung wird protokolliert. Standardmäßig deaktiviert.",
   "enable": {
     "label": "Computer Use aktivieren",

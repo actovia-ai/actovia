@@ -104,7 +104,8 @@
       "integrations": "통합",
       "storage": "저장소",
       "developer": "개발자"
-    }
+    },
+    "experimental": "실험적"
   },
   "common": {
     "searchPlaceholder": "설정 검색…",
