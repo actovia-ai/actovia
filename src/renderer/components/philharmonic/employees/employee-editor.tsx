@@ -29,6 +29,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useSettings } from '@/hooks/use-settings'
+import { agentMemoryEntry } from '@/lib/agent-memory-entry'
 import {
   cliModelSuggestions,
   actoviaModelOptions,
@@ -166,9 +167,14 @@ export function EmployeeEditor({
             {t('philharmonic:employees.editor.fields.team')}{' '}
             <span className="text-destructive">*</span>
           </FieldLabel>
+          {/* `items`: the trigger shows the picked one's name, never its value. */}
           <Select
             value={draft.teamId ?? ''}
             onValueChange={(v) => setDraft({ ...draft, teamId: v })}
+            items={teams.map((team) => ({
+              value: team.id,
+              label: `${team.icon ? `${team.icon} ` : ''}${team.name}`
+            }))}
           >
             <SelectTrigger className="border-border bg-muted rounded-lg">
               <SelectValue
@@ -260,6 +266,13 @@ export function EmployeeEditor({
                   ...parseModelValue(v === DEFAULT_MODEL ? '' : (v as string))
                 }))
               }
+              items={[
+                {
+                  value: DEFAULT_MODEL,
+                  label: t('philharmonic:employees.model.default')
+                },
+                ...actoviaModelOptions(settings)
+              ]}
             >
               <SelectTrigger className="border-border bg-muted w-full rounded-lg">
                 <SelectValue />
@@ -319,6 +332,12 @@ export function EmployeeEditor({
                         : (v as AgentData['permissionMode'])
                   }))
                 }
+                items={PERMISSION_MODES.map((m) => ({
+                  value: m,
+                  label: t(
+                    `philharmonic:employees.permission.${permissionNs}${m}`
+                  )
+                }))}
               >
                 <SelectTrigger className="border-border bg-muted w-full rounded-lg">
                   <SelectValue />
@@ -434,12 +453,17 @@ export function EmployeeEditor({
                   {t('philharmonic:employees.editor.fields.noMemory')}
                 </span>
               )}
-              {memories.map((m) => (
-                <div key={m.id} className="bg-muted rounded-md p-1.5">
-                  <b className="text-foreground">{m.key}</b>:{' '}
-                  {JSON.stringify(m.value)}
-                </div>
-              ))}
+              {memories.map((m) => {
+                const entry = agentMemoryEntry(m.key, m.value)
+                return (
+                  <div key={m.id} className="bg-muted rounded-md p-1.5">
+                    <p className="text-foreground line-clamp-1 font-medium">
+                      {entry.title}
+                    </p>
+                    <p className="line-clamp-2">{entry.body}</p>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )}
