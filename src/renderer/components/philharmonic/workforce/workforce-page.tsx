@@ -42,7 +42,7 @@ import {
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { useSettings } from '@/hooks/use-settings'
 import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
-import { employeeModelLabel } from '@/lib/employee-model'
+import { employeeModelChip } from '@/lib/employee-model'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import {
@@ -70,9 +70,7 @@ function EmployeeCard({ employee, onEdit, onAskDelete }: EmployeeCardProps) {
   const { data: settings } = useSettings()
   // The catalog's name ("Claude Opus 5", "Claude Code · opus"), never the
   // raw id the employee was saved with.
-  const modelChip = employee.model
-    ? employeeModelLabel(employee, settings)
-    : null
+  const modelChip = employeeModelChip(employee, settings)
   const tools = employee.toolAllowList ?? []
   return (
     <ContextMenu>
