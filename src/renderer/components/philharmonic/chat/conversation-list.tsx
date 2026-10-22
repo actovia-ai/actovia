@@ -9,6 +9,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { differenceInCalendarDays, isToday, isYesterday } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
+import removeMd from 'remove-markdown'
 
 import { WorkspaceSwitcher } from '@/components/app/workspace-switcher'
 import { PhilharmonicEmptyState } from '@/components/philharmonic/empty-state'
@@ -86,12 +87,14 @@ function smartTime(iso: string): string {
   }
 }
 
-function previewLine(
+/** The list's line under a group: who spoke last and what they said, as plain text. */
+export function previewLine(
   latest: ConversationData['latestMessage'],
   agentsById: Record<string, AgentData>
 ): string {
   if (!latest) return ''
-  const text = latest.content.replace(/\s+/g, ' ').trim()
+  // The PM writes Markdown; `**Line 77:**` and backticks read as noise here.
+  const text = removeMd(latest.content).replace(/\s+/g, ' ').trim()
   if (latest.role === 'system') return text
   const senderLabel =
     latest.role === 'user'
