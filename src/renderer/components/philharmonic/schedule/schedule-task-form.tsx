@@ -79,20 +79,26 @@ export function ScheduleTaskForm({
     setCustomCron('')
   }
 
+  // When the task runs: a cron line, or a moment still ahead. The button
+  // waits for one — a click that could only be ignored is never offered.
+  const cronExpression =
+    mode === 'recurring'
+      ? (cronPreset === 'custom' ? customCron.trim() : cronPreset) || null
+      : null
+  const runAt = (() => {
+    if (mode !== 'once' || !runAtDate) return null
+    const [hours, minutes] = runAtTime.split(':').map(Number)
+    const combined = new Date(runAtDate)
+    combined.setHours(hours, minutes, 0, 0)
+    return combined.getTime() > Date.now() ? combined : null
+  })()
+  const ready =
+    Boolean(title.trim()) &&
+    Boolean(conversationId) &&
+    Boolean(cronExpression || runAt)
+
   const handleSubmit = async () => {
-    if (!title.trim() || !conversationId) return
-    let cronExpression: string | null = null
-    let runAt: string | null = null
-    if (mode === 'recurring') {
-      cronExpression = cronPreset === 'custom' ? customCron.trim() : cronPreset
-      if (!cronExpression) return
-    } else {
-      if (!runAtDate) return
-      const [hours, minutes] = runAtTime.split(':').map(Number)
-      const combined = new Date(runAtDate)
-      combined.setHours(hours, minutes, 0, 0)
-      runAt = combined.toISOString()
-    }
+    if (!ready) return
     setSubmitting(true)
     try {
       const task = await createScheduledTask({
@@ -100,7 +106,7 @@ export function ScheduleTaskForm({
         description: description.trim() || undefined,
         conversationId,
         cronExpression,
-        runAt
+        runAt: runAt?.toISOString() ?? null
       })
       onCreated(task)
       reset()
@@ -206,6 +212,7 @@ export function ScheduleTaskForm({
                     mode="single"
                     selected={runAtDate}
                     onSelect={setRunAtDate}
+                    disabled={{ before: startOfToday() }}
                   />
                 </PopoverContent>
               </Popover>
@@ -247,7 +254,7 @@ export function ScheduleTaskForm({
         <SheetFooter>
           <Button
             type="button"
-            disabled={submitting || !title.trim() || !conversationId}
+            disabled={submitting || !ready}
             onClick={handleSubmit}
           >
             {submitting
@@ -258,4 +265,10 @@ export function ScheduleTaskForm({
       </SheetContent>
     </Sheet>
   )
+}
+
+function startOfToday(): Date {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return today
 }
