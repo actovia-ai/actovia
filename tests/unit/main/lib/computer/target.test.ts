@@ -204,6 +204,38 @@ describe('refreshBounds', () => {
     expect(out.title).toBe('T')
   })
 
+  it('follows the same app to its new window when the old one closed', async () => {
+    const replaced: TargetWindow = {
+      ...target,
+      cgWindowId: 9,
+      title: 'Chess — New Game',
+      bounds: [10, 20, 900, 700]
+    }
+    const sheet: TargetWindow = {
+      cgWindowId: 11,
+      app: 'Game Center',
+      bundleId: 'com.apple.gamecenter',
+      title: 'Sign In',
+      bounds: [0, 0, 2000, 2000]
+    }
+    const out = await refreshBounds(target, makeHelper([sheet, replaced]))
+    expect(out.cgWindowId).toBe(9)
+    expect(out.app).toBe('Chess')
+    expect(out.bundleId).toBe('com.apple.Chess')
+    expect(out.title).toBe('Chess — New Game')
+  })
+
+  it('throws WindowGone when the app has no window left', async () => {
+    const other: TargetWindow = {
+      ...target,
+      cgWindowId: 3,
+      bundleId: 'com.other'
+    }
+    expect(
+      await refreshBounds(target, makeHelper([other])).catch((e) => e)
+    ).toBeInstanceOf(WindowGone)
+  })
+
   it('throws WindowGone when the id is no longer listed', async () => {
     const err = await refreshBounds(target, makeHelper([])).catch(
       (e) => e as Error

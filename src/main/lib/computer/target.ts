@@ -17,7 +17,7 @@ export class TargetNotFound extends Error {
   }
 }
 
-/** Thrown by `refreshBounds` when the tracked window is no longer open. */
+/** Thrown by `refreshBounds` when the tracked app has no window open. */
 export class WindowGone extends Error {
   constructor(cgWindowId: number) {
     super(`Window ${cgWindowId} is gone`)
@@ -45,13 +45,16 @@ export async function resolveTarget(
       w.bundleId.toLowerCase().includes(needle)
   )
   if (candidates.length === 0) throw new TargetNotFound(appQuery)
+  return best(candidates)
+}
 
-  candidates.sort((a, b) => {
+/** A titled window first, then the largest. */
+function best(candidates: TargetWindow[]): TargetWindow {
+  return [...candidates].sort((a, b) => {
     const byTitle = titleRank(a) - titleRank(b)
     if (byTitle !== 0) return byTitle
     return area(b) - area(a)
-  })
-  return candidates[0]
+  })[0]
 }
 
 /**
@@ -99,8 +102,13 @@ function sleep(ms: number): Promise<void> {
 /**
  * Re-read the live `bounds` and `title` of a tracked window — it may have moved,
  * resized, or been retitled since `resolveTarget`. Returns a fresh
- * `TargetWindow` that keeps `cgWindowId` / `app` / `bundleId` from `t`. Throws
- * `WindowGone` when the window is no longer listed.
+ * `TargetWindow` that keeps `cgWindowId` / `app` / `bundleId` from `t`.
+ *
+ * When the window has closed, the session follows the same app (the exact
+ * bundle id, so the allowlist and self checks made on `t` still hold) to its
+ * best remaining window: Chess replaces its window for a new game, and the
+ * session used to end there with "Window … is gone" (2026-10-22). Throws
+ * `WindowGone` only when the app has no window left.
  */
 export async function refreshBounds(
   t: TargetWindow,
@@ -108,8 +116,16 @@ export async function refreshBounds(
 ): Promise<TargetWindow> {
   const wins = await helper.listWindows()
   const w = wins.find((x) => x.cgWindowId === t.cgWindowId)
-  if (!w) throw new WindowGone(t.cgWindowId)
-  return { ...t, bounds: w.bounds, title: w.title }
+  if (w) return { ...t, bounds: w.bounds, title: w.title }
+  const same = wins.filter((x) => x.bundleId === t.bundleId)
+  if (same.length === 0) throw new WindowGone(t.cgWindowId)
+  const next = best(same)
+  return {
+    ...t,
+    cgWindowId: next.cgWindowId,
+    bounds: next.bounds,
+    title: next.title
+  }
 }
 
 /** Windows with a non-empty title sort ahead of those without. */
