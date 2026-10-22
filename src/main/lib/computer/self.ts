@@ -69,3 +69,37 @@ export function isSelfTarget(target: {
 
 export const SELF_TARGET_MESSAGE =
   'Actovia cannot control its own window with Computer Use.'
+
+function intersects(
+  a: [number, number, number, number],
+  b: [number, number, number, number]
+): boolean {
+  return (
+    a[0] < b[0] + b[2] &&
+    b[0] < a[0] + a[2] &&
+    a[1] < b[1] + b[3] &&
+    b[1] < a[1] + a[3]
+  )
+}
+
+/**
+ * Whether one of Actovia's own windows could take input aimed at `bounds`
+ * (screen points): a visible window over that rect that has the focus or
+ * floats above other apps. The helper leaves Actovia's windows out of its
+ * window list, so the session cannot see them in the stacking order; once
+ * the target app is activated, these are the only ones still above it.
+ */
+export function selfWindowCovers(
+  bounds: [number, number, number, number]
+): boolean {
+  try {
+    return BrowserWindow.getAllWindows().some((w) => {
+      if (!w.isVisible() || !(w.isFocused() || w.isAlwaysOnTop())) return false
+      const r = w.getBounds()
+      return intersects([r.x, r.y, r.width, r.height], bounds)
+    })
+  } catch {
+    // No Electron windows (a unit test).
+    return false
+  }
+}

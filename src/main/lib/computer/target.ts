@@ -107,8 +107,9 @@ function sleep(ms: number): Promise<void> {
  * When the window has closed, the session follows the same app (the exact
  * bundle id, so the allowlist and self checks made on `t` still hold) to its
  * best remaining window: Chess replaces its window for a new game, and the
- * session used to end there with "Window … is gone" (2026-10-22). Throws
- * `WindowGone` only when the app has no window left.
+ * session used to end there with "Window … is gone" (2026-10-22). The caller
+ * re-checks a window it is handed with a new id. Throws `WindowGone` only
+ * when the app has no window on screen.
  */
 export async function refreshBounds(
   t: TargetWindow,
@@ -117,7 +118,10 @@ export async function refreshBounds(
   const wins = await helper.listWindows()
   const w = wins.find((x) => x.cgWindowId === t.cgWindowId)
   if (w) return { ...t, bounds: w.bounds, title: w.title }
-  const same = wins.filter((x) => x.bundleId === t.bundleId)
+  // A window with no bundle id names no app: nothing to follow.
+  const same = t.bundleId
+    ? wins.filter((x) => x.bundleId === t.bundleId && x.app === t.app)
+    : []
   if (same.length === 0) throw new WindowGone(t.cgWindowId)
   const next = best(same)
   return {
@@ -135,4 +139,24 @@ function titleRank(w: TargetWindow): number {
 
 function area(w: TargetWindow): number {
   return w.bounds[2] * w.bounds[3]
+}
+
+/**
+ * `refreshBounds`, raising the app once when none of its windows is on
+ * screen: the helper lists the current Space only, and a window on another
+ * Space (or behind a switch the user made) read as gone.
+ */
+export async function refreshOrRaise(
+  t: TargetWindow,
+  helper: InputHelper,
+  settleMs: number
+): Promise<TargetWindow> {
+  try {
+    return await refreshBounds(t, helper)
+  } catch (err) {
+    if (!(err instanceof WindowGone)) throw err
+  }
+  await helper.activate(t.bundleId || t.app)
+  await sleep(settleMs)
+  return refreshBounds(t, helper)
 }

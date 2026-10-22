@@ -17,11 +17,12 @@ import { logger } from '../logger'
 import { bindTraceAttributes, withTrace } from '../logger/trace-context'
 import { computerAskRegistry } from './ask-registry'
 import { hashPng, screenshotWindow } from './capture'
+import { bringToFront } from './front'
 import { AbortedByUser, ForbiddenChord, Guard, OutOfBounds } from './guard'
 import * as hands from './hands'
 import { getHelper } from './helper'
 import { isSelfTarget, SELF_TARGET_MESSAGE } from './self'
-import { refreshBounds, resolveOrLaunch } from './target'
+import { refreshOrRaise, resolveOrLaunch } from './target'
 import type {
   Action,
   ComputerState,
@@ -231,16 +232,20 @@ export async function runComputerSession(
     // Re-check the RESOLVED window against the allowlist. The outer tool matches
     // the model's `target` string; `resolveTarget` then picks a window by
     // substring, so an allowlisted "Chess" could otherwise resolve a look-alike.
-    if (allowedNames.length > 0) {
-      const ok = [target.app, target.bundleId].some((id) =>
-        allowedNames.includes(norm(id))
-      )
-      if (!ok) {
-        return finish(
-          'failed',
-          `resolved window "${target.app}" (${target.bundleId}) is not on the allowlist`
-        )
+    // Run again on any window the session moves to (`refreshOrRaise`).
+    const refusal = (w: TargetWindow): string | null => {
+      if (isSelfTarget(w)) return SELF_TARGET_MESSAGE
+      if (
+        allowedNames.length > 0 &&
+        ![w.app, w.bundleId].some((id) => allowedNames.includes(norm(id)))
+      ) {
+        return `resolved window "${w.app}" (${w.bundleId}) is not on the allowlist`
       }
+      return null
+    }
+    {
+      const refused = refusal(target)
+      if (refused) return finish('failed', refused)
     }
 
     bindTraceAttributes({ targetApp: target.app })
@@ -286,12 +291,17 @@ export async function runComputerSession(
 
         // --- perceive ----------------------------------------------------
         try {
+          const was = target.cgWindowId
           target = await race(
-            refreshBounds(target, helper),
+            refreshOrRaise(target, helper, settleMs),
             guard.signal,
             opTimeoutMs,
             'refreshBounds'
           )
+          if (target.cgWindowId !== was) {
+            const refused = refusal(target)
+            if (refused) return finish('failed', refused)
+          }
         } catch (err) {
           if (err instanceof AbortedByUser) {
             return finish('aborted', err.message)
@@ -430,6 +440,28 @@ export async function runComputerSession(
           }
           throw err
         }
+
+        // The target in front, or the input is not sent (see front.ts).
+        const front = await race(
+          bringToFront(target, helper, { settleMs: Math.min(settleMs, 200) }),
+          guard.signal,
+          opTimeoutMs,
+          'bringToFront'
+        )
+        if (!front.ok) {
+          logger.warn('computer', 'target not in front — action skipped', {
+            step,
+            action: clamped.kind,
+            reason: front.reason
+          })
+          nextSystemNote =
+            `Your last action was not sent: ${front.reason}. If a dialog ` +
+            `or window you cannot close is in the way, use askHuman to ask ` +
+            `the user to close it.`
+          lastActionKind = clamped.kind
+          continue
+        }
+        target = front.target
 
         await race(
           hands.execute(clamped, { target, scaleFactor, helper }),
