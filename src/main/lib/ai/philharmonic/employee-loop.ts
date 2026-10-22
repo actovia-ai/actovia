@@ -3,7 +3,7 @@ import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
-import type { Message, Usage } from '@earendil-works/pi-ai'
+import type { Message } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
 import {
@@ -138,9 +138,12 @@ export async function runEmployeeLoop(
   })
 
   let finalOutput = ''
+  // Every step of the loop is a request of its own: its tokens and its cost
+  // are added up — the cost was the last step's alone. Input counts what the
+  // model read, the cached part included (the dashboard's "total processed").
   let totalInput = 0
   let totalOutput = 0
-  let lastUsage: Usage | undefined
+  let totalCost = 0
 
   const stream = agentLoop(
     [userMessage as AgentMessage],
@@ -206,9 +209,12 @@ export async function runEmployeeLoop(
             .join('')
           if (endText) finalOutput = endText
           if (msg.usage) {
-            lastUsage = msg.usage
-            totalInput += msg.usage.input ?? 0
+            totalInput +=
+              (msg.usage.input ?? 0) +
+              (msg.usage.cacheRead ?? 0) +
+              (msg.usage.cacheWrite ?? 0)
             totalOutput += msg.usage.output ?? 0
+            totalCost += calculateCost(msg.usage, model).total
           }
         }
       } else if (event.type === 'tool_execution_start') {
@@ -250,11 +256,14 @@ export async function runEmployeeLoop(
       }
     }
 
-    const cost = calculateCost(lastUsage, model).total
     await updateTaskExecution(executionId, {
       status: 'completed',
       completedAt: new Date(),
-      tokenUsage: { inputTokens: totalInput, outputTokens: totalOutput, cost }
+      tokenUsage: {
+        inputTokens: totalInput,
+        outputTokens: totalOutput,
+        cost: totalCost
+      }
     })
 
     return finalOutput

@@ -15,6 +15,7 @@ vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
 vi.mock('@main/lib/ai/utils/employee-model', () => ({
   resolveEmployeeModel: () => ({
     chatModel: { cost: { input: 1, output: 2 } },
+    model: { cost: { input: 1, output: 2, cacheRead: 0.1, cacheWrite: 1 } },
     apiKey: 'k'
   })
 }))
@@ -153,6 +154,53 @@ describe('runEmployeeLoop', () => {
     // streamed a message_end conversation event
     expect(emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'message_end', conversationId: 'c1' })
+    )
+  })
+
+  it('adds up every step — its tokens, the cached input included, and its cost', async () => {
+    const step = (usage: Record<string, number>) => ({
+      type: 'message_end',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: 'step' }],
+        usage
+      }
+    })
+    agentLoopMock.mockReturnValue(
+      fakeStream([
+        step({ input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0 }),
+        step({
+          input: 0,
+          output: 1_000_000,
+          cacheRead: 2_000_000,
+          cacheWrite: 0
+        })
+      ])
+    )
+    updateTaskExecution.mockClear()
+    await runEmployeeLoop({
+      agent: {
+        id: 'a',
+        name: 'Nora',
+        skillSlugs: [],
+        mcpServerNames: [],
+        toolAllowList: []
+      } as never,
+      instructions: 'research it',
+      executionId: 'e2',
+      conversationId: 'c1',
+      emit: vi.fn()
+    })
+    // $1 (step 1's input) + $2 (step 2's output) + $0.20 (its cache reads)
+    expect(updateTaskExecution).toHaveBeenCalledWith(
+      'e2',
+      expect.objectContaining({
+        tokenUsage: {
+          inputTokens: 3_000_000,
+          outputTokens: 1_000_000,
+          cost: expect.closeTo(3.2, 6)
+        }
+      })
     )
   })
 
