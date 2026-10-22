@@ -22,10 +22,7 @@ import { Kbd, KbdGroup } from '@/components/ui/kbd'
 import { useChatHistory } from '@/hooks/use-chat-history'
 import { useChatSearch } from '@/hooks/use-chat-search'
 import { splitHighlights } from '@/lib/highlight-words'
-import {
-  compactRelativeTime,
-  parseLocalishCreatedAt
-} from '@/lib/relative-time'
+import { compactRelativeTime } from '@/lib/relative-time'
 import type { SearchReveal } from '@/lib/reveal-search-hit'
 import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
@@ -160,7 +157,7 @@ export function SearchDialog() {
             key={chat.id}
             chatId={chat.id}
             title={chat.title}
-            at={parseLocalishCreatedAt(chat.createdAt)}
+            at={new Date(chat.createdAt)}
             words={[]}
             onOpen={openChat}
           />

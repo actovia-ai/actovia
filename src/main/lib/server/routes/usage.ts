@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 
 import { getUsageRows } from '../../db/queries'
+import { localDateStr } from '../../local-date'
 import { Variables } from '../types'
 import { successResponse } from '../utils'
 
@@ -54,8 +55,8 @@ usage.get('/', async (c) => {
     totalCost += cost
     totalTokens += tokens
 
-    // Daily aggregation
-    const date = row.createdAt.toISOString().slice(0, 10)
+    // Daily aggregation, by the user's day (the heatmap's keys are local)
+    const date = localDateStr(row.createdAt)
     const daily = dailyMap.get(date) ?? { cost: 0, tokens: 0 }
     daily.cost += cost
     daily.tokens += tokens

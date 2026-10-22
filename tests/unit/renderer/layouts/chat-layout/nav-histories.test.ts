@@ -133,4 +133,25 @@ describe('a chat row in the sidebar', () => {
       )
     ).not.toBeNull()
   })
+
+  it('reads its age off the UTC instant the server sends', async () => {
+    const tz = process.env.TZ
+    process.env.TZ = 'Asia/Shanghai'
+    try {
+      const fresh = { ...chat, createdAt: new Date().toISOString() } as Chat
+      await act(async () =>
+        root.render(
+          createElement(
+            MemoryRouter,
+            null,
+            createElement(NavItems, { chat: fresh, onToggleFavorite: vi.fn() })
+          )
+        )
+      )
+      const ages = [...host.querySelectorAll('span')].map((s) => s.textContent)
+      expect(ages).toContain('now')
+    } finally {
+      process.env.TZ = tz
+    }
+  })
 })
