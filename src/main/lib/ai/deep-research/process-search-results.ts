@@ -34,11 +34,14 @@ const processResultSchema = z.object({
 
 export async function processSerpResult(
   {
+    topic,
     query,
     searchResults,
     numLearnings = 3,
     numFollowUpQuestions = 3
   }: {
+    /** The user's research topic. A query may be in the language of the place it is about. */
+    topic: string
     query: string
     searchResults: WebSearchResult[]
     numLearnings?: number
@@ -55,6 +58,9 @@ export async function processSerpResult(
     `as well as any exact metrics, numbers, or dates.\n` +
     `The learnings will be used to research the topic further.\n` +
     `Also return up to ${numFollowUpQuestions} follow-up questions.\n` +
+    // The user reads the learnings as they arrive: a query about Dutch
+    // programs, searched in Dutch, gave Dutch learnings to an English question.
+    `Write the learnings and follow-up questions in the language of this research topic, whatever language the query and contents are in: <topic>${topic}</topic>\n` +
     searchResults
       .map(
         ({ content, rank, title }) =>
