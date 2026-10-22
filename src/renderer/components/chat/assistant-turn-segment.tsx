@@ -1,11 +1,11 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AssistantTurn, TurnBlock } from '@actovia/shared/types/chat'
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
-import { capitalCase } from 'change-case'
 import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ENTER } from '@/lib/motion'
+import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
 
 import { ErrorBoundary, RenderFailed } from '../app/card-error-boundary'
@@ -127,9 +127,7 @@ function turnBlockContent({
           toolName: TOOL_NAMES.imageGeneration,
           toolCallId: block.key
         }}
-        fallback={
-          <RenderFailed what={capitalCase(TOOL_NAMES.imageGeneration)} />
-        }
+        fallback={<RenderFailed what={toolLabel(TOOL_NAMES.imageGeneration)} />}
       >
         <ImageGenerationCard prompt={block.prompt} result={block.result} />
       </ErrorBoundary>
@@ -150,7 +148,7 @@ function turnBlockContent({
     <ErrorBoundary
       scope="tool-card"
       attributes={{ toolName: block.toolName, toolCallId: block.key }}
-      fallback={<RenderFailed what={capitalCase(block.toolName)} />}
+      fallback={<RenderFailed what={toolLabel(block.toolName)} />}
     >
       <MessageCallingTools
         chatId={chatId}

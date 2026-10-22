@@ -16,7 +16,6 @@ import {
   CancelCircleIcon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -28,6 +27,7 @@ import {
 
 import { i18n } from '@/lib/i18n'
 import { ROW_ENTER } from '@/lib/motion'
+import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
 
 import { foldedFileName, terminalExitCode } from '../calling-tools/folded-tools'
@@ -185,7 +185,7 @@ function FoldedCard({
   const exitCode = terminal ? terminalExitCode(step.toolResult) : null
   const label = terminal
     ? exitCode === null
-      ? capitalCase(step.toolName ?? '')
+      ? toolLabel(step.toolName ?? '')
       : t('terminalCard.exitCode', { code: exitCode })
     : (foldedFileName(step.toolResult) ?? step.toolName)
   return (

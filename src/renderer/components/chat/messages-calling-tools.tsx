@@ -2,10 +2,11 @@ import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { ChatToolResultMessage } from '@actovia/shared/types/chat'
 import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { memo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
+
+import { toolLabel as readableToolName } from '@/lib/tool-label'
 
 import { ArtifactCard } from '../calling-tools/artifact/artifact-card'
 import { ComputerUseCard } from '../calling-tools/computer-use/computer-use-card'
@@ -47,10 +48,10 @@ function CallingTools({
   // toolName stays canonical (used for dispatch below); toolLabel is the
   // user-facing form ('web_search' → 'Web Search') and only flows into the
   // toast title and the fallback error string. Older persisted tool results
-  // may be missing toolName entirely — capitalCase('') is safe, so guard once
+  // may be missing toolName entirely — readableToolName('') is safe, so guard once
   // up front rather than scatter ?. throughout.
   const toolLabel = toolName
-    ? capitalCase(toolName)
+    ? readableToolName(toolName)
     : t('genericToolCard.fallbackLabel')
 
   // Extract error message from content when isError is true.

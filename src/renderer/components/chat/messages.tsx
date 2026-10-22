@@ -19,7 +19,6 @@ import { isLocked, runAttemptInfos } from '@actovia/shared/utils/attempts'
 import { splitThinkingTagsInContent } from '@actovia/shared/utils/thinking-tags'
 import { ArrowDownIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -34,6 +33,7 @@ import { useSettings } from '@/hooks/use-settings'
 import { displayFilePath } from '@/lib/display-path'
 import { i18n } from '@/lib/i18n'
 import { ENTER_UP } from '@/lib/motion'
+import { toolLabel } from '@/lib/tool-label'
 import { userMessageText } from '@/lib/user-message-text'
 import { cn } from '@/lib/utils'
 
@@ -183,13 +183,13 @@ const UserSegment = memo(function UserSegment({
  * The raw tool name is the canonical identifier (used as the SSE event
  * key, the DB column, and the dispatch key in messages-calling-tools); we
  * format it for display only here, at the rendering boundary, via
- * capitalCase ('web_search' → 'Web Search').
+ * toolLabel ('web_search' → 'Web Search').
  */
 function getToolCallPreview(
   name: string,
   args: Record<string, unknown> | undefined
 ): { text: string; codeArgument?: string } {
-  const label = capitalCase(name)
+  const label = toolLabel(name)
   if (!args) return { text: label }
   const pick = (key: string): string =>
     typeof args[key] === 'string' ? (args[key] as string) : ''
@@ -203,6 +203,14 @@ function getToolCallPreview(
       return withInline(label, pick('query'))
     case TOOL_NAMES.webFetch:
       return withInline(label, pick('url'))
+    case TOOL_NAMES.listMcpTools:
+      return withInline(label, pick('server') || pick('query'))
+    case TOOL_NAMES.callMcpTool:
+      // Which server's tool ran — "Call MCP Tool" alone says nothing.
+      return withInline(
+        label,
+        [pick('server'), pick('tool')].filter(Boolean).join(' · ')
+      )
     case TOOL_NAMES.readFile:
     case TOOL_NAMES.writeFile:
     case TOOL_NAMES.editFile:
@@ -392,7 +400,7 @@ function buildAssistantTurn(
         const errorText =
           toolResult.content.find((c) => c.type === 'text')?.text ??
           i18n.t('chat:toolPreview.toolFailed', {
-            tool: capitalCase(toolResult.toolName)
+            tool: toolLabel(toolResult.toolName)
           })
         steps.push({
           type: 'toolResult',
