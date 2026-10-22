@@ -916,6 +916,16 @@ describe('runPmCoordinator — the decision trail', () => {
         parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
       })
     )
+    const { logger } = await import('@main/lib/logger')
+    expect(logger.error).toHaveBeenCalledWith(
+      'philharmonic',
+      'PM round failed',
+      expect.objectContaining({
+        conversationId: 'c1',
+        roundId: 'r1',
+        error: expect.objectContaining({ message: 'rate limited' })
+      })
+    )
   })
 
   it('an abort is recorded as aborted, and the interrupted row carries the round id', async () => {

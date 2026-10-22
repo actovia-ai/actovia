@@ -767,6 +767,11 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       return
     }
 
+    logger.error('philharmonic', 'PM round failed', {
+      conversationId,
+      roundId: recorder.roundId,
+      error: err
+    })
     emit({ type: 'conversation_error', conversationId, error: message })
     await createConversationMessage({
       conversationId,
