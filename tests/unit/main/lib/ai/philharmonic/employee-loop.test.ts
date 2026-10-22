@@ -8,8 +8,9 @@ vi.mock('@earendil-works/pi-ai', () => ({}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({ id: 's' })
 }))
+const bindCallingTools = vi.fn((): Array<{ name: string }> => [])
 vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
-  bindCallingTools: () => []
+  bindCallingTools: () => bindCallingTools()
 }))
 vi.mock('@main/lib/ai/utils/employee-model', () => ({
   resolveEmployeeModel: () => ({
@@ -45,6 +46,37 @@ function fakeStream(events: unknown[]) {
 }
 
 describe('runEmployeeLoop', () => {
+  const systemPromptFor = async (tools: string[]) => {
+    bindCallingTools.mockReturnValueOnce(tools.map((name) => ({ name })))
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runEmployeeLoop({
+      agent: {
+        id: 'a',
+        name: 'Nora',
+        skillSlugs: [],
+        mcpServerNames: [],
+        toolAllowList: []
+      } as never,
+      instructions: 'research it',
+      executionId: 'e1',
+      conversationId: 'c1',
+      emit: vi.fn()
+    })
+    const [, context] = agentLoopMock.mock.calls.at(-1) as [
+      unknown,
+      { messages: Array<{ content: string }> }
+    ]
+    return context.messages[0].content
+  }
+
+  it('an employee who searches cites by link, never by number — its readers never see the results', async () => {
+    const { WEB_CITATIONS } =
+      await import('@main/lib/ai/philharmonic/employee-loop')
+    expect(await systemPromptFor(['web_search'])).toContain(WEB_CITATIONS)
+    expect(await systemPromptFor(['web_fetch'])).toContain(WEB_CITATIONS)
+    expect(await systemPromptFor(['read_file'])).not.toContain(WEB_CITATIONS)
+  })
+
   it('leads the transcript with a system message the model is actually sent — the prompt and the tool declarations (pi 1.0)', async () => {
     agentLoopMock.mockReturnValue(fakeStream([]))
     await runEmployeeLoop({

@@ -1,4 +1,5 @@
 // src/main/lib/ai/philharmonic/employee-loop.ts
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
@@ -39,6 +40,15 @@ export interface RunEmployeeLoopArgs {
    * so the transcript shows it once. A fresh one when not given. */
   messageId?: string
 }
+
+/**
+ * Who reads an employee's report — the PM, then the owner — never sees its
+ * search results, so a numbered marker ("【8】") points nowhere: it cites by
+ * link, which the group's transcript renders and opens.
+ */
+export const WEB_CITATIONS = `
+
+Citing the web: whoever reads your report cannot see your search results, so never cite by number (no 【3】, [3] or 【3-source】). Put the source after the sentence it supports as a Markdown link with the site or page title as its text — ([The Verge](https://www.theverge.com/...)) — using the URL a web_search result or web_fetch gave you, never one you made up.`
 
 function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
   const parts = [`You are "${agent.name}", a virtual employee on a team.`]
@@ -103,8 +113,14 @@ export async function runEmployeeLoop(
           .join('\n')
       : ''
   const team = agent.teamId ? ((await getTeamById(agent.teamId)) ?? null) : null
+  const searches = tools.some(
+    (t) => t.name === TOOL_NAMES.webSearch || t.name === TOOL_NAMES.webFetch
+  )
   const systemPrompt =
-    buildEmployeeSystemPrompt(agent, team) + memoryBlock + skillsContent
+    buildEmployeeSystemPrompt(agent, team) +
+    (searches ? WEB_CITATIONS : '') +
+    memoryBlock +
+    skillsContent
 
   const userMessage: Message = {
     role: 'user',
