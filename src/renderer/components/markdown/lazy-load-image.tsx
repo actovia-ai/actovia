@@ -23,7 +23,8 @@ export function LazyLoadImage({
   imgClassName,
   loadingClassName,
   referrerPolicy,
-  fallback
+  fallback,
+  onError
 }: {
   src: string
   alt: string
@@ -40,6 +41,8 @@ export function LazyLoadImage({
   referrerPolicy?: HTMLAttributeReferrerPolicy
   /** Drawn instead of the default icon when the image fails. */
   fallback?: ReactNode
+  /** Told when the image fails, for a caller that would rather show nothing at all. */
+  onError?: () => void
 }) {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
@@ -73,6 +76,7 @@ export function LazyLoadImage({
           onError={() => {
             setHasError(true)
             setIsLoaded(true)
+            onError?.()
           }}
           className={cn(
             'size-full object-cover transition-opacity duration-700',
