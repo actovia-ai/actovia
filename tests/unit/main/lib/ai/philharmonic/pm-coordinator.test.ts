@@ -373,6 +373,48 @@ describe('runPmCoordinator — the plan mirror', () => {
     )
     vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
+
+  it('plan tools called in parallel write the mirror one at a time', async () => {
+    const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.updateStep).mockImplementation(
+      async (id, patch) =>
+        ({ id, status: patch.status ?? 'running', note: null }) as never
+    )
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue({
+      plan: { id: 'p', status: 'active' },
+      steps: []
+    } as never)
+    const { writePlanMirror } =
+      await import('@main/lib/ai/philharmonic/plan-mirror')
+    let inFlight = 0
+    let most = 0
+    vi.mocked(writePlanMirror).mockImplementation(async () => {
+      most = Math.max(most, ++inFlight)
+      await new Promise((r) => setTimeout(r, 5))
+      inFlight--
+      return '/tmp/plan.md'
+    })
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go',
+      emit: vi.fn()
+    }).catch(() => {})
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    const update = tools.find((t) => t.name === 'updatePlanStep')!
+    await Promise.all([
+      update.execute('x', { stepId: 's1', status: 'running' }),
+      update.execute('y', { stepId: 's2', status: 'done' })
+    ])
+    expect(vi.mocked(writePlanMirror)).toHaveBeenCalledTimes(2)
+    expect(most).toBe(1)
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
+  })
 })
 
 describe('runPmCoordinator — the quota in view', () => {

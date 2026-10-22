@@ -261,16 +261,24 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       : ''
 
   // The markdown mirror is a copy for the owner: a failed write is logged and
-  // never fails the step or the tool that changed the plan.
-  const mirror = async (write: () => Promise<unknown>) => {
-    try {
-      await write()
-    } catch (error) {
-      logger.warn('philharmonic', 'plan mirror failed', {
-        conversationId,
-        message: error instanceof Error ? error.message : String(error)
-      })
-    }
+  // never fails the step or the tool that changed the plan. Writes queue one
+  // behind another: the PM calls plan tools in parallel (a step set running
+  // and delegated in one turn), and two writes through the one plan.md.tmp
+  // lost the race — the second rename found the file already moved — or
+  // could leave the older state last.
+  let mirrorQueue: Promise<void> = Promise.resolve()
+  const mirror = (write: () => Promise<unknown>) => {
+    mirrorQueue = mirrorQueue.then(async () => {
+      try {
+        await write()
+      } catch (error) {
+        logger.warn('philharmonic', 'plan mirror failed', {
+          conversationId,
+          message: error instanceof Error ? error.message : String(error)
+        })
+      }
+    })
+    return mirrorQueue
   }
   // Rewrite the markdown mirror; safe to call after any mutation.
   const mirrorActivePlan = () =>
