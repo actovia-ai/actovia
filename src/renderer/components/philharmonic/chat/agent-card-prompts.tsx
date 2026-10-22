@@ -5,7 +5,6 @@ import type {
   AgentQuestion
 } from '@actovia/shared/types/agents'
 import { CLI_NAMES } from '@actovia/shared/types/agents'
-import { capitalCase } from 'change-case'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
@@ -13,6 +12,7 @@ import { sileo } from 'sileo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CHOICE_ROW, ChoiceIndicator } from '@/components/ui/questionnaire'
+import { cliToolLabel } from '@/lib/agent-card'
 import { cn } from '@/lib/utils'
 import { respondToAgent } from '@/services/agents'
 
@@ -67,7 +67,7 @@ export function PermissionPrompt({
       <p className="text-sm">
         {t('agents.card.wantsTo', {
           name: CLI_NAMES[card.runtime],
-          tool: capitalCase(prompt.tool)
+          tool: cliToolLabel(prompt.tool)
         })}
         {prompt.summary && (
           <code className="text-muted-foreground ml-1 font-mono text-xs wrap-anywhere">

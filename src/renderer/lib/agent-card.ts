@@ -1,5 +1,7 @@
 import type { AgentCard, AgentCardStep } from '@actovia/shared/types/agents'
 
+import { toolLabel } from '@/lib/tool-label'
+
 /** The agent card among a message's persisted `parts`, if it has one. */
 export function agentCardFromParts(
   parts: unknown[] | null | undefined
@@ -29,6 +31,20 @@ export const messageCard = (
   messageId: string,
   own?: AgentCard
 ): AgentCard | undefined => live[messageId] ?? own
+
+/**
+ * A CLI tool's name as a person reads it. An MCP tool comes as
+ * `mcp__<server>__<tool>`, the server of a Claude Code plugin as
+ * `plugin_<plugin>_<server>`: 'Playwright · Browser Run Code Unsafe', not
+ * 'Mcp Plugin Playwright Playwright Browser Run Code Unsafe'.
+ */
+export function cliToolLabel(tool: string): string {
+  const mcp = /^mcp__(.+?)__(.+)$/u.exec(tool)
+  if (!mcp) return toolLabel(tool)
+  // A plugin whose server has its own name: `playwright_playwright`.
+  const server = mcp[1].replace(/^plugin_/u, '').replace(/^(.+)_\1$/u, '$1')
+  return `${toolLabel(server)} · ${toolLabel(mcp[2])}`
+}
 
 /**
  * A step's summary with the run's folder taken off its paths: `Read

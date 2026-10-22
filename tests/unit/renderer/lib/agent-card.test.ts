@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   agentCardFromParts,
   cardStateKey,
+  cliToolLabel,
   relativeSummary,
   visibleSteps
 } from '@/lib/agent-card'
@@ -78,5 +79,20 @@ describe('relativeSummary', () => {
     expect(relativeSummary(`/x${cwd}/a.ts`, cwd)).toBe(`/x${cwd}/a.ts`)
     expect(relativeSummary('/etc/hosts', cwd)).toBe('/etc/hosts')
     expect(relativeSummary('/a/b', '/')).toBe('/a/b')
+  })
+})
+
+describe('cliToolLabel', () => {
+  it('names an MCP tool by its server and tool', () => {
+    expect(
+      cliToolLabel('mcp__plugin_playwright_playwright__browser_run_code_unsafe')
+    ).toBe('Playwright · Browser Run Code Unsafe')
+    expect(cliToolLabel('mcp__linear-server__get_issue')).toBe(
+      'Linear Server · Get Issue'
+    )
+  })
+  it('reads a built-in tool as before', () => {
+    expect(cliToolLabel('Edit')).toBe('Edit')
+    expect(cliToolLabel('WebFetch')).toBe('Web Fetch')
   })
 })
