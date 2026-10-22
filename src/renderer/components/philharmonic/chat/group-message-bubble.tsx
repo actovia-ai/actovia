@@ -5,10 +5,10 @@ import {
   Wrench01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
+import { useFormat } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
@@ -69,6 +69,7 @@ export function GroupMessageBubble({
   teamsById: Record<string, TeamData>
 }) {
   const { t } = useTranslation(['common', 'philharmonic'])
+  const { dateTime } = useFormat()
   const isUser = bubble.role === 'user'
   const isSystem = bubble.role === 'system'
   const isPm = bubble.role === 'pm'
@@ -108,7 +109,10 @@ export function GroupMessageBubble({
   const time = bubble.createdAt
     ? (() => {
         try {
-          return format(new Date(bubble.createdAt), 'HH:mm')
+          return dateTime(new Date(bubble.createdAt), {
+            hour: 'numeric',
+            minute: '2-digit'
+          })
         } catch {
           return ''
         }
