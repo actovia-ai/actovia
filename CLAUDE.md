@@ -1821,7 +1821,9 @@ Reusable AI utilities that should be used (and tested) instead of inline impleme
    (part of `bun run test`, so gated on every commit) scans every
    `src/renderer/**/*.{ts,tsx}` (excluding `components/ui/**` and
    `sub-apps/artifacts/sandbox.tsx`) for JSX text nodes (`.tsx` only),
-   `sileo.*({ title | description })` values (including template literals
+   literal multi-word `placeholder` / `aria-label` / `title` / `alt`
+   attributes (an example in a placeholder is `examplePlaceholder`, "e.g.
+   {{example}}" in `settings.json`), `sileo.*({ title | description })` values (including template literals
    and ternaries, in both `.ts` hooks/services and `.tsx` components), and
    `label:` properties in `src/main/lib/menu.ts`/`tray.ts` that aren't
    routed through `t()`/`<Trans>`/`mainT()`. A new hardcoded string fails

@@ -1075,5 +1075,6 @@
       "s3SecretAccessKey": "Amazon S3 のシークレットアクセスキー",
       "mcp": "MCP サーバー「{{server}}」: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "例: {{example}}"
 }

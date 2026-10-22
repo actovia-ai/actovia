@@ -1075,5 +1075,6 @@
       "s3SecretAccessKey": "Amazon S3 秘密存取金鑰",
       "mcp": "MCP 伺服器「{{server}}」：{{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "例如：{{example}}"
 }

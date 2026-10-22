@@ -1080,5 +1080,6 @@
       "s3SecretAccessKey": "Amazon S3 secret access key",
       "mcp": "MCP server “{{server}}”: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "e.g. {{example}}"
 }

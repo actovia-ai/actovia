@@ -54,5 +54,23 @@ export const ALLOWLIST: AllowlistEntry[] = [
     text: 'MIT',
     line: 143,
     reason: 'Software license name — never translated.'
+  },
+  {
+    file: 'src/renderer/components/settings/settings-form/agents.tsx',
+    text: '~/Actovia Projects',
+    line: 128,
+    reason: 'The default projects folder — a path on disk, never translated.'
+  },
+  {
+    file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
+    text: '{"GITHUB_TOKEN": "ghp_..."}',
+    line: 797,
+    reason: 'A JSON example of the env field — its syntax, not prose.'
+  },
+  {
+    file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
+    text: '{"Authorization": "Bearer token"}',
+    line: 852,
+    reason: 'A JSON example of the headers field — its syntax, not prose.'
   }
 ]

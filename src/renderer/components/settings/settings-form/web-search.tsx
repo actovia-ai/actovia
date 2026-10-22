@@ -265,7 +265,9 @@ export function WebSearch({ form }: { form: UseFormReturnType }) {
             layout="vertical"
           >
             <Input
-              placeholder="e.g. nature.com, .edu, -reddit.com"
+              placeholder={t('examplePlaceholder', {
+                example: 'nature.com, .edu, -reddit.com'
+              })}
               {...field}
               value={field.value ?? ''}
             />
