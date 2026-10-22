@@ -8,6 +8,7 @@ import { drizzle } from 'drizzle-orm/pglite'
 
 import { getDatabaseDir } from '../paths'
 import { holdSingleInstanceLock } from '../single-instance'
+import { pinSessionUtc } from './session'
 
 // PGlite has no cross-process lock, so nothing may open the data directory
 // until this process holds the app's single-instance lock. It is taken here —
@@ -27,5 +28,10 @@ export const pglite = new PGlite({
   dataDir: dbPath,
   extensions: { vector, pgmq, pg_trgm }
 })
+// Queued ahead of every other query (see session.ts). `runMigrate` awaits it,
+// so a failure is reported there; the empty catch only keeps it from being an
+// unhandled rejection until then.
+export const sessionPinned = pinSessionUtc(pglite)
+sessionPinned.catch(() => {})
 
 export const db = drizzle(pglite)

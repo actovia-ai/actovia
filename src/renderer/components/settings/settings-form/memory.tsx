@@ -47,11 +47,11 @@ import { ENTER, SettingsEmpty } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { ShownDefault } from '../shown-default'
 
-/** DB serializes local wall-clock with a trailing `Z`; strip it so the day is right. */
+/** The day the entry last changed, or was made. */
 function updatedLabel(m: MemoryItem): string {
   const raw = m.updatedAt ?? m.createdAt
   if (!raw) return ''
-  const d = new Date(raw.replace(/Z$/, ''))
+  const d = new Date(raw)
   return Number.isNaN(d.getTime())
     ? ''
     : i18n.t('settings:memory.updatedLabel', { date: format(d, 'MMM d') })

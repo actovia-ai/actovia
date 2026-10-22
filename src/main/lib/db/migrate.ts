@@ -5,13 +5,16 @@ import { Notification } from 'electron'
 import { QUEUE_NAMES } from '../jobs/types'
 import { logger } from '../logger'
 import { getResourcePath } from '../paths'
-import { db, pglite } from './db'
+import { db, pglite, sessionPinned } from './db'
 
 export const runMigrate = async () => {
   try {
     logger.info('migration', 'Running migrations...')
     const start = performance.now()
     await pglite.waitReady
+    // Queued by db.ts before anything else (db/session.ts); a session that
+    // could not be pinned to UTC would stamp every DEFAULT now() wrong.
+    await sessionPinned
     await pglite.exec('CREATE EXTENSION IF NOT EXISTS vector;')
     // pg_trgm backs the message search index (gin_trgm_ops) — must exist
     // before the migration that creates that index runs.
