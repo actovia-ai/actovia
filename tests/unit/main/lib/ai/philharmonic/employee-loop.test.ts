@@ -35,6 +35,13 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getAgentMemories: async () => []
 }))
 
+const getEmployeeReports = vi.fn(
+  async (): Promise<Array<{ content: string; createdAt: Date }>> => []
+)
+vi.mock('@main/lib/db/conversation-queries', () => ({
+  getEmployeeReports: (...a: unknown[]) => getEmployeeReports(...(a as []))
+}))
+
 const { runEmployeeLoop } =
   await import('@main/lib/ai/philharmonic/employee-loop')
 
@@ -76,6 +83,33 @@ describe('runEmployeeLoop', () => {
     expect(await systemPromptFor(['web_search'])).toContain(WEB_CITATIONS)
     expect(await systemPromptFor(['web_fetch'])).toContain(WEB_CITATIONS)
     expect(await systemPromptFor(['read_file'])).not.toContain(WEB_CITATIONS)
+  })
+
+  it('is shown its own earlier reports in this group, oldest first — not only what the PM pastes back', async () => {
+    getEmployeeReports.mockResolvedValueOnce([
+      { content: 'second report', createdAt: new Date('2026-10-22T02:00:00Z') },
+      { content: 'first report', createdAt: new Date('2026-10-22T01:00:00Z') }
+    ])
+    const prompt = await systemPromptFor([])
+    expect(getEmployeeReports).toHaveBeenLastCalledWith('c1', 'a', 3)
+    expect(prompt).toContain('Your earlier reports in this group')
+    expect(prompt.indexOf('first report')).toBeLessThan(
+      prompt.indexOf('second report')
+    )
+    expect(await systemPromptFor([])).not.toContain('earlier reports')
+  })
+
+  it('cuts a long earlier report and says how much', async () => {
+    const { earlierReportsBlock, EARLIER_REPORTS } =
+      await import('@main/lib/ai/philharmonic/employee-loop')
+    const block = earlierReportsBlock([
+      {
+        content: 'x'.repeat(EARLIER_REPORTS.chars + 10),
+        createdAt: new Date(0)
+      }
+    ])
+    expect(block).toContain('[… cut, 10 more characters]')
+    expect(block).not.toContain('x'.repeat(EARLIER_REPORTS.chars + 1))
   })
 
   it('leads the transcript with a system message the model is actually sent — the prompt and the tool declarations (pi 1.0)', async () => {

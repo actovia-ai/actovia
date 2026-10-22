@@ -6,6 +6,7 @@ import { agentLoop } from '@earendil-works/pi-agent-core'
 import type { Message } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
+import { getEmployeeReports } from '../../db/conversation-queries'
 import {
   createTaskExecutionEvent,
   getAgentMemories,
@@ -49,6 +50,31 @@ export interface RunEmployeeLoopArgs {
 export const WEB_CITATIONS = `
 
 Citing the web: whoever reads your report cannot see your search results, so never cite by number (no 【3】, [3] or 【3-source】). Put the source after the sentence it supports as a Markdown link with the site or page title as its text — ([The Verge](https://www.theverge.com/...)) — using the URL a web_search result or web_fetch gave you, never one you made up.`
+
+/** How many of an employee's own earlier reports it is shown, and how much of each. */
+export const EARLIER_REPORTS = { count: 3, chars: 6000 }
+
+/**
+ * An employee's own earlier reports in this group, oldest first. Each run of
+ * the loop starts fresh, so without them a second task found the employee
+ * unaware of its own work, and the PM pasted the report back in.
+ */
+export function earlierReportsBlock(
+  reports: Array<{ content: string; createdAt: Date }>
+): string {
+  if (reports.length === 0) return ''
+  const items = [...reports]
+    .reverse()
+    .map((r) => {
+      const text =
+        r.content.length > EARLIER_REPORTS.chars
+          ? `${r.content.slice(0, EARLIER_REPORTS.chars)}\n[… cut, ${r.content.length - EARLIER_REPORTS.chars} more characters]`
+          : r.content
+      return `<report at="${r.createdAt.toISOString()}">\n${text}\n</report>`
+    })
+    .join('\n')
+  return `\n\nYour earlier reports in this group (oldest first). Build on them instead of redoing the work; where the PM's new instructions differ, follow the instructions.\n${items}`
+}
 
 function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
   const parts = [`You are "${agent.name}", a virtual employee on a team.`]
@@ -112,6 +138,9 @@ export async function runEmployeeLoop(
           .map((m) => `- ${JSON.stringify(m.value)}`)
           .join('\n')
       : ''
+  const reportsBlock = earlierReportsBlock(
+    await getEmployeeReports(conversationId, agent.id, EARLIER_REPORTS.count)
+  )
   const team = agent.teamId ? ((await getTeamById(agent.teamId)) ?? null) : null
   const searches = tools.some(
     (t) => t.name === TOOL_NAMES.webSearch || t.name === TOOL_NAMES.webFetch
@@ -120,6 +149,7 @@ export async function runEmployeeLoop(
     buildEmployeeSystemPrompt(agent, team) +
     (searches ? WEB_CITATIONS : '') +
     memoryBlock +
+    reportsBlock +
     skillsContent
 
   const userMessage: Message = {

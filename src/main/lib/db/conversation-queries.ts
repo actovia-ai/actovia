@@ -1,4 +1,4 @@
-import { asc, desc, eq } from 'drizzle-orm'
+import { and, asc, desc, eq, ne } from 'drizzle-orm'
 
 import { db } from './db'
 import { conversation, conversationMessage, type Conversation } from './schema'
@@ -111,6 +111,30 @@ export async function getMessagesByConversationId(conversationId: string) {
     .from(conversationMessage)
     .where(eq(conversationMessage.conversationId, conversationId))
     .orderBy(asc(conversationMessage.createdAt))
+}
+
+/** An employee's latest reports in a group, newest first. */
+export async function getEmployeeReports(
+  conversationId: string,
+  agentId: string,
+  limit: number
+) {
+  return db
+    .select({
+      content: conversationMessage.content,
+      createdAt: conversationMessage.createdAt
+    })
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        eq(conversationMessage.agentId, agentId),
+        eq(conversationMessage.role, 'employee'),
+        ne(conversationMessage.content, '')
+      )
+    )
+    .orderBy(desc(conversationMessage.createdAt))
+    .limit(limit)
 }
 
 export async function createConversationMessage(
