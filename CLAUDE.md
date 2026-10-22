@@ -912,6 +912,16 @@ Multi-level recursive research with real-time progress streaming:
      key off it)
    - Frontend polls for progress messages
 
+6. **The report goes back into the chat** (`ai/deep-research/chat-result.ts`):
+   the `deep_research` call returns only the job's id and the research runs
+   on, so when the job ends (archived or failed) its outcome replaces the
+   text of that tool result row (`settleDeepResearchResult()`, also run after
+   the run's rows are saved — a job that fails at once ends first — and once
+   at launch for older chats). A follow-up, `recall`, `lcm_grep` and another
+   conversation's `lcm_describe` (which lists reports as `research`) read it
+   there; before 2026-10-22 none of them could, and the model said the
+   research had never run. The card still follows the job by `details.id`
+
 ### MCP (Model Context Protocol)
 
 **Integration** (`src/main/lib/ai/mcp.ts`):
@@ -1116,7 +1126,7 @@ Compacts long conversations without losing information, surfacing summaries the 
   conversation id; for the latter `describeConversation()`
   (`context-management/conversation-overview.ts`) returns the title, the
   summaries in the chat's context and the text of what was said and not
-  compacted — all of it for a conversation that never was — bounded
+  compacted, with its Deep Research reports — all of it for a conversation that never was — bounded
   (`OVERVIEW_LIMITS`), newest kept, with the ids of what did not fit. It is
   read-only (another chat's context tracking is never bootstrapped from a
   read), leaves out tool results and the runs a regenerate group keeps out of

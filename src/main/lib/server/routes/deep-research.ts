@@ -8,6 +8,7 @@ import type { JSONRPCNotification } from '@modelcontextprotocol/sdk/types.js'
 import { Hono } from 'hono'
 import { v4 as uuidV4 } from 'uuid'
 
+import { settleDeepResearchResult } from '../../ai/deep-research/chat-result'
 import { deepResearch as deepResearchAgent } from '../../ai/deep-research/deep-research'
 import { writeFinalReport } from '../../ai/deep-research/final-report'
 import { getModelFromProvider } from '../../ai/utils/chat-message-util'
@@ -93,6 +94,16 @@ async function notifyClients(
  * process (an HTTP request to our own port could fail before the job began,
  * leaving it `streaming` with nothing to end it); `POST /` is the same job.
  */
+/** The outcome into the chat's tool result; a failure here is only logged. */
+async function settleChatResult(deepResearchId: string) {
+  await settleDeepResearchResult(deepResearchId).catch((error: unknown) => {
+    logger.error('deep-research', 'Failed to write the outcome into the chat', {
+      deepResearchId,
+      error
+    })
+  })
+}
+
 export async function runDeepResearchJob(
   deepResearchId: string,
   query: string,
@@ -141,6 +152,7 @@ export async function runDeepResearchJob(
       endTime: new Date()
     }
     await updateDeepResearch(finalDeepResearch)
+    await settleChatResult(deepResearchId)
     await notifyClients(deepResearchId, {
       type: DeepResearchProgress.CompleteDeepResearch,
       query
@@ -171,6 +183,7 @@ export async function runDeepResearchJob(
         endTime: new Date()
       }
       await updateDeepResearch(failedDeepResearch)
+      await settleChatResult(deepResearchId)
       await notifyClients(deepResearchId, {
         type: DeepResearchProgress.FailDeepResearch,
         error: errorMessage

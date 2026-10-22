@@ -328,6 +328,12 @@ keeps their thinking and signatures. A chat whose context is not tracked yet is 
 
 **With LCM off:** the history read in §4.2 step 6, filtered the same way.
 
+**A Deep Research result** is stored as the job's id (`{ id, toolCallId }`) by the run that called it; the research
+goes on after the run. When the job ends, its outcome — `Deep research finished: <subject>` and the report, or
+`Deep research failed: <subject>` and the reason — replaces that text in the stored row
+(`ai/deep-research/chat-result.ts`), so the next run, `recall` and `lcm_grep` / `lcm_describe` read the report. It
+is a stored change, made once: the request after it misses the cache from that run on, as any real change does.
+
 Both leave out the runs a regenerate group keeps from the model (`excludedRuns`, `packages/shared/src/utils/attempts.ts`):
 `folded` and `hidden` attempts, and — for a Regenerate — every other run of its group, so the new answer sees neither
 the answer it stands beside nor the question twice.

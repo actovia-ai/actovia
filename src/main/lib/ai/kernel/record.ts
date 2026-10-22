@@ -1,3 +1,4 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatAssistantMessage,
   ChatMessage
@@ -7,8 +8,10 @@ import type { Model } from '@earendil-works/pi-ai'
 import { saveChatSources, sourcesOfRows } from '../../chat/sources'
 import { saveMessages } from '../../db/queries'
 import { enqueueAndProcess, logEnqueueFailure } from '../../jobs/worker'
+import { logger } from '../../logger'
 import { toDbRow } from '../../server/routes/chat-persistence'
 import { trackContextMessages } from '../context-management'
+import { settleDeepResearchResult } from '../deep-research/chat-result'
 import type { KernelEvent } from './events'
 
 export interface RecorderDeps {
@@ -78,6 +81,19 @@ export class RunRecorder {
     await saveMessages({ messages: rows })
     // The run's numbered sources, for `recall` and the next run's numbering.
     await saveChatSources(sourcesOfRows(rows))
+    // A research job that ended before its run was saved (one that failed
+    // at once) found no row to write its outcome into.
+    for (const row of rows) {
+      const id = (row.details as { id?: unknown } | null)?.id
+      if (row.toolName === TOOL_NAMES.deepResearch && typeof id === 'string') {
+        await settleDeepResearchResult(id).catch((error: unknown) =>
+          logger.error('kernel', 'Failed to settle a deep research result', {
+            chatId,
+            error
+          })
+        )
+      }
+    }
 
     if (lcm) {
       // Into the context now, not from the queue: a follow-up sent a second

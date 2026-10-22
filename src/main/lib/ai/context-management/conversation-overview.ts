@@ -1,3 +1,4 @@
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import { excludedRuns } from '@actovia/shared/utils/attempts'
 
 import { getChatById } from '../../db/queries'
@@ -18,6 +19,8 @@ export const OVERVIEW_LIMITS = {
   summaryChars: 3000,
   summariesChars: 12_000,
   messageChars: 1200,
+  /** A Deep Research report is the conversation's finding: more of it. */
+  researchChars: 4000,
   messagesChars: 8000
 } as const
 
@@ -39,10 +42,13 @@ export interface ConversationOverview {
     content: string
     truncated?: true
   }>
-  /** What was said and not compacted, oldest first: text only. */
+  /**
+   * What was said and not compacted, oldest first: text only, and the
+   * reports of the conversation's Deep Research runs (`research`).
+   */
   messages: Array<{
     id: string
-    role: 'user' | 'assistant'
+    role: 'user' | 'assistant' | 'research'
     createdAt: string
     text: string
     truncated?: true
@@ -65,6 +71,17 @@ function textOf(content: unknown): string {
     .map((block) => block.text)
     .join('\n')
     .trim()
+}
+
+/**
+ * A Deep Research call's result: the report once the job has written it
+ * there (`deep-research/chat-result.ts`), else only the job's id.
+ */
+function researchText(content: unknown): string {
+  const text = textOf(content)
+  return text.startsWith('{')
+    ? 'Deep research was started here; no report was saved in this conversation.'
+    : text
 }
 
 function cut(text: string, max: number): { text: string; truncated: boolean } {
@@ -97,7 +114,8 @@ function newestThatFit<T>(
 /**
  * A conversation as someone who was not in it needs it: its summaries (the
  * part compaction replaced) and the text of what was said since — all of it
- * when the conversation never grew long enough to be compacted. Read-only:
+ * when the conversation never grew long enough to be compacted — with its
+ * Deep Research reports, which are what such a conversation found. Read-only:
  * another chat's context tracking is never bootstrapped from here. Runs a
  * regenerate group keeps out of sight are left out, as they are from the
  * model's own context. `null` when no chat has the id.
@@ -124,9 +142,22 @@ export async function describeConversation(
       }))
   )
   const spoken = rows
-    .filter((row) => row.role === 'user' || row.role === 'assistant')
+    .filter(
+      (row) =>
+        row.role === 'user' ||
+        row.role === 'assistant' ||
+        (row.role === 'toolResult' &&
+          row.toolName === TOOL_NAMES.deepResearch &&
+          !row.isError)
+    )
     .filter((row) => !hidden.has(row.runId))
-    .map((row) => ({ row, text: textOf(row.content) }))
+    .map((row) => ({
+      row,
+      text:
+        row.role === 'toolResult'
+          ? researchText(row.content)
+          : textOf(row.content)
+    }))
     .filter(({ text }) => text.length > 0)
 
   const summaryIds = items
@@ -161,10 +192,18 @@ export async function describeConversation(
   const messages = spoken
     .filter(({ row }) => !summarized.has(row.id))
     .map(({ row, text }) => {
-      const shown = cut(text, OVERVIEW_LIMITS.messageChars)
+      const shown = cut(
+        text,
+        row.role === 'toolResult'
+          ? OVERVIEW_LIMITS.researchChars
+          : OVERVIEW_LIMITS.messageChars
+      )
       return {
         id: row.id,
-        role: row.role as 'user' | 'assistant',
+        role:
+          row.role === 'toolResult'
+            ? ('research' as const)
+            : (row.role as 'user' | 'assistant'),
         createdAt: row.createdAt.toISOString(),
         text: shown.text,
         ...(shown.truncated ? { truncated: true as const } : {})

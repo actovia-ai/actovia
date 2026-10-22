@@ -618,6 +618,58 @@ export async function updateDeepResearch(payload: DeepResearch) {
   }
 }
 
+/**
+ * Every `deep_research` tool result whose job has ended, with the job: the
+ * rows `settleDeepResearchResults()` brings up to date.
+ */
+export async function listEndedDeepResearchResults() {
+  try {
+    return await db
+      .select({
+        messageId: message.id,
+        content: message.content,
+        job: deepResearch
+      })
+      .from(message)
+      .innerJoin(deepResearch, eq(deepResearch.toolCallId, message.toolCallId))
+      .where(
+        and(
+          eq(message.role, 'toolResult'),
+          eq(message.toolName, TOOL_NAMES.deepResearch),
+          or(
+            eq(deepResearch.jobStatus, 'archived'),
+            eq(deepResearch.jobStatus, 'failed')
+          )
+        )
+      )
+  } catch (error) {
+    logDbError('Failed to list deep research results', error)
+    throw error
+  }
+}
+
+/** Replaces the text of the `deep_research` tool result for one call. */
+export async function setDeepResearchResultText(
+  toolCallId: string,
+  text: string
+) {
+  try {
+    return await db
+      .update(message)
+      .set({ content: [{ type: 'text', text }] })
+      .where(
+        and(
+          eq(message.role, 'toolResult'),
+          eq(message.toolName, TOOL_NAMES.deepResearch),
+          eq(message.toolCallId, toolCallId)
+        )
+      )
+  } catch (error) {
+    logDbError('Failed to update a deep research result', error)
+    throw error
+  }
+}
+
 export async function saveDeepResearchMessage(payload: DeepResearchMessage) {
   try {
     return await db.insert(deepResearchMessage).values(payload)
