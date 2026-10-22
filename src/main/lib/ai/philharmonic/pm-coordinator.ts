@@ -563,7 +563,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {
       emit({ type: 'ask_user', conversationId, question, options })
-      return askUserRegistry.wait(conversationId)
+      return askUserRegistry.wait(conversationId, { question, options })
     })
   ]
 

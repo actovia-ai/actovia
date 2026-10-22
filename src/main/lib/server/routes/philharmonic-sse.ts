@@ -1,6 +1,8 @@
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import { Hono } from 'hono'
 
+import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
+import { pmRunRegistry } from '../../ai/philharmonic/pm-run-registry'
 import type { Variables } from '../types'
 import { getRequiredParam } from '../utils'
 import { SSE_HEADERS, SseManager } from '../utils/sse-manager'
@@ -53,11 +55,29 @@ philharmonicSse.get('/sse', (c) => {
   return new Response(stream, { headers: SSE_HEADERS })
 })
 
+// A client that opens the group mid-round (a reload, another page and back,
+// the phone) missed `pm_started` and any `ask_user`: they are live events,
+// and without them the PM waits on a question nobody can see.
 philharmonicSse.get('/conversations/:id/sse', (c) => {
   const id = getRequiredParam(c, 'id')
   const stream = new ReadableStream({
     start(controller) {
       sseManager.register(id, controller, c.req.raw.signal)
+      if (pmRunRegistry.has(id)) {
+        controller.enqueue(
+          sseManager.encodeEvent({ type: 'pm_started', conversationId: id })
+        )
+      }
+      const ask = askUserRegistry.question(id)
+      if (ask) {
+        controller.enqueue(
+          sseManager.encodeEvent({
+            type: 'ask_user',
+            conversationId: id,
+            ...ask
+          })
+        )
+      }
     }
   })
   return new Response(stream, { headers: SSE_HEADERS })
