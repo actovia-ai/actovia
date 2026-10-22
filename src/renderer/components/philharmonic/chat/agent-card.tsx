@@ -12,7 +12,7 @@ import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { cardStateKey, visibleSteps } from '@/lib/agent-card'
+import { cardStateKey, relativeSummary, visibleSteps } from '@/lib/agent-card'
 import { cn } from '@/lib/utils'
 import {
   continueInTerminal,
@@ -111,8 +111,11 @@ export function AgentCardView({
                 {capitalCase(s.tool)}
               </span>
               {s.summary && (
-                <code className="text-muted-foreground min-w-0 truncate font-mono">
-                  {s.summary}
+                <code
+                  className="text-muted-foreground min-w-0 truncate font-mono"
+                  title={s.summary}
+                >
+                  {relativeSummary(s.summary, card.cwd)}
                 </code>
               )}
             </li>

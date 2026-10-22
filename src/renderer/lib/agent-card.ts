@@ -30,6 +30,22 @@ export const messageCard = (
   own?: AgentCard
 ): AgentCard | undefined => live[messageId] ?? own
 
+/**
+ * A step's summary with the run's folder taken off its paths: `Read
+ * src/app.ts`, not the whole absolute path (which the folder chip already
+ * names). Display only — an approval still shows the exact path.
+ */
+export function relativeSummary(summary: string, cwd: string): string {
+  const root = cwd.replace(/\/+$/, '')
+  if (!root || root === '/') return summary
+  const escaped = root.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  // The folder itself (followed by a quote, space or the end) becomes `.`;
+  // a path under it loses the folder and its slash.
+  return summary
+    .replace(new RegExp(`(?<![\\w./-])${escaped}/`, 'g'), '')
+    .replace(new RegExp(`(?<![\\w./-])${escaped}(?=$|["'\\s])`, 'g'), '.')
+}
+
 /** The last `max` steps, and how many earlier ones are folded away. */
 export function visibleSteps(
   card: AgentCard,
