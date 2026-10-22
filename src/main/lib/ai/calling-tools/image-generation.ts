@@ -65,14 +65,17 @@ export const imageGeneration = (
       })
       const response = await openai.images.generate(
         {
-          model: setting.image?.model ?? 'gpt-image-2',
+          model: setting.image?.model || 'gpt-image-2',
           prompt,
           n: setting.image?.generatedCounts ?? 1,
-          size: setting.image?.size as ImageGenerateParams['size'],
-          quality: setting.image?.quality as ImageGenerateParams['quality'],
-          background:
-            (setting.image?.background as ImageGenerateParams['background']) ??
-            undefined
+          // A select the user never set is saved as '', which the API
+          // refuses ("Invalid value: ''") — unset, it takes its default.
+          size: (setting.image?.size ||
+            undefined) as ImageGenerateParams['size'],
+          quality: (setting.image?.quality ||
+            undefined) as ImageGenerateParams['quality'],
+          background: (setting.image?.background ||
+            undefined) as ImageGenerateParams['background']
         },
         { signal }
       )
@@ -121,7 +124,7 @@ export const imageGeneration = (
             ? { revisedPrompt: data[i].revised_prompt }
             : {})
         })),
-        size: setting.image?.size ?? undefined
+        size: setting.image?.size || undefined
       }
       // The card shows the images; the model gets what it can talk about.
       // A data URL would put megabytes of base64 into the context for good.
