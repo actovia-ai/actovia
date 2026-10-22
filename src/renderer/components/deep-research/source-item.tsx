@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
 import { parseCitations } from '../markdown/markdown-citations'
+import { FAVICON_BACKING } from '../markdown/source-favicon'
 
 function SourceItemLink({ item }: { item: WebSearchResult }) {
   let hostname = ''
@@ -32,7 +34,7 @@ function SourceItemLink({ item }: { item: WebSearchResult }) {
         </div>
         <div className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs">
           {favicon && (
-            <Avatar className="size-3.5">
+            <Avatar className={cn('size-3.5', FAVICON_BACKING)}>
               <AvatarImage
                 src={favicon}
                 alt={hostname}

@@ -25,6 +25,7 @@ import {
   ThinkingOrb
 } from 'thinking-orbs'
 
+import { FAVICON_BACKING } from '@/components/markdown/source-favicon'
 import { i18n } from '@/lib/i18n'
 import { ROW_ENTER } from '@/lib/motion'
 import { toolLabel } from '@/lib/tool-label'
@@ -158,7 +159,11 @@ const SearchResultPill = memo(function SearchResultPill({
       }
     >
       {favicon && (
-        <img src={favicon} alt="" className="size-3 shrink-0 rounded-full" />
+        <img
+          src={favicon}
+          alt=""
+          className={cn('size-3 shrink-0 rounded-full', FAVICON_BACKING)}
+        />
       )}
       <span className="truncate">{item.title}</span>
     </Badge>
