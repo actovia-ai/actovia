@@ -12,10 +12,15 @@ import {
   Globe02Icon,
   MessageSquareTextIcon,
   CircleCheckBigIcon,
-  ClockFadingIcon,
+  CommandLineIcon,
+  FileEditIcon,
+  FileSearchIcon,
+  FolderOpenIcon,
+  Link01Icon,
+  Wrench01Icon,
   CancelCircleIcon
 } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -78,6 +83,18 @@ const STATUS_TEXT: Record<StepStatus, string> = {
   pending: 'text-muted-foreground/50'
 }
 
+/** What a call did, drawn on its row — a clock read as still waiting once it was done. */
+const TOOL_ICON: Record<string, IconSvgElement> = {
+  [TOOL_NAMES.terminal]: CommandLineIcon,
+  [TOOL_NAMES.writeFile]: FileEditIcon,
+  [TOOL_NAMES.editFile]: FileEditIcon,
+  [TOOL_NAMES.readFile]: FileSearchIcon,
+  [TOOL_NAMES.grep]: FileSearchIcon,
+  [TOOL_NAMES.findFiles]: FolderOpenIcon,
+  [TOOL_NAMES.listDirectory]: FolderOpenIcon,
+  [TOOL_NAMES.webFetch]: Link01Icon
+}
+
 function StepIcon({
   step,
   status
@@ -125,7 +142,7 @@ function StepIcon({
     )
   return (
     <HugeiconsIcon
-      icon={ClockFadingIcon}
+      icon={TOOL_ICON[step.toolName ?? ''] ?? Wrench01Icon}
 
       size={15}
       className={cls}
