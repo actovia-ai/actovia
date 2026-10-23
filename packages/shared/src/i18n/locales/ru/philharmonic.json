@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "Прикрепить изображения",
-      "s3FallbackTitle": "Загрузка в S3 не удалась, данные встроены напрямую",
       "attachFailedTitle": "Не удалось прикрепить файлы"
     },
     "composer": {

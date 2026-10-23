@@ -26,7 +26,7 @@ vi.mock('electron', () => ({
 }))
 vi.mock('@main/lib/logger', () => ({ logger: { info: vi.fn() } }))
 
-const { fitImagePart, withFittedImages } =
+const { fitImageDataUrl, fitImagePart, withFittedImages } =
   await import('@main/lib/ai/utils/image-fit')
 
 const dataUrl = (mime: string, img: Fake) =>
@@ -101,5 +101,23 @@ describe('withFittedImages', () => {
     expect(decoded((out.content[1] as { data: string }).data)).toBe(
       'jpeg 2048x512 q85'
     )
+  })
+})
+
+describe('fitImageDataUrl', () => {
+  it('leaves an attachment that is not a picture as it is', () => {
+    const input = {
+      url: 'data:application/pdf;base64,AAAA',
+      type: 'application/pdf'
+    }
+    const out = fitImageDataUrl(input.url, input.type)
+    expect(out).toEqual({ url: input.url, contentType: input.type })
+  })
+
+  it('fits an oversized picture and reports its new type', () => {
+    const url = dataUrl('image/png', { width: 4096, height: 2048 })
+    const out = fitImageDataUrl(url, 'image/png')
+    expect(out.contentType).toBe('image/jpeg')
+    expect(decoded(out.url)).toMatch(/^jpeg 2048x1024/)
   })
 })

@@ -1051,7 +1051,10 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   `db/conversation-queries.ts`). Saved rows are edited later (an agent card's
   parts) with no record of when, so `after` is only for the re-read after a
   `message_end`; a client reads the whole list when it opens or reconnects
-  (`GroupChat` does: `appendRows()` in `chat/group-history.ts`)
+  (`GroupChat` does: `appendRows()` in `chat/group-history.ts`); a group's
+  photos are data URLs, as in Chat — `POST …/messages` refuses an image
+  attachment that is a link (400) and fits each one before the row is saved
+  (`fitImageDataUrl()` in `ai/utils/image-fit.ts`)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`

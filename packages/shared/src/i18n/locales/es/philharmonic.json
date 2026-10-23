@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "Adjuntar imágenes",
-      "s3FallbackTitle": "Error al subir a S3; se usarán datos incorporados",
       "attachFailedTitle": "No se pudieron adjuntar los archivos"
     },
     "composer": {

@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "添加图片",
-      "s3FallbackTitle": "S3 上传失败，改用内嵌数据",
       "attachFailedTitle": "无法添加文件"
     },
     "composer": {

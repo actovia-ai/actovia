@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "画像を添付",
-      "s3FallbackTitle": "S3へのアップロードに失敗したため、インライン形式で保存します",
       "attachFailedTitle": "ファイルを添付できませんでした"
     },
     "composer": {

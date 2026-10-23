@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "이미지 첨부",
-      "s3FallbackTitle": "S3 업로드에 실패하여 인라인 데이터로 대체합니다",
       "attachFailedTitle": "파일을 첨부할 수 없습니다"
     },
     "composer": {

@@ -100,10 +100,7 @@ describe('philharmonic namespace (en)', () => {
     expect(philharmonic.chat.composer.placeholder).toBe('Message your team…')
   })
 
-  it('has the Phase 5 uploader failure toasts (usePhilharmonicUpload)', () => {
-    expect(philharmonic.chat.uploader.s3FallbackTitle).toBe(
-      'S3 upload failed, using inline data'
-    )
+  it('has the uploader failure toast (usePhilharmonicUpload)', () => {
     expect(philharmonic.chat.uploader.attachFailedTitle).toBe(
       'Could not attach files'
     )

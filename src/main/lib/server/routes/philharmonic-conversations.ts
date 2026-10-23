@@ -8,6 +8,7 @@ import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
 import { toPlanDto } from '../../ai/philharmonic/plan-dto'
 import { runPmCoordinator } from '../../ai/philharmonic/pm-coordinator'
 import { pmRunRegistry } from '../../ai/philharmonic/pm-run-registry'
+import { fitImageDataUrl } from '../../ai/utils/image-fit'
 import {
   createConversation,
   createConversationMessage,
@@ -209,11 +210,19 @@ router.get('/conversations/:id/rounds/:roundId', async (c) => {
 // Send a user message → persist → kick the PM loop (fire-and-forget).
 router.post('/conversations/:id/messages', async (c) => {
   const id = getRequiredParam(c, 'id')
-  const attachmentSchema = z.object({
-    name: z.string(),
-    url: z.string(),
-    contentType: z.string()
-  })
+  // A picture is a data URL, as in Chat: a link would reach the model as if it
+  // were image data (`bareImageData` in the PM's user content).
+  const attachmentSchema = z
+    .object({
+      name: z.string(),
+      url: z.string(),
+      contentType: z.string()
+    })
+    .refine(
+      (a) =>
+        !a.contentType.startsWith('image/') || a.url.startsWith('data:image/'),
+      { message: 'An image attachment must be a data URL' }
+    )
   const body = validateSchema(
     z
       .object({
@@ -231,7 +240,14 @@ router.post('/conversations/:id/messages', async (c) => {
   )
   // Attachments live alongside other message parts so the JSONB column stays
   // one source of truth. `kind` discriminator keeps them addressable.
-  const parts = body.attachments?.map((a) => ({
+  // Fitted once, before the row is saved, with Chat's rules
+  // (`withFittedImages`), so a stored row never changes afterwards.
+  const attachments = body.attachments?.map((a) =>
+    a.contentType.startsWith('image/')
+      ? { ...a, ...fitImageDataUrl(a.url, a.contentType) }
+      : a
+  )
+  const parts = attachments?.map((a) => ({
     kind: 'attachment' as const,
     name: a.name,
     url: a.url,
@@ -263,7 +279,7 @@ router.post('/conversations/:id/messages', async (c) => {
   runPmCoordinator({
     conversationId: id,
     userText: body.content,
-    attachments: body.attachments,
+    attachments,
     excludeMessageId: userMsg.id,
     emit: (event) => emitToConversation(id, event),
     signal: controller.signal

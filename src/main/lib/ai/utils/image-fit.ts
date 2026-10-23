@@ -74,3 +74,18 @@ export function withFittedImages<M extends { content: string | Part[] }>(
   })
   return changed ? { ...message, content } : message
 }
+
+/**
+ * A picture attachment (a data URL and its type) within the shared limits —
+ * `fitImagePart` for a Philharmonic group's photos, which are stored as
+ * attachment parts rather than image content.
+ */
+export function fitImageDataUrl(
+  url: string,
+  contentType: string
+): { url: string; contentType: string } {
+  const part = fitImagePart({ type: 'image', data: url, mimeType: contentType })
+  return part.type === 'image'
+    ? { url: part.data, contentType: part.mimeType }
+    : { url, contentType }
+}

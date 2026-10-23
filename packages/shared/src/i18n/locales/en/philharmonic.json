@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "Attach images",
-      "s3FallbackTitle": "S3 upload failed, using inline data",
       "attachFailedTitle": "Could not attach files"
     },
     "composer": {

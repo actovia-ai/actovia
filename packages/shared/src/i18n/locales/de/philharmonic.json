@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "Bilder anhängen",
-      "s3FallbackTitle": "S3-Upload fehlgeschlagen, verwende eingebettete Daten",
       "attachFailedTitle": "Dateien konnten nicht angehängt werden"
     },
     "composer": {

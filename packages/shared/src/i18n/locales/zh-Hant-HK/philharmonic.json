@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "附加圖片",
-      "s3FallbackTitle": "S3 上載失敗，改用內嵌資料",
       "attachFailedTitle": "無法附加檔案"
     },
     "composer": {

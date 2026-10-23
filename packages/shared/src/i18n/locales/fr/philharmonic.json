@@ -93,7 +93,6 @@
     },
     "uploader": {
       "attachAria": "Joindre des images",
-      "s3FallbackTitle": "Échec du téléversement S3, utilisation de données intégrées",
       "attachFailedTitle": "Impossible de joindre les fichiers"
     },
     "composer": {

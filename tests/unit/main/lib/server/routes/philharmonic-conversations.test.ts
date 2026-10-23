@@ -8,7 +8,22 @@ vi.mock('@main/lib/server/utils', () => ({
     c.json(data),
   deletionSuccessResponse: (c: { json: (d: unknown) => unknown }) =>
     c.json({ success: true }),
-  validateSchema: (_s: unknown, d: unknown) => d
+  validateSchema: (
+    s: { safeParse: (d: unknown) => { success: boolean; data?: unknown } },
+    d: unknown
+  ) => {
+    const r = s.safeParse(d)
+    if (!r.success) throw new Error('invalid')
+    return r.data
+  }
+}))
+const fitImageDataUrl = vi.fn((url: string, contentType: string) => ({
+  url: `${url}#fitted`,
+  contentType
+}))
+vi.mock('@main/lib/ai/utils/image-fit', () => ({
+  fitImageDataUrl: (url: string, contentType: string) =>
+    fitImageDataUrl(url, contentType)
 }))
 vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getPhilharmonicCostRows: getPhilharmonicCostRows
@@ -23,15 +38,19 @@ const getMessagesAfter = vi.fn(
     { id: 'm2' }
   ]
 )
+const createConversationMessage = vi.fn(async (_row: unknown) => ({
+  id: 'new'
+}))
 vi.mock('@main/lib/db/conversation-queries', () => ({
   deleteConversation,
+  createConversationMessage: (row: unknown) => createConversationMessage(row),
   getMessagesByConversationId: (id: string) => getMessagesByConversationId(id),
   getMessagesAfter: (id: string, after: string) => getMessagesAfter(id, after)
 }))
 const removeGroupMedia = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({ removeGroupMedia }))
 vi.mock('@main/lib/ai/philharmonic/pm-coordinator', () => ({
-  runPmCoordinator: vi.fn()
+  runPmCoordinator: (input: unknown) => runPmCoordinator(input)
 }))
 vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
   askUserRegistry: { resolve: vi.fn() }
@@ -44,8 +63,13 @@ const abort = vi.fn((_id: string) => {
   order.push('abort')
   return true
 })
+const runPmCoordinator = vi.fn(async (_input: unknown) => {})
 vi.mock('@main/lib/ai/philharmonic/pm-run-registry', () => ({
-  pmRunRegistry: { abort: (id: string) => abort(id) }
+  pmRunRegistry: {
+    abort: (id: string) => abort(id),
+    set: vi.fn(),
+    clear: vi.fn()
+  }
 }))
 const stopConversation = vi.fn(async (_id: string) => {
   order.push('stop agents')
@@ -159,5 +183,48 @@ describe('GET /conversations/:id/messages', () => {
     getMessagesAfter.mockResolvedValueOnce(null)
     const res = await request('/conversations/id/messages?after=gone')
     expect(res.status).toBe(404)
+  })
+})
+
+describe('POST /conversations/:id/messages', () => {
+  async function post(body: unknown) {
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.onError((_err, c) => c.json({}, 400))
+    app.route('/', conversationsRouter)
+    return app.request('/conversations/id/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+  }
+  const photo = (url: string) => ({
+    content: 'look',
+    attachments: [{ name: 'a.png', url, contentType: 'image/png' }]
+  })
+
+  it('refuses an image attachment that is a link, not a data URL', async () => {
+    createConversationMessage.mockClear()
+    const res = await post(photo('https://bucket.s3.amazonaws.com/a.png'))
+    expect(res.status).toBe(400)
+    expect(createConversationMessage).not.toHaveBeenCalled()
+  })
+
+  it('saves and hands the PM the fitted picture', async () => {
+    createConversationMessage.mockClear()
+    const res = await post(photo('data:image/png;base64,AAAA'))
+    expect(res.status).toBe(200)
+    expect(fitImageDataUrl).toHaveBeenCalledWith(
+      'data:image/png;base64,AAAA',
+      'image/png'
+    )
+    const row = createConversationMessage.mock.calls[0][0] as {
+      parts: { url: string }[]
+    }
+    expect(row.parts[0].url).toBe('data:image/png;base64,AAAA#fitted')
+    const input = runPmCoordinator.mock.calls.at(-1)?.[0] as {
+      attachments: { url: string }[]
+    }
+    expect(input.attachments[0].url).toBe('data:image/png;base64,AAAA#fitted')
   })
 })
