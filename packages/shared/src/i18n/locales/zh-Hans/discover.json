@@ -1,0 +1,22 @@
+{
+  "alert": "发现功能会把你保存的记忆变成主页上的个性化新闻动态——启用后，大约每天一次，你的记忆主题会发送给你的 AI 提供商（用来生成搜索查询），生成的查询会发送给 Brave（与网页搜索使用的提供商相同）。默认关闭；在你开启之前，不会有任何数据离开你的电脑。",
+  "enable": {
+    "label": "启用发现",
+    "description": "在主页显示个性化新闻动态。"
+  },
+  "braveKeyHint": "发现功能需要 Brave Search API 密钥。<2>请在内置工具中添加</2>。",
+  "topicCount": {
+    "label": "主题",
+    "description": "显示多少个由记忆生成的主题。默认 4。"
+  },
+  "articlesPerTopic": {
+    "label": "每个主题的文章数",
+    "description": "每个主题行显示多少篇文章。默认 3。"
+  },
+  "heading": "发现",
+  "updatedAgo": "更新于 {{time}}",
+  "refreshButton": "刷新",
+  "toast": {
+    "refreshFailed": "刷新失败"
+  }
+}

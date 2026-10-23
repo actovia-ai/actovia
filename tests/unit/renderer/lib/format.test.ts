@@ -21,6 +21,10 @@ describe('makeFormatters().list', () => {
     expect(makeFormatters('zh-Hant-TW').list(['工作', '寵物'])).toBe(
       '工作和寵物'
     )
+    expect(makeFormatters('zh-Hans').list(['工作', '宠物'])).toBe('工作和宠物')
+    expect(makeFormatters('ru').list(['Работа', 'Питомцы'])).toBe(
+      'Работа и Питомцы'
+    )
   })
 
   it('falls back to the app default for a locale it does not know', () => {

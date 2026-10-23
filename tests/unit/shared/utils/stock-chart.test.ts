@@ -60,6 +60,8 @@ describe('tradingViewLocale', () => {
     ['ja', 'ja'],
     ['ko', 'kr'],
     ['pt-BR', 'br'],
+    ['ru', 'ru'],
+    ['zh-Hans', 'zh_CN'],
     ['zh-Hant-TW', 'zh_TW'],
     ['zh-Hant-HK', 'zh_TW'],
     ['zh', 'zh_CN'],

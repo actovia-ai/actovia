@@ -9,6 +9,8 @@ import {
   ja,
   ko,
   ptBR,
+  ru,
+  zhCN,
   zhHK,
   zhTW,
   type Locale
@@ -18,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 
 const DATE_FNS: Record<LocaleId, Locale> = {
   en: enUS,
+  'zh-Hans': zhCN,
   'zh-Hant-TW': zhTW,
   'zh-Hant-HK': zhHK,
   ja,
@@ -26,6 +29,7 @@ const DATE_FNS: Record<LocaleId, Locale> = {
   de,
   es,
   'pt-BR': ptBR,
+  ru,
   it
 }
 

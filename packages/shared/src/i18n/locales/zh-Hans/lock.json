@@ -1,0 +1,46 @@
+{
+  "incorrectPin": "PIN 码错误",
+  "screen": {
+    "prompt": "输入 PIN 码以解锁 Actovia",
+    "unlockWithTouchId": "使用触控 ID 解锁",
+    "tooManyAttempts": "尝试次数过多，请在 {{seconds}} 秒后重试。"
+  },
+  "privacy": {
+    "title": "锁定与隐私",
+    "thirdParty": "对话中的股票图表是 TradingView 自己的嵌入组件：和任何嵌入图表一样，TradingView 会看到股票代码和你的 IP 地址。",
+    "enroll": {
+      "description": "设置 6 位 PIN 码来锁定 Actovia。锁定期间无法访问界面和本地 API，但后台任务会继续运行。",
+      "enterLabel": "输入 6 位 PIN 码",
+      "confirmLabel": "确认你的 PIN 码",
+      "startOver": "重新开始"
+    },
+    "idleOptions": {
+      "off": "关闭",
+      "oneMinute": "1 分钟",
+      "fiveMinutes": "5 分钟",
+      "fifteenMinutes": "15 分钟",
+      "thirtyMinutes": "30 分钟"
+    },
+    "touchIdToggleLabel": "使用触控 ID 解锁",
+    "autoLockIdle": "闲置时自动锁定",
+    "lockOnLaunch": "启动应用时锁定",
+    "lockOnSystemSleep": "系统睡眠时锁定",
+    "removeLock": {
+      "label": "移除锁定",
+      "description": "关闭应用锁定。需要输入当前的 PIN 码。",
+      "button": "移除",
+      "dialogTitle": "移除锁定？",
+      "dialogDescription": "输入当前的 PIN 码以确认。之后打开 Actovia 将不再需要 PIN 码。",
+      "confirmButton": "移除锁定"
+    },
+    "toast": {
+      "pinsDoNotMatch": "两次输入的 PIN 码不一致",
+      "setPinFailed": {
+        "title": "无法设置 PIN 码",
+        "description": "PIN 码已存在。"
+      },
+      "lockEnabled": "已启用锁定",
+      "lockRemoved": "已移除锁定"
+    }
+  }
+}

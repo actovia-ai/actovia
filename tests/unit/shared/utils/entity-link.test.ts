@@ -65,6 +65,7 @@ describe('entityTitle', () => {
 describe('wikipediaLang', () => {
   it.each([
     ['en', 'en'],
+    ['zh-Hans', 'zh'],
     ['zh-Hant-TW', 'zh'],
     ['zh-Hant-HK', 'zh'],
     ['pt-BR', 'pt'],

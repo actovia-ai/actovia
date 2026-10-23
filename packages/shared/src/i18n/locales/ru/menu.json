@@ -1,0 +1,39 @@
+{
+  "file": "Файл",
+  "newChat": "Новый чат",
+  "lockNow": "Заблокировать",
+  "settings": "Настройки…",
+  "edit": "Правка",
+  "find": "Найти",
+  "speech": "Речь",
+  "view": "Вид",
+  "window": "Окно",
+  "learnMore": "Подробнее",
+  "app": {
+    "about": "О программе {{name}}",
+    "hide": "Скрыть {{name}}",
+    "quit": "Завершить {{name}}"
+  },
+  "tray": {
+    "showApp": "Показать приложение",
+    "hideApp": "Скрыть приложение",
+    "quitActovia": "Завершить Actovia"
+  },
+  "notification": {
+    "philharmonicGroupError": "В группе «{{title}}» произошла ошибка",
+    "philharmonicGroupFinished": "Группа «{{title}}» завершила работу",
+    "agentWaiting": "{{name}} ждёт вас"
+  },
+  "attachment": {
+    "saveImageAs": "Сохранить изображение как…",
+    "copyImage": "Скопировать изображение",
+    "saveAs": "Сохранить как…"
+  },
+  "workspaceFile": {
+    "open": "Открыть",
+    "revealInFinder": "Показать в Finder",
+    "showInExplorer": "Показать в Проводнике",
+    "showInFolder": "Показать в папке",
+    "quickLook": "Быстрый просмотр"
+  }
+}

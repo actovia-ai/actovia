@@ -1,0 +1,41 @@
+{
+  "form": {
+    "breadth": {
+      "label": "广度",
+      "description": "在每一层生成多个搜索查询，探索主题的不同方面。默认值：4。"
+    },
+    "depth": {
+      "label": "深度",
+      "description": "递归深入，追踪线索并挖掘每个分支之间的关联。默认值：2。"
+    }
+  },
+  "tabs": {
+    "activity": "动态",
+    "sources_other": "{{count}} 个来源"
+  },
+  "messages": {
+    "start": {
+      "title": "开始深度研究...",
+      "description": "深度研究可能需要一段时间。你可以在其他对话中继续与 Actovia 聊天。最终报告完成后，Actovia 会立即通知你。"
+    },
+    "learnings_other": "已从之前的网络资源中深度研究了 {{count}} 项内容",
+    "queriesDeeper_other": "已针对之前的研究生成 {{count}} 个搜索查询",
+    "queriesForTopic_other": "已针对“{{query}}”生成 {{count}} 个搜索查询",
+    "searchedFor": "已搜索“{{query}}”",
+    "writingReport": {
+      "title": "开始撰写最终报告...",
+      "description": "深度研究阶段已完成，最终报告正在生成，稍后即可查看。"
+    },
+    "complete": {
+      "title": "深度研究已完成",
+      "description": "关于“{{query}}”的深度报告已全部生成，希望对你有帮助！"
+    },
+    "failed": {
+      "title": "深度研究失败"
+    }
+  },
+  "sources": {
+    "citations": "引用来源",
+    "more": "更多"
+  }
+}

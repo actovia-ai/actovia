@@ -1,0 +1,39 @@
+{
+  "file": "文件",
+  "newChat": "新对话",
+  "lockNow": "立即锁定",
+  "settings": "设置…",
+  "edit": "编辑",
+  "find": "查找",
+  "speech": "语音",
+  "view": "显示",
+  "window": "窗口",
+  "learnMore": "了解更多",
+  "app": {
+    "about": "关于 {{name}}",
+    "hide": "隐藏 {{name}}",
+    "quit": "退出 {{name}}"
+  },
+  "tray": {
+    "showApp": "显示应用",
+    "hideApp": "隐藏应用",
+    "quitActovia": "退出 Actovia"
+  },
+  "notification": {
+    "philharmonicGroupError": "群组“{{title}}”出错了",
+    "philharmonicGroupFinished": "群组“{{title}}”已完成",
+    "agentWaiting": "{{name}} 正在等你"
+  },
+  "attachment": {
+    "saveImageAs": "图像存储为…",
+    "copyImage": "拷贝图像",
+    "saveAs": "存储为…"
+  },
+  "workspaceFile": {
+    "open": "打开",
+    "revealInFinder": "在访达中显示",
+    "showInExplorer": "在资源管理器中显示",
+    "showInFolder": "在文件夹中显示",
+    "quickLook": "快速查看"
+  }
+}

@@ -1,0 +1,459 @@
+{
+  "container": {
+    "toast": {
+      "groupDeleted": "Группа удалена",
+      "deleteGroupFailed": "Не удалось удалить группу"
+    },
+    "tabs": {
+      "costs": "Расходы",
+      "schedule": "Расписание"
+    },
+    "noGroupSelected": {
+      "title": "Группа не выбрана",
+      "description": "Выберите группу слева или создайте новую, чтобы написать своей виртуальной команде.",
+      "createButton": "Создать группу"
+    },
+    "newGroupDefaultTitle": "Новая группа"
+  },
+  "schedule": {
+    "tab": {
+      "upcomingTrigger": "Предстоящие",
+      "recurringTrigger": "Повторяющиеся"
+    },
+    "unknownGroup": "Неизвестная группа",
+    "scheduleTaskButton": "Запланировать задачу",
+    "upcomingList": {
+      "empty": "Нет предстоящих разовых задач. Запланируйте задачу, и она появится здесь."
+    },
+    "recurringList": {
+      "empty": "Повторяющихся задач пока нет.",
+      "lastRun": "последний запуск {{time}}",
+      "nextRun": "следующий {{time}}"
+    },
+    "taskCard": {
+      "status": {
+        "pending": "Ожидает",
+        "running": "Выполняется",
+        "completed": "Завершена",
+        "failed": "Ошибка",
+        "cancelled": "Отменена",
+        "waiting_for_user": "Ждёт вас"
+      },
+      "priority": {
+        "low": "Низкий",
+        "medium": "Средний",
+        "high": "Высокий",
+        "urgent": "Срочный"
+      },
+      "cancelAria": "Отменить запланированную задачу"
+    },
+    "toast": {
+      "loadUpcomingFailed": "Не удалось загрузить предстоящие задачи",
+      "loadRecurringFailed": "Не удалось загрузить повторяющиеся задачи",
+      "taskCancelled": "Задача отменена",
+      "cancelTaskFailed": "Не удалось отменить задачу",
+      "taskScheduled": "Задача запланирована",
+      "scheduleTaskFailed": "Не удалось запланировать задачу"
+    },
+    "form": {
+      "title": "Запланировать задачу",
+      "description": "Выполняется в существующей группе — один раз или по расписанию.",
+      "titleLabel": "Название",
+      "descriptionLabel": "Описание",
+      "groupLabel": "Группа",
+      "groupPlaceholder": "Выберите группу",
+      "onceButton": "Разовая",
+      "recurringButton": "Повторяющаяся",
+      "pickDateButton": "Выбрать дату",
+      "submitting": "Планируем…",
+      "cronPresets": {
+        "dailyNine": "Каждый день в 9:00",
+        "mondayNine": "Каждый понедельник в 9:00",
+        "custom": "Своё расписание"
+      }
+    }
+  },
+  "chat": {
+    "attachmentPreview": {
+      "removeAria": "Удалить {{name}}"
+    },
+    "folder": {
+      "none": "Без папки",
+      "recent": "Недавние",
+      "new": "Новый проект…",
+      "namePlaceholder": "Название проекта, затем Enter",
+      "open": "Открыть папку…",
+      "worktree": "Worktree",
+      "failed": "Не удалось сменить папку",
+      "listFailed": "Не удалось загрузить недавние проекты",
+      "refused": "Эту папку нельзя использовать",
+      "missing": "{{name}} — папка не найдена; выберите её снова через «Открыть папку…»"
+    },
+    "uploader": {
+      "attachAria": "Прикрепить изображения",
+      "s3FallbackTitle": "Загрузка в S3 не удалась, данные встроены напрямую",
+      "attachFailedTitle": "Не удалось прикрепить файлы"
+    },
+    "composer": {
+      "placeholder": "Напишите команде…",
+      "stopAria": "Остановить",
+      "sendAria": "Отправить"
+    },
+    "planCard": {
+      "elapsed": {
+        "lessThanMin": "<1 мин",
+        "minutes": "{{count}} мин",
+        "hoursMinutes": "{{hours}} ч {{minutes}} мин"
+      },
+      "status": {
+        "active": "активен",
+        "done": "выполнен",
+        "aborted": "прерван",
+        "draft": "черновик"
+      },
+      "stepStatusAria": {
+        "pending": "Ожидает",
+        "running": "Выполняется",
+        "done": "Готово",
+        "skipped": "Пропущен",
+        "failed": "Ошибка"
+      }
+    },
+    "roles": {
+      "pm": "PM",
+      "employeeFallback": "Сотрудник"
+    },
+    "membersPanel": {
+      "heading": "Участники",
+      "coordinatorsLabel": "Координаторы",
+      "unassignedLabel": "Без команды",
+      "idleCount": "Свободны: {{count}}",
+      "busyCount": "Заняты: {{count}}",
+      "idle": "свободен",
+      "noTeam": "Без команды",
+      "pmIdleActivity": "Стратегия · свободен",
+      "emptyState": {
+        "title": "Пока нет коллег",
+        "description": "PM наберёт сотрудников по мере необходимости."
+      },
+      "quota": {
+        "fiveHour": "5 ч {{percent}}%",
+        "sevenDay": "неделя {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "лимит исчерпан · сброс {{time}}"
+      }
+    },
+    "conversationList": {
+      "configNav": {
+        "workforce": "Персонал",
+        "dashboard": "Панель"
+      },
+      "searchPlaceholder": "Поиск групп",
+      "newGroupMenuItem": "Новая группа",
+      "emptyState": {
+        "title": "Групп пока нет",
+        "description": "Создайте группу, чтобы написать своей виртуальной команде.",
+        "createButton": "+ Новая группа"
+      },
+      "searchNoMatch": "Нет групп по запросу «{{query}}»",
+      "noMessagesYetPreview": "Новая группа · сообщений пока нет",
+      "deleteDialog": {
+        "title": "Удалить эту группу?",
+        "description": "<0>{{title}}</0> и все её сообщения, задачи и запуски будут удалены безвозвратно."
+      },
+      "rename": "Переименовать",
+      "renameDialog": {
+        "title": "Переименовать группу"
+      }
+    },
+    "dateLabels": {
+      "today": "Сегодня",
+      "yesterday": "Вчера"
+    },
+    "groupChat": {
+      "errorTitle": "В группе произошла ошибка",
+      "memberCount_one": "{{count}} участник",
+      "memberCount_few": "{{count}} участника",
+      "memberCount_many": "{{count}} участников",
+      "memberCount_other": "{{count}} участника",
+      "toggleMembersAria": "Показать или скрыть участников",
+      "emptyState": {
+        "title": "Поручите что-нибудь команде",
+        "description": "Опишите, что нужно. PM проанализирует задачу, наберёт виртуальных сотрудников, распределит работу и доложит здесь."
+      },
+      "askUser": {
+        "replyPlaceholder": "Ответить PM…",
+        "sendButton": "Отправить"
+      }
+    },
+    "decision": {
+      "toggle": "Ход решения",
+      "delegations": "Поручено: {{count}}",
+      "waits": "Ожиданий: {{count}}",
+      "loading": "Загрузка…",
+      "unavailable": "Запись этого раунда недоступна.",
+      "triggerUser": "Вы написали",
+      "triggerScheduled": "По расписанию",
+      "reports": "Прочитаны отчёты от",
+      "thinking": "Размышления",
+      "delegate": "Поручил шаг: {{who}}",
+      "refused": "Не начато — квота {{name}} исчерпана",
+      "wait": "Ждал квоту {{name}} — {{reason}}",
+      "plan": "Запланировано шагов: {{count}}",
+      "updateStep": "Отметил шаг: {{status}}",
+      "appendStep": "Добавил шаг",
+      "recruit": "Нанял: {{name}}",
+      "report": "Написал отчёт",
+      "askUser": "Задал вам вопрос",
+      "search": "Искал в базе знаний",
+      "otherTool": "Вызвал {{tool}}",
+      "failed": "ошибка",
+      "details": "Аргументы и результат",
+      "usage": "{{input}} вход · {{output}} выход · ${{cost}}",
+      "error": "Остановлено: {{message}}",
+      "interrupted": "Вы остановили этот раунд",
+      "formerEmployee": "бывший сотрудник",
+      "waitRefused": "Не стал ждать — {{reason}}",
+      "wakeAt": "возобновлено в {{time}}",
+      "cliDefault": "по умолчанию в CLI",
+      "status": {
+        "pending": "ожидает",
+        "running": "выполняется",
+        "done": "выполнен",
+        "skipped": "пропущен",
+        "failed": "ошибка"
+      }
+    }
+  },
+  "employees": {
+    "avatar": {
+      "alt": "аватар"
+    },
+    "picker": {
+      "reroll": "Сменить"
+    },
+    "editor": {
+      "header": {
+        "label": "Сотрудник",
+        "newFallback": "Новый сотрудник"
+      },
+      "avatarAria": "Изменить аватар",
+      "fields": {
+        "name": "Имя",
+        "team": "Команда",
+        "teamPlaceholder": "Выберите команду",
+        "teamHelp": "Каждый сотрудник состоит в команде — системный промпт команды применяется ко всем её участникам.",
+        "description": "Описание",
+        "descriptionPlaceholder": "Одна строка о том, чем занимается сотрудник.",
+        "systemPrompt": "Системный промпт",
+        "systemPromptPlaceholder": "Добавляется поверх промпта команды.",
+        "skills": "Навыки",
+        "noSkills": "Навыки пока не установлены.",
+        "mcpServers": "MCP-серверы",
+        "noMcpServers": "MCP-серверы пока не настроены.",
+        "mcpServersHelp": "Если ничего не выбрано, сотрудник может пользоваться всеми доступными серверами.",
+        "memory": "Память (только чтение)",
+        "noMemory": "Память пока пуста"
+      }
+    },
+    "runtime": {
+      "label": "Где работает",
+      "actovia": "Actovia"
+    },
+    "model": {
+      "label": "Модель",
+      "default": "По умолчанию (модель приложения)",
+      "cliDefault": "По умолчанию в CLI",
+      "cliHint": "Так, как её называет CLI: opus, sonnet, haiku или полный ID модели."
+    },
+    "permission": {
+      "label": "Разрешения",
+      "hint": "Что можно делать, не спрашивая вас. Обо всём остальном агент всегда спрашивает.",
+      "default": "Спрашивать перед изменениями",
+      "acceptEdits": "Свободно править файлы, спрашивать перед командами",
+      "auto": "Авто (CLI сам решает, что безопасно)",
+      "codex": {
+        "default": "Спрашивать перед каждой командой и изменением файла",
+        "acceptEdits": "Свободно работать внутри папки; спрашивать, чтобы выйти за её пределы",
+        "auto": "Никогда не спрашивать; только внутри папки, без сети",
+        "hint": "Codex всегда работает в песочнице, ограниченной папкой группы."
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "Инструкции, добавляемые к каждой задаче"
+    }
+  },
+  "teams": {
+    "editor": {
+      "header": {
+        "label": "Команда",
+        "newFallback": "Новая команда"
+      },
+      "fields": {
+        "name": "Название",
+        "icon": "Значок (эмодзи, необязательно)",
+        "description": "Описание",
+        "descriptionPlaceholder": "Кратко о том, чем занимается команда.",
+        "systemPrompt": "Системный промпт",
+        "systemPromptPlaceholder": "Общие инструкции, добавляемые в промпт каждого участника команды."
+      }
+    }
+  },
+  "costAnalysis": {
+    "header": {
+      "title": "Панель"
+    },
+    "periodToggle": {
+      "sevenDays": "7 дн",
+      "thirtyDays": "30 дн",
+      "all": "Всё"
+    },
+    "loading": "Загружаем данные об использовании…",
+    "kpi": {
+      "totalCost": "Общие расходы",
+      "totalCostHint_one": "По {{count}} сотруднику",
+      "totalCostHint_few": "По {{count}} сотрудникам",
+      "totalCostHint_many": "По {{count}} сотрудникам",
+      "totalCostHint_other": "По {{count}} сотрудникам",
+      "tokens": "Токены",
+      "tokensHint": "Всего обработано",
+      "employees": "Сотрудники",
+      "employeesHint": "С учтённым использованием",
+      "conversations": "Беседы",
+      "conversationsHint": "С активностью"
+    },
+    "chart": {
+      "costLabel": "Расходы",
+      "sectionTitle": "Расходы по времени"
+    },
+    "agentCostList": {
+      "title": "Расходы по сотрудникам",
+      "empty": "Данных об использовании сотрудниками пока нет",
+      "tokens": "Токенов: {{tokens}}"
+    },
+    "conversationCostList": {
+      "title": "Расходы по беседам",
+      "empty": "Данных об использовании в беседах пока нет",
+      "deleted": "Удалённая группа"
+    }
+  },
+  "workforce": {
+    "header": {
+      "title": "Персонал",
+      "employeeCount_one": "{{count}} сотрудник",
+      "employeeCount_few": "{{count}} сотрудника",
+      "employeeCount_many": "{{count}} сотрудников",
+      "employeeCount_other": "{{count}} сотрудника",
+      "teamCount_one": "{{count}} команда",
+      "teamCount_few": "{{count}} команды",
+      "teamCount_many": "{{count}} команд",
+      "teamCount_other": "{{count}} команды",
+      "addTeamButton": "Команда",
+      "addEmployeeButton": "Сотрудник",
+      "createTeamFirstTitle": "Сначала создайте команду"
+    },
+    "emptyState": {
+      "title": "Начните с команды",
+      "description": "Каждый сотрудник состоит в команде, которая задаёт общий системный промпт. Сначала создайте команду, затем добавьте в неё сотрудников.",
+      "createButton": "+ Новая команда"
+    },
+    "teamSection": {
+      "editTeam": "Изменить команду",
+      "addEmployeeHere": "Добавить сотрудника сюда",
+      "deleteTeam": "Удалить команду",
+      "unassignedFallback": "Без команды",
+      "addEmployeeButton": "Добавить сотрудника"
+    },
+    "newEmployeeDefaultName": "Новый сотрудник",
+    "newTeamDefaultName": "Новая команда",
+    "deleteEmployeeDialog": {
+      "title": "Удалить этого сотрудника?",
+      "description": "<0>{{name}}</0> будет удалён безвозвратно вместе с накопленной памятью."
+    },
+    "deleteTeamDialog": {
+      "title": "Удалить эту команду?",
+      "description": "Команда <0>{{name}}</0> будет удалена. Её участники сохранят свои записи, но перестанут к ней относиться."
+    },
+    "toast": {
+      "created": "«{{name}}» создан(а)",
+      "deleted": "«{{name}}» удалён(а)",
+      "saveEmployeeFailed": "Не удалось сохранить сотрудника",
+      "deleteEmployeeFailed": "Не удалось удалить сотрудника",
+      "saveTeamFailed": "Не удалось сохранить команду",
+      "deleteTeamFailed": "Не удалось удалить команду"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "Агенты для программирования — это сотрудники Philharmonic, которых запускает установленный вами CLI, в котором вы вошли в аккаунт. Actovia запускает его в папке группы, показывает, что он делает, и останавливается, когда он вас о чём-то спрашивает.",
+      "clisTitle": "На этом Mac",
+      "runTitle": "Как они работают",
+      "projectsDir": {
+        "label": "Папка проектов",
+        "description": "Здесь создаются новые проекты, и каждый проект хранит здесь свои заметки и журналы — даже если работа идёт в открытой вами папке.",
+        "choose": "Выбрать…"
+      },
+      "maxRunning": {
+        "label": "Агентов одновременно",
+        "description": "Остальные шаги ждут свободного места. Каждый агент расходует ресурсы вашего компьютера и вашего тарифа."
+      },
+      "keepAlive": {
+        "label": "Держать агента наготове (минуты)",
+        "description": "После шага процесс ждёт столько времени, чтобы следующий шаг начался сразу. 0 — остановить сразу."
+      },
+      "worktrees": {
+        "label": "Отдельные worktree",
+        "description": "Когда два агента одновременно работают в одном git-репозитории, каждый получает свой worktree и ветку. Слияние — на ваше усмотрение."
+      },
+      "safety": "Агенты для программирования работают со своими разрешениями в папке, которую вы им даёте. Actovia никогда не отвечает на их вопросы и не одобряет их действия за вас."
+    },
+    "cli": {
+      "check": "Проверить",
+      "notFound": "Не найден на этом Mac",
+      "state": {
+        "ready": "Готов",
+        "notInstalled": "Не установлен",
+        "broken": "Неисправен",
+        "tooOld": "Устарел",
+        "loggedOut": "Вход не выполнен"
+      },
+      "hint": {
+        "install": "Установите его, затем нажмите «Проверить».",
+        "reinstall": "Его загрузчик на месте, но запускаемая программа отсутствует — переустановите его.",
+        "update": "Обновите его до последней версии, затем нажмите «Проверить».",
+        "login": "Запустите его один раз в Терминале и войдите в аккаунт, затем нажмите «Проверить»."
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} ждёт вас"
+    },
+    "card": {
+      "state": {
+        "queued": "Ждёт свободного места",
+        "working": "Работает",
+        "waiting": "Ждёт вас",
+        "done": "Готово",
+        "stopped": "Остановлен",
+        "failed": "Ошибка"
+      },
+      "moreSteps_one": "{{count}} предыдущий шаг",
+      "moreSteps_few": "{{count}} предыдущих шага",
+      "moreSteps_many": "{{count}} предыдущих шагов",
+      "moreSteps_other": "{{count}} предыдущих шага",
+      "wantsTo": "{{name}} хочет использовать {{tool}}",
+      "reasonPlaceholder": "Объясните почему (необязательно, отправится при отказе)",
+      "allow": "Разрешить",
+      "deny": "Запретить",
+      "other": "Другое…",
+      "secretPlaceholder": "Секрет — отправляется агенту, не сохраняется",
+      "submit": "Ответить",
+      "answerFailed": "Ваш ответ не дошёл",
+      "stop": "Остановить",
+      "continueInTerminal": "Продолжить в Терминале",
+      "terminalFailed": "Не удалось открыть Терминал",
+      "stopFailed": "Не удалось остановить",
+      "folderFailed": "Не удалось открыть папку",
+      "inTerminal": "Продолжено в Терминале — Actovia подхватит работу на следующем шаге."
+    }
+  }
+}

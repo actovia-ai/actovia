@@ -896,6 +896,8 @@ describe('devices.pairing.steps.navigate renders correctly via Trans', () => {
     'ja',
     'ko',
     'pt-BR',
+    'ru',
+    'zh-Hans',
     'zh-Hant-HK',
     'zh-Hant-TW'
   ]

@@ -1,0 +1,1079 @@
+{
+  "general": {
+    "language": {
+      "label": "语言",
+      "description": "Actovia 界面所使用的语言。",
+      "auto": "自动（跟随系统）"
+    },
+    "theme": {
+      "label": "主题",
+      "description": "选择浅色、深色，或跟随系统设置",
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "colorTone": {
+      "label": "色调",
+      "description": "为界面选择一种强调色",
+      "tones": {
+        "neutral": "中性",
+        "emerald": "翡翠绿",
+        "blue": "蓝色",
+        "violet": "紫罗兰",
+        "rose": "玫瑰红",
+        "orange": "橙色",
+        "yellow": "黄色"
+      }
+    },
+    "runOnStartup": {
+      "label": "开机启动",
+      "description": "登录时自动启动 Actovia"
+    },
+    "menuBar": {
+      "label": "菜单栏",
+      "description": "在菜单栏中显示 Actovia"
+    }
+  },
+  "nav": {
+    "profile": {
+      "title": "个人资料"
+    },
+    "general": {
+      "title": "通用"
+    },
+    "personality": {
+      "title": "个性"
+    },
+    "aiProviders": {
+      "title": "AI 服务商"
+    },
+    "amazonS3": {
+      "title": "AWS S3"
+    },
+    "mcpServers": {
+      "title": "MCP 服务器"
+    },
+    "skillsMarket": {
+      "title": "技能市场"
+    },
+    "knowledgeBase": {
+      "title": "知识库"
+    },
+    "builtinTools": {
+      "title": "内置工具"
+    },
+    "memory": {
+      "title": "记忆"
+    },
+    "discover": {
+      "title": "发现"
+    },
+    "voice": {
+      "title": "语音"
+    },
+    "deepResearch": {
+      "title": "深度研究"
+    },
+    "computerUse": {
+      "title": "电脑操控"
+    },
+    "agents": {
+      "title": "智能体"
+    },
+    "dataControls": {
+      "title": "数据管理"
+    },
+    "logger": {
+      "title": "日志"
+    },
+    "chatAudit": {
+      "title": "聊天审计"
+    },
+    "keyboardShortcuts": {
+      "title": "键盘快捷键"
+    },
+    "about": {
+      "title": "关于"
+    },
+    "devices": {
+      "title": "设备"
+    },
+    "group": {
+      "personal": "个人",
+      "aiTools": "AI 与工具",
+      "integrations": "集成",
+      "storage": "存储",
+      "developer": "开发者"
+    }
+  },
+  "common": {
+    "searchPlaceholder": "搜索设置…",
+    "backToApp": "返回应用"
+  },
+  "keyboardShortcuts": {
+    "category": {
+      "general": "通用",
+      "chat": "聊天",
+      "search": "搜索"
+    },
+    "shortcuts": {
+      "new-chat": {
+        "label": "新建聊天"
+      },
+      "open-settings": {
+        "label": "打开设置"
+      },
+      "go-back": {
+        "label": "后退"
+      },
+      "go-forward": {
+        "label": "前进"
+      },
+      "lock-now": {
+        "label": "立即锁定"
+      },
+      "toggle-developer-tools": {
+        "label": "切换开发者工具"
+      },
+      "toggle-sidebar": {
+        "label": "切换侧边栏"
+      },
+      "force-refresh-page": {
+        "label": "强制刷新页面"
+      },
+      "find-in-page": {
+        "label": "在页面中查找"
+      },
+      "search-chat-history": {
+        "label": "搜索聊天记录"
+      },
+      "close-find-bar": {
+        "label": "关闭查找栏"
+      },
+      "close-tab": {
+        "label": "关闭聊天"
+      },
+      "focus-chat-input": {
+        "label": "聚焦聊天输入框"
+      },
+      "send-message": {
+        "label": "发送消息"
+      },
+      "new-line": {
+        "label": "换行"
+      }
+    },
+    "alwaysOn": "始终开启"
+  },
+  "about": {
+    "sections": {
+      "runtime": "运行环境",
+      "links": "链接"
+    },
+    "version": "版本",
+    "electron": "Electron",
+    "chromium": "Chromium",
+    "node": "Node.js",
+    "v8": "V8",
+    "os": "操作系统",
+    "github": "GitHub",
+    "twitter": "X（Twitter）",
+    "website": "网站",
+    "license": "许可协议",
+    "autoUpdate": {
+      "label": "自动更新",
+      "description": "有更新时自动下载并安装"
+    },
+    "update": {
+      "checkPrompt": "检查最新版本",
+      "checkButton": "检查更新",
+      "checking": "正在检查更新…",
+      "upToDate": "你使用的已是最新版本",
+      "checkAgain": "再次检查",
+      "available": "有可用更新",
+      "availableVersion": "版本 {{version}}",
+      "download": "下载",
+      "downloadPage": "打开下载页面",
+      "manualHint": "此版本无法自动更新。请下载新版本并替换现有应用。",
+      "downloading": "正在下载更新…",
+      "ready": "更新已就绪，可以安装",
+      "readyDescription": "重启以应用更新",
+      "restartAndInstall": "重启并安装",
+      "failed": "更新失败"
+    }
+  },
+  "personality": {
+    "sections": {
+      "style": "风格",
+      "instructions": "指令",
+      "aboutYou": "关于你"
+    },
+    "baseStyle": {
+      "label": "基本风格与语气",
+      "description": "设置 Actovia 回复你时的风格与语气",
+      "options": {
+        "default": "默认",
+        "professional": "专业",
+        "friendly": "友好",
+        "candid": "坦率",
+        "quirky": "俏皮",
+        "efficient": "高效",
+        "cynical": "犀利"
+      }
+    },
+    "level": {
+      "default": "默认",
+      "more": "更多",
+      "less": "更少"
+    },
+    "warm": "温暖",
+    "enthusiastic": "热情",
+    "headersAndLists": "标题与列表",
+    "emoji": "表情符号",
+    "customInstructions": {
+      "label": "自定义指令",
+      "placeholder": "其他行为、风格与语气偏好"
+    },
+    "nickname": {
+      "label": "昵称",
+      "placeholder": "Actovia 该怎么称呼你？"
+    },
+    "occupation": {
+      "label": "职业",
+      "placeholder": "例如：软件工程师、设计师"
+    },
+    "aboutYou": {
+      "label": "关于你的更多信息",
+      "placeholder": "希望被记住的兴趣、价值观或偏好"
+    }
+  },
+  "profile": {
+    "stats": {
+      "lifetimeTokens": "累计 Token 数",
+      "peakDay": "使用高峰日",
+      "currentStreak": "当前连续天数",
+      "longestStreak": "最长连续天数"
+    },
+    "activity": {
+      "heading": "Token 使用活动",
+      "mode": {
+        "daily": "每日",
+        "cumulative": "累计"
+      },
+      "cellTooltip": "{{date}} · {{tokens}} 个 token"
+    },
+    "insights": {
+      "sectionTitle": "活动洞察",
+      "totalChats": "聊天总数",
+      "modelRequests": "模型请求数",
+      "installedSkills": "已安装技能",
+      "activeSkills": "已启用技能"
+    },
+    "topModels": {
+      "sectionTitle": "常用模型",
+      "empty": "暂无模型使用记录"
+    },
+    "avatar": {
+      "uploadLabel": "上传你的头像",
+      "alt": "你的头像"
+    }
+  },
+  "providers": {
+    "config": {
+      "label": "服务商",
+      "description": "用于聊天的 AI 服务商",
+      "placeholder": "选择服务商"
+    },
+    "keys": {
+      "sectionTitle": "服务商密钥",
+      "description": "每个标签页保存一个服务商的密钥。编辑标签页不会更改当前使用的服务商——那由上方的“服务商”决定。",
+      "inUse": "使用中"
+    },
+    "fields": {
+      "apiKey": {
+        "label": "API 密钥",
+        "description": "你的 {{provider}} API 密钥"
+      },
+      "baseUrl": {
+        "label": "基础 URL",
+        "description": "自定义 API 端点，留空则使用默认值"
+      }
+    },
+    "azure": {
+      "endpoint": {
+        "label": "端点",
+        "description": "你的 Azure OpenAI 资源端点 URL"
+      },
+      "apiVersion": {
+        "label": "API 版本",
+        "description": "Azure OpenAI API 版本字符串"
+      },
+      "model": {
+        "label": "模型",
+        "description": "要使用的 Azure 部署名称"
+      }
+    },
+    "ollama": {
+      "baseUrl": {
+        "label": "基础 URL",
+        "description": "用于本地模型推理的 Ollama 服务器地址"
+      },
+      "status": {
+        "label": "状态",
+        "description": "Ollama 服务器的连接状态",
+        "running": "Ollama 正在运行",
+        "notRunning": "未运行"
+      }
+    },
+    "model": {
+      "label": "模型",
+      "description": "此服务商使用的模型",
+      "searchPlaceholder": "搜索模型…",
+      "noModelsFound": "未找到模型。",
+      "refreshHint": "刷新以查看所有可用模型。",
+      "staleWarning": "此服务商已不再提供“{{model}}”——请选择当前可用的模型。",
+      "retrieving": "获取中…",
+      "refreshing": "刷新中…",
+      "retrieve": "获取模型列表",
+      "refresh": "刷新模型列表",
+      "fetchErrorTitle": "无法获取模型列表",
+      "fetchErrorFallback": "获取模型列表失败",
+      "reenterKey": "请重新输入 API 密钥，才能配合新的基础 URL 使用。",
+      "retiring": "即将停用",
+      "retired": "已停用",
+      "retiringOn": "将于 {{date}} 停用",
+      "retiredOn": "已于 {{date}} 停用"
+    }
+  },
+  "tools": {
+    "intro": "模型可以自行调用的工具。关闭某个工具后，它不会出现在任何聊天中。需要密钥或带有选项的工具，其设置就在该行下方；已开启但缺少密钥的工具会一直提示，直到设置完成。",
+    "configure": "配置",
+    "needsKey": {
+      "webSearch": "需要 Brave Search API 密钥",
+      "imageGeneration": "需要 OpenAI API 密钥——请在“服务商”中设置",
+      "mapItinerary": "需要 Google API 密钥"
+    },
+    "groups": {
+      "web": "网络",
+      "fileSystem": "文件系统",
+      "aiData": "AI 与数据",
+      "maps": "地图"
+    },
+    "registry": {
+      "weather": {
+        "label": "天气",
+        "description": "按地点查询当前天气与预报"
+      },
+      "webSearch": {
+        "label": "网页搜索",
+        "description": "通过 Brave Search API 搜索网页（需要 API 密钥）"
+      },
+      "webFetch": {
+        "label": "网页抓取",
+        "description": "抓取 URL 的内容（文档、API、GitHub 文件）"
+      },
+      "terminal": {
+        "label": "终端",
+        "description": "在你的电脑上执行 shell 命令"
+      },
+      "readFile": {
+        "label": "读取文件",
+        "description": "按路径读取文件内容"
+      },
+      "writeFile": {
+        "label": "写入文件",
+        "description": "创建或覆盖文件"
+      },
+      "editFile": {
+        "label": "编辑文件",
+        "description": "在现有文件中进行定向字符串替换"
+      },
+      "listDirectory": {
+        "label": "列出目录",
+        "description": "列出目录中的文件和文件夹"
+      },
+      "findFiles": {
+        "label": "查找文件",
+        "description": "按 glob 模式搜索文件"
+      },
+      "grep": {
+        "label": "Grep",
+        "description": "按正则表达式搜索文件内容"
+      },
+      "imageGeneration": {
+        "label": "图像生成",
+        "description": "通过 DALL-E 生成图像（需要 OpenAI API 密钥）"
+      },
+      "searchKnowledgeBase": {
+        "label": "知识库",
+        "description": "从你的知识库检索上下文（需要配置 LightRAG URL）"
+      },
+      "updateMemory": {
+        "label": "更新记忆",
+        "description": "当你告诉助手关于你的某些信息有误时，助手可以修正、添加或删除记忆。"
+      },
+      "recall": {
+        "label": "回溯",
+        "description": "让助手从已保存的内容中完整读回较早轮次里只剩摘要的搜索结果或工具输出，无需重新搜索。"
+      },
+      "mapItinerary": {
+        "label": "地图行程",
+        "description": "在一张交互式地图卡片上展示地点、路线和多日行程"
+      }
+    },
+    "googleMaps": {
+      "apiKey": {
+        "label": "Google API 密钥",
+        "description": "用于地图路线规划（点到点导航）和地点功能（地点查询）。可在 Google Cloud 控制台获取。",
+        "placeholder": "输入你的 Google API 密钥"
+      }
+    },
+    "imageGeneration": {
+      "model": {
+        "label": "模型",
+        "description": "仅限 OpenAI——使用你配置的 OpenAI API 密钥。",
+        "placeholder": "选择模型"
+      },
+      "size": {
+        "label": "尺寸",
+        "description": "生成图像的尺寸。"
+      },
+      "quality": {
+        "label": "质量",
+        "description": "生成图像的质量等级。"
+      },
+      "outputFormat": {
+        "label": "输出格式",
+        "description": "如果背景为透明，输出格式应设为 png（默认）或 webp。"
+      },
+      "generatedCounts": {
+        "label": "生成数量",
+        "description": "要生成的图像数量，须在 1 到 10 之间。"
+      },
+      "background": {
+        "label": "背景",
+        "description": "设置生成图像的背景样式。"
+      }
+    },
+    "webSearch": {
+      "apiKey": {
+        "label": "Brave Search API 密钥",
+        "description": "网页搜索所必需。请在 api-dashboard.search.brave.com 获取。"
+      },
+      "country": {
+        "label": "国家/地区",
+        "description": "让搜索结果偏向特定地区",
+        "placeholder": "选择国家/地区...",
+        "empty": "未找到国家/地区。"
+      },
+      "languages": {
+        "label": "语言",
+        "description": "按语言筛选搜索结果",
+        "placeholder": "搜索语言...",
+        "empty": "未找到语言。"
+      },
+      "maxResults": {
+        "label": "最大结果数",
+        "description": "每次搜索返回的来源数量（1–20）。默认：10。"
+      },
+      "deepRecall": {
+        "label": "深度检索",
+        "description": "用三种问法搜索，并追加一轮更广的搜索——论坛、新闻，以及首次搜索遗漏的页面。每次搜索的来源和 token 更多，Brave 请求约六次而非一次。"
+      },
+      "recency": {
+        "label": "时间范围筛选",
+        "description": "只返回特定近期时间范围内的结果。",
+        "options": {
+          "none": "不筛选",
+          "hour": "过去一小时",
+          "day": "过去 24 小时",
+          "week": "过去一周",
+          "month": "过去一个月",
+          "year": "过去一年"
+        }
+      },
+      "domainFilter": {
+        "label": "域名筛选",
+        "description": "以逗号分隔，前加 - 表示排除。例如“nature.com, .edu”或“-reddit.com”"
+      }
+    },
+    "voice": {
+      "alert": "文字转语音和语音转文字服务<strong>仅支持 OpenAI</strong>。使用这些功能前，请确认已正确配置 OpenAI API。",
+      "speechToTextModel": {
+        "label": "语音转文字模型",
+        "description": "将语音输入转写为文字"
+      },
+      "textToSpeechModel": {
+        "label": "文字转语音模型",
+        "description": "将文字回复转换为语音。gpt-4o-mini-tts 支持语气/风格指令。"
+      },
+      "textToSpeechVoice": {
+        "label": "文字转语音音色",
+        "description": "生成语音所使用的声音角色"
+      },
+      "outputFormat": {
+        "label": "输出格式",
+        "description": "生成语音的音频格式"
+      },
+      "speed": {
+        "label": "语速",
+        "description": "播放速度（0.25 – 4.0，默认 1.0）"
+      },
+      "instructions": {
+        "label": "语音指令",
+        "description": "用自然语言控制语气、情感和风格（仅限 gpt-4o-mini-tts）",
+        "placeholder": "例如：用温暖友好的语气说话，带一点英式口音"
+      }
+    },
+    "s3": {
+      "alert": {
+        "encoding": "默认情况下，Actovia 会将附件以 <strong>base64</strong> 编码内嵌在提示词中。对于大文件或大量使用图像的工作流，上传到 S3 并传递 URL 会更高效、更可靠。",
+        "requirementsHeading": "<strong>配置前的前提条件：</strong>",
+        "publicReadAccess": "<strong>公开读取权限</strong>——AWS 默认阻止公开访问。你必须关闭存储桶的“阻止所有公开访问”，并附加一条存储桶策略，将 <2>s3:GetObject</2> 授予 <4>*</4>，让 AI 服务商无需凭证即可获取该 URL。",
+        "cors": "<strong>CORS</strong>——添加一条 CORS 规则，允许来自 <5>*</5>（或你的应用来源）的 <2>PUT</2> 请求，让 Actovia 能直接从桌面端上传。",
+        "iamCredentials": "<strong>IAM 凭证</strong>——访问密钥 ID / 私有访问密钥必须属于一个对所配置存储桶至少拥有 <2>s3:PutObject</2> 和 <5>s3:PutObjectAcl</5> 权限的 IAM 用户或角色。",
+        "objectAcl": "<strong>对象 ACL</strong>——每个上传的对象都会被设为 <3>public-read</3>。你的存储桶不能禁用 ACL（即对象所有权须设为 <6>已启用 ACL / 存储桶拥有者优先</6>）。"
+      },
+      "region": {
+        "label": "区域",
+        "description": "你的 S3 存储桶所在的 AWS 区域。"
+      },
+      "bucket": {
+        "label": "存储桶",
+        "description": "用于文件上传的 S3 存储桶名称。",
+        "placeholder": "你的 S3 存储桶"
+      },
+      "accessKeyId": {
+        "label": "访问密钥 ID",
+        "description": "具有 S3 写入权限的 IAM 访问密钥 ID。"
+      },
+      "secretAccessKey": {
+        "label": "私有访问密钥",
+        "description": "与上方访问密钥 ID 配对的 IAM 私有访问密钥。"
+      }
+    }
+  },
+  "dataControls": {
+    "sections": {
+      "backups": "备份",
+      "transfer": "导出与导入",
+      "danger": "危险操作"
+    },
+    "autoBackup": {
+      "label": "自动备份",
+      "description": "每天凌晨 3:00 备份你的数据。备份保存在本地的 ~/.actovia/backups/。"
+    },
+    "lastBackup": {
+      "label": "上次备份",
+      "none": "暂无备份"
+    },
+    "backupNow": {
+      "button": "立即备份",
+      "successToast": "已创建备份",
+      "errorToast": "备份失败"
+    },
+    "recentBackups": {
+      "label": "最近的备份",
+      "description_other": "已保存 {{count}} 份备份"
+    },
+    "export": {
+      "label": "导出数据",
+      "description": "将你的对话、设置和其他数据下载为可移植的 ZIP 压缩包。API 密钥和其他机密信息不会包含在导出文件中。",
+      "button": "导出",
+      "successToast": "数据导出成功",
+      "errorToast": "导出失败",
+      "errorFallback": "数据导出失败。"
+    },
+    "import": {
+      "label": "导入数据",
+      "description": "从之前导出的 ZIP 压缩包恢复。这将替换所有现有数据。",
+      "button": "导入",
+      "dialogDescription": "选择之前导出的 ZIP 文件。这将替换所有现有的对话和数据。导入前会自动创建备份。",
+      "confirmButton": "替换并导入",
+      "successToast": "数据导入成功",
+      "errorToast": "导入失败",
+      "errorFallback": "数据导入失败。"
+    },
+    "delete": {
+      "label": "删除所有数据",
+      "description": "永久清除所有对话、记忆和研究数据。你的设置将会保留。",
+      "dialogDescription": "这将永久删除你所有的对话、记忆、研究数据和上传的文档。你的设置和 API 密钥将会保留。删除前会先创建备份。",
+      "confirmPrompt": "输入 <strong>DELETE</strong> 以确认：",
+      "confirmButton": "全部删除",
+      "successToast": "所有数据已删除",
+      "errorToast": "删除失败",
+      "errorFallback": "数据删除失败。"
+    }
+  },
+  "logger": {
+    "filters": {
+      "allScopes": "全部",
+      "datePlaceholder": "日期",
+      "scopePlaceholder": "范围",
+      "traceChip": "追踪 {{id}}",
+      "searchPlaceholder": "搜索  ·  scope:chat  trace:a1b2  -排除",
+      "clear": "清除筛选"
+    },
+    "actions": {
+      "openDirectory": "打开目录",
+      "export": "导出",
+      "clearAll": "全部清除",
+      "clearAllConfirm": "确定要删除所有日志文件吗？",
+      "more": "更多操作"
+    },
+    "toast": {
+      "exported": "日志已导出",
+      "exportFailed": "导出失败",
+      "cleared": "已清除所有日志",
+      "clearFailed": "清除日志失败"
+    },
+    "table": {
+      "time": "时间",
+      "level": "级别",
+      "scope": "范围",
+      "message": "消息",
+      "empty": "未找到日志条目。",
+      "noMatch": "没有符合这些筛选条件的记录。"
+    },
+    "pagination": {
+      "pageOf": "第 {{page}} 页，共 {{totalPages}} 页",
+      "prev": "上一页",
+      "next": "下一页",
+      "range": "第 {{from}}–{{to}} 行，共 {{total}} 行"
+    },
+    "details": {
+      "stack": "堆栈跟踪",
+      "componentStack": "组件堆栈",
+      "attributes": "属性"
+    },
+    "live": {
+      "label": "实时",
+      "onlyToday": "实时模式只跟随今天的日志"
+    },
+    "levels": {
+      "error": "错误",
+      "warn": "警告",
+      "info": "信息",
+      "debug": "调试"
+    },
+    "chart": {
+      "lines_other": "行",
+      "newestFirst": "最新在前",
+      "label": "随时间变化的行数",
+      "noLines": "没有记录"
+    },
+    "detail": {
+      "previous": "上一行",
+      "next": "下一行",
+      "close": "关闭",
+      "linesAround": "前后记录",
+      "copyForAi": "复制给 AI",
+      "sameTrace": "同一追踪",
+      "message": "消息",
+      "fields": "字段",
+      "resource": "资源",
+      "copied": "已复制给 AI"
+    }
+  },
+  "mcpServers": {
+    "serverCard": {
+      "toolCount_other": "{{count}} 个工具",
+      "editAria": "编辑服务器",
+      "deleteAria": "删除服务器",
+      "showTools": "显示工具",
+      "hideTools": "隐藏工具",
+      "reenter": "需要重新输入：{{fields}}"
+    },
+    "intro": "注册 <2>MCP</2> 服务器（本地或远程），然后打开开关，即可在聊天中启用其工具。",
+    "activeSummary": "当前有来自 <strong>{{activeCount}} 个服务器</strong>的 <strong>{{totalToolCount}} 个工具</strong>已启用。",
+    "tabs": {
+      "servers": "服务器",
+      "json": "JSON"
+    },
+    "empty": "尚未配置任何 MCP 服务器。",
+    "emptyHint": "你注册的服务器会显示在这里，每个都有一个控制其工具的开关。",
+    "addCard": {
+      "title": "添加 MCP 服务器",
+      "description": "本地命令（stdio）或远程 URL。开启后，其工具即可在聊天中使用。"
+    },
+    "deleteDialog": {
+      "title": "要移除 {{name}} 吗？",
+      "description": "其工具将从聊天中消失，命令、请求头和配置也会一并删除。之后可以重新注册。",
+      "confirm": "移除"
+    },
+    "form": {
+      "transport": {
+        "label": "传输方式",
+        "description": "连接 MCP 服务器的方式",
+        "options": {
+          "stdio": "Stdio（本地命令）",
+          "streamableHttp": "Streamable HTTP（远程）",
+          "sse": "SSE（远程，旧版）"
+        }
+      },
+      "name": {
+        "label": "名称",
+        "description": "此服务器的唯一标识名称"
+      },
+      "command": {
+        "label": "命令",
+        "description": "用于启动 MCP 服务器的可执行命令"
+      },
+      "args": {
+        "label": "参数",
+        "description": "命令参数，每行一个。顺序很重要。",
+        "addButton": "添加参数",
+        "removeAria": "移除参数 {{index}}",
+        "secretNotice": "服务器运行期间，参数中的密钥对这台电脑上的其他程序可见——请改放在环境变量中。"
+      },
+      "url": {
+        "label": "URL",
+        "description": "远程服务器的 {{protocol}} 端点 URL"
+      },
+      "headers": {
+        "label": "请求头",
+        "description": "以 JSON 格式提供可选的认证/自定义请求头，例如 {\"Authorization\":\"Bearer ...\"}"
+      },
+      "description": {
+        "label": "描述",
+        "description": "关于此服务器的可选备注",
+        "placeholder": "可选"
+      },
+      "extraConfig": {
+        "label": "额外配置",
+        "description": "合并到 JSON 导出内容中的其他字段（例如 oauth、自定义认证）。必须是有效的 JSON 对象。"
+      },
+      "updateButton": "更新",
+      "registerButton": "注册",
+      "addServerButton": "添加服务器",
+      "env": {
+        "label": "环境变量",
+        "description": "传递给命令的环境变量 JSON 对象（可选）。"
+      },
+      "reenterHint": "更改命令或编辑参数后，需要重新输入已遮盖的值。",
+      "maskedHint": "•••• 代表已保存的值——保持不变即可保留。",
+      "reenterError": "请在此重新输入密钥：其中仍含有无法保留的遮盖值（••••）。",
+      "urlHint": "更改此地址会清除已保存的请求头——保存后请重新输入。",
+      "reenterFields": "请重新输入以下项目——已保存的值已被清除或无法读取：{{fields}}"
+    },
+    "json": {
+      "description": "当前配置的只读视图。请在“服务器”标签页中进行更改。"
+    },
+    "toast": {
+      "invalidHeaders": "请求头 JSON 无效",
+      "invalidExtraConfig": "额外配置无效",
+      "mustBeJsonObject": "必须是 JSON 对象",
+      "updated": "“{{name}}”已更新——正在重新连接…",
+      "registered": "“{{name}}”已注册",
+      "disabledByDefault": "默认禁用",
+      "removed": "“{{name}}”已移除——连接已关闭",
+      "enabled": "“{{name}}”已启用——正在重新连接…",
+      "disabled": "“{{name}}”已禁用——连接已关闭",
+      "updateFailed": "更新服务器失败",
+      "registerFailed": "注册失败",
+      "removeFailed": "移除服务器失败",
+      "toggleFailed": "切换服务器状态失败",
+      "invalidEnv": "环境变量 JSON 无效"
+    }
+  },
+  "memory": {
+    "sectionGroups": {
+      "profile": "你",
+      "topic": "话题",
+      "person": "人物"
+    },
+    "updatedLabel": "更新于 {{date}}",
+    "genericRetryHint": "请重试",
+    "restoreLabel": "恢复",
+    "disableLabel": "停用",
+    "row": {
+      "noSummaryYet": "暂无摘要"
+    },
+    "detail": {
+      "backButton": "记忆",
+      "titlePlaceholder": "标题",
+      "summaryLabel": "摘要",
+      "summaryPlaceholder": "一句简短描述——这条记忆涵盖的内容",
+      "detailsLabel": "详细内容",
+      "detailsPlaceholder": "每行一条事实",
+      "toast": {
+        "notSavedTitle": "未保存",
+        "deleteFailedTitle": "删除失败"
+      }
+    },
+    "composer": {
+      "placeholderScoped": "告诉助手要修改或删除什么…",
+      "placeholderGeneral": "告诉助手要记住什么…",
+      "submitAria": "添加到记忆",
+      "toast": {
+        "updatedTitle": "记忆已更新",
+        "updatedDescription_other": "已应用 {{count}} 项更改",
+        "noChangeTitle": "没有更改",
+        "noChangeDescription": "这条内容不需要更新记忆。",
+        "applyFailedTitle": "无法应用该更改"
+      }
+    },
+    "settings": {
+      "sections": {
+        "memory": "记忆",
+        "context": "长对话"
+      },
+      "autoCapture": {
+        "label": "捕获记忆",
+        "description": "每次对话结束后，将关于你的持久事实（兴趣、环境配置、相关人物）整合进记忆——更新已有条目，而不是重复创建。"
+      },
+      "useInChat": {
+        "label": "在聊天中使用记忆",
+        "description": "助手开始回复时，带入与你的消息相关的记忆。"
+      },
+      "lcmEnabled": {
+        "label": "摘要长对话",
+        "description": "当对话超出模型一次能读取的范围时，较早的部分会被摘要而不是丢弃。不会删除任何内容：助手仍可查阅原始消息。"
+      },
+      "contextWindowPercent": {
+        "label": "开始摘要的比例",
+        "description": "当对话占用模型上下文窗口的这一比例时开始摘要（50–95%）。默认：75%。"
+      },
+      "freshTailSize": {
+        "label": "逐字保留的最近对话",
+        "description": "你最近的多少条消息（连同各自的完整回答）始终原样发送、从不摘要（2–24）。默认：6。"
+      },
+      "newMemoryDefaultKey": "新记忆",
+      "storedMemoriesHeading": "已保存的记忆",
+      "newButton": "新建",
+      "emptyTitle": "暂无记忆",
+      "emptyHint": "对话结束后会自动添加——也可以在下方告诉助手要记住什么。",
+      "loadFailedTitle": "无法加载你的记忆",
+      "loadFailedHint": "你的记忆仍然保存着——请重试。",
+      "disabledHeading": "已停用 · {{count}}",
+      "toast": {
+        "createFailedTitle": "创建失败"
+      }
+    }
+  },
+  "skillsMarket": {
+    "sourceNotice": "技能来自开放的 Agent Skills 注册表 <registry>skills.sh</registry>。每个技能都附有独立的安全审计——安装前请先阅读。",
+    "searchPlaceholder": "按名称或作者搜索技能",
+    "views": {
+      "trending": "趋势（24 小时）",
+      "hot": "热门",
+      "allTime": "全部时间",
+      "allTimeWithTotal": "全部时间（{{total}}）",
+      "curated": "精选"
+    },
+    "tabs": {
+      "discover": "发现",
+      "installed": "已安装"
+    },
+    "browse": {
+      "loadFailed": "无法连接 skills.sh",
+      "loadFailedHint": "请检查网络连接后重试。",
+      "noResults": "没有与“{{query}}”匹配的技能",
+      "noResultsHint": "试试其他关键词，或作者名称。",
+      "empty": "没有可显示的技能",
+      "loadMore": "加载更多",
+      "resultCount_one": "{{count}} 个结果",
+      "resultCount_other": "{{count}} 个结果",
+      "searching": "搜索中…",
+      "moreFromSource_one": "{{source}} 还有 {{count}} 个（共 {{total}} 个）",
+      "moreFromSource_other": "{{source}} 还有 {{count}} 个（共 {{total}} 个）",
+      "lessFromSource": "收起 {{source}} 的其他项目"
+    },
+    "curated": {
+      "summary": "{{owners}} 个发布者 · {{skills}} 个技能",
+      "skillCount_other": "{{count}} 个技能",
+      "featured": "精选",
+      "showAll": "显示全部（还有 {{count}} 个）",
+      "showFewer": "收起"
+    },
+    "card": {
+      "installs": "<n>{{formatted}}</n> 次安装",
+      "installedBadge": "已安装",
+      "trend": "今日 +{{formatted}}"
+    },
+    "detail": {
+      "back": "所有技能",
+      "install": "安装",
+      "installing": "安装中…",
+      "installed": "已安装",
+      "uninstall": "卸载",
+      "active": "启用",
+      "openOnSkillsSh": "在 skills.sh 上查看",
+      "openSource": "查看源代码",
+      "loadFailed": "无法加载此技能",
+      "readme": "README",
+      "files_one": "{{count}} 个附带文件",
+      "files_other": "{{count}} 个附带文件",
+      "audit": {
+        "title": "安全审计",
+        "summary": "{{total}} 项检查中有 {{passed}} 项通过",
+        "none": "此技能尚未发布任何审计。",
+        "status": {
+          "pass": "通过",
+          "warn": "警告",
+          "fail": "未通过"
+        },
+        "auditedAt": "检查于 {{date}}"
+      },
+      "cli": {
+        "title": "从终端安装",
+        "description": "同一个技能，由 Actovia CLI 安装到本应用读取的同一个文件夹。"
+      }
+    },
+    "installedTab": {
+      "empty": "尚未安装任何技能",
+      "emptyHint": "打开“发现”查找技能，或在终端中运行 `actovia` CLI。",
+      "installedAt": "安装于 {{date}}",
+      "legacy": "旧版",
+      "uninstallTitle": "要卸载“{{name}}”吗？",
+      "uninstallDescription": "其文件将从技能文件夹中删除。你可以随时重新安装。"
+    },
+    "cli": {
+      "title": "更喜欢终端？试试 <cli>Actovia CLI</cli>"
+    },
+    "toast": {
+      "installedTitle": "已安装“{{name}}”",
+      "installFailed": "安装失败",
+      "uninstalledTitle": "已卸载“{{name}}”",
+      "uninstallFailed": "卸载失败",
+      "updateFailed": "无法更新技能",
+      "copied": "已复制命令"
+    }
+  },
+  "toast": {
+    "saveFailed": "设置保存失败",
+    "autoSaved": "已自动保存",
+    "notSaved": "未保存"
+  },
+  "chatAudit": {
+    "intro": "用 SQL 查询你自己的聊天记录。先把聊天生成一个 DuckDB 快照文件，然后在这里查询，或用任意 DuckDB 客户端打开。此页面不会更改你的数据。",
+    "snapshot": {
+      "title": "快照",
+      "none": "尚未生成快照",
+      "noneHint": "生成快照会将聊天和消息复制到一个 DuckDB 文件中。",
+      "build": "生成快照",
+      "rebuild": "重新生成",
+      "building": "生成中…",
+      "builtAt": "生成于{{when}}",
+      "stale": "该快照生成于当前数据表之前——请重新生成，否则部分预设查询会失败。",
+      "engine": "DuckDB {{version}}",
+      "logsIncluded": "logs（从日志文件复制）",
+      "logsMissing": "logs（未找到日志文件）",
+      "openFolder": "打开文件夹",
+      "unavailable": "无法启动 DuckDB",
+      "unavailableHint": "原生库加载失败。详情请查看应用日志。"
+    },
+    "presets": {
+      "title": "预设查询",
+      "cacheByRun": "每轮的提示词缓存",
+      "messagesPerDay": "每日消息数（30 天）",
+      "costByModel": "各模型的 Token 与费用",
+      "toolCalls": "工具调用",
+      "longestChats": "最长的聊天",
+      "errorsByModel": "各模型的错误",
+      "activityByHour": "按小时统计的活动（UTC）",
+      "searchText": "搜索消息内容",
+      "logsBySeverity": "按范围与严重程度统计的日志",
+      "pmDecisions": "各群组的 PM 决策"
+    },
+    "query": {
+      "title": "查询",
+      "run": "运行查询",
+      "running": "运行中…",
+      "tables": "数据表：chats、messages、logs、group_messages、pm_round_events"
+    },
+    "results": {
+      "rowCount_one": "{{count}} 行",
+      "rowCount_other": "{{count}} 行",
+      "truncated": "前 {{count}} 行（结果已在行数上限处截断）",
+      "duration": "{{ms}} 毫秒",
+      "empty": "查询没有返回任何行",
+      "emptyHint": "试试更大的日期范围，或检查上方的数据表和列名。",
+      "downloadCsv": "下载 CSV",
+      "failed": "查询失败"
+    },
+    "toast": {
+      "snapshotBuilt": "快照已生成",
+      "snapshotFailed": "无法生成快照"
+    }
+  },
+  "devices": {
+    "heading": "已配对的设备",
+    "description": "可通过局域网使用 Actovia 的手机和平板。设备必须先在这里配对；在配对任何设备之前，网络上完全无法访问 Actovia。",
+    "empty": "暂无已配对设备",
+    "emptyHint": "配对你的 iPhone，即可在手机上与这台电脑上的 Actovia 聊天、使用它的工具并解锁它。你可以随时撤销设备。",
+    "pair": "配对设备",
+    "pairCard": {
+      "title": "连接 iPhone 或 iPad",
+      "description": "配对时会显示二维码两分钟，请用设备上的 Actovia 应用扫描。"
+    },
+    "pairing": {
+      "title": "用 iPhone 上的 Actovia 扫描",
+      "steps": {
+        "open": "在 iPhone 或 iPad 上打开 Actovia",
+        "navigate": "前往<strong>设置 → 与电脑配对</strong>",
+        "scan": "扫描此二维码"
+      },
+      "sameNetwork": "两台设备必须在同一网络中。",
+      "expiresIn": "{{time}} 后过期",
+      "copyLink": "复制配对链接",
+      "linkCopied": "已复制配对链接",
+      "cancel": "取消"
+    },
+    "row": {
+      "pairedOn": "配对于 {{date}}",
+      "lastSeen": "上次连接：{{date}}",
+      "neverSeen": "从未连接",
+      "revoke": "撤销"
+    },
+    "revokeDialog": {
+      "title": "要撤销“{{name}}”吗？",
+      "description": "它会立即失去访问权限，必须重新配对才能再次使用。",
+      "confirm": "撤销"
+    },
+    "reset": {
+      "label": "重置所有配对",
+      "rowDescription": "移除所有设备，并签发新证书。",
+      "button": "全部重置",
+      "title": "要重置所有配对吗？",
+      "description": "所有设备都会被移除，并签发新证书。每台设备都必须重新扫描二维码。",
+      "confirm": "重置"
+    },
+    "toast": {
+      "failedTitle": "操作失败",
+      "pairedTitle": "设备已配对"
+    },
+    "revoked": {
+      "heading": "已撤销，尚未通知",
+      "row": "{{date}}撤销 · 下次连接时会得知",
+      "unnamed": "一台设备"
+    }
+  },
+  "secrets": {
+    "input": {
+      "saved": "已保存",
+      "reenter": "请重新输入此密钥——已保存的密钥无法再使用。",
+      "savedAria": "已保存的密钥，结尾为 {{last4}}",
+      "savedShortAria": "已保存的密钥",
+      "noneAria": "未保存密钥"
+    },
+    "destinationHint": "更改此地址会清除已保存的 API 密钥——保存后请重新输入。",
+    "notice": {
+      "encryptionUnavailable": "系统钥匙串不可用，API 密钥将以未加密方式存储。",
+      "needsReentry": "请重新输入以下密钥——它们已无法读取，或在地址更改时已被清除："
+    },
+    "fields": {
+      "openaiApiKey": "OpenAI API 密钥",
+      "azureOpenaiApiKey": "Azure OpenAI API 密钥",
+      "anthropicApiKey": "Anthropic API 密钥",
+      "googleGeminiApiKey": "Gemini API 密钥",
+      "xAiApiKey": "xAI API 密钥",
+      "googleApiKey": "Google Maps API 密钥",
+      "braveApiKey": "Brave Search API 密钥",
+      "knowledgeBaseApiKey": "LightRAG API 密钥",
+      "s3AccessKeyId": "Amazon S3 访问密钥 ID",
+      "s3SecretAccessKey": "Amazon S3 私有访问密钥",
+      "mcp": "MCP 服务器“{{server}}”：{{field}}"
+    }
+  }
+}

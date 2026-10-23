@@ -1,0 +1,464 @@
+{
+  "imageGeneration": {
+    "status": {
+      "queued": "等待生成",
+      "generating": "正在生成图片",
+      "refining": "正在完善细节",
+      "complete": "图片已生成",
+      "error": "生成失败",
+      "unavailable": "图片无法显示"
+    },
+    "retry": "重试",
+    "generatedImageAlt": "生成的图片",
+    "labelWithPrompt": "{{status}}：{{prompt}}",
+    "quotedPrompt": "“{{prompt}}”"
+  },
+  "composer": {
+    "placeholder": "有什么想问的？",
+    "listening": "正在聆听…",
+    "pleaseWaitTitle": "请稍候",
+    "pleaseWaitDescription": "模型仍在生成回复。",
+    "stop": "停止",
+    "send": "发送"
+  },
+  "composerTools": {
+    "attachFiles": "添加附件",
+    "mcpTools": "MCP 工具",
+    "mcpDialog": {
+      "title": "可用的 MCP 工具",
+      "description": "由已启用的 MCP 服务器提供的工具。可在<strong>设置 > MCP 服务器</strong>中管理服务器。",
+      "noDescription": "{{name}} 没有说明。"
+    }
+  },
+  "advancedTools": {
+    "deepResearch": "深度研究"
+  },
+  "messageList": {
+    "greetingTitle": "今天想去哪儿？",
+    "greetingSubtitle": "提出任何问题、研究一个主题，或交给我一项任务。",
+    "attachmentAlt": "附件",
+    "scrollToBottom": "滚动到底部",
+    "moreImages": "显示其余 {{count}} 张",
+    "showMore": "显示更多"
+  },
+  "history": {
+    "olderFailed": "无法加载更早的消息",
+    "loadingOlder": "正在加载更早的消息",
+    "loading": "正在加载对话"
+  },
+  "toolPreview": {
+    "mapItineraryDayCount_other": "{{count}} 天",
+    "mapItineraryStopCount_other": "{{count}} 个停靠点",
+    "mapItinerarySummary": "{{days}}，{{stops}}",
+    "toolFailed": "{{tool}} 失败",
+    "webSearchResultCount_other": "{{count}} 条结果"
+  },
+  "toolFailedToast": {
+    "title": "工具失败：{{tool}}"
+  },
+  "messageAction": {
+    "copy": "复制",
+    "regenerate": "重新生成",
+    "sources": "来源"
+  },
+  "thinkingTimeline": {
+    "thinking": "思考中…",
+    "working": "处理中…",
+    "thought": "已思考",
+    "worked": "已处理",
+    "done": "完成",
+    "thoughtFor": "{{verb}} {{duration}}",
+    "durationSeconds_other": "{{count}} 秒",
+    "durationMinutes": "{{minutes}} 分钟",
+    "durationMinutesSeconds": "{{minutes}} 分 {{seconds}} 秒",
+    "searchResultCount_other": "{{count}} 条搜索结果"
+  },
+  "toc": {
+    "fallbackLabel": "消息"
+  },
+  "toast": {
+    "chatUpdated": "聊天已更新",
+    "chatDeleted": "聊天已删除",
+    "sendFailedTitle": "出错了",
+    "sendFailedDescription": "发生错误，请重试！",
+    "responseReadyTitle": "回复已就绪",
+    "chatFallbackTitle": "聊天",
+    "viewButton": "查看",
+    "chatFailedTitle": "聊天失败",
+    "genericErrorFallback": "发生错误",
+    "headsUpTitle": "提示",
+    "approvalTitle": "正在等待你的批准"
+  },
+  "lcm": {
+    "compacting": "正在压缩对话记录…",
+    "compactedSummary_other": "已压缩 {{count}} 条消息 · 节省约 {{tokens}} 个 token",
+    "compactionFailed": "压缩失败（将在下一轮重试）"
+  },
+  "upload": {
+    "failedTitle": "上传失败",
+    "failedDescription": "文件上传失败。"
+  },
+  "artifactCard": {
+    "cannotOpenTitle": "无法打开 Artifact 文件",
+    "missingFileDescription": "保存的 .tsx 文件不见了——可能已被移动或删除。",
+    "resolveFailedDescription": "无法解析 Artifact 路径。",
+    "revealAriaLabel": "在文件管理器中显示 {{title}}",
+    "revealTitle": "在文件管理器中显示",
+    "exitFullscreen": "退出全屏",
+    "enterFullscreen": "进入全屏",
+    "exitFullscreenEsc": "退出全屏（Esc）",
+    "fullscreen": "全屏",
+    "draft": {
+      "untitled": "未命名的 Artifact",
+      "writing_other": "正在编写 · {{count}} 行"
+    }
+  },
+  "computerUseCard": {
+    "title": "电脑操作",
+    "stopFailedTitle": "无法停止此会话",
+    "stopFailedDescription": "停止请求失败——请重试。",
+    "answerFailedTitle": "无法发送你的回复",
+    "answerFailedDescription": "请求失败——请重试。",
+    "error": "错误",
+    "running": "运行中…",
+    "outcome": {
+      "success": "成功",
+      "failed": "失败",
+      "aborted": "已中止",
+      "abandoned": "已放弃",
+      "stuck": "卡住了"
+    },
+    "stepBadge": "第 {{step}} 步",
+    "stepWithAction": "第 {{step}} 步：{{action}}",
+    "stepNoAction": "第 {{step}} 步：…",
+    "targetWindowAlt": "第 {{step}} 步的目标窗口",
+    "replyPlaceholder": "输入回复，完成后可留空",
+    "doneContinue": "完成——继续",
+    "waitingForReply": "正在等待会话接收回复…",
+    "stop": "停止",
+    "session": "会话：{{sessionId}}"
+  },
+  "deepResearchCard": {
+    "researching": "正在深度研究...",
+    "completedSummary_other": "研究在 {{minutes}} 分钟内完成 · {{count}} 个来源",
+    "failed": "研究失败",
+    "exportAriaLabel": "导出为 PDF",
+    "downloadPdfTooltip": "下载 PDF",
+    "exportFailedTitle": "导出失败",
+    "exportFailedDescription": "生成 PDF 报告失败。",
+    "unknownSource": "[{{rank}}] 未知来源",
+    "referencesHeading": "参考资料"
+  },
+  "drawioCard": {
+    "noSource": "Draw.io 工具没有返回任何图表源数据。",
+    "iframeTitle": "draw.io 图表",
+    "openInDrawio": "在 draw.io 中打开",
+    "loadFailed": "加载 draw.io 编辑器失败"
+  },
+  "genericToolCard": {
+    "fallbackLabel": "工具",
+    "badge": "工具"
+  },
+  "mapItineraryCard": {
+    "missingApiKey": "请在“设置 → Google Cloud”中添加 Google API 密钥，才能显示行程地图。",
+    "tabsAriaLabel": "行程天数",
+    "openRouteTitle": "在 Google 地图中打开路线",
+    "copyMarkdownTitle": "将当天行程复制为 Markdown"
+  },
+  "placeDetail": {
+    "goToPhotoAriaLabel": "转到照片 {{index}}",
+    "closeAriaLabel": "关闭详情面板",
+    "open": "营业中",
+    "closed": "已打烊",
+    "tabsAriaLabel": "地点分区",
+    "tabOverview": "概览",
+    "tabReviews": "评价",
+    "tabHours": "营业时间",
+    "notes": "备注",
+    "anonymousReviewer": "匿名",
+    "previousAriaLabel": "上一个地点",
+    "nextAriaLabel": "下一个地点",
+    "pagination": "第 {{index}} 个，共 {{total}} 个"
+  },
+  "terminalCard": {
+    "exitCode": "退出码 {{code}}",
+    "noOutput": "无输出"
+  },
+  "weatherCard": {
+    "today": "今天",
+    "tomorrow": "明天",
+    "humidity": "湿度",
+    "precip": "降水概率",
+    "visibility": "能见度",
+    "uvIndex": "紫外线指数",
+    "wind": "风",
+    "pressure": "气压",
+    "feelsLike": "体感 {{temp}}°",
+    "sunrise": "日出",
+    "sunset": "日落",
+    "rainChance": "降雨 {{percent}}%",
+    "observedAt": "{{time}} 观测",
+    "details": "详情",
+    "less": "收起"
+  },
+  "header": {
+    "back": "后退",
+    "forward": "前进",
+    "streaming": "回复中…",
+    "noModel": "选择模型",
+    "noModels": "尚未获取模型",
+    "modelScope": "仅对此聊天生效。新聊天会使用在 AI 服务商中设置的默认模型。",
+    "openProviders": "打开 AI 服务商",
+    "menu": "聊天选项",
+    "exportMarkdown": "导出为 Markdown…",
+    "exportPdf": "导出为 PDF…",
+    "exportFailed": "无法导出聊天",
+    "panel": "文件、工具和来源"
+  },
+  "export": {
+    "you": "你",
+    "assistant": "Actovia",
+    "pictures_other": "附带 {{count}} 张图片",
+    "tool": "工具：{{name}}"
+  },
+  "panel": {
+    "files": "文件",
+    "tools": "工具",
+    "sources": "来源",
+    "empty": "此聊天中的文件、工具和来源会显示在这里。",
+    "yours": "你的",
+    "madeHere": "在此生成",
+    "picture": "图片 {{index}}",
+    "generatedPicture": "生成的图片 {{index}}",
+    "calls_other": "{{count}} 次调用",
+    "untitledQuestion": "（无文本）"
+  },
+  "sidebar": {
+    "newChat": "新聊天",
+    "searchChats": "搜索聊天",
+    "history": {
+      "empty": "开始聊天后，你的对话会显示在这里！",
+      "favoriteAction": "收藏",
+      "unfavorite": "取消收藏",
+      "favoritesGroup": "收藏",
+      "chats": "聊天",
+      "more": "更多",
+      "rename": "重命名",
+      "copyId": "复制对话 ID",
+      "idCopied": "已复制对话 ID"
+    },
+    "renameDialog": {
+      "title": "重命名聊天",
+      "submit": "提交"
+    },
+    "deleteDialog": {
+      "title": "删除聊天？",
+      "description": "这将删除 <strong>{{title}}</strong>。"
+    },
+    "search": {
+      "title": "搜索聊天",
+      "description": "按标题或对话内容查找聊天。",
+      "placeholder": "搜索聊天…",
+      "ariaLabel": "搜索聊天",
+      "recent": "最近",
+      "noResults": "没有与“{{query}}”匹配的聊天",
+      "hint": {
+        "move": "移动",
+        "open": "打开",
+        "close": "关闭"
+      }
+    }
+  },
+  "run": {
+    "error": "此回复因错误而中断：{{message}}"
+  },
+  "memoryStrip": {
+    "updating": "正在更新记忆…",
+    "updated": "记忆已更新 · {{keys}}",
+    "partlyUpdated": "记忆已部分更新 · {{keys}}",
+    "undo": "撤销",
+    "undone": "已撤销",
+    "partial": "已撤销 {{undone}} 项 · {{skipped}} 项之后已更改，予以保留",
+    "stale": "已撤销或之后已更改",
+    "failed": "无法更新记忆",
+    "undoFailed": "无法撤销",
+    "new": "新增",
+    "deleted": "已删除"
+  },
+  "usedMemories": {
+    "label_other": "使用了 {{count}} 条记忆 · {{keys}}",
+    "intro": "这个回答参考了这些记忆。",
+    "wrong": "有误？",
+    "fixHint": "记忆有误？点击“有误？”在聊天中纠正，Actovia 会更新它。",
+    "openSettings": "在设置中打开",
+    "deleted": "已删除",
+    "prefill": "关于“{{key}}”的记忆有误："
+  },
+  "renderFailed": "无法显示{{what}}。",
+  "remoteImage": {
+    "loadButton": "加载图片",
+    "inlineImage": "内嵌图片"
+  },
+  "findInPage": {
+    "placeholder": "在页面中查找...",
+    "noResults": "无结果",
+    "previous": "上一个匹配项 (Shift+Enter)",
+    "next": "下一个匹配项 (Enter)",
+    "close": "关闭 (Esc)"
+  },
+  "quickChat": {
+    "placeholder": "今天有什么可以帮你的？"
+  },
+  "approval": {
+    "title": "允许访问机密信息？",
+    "fileHint": "有工具想使用这个可能包含凭据的文件：",
+    "commandHint": "有命令想访问这台电脑上的凭据：",
+    "allow": "仅允许一次",
+    "deny": "拒绝",
+    "allowed": "已允许一次",
+    "denied": "已拒绝",
+    "timedOut": "已超时",
+    "stopped": "已停止",
+    "expired": "已不再等待",
+    "decideFailed": "无法发送你的回复",
+    "truncatedNote_other": "另有 {{count}} 个字符未显示"
+  },
+  "compare": {
+    "useThis": "使用这个",
+    "useInstead": "改用这个",
+    "otherVersion_other": "另有 {{count}} 个版本",
+    "answerTab": "回答 {{n}}",
+    "tabsLabel": "回答",
+    "otherVersionTitle": "另一个版本",
+    "otherVersionDescription": "你没有保留的回答。",
+    "locked": "对话已继续，这个回答无法再使用。",
+    "chooseFailed": "无法切换回答"
+  },
+  "citation": {
+    "previous": "上一个来源",
+    "next": "下一个来源",
+    "position": "{{current}}/{{total}}"
+  },
+  "ask": {
+    "button": "问 Actovia",
+    "remove": "移除引用"
+  },
+  "health": {
+    "attached": "随此问题发送的健康数据：{{values}}",
+    "fallback": "健康",
+    "asOf": "{{date}} {{time}}",
+    "lastDays_other": "{{category}}，最近 {{count}} 天",
+    "noData": "无数据",
+    "withUsual": "{{value}} · 平时 {{usual}}",
+    "ofGoal": "{{value}} / {{goal}}",
+    "bpm": "{{value}} 次/分",
+    "ms": "{{value}} 毫秒",
+    "kg": "{{value}} 千克",
+    "kcal": "{{value}} 千卡",
+    "perMin": "每分钟 {{value}} 次",
+    "cups_other": "{{count}} 杯",
+    "hours_other": "{{count}} 小时",
+    "category": {
+      "sleep": "睡眠",
+      "activity": "活动",
+      "recovery": "心脏与恢复",
+      "body": "身体与心情"
+    },
+    "field": {
+      "asleep": "睡眠时长",
+      "inBed": "卧床",
+      "deep": "深睡",
+      "core": "核心睡眠",
+      "rem": "REM",
+      "awake": "清醒",
+      "wake": "起床",
+      "steps": "步数",
+      "activeEnergy": "活动能量",
+      "exercise": "锻炼",
+      "stand": "站立",
+      "workouts": "体能训练",
+      "level": "恢复",
+      "hrv": "心率变异性",
+      "restingHr": "静息心率",
+      "respRate": "呼吸频率",
+      "water": "饮水",
+      "weight": "体重",
+      "weightTrend": "30 天变化",
+      "mood": "心情"
+    },
+    "level": {
+      "good": "良好",
+      "fair": "一般",
+      "low": "偏低"
+    },
+    "mood": {
+      "veryUnpleasant": "非常不愉快",
+      "unpleasant": "不愉快",
+      "slightlyUnpleasant": "有点不愉快",
+      "neutral": "平常",
+      "slightlyPleasant": "有点愉快",
+      "pleasant": "愉快",
+      "veryPleasant": "非常愉快"
+    }
+  },
+  "interactive": {
+    "other": "其他…",
+    "otherPlaceholder": "你的答案",
+    "noteDefault": "还有什么要补充的吗？",
+    "notePlaceholder": "可选",
+    "submit": "提交",
+    "previous": "上一题",
+    "next": "下一题",
+    "skip": "跳过",
+    "progress": "第 {{current}} 题，共 {{total}} 题",
+    "chooseOrSkip": "请选择一个答案，或跳过这道题。",
+    "approve": "同意",
+    "reject": "拒绝",
+    "approved": "已同意",
+    "rejected": "已拒绝",
+    "answered": "已回答",
+    "answer": {
+      "other": "其他",
+      "addition": "补充",
+      "note": "备注",
+      "title": "你的回答"
+    }
+  },
+  "richBlocks": {
+    "stepLabel": "第 {{number}} 步",
+    "openOnTradingView": "在 TradingView 上打开",
+    "chartBy": "图表来自 TradingView",
+    "chartUnavailable": "无法加载图表。",
+    "entityLoading": "加载中…",
+    "entityNothing": "维基百科上没有找到相关内容。",
+    "entityFailed": "无法连接维基百科。",
+    "readMore": "在维基百科上阅读更多"
+  },
+  "workspaceFile": {
+    "created": "已创建",
+    "edited": "已编辑",
+    "meta": "{{change}} · {{size}}",
+    "open": "打开",
+    "quickLook": "快速查看",
+    "revealInFinder": "在访达中显示",
+    "showInExplorer": "在资源管理器中显示",
+    "showInFolder": "在文件夹中显示",
+    "missing": "已不存在",
+    "outside": "不在工作区内",
+    "untitled": "文件",
+    "linkTitle": "点击打开 · 右键查看更多",
+    "previewMeta": "{{size}} · 只读",
+    "readOnly": "只读",
+    "copy": "复制",
+    "copied": "已复制",
+    "tooLarge": "此文件太大，无法预览。请用对应的应用打开。",
+    "binary": "此文件不是文本，无法在这里预览。请用对应的应用打开。",
+    "readFailed": "无法读取此文件。",
+    "missingDescription": "它可能已被移动或删除。",
+    "outsideDescription": "这里只能打开聊天工作区中的文件。",
+    "unsafeTitle": "已改为在文件夹中显示",
+    "unsafeDescription": "打开此文件会运行它，因此没有打开。",
+    "openFailed": "无法打开文件",
+    "revealFailed": "无法显示文件"
+  }
+}

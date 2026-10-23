@@ -1,0 +1,21 @@
+{
+  "player": {
+    "stop": "Остановить",
+    "readAloud": "Прочитать вслух"
+  },
+  "recorder": {
+    "stopRecording": "Остановить запись",
+    "dictate": "Диктовка",
+    "toast": {
+      "micErrorTitle": "Ошибка микрофона",
+      "micErrorFallback": "Не удалось получить доступ к микрофону."
+    }
+  },
+  "hook": {
+    "toast": {
+      "audioErrorTitle": "Ошибка аудио",
+      "transcriptionFailedTitle": "Не удалось расшифровать запись",
+      "genericErrorFallback": "Произошла ошибка, попробуйте ещё раз!"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "player": {
+    "stop": "停止",
+    "readAloud": "朗读"
+  },
+  "recorder": {
+    "stopRecording": "停止录音",
+    "dictate": "语音输入",
+    "toast": {
+      "micErrorTitle": "麦克风错误",
+      "micErrorFallback": "无法访问麦克风。"
+    }
+  },
+  "hook": {
+    "toast": {
+      "audioErrorTitle": "音频错误",
+      "transcriptionFailedTitle": "转写失败",
+      "genericErrorFallback": "出错了，请重试！"
+    }
+  }
+}

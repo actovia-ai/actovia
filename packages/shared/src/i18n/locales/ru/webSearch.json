@@ -1,0 +1,11 @@
+{
+  "videoCard": {
+    "views": "Просмотров: {{count}}"
+  },
+  "imageLightbox": {
+    "imageUnavailable": "Изображение недоступно",
+    "previousImage": "Предыдущее изображение",
+    "nextImage": "Следующее изображение",
+    "goToImage": "Перейти к изображению {{index}}"
+  }
+}
