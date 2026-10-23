@@ -94,11 +94,19 @@ export function SettingsRow({
         <>
           <FieldLabel>{label}</FieldLabel>
           {description && <FieldDescription>{description}</FieldDescription>}
-          {children}
-          {error && <p className="text-destructive text-xs">{error.message}</p>}
-          {!error && warning && (
-            <p className="text-destructive text-xs">{warning}</p>
-          )}
+          {/* One box for the control and what comes and goes under it: the
+              description's spacing is positional (nth-last-2), so a paste
+              that drops a SecretInput's sr-only label, or an error showing
+              up, must not change how many siblings follow it. */}
+          <div className="flex flex-col gap-1.5">
+            {children}
+            {error && (
+              <p className="text-destructive text-xs">{error.message}</p>
+            )}
+            {!error && warning && (
+              <p className="text-destructive text-xs">{warning}</p>
+            )}
+          </div>
         </>
       ) : (
         <>

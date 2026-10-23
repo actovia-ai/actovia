@@ -239,3 +239,30 @@ describe('the base-URL hint, for a screen reader (S3 minor)', () => {
     expect(urlInput().getAttribute('aria-describedby')).toBeNull()
   })
 })
+
+describe('SettingsRow: the layout does not move as a key is typed', () => {
+  // The description's spacing is positional (shadcn's `nth-last-2:-mt-1`),
+  // so the row's children must not change in number when the control's own
+  // pieces come and go — a pasted key dropped the "no key saved" sr-only
+  // label and the description jumped (ISSUE-109).
+  const descriptionOf = () =>
+    host.querySelector<HTMLElement>('[data-slot="field-description"]')!
+  const positionFromEnd = (el: HTMLElement) => {
+    const siblings = [...el.parentElement!.children]
+    return siblings.length - siblings.indexOf(el)
+  }
+
+  it('keeps the description in the same place from empty to typed to saved', async () => {
+    OPENAI_FIELDS[0].description = 'desc'
+    try {
+      await render({ openaiApiKey: null, openaiBaseUrl: null })
+      const empty = positionFromEnd(descriptionOf())
+      type(keyInput(), 'sk-pasted')
+      expect(positionFromEnd(descriptionOf())).toBe(empty)
+      await render({ openaiApiKey: '•••• abcd', openaiBaseUrl: null })
+      expect(positionFromEnd(descriptionOf())).toBe(empty)
+    } finally {
+      OPENAI_FIELDS[0].description = ''
+    }
+  })
+})
