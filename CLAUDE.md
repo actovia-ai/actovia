@@ -1040,6 +1040,12 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
 - Main process: `src/main/lib/ai/philharmonic/` (employee loop, execution engine, agent memory/tools, knowledge-base tools)
 - Renderer: `src/renderer/components/philharmonic/`
 - Route: `/api/v1/philharmonic`
+- **What a phone needs of it** (actovia-ios's Philharmonic, spec
+  `../ios/docs/superpowers/specs/2026-10-23-ios-philharmonic-design.md`): every
+  Philharmonic SSE stream (`/conversations/:id/sse`, `/sse`, `/tasks/:id/sse`)
+  sends a `: ping` comment line every 15 s (`startHeartbeat()` in
+  `server/utils/sse-manager.ts`), so a client tells a quiet round from a
+  dropped connection
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`

@@ -5,7 +5,7 @@ import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
 import { pmRunRegistry } from '../../ai/philharmonic/pm-run-registry'
 import type { Variables } from '../types'
 import { getRequiredParam } from '../utils'
-import { SSE_HEADERS, SseManager } from '../utils/sse-manager'
+import { SSE_HEADERS, SseManager, startHeartbeat } from '../utils/sse-manager'
 
 export const sseManager = new SseManager<string>()
 
@@ -39,6 +39,7 @@ philharmonicSse.get('/tasks/:id/sse', (c) => {
   const stream = new ReadableStream({
     start(controller) {
       sseManager.register(id, controller, c.req.raw.signal)
+      startHeartbeat(controller, c.req.raw.signal)
     }
   })
 
@@ -49,6 +50,7 @@ philharmonicSse.get('/sse', (c) => {
   const stream = new ReadableStream({
     start(controller) {
       sseManager.registerGlobal(controller, c.req.raw.signal)
+      startHeartbeat(controller, c.req.raw.signal)
     }
   })
 
@@ -63,6 +65,7 @@ philharmonicSse.get('/conversations/:id/sse', (c) => {
   const stream = new ReadableStream({
     start(controller) {
       sseManager.register(id, controller, c.req.raw.signal)
+      startHeartbeat(controller, c.req.raw.signal)
       if (pmRunRegistry.has(id)) {
         controller.enqueue(
           sseManager.encodeEvent({ type: 'pm_started', conversationId: id })

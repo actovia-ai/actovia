@@ -74,3 +74,60 @@ describe('SseManager', () => {
     expect(controller.enqueue).toHaveBeenCalledWith(payload)
   })
 })
+
+describe('startHeartbeat', () => {
+  const decode = (c: ReadableStreamDefaultController) =>
+    (c.enqueue as ReturnType<typeof vi.fn>).mock.calls.map(([bytes]) =>
+      new TextDecoder().decode(bytes as Uint8Array)
+    )
+
+  it('sends a comment line every interval', async () => {
+    vi.useFakeTimers()
+    try {
+      const { startHeartbeat, SSE_HEARTBEAT_MS } =
+        await import('@main/lib/server/utils/sse-manager')
+      const controller = makeController()
+      startHeartbeat(controller)
+      vi.advanceTimersByTime(SSE_HEARTBEAT_MS * 2)
+      expect(SSE_HEARTBEAT_MS).toBe(15_000)
+      expect(decode(controller)).toEqual([': ping\n\n', ': ping\n\n'])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stops when the request aborts', async () => {
+    vi.useFakeTimers()
+    try {
+      const { startHeartbeat } =
+        await import('@main/lib/server/utils/sse-manager')
+      const controller = makeController()
+      const abort = new AbortController()
+      startHeartbeat(controller, abort.signal)
+      abort.abort()
+      vi.advanceTimersByTime(60_000)
+      expect(controller.enqueue).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stops when the controller is closed', async () => {
+    vi.useFakeTimers()
+    try {
+      const { startHeartbeat } =
+        await import('@main/lib/server/utils/sse-manager')
+      const controller = makeController()
+      ;(controller.enqueue as ReturnType<typeof vi.fn>).mockImplementation(
+        () => {
+          throw new TypeError('Invalid state: Controller is already closed')
+        }
+      )
+      startHeartbeat(controller, undefined, 1000)
+      expect(() => vi.advanceTimersByTime(5000)).not.toThrow()
+      expect(controller.enqueue).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})

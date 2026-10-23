@@ -5,6 +5,35 @@ export const SSE_HEADERS = {
   'Cache-Control': 'no-cache'
 } as const
 
+/** How often a stream with nothing to say still sends a byte. */
+export const SSE_HEARTBEAT_MS = 15_000
+
+const HEARTBEAT = new TextEncoder().encode(': ping\n\n')
+
+/**
+ * A comment line every `intervalMs`, so a client can tell a quiet stream (a
+ * coding agent's step can run for minutes without an event) from a dead
+ * connection — the phone on a mobile network cannot otherwise. Clients
+ * ignore comment lines. Stops when the request aborts, when the stream is
+ * closed under it, or when the returned function is called.
+ */
+export function startHeartbeat(
+  controller: ReadableStreamDefaultController,
+  signal?: AbortSignal,
+  intervalMs = SSE_HEARTBEAT_MS
+): () => void {
+  const timer = setInterval(() => {
+    try {
+      controller.enqueue(HEARTBEAT)
+    } catch {
+      stop()
+    }
+  }, intervalMs)
+  const stop = () => clearInterval(timer)
+  signal?.addEventListener('abort', stop, { once: true })
+  return stop
+}
+
 export class SseManager<Topic extends string = string> {
   private topicClients = new Map<Topic, Set<ReadableStreamDefaultController>>()
   private globalClients = new Set<ReadableStreamDefaultController>()
