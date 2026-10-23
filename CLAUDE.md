@@ -1054,7 +1054,9 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   (`GroupChat` does: `appendRows()` in `chat/group-history.ts`); a group's
   photos are data URLs, as in Chat — `POST …/messages` refuses an image
   attachment that is a link (400) and fits each one before the row is saved
-  (`fitImageDataUrl()` in `ai/utils/image-fit.ts`)
+  (`fitImageDataUrl()` in `ai/utils/image-fit.ts`); `GET /costs?days=7|30`
+  counts only today and the days before it, by local day (no parameter: all
+  time; anything else is a 400) — the Dashboard's 7d / 30d / All switch passes it
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`

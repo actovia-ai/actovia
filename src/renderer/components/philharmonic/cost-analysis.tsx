@@ -216,6 +216,11 @@ function ConversationCostList({
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 type Period = '7d' | '30d' | 'all'
+const PERIOD_DAYS: Record<Period, 7 | 30 | undefined> = {
+  '7d': 7,
+  '30d': 30,
+  all: undefined
+}
 
 export function CostAnalysis() {
   const { t } = useTranslation('philharmonic')
@@ -245,20 +250,24 @@ export function CostAnalysis() {
     [t]
   )
 
-  const load = useCallback(async () => {
-    const [costs, agents, groups] = await Promise.all([
-      getPhilharmonicCosts(),
+  // Read again for each period; a period left before its answer arrived
+  // never overwrites the one on show.
+  useEffect(() => {
+    let current = true
+    Promise.all([
+      getPhilharmonicCosts(PERIOD_DAYS[period]),
       getAgents(),
       getConversations()
-    ])
-    setData(costs)
-    setAgentsById(Object.fromEntries(agents.map((a) => [a.id, a])))
-    setGroupsById(Object.fromEntries(groups.map((g) => [g.id, g])))
-  }, [])
-
-  useEffect(() => {
-    load()
-  }, [load])
+    ]).then(([costs, agents, groups]) => {
+      if (!current) return
+      setData(costs)
+      setAgentsById(Object.fromEntries(agents.map((a) => [a.id, a])))
+      setGroupsById(Object.fromEntries(groups.map((g) => [g.id, g])))
+    })
+    return () => {
+      current = false
+    }
+  }, [period])
 
   if (!data) {
     return (

@@ -90,5 +90,8 @@ export interface PhilharmonicCostSummary {
   byAgent: Array<{ agentId: string; cost: number; tokens: number }>
   daily: Array<{ date: string; cost: number; tokens: number }>
 }
-export const getPhilharmonicCosts = () =>
-  fetcher<PhilharmonicCostSummary>(`${BASE}/costs`)
+// `days`: today and the days before it; without it, all time.
+export const getPhilharmonicCosts = (days?: 7 | 30) =>
+  fetcher<PhilharmonicCostSummary>(
+    `${BASE}/costs${days ? `?days=${days}` : ''}`
+  )

@@ -333,8 +333,25 @@ router.get('/conversations/:id/plan', async (c) => {
 
 // ─── Costs (philharmonic only) ──────────────────────────────────────────────────────
 
+// `?days=7|30`: today and the days before it, by the local day the chart
+// buckets on (`localDateStr`); without it, all time.
 router.get('/costs', async (c) => {
-  const rows = await getPhilharmonicCostRows()
+  const raw = c.req.query('days')
+  const days =
+    raw === undefined
+      ? undefined
+      : validateSchema(
+          z.enum(['7', '30']).transform(Number),
+          raw,
+          'Invalid period'
+        )
+  let since: Date | undefined
+  if (days) {
+    since = new Date()
+    since.setHours(0, 0, 0, 0)
+    since.setDate(since.getDate() - (days - 1))
+  }
+  const rows = await getPhilharmonicCostRows(since)
   return successResponse(c, aggregateCosts(rows as never))
 })
 

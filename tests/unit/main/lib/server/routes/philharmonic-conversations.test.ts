@@ -228,3 +228,38 @@ describe('POST /conversations/:id/messages', () => {
     expect(input.attachments[0].url).toBe('data:image/png;base64,AAAA#fitted')
   })
 })
+
+describe('GET /costs', () => {
+  async function get(path: string) {
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.onError((_err, c) => c.json({}, 400))
+    app.route('/', conversationsRouter)
+    return app.request(path)
+  }
+
+  it('reads today and the six days before it for ?days=7', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 9, 23, 15, 30))
+    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
+    const res = await get('/costs?days=7')
+    vi.useRealTimers()
+    expect(res.status).toBe(200)
+    expect(getPhilharmonicCostRows).toHaveBeenCalledWith(
+      new Date(2026, 9, 17, 0, 0)
+    )
+  })
+
+  it('reads everything without ?days', async () => {
+    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
+    await get('/costs')
+    expect(getPhilharmonicCostRows).toHaveBeenCalledWith(undefined)
+  })
+
+  it.each(['abc', '0', '14'])('refuses ?days=%s', async (days) => {
+    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
+    const res = await get(`/costs?days=${days}`)
+    expect(res.status).toBe(400)
+    expect(getPhilharmonicCostRows).not.toHaveBeenCalled()
+  })
+})
