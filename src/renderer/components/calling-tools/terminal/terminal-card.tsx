@@ -6,6 +6,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
 
+import { foldHome } from '@/lib/display-path'
 import { cn } from '@/lib/utils'
 
 interface TerminalResult {
@@ -88,7 +89,7 @@ export function TerminalCard({ toolResult }: { toolResult: TerminalResult }) {
 
       {/* cwd hint */}
       <div className="text-muted-foreground/60 text-2xs border-t px-3 py-1.5">
-        {toolResult.cwd}
+        {foldHome(toolResult.cwd)}
       </div>
     </div>
   )

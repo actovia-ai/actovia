@@ -1,10 +1,9 @@
-import { format, isSameDay } from 'date-fns'
+import { isSameDay } from 'date-fns'
 
 import type { TaskData } from '@/stores/philharmonic'
 
 export interface TaskDayGroup {
   day: Date
-  label: string
   tasks: TaskData[]
 }
 
@@ -22,7 +21,7 @@ export function groupTasksByDay(tasks: TaskData[]): TaskDayGroup[] {
     if (existing) {
       existing.tasks.push(t)
     } else {
-      groups.push({ day, label: format(day, 'EEE, MMM d'), tasks: [t] })
+      groups.push({ day, tasks: [t] })
     }
   }
   return groups

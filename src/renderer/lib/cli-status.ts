@@ -1,6 +1,8 @@
 import type { CliStatus } from '@actovia/shared/types/agents'
 import type { ParseKeys } from 'i18next'
 
+import { foldHome } from '@/lib/display-path'
+
 const VIEW: Record<
   CliStatus['state'],
   {
@@ -33,3 +35,6 @@ const VIEW: Record<
 }
 
 export const cliStatusView = (status: CliStatus) => VIEW[status.state]
+
+/** A CLI's path as the row shows it: the home directory folded to `~`. */
+export const displayCliPath = foldHome

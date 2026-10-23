@@ -26,6 +26,7 @@
     "queriesForTopic_one": "Generated {{count}} search query for \"{{query}}\"",
     "queriesForTopic_other": "Generated {{count}} search queries for \"{{query}}\"",
     "searchedFor": "Searched for \"{{query}}\"",
+    "moreSources": "+{{n}} more",
     "writingReport": {
       "title": "Start writing final report...",
       "description": "The deep research phase is completed. Your final report is being generated and will be presented shortly."

@@ -98,6 +98,18 @@ describe('the interactive blocks section', () => {
     expect(INTERACTIVE_BLOCKS_PROMPT).toContain('at most five a reply')
   })
 
+  it('names only symbols the TradingView embed draws, and the stand-ins for the indexes it refuses', () => {
+    // Measured 2026-10-22: SP:SPX, NASDAQ:NDX, DJ:DJI, TVC:*, CBOE:SPX and
+    // TSE:7203 load "This symbol is only available on TradingView".
+    expect(INTERACTIVE_BLOCKS_PROMPT).not.toContain('TSE:7203')
+    expect(INTERACTIVE_BLOCKS_PROMPT).toContain('FOREXCOM:SPXUSD')
+    expect(INTERACTIVE_BLOCKS_PROMPT).toContain('FOREXCOM:NSXUSD')
+    expect(INTERACTIVE_BLOCKS_PROMPT).toContain('FOREXCOM:DJI')
+    expect(INTERACTIVE_BLOCKS_PROMPT).toMatch(
+      /refuses index symbols \(SP:SPX, NASDAQ:NDX/u
+    )
+  })
+
   it('stays short: every chat turn reads it', () => {
     expect(INTERACTIVE_BLOCKS_PROMPT.split('\n').length).toBeLessThanOrEqual(70)
   })

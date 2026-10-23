@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // src/main/lib/ai/philharmonic/pm-coordinator.ts
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import type { Attachment } from '@actovia/shared/types/chat'
@@ -231,7 +232,9 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // messages, and 16 is what it always kept.
   const lcm = new PhilharmonicLcm(conversationId, model, apiKey, {
     enabled: setting.memory?.lcmEnabled ?? true,
-    contextWindowPercent: setting.memory?.contextWindowPercent ?? 75,
+    contextWindowPercent:
+      setting.memory?.contextWindowPercent ??
+      SETTING_DEFAULTS.memory.contextWindowPercent,
     freshTailSize: 16
   })
   const history = await lcm.assembleContext(excludeMessageId)
@@ -258,16 +261,24 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       : ''
 
   // The markdown mirror is a copy for the owner: a failed write is logged and
-  // never fails the step or the tool that changed the plan.
-  const mirror = async (write: () => Promise<unknown>) => {
-    try {
-      await write()
-    } catch (error) {
-      logger.warn('philharmonic', 'plan mirror failed', {
-        conversationId,
-        message: error instanceof Error ? error.message : String(error)
-      })
-    }
+  // never fails the step or the tool that changed the plan. Writes queue one
+  // behind another: the PM calls plan tools in parallel (a step set running
+  // and delegated in one turn), and two writes through the one plan.md.tmp
+  // lost the race — the second rename found the file already moved — or
+  // could leave the older state last.
+  let mirrorQueue: Promise<void> = Promise.resolve()
+  const mirror = (write: () => Promise<unknown>) => {
+    mirrorQueue = mirrorQueue.then(async () => {
+      try {
+        await write()
+      } catch (error) {
+        logger.warn('philharmonic', 'plan mirror failed', {
+          conversationId,
+          message: error instanceof Error ? error.message : String(error)
+        })
+      }
+    })
+    return mirrorQueue
   }
   // Rewrite the markdown mirror; safe to call after any mutation.
   const mirrorActivePlan = () =>
@@ -275,6 +286,29 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       const cur = await getActivePlanByConversationId(conversationId)
       if (cur) await writePlanMirror(conversationId, cur.plan, cur.steps)
     })
+
+  // Whoever the PM hands a step to is one of the group's members — the header
+  // and the Members panel list them. Only a recruit used to join, so a group
+  // run by existing employees read "0 members". A failed write is logged and
+  // never fails the step.
+  const memberIds = new Set<string>(
+    (conversationRow?.memberAgentIds as string[] | null) ?? []
+  )
+  const joinGroup = async (agentId: string) => {
+    if (memberIds.has(agentId)) return
+    memberIds.add(agentId)
+    try {
+      await addMemberToConversation(conversationId, agentId)
+      emit({ type: 'member_joined', conversationId, agentId })
+    } catch (error) {
+      memberIds.delete(agentId)
+      logger.warn('philharmonic', 'group member not added', {
+        conversationId,
+        agentId,
+        message: error instanceof Error ? error.message : String(error)
+      })
+    }
+  }
 
   // P1-7: createReport pushes here; attached as message parts at turn end so
   // ArtifactCard can render on history reload, not just from the live stream.
@@ -395,6 +429,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         // A CLI that has rejected this employee's model starts no process.
         const blocked = quotaBlock(employeeId)
         if (blocked) return blocked
+        if (roster.some((r) => r.id === employeeId)) await joinGroup(employeeId)
         if (stepId) await cancelQuotaWait(stepId)
         // Bind to a plan step if provided. Mark running before kicking off
         // the employee loop, done/failed afterwards.
@@ -424,7 +459,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           retryCount: 0
         })
         try {
-          const { output, messageId } = await runDelegatedTask({
+          const { output, messageId, liveMessageId } = await runDelegatedTask({
             taskId: childTask.id,
             agentId: employeeId,
             conversationId,
@@ -436,6 +471,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           // agent's step saved its own as it began (its card lives there).
           if (!messageId)
             await createConversationMessage({
+              id: liveMessageId,
               conversationId,
               role: 'employee',
               agentId: employeeId,
@@ -475,8 +511,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     ),
     createRecruitEmployeeTool(async ({ role, skills, name }) => {
       const emp = await autoCreateEmployee({ role, skills, name })
-      await addMemberToConversation(conversationId, emp.id)
-      emit({ type: 'member_joined', conversationId, agentId: emp.id })
+      await joinGroup(emp.id)
       roster.push({ id: emp.id, name: emp.name, description: null })
       return { id: emp.id, name: emp.name }
     }),
@@ -536,7 +571,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {
       emit({ type: 'ask_user', conversationId, question, options })
-      return askUserRegistry.wait(conversationId)
+      return askUserRegistry.wait(conversationId, { question, options })
     })
   ]
 
@@ -740,6 +775,11 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       return
     }
 
+    logger.error('philharmonic', 'PM round failed', {
+      conversationId,
+      roundId: recorder.roundId,
+      error: err
+    })
     emit({ type: 'conversation_error', conversationId, error: message })
     await createConversationMessage({
       conversationId,
@@ -777,7 +817,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // The collapsed decision disclosure reads its counts from this part, so a
   // closed one fetches nothing.
   const counts = await recorder.finish()
+  // Under the id the answer streamed with: the live bubble and the row are
+  // one message, never two (the transcript drops a bubble once its row loads).
   await createConversationMessage({
+    id: messageId,
     conversationId,
     role: 'pm',
     content: finalText,

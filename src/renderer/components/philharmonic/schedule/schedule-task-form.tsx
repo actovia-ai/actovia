@@ -27,8 +27,11 @@ import {
   SheetTitle
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { useFormat } from '@/lib/format'
 import { createScheduledTask } from '@/services/philharmonic-tasks'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
+
+import { CRON_PRESETS } from './cron-presets'
 
 export function ScheduleTaskForm({
   open,
@@ -42,16 +45,13 @@ export function ScheduleTaskForm({
   onCreated: (task: TaskData) => void
 }) {
   const { t } = useTranslation('philharmonic')
+  const { dateTime } = useFormat()
   const cronPresets = useMemo(
     () => [
-      {
-        label: t('schedule.form.cronPresets.dailyNine'),
-        value: '0 9 * * *'
-      },
-      {
-        label: t('schedule.form.cronPresets.mondayNine'),
-        value: '0 9 * * 1'
-      },
+      ...CRON_PRESETS.map((p) => ({
+        label: t(`schedule.form.cronPresets.${p.key}`),
+        value: p.value as string
+      })),
       { label: t('schedule.form.cronPresets.custom'), value: 'custom' }
     ],
     [t]
@@ -77,20 +77,26 @@ export function ScheduleTaskForm({
     setCustomCron('')
   }
 
+  // When the task runs: a cron line, or a moment still ahead. The button
+  // waits for one — a click that could only be ignored is never offered.
+  const cronExpression =
+    mode === 'recurring'
+      ? (cronPreset === 'custom' ? customCron.trim() : cronPreset) || null
+      : null
+  const runAt = (() => {
+    if (mode !== 'once' || !runAtDate) return null
+    const [hours, minutes] = runAtTime.split(':').map(Number)
+    const combined = new Date(runAtDate)
+    combined.setHours(hours, minutes, 0, 0)
+    return combined.getTime() > Date.now() ? combined : null
+  })()
+  const ready =
+    Boolean(title.trim()) &&
+    Boolean(conversationId) &&
+    Boolean(cronExpression || runAt)
+
   const handleSubmit = async () => {
-    if (!title.trim() || !conversationId) return
-    let cronExpression: string | null = null
-    let runAt: string | null = null
-    if (mode === 'recurring') {
-      cronExpression = cronPreset === 'custom' ? customCron.trim() : cronPreset
-      if (!cronExpression) return
-    } else {
-      if (!runAtDate) return
-      const [hours, minutes] = runAtTime.split(':').map(Number)
-      const combined = new Date(runAtDate)
-      combined.setHours(hours, minutes, 0, 0)
-      runAt = combined.toISOString()
-    }
+    if (!ready) return
     setSubmitting(true)
     try {
       const task = await createScheduledTask({
@@ -98,7 +104,7 @@ export function ScheduleTaskForm({
         description: description.trim() || undefined,
         conversationId,
         cronExpression,
-        runAt
+        runAt: runAt?.toISOString() ?? null
       })
       onCreated(task)
       reset()
@@ -130,7 +136,7 @@ export function ScheduleTaskForm({
               id="schedule-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Weekly status report"
+              placeholder={t('schedule.form.titlePlaceholder')}
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -141,14 +147,19 @@ export function ScheduleTaskForm({
               id="schedule-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What should the team do?"
+              placeholder={t('schedule.form.descriptionPlaceholder')}
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>{t('schedule.form.groupLabel')}</Label>
+            {/* `items` lets the trigger show a group's title, not its id. */}
             <Select
               value={conversationId}
               onValueChange={(v) => v && setConversationId(v)}
+              items={conversations.map((c) => ({
+                value: c.id,
+                label: c.title
+              }))}
             >
               <SelectTrigger>
                 <SelectValue
@@ -189,7 +200,7 @@ export function ScheduleTaskForm({
                   render={
                     <Button type="button" variant="outline" className="flex-1">
                       {runAtDate
-                        ? runAtDate.toDateString()
+                        ? dateTime(runAtDate, { dateStyle: 'full' })
                         : t('schedule.form.pickDateButton')}
                     </Button>
                   }
@@ -199,6 +210,7 @@ export function ScheduleTaskForm({
                     mode="single"
                     selected={runAtDate}
                     onSelect={setRunAtDate}
+                    disabled={{ before: startOfToday() }}
                   />
                 </PopoverContent>
               </Popover>
@@ -214,6 +226,7 @@ export function ScheduleTaskForm({
               <Select
                 value={cronPreset}
                 onValueChange={(v) => v && setCronPreset(v)}
+                items={cronPresets}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -239,7 +252,7 @@ export function ScheduleTaskForm({
         <SheetFooter>
           <Button
             type="button"
-            disabled={submitting || !title.trim() || !conversationId}
+            disabled={submitting || !ready}
             onClick={handleSubmit}
           >
             {submitting
@@ -250,4 +263,10 @@ export function ScheduleTaskForm({
       </SheetContent>
     </Sheet>
   )
+}
+
+function startOfToday(): Date {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return today
 }

@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import { PGlite } from '@electric-sql/pglite'
 import { vector } from '@electric-sql/pglite-pgvector'
 import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm'
+import { pinSessionUtc } from '@main/lib/db/session'
 
 const DRIZZLE = resolve(import.meta.dirname, '../../../resources/drizzle')
 
@@ -28,11 +29,14 @@ export function migrationSql(file: string): string {
  * order up to and including `upTo` (`'0006'`) — the pattern of
  * `jobs/queries.integration.test.ts`, so a migration test proves the SQL that
  * ships. `pg_trgm` and `vector` are what `db/migrate.ts` creates before it
- * migrates; 0000 needs the first for the message search index.
+ * migrates; 0000 needs the first for the message search index. The session
+ * is pinned to UTC as `db/db.ts` pins the app's (`pinSessionUtc`), unless
+ * `utc: false` asks for the zone of a database from before the pin — what
+ * the 0020 test migrates from.
  */
 export async function createMigratedPglite(
   upTo: string,
-  options: { dataDir?: string; pgmq?: boolean } = {}
+  options: { dataDir?: string; pgmq?: boolean; utc?: boolean } = {}
 ): Promise<PGlite> {
   const extensions: Record<string, unknown> = { pg_trgm, vector }
   if (options.pgmq) {
@@ -42,7 +46,9 @@ export async function createMigratedPglite(
     ...(options.dataDir ? { dataDir: options.dataDir } : {}),
     extensions: extensions as never
   })
+  const pinned = options.utc === false ? null : pinSessionUtc(pglite)
   await pglite.waitReady
+  await pinned
   await pglite.exec('CREATE EXTENSION IF NOT EXISTS vector;')
   await pglite.exec('CREATE EXTENSION IF NOT EXISTS pg_trgm;')
   if (options.pgmq) await pglite.exec('CREATE EXTENSION IF NOT EXISTS pgmq;')

@@ -6,13 +6,17 @@ import {
   Tick02Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { cardStateKey, visibleSteps } from '@/lib/agent-card'
+import {
+  cardStateKey,
+  cliToolLabel,
+  relativeSummary,
+  visibleSteps
+} from '@/lib/agent-card'
 import { cn } from '@/lib/utils'
 import {
   continueInTerminal,
@@ -108,11 +112,14 @@ export function AgentCardView({
                 )}
               />
               <span className="shrink-0 font-medium">
-                {capitalCase(s.tool)}
+                {cliToolLabel(s.tool)}
               </span>
               {s.summary && (
-                <code className="text-muted-foreground min-w-0 truncate font-mono">
-                  {s.summary}
+                <code
+                  className="text-muted-foreground min-w-0 truncate font-mono"
+                  title={s.summary}
+                >
+                  {relativeSummary(s.summary, card.cwd)}
                 </code>
               )}
             </li>

@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -201,8 +202,10 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
             {!project && <HugeiconsIcon icon={Tick02Icon} className="size-4" />}
           </DropdownMenuItem>
           {recent.length > 0 && (
-            <>
+            <DropdownMenuGroup>
               <DropdownMenuSeparator />
+              {/* Base UI throws on a group label outside a group (error #31):
+                  the whole group page went to the route's error screen. */}
               <DropdownMenuLabel>{t('chat.folder.recent')}</DropdownMenuLabel>
               {recent.map((p) => (
                 <DropdownMenuItem
@@ -216,7 +219,7 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
                   )}
                 </DropdownMenuItem>
               ))}
-            </>
+            </DropdownMenuGroup>
           )}
           <DropdownMenuSeparator />
           {naming ? (

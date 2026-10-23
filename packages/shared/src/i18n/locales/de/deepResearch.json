@@ -26,6 +26,7 @@
     "queriesForTopic_one": "{{count}} Suchanfrage für „{{query}}“ generiert",
     "queriesForTopic_other": "{{count}} Suchanfragen für „{{query}}“ generiert",
     "searchedFor": "Gesucht nach „{{query}}“",
+    "moreSources": "+{{n}} weitere",
     "writingReport": {
       "title": "Abschlussbericht wird verfasst...",
       "description": "Die Deep-Research-Phase ist abgeschlossen. Ihr Abschlussbericht wird erstellt und in Kürze präsentiert."

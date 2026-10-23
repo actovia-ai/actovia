@@ -24,6 +24,10 @@ const EXCLUDED_FILES = new Set([
 // and short symbol fragments.
 const PROSE_RE = /[A-Za-z]{3,}/
 
+// Attributes a person reads or hears: the field's hint, a screen reader's
+// name, a tooltip, an image's description.
+const PROSE_ATTRIBUTES = new Set(['placeholder', 'aria-label', 'title', 'alt'])
+
 interface Violation {
   file: string
   line: number
@@ -129,6 +133,27 @@ function scanRendererFile(filePath: string): Violation[] {
           line: path.node.loc?.start.line ?? 0,
           text,
           kind: 'jsx-text'
+        })
+      }
+    },
+    // A literal `placeholder="What should the team do?"` is as visible as a
+    // text node (two shipped in the schedule form). Words with a space only:
+    // a lone token (`placeholder="sk-…"`, `alt="logo"`) is an identifier.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    JSXAttribute(path: any) {
+      const { name, value } = path.node
+      if (
+        name.type === 'JSXIdentifier' &&
+        PROSE_ATTRIBUTES.has(name.name) &&
+        value?.type === 'StringLiteral' &&
+        PROSE_RE.test(value.value) &&
+        /\s/.test(value.value.trim())
+      ) {
+        violations.push({
+          file: relPath,
+          line: path.node.loc?.start.line ?? 0,
+          text: value.value,
+          kind: 'jsx-attribute'
         })
       }
     },

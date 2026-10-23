@@ -7,6 +7,7 @@ import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import * as cheerio from 'cheerio'
 import TurndownService from 'turndown'
 
+import { logger } from '../../logger'
 import {
   assertNotActoviaApi,
   LocalApiTargetError
@@ -189,18 +190,62 @@ export async function loadDocumentWithJina(link: string, signal?: AbortSignal) {
 
 /* ================= Brave Search ================= */
 
+/** Why a search came back with nothing: Brave said no, or never answered. */
+export type WebSearchFailure =
+  | 'rate_limited'
+  | 'unauthorized'
+  | 'quota'
+  | 'http'
+  | 'network'
+
+const FAILURE_MESSAGES: Record<WebSearchFailure, string> = {
+  rate_limited:
+    'Web search failed: the Brave Search rate limit was reached. Wait a moment and search again.',
+  unauthorized:
+    'Web search failed: Brave Search rejected the API key. Ask the user to check it in Settings → Built-in Tools.',
+  quota: "Web search failed: the Brave Search plan's quota is used up for now.",
+  http: 'Web search failed: Brave Search answered with an error.',
+  network: 'Web search failed: Brave Search could not be reached.'
+}
+
+/**
+ * A search that brought back nothing because its requests failed — never to
+ * be told to the model as "no results". The message is written for the
+ * model; it carries no query and no key.
+ */
+export class WebSearchError extends Error {
+  constructor(
+    readonly failure: WebSearchFailure,
+    readonly status?: number
+  ) {
+    super(
+      status && failure === 'http'
+        ? `${FAILURE_MESSAGES.http} (HTTP ${status})`
+        : FAILURE_MESSAGES[failure]
+    )
+    this.name = 'WebSearchError'
+  }
+}
+
+function failureOfStatus(status: number): WebSearchFailure {
+  if (status === 429) return 'rate_limited'
+  if (status === 401 || status === 403) return 'unauthorized'
+  if (status === 402) return 'quota'
+  return 'http'
+}
+
 /**
  * `fetch` for the Brave API: always asks for gzip, and retries once on a 429
  * after a short pause (the free tier is 1 req/s, so a fan of parallel calls
- * trips it easily). Returns `null` on any non-2xx so callers degrade rather
- * than throw.
+ * trips it easily). A non-2xx it gives up on is a `WebSearchError`; a
+ * request that never got an answer throws what `fetch` threw.
  */
 async function braveFetch(
   url: string,
   apiKey: string,
   signal?: AbortSignal
-): Promise<Response | null> {
-  for (let attempt = 0; attempt < 2; attempt++) {
+): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
     const res = await fetch(url, {
       headers: {
         Accept: 'application/json',
@@ -214,9 +259,8 @@ async function braveFetch(
       await new Promise((r) => setTimeout(r, 1200))
       continue
     }
-    return null
+    throw new WebSearchError(failureOfStatus(res.status), res.status)
   }
-  return null
 }
 
 /** Run `fn` over `items` with at most `limit` in flight; preserves order. */
@@ -431,7 +475,6 @@ async function fetchBraveLlmContext({
     apiKey,
     signal
   )
-  if (!res) return null
   return (await res.json()) as BraveLlmContextResponse
 }
 
@@ -502,7 +545,6 @@ async function fetchBraveWebSearch({
     apiKey,
     signal
   )
-  if (!res) return null
   return (await res.json()) as BraveWebSearchResponse
 }
 
@@ -590,7 +632,6 @@ async function fetchBraveImages({
     apiKey,
     signal
   )
-  if (!res) return null
   return (await res.json()) as BraveImageSearchResponse
 }
 
@@ -625,7 +666,6 @@ async function fetchBraveVideos({
     apiKey,
     signal
   )
-  if (!res) return null
   return (await res.json()) as BraveVideoSearchResponse
 }
 
@@ -836,6 +876,22 @@ export async function fetchWebSearch({
   rankBase?: number
   signal?: AbortSignal
 }): Promise<WebSearchResult[] | null> {
+  // A Brave request that failed leaves its part empty, so the rest of the
+  // search still answers; it is logged, and if nothing came back at all the
+  // search throws the failure rather than passing it off as "no results".
+  const failures: unknown[] = []
+  const soft = <T>(endpoint: string, request: Promise<T>) =>
+    request.catch((error: unknown) => {
+      if (signal?.aborted) return null
+      failures.push(error)
+      logger.warn('web-search', 'Brave request failed', {
+        endpoint,
+        status: error instanceof WebSearchError ? error.status : undefined,
+        error
+      })
+      return null
+    })
+
   try {
     const includeImages = media === 'image' || media === 'all'
     const includeVideos = media === 'video' || media === 'all'
@@ -851,48 +907,60 @@ export async function fetchWebSearch({
     const [perQuery, imageResp, videoResp] = await Promise.all([
       runLimited(queries, 3, async (q) => {
         const [ctx, web] = await Promise.all([
-          fetchBraveLlmContext({
-            query: q,
-            apiKey: braveApiKey,
-            country,
-            languages,
-            recencyFilter,
-            sources,
-            limits,
-            threshold,
-            signal
-          }),
+          soft(
+            'llm/context',
+            fetchBraveLlmContext({
+              query: q,
+              apiKey: braveApiKey,
+              country,
+              languages,
+              recencyFilter,
+              sources,
+              limits,
+              threshold,
+              signal
+            })
+          ),
           deep
-            ? fetchBraveWebSearch({
-                query: q,
-                apiKey: braveApiKey,
-                country,
-                languages,
-                recencyFilter,
-                signal
-              })
+            ? soft(
+                'web/search',
+                fetchBraveWebSearch({
+                  query: q,
+                  apiKey: braveApiKey,
+                  country,
+                  languages,
+                  recencyFilter,
+                  signal
+                })
+              )
             : Promise.resolve(null)
         ])
         return { ctx, web }
       }),
       includeImages
-        ? fetchBraveImages({
-            query,
-            apiKey: braveApiKey,
-            country,
-            languages,
-            signal
-          })
+        ? soft(
+            'images/search',
+            fetchBraveImages({
+              query,
+              apiKey: braveApiKey,
+              country,
+              languages,
+              signal
+            })
+          )
         : Promise.resolve(null),
       includeVideos
-        ? fetchBraveVideos({
-            query,
-            apiKey: braveApiKey,
-            country,
-            languages,
-            recencyFilter,
-            signal
-          })
+        ? soft(
+            'videos/search',
+            fetchBraveVideos({
+              query,
+              apiKey: braveApiKey,
+              country,
+              languages,
+              recencyFilter,
+              signal
+            })
+          )
         : Promise.resolve(null)
     ])
 
@@ -1034,8 +1102,32 @@ export async function fetchWebSearch({
 
     attachMedia(results, mediaResults, baseRank, webSources)
 
-    return results.length > 0 ? results : null
-  } catch {
+    if (results.length > 0) return results
+    if (failures.length > 0) throw searchFailure(failures)
+    return null
+  } catch (error) {
+    if (signal?.aborted) return null
+    if (error instanceof WebSearchError) throw error
+    logger.warn('web-search', 'Search results could not be read', { error })
     return null
   }
+}
+
+/** The failure to report for a search none of whose requests answered: a
+ *  reason the user can act on (key, quota, rate) before a generic one. */
+function searchFailure(failures: unknown[]): WebSearchError {
+  const known = failures.filter(
+    (f): f is WebSearchError => f instanceof WebSearchError
+  )
+  const order: WebSearchFailure[] = [
+    'unauthorized',
+    'quota',
+    'rate_limited',
+    'http'
+  ]
+  for (const failure of order) {
+    const hit = known.find((f) => f.failure === failure)
+    if (hit) return hit
+  }
+  return new WebSearchError('network')
 }

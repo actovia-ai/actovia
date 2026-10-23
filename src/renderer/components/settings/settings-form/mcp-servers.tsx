@@ -669,7 +669,9 @@ export function McpServers() {
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. filesystem"
+                    placeholder={t('settings:examplePlaceholder', {
+                      example: 'filesystem'
+                    })}
                   />
                 </SettingsRow>
 
@@ -688,7 +690,10 @@ export function McpServers() {
                           setCommand(e.target.value)
                           edited('args')
                         }}
-                        placeholder="e.g. npx -y @modelcontextprotocol/server-filesystem"
+                        placeholder={t('settings:examplePlaceholder', {
+                          example:
+                            'npx -y @modelcontextprotocol/server-filesystem'
+                        })}
                         guarded={
                           args.some((a) => holdsMask(a)) || holdsMask(envStr)
                         }
@@ -816,7 +821,9 @@ export function McpServers() {
                           setUrl(e.target.value)
                           edited('url')
                         }}
-                        placeholder="e.g. https://mcp.example.com/sse"
+                        placeholder={t('settings:examplePlaceholder', {
+                          example: 'https://mcp.example.com/sse'
+                        })}
                         guarded={
                           holdsMask(headersStr) || holdsMask(extraConfigStr)
                         }

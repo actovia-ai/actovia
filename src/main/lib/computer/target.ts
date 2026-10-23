@@ -17,7 +17,7 @@ export class TargetNotFound extends Error {
   }
 }
 
-/** Thrown by `refreshBounds` when the tracked window is no longer open. */
+/** Thrown by `refreshBounds` when the tracked app has no window open. */
 export class WindowGone extends Error {
   constructor(cgWindowId: number) {
     super(`Window ${cgWindowId} is gone`)
@@ -45,13 +45,16 @@ export async function resolveTarget(
       w.bundleId.toLowerCase().includes(needle)
   )
   if (candidates.length === 0) throw new TargetNotFound(appQuery)
+  return best(candidates)
+}
 
-  candidates.sort((a, b) => {
+/** A titled window first, then the largest. */
+function best(candidates: TargetWindow[]): TargetWindow {
+  return [...candidates].sort((a, b) => {
     const byTitle = titleRank(a) - titleRank(b)
     if (byTitle !== 0) return byTitle
     return area(b) - area(a)
-  })
-  return candidates[0]
+  })[0]
 }
 
 /**
@@ -99,8 +102,14 @@ function sleep(ms: number): Promise<void> {
 /**
  * Re-read the live `bounds` and `title` of a tracked window — it may have moved,
  * resized, or been retitled since `resolveTarget`. Returns a fresh
- * `TargetWindow` that keeps `cgWindowId` / `app` / `bundleId` from `t`. Throws
- * `WindowGone` when the window is no longer listed.
+ * `TargetWindow` that keeps `cgWindowId` / `app` / `bundleId` from `t`.
+ *
+ * When the window has closed, the session follows the same app (the exact
+ * bundle id, so the allowlist and self checks made on `t` still hold) to its
+ * best remaining window: Chess replaces its window for a new game, and the
+ * session used to end there with "Window … is gone" (2026-10-22). The caller
+ * re-checks a window it is handed with a new id. Throws `WindowGone` only
+ * when the app has no window on screen.
  */
 export async function refreshBounds(
   t: TargetWindow,
@@ -108,8 +117,19 @@ export async function refreshBounds(
 ): Promise<TargetWindow> {
   const wins = await helper.listWindows()
   const w = wins.find((x) => x.cgWindowId === t.cgWindowId)
-  if (!w) throw new WindowGone(t.cgWindowId)
-  return { ...t, bounds: w.bounds, title: w.title }
+  if (w) return { ...t, bounds: w.bounds, title: w.title }
+  // A window with no bundle id names no app: nothing to follow.
+  const same = t.bundleId
+    ? wins.filter((x) => x.bundleId === t.bundleId && x.app === t.app)
+    : []
+  if (same.length === 0) throw new WindowGone(t.cgWindowId)
+  const next = best(same)
+  return {
+    ...t,
+    cgWindowId: next.cgWindowId,
+    bounds: next.bounds,
+    title: next.title
+  }
 }
 
 /** Windows with a non-empty title sort ahead of those without. */
@@ -119,4 +139,24 @@ function titleRank(w: TargetWindow): number {
 
 function area(w: TargetWindow): number {
   return w.bounds[2] * w.bounds[3]
+}
+
+/**
+ * `refreshBounds`, raising the app once when none of its windows is on
+ * screen: the helper lists the current Space only, and a window on another
+ * Space (or behind a switch the user made) read as gone.
+ */
+export async function refreshOrRaise(
+  t: TargetWindow,
+  helper: InputHelper,
+  settleMs: number
+): Promise<TargetWindow> {
+  try {
+    return await refreshBounds(t, helper)
+  } catch (err) {
+    if (!(err instanceof WindowGone)) throw err
+  }
+  await helper.activate(t.bundleId || t.app)
+  await sleep(settleMs)
+  return refreshBounds(t, helper)
 }

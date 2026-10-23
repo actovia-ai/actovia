@@ -1,9 +1,11 @@
 import { stat as fsStat, readdir } from 'fs/promises'
-import { join } from 'path'
+import { isAbsolute, join, relative, resolve, sep } from 'path'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
+
+import { getWorkspacesDir } from '../../paths'
 
 const listDirectorySchema = Type.Object({
   path: Type.String({ description: 'Directory path to list.' }),
@@ -13,6 +15,22 @@ const listDirectorySchema = Type.Object({
     })
   )
 })
+
+/**
+ * A chat's workspace is made on its first write, so before that it does not
+ * exist: listing it is an empty folder, not an error the model has to work
+ * around (it reads as a failed step in the timeline).
+ */
+function isUnmadeWorkspace(path: string, err: unknown): boolean {
+  if ((err as { code?: string }).code !== 'ENOENT') return false
+  const rel = relative(getWorkspacesDir(), resolve(path))
+  return (
+    rel !== '' &&
+    !isAbsolute(rel) &&
+    !rel.startsWith('..') &&
+    !rel.includes(sep)
+  )
+}
 
 export const listDirectory: AgentTool<typeof listDirectorySchema> = {
   name: TOOL_NAMES.listDirectory,
@@ -60,6 +78,13 @@ export const listDirectory: AgentTool<typeof listDirectorySchema> = {
         details
       }
     } catch (err: unknown) {
+      if (isUnmadeWorkspace(path, err)) {
+        const details = { path, entries: [] }
+        return {
+          content: [{ type: 'text' as const, text: JSON.stringify(details) }],
+          details
+        }
+      }
       const e = err as { message?: string }
       throw new Error(`Failed to list directory "${path}": ${e.message}`, {
         cause: err

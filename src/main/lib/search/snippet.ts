@@ -7,7 +7,8 @@ const SNIPPET_LEAD = 40
 const WORD_SLACK = 12
 
 // 【1-source】 and 【84,85,86-source】, the markers the model cites a web search with.
-const CITATION = /【[^】]*-source】/gu
+// The space before one goes with it, or "11 【3-source】." would read "11 ."
+const CITATION = /\s*【[^】]*-source】/gu
 // A table's header rule (`|---|:--:|`); its cell pipes go with the whitespace.
 const TABLE_RULE = /^[\s|:-]*-{3,}[\s|:-]*$/gmu
 

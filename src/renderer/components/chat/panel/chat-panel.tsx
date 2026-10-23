@@ -6,12 +6,10 @@ import {
   Wrench01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import removeMd from 'remove-markdown'
 
 import { SheetPanel } from '@/components/app/sheet-panel'
 import { SourceFavicon } from '@/components/markdown/source-favicon'
@@ -24,7 +22,9 @@ import {
   type ChatToolUse,
   hasPanelItems
 } from '@/lib/chat-panel-items'
+import { plainText } from '@/lib/plain-text'
 import { scrollToRun } from '@/lib/scroll-to-run'
+import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
 import {
   chatMessagesAtom,
@@ -75,7 +75,8 @@ export function ChatPanel() {
   const counts = {
     files: items.files.length,
     tools: items.tools.length,
-    sources: items.sources.length
+    // Every source, not the runs they are grouped under.
+    sources: items.sources.reduce((n, group) => n + group.results.length, 0)
   }
 
   return (
@@ -255,7 +256,7 @@ function ToolsSection({ tools }: { tools: ChatToolUse[] }) {
               <HugeiconsIcon icon={Wrench01Icon} />
             </span>
           }
-          name={capitalCase(tool.name)}
+          name={toolLabel(tool.name)}
           caption={t('panel.calls', { count: tool.count })}
           onClick={() => scrollToRun(tool.lastRunId)}
         />
@@ -318,7 +319,7 @@ function SourceLink({ item }: { item: WebSearchResult }) {
         </div>
         {typeof item.snippet === 'string' && item.snippet && (
           <div className="text-muted-foreground line-clamp-2 text-xs leading-snug">
-            {removeMd(item.snippet)}
+            {plainText(item.snippet)}
           </div>
         )}
       </div>

@@ -37,10 +37,12 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { useAnalyticsStatus } from '@/hooks/use-analytics'
+import { keyLabel, MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
 import { useFormat } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import {
   buildSnapshot,
+  numericColumns,
   resultToCsv,
   runAuditQuery,
   type QueryResult
@@ -77,6 +79,7 @@ export function ChatAudit() {
   const [sql, setSql] = useState(CHAT_AUDIT_PRESETS[0].sql)
   const [preset, setPreset] = useState<string | null>(CHAT_AUDIT_PRESETS[0].id)
   const [result, setResult] = useState<QueryResult | null>(null)
+  const numeric = result ? numericColumns(result) : new Set<string>()
   const [error, setError] = useState<string | null>(null)
   const [running, setRunning] = useState(false)
   const [building, setBuilding] = useState(false)
@@ -278,8 +281,8 @@ export function ChatAudit() {
           </p>
           <div className="flex items-center gap-3">
             <KbdGroup className="text-muted-foreground">
-              <Kbd>⌘</Kbd>
-              <Kbd>↩</Kbd>
+              <Kbd>{MOD_KEY}</Kbd>
+              <Kbd>{keyLabel('Enter')}</Kbd>
             </KbdGroup>
             <Button
               size="sm"
@@ -359,7 +362,13 @@ export function ChatAudit() {
                 <TableHeader className="bg-background sticky top-0 z-10">
                   <TableRow>
                     {result.columns.map((col) => (
-                      <TableHead key={col.name} className="whitespace-nowrap">
+                      <TableHead
+                        key={col.name}
+                        className={cn(
+                          'whitespace-nowrap',
+                          numeric.has(col.name) && 'text-right'
+                        )}
+                      >
                         {col.name}
                         <span className="text-muted-foreground text-2xs ml-1.5 font-normal">
                           {col.type}
@@ -378,7 +387,7 @@ export function ChatAudit() {
                             key={col.name}
                             className={cn(
                               'max-w-[24rem] truncate',
-                              typeof value === 'number' &&
+                              numeric.has(col.name) &&
                                 'text-right tabular-nums',
                               value === null && 'text-muted-foreground/60'
                             )}

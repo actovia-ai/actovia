@@ -20,6 +20,7 @@ import {
 import { getPhilharmonicCostRows } from '../../db/philharmonic-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
 import { listRoundEvents } from '../../db/pm-round-queries'
+import { localDateStr } from '../../local-date'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
 import type { Variables } from '../types'
@@ -80,7 +81,8 @@ export function aggregateCosts(rows: CostRow[]): PhilharmonicCostSummary {
     a.cost += cost
     a.tokens += tokens
     agent.set(r.agentId, a)
-    const d = r.startedAt.toISOString().slice(0, 10)
+    // The user's day, not the UTC one: the chart labels it as a local date.
+    const d = localDateStr(r.startedAt)
     const dd = day.get(d) ?? { cost: 0, tokens: 0 }
     dd.cost += cost
     dd.tokens += tokens

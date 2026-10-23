@@ -6,6 +6,7 @@ import {
   configuredProvider,
   hasProviderKey,
   modelCatalog,
+  modelDisplayName,
   modelLabel,
   modelRetirement
 } from '@/lib/provider-labels'
@@ -39,6 +40,23 @@ describe('provider labels', () => {
     ).toBeNull()
     expect(configuredProvider(settings({ providerConfig: null }))).toBeNull()
     expect(configuredProvider()).toBeNull()
+  })
+
+  it('leaves out of a saved catalog what cannot chat', () => {
+    expect(
+      modelCatalog(
+        settings({
+          modelCatalog: {
+            [AiProviders.OpenAiGpt]: [
+              entry('gpt-5.5', 'gpt-5.5'),
+              entry('gpt-image-2', 'gpt-image-2'),
+              entry('whisper-1', 'whisper-1')
+            ]
+          }
+        } as Partial<Settings>),
+        AiProviders.OpenAiGpt
+      ).map((m) => m.id)
+    ).toEqual(['gpt-5.5'])
   })
 
   it('a provider has a key when its field holds one (a mask counts); Ollama needs none', () => {
@@ -89,5 +107,18 @@ describe('modelRetirement', () => {
     expect(modelRetirement(undefined, now)).toBeNull()
     expect(modelRetirement(null, now)).toBeNull()
     expect(modelRetirement('', now)).toBeNull()
+  })
+})
+
+describe('modelDisplayName', () => {
+  it('names a model by its catalog entry, else by its id', () => {
+    const s = settings({})
+    expect(
+      modelDisplayName(s, AiProviders.AnthropicClaude, 'claude-sonnet-5-5')
+    ).toBe('Claude Sonnet 5.5')
+    expect(
+      modelDisplayName(s, AiProviders.AnthropicClaude, 'claude-haiku-5-5')
+    ).toBe('claude-haiku-5-5')
+    expect(modelDisplayName(undefined, 'unknown', 'gpt-x')).toBe('gpt-x')
   })
 })

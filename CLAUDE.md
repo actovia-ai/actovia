@@ -484,6 +484,19 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
 - ORM: Drizzle ORM with Zod schemas
 - Schema: `src/main/lib/db/schema.ts`
 - Migrations: `resources/drizzle/`
+- **Time zone**: every column is `timestamp` without a zone, which drizzle
+  writes and reads as UTC wall clock, so the session runs in UTC:
+  `pinSessionUtc()` (`src/main/lib/db/session.ts`) is queued right after
+  `new PGlite` in `db/db.ts`, ahead of every other query, and
+  `createMigratedPglite()` does the same. Before it the session ran in the
+  zone PGlite's initdb wrote into the data dir's `postgresql.conf` (the OS
+  zone as a fixed offset, `Etc/GMT-8` in Shanghai), so every `DEFAULT now()`
+  stamped local wall clock that read back shifted by the offset; migration
+  0020 (`0020_utc_timestamps.sql`) moved those values onto UTC, reading the
+  old zone as TimeZone's `reset_val`. Read timestamps through drizzle, not
+  `db.execute` (which returns the zone-less text), and bucket by day with
+  `localDateStr()` (`src/main/lib/local-date.ts`), never
+  `toISOString().slice(0, 10)`
 
 **Key Tables**:
 
@@ -899,6 +912,16 @@ Multi-level recursive research with real-time progress streaming:
      key off it)
    - Frontend polls for progress messages
 
+6. **The report goes back into the chat** (`ai/deep-research/chat-result.ts`):
+   the `deep_research` call returns only the job's id and the research runs
+   on, so when the job ends (archived or failed) its outcome replaces the
+   text of that tool result row (`settleDeepResearchResult()`, also run after
+   the run's rows are saved — a job that fails at once ends first — and once
+   at launch for older chats). A follow-up, `recall`, `lcm_grep` and another
+   conversation's `lcm_describe` (which lists reports as `research`) read it
+   there; before 2026-10-22 none of them could, and the model said the
+   research had never run. The card still follows the job by `details.id`
+
 ### MCP (Model Context Protocol)
 
 **Integration** (`src/main/lib/ai/mcp.ts`):
@@ -1103,7 +1126,7 @@ Compacts long conversations without losing information, surfacing summaries the 
   conversation id; for the latter `describeConversation()`
   (`context-management/conversation-overview.ts`) returns the title, the
   summaries in the chat's context and the text of what was said and not
-  compacted — all of it for a conversation that never was — bounded
+  compacted, with its Deep Research reports — all of it for a conversation that never was — bounded
   (`OVERVIEW_LIMITS`), newest kept, with the ids of what did not fit. It is
   read-only (another chat's context tracking is never bootstrapped from a
   read), leaves out tool results and the runs a regenerate group keeps out of
@@ -1280,7 +1303,8 @@ straight from `src/main/lib/db/schema.ts` (the shared package must not import th
 - Always use Drizzle ORM queries (`src/main/lib/db/queries.ts`)
 - Schema changes require running `bun run db:generate` to create migrations
 - Vector searches use `cosineDistance()` from pgvector
-- All timestamps use `timestamp('created_at').notNull().defaultNow()`
+- All timestamps use `timestamp('created_at').notNull().defaultNow()` — UTC,
+  since the session is pinned to it (see Database Layer)
 
 ### When Working with Tools
 
@@ -1821,7 +1845,9 @@ Reusable AI utilities that should be used (and tested) instead of inline impleme
    (part of `bun run test`, so gated on every commit) scans every
    `src/renderer/**/*.{ts,tsx}` (excluding `components/ui/**` and
    `sub-apps/artifacts/sandbox.tsx`) for JSX text nodes (`.tsx` only),
-   `sileo.*({ title | description })` values (including template literals
+   literal multi-word `placeholder` / `aria-label` / `title` / `alt`
+   attributes (an example in a placeholder is `examplePlaceholder`, "e.g.
+   {{example}}" in `settings.json`), `sileo.*({ title | description })` values (including template literals
    and ternaries, in both `.ts` hooks/services and `.tsx` components), and
    `label:` properties in `src/main/lib/menu.ts`/`tray.ts` that aren't
    routed through `t()`/`<Trans>`/`mainT()`. A new hardcoded string fails
@@ -1968,7 +1994,13 @@ Main process:
 - `src/main/lib/computer/` — window-scoped screenshot-loop Computer Use V0: the
   `actovia-input` Swift helper (list-windows / list-apps / screenshot / activate /
   CGEvent input), `capture`/`target`/`hands`/`guard`, `runComputerSession` (the
-  perceive→act loop), `liveness` (the ⌥⇧⎋ kill switch); `target.resolveOrLaunch`
+  perceive→act loop; input is screen-coordinate HID events, so before every
+  action `front.ts`'s `bringToFront()` raises the target app and the action is
+  skipped — the model told why — unless the target window is on screen, its
+  app frontmost and no other app's window, nor an Actovia one, overlaps it; a
+  window the app replaced or a Space it moved to is followed by
+  `refreshOrRaise()`, which re-runs the self and allowlist checks),
+  `liveness` (the ⌥⇧⎋ kill switch). Marked **Experimental** (owner, 2026-10-22: much still to polish) — a badge on its Settings sidebar item (`experimental: true` in `settings-menu.ts`) and a notice on its page; `target.resolveOrLaunch`
   opens an allowlisted app that isn't running; `self.ts` — Actovia itself (its
   bundle id, its own windows) is never a target, whatever the allowlist says,
   and never offered in the picker. The inner-loop agent is

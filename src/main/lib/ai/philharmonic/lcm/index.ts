@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // src/main/lib/ai/philharmonic/lcm/index.ts
 //
 // PhilharmonicLcm — single-summary rolling compactor for Group conversations.
@@ -5,7 +6,6 @@
 // Public surface mirrors what Chat's LcmManager offers but stays small. Chat
 // keeps a DAG of leaf and condensed summaries; for Philharmonic v1 we keep
 // one summary row per conversation. Future iterations can graduate if needed.
-
 import type { Attachment } from '@actovia/shared/types/chat'
 import type { Message, Model } from '@earendil-works/pi-ai'
 
@@ -152,7 +152,9 @@ export class PhilharmonicLcm {
     this.model = model
     this.apiKey = apiKey
     this.freshTailSize = options.freshTailSize ?? 16
-    this.contextWindowPercent = options.contextWindowPercent ?? 75
+    this.contextWindowPercent =
+      options.contextWindowPercent ??
+      SETTING_DEFAULTS.memory.contextWindowPercent
     this.contextWindow = options.contextWindow ?? DEFAULT_CONTEXT_WINDOW
     this.enabled = options.enabled ?? true
   }

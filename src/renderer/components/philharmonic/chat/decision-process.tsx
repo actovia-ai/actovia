@@ -113,6 +113,9 @@ function callSentence(
       })
     case 'createReport':
       return t('chat.decision.report')
+    // The PM's tool is `escalateToUser`; `askUser` is what the trail's
+    // first draft called it, kept for a round recorded under that name.
+    case 'escalateToUser':
     case 'askUser':
       return t('chat.decision.askUser')
     case 'search_knowledge_base':

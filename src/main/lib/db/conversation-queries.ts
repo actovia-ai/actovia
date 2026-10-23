@@ -1,4 +1,4 @@
-import { asc, desc, eq, sql } from 'drizzle-orm'
+import { and, asc, desc, eq, ne } from 'drizzle-orm'
 
 import { db } from './db'
 import { conversation, conversationMessage, type Conversation } from './schema'
@@ -22,24 +22,26 @@ export interface LatestMessage {
 
 /**
  * One row per conversation: the most recent message. Used to render a
- * preview line under each title in the conversation list.
+ * preview line under each title in the conversation list. Through drizzle's
+ * select, not raw SQL: `db.execute` hands a timestamp back as the column's
+ * zone-less text, which a client then reads as its own local time.
  */
 export async function getLatestMessagePerConversation(): Promise<
   LatestMessage[]
 > {
-  const rows = await db.execute(sql`
-    SELECT DISTINCT ON ("conversationId")
-      "conversationId",
-      "role",
-      "content",
-      "agentId",
-      "createdAt"
-    FROM ${conversationMessage}
-    ORDER BY "conversationId", "createdAt" DESC
-  `)
-  // db.execute on pglite returns { rows }; normalize.
-  const list = (rows as unknown as { rows: unknown[] }).rows ?? rows
-  return list as LatestMessage[]
+  return db
+    .selectDistinctOn([conversationMessage.conversationId], {
+      conversationId: conversationMessage.conversationId,
+      role: conversationMessage.role,
+      content: conversationMessage.content,
+      agentId: conversationMessage.agentId,
+      createdAt: conversationMessage.createdAt
+    })
+    .from(conversationMessage)
+    .orderBy(
+      conversationMessage.conversationId,
+      desc(conversationMessage.createdAt)
+    )
 }
 
 export async function getConversationById(id: string) {
@@ -109,6 +111,30 @@ export async function getMessagesByConversationId(conversationId: string) {
     .from(conversationMessage)
     .where(eq(conversationMessage.conversationId, conversationId))
     .orderBy(asc(conversationMessage.createdAt))
+}
+
+/** An employee's latest reports in a group, newest first. */
+export async function getEmployeeReports(
+  conversationId: string,
+  agentId: string,
+  limit: number
+) {
+  return db
+    .select({
+      content: conversationMessage.content,
+      createdAt: conversationMessage.createdAt
+    })
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        eq(conversationMessage.agentId, agentId),
+        eq(conversationMessage.role, 'employee'),
+        ne(conversationMessage.content, '')
+      )
+    )
+    .orderBy(desc(conversationMessage.createdAt))
+    .limit(limit)
 }
 
 export async function createConversationMessage(

@@ -12,11 +12,15 @@ import {
   Globe02Icon,
   MessageSquareTextIcon,
   CircleCheckBigIcon,
-  ClockFadingIcon,
+  CommandLineIcon,
+  FileEditIcon,
+  FileSearchIcon,
+  FolderOpenIcon,
+  Link01Icon,
+  Wrench01Icon,
   CancelCircleIcon
 } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -26,8 +30,10 @@ import {
   ThinkingOrb
 } from 'thinking-orbs'
 
+import { FAVICON_BACKING } from '@/components/markdown/source-favicon'
 import { i18n } from '@/lib/i18n'
 import { ROW_ENTER } from '@/lib/motion'
+import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
 
 import { foldedFileName, terminalExitCode } from '../calling-tools/folded-tools'
@@ -77,6 +83,18 @@ const STATUS_TEXT: Record<StepStatus, string> = {
   pending: 'text-muted-foreground/50'
 }
 
+/** What a call did, drawn on its row — a clock read as still waiting once it was done. */
+const TOOL_ICON: Record<string, IconSvgElement> = {
+  [TOOL_NAMES.terminal]: CommandLineIcon,
+  [TOOL_NAMES.writeFile]: FileEditIcon,
+  [TOOL_NAMES.editFile]: FileEditIcon,
+  [TOOL_NAMES.readFile]: FileSearchIcon,
+  [TOOL_NAMES.grep]: FileSearchIcon,
+  [TOOL_NAMES.findFiles]: FolderOpenIcon,
+  [TOOL_NAMES.listDirectory]: FolderOpenIcon,
+  [TOOL_NAMES.webFetch]: Link01Icon
+}
+
 function StepIcon({
   step,
   status
@@ -124,7 +142,7 @@ function StepIcon({
     )
   return (
     <HugeiconsIcon
-      icon={ClockFadingIcon}
+      icon={TOOL_ICON[step.toolName ?? ''] ?? Wrench01Icon}
 
       size={15}
       className={cls}
@@ -158,7 +176,11 @@ const SearchResultPill = memo(function SearchResultPill({
       }
     >
       {favicon && (
-        <img src={favicon} alt="" className="size-3 shrink-0 rounded-full" />
+        <img
+          src={favicon}
+          alt=""
+          className={cn('size-3 shrink-0 rounded-full', FAVICON_BACKING)}
+        />
       )}
       <span className="truncate">{item.title}</span>
     </Badge>
@@ -185,7 +207,7 @@ function FoldedCard({
   const exitCode = terminal ? terminalExitCode(step.toolResult) : null
   const label = terminal
     ? exitCode === null
-      ? capitalCase(step.toolName ?? '')
+      ? toolLabel(step.toolName ?? '')
       : t('terminalCard.exitCode', { code: exitCode })
     : (foldedFileName(step.toolResult) ?? step.toolName)
   return (

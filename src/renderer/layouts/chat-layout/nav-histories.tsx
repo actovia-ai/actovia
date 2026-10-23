@@ -39,10 +39,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useChatHistory, useUpdateChat } from '@/hooks/use-chat-history'
 import { useClipboard } from '@/hooks/use-clipboard'
-import {
-  compactRelativeTime,
-  parseLocalishCreatedAt
-} from '@/lib/relative-time'
+import { compactRelativeTime } from '@/lib/relative-time'
 import { cn } from '@/lib/utils'
 import { renamedChatTitleAtom, toBeDeletedChatAtom } from '@/stores/chat'
 import type { Chat } from '@/types/db'
@@ -100,7 +97,7 @@ export const NavItems = memo(function NavItems({
           place on hover and while its menu is open (owner, 2026-10-08): the
           title keeps the width, and the right edge is never an empty band. */}
       <span className="text-muted-foreground pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-xs tabular-nums transition-opacity group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 group-has-[[aria-expanded=true]]/menu-item:opacity-0">
-        {compactRelativeTime(parseLocalishCreatedAt(chat.createdAt))}
+        {compactRelativeTime(new Date(chat.createdAt))}
       </span>
       <DropdownMenu>
         <DropdownMenuTrigger

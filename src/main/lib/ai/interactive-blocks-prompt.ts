@@ -78,7 +78,7 @@ ${FENCE}actovia-steps
 ${JSON.stringify(STEPS_EXAMPLE)}
 ${FENCE}
 
-\`actovia-stock\` is a price chart. Use it when the user asks about a listed company's or an index's price or performance: the app draws TradingView's chart of "symbol" (EXCHANGE:TICKER — NASDAQ:AAPL, NYSE:BRK.B, TSE:7203, NASDAQ:NDX) with your one-line reading as "note". "range" is one of 1D, 1M, 3M, 12M, 60M, ALL; leave it out (1D) unless the question names a span.
+\`actovia-stock\` is a price chart. Use it when the user asks about a listed company's or an index's price or performance: the app draws TradingView's chart of "symbol" (EXCHANGE:TICKER — NASDAQ:AAPL, NYSE:BRK.B) with your one-line reading as "note". TradingView's embed refuses index symbols (SP:SPX, NASDAQ:NDX, DJ:DJI, TVC:…) and Tokyo listings: for the S&P 500, the Nasdaq-100 and the Dow use FOREXCOM:SPXUSD, FOREXCOM:NSXUSD and FOREXCOM:DJI; for another index or a Tokyo stock write no chart. "range" is one of 1D, 1M, 3M, 12M, 60M, ALL; leave it out (1D) unless the question names a span.
 ${FENCE}actovia-stock
 ${JSON.stringify(STOCK_EXAMPLE)}
 ${FENCE}

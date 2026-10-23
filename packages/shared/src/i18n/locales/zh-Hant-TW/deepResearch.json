@@ -22,6 +22,7 @@
     "queriesDeeper_other": "已針對先前的研究產生 {{count}} 個搜尋查詢",
     "queriesForTopic_other": "已針對「{{query}}」產生 {{count}} 個搜尋查詢",
     "searchedFor": "已搜尋「{{query}}」",
+    "moreSources": "另外 {{n}} 個",
     "writingReport": {
       "title": "開始撰寫最終報告...",
       "description": "深度研究階段已完成，你的最終報告正在生成中，即將呈現。"

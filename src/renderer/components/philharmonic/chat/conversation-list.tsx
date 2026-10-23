@@ -6,12 +6,7 @@ import {
   UserGroupIcon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  differenceInCalendarDays,
-  format,
-  isToday,
-  isYesterday
-} from 'date-fns'
+import { differenceInCalendarDays, isToday, isYesterday } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
@@ -51,7 +46,9 @@ import {
   SidebarTrigger
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
+import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
+import { plainText } from '@/lib/plain-text'
 import { cn } from '@/lib/utils'
 import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
@@ -73,26 +70,31 @@ export function DeleteGroupDescription({ title }: { title: string }) {
   )
 }
 
-/** Smart timestamp: HH:mm today, 'Yesterday', day name within the week, otherwise MM/dd. */
+const fmt = () => makeFormatters(i18n.resolvedLanguage ?? i18n.language ?? 'en')
+
+/** Smart timestamp, in the user's locale: the time today, 'Yesterday', the day's name within the week, else the date. */
 function smartTime(iso: string): string {
   try {
     const d = new Date(iso)
-    if (isToday(d)) return format(d, 'HH:mm')
+    if (isToday(d))
+      return fmt().dateTime(d, { hour: 'numeric', minute: '2-digit' })
     if (isYesterday(d)) return i18n.t('philharmonic:chat.dateLabels.yesterday')
     const diff = differenceInCalendarDays(new Date(), d)
-    if (diff < 7) return format(d, 'EEE')
-    return format(d, 'MM/dd')
+    if (diff < 7) return fmt().dateTime(d, { weekday: 'short' })
+    return fmt().dateTime(d, { month: 'numeric', day: 'numeric' })
   } catch {
     return ''
   }
 }
 
-function previewLine(
+/** The list's line under a group: who spoke last and what they said, as plain text. */
+export function previewLine(
   latest: ConversationData['latestMessage'],
   agentsById: Record<string, AgentData>
 ): string {
   if (!latest) return ''
-  const text = latest.content.replace(/\s+/g, ' ').trim()
+  // The PM writes Markdown; `**Line 77:**` and backticks read as noise here.
+  const text = plainText(latest.content)
   if (latest.role === 'system') return text
   const senderLabel =
     latest.role === 'user'

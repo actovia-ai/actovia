@@ -23,6 +23,10 @@ vi.mock('@main/lib/computer/liveness', () => ({
     end: (...a: unknown[]) => livenessEnd(...a)
   }
 }))
+const listApps = vi.fn()
+vi.mock('@main/lib/computer/helper', () => ({
+  getHelper: () => ({ listApps: (...a: unknown[]) => listApps(...a) })
+}))
 vi.mock('@main/lib/computer/guard', () => ({
   Guard: class {}
 }))
@@ -118,6 +122,58 @@ describe('computerUse tool', () => {
 
     expect(res.details.outcome).toBe('success')
     expect(runComputerSession).toHaveBeenCalledTimes(1)
+  })
+
+  it('takes the bundle id of an allowlisted app, and runs it by name', async () => {
+    getSettings.mockResolvedValue({
+      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
+    })
+    listApps.mockResolvedValue([
+      {
+        name: 'Chess',
+        bundleId: 'com.apple.Chess',
+        path: '/System/Applications/Chess.app'
+      }
+    ])
+    runComputerSession.mockResolvedValue({
+      outcome: 'success',
+      summary: 'ok',
+      steps: 1
+    })
+
+    const res = await computerUse.execute('call-1', {
+      task: 'do a thing',
+      target: 'com.apple.Chess'
+    })
+
+    expect(res.details.outcome).toBe('success')
+    expect(runComputerSession.mock.calls[0][0].target).toBe('Chess')
+  })
+
+  it('refuses the bundle id of an app that is not allowlisted', async () => {
+    getSettings.mockResolvedValue({
+      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
+    })
+    listApps.mockResolvedValue([
+      {
+        name: 'Chess',
+        bundleId: 'com.apple.Chess',
+        path: '/System/Applications/Chess.app'
+      },
+      {
+        name: 'Terminal',
+        bundleId: 'com.apple.Terminal',
+        path: '/System/Applications/Utilities/Terminal.app'
+      }
+    ])
+
+    const res = await computerUse.execute('call-1', {
+      task: 'do a thing',
+      target: 'com.apple.Terminal'
+    })
+
+    expect(res.details.error).toBe('not-allowed')
+    expect(runComputerSession).not.toHaveBeenCalled()
   })
 
   it('runs a session for an allowed target and returns its summary', async () => {

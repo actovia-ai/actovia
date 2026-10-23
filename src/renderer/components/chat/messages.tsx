@@ -19,7 +19,6 @@ import { isLocked, runAttemptInfos } from '@actovia/shared/utils/attempts'
 import { splitThinkingTagsInContent } from '@actovia/shared/utils/thinking-tags'
 import { ArrowDownIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { capitalCase } from 'change-case'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -31,8 +30,10 @@ import { useDiscoverFeed } from '@/hooks/use-discover-feed'
 import { useOlderHistoryScroll } from '@/hooks/use-older-history-scroll'
 import { useRevealSearchHit } from '@/hooks/use-reveal-search-hit'
 import { useSettings } from '@/hooks/use-settings'
+import { displayFilePath } from '@/lib/display-path'
 import { i18n } from '@/lib/i18n'
 import { ENTER_UP } from '@/lib/motion'
+import { toolLabel } from '@/lib/tool-label'
 import { userMessageText } from '@/lib/user-message-text'
 import { cn } from '@/lib/utils'
 
@@ -182,13 +183,13 @@ const UserSegment = memo(function UserSegment({
  * The raw tool name is the canonical identifier (used as the SSE event
  * key, the DB column, and the dispatch key in messages-calling-tools); we
  * format it for display only here, at the rendering boundary, via
- * capitalCase ('web_search' → 'Web Search').
+ * toolLabel ('web_search' → 'Web Search').
  */
 function getToolCallPreview(
   name: string,
   args: Record<string, unknown> | undefined
 ): { text: string; codeArgument?: string } {
-  const label = capitalCase(name)
+  const label = toolLabel(name)
   if (!args) return { text: label }
   const pick = (key: string): string =>
     typeof args[key] === 'string' ? (args[key] as string) : ''
@@ -202,10 +203,21 @@ function getToolCallPreview(
       return withInline(label, pick('query'))
     case TOOL_NAMES.webFetch:
       return withInline(label, pick('url'))
+    case TOOL_NAMES.listMcpTools:
+      return withInline(label, pick('server') || pick('query'))
+    case TOOL_NAMES.callMcpTool:
+      // Which server's tool ran — "Call MCP Tool" alone says nothing.
+      return withInline(
+        label,
+        [pick('server'), pick('tool')].filter(Boolean).join(' · ')
+      )
     case TOOL_NAMES.readFile:
     case TOOL_NAMES.writeFile:
     case TOOL_NAMES.editFile:
-      return withInline(label, pick('path') || pick('filePath'))
+      return withInline(
+        label,
+        displayFilePath(pick('path') || pick('filePath'))
+      )
     case 'weather':
       return withInline(label, pick('location'))
     case TOOL_NAMES.mapItinerary: {
@@ -328,6 +340,24 @@ function buildAssistantTurn(
   const pendingToolCalls: AssistantTurn['pendingToolCalls'] = []
   const toolCards: ChatToolResultMessage[] = []
   const webSearchResults: WebSearchResult[] = []
+  // A run that searched more than once names each result row's query: rows
+  // of parallel searches look alike otherwise.
+  const searchQueries = new Map<string, string>()
+  for (const msg of turnMessages) {
+    if (msg.role !== 'assistant') continue
+    for (const block of (msg as ChatAssistantMessage).content) {
+      const query = (block as { arguments?: { query?: unknown } }).arguments
+        ?.query
+      if (
+        block.type === 'toolCall' &&
+        block.name === TOOL_NAMES.webSearch &&
+        typeof query === 'string' &&
+        query.trim()
+      )
+        searchQueries.set(block.id, query.trim())
+    }
+  }
+  const namesQueries = searchQueries.size > 1
 
   for (const msg of turnMessages) {
     if (msg.role === 'assistant') {
@@ -388,7 +418,7 @@ function buildAssistantTurn(
         const errorText =
           toolResult.content.find((c) => c.type === 'text')?.text ??
           i18n.t('chat:toolPreview.toolFailed', {
-            tool: capitalCase(toolResult.toolName)
+            tool: toolLabel(toolResult.toolName)
           })
         steps.push({
           type: 'toolResult',
@@ -409,9 +439,15 @@ function buildAssistantTurn(
         webSearchResults.push(...results)
         steps.push({
           type: 'toolResult',
-          text: i18n.t('chat:toolPreview.webSearchResultCount', {
-            count: results.length
-          }),
+          text:
+            namesQueries && searchQueries.has(toolResult.toolCallId)
+              ? i18n.t('chat:toolPreview.webSearchResultCountFor', {
+                  count: results.length,
+                  query: searchQueries.get(toolResult.toolCallId)
+                })
+              : i18n.t('chat:toolPreview.webSearchResultCount', {
+                  count: results.length
+                }),
           toolName: TOOL_NAMES.webSearch,
           webSearchResults: results
         })
@@ -887,9 +923,11 @@ function Messages({
           'no-scrollbar @container flex flex-1 flex-col items-center gap-8 overflow-y-scroll px-16 pt-4 transition-[padding] duration-200 ease-out [overflow-anchor:none]',
           // Room for the floating composer to clear the last message — but
           // only once it's floating (the landing screen keeps it in flow).
-          // The height of the dock in `chat.tsx`: its 48px fade, the pill
-          // and the 24px under it.
-          messages.length === 0 ? 'pb-6' : 'pb-40'
+          // The height of the dock in `chat.tsx` (`--composer-dock`: its
+          // 48px fade, the pill and the 24px under it), never under 10rem.
+          messages.length === 0
+            ? 'pb-6'
+            : 'pb-[max(10rem,calc(var(--composer-dock,0px)+1rem))]'
         )}
         data-chat-scroll=""
         ref={chatBoxRef}
@@ -1017,7 +1055,7 @@ function Messages({
           variant="secondary"
           size="icon-lg"
           onClick={() => scrollToBottom('smooth')}
-          className="absolute bottom-22 left-1/2 z-30 -translate-x-1/2 rounded-full border shadow-md"
+          className="absolute bottom-[max(5.5rem,calc(var(--composer-dock,0px)-3.375rem))] left-1/2 z-30 -translate-x-1/2 rounded-full border shadow-md"
           aria-label={t('messageList.scrollToBottom')}
         >
           <HugeiconsIcon icon={ArrowDownIcon} />

@@ -6,6 +6,7 @@ import {
   UseFormReturnType
 } from '@actovia/shared/schemas/settings-schema'
 import { AiProviders } from '@actovia/shared/types/ai'
+import { isChatModelId } from '@actovia/shared/utils/chat-models'
 import {
   fetcher,
   getHttpErrorMessage,
@@ -81,9 +82,11 @@ export function ModelPicker({
   // path segment.
   const modelCatalogField =
     `modelCatalog.${provider}` as FieldPath<SettingsInput>
+  // A catalog saved before the list was cut to chat models still holds the others.
   const fetched =
-    (form.watch(modelCatalogField) as CachedModelEntry[] | null | undefined) ??
-    null
+    (
+      form.watch(modelCatalogField) as CachedModelEntry[] | null | undefined
+    )?.filter((m) => isChatModelId(m.id)) ?? null
 
   const activeProvider = form.watch('providerConfig.provider')
   const savedModel =

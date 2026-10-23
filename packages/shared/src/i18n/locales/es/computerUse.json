@@ -1,4 +1,5 @@
 {
+  "experimental": "Computer Use es experimental. Es lento, puede leer mal la pantalla o hacer clic donde no debe, y solo actúa mientras la app está delante de las demás ventanas. Vigílalo mientras trabaja y detenlo con ⌥⇧⎋.",
   "alert": "Uso del equipo permite que la IA maneje una ventana de su Mac con un mouse y teclado virtuales; ve una captura de pantalla en cada paso y actúa como una persona. Requiere un modelo de IA con capacidad de visión. Solo interactúa con las aplicaciones que agregue a la lista de permitidas más abajo (y abrirá una que no esté ya en ejecución); puede detenerlo en cualquier momento con ⌥⇧⎋, y cada sesión queda registrada. Desactivado de forma predeterminada.",
   "enable": {
     "label": "Activar Uso del equipo",

@@ -104,7 +104,8 @@
       "integrations": "連携",
       "storage": "ストレージ",
       "developer": "開発者向け"
-    }
+    },
+    "experimental": "試験運用"
   },
   "common": {
     "searchPlaceholder": "設定を検索…",
@@ -1075,5 +1076,6 @@
       "s3SecretAccessKey": "Amazon S3 のシークレットアクセスキー",
       "mcp": "MCP サーバー「{{server}}」: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "例: {{example}}"
 }

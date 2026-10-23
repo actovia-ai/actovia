@@ -146,6 +146,14 @@ export function PhilharmonicContainer({
   // the chat both read from the same aggregated state.
   const stream = useConversationStream(activeId)
 
+  // A member joins mid-round (`member_joined` bumps the revision): read the
+  // groups again so the header and the Members panel list them.
+  const { revision } = stream
+  useEffect(() => {
+    if (revision === 0) return
+    void getConversations().then(setConversations)
+  }, [revision])
+
   // Main column content varies by activePage; sidebar stays put on every page.
   const mainContent = (() => {
     if (activePage === 'workforce') return <WorkforcePage />

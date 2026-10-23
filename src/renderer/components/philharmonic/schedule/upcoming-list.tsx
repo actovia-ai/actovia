@@ -1,7 +1,7 @@
-import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useFormat } from '@/lib/format'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { groupTasksByDay } from './group-tasks-by-day'
@@ -20,6 +20,7 @@ export function UpcomingList({
 }) {
   const { t } = useTranslation('philharmonic')
   const groups = groupTasksByDay(tasks)
+  const { dateTime } = useFormat()
 
   if (groups.length === 0) {
     return (
@@ -35,7 +36,11 @@ export function UpcomingList({
         {groups.map((group) => (
           <div key={group.day.toISOString()}>
             <div className="bg-card text-muted-foreground sticky top-0 z-10 mb-2 py-1 text-xs font-semibold">
-              {group.label}
+              {dateTime(group.day, {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+              })}
             </div>
             <div className="space-y-2">
               {group.tasks.map((task) => (
@@ -46,7 +51,10 @@ export function UpcomingList({
                     conversationsById[task.conversationId ?? '']?.title ??
                     t('schedule.unknownGroup')
                   }
-                  subtitle={format(new Date(task.runAt!), 'HH:mm')}
+                  subtitle={dateTime(new Date(task.runAt!), {
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}
                   onCancel={onCancel}
                   cancelling={cancellingId === task.id}
                 />

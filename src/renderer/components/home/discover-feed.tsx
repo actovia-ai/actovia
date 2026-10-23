@@ -36,33 +36,24 @@ function articleAge(article: DiscoverArticle): string | null {
 }
 
 /**
- * Article thumbnail. News-site images regularly 404, hotlink-block, or reject
- * the app's `Referer` — the slot always renders (so cards stay a uniform
- * height) and falls back to the source favicon on a muted tile.
+ * Article thumbnail. An article the feed has no picture for — or whose
+ * picture does not load: news-site images regularly 404, hotlink-block, or
+ * reject the app's `Referer` — gets no tile at all, and its text takes the
+ * row. A column of grey boxes with a faint favicon read as broken images
+ * (owner, 2026-10-22).
  */
 function DiscoverThumb({ article }: { article: DiscoverArticle }) {
-  const favicon = (
-    <div className="flex size-full items-center justify-center">
-      <SourceFavicon
-        link={article.url}
-        favicon={article.favicon}
-        className="size-5 opacity-40 grayscale"
-      />
-    </div>
-  )
-
+  const [failed, setFailed] = useState(false)
+  if (!article.thumbnail || failed) return null
   return (
     <div className="bg-muted relative h-[4.5rem] w-28 shrink-0 overflow-hidden rounded-lg">
-      {article.thumbnail ? (
-        <LazyLoadImage
-          src={article.thumbnail}
-          alt={article.title}
-          referrerPolicy="no-referrer"
-          fallback={favicon}
-        />
-      ) : (
-        favicon
-      )}
+      <LazyLoadImage
+        src={article.thumbnail}
+        alt={article.title}
+        referrerPolicy="no-referrer"
+        fallback={null}
+        onError={() => setFailed(true)}
+      />
     </div>
   )
 }

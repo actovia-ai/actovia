@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   cliModelSuggestions,
+  employeeModelChip,
   employeeModelLabel,
   actoviaModelOptions,
   parseModelValue
@@ -64,6 +65,15 @@ describe('employee model', () => {
         settings
       )
     ).toBe('Claude Code')
+  })
+
+  it('a coding agent’s card names its CLI even on the CLI’s default model', () => {
+    const chip = (runtime: string, model: string | null) =>
+      employeeModelChip({ runtime, provider: null, model } as never, settings)
+    expect(chip('claude-code', null)).toBe('Claude Code')
+    expect(chip('codex', null)).toBe('Codex')
+    expect(chip('claude-code', 'opus')).toBe('Claude Code · opus')
+    expect(chip('actovia', null)).toBeNull()
   })
 })
 

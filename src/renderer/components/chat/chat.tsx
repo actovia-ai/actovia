@@ -160,6 +160,23 @@ export function Chat({
     window.localStorage.removeItem(QUICK_CHAT_KEY)
   }, [id, pendingQuickChat, sendMessage, setChatInput])
 
+  // The floating dock's height, as `--composer-dock` on the chat: a quote or
+  // a pill makes the composer taller, and the list's bottom room and the
+  // scroll-to-bottom button follow it instead of sitting under it. Written
+  // straight to the style — no state, so a resize re-renders nothing.
+  const measureDock = useCallback((dock: HTMLDivElement | null) => {
+    const shell = dock?.parentElement
+    if (!dock || !shell) return
+    const observer = new ResizeObserver(() =>
+      shell.style.setProperty('--composer-dock', `${dock.offsetHeight}px`)
+    )
+    observer.observe(dock)
+    return () => {
+      observer.disconnect()
+      shell.style.removeProperty('--composer-dock')
+    }
+  }, [])
+
   const composer = (
     <>
       <LcmStatusCard chatId={id} />
@@ -203,7 +220,10 @@ export function Chat({
           // above it, so a run never reads through the composer; a plain
           // gradient, no blur. `messages.tsx`'s bottom padding is this
           // dock's height.
-          <div className="from-card via-card/85 pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-45% via-70% to-transparent pt-12 pb-6 [&>*]:pointer-events-auto">
+          <div
+            ref={measureDock}
+            className="from-card via-card/85 pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t from-45% via-70% to-transparent pt-12 pb-6 [&>*]:pointer-events-auto"
+          >
             {composer}
           </div>
         )}

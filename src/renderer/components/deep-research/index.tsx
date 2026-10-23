@@ -3,16 +3,14 @@ import {
   DeepResearchProgress,
   ReportProgressPayload
 } from '@actovia/shared/types/deep-research'
-import { domAnimation, LazyMotion, m } from 'framer-motion'
 import { useAtom } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SheetPanel } from '@/components/app/sheet-panel'
-import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDeepResearchResult } from '@/hooks/use-deep-research'
 import { reportRendererError } from '@/lib/report-error'
-import { cn } from '@/lib/utils'
 import { fetchDeepResearchMessages } from '@/services/deep-research'
 import {
   activeDeepResearchIdAtom,
@@ -166,65 +164,47 @@ export function DeepResearchProcess() {
   }, [deepResearchMessages])
 
   return (
-    <LazyMotion features={domAnimation}>
-      <SheetPanel
-        open={activeDeepResearchId !== ''}
-        onClose={() => setActiveDeepResearchId('')}
-      >
-        <div className="bg-background sticky top-0 z-10 flex h-12 shrink-0 items-center justify-center border-b">
-          <div className="bg-border flex items-center rounded-full p-1 text-sm">
-            <Button
-              variant="ghost"
-              className={cn(
-                'min-w-20 rounded-full p-2 select-none',
-                tab === Tab.Activity
-                  ? 'bg-background hover:bg-background dark:bg-background-foreground hover:dark:bg-background-foreground font-semibold shadow-sm'
-                  : 'bg-transparent'
-              )}
-              onClick={() => setTab(Tab.Activity)}
-            >
-              {t('tabs.activity')}
-            </Button>
-            <Button
-              variant="ghost"
-              className={cn(
-                'min-w-20 rounded-full p-2 select-none',
-                tab === Tab.Source
-                  ? 'bg-background hover:bg-background dark:bg-background-foreground hover:dark:bg-background-foreground font-semibold shadow-sm'
-                  : 'bg-transparent'
-              )}
-              onClick={() => setTab(Tab.Source)}
-            >
+    <SheetPanel
+      open={activeDeepResearchId !== ''}
+      onClose={() => setActiveDeepResearchId('')}
+    >
+      {/* The chat panel's header: tabs on the left, the sheet's close
+            button on the right (pr-12 keeps clear of it). */}
+      <div className="bg-background sticky top-0 z-10 flex h-12 shrink-0 items-center border-b pr-12 pl-3">
+        <Tabs value={tab} onValueChange={(next) => setTab(next as Tab)}>
+          <TabsList>
+            <TabsTrigger value={Tab.Activity}>{t('tabs.activity')}</TabsTrigger>
+            <TabsTrigger value={Tab.Source}>
               {t('tabs.sources', { count: allWebSearchResults.length })}
-            </Button>
-          </div>
-        </div>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {activeDeepResearchId && (
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, ease: 'easeInOut' }}
-            className="markdown flex flex-col gap-4 overflow-y-scroll p-3"
-            ref={ref}
-          >
-            {tab === Tab.Activity &&
-              deepResearchMessages?.map((deepResearchMessage) => (
-                <MessageItem
-                  key={deepResearchMessage.id}
-                  deepResearchMessage={deepResearchMessage}
-                />
-              ))}
-
-            {tab === Tab.Source && (
-              <SourceItem
-                webSearchResults={allWebSearchResults}
-                finalReport={deepResearchResult?.finalReport ?? ''}
+      {activeDeepResearchId && (
+        // overflow-x-hidden: a long query or URL wraps, it never scrolls
+        // the panel sideways.
+        <div
+          className="bg-background flex-1 overflow-x-hidden overflow-y-auto p-4"
+          ref={ref}
+        >
+          {tab === Tab.Activity &&
+            deepResearchMessages?.map((deepResearchMessage, i) => (
+              <MessageItem
+                key={deepResearchMessage.id}
+                deepResearchMessage={deepResearchMessage}
+                isLast={i === deepResearchMessages.length - 1}
               />
-            )}
-          </m.div>
-        )}
-      </SheetPanel>
-    </LazyMotion>
+            ))}
+
+          {tab === Tab.Source && (
+            <SourceItem
+              webSearchResults={allWebSearchResults}
+              finalReport={deepResearchResult?.finalReport ?? ''}
+            />
+          )}
+        </div>
+      )}
+    </SheetPanel>
   )
 }

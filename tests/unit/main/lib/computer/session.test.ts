@@ -377,6 +377,55 @@ describe('runComputerSession — resilience', () => {
     expect(res.summary).toMatch(/gone/i)
   })
 
+  it('sends no input while another app’s window covers the target', async () => {
+    const sheet: TargetWindow = {
+      cgWindowId: 9,
+      app: 'GameOverlayViewService',
+      bundleId: 'com.apple.GameOverlayUI',
+      title: '',
+      bounds: [100, 100, 400, 300]
+    }
+    mockHelper.__setWindows([sheet, chess])
+    const agent = new ScriptedAgent([
+      { kind: 'click', to: [200, 200] },
+      { kind: 'done', success: false, summary: 'blocked' }
+    ])
+
+    const res = await runComputerSession({
+      sessionId: 's-covered',
+      task: 't',
+      target: 'Chess',
+      agent,
+      helper: mockHelper,
+      settleMs: 0
+    })
+
+    expect(res.outcome).toBe('failed')
+    expect(mockHelper.sent).toHaveLength(0)
+    expect(agent.seen[1].systemNote).toContain(
+      'a window of "GameOverlayViewService" is in front of the Chess window'
+    )
+    expect(agent.seen[1].systemNote).toContain('askHuman')
+  })
+
+  it('raises the target before every input', async () => {
+    const agent = new ScriptedAgent([
+      { kind: 'click', to: [10, 10] },
+      { kind: 'done', success: true, summary: 'ok' }
+    ])
+
+    await runComputerSession({
+      sessionId: 's-raise',
+      task: 't',
+      target: 'Chess',
+      agent,
+      helper: mockHelper,
+      settleMs: 0
+    })
+
+    expect(mockHelper.activated).toEqual(['com.apple.Chess'])
+  })
+
   it('skips an out-of-bounds coordinate without ending the session', async () => {
     const agent = new ScriptedAgent([
       { kind: 'click', to: [9000, 9000] },

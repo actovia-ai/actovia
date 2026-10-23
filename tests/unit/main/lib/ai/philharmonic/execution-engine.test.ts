@@ -56,6 +56,12 @@ describe('runDelegatedTask', () => {
     const result = await call()
     expect(result.output).toBe('the report')
     expect(runEmployeeLoop).toHaveBeenCalledTimes(2)
+    // Each attempt streams under an id of its own; the report is the last one's.
+    const [first, second] = runEmployeeLoop.mock.calls.map(
+      ([a]) => (a as { messageId: string }).messageId
+    )
+    expect(first).not.toBe(second)
+    expect(result.liveMessageId).toBe(second)
     expect(runAgentEmployee).not.toHaveBeenCalled()
     expect(updateTask).toHaveBeenCalledWith(
       't1',

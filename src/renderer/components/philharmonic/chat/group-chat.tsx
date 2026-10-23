@@ -1,5 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { isSameDay, isToday, isYesterday, format } from 'date-fns'
+import { isSameDay, isToday, isYesterday } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -33,7 +33,9 @@ import { PlanCard } from './plan-card'
 function formatDayLabel(d: Date): string {
   if (isToday(d)) return i18n.t('philharmonic:chat.dateLabels.today')
   if (isYesterday(d)) return i18n.t('philharmonic:chat.dateLabels.yesterday')
-  return format(d, 'PPP')
+  return makeFormatters(
+    i18n.resolvedLanguage ?? i18n.language ?? 'en'
+  ).dateTime(d, { dateStyle: 'long' })
 }
 
 import {
@@ -44,6 +46,7 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 
 import type { ConversationStream } from '@/hooks/use-conversation-stream'
+import { makeFormatters } from '@/lib/format'
 
 export function GroupChat({
   conversation,

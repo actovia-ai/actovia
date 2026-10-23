@@ -70,6 +70,25 @@ describe('aggregateCosts', () => {
     ).toBeCloseTo(1.2)
     expect(summary.byAgent).toHaveLength(2)
   })
+
+  it('puts a run on the day it started where the user is, not the UTC day', () => {
+    const tz = process.env.TZ
+    process.env.TZ = 'Asia/Shanghai'
+    try {
+      const summary = aggregateCosts([
+        {
+          conversationId: 'c1',
+          agentId: 'a1',
+          tokenUsage: { inputTokens: 1, outputTokens: 1, cost: 0.1 },
+          // 04:30 on 2 May in Shanghai.
+          startedAt: new Date('2026-05-01T20:30:00.000Z')
+        }
+      ])
+      expect(summary.daily.map((d) => d.date)).toEqual(['2026-05-02'])
+    } finally {
+      process.env.TZ = tz
+    }
+  })
 })
 
 describe('DELETE /conversations/:id', () => {

@@ -43,6 +43,9 @@ export interface DelegatedOutput {
   output: string
   /** A CLI step's own message, saved as the step began; the PM saves no other. */
   messageId?: string
+  /** Actovia's own loop: the id its bubble streamed under, which the saved
+   * report takes so the live bubble and the row are one message. */
+  liveMessageId?: string
 }
 
 export interface RunAgentEmployeeArgs {

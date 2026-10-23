@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest'
 import {
   agentCardFromParts,
   cardStateKey,
+  cliToolLabel,
+  relativeSummary,
   visibleSteps
 } from '@/lib/agent-card'
 
@@ -57,5 +59,40 @@ describe('agent card helpers', () => {
       'agents.card.state.stopped'
     )
     expect(cardStateKey(card({ state: 'done' }))).toBe('agents.card.state.done')
+  })
+})
+
+describe('relativeSummary', () => {
+  const cwd = '/Users/Shared/Actovia Projects/sprout'
+  it('takes the run folder off a path under it', () => {
+    expect(relativeSummary(`${cwd}/index.html`, cwd)).toBe('index.html')
+    expect(relativeSummary(`cd "${cwd}/.actovia" && cat x`, `${cwd}/`)).toBe(
+      'cd ".actovia" && cat x'
+    )
+  })
+  it('names the folder itself as .', () => {
+    expect(relativeSummary(`ls ${cwd}`, cwd)).toBe('ls .')
+    expect(relativeSummary(`cd "${cwd}"`, cwd)).toBe('cd "."')
+  })
+  it('leaves other paths alone', () => {
+    expect(relativeSummary(`${cwd}-old/a.ts`, cwd)).toBe(`${cwd}-old/a.ts`)
+    expect(relativeSummary(`/x${cwd}/a.ts`, cwd)).toBe(`/x${cwd}/a.ts`)
+    expect(relativeSummary('/etc/hosts', cwd)).toBe('/etc/hosts')
+    expect(relativeSummary('/a/b', '/')).toBe('/a/b')
+  })
+})
+
+describe('cliToolLabel', () => {
+  it('names an MCP tool by its server and tool', () => {
+    expect(
+      cliToolLabel('mcp__plugin_playwright_playwright__browser_run_code_unsafe')
+    ).toBe('Playwright · Browser Run Code Unsafe')
+    expect(cliToolLabel('mcp__linear-server__get_issue')).toBe(
+      'Linear Server · Get Issue'
+    )
+  })
+  it('reads a built-in tool as before', () => {
+    expect(cliToolLabel('Edit')).toBe('Edit')
+    expect(cliToolLabel('WebFetch')).toBe('Web Fetch')
   })
 })

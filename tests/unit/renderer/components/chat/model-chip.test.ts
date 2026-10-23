@@ -55,10 +55,15 @@ const pass =
           ),
           children as ReactNode
         )
+let initialFocus: { current: HTMLElement | null } | undefined
+const content = pass('div')
 vi.mock('@/components/ui/popover', () => ({
   Popover: pass('div'),
   PopoverTrigger: pass('button'),
-  PopoverContent: pass('div')
+  PopoverContent: (props: Record<string, unknown>) => {
+    initialFocus = props.initialFocus as typeof initialFocus
+    return content(props)
+  }
 }))
 
 const { ModelChip } = await import('@/components/chat/header/model-chip')
@@ -141,6 +146,43 @@ describe('<ModelChip>', () => {
       options().find((o) => o.getAttribute('aria-checked') === 'true')?.dataset
         .model
     ).toBe('gpt-5.6')
+  })
+
+  it('opens on the checked model, centred in the list, not on the first provider', () => {
+    settings = configured()
+    // happy-dom lays nothing out: the checked row 300px down a 320px list.
+    const proto = HTMLElement.prototype
+    const saved = ['offsetTop', 'offsetHeight', 'clientHeight'].map(
+      (key) => [key, Object.getOwnPropertyDescriptor(proto, key)] as const
+    )
+    Object.defineProperties(proto, {
+      offsetTop: {
+        configurable: true,
+        get(this: HTMLElement) {
+          return this.dataset.model === 'claude-sonnet-5-5' ? 300 : 0
+        }
+      },
+      offsetHeight: { configurable: true, get: () => 32 },
+      clientHeight: { configurable: true, get: () => 320 }
+    })
+    try {
+      render()
+      expect(host.querySelector<HTMLElement>('[role="menu"]')?.scrollTop).toBe(
+        300 - (320 - 32) / 2
+      )
+    } finally {
+      for (const [key, descriptor] of saved)
+        if (descriptor) Object.defineProperty(proto, key, descriptor)
+        else delete (proto as unknown as Record<string, unknown>)[key]
+    }
+  })
+
+  it('the popup focuses the checked row as it opens, not the first row', () => {
+    // Base UI's default focus went to the first row, and focusing it scrolled
+    // the list back to the top right after it had been centred.
+    settings = configured()
+    render()
+    expect(initialFocus?.current?.dataset.model).toBe('claude-sonnet-5-5')
   })
 
   it('a pick is saved on the chat, never on the settings', async () => {

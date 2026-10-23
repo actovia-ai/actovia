@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const fetchMock = vi.fn()
 vi.stubGlobal('fetch', fetchMock)
 vi.mock('@main/lib/net/pinned-fetch', () => ({ fetchPinned: vi.fn() }))
+vi.mock('@main/lib/logger', () => ({ logger: { warn: vi.fn() } }))
 
 const { webSearch } = await import('@main/lib/ai/deep-research/web-search')
 
@@ -42,5 +43,13 @@ describe('deep research web search', () => {
       '8192'
     )
     expect(results).toHaveLength(20)
+  })
+
+  it('leaves a failed query empty and goes on, as before', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 402 })
+
+    await expect(
+      webSearch({ query: 'q', webSources: new Map() }, { braveApiKey: 'k' })
+    ).resolves.toBeNull()
   })
 })

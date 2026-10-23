@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import {
@@ -44,12 +45,13 @@ import {
 } from '../../../services/memory'
 import { ENTER, SettingsEmpty } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
+import { ShownDefault } from '../shown-default'
 
-/** DB serializes local wall-clock with a trailing `Z`; strip it so the day is right. */
+/** The day the entry last changed, or was made. */
 function updatedLabel(m: MemoryItem): string {
   const raw = m.updatedAt ?? m.createdAt
   if (!raw) return ''
-  const d = new Date(raw.replace(/Z$/, ''))
+  const d = new Date(raw)
   return Number.isNaN(d.getTime())
     ? ''
     : i18n.t('settings:memory.updatedLabel', { date: format(d, 'MMM d') })
@@ -663,16 +665,25 @@ export function MemorySettings({ form }: { form: UseFormReturnType }) {
                   error={fieldState.error}
                 >
                   <InputGroup>
-                    <InputGroupInput
-                      placeholder="75"
-                      type="number"
-                      min={50}
-                      max={95}
-                      className="w-14"
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <ShownDefault
+                      value={field.value}
+                      fallback={SETTING_DEFAULTS.memory.contextWindowPercent}
+                      onBlur={field.onBlur}
+                    >
+                      {(shown) => (
+                        <InputGroupInput
+                          type="number"
+                          min={50}
+                          max={95}
+                          className="w-14"
+                          {...field}
+                          {...shown}
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      )}
+                    </ShownDefault>
                     <InputGroupAddon align="inline-end">%</InputGroupAddon>
                   </InputGroup>
                 </SettingsRow>
@@ -688,16 +699,23 @@ export function MemorySettings({ form }: { form: UseFormReturnType }) {
                   description={t('memory.settings.freshTailSize.description')}
                   error={fieldState.error}
                 >
-                  <Input
-                    placeholder="6"
-                    type="number"
-                    min={2}
-                    max={24}
-                    className="w-20"
-                    {...field}
-                    value={field.value ?? ''}
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
+                  <ShownDefault
+                    value={field.value}
+                    fallback={SETTING_DEFAULTS.memory.freshTailSize}
+                    onBlur={field.onBlur}
+                  >
+                    {(shown) => (
+                      <Input
+                        type="number"
+                        min={2}
+                        max={24}
+                        className="w-20"
+                        {...field}
+                        {...shown}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
+                    )}
+                  </ShownDefault>
                 </SettingsRow>
               )}
             />

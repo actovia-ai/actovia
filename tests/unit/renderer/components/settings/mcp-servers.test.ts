@@ -36,8 +36,14 @@ vi.mock('@/components/markdown/code-editor.js', () => ({
 vi.mock('@/components/markdown/markdown', () => ({ default: () => null }))
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
+    // The example placeholders read as the catalog has them, so a field is
+    // found by what it shows.
     t: (key: string, params?: Record<string, string>) =>
-      params ? `${key}${JSON.stringify(params)}` : key
+      key.endsWith('examplePlaceholder')
+        ? `e.g. ${params?.example}`
+        : params
+          ? `${key}${JSON.stringify(params)}`
+          : key
   }),
   Trans: ({ children }: { children?: unknown }) => children ?? null
 }))

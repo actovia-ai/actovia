@@ -1,29 +1,48 @@
 import { CronExpressionParser } from 'cron-parser'
-import { format } from 'date-fns'
+import { type TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { i18n } from '@/lib/i18n'
+import { useFormat } from '@/lib/format'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
+import { cronPresetKey } from './cron-presets'
 import { TaskCard } from './task-card'
 
-function describeSchedule(task: TaskData): string {
+/**
+ * A recurring task's line: when it last ran, its schedule — by name when it
+ * is one the form offers ("Every Monday at 9:00 AM"), else its cron line —
+ * and when it runs next, in the user's locale.
+ */
+export function describeSchedule(
+  task: Pick<TaskData, 'cronExpression' | 'lastRunAt'>,
+  t: TFunction<'philharmonic'>,
+  dateTime: (d: Date, o?: Intl.DateTimeFormatOptions) => string
+): string {
   if (!task.cronExpression) return ''
-  const lastRun = task.lastRunAt
-    ? i18n.t('philharmonic:schedule.recurringList.lastRun', {
-        time: format(new Date(task.lastRunAt), 'MMM d, HH:mm')
-      }) + ' · '
-    : ''
+  const when = (d: Date) =>
+    dateTime(d, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  const preset = cronPresetKey(task.cronExpression)
+  const parts = [
+    task.lastRunAt
+      ? t('schedule.recurringList.lastRun', {
+          time: when(new Date(task.lastRunAt))
+        })
+      : null,
+    preset ? t(`schedule.form.cronPresets.${preset}`) : task.cronExpression
+  ]
   try {
     const next = CronExpressionParser.parse(task.cronExpression).next().toDate()
-    return `${lastRun}${task.cronExpression} · ${i18n.t(
-      'philharmonic:schedule.recurringList.nextRun',
-      { time: format(next, 'MMM d, HH:mm') }
-    )}`
+    parts.push(t('schedule.recurringList.nextRun', { time: when(next) }))
   } catch {
-    return `${lastRun}${task.cronExpression}`
+    // an unparsable line still shows as written
   }
+  return parts.filter(Boolean).join(' · ')
 }
 
 export function RecurringList({
@@ -38,6 +57,7 @@ export function RecurringList({
   onCancel: (id: string) => void
 }) {
   const { t } = useTranslation('philharmonic')
+  const { dateTime } = useFormat()
   if (tasks.length === 0) {
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center px-6 text-center text-sm">
@@ -57,7 +77,7 @@ export function RecurringList({
               conversationsById[task.conversationId ?? '']?.title ??
               t('schedule.unknownGroup')
             }
-            subtitle={describeSchedule(task)}
+            subtitle={describeSchedule(task, t, dateTime)}
             onCancel={onCancel}
             cancelling={cancellingId === task.id}
           />

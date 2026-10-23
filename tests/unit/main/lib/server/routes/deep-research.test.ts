@@ -63,8 +63,11 @@ vi.mock('@main/lib/db/queries', () => ({
     getDeepResearchMessagesById(...args)
 }))
 
-const { default: deepResearchRouter, summarizeDeepResearchError } =
-  await import('@main/lib/server/routes/deep-research')
+const {
+  default: deepResearchRouter,
+  runDeepResearchJob,
+  summarizeDeepResearchError
+} = await import('@main/lib/server/routes/deep-research')
 const { errorHandler } =
   await import('@main/lib/server/middlewares/error-handler')
 
@@ -198,6 +201,29 @@ describe('POST /api/v1/deep-research', () => {
     expect(written).not.toContain(BRAVE_KEY)
     // The message is in the summary, scrubbed; the frames carry none of it.
     expect(detail['exception.stacktrace']).not.toContain('upstream rejected')
+  })
+})
+
+describe('runDeepResearchJob', () => {
+  it('a job without a Brave key ends failed instead of staying streaming', async () => {
+    const ended = await runDeepResearchJob(DEEP_RESEARCH_ID, 'x', {
+      id: 'settings-1',
+      webSearch: {}
+    } as never)
+    expect(ended.jobStatus).toBe('failed')
+    expect(row.jobStatus).toBe('failed')
+    expect(deepResearchAgent).not.toHaveBeenCalled()
+  })
+
+  it('rejects only when the failure itself cannot be saved', async () => {
+    deepResearchAgent.mockRejectedValue(new Error('search down'))
+    updateDeepResearch.mockRejectedValueOnce(new Error('db gone'))
+    await expect(
+      runDeepResearchJob(DEEP_RESEARCH_ID, 'x', {
+        id: 'settings-1',
+        webSearch: { braveApiKey: BRAVE_KEY }
+      } as never)
+    ).rejects.toThrow('search down')
   })
 })
 

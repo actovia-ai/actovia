@@ -26,6 +26,7 @@
     "queriesForTopic_one": "Generata {{count}} query di ricerca per \"{{query}}\"",
     "queriesForTopic_other": "Generate {{count}} query di ricerca per \"{{query}}\"",
     "searchedFor": "Ricerca effettuata per \"{{query}}\"",
+    "moreSources": "+{{n}} altri",
     "writingReport": {
       "title": "Avvio della stesura del report finale...",
       "description": "La fase di ricerca approfondita è completata. Il tuo report finale è in fase di generazione e sarà presentato a breve."

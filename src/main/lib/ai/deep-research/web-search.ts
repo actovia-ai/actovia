@@ -1,6 +1,10 @@
 import { WebSearchResult } from '@actovia/shared/types/web-search'
 
-import { fetchWebSearch, type SearchLimits } from '../utils/web-search-util'
+import {
+  fetchWebSearch,
+  type SearchLimits,
+  WebSearchError
+} from '../utils/web-search-util'
 
 /**
  * Deep Research reads widely on purpose — a report is built from what its
@@ -30,10 +34,17 @@ export async function webSearch(
     braveApiKey: string
   }
 ) {
-  return fetchWebSearch({
-    query,
-    braveApiKey,
-    webSources,
-    limits: DEEP_RESEARCH_LIMITS
-  })
+  try {
+    return await fetchWebSearch({
+      query,
+      braveApiKey,
+      webSources,
+      limits: DEEP_RESEARCH_LIMITS
+    })
+  } catch (error) {
+    // One query that failed (already logged) leaves its branch empty; the
+    // research goes on with the others, as it did before the error existed.
+    if (error instanceof WebSearchError) return null
+    throw error
+  }
 }

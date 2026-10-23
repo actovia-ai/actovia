@@ -38,6 +38,7 @@ export async function deepResearch(
   for (const serpQuery of serpQueries) {
     await recursiveDeepResearch(
       {
+        topic: query,
         serpQuery,
         breadth,
         depth,
@@ -58,12 +59,15 @@ export async function deepResearch(
 
 async function recursiveDeepResearch(
   {
+    topic,
     serpQuery,
     breadth,
     depth,
     learnings = [],
     webSources = new Map()
   }: {
+    /** What the user asked to research: the language the learnings are written in. */
+    topic: string
     serpQuery: QueryWithResearchGoal
     breadth: number
     depth: number
@@ -104,6 +108,7 @@ async function recursiveDeepResearch(
 
   const newLearningsResult = await processSerpResult(
     {
+      topic,
       query: serpQuery.query,
       searchResults,
       numFollowUpQuestions: newBreadth
@@ -146,6 +151,7 @@ async function recursiveDeepResearch(
   for (const subSerpQuery of subSerpQueries) {
     await recursiveDeepResearch(
       {
+        topic,
         serpQuery: subSerpQuery,
         breadth: newBreadth,
         depth: newDepth,

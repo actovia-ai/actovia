@@ -104,7 +104,8 @@
       "integrations": "Integrazioni",
       "storage": "Archiviazione",
       "developer": "Sviluppatore"
-    }
+    },
+    "experimental": "Sperimentale"
   },
   "common": {
     "searchPlaceholder": "Cerca nelle impostazioni…",
@@ -1080,5 +1081,6 @@
       "s3SecretAccessKey": "Chiave di accesso segreta Amazon S3",
       "mcp": "Server MCP «{{server}}»: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "es. {{example}}"
 }

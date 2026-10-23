@@ -104,7 +104,8 @@
       "integrations": "Integrations",
       "storage": "Storage",
       "developer": "Developer"
-    }
+    },
+    "experimental": "Experimental"
   },
   "common": {
     "searchPlaceholder": "Search settings…",
@@ -181,7 +182,7 @@
     "website": "Website",
     "license": "License",
     "autoUpdate": {
-      "label": "Auto Update",
+      "label": "Auto update",
       "description": "Automatically download and install updates when available"
     },
     "update": {
@@ -228,7 +229,7 @@
     },
     "warm": "Warm",
     "enthusiastic": "Enthusiastic",
-    "headersAndLists": "Headers & Lists",
+    "headersAndLists": "Headers & lists",
     "emoji": "Emoji",
     "customInstructions": {
       "label": "Custom instructions",
@@ -443,11 +444,11 @@
         "description": "The quality level of the generated image."
       },
       "outputFormat": {
-        "label": "Output Format",
+        "label": "Output format",
         "description": "If the background is transparent, the output format should be set to either png (default) or webp."
       },
       "generatedCounts": {
-        "label": "Generated Counts",
+        "label": "Generated counts",
         "description": "The number of images to generate. Must be between 1 and 10."
       },
       "background": {
@@ -473,7 +474,7 @@
         "empty": "No language found."
       },
       "maxResults": {
-        "label": "Max Results",
+        "label": "Max results",
         "description": "Sources a search brings back (1–20). Default: 10."
       },
       "deepRecall": {
@@ -481,7 +482,7 @@
         "description": "Search three phrasings of the question and add a broader pass — forums, news, pages the first search drops. More sources and more tokens per search, and about six Brave requests instead of one."
       },
       "recency": {
-        "label": "Recency Filter",
+        "label": "Recency filter",
         "description": "Only return results from a recent time period.",
         "options": {
           "none": "No filter",
@@ -493,7 +494,7 @@
         }
       },
       "domainFilter": {
-        "label": "Domain Filter",
+        "label": "Domain filter",
         "description": "Comma-separated. Prefix with - to exclude. e.g. \"nature.com, .edu\" or \"-reddit.com\""
       }
     },
@@ -512,7 +513,7 @@
         "description": "Voice persona for generated speech"
       },
       "outputFormat": {
-        "label": "Output Format",
+        "label": "Output format",
         "description": "Audio format for generated speech"
       },
       "speed": {
@@ -520,7 +521,7 @@
         "description": "Playback speed (0.25 – 4.0, default 1.0)"
       },
       "instructions": {
-        "label": "Voice Instructions",
+        "label": "Voice instructions",
         "description": "Natural-language instructions to control tone, emotion and style (gpt-4o-mini-tts only)",
         "placeholder": "e.g. Speak in a warm, friendly tone with a slight British accent"
       }
@@ -560,25 +561,25 @@
       "danger": "Danger zone"
     },
     "autoBackup": {
-      "label": "Automatic Backups",
+      "label": "Automatic backups",
       "description": "Back up your data daily at 3:00 AM. Backups are stored locally in ~/.actovia/backups/."
     },
     "lastBackup": {
-      "label": "Last Backup",
+      "label": "Last backup",
       "none": "No backups yet"
     },
     "backupNow": {
-      "button": "Back Up Now",
+      "button": "Back up now",
       "successToast": "Backup created",
       "errorToast": "Backup failed"
     },
     "recentBackups": {
-      "label": "Recent Backups",
+      "label": "Recent backups",
       "description_one": "{{count}} backup stored",
       "description_other": "{{count}} backups stored"
     },
     "export": {
-      "label": "Export Data",
+      "label": "Export data",
       "description": "Download a portable copy of your conversations, settings, and other data as a ZIP archive. API keys and other secrets are removed from the export.",
       "button": "Export",
       "successToast": "Data exported successfully",
@@ -586,7 +587,7 @@
       "errorFallback": "Failed to export data."
     },
     "import": {
-      "label": "Import Data",
+      "label": "Import data",
       "description": "Restore from a previously exported ZIP archive. This will replace all existing data.",
       "button": "Import",
       "dialogDescription": "Select a previously exported ZIP file. This will replace all existing conversations and data. A backup will be created automatically before import.",
@@ -596,11 +597,11 @@
       "errorFallback": "Failed to import data."
     },
     "delete": {
-      "label": "Delete All Data",
+      "label": "Delete all data",
       "description": "Permanently erase all conversations, memories, and research data. Your settings will be preserved.",
       "dialogDescription": "This will permanently delete all your conversations, memories, research data, and uploaded documents. Your settings and API keys will be preserved. A backup will be created before deletion.",
       "confirmPrompt": "Type <strong>DELETE</strong> to confirm:",
-      "confirmButton": "Delete Everything",
+      "confirmButton": "Delete everything",
       "successToast": "All data deleted",
       "errorToast": "Delete failed",
       "errorFallback": "Failed to delete data."
@@ -616,9 +617,9 @@
       "clear": "Clear filters"
     },
     "actions": {
-      "openDirectory": "Open Directory",
+      "openDirectory": "Open directory",
       "export": "Export",
-      "clearAll": "Clear All",
+      "clearAll": "Clear all",
       "clearAllConfirm": "Are you sure you want to delete all log files?",
       "more": "More actions"
     },
@@ -743,12 +744,12 @@
         "placeholder": "Optional"
       },
       "extraConfig": {
-        "label": "Extra Config",
+        "label": "Extra config",
         "description": "Additional fields merged into the JSON export (e.g. oauth, custom auth). Must be a valid JSON object."
       },
       "updateButton": "Update",
       "registerButton": "Register",
-      "addServerButton": "Add Server",
+      "addServerButton": "Add server",
       "env": {
         "label": "Environment variables",
         "description": "JSON object of environment variables passed to the command (optional)."
@@ -764,7 +765,7 @@
     },
     "toast": {
       "invalidHeaders": "Invalid headers JSON",
-      "invalidExtraConfig": "Invalid Extra Config",
+      "invalidExtraConfig": "Invalid extra config",
       "mustBeJsonObject": "must be a JSON object",
       "updated": "\"{{name}}\" updated — reconnecting…",
       "registered": "\"{{name}}\" registered",
@@ -1080,5 +1081,6 @@
       "s3SecretAccessKey": "Amazon S3 secret access key",
       "mcp": "MCP server “{{server}}”: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "e.g. {{example}}"
 }

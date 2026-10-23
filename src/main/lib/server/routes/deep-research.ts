@@ -8,6 +8,7 @@ import type { JSONRPCNotification } from '@modelcontextprotocol/sdk/types.js'
 import { Hono } from 'hono'
 import { v4 as uuidV4 } from 'uuid'
 
+import { settleDeepResearchResult } from '../../ai/deep-research/chat-result'
 import { deepResearch as deepResearchAgent } from '../../ai/deep-research/deep-research'
 import { writeFinalReport } from '../../ai/deep-research/final-report'
 import { getModelFromProvider } from '../../ai/utils/chat-message-util'
@@ -17,6 +18,7 @@ import {
   saveDeepResearchMessage,
   updateDeepResearch
 } from '../../db/queries'
+import type { DeepResearch, Settings } from '../../db/schema'
 import { logger } from '../../logger'
 import { stackFramesOf } from '../../logger/record'
 import { bindTraceAttributes } from '../../logger/trace-context'
@@ -84,27 +86,35 @@ async function notifyClients(
   sseManager.emitRaw(deepResearchId, payload)
 }
 
-deepResearch.post('/', async (c) => {
-  const { deepResearchId, query } = validateSchema<{
-    deepResearchId: string
-    query: string
-  }>(createDeepResearchSchema, await c.req.json(), 'Invalid request body')
-  bindTraceAttributes({ researchId: deepResearchId })
+/**
+ * Runs one deep research job to its end and returns the row as it ends:
+ * `archived` with the report, or `failed` with a short, scrubbed message —
+ * whatever step threw, a missing key or model included. Rejects only when the
+ * failure itself could not be saved. The `deep_research` tool calls it in
+ * process (an HTTP request to our own port could fail before the job began,
+ * leaving it `streaming` with nothing to end it); `POST /` is the same job.
+ */
+/** The outcome into the chat's tool result; a failure here is only logged. */
+async function settleChatResult(deepResearchId: string) {
+  await settleDeepResearchResult(deepResearchId).catch((error: unknown) => {
+    logger.error('deep-research', 'Failed to write the outcome into the chat', {
+      deepResearchId,
+      error
+    })
+  })
+}
 
-  const setting = c.get('settings')
-
-  if (!setting || !('id' in setting)) {
-    throw new NotFoundError(
-      ErrorCode.SETTING_NOT_FOUND,
-      'Failed to retrieve setting'
-    )
-  }
-
-  const braveApiKey = validateBraveApiKey(setting)
-
-  const { model, apiKey } = getModelFromProvider(setting)
-
+export async function runDeepResearchJob(
+  deepResearchId: string,
+  query: string,
+  setting: Settings
+): Promise<DeepResearch> {
+  let secrets: string[] = []
   try {
+    const braveApiKey = validateBraveApiKey(setting)
+    const { model, apiKey } = getModelFromProvider(setting)
+    secrets = [apiKey, braveApiKey]
+
     await notifyClients(deepResearchId, {
       type: DeepResearchProgress.StartDeepResearch
     })
@@ -134,28 +144,27 @@ deepResearch.post('/', async (c) => {
     )
 
     const deepResearchById = await getDeepResearchById({ id: deepResearchId })
-    const finalDeepResearch = await updateDeepResearch({
+    const finalDeepResearch: DeepResearch = {
       ...deepResearchById,
       finalReport: report,
       webSources: [...webSources.values()],
       jobStatus: 'archived',
       endTime: new Date()
-    })
+    }
+    await updateDeepResearch(finalDeepResearch)
+    await settleChatResult(deepResearchId)
     await notifyClients(deepResearchId, {
       type: DeepResearchProgress.CompleteDeepResearch,
       query
     })
 
-    return successResponse(c, finalDeepResearch)
+    return finalDeepResearch
   } catch (error) {
     // Whatever step threw — search, the LLM calls, a dropped connection, or
     // the run being aborted (the chat it was launched from was stopped) —
     // the job must not stay 'streaming' forever (the desktop card, and
     // actovia-ios's 15-minute stall check, both key off jobStatus).
-    const errorMessage = summarizeDeepResearchError(error, [
-      apiKey,
-      braveApiKey
-    ])
+    const errorMessage = summarizeDeepResearchError(error, secrets)
     // The summary stands in for the message; the frames say where.
     logger.error('deep-research', 'Deep research job failed', {
       deepResearchId,
@@ -167,17 +176,19 @@ deepResearch.post('/', async (c) => {
       const deepResearchById = await getDeepResearchById({
         id: deepResearchId
       })
-      const failedDeepResearch = await updateDeepResearch({
+      const failedDeepResearch: DeepResearch = {
         ...deepResearchById,
         jobStatus: 'failed',
         errorMessage,
         endTime: new Date()
-      })
+      }
+      await updateDeepResearch(failedDeepResearch)
+      await settleChatResult(deepResearchId)
       await notifyClients(deepResearchId, {
         type: DeepResearchProgress.FailDeepResearch,
         error: errorMessage
       })
-      return successResponse(c, failedDeepResearch)
+      return failedDeepResearch
     } catch (persistError) {
       // The job row itself couldn't be updated — log and fall through to the
       // generic error response rather than leaving this silent.
@@ -188,6 +199,32 @@ deepResearch.post('/', async (c) => {
       throw error
     }
   }
+}
+
+deepResearch.post('/', async (c) => {
+  const { deepResearchId, query } = validateSchema<{
+    deepResearchId: string
+    query: string
+  }>(createDeepResearchSchema, await c.req.json(), 'Invalid request body')
+  bindTraceAttributes({ researchId: deepResearchId })
+
+  const setting = c.get('settings')
+
+  if (!setting || !('id' in setting)) {
+    throw new NotFoundError(
+      ErrorCode.SETTING_NOT_FOUND,
+      'Failed to retrieve setting'
+    )
+  }
+
+  // A request without a key or a model is refused before the job starts.
+  validateBraveApiKey(setting)
+  getModelFromProvider(setting)
+
+  return successResponse(
+    c,
+    await runDeepResearchJob(deepResearchId, query, setting)
+  )
 })
 
 deepResearch.get('/sse', async (c) => {

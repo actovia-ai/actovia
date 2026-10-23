@@ -34,11 +34,14 @@ const processResultSchema = z.object({
 
 export async function processSerpResult(
   {
+    topic,
     query,
     searchResults,
     numLearnings = 3,
     numFollowUpQuestions = 3
   }: {
+    /** The user's research topic. A query may be in the language of the place it is about. */
+    topic: string
     query: string
     searchResults: WebSearchResult[]
     numLearnings?: number
@@ -61,6 +64,12 @@ export async function processSerpResult(
           `<content>\n[Source: ${rank}]\n[Title: ${title}]\n${content}\n</content>`
       )
       .join('\n') +
+    // Last, after the contents: the user reads the learnings as they arrive,
+    // and a query about Dutch programs, searched in Dutch, gave Dutch
+    // learnings to an English question. Asked for before the contents, the
+    // model still wrote in the contents' language.
+    `\n\nThe research topic is: <topic>${topic}</topic>\n` +
+    `Write every learning and follow-up question in the language of the research topic, translating what the contents say. Do not write them in the language of the query or the contents unless it is the same language. Keep names of programs, laws and places as they are, with a translation in brackets where it helps.` +
     `\n\nRespond with a JSON object: {"learnings": [{"learning": string, "citations": [number], "image": string|null}], "followUpQuestions": [string]}`
 
   const result = await completeSimple(

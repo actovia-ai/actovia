@@ -240,7 +240,7 @@ comments, and nothing is resent on reconnect. Events in the order they can occur
 | `notice`            | `{ level: "warning" \| "info", message }`                                                                                      | A tool's non-fatal heads-up (e.g. an expired key that only degraded enrichment). The text is the server's; show it as it is |
 | `tool_call_end`     | `{ toolCallId, toolName, isError }`                                                                                            | The tool finished; its result was the `message_update` just before                                                          |
 | `title`             | `{ title }`                                                                                                                    | A new chat's generated title, before `done`                                                                                 |
-| `done`              | protocol 2: `{ messages: [userMessage, …run], attempts: { [runId]: Attempt } }` · otherwise `{ messages: [...history, …run] }` | The run ended and its messages are final                                                                                    |
+| `done`              | protocol 2: `{ messages: [userMessage, …run], attempts: { [runId]: Attempt } }` · otherwise `{ messages: [...history, …run] }` | The run ended and its messages are final, the last assistant one with its `durationMs`                                      |
 | `error`             | `{ error: string }`                                                                                                            | The run failed (a friendly sentence, `toFriendlyChatError`); after `done` when the provider failed midway                   |
 
 Guarantees:
@@ -327,6 +327,12 @@ Assistant messages keep `api` / `provider` / `model` / `stopReason`, so pi recog
 keeps their thinking and signatures. A chat whose context is not tracked yet is bootstrapped from its rows.
 
 **With LCM off:** the history read in §4.2 step 6, filtered the same way.
+
+**A Deep Research result** is stored as the job's id (`{ id, toolCallId }`) by the run that called it; the research
+goes on after the run. When the job ends, its outcome — `Deep research finished: <subject>` and the report, or
+`Deep research failed: <subject>` and the reason — replaces that text in the stored row
+(`ai/deep-research/chat-result.ts`), so the next run, `recall` and `lcm_grep` / `lcm_describe` read the report. It
+is a stored change, made once: the request after it misses the cache from that run on, as any real change does.
 
 Both leave out the runs a regenerate group keeps from the model (`excludedRuns`, `packages/shared/src/utils/attempts.ts`):
 `folded` and `hidden` attempts, and — for a Regenerate — every other run of its group, so the new answer sees neither

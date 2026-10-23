@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 
 import { getUsageRows } from '../../db/queries'
+import { localDateStr } from '../../local-date'
 import { Variables } from '../types'
 import { successResponse } from '../utils'
 
@@ -19,6 +20,8 @@ export interface ModelCost {
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
+  /** Every token of the model's requests, cache included — the measure Lifetime sums. */
+  totalTokens: number
   requests: number
 }
 
@@ -38,6 +41,7 @@ usage.get('/', async (c) => {
       inputTokens: number
       outputTokens: number
       cacheReadTokens: number
+      totalTokens: number
       requests: number
     }
   >()
@@ -51,8 +55,8 @@ usage.get('/', async (c) => {
     totalCost += cost
     totalTokens += tokens
 
-    // Daily aggregation
-    const date = row.createdAt.toISOString().slice(0, 10)
+    // Daily aggregation, by the user's day (the heatmap's keys are local)
+    const date = localDateStr(row.createdAt)
     const daily = dailyMap.get(date) ?? { cost: 0, tokens: 0 }
     daily.cost += cost
     daily.tokens += tokens
@@ -66,12 +70,14 @@ usage.get('/', async (c) => {
       inputTokens: 0,
       outputTokens: 0,
       cacheReadTokens: 0,
+      totalTokens: 0,
       requests: 0
     }
     model.cost += cost
     model.inputTokens += u.input ?? 0
     model.outputTokens += u.output ?? 0
     model.cacheReadTokens += u.cacheRead ?? 0
+    model.totalTokens += tokens
     model.requests += 1
     modelMap.set(modelKey, model)
   }

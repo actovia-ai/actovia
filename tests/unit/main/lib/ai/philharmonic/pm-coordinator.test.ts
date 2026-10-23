@@ -168,6 +168,14 @@ describe('runPmCoordinator', () => {
     expect(emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'message_start', role: 'pm' })
     )
+    // Saved under the id it streamed with, so the live bubble and the row
+    // are one message in the transcript.
+    const started = emit.mock.calls.find(
+      ([e]) => e.type === 'message_start' && e.role === 'pm'
+    )![0]
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ role: 'pm', id: started.messageId })
+    )
   })
 })
 
@@ -249,6 +257,70 @@ describe('runPmCoordinator — a Claude Code employee', () => {
   })
 })
 
+describe('runPmCoordinator — the group’s members', () => {
+  async function delegateTool(memberAgentIds: string[]) {
+    const convs = await import('@main/lib/db/conversation-queries')
+    vi.mocked(convs.getConversationById).mockResolvedValueOnce({
+      id: 'c1',
+      title: 'Group X',
+      memberAgentIds
+    } as never)
+    vi.mocked(convs.addMemberToConversation).mockClear()
+    const emit = vi.fn()
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({ conversationId: 'c1', userText: 'go', emit })
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    return {
+      delegate: tools.find((t) => t.name === 'delegateTask')!,
+      add: vi.mocked(convs.addMemberToConversation),
+      emit
+    }
+  }
+  const joined = (emit: ReturnType<typeof vi.fn>) =>
+    emit.mock.calls.filter(([e]) => e.type === 'member_joined')
+
+  it('an employee handed a step joins the group, once', async () => {
+    const { delegate, add, emit } = await delegateTool([])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    await delegate.execute('y', { employeeId: 'a1', instructions: 'two' })
+    expect(add).toHaveBeenCalledTimes(1)
+    expect(add).toHaveBeenCalledWith('c1', 'a1')
+    expect(joined(emit)).toEqual([
+      [{ type: 'member_joined', conversationId: 'c1', agentId: 'a1' }]
+    ])
+  })
+
+  it('an employee’s report is saved under the id its bubble streamed with', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    vi.mocked(engine.runDelegatedTask).mockResolvedValueOnce({
+      output: 'the report',
+      liveMessageId: 'live-1'
+    })
+    createConversationMessage.mockClear()
+    const { delegate } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'live-1',
+        role: 'employee',
+        content: 'the report'
+      })
+    )
+  })
+
+  it('a member already in the group is not added again', async () => {
+    const { delegate, add, emit } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })
+    expect(add).not.toHaveBeenCalled()
+    expect(joined(emit)).toEqual([])
+  })
+})
+
 describe('runPmCoordinator — the plan mirror', () => {
   it('never fails a step: a mirror that throws is logged and the delegation still succeeds', async () => {
     const plans = await import('@main/lib/db/plan-queries')
@@ -299,6 +371,48 @@ describe('runPmCoordinator — the plan mirror', () => {
       'plan mirror failed',
       expect.objectContaining({ message: 'meta dir refused' })
     )
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
+  })
+
+  it('plan tools called in parallel write the mirror one at a time', async () => {
+    const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.updateStep).mockImplementation(
+      async (id, patch) =>
+        ({ id, status: patch.status ?? 'running', note: null }) as never
+    )
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue({
+      plan: { id: 'p', status: 'active' },
+      steps: []
+    } as never)
+    const { writePlanMirror } =
+      await import('@main/lib/ai/philharmonic/plan-mirror')
+    let inFlight = 0
+    let most = 0
+    vi.mocked(writePlanMirror).mockImplementation(async () => {
+      most = Math.max(most, ++inFlight)
+      await new Promise((r) => setTimeout(r, 5))
+      inFlight--
+      return '/tmp/plan.md'
+    })
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'go',
+      emit: vi.fn()
+    }).catch(() => {})
+    const tools = agentLoopMock.mock.calls[0][1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, p: unknown) => Promise<unknown>
+    }>
+    const update = tools.find((t) => t.name === 'updatePlanStep')!
+    await Promise.all([
+      update.execute('x', { stepId: 's1', status: 'running' }),
+      update.execute('y', { stepId: 's2', status: 'done' })
+    ])
+    expect(vi.mocked(writePlanMirror)).toHaveBeenCalledTimes(2)
+    expect(most).toBe(1)
     vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
 })
@@ -842,6 +956,16 @@ describe('runPmCoordinator — the decision trail', () => {
         content: '⚠️ PM error: rate limited',
         roundId: 'r1',
         parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
+      })
+    )
+    const { logger } = await import('@main/lib/logger')
+    expect(logger.error).toHaveBeenCalledWith(
+      'philharmonic',
+      'PM round failed',
+      expect.objectContaining({
+        conversationId: 'c1',
+        roundId: 'r1',
+        error: expect.objectContaining({ message: 'rate limited' })
       })
     )
   })

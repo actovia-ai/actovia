@@ -4,6 +4,7 @@ import { ComponentProps, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Sidebar,
@@ -94,6 +95,14 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                   >
                     {item.icon && <HugeiconsIcon icon={item.icon} />}
                     {t(NAV_TITLE_KEYS[item.title])}
+                    {'experimental' in item && item.experimental && (
+                      <Badge
+                        variant="outline"
+                        className="text-2xs ml-auto font-normal"
+                      >
+                        {t('nav.experimental')}
+                      </Badge>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

@@ -28,7 +28,8 @@ vi.mock('@/hooks/use-settings', () => ({
 const closeSearchbar = vi.fn(async () => {})
 vi.mock('@/lib/ipc', () => ({ closeSearchbar: () => closeSearchbar() }))
 
-const { useKeyboardShortcuts } = await import('@/hooks/use-keyboard-shortcuts')
+const { keyLabel, RETURN_GLYPH, useKeyboardShortcuts } =
+  await import('@/hooks/use-keyboard-shortcuts')
 const { historyAtom } = await import('@/stores/history')
 const { EMPTY_HISTORY, pushed } = await import('@/lib/route-history')
 const visit = (...paths: string[]) => paths.reduce(pushed, EMPTY_HISTORY)
@@ -168,5 +169,15 @@ describe('useKeyboardShortcuts', () => {
     act(() => root.render(createElement(Probe)))
     press(document.body, '[', { ctrlKey: true })
     expect(navigate).not.toHaveBeenCalled()
+  })
+})
+
+describe('keyLabel', () => {
+  it('names Enter off a Mac', () => {
+    expect(keyLabel('Enter')).toBe('Enter')
+  })
+
+  it('draws Return as a text glyph, never the emoji tile macOS gives a bare ↩', () => {
+    expect(RETURN_GLYPH).toBe('\u21A9\uFE0E')
   })
 })

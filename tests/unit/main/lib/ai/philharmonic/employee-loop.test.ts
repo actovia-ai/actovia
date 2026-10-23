@@ -8,12 +8,14 @@ vi.mock('@earendil-works/pi-ai', () => ({}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({ id: 's' })
 }))
+const bindCallingTools = vi.fn((): Array<{ name: string }> => [])
 vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
-  bindCallingTools: () => []
+  bindCallingTools: () => bindCallingTools()
 }))
 vi.mock('@main/lib/ai/utils/employee-model', () => ({
   resolveEmployeeModel: () => ({
     chatModel: { cost: { input: 1, output: 2 } },
+    model: { cost: { input: 1, output: 2, cacheRead: 0.1, cacheWrite: 1 } },
     apiKey: 'k'
   })
 }))
@@ -33,6 +35,13 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getAgentMemories: async () => []
 }))
 
+const getEmployeeReports = vi.fn(
+  async (): Promise<Array<{ content: string; createdAt: Date }>> => []
+)
+vi.mock('@main/lib/db/conversation-queries', () => ({
+  getEmployeeReports: (...a: unknown[]) => getEmployeeReports(...(a as []))
+}))
+
 const { runEmployeeLoop } =
   await import('@main/lib/ai/philharmonic/employee-loop')
 
@@ -45,6 +54,64 @@ function fakeStream(events: unknown[]) {
 }
 
 describe('runEmployeeLoop', () => {
+  const systemPromptFor = async (tools: string[]) => {
+    bindCallingTools.mockReturnValueOnce(tools.map((name) => ({ name })))
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runEmployeeLoop({
+      agent: {
+        id: 'a',
+        name: 'Nora',
+        skillSlugs: [],
+        mcpServerNames: [],
+        toolAllowList: []
+      } as never,
+      instructions: 'research it',
+      executionId: 'e1',
+      conversationId: 'c1',
+      emit: vi.fn()
+    })
+    const [, context] = agentLoopMock.mock.calls.at(-1) as [
+      unknown,
+      { messages: Array<{ content: string }> }
+    ]
+    return context.messages[0].content
+  }
+
+  it('an employee who searches cites by link, never by number — its readers never see the results', async () => {
+    const { WEB_CITATIONS } =
+      await import('@main/lib/ai/philharmonic/employee-loop')
+    expect(await systemPromptFor(['web_search'])).toContain(WEB_CITATIONS)
+    expect(await systemPromptFor(['web_fetch'])).toContain(WEB_CITATIONS)
+    expect(await systemPromptFor(['read_file'])).not.toContain(WEB_CITATIONS)
+  })
+
+  it('is shown its own earlier reports in this group, oldest first — not only what the PM pastes back', async () => {
+    getEmployeeReports.mockResolvedValueOnce([
+      { content: 'second report', createdAt: new Date('2026-10-22T02:00:00Z') },
+      { content: 'first report', createdAt: new Date('2026-10-22T01:00:00Z') }
+    ])
+    const prompt = await systemPromptFor([])
+    expect(getEmployeeReports).toHaveBeenLastCalledWith('c1', 'a', 3)
+    expect(prompt).toContain('Your earlier reports in this group')
+    expect(prompt.indexOf('first report')).toBeLessThan(
+      prompt.indexOf('second report')
+    )
+    expect(await systemPromptFor([])).not.toContain('earlier reports')
+  })
+
+  it('cuts a long earlier report and says how much', async () => {
+    const { earlierReportsBlock, EARLIER_REPORTS } =
+      await import('@main/lib/ai/philharmonic/employee-loop')
+    const block = earlierReportsBlock([
+      {
+        content: 'x'.repeat(EARLIER_REPORTS.chars + 10),
+        createdAt: new Date(0)
+      }
+    ])
+    expect(block).toContain('[… cut, 10 more characters]')
+    expect(block).not.toContain('x'.repeat(EARLIER_REPORTS.chars + 1))
+  })
+
   it('leads the transcript with a system message the model is actually sent — the prompt and the tool declarations (pi 1.0)', async () => {
     agentLoopMock.mockReturnValue(fakeStream([]))
     await runEmployeeLoop({
@@ -121,6 +188,53 @@ describe('runEmployeeLoop', () => {
     // streamed a message_end conversation event
     expect(emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'message_end', conversationId: 'c1' })
+    )
+  })
+
+  it('adds up every step — its tokens, the cached input included, and its cost', async () => {
+    const step = (usage: Record<string, number>) => ({
+      type: 'message_end',
+      message: {
+        role: 'assistant',
+        content: [{ type: 'text', text: 'step' }],
+        usage
+      }
+    })
+    agentLoopMock.mockReturnValue(
+      fakeStream([
+        step({ input: 1_000_000, output: 0, cacheRead: 0, cacheWrite: 0 }),
+        step({
+          input: 0,
+          output: 1_000_000,
+          cacheRead: 2_000_000,
+          cacheWrite: 0
+        })
+      ])
+    )
+    updateTaskExecution.mockClear()
+    await runEmployeeLoop({
+      agent: {
+        id: 'a',
+        name: 'Nora',
+        skillSlugs: [],
+        mcpServerNames: [],
+        toolAllowList: []
+      } as never,
+      instructions: 'research it',
+      executionId: 'e2',
+      conversationId: 'c1',
+      emit: vi.fn()
+    })
+    // $1 (step 1's input) + $2 (step 2's output) + $0.20 (its cache reads)
+    expect(updateTaskExecution).toHaveBeenCalledWith(
+      'e2',
+      expect.objectContaining({
+        tokenUsage: {
+          inputTokens: 3_000_000,
+          outputTokens: 1_000_000,
+          cost: expect.closeTo(3.2, 6)
+        }
+      })
     )
   })
 

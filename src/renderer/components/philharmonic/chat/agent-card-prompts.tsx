@@ -5,7 +5,6 @@ import type {
   AgentQuestion
 } from '@actovia/shared/types/agents'
 import { CLI_NAMES } from '@actovia/shared/types/agents'
-import { capitalCase } from 'change-case'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { sileo } from 'sileo'
@@ -13,6 +12,7 @@ import { sileo } from 'sileo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CHOICE_ROW, ChoiceIndicator } from '@/components/ui/questionnaire'
+import { cliToolLabel } from '@/lib/agent-card'
 import { cn } from '@/lib/utils'
 import { respondToAgent } from '@/services/agents'
 
@@ -67,16 +67,16 @@ export function PermissionPrompt({
       <p className="text-sm">
         {t('agents.card.wantsTo', {
           name: CLI_NAMES[card.runtime],
-          tool: capitalCase(prompt.tool)
+          tool: cliToolLabel(prompt.tool)
         })}
         {prompt.summary && (
-          <code className="text-muted-foreground ml-1 font-mono text-xs break-all">
+          <code className="text-muted-foreground ml-1 font-mono text-xs wrap-anywhere">
             {prompt.summary}
           </code>
         )}
       </p>
       {/* Everything the owner is approving, whole — never clipped. */}
-      <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">
         {prompt.detail}
       </pre>
       {/* Codex's decline carries no words, so it is not asked for one. */}

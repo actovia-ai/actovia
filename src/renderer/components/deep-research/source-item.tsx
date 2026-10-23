@@ -5,10 +5,22 @@ import { useTranslation } from 'react-i18next'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
+import { plainText } from '@/lib/plain-text'
+import { cn } from '@/lib/utils'
 
 import { parseCitations } from '../markdown/markdown-citations'
+import { FAVICON_BACKING } from '../markdown/source-favicon'
 
-function SourceItemLink({ item }: { item: WebSearchResult }) {
+/** How many of a search's sources a step of the Activity timeline lists. */
+const COMPACT_SOURCES = 3
+
+function SourceItemLink({
+  item,
+  compact
+}: {
+  item: WebSearchResult
+  compact?: boolean
+}) {
   let hostname = ''
   let favicon = ''
   try {
@@ -24,15 +36,25 @@ function SourceItemLink({ item }: { item: WebSearchResult }) {
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="hover:bg-sidebar-accent flex gap-3 rounded-xl px-3 py-2"
+      className={cn(
+        'hover:bg-sidebar-accent flex min-w-0 gap-3',
+        compact ? '-mx-1.5 rounded-md px-1.5 py-1' : 'rounded-xl px-3 py-2'
+      )}
     >
       <div className="min-w-0 flex-1">
-        <div className="line-clamp-2 text-sm leading-snug font-semibold">
+        <div
+          className={cn(
+            'leading-snug',
+            compact
+              ? 'truncate text-xs'
+              : 'line-clamp-2 text-sm font-semibold break-words'
+          )}
+        >
           {item.title}
         </div>
         <div className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs">
           {favicon && (
-            <Avatar className="size-3.5">
+            <Avatar className={cn('size-3.5', FAVICON_BACKING)}>
               <AvatarImage
                 src={favicon}
                 alt={hostname}
@@ -43,9 +65,9 @@ function SourceItemLink({ item }: { item: WebSearchResult }) {
           )}
           <span className="truncate">{hostname}</span>
         </div>
-        {item.snippet ? (
+        {!compact && item.snippet ? (
           <div className="text-muted-foreground mt-1 line-clamp-2 text-xs leading-snug">
-            {item.snippet}
+            {plainText(item.snippet)}
           </div>
         ) : null}
       </div>
@@ -55,10 +77,13 @@ function SourceItemLink({ item }: { item: WebSearchResult }) {
 
 export function SourceItem({
   webSearchResults,
-  finalReport
+  finalReport,
+  compact
 }: {
   finalReport?: string
   webSearchResults: WebSearchResult[]
+  /** A step of the Activity timeline: title and site on one line each, no snippet. */
+  compact?: boolean
 }) {
   const { t } = useTranslation('deepResearch')
   const citedRanks = useMemo(() => {
@@ -68,6 +93,25 @@ export function SourceItem({
 
   const cited = webSearchResults.filter((r) => citedRanks.has(r.rank))
   const more = webSearchResults.filter((r) => !citedRanks.has(r.rank))
+
+  if (compact) {
+    // A search brings back ten or twenty pages; listed whole, they buried the
+    // timeline's steps. The full list is the Sources tab.
+    const shown = webSearchResults.slice(0, COMPACT_SOURCES)
+    const rest = webSearchResults.length - shown.length
+    return (
+      <div className="flex flex-col gap-0.5">
+        {shown.map((item) => (
+          <SourceItemLink key={item.link} item={item} compact />
+        ))}
+        {rest > 0 && (
+          <p className="text-muted-foreground pt-0.5 text-xs">
+            {t('messages.moreSources', { n: rest })}
+          </p>
+        )}
+      </div>
+    )
+  }
 
   if (citedRanks.size === 0) {
     return (

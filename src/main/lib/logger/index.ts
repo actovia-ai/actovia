@@ -4,6 +4,7 @@ import { join } from 'path'
 
 import { app } from 'electron'
 
+import { localDateStr } from '../local-date'
 import { getLogsDir } from '../paths'
 import {
   type LogLevel,
@@ -50,17 +51,9 @@ export type LogSurface = KnownLogSurface | (string & {})
 const MIN_SEVERITY = app.isPackaged ? MIN_SEVERITY_PROD : MIN_SEVERITY_DEV
 const RETENTION_DAYS = 7
 
-// Use the user's local date for filenames (and cleanup cutoff). `toISOString`
-// returns UTC, which silently shifts the bucket boundary by the timezone
-// offset — at e.g. 05:10 CST the UTC date is still the previous day, and
-// entries land in yesterday's file. Renderer-side defaults already use local
-// date, so the server has to match.
-export function localDateStr(d: Date = new Date()): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
+// Log files are named by the user's local day (and cleaned up by it), as the
+// renderer's day picker names them — see local-date.ts.
+export { localDateStr }
 
 function todayFileName(): string {
   return localDateStr() + '.jsonl'

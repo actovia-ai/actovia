@@ -2,6 +2,7 @@ import {
   fetchWebSearch,
   loadDocumentBuiltin,
   pickAgeLabel,
+  WebSearchError,
   webResultsToSources
 } from '@main/lib/ai/utils/web-search-util'
 import { LocalApiTargetError } from '@main/lib/net/local-api-guard'
@@ -9,6 +10,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 const fetchMock = vi.fn()
 vi.stubGlobal('fetch', fetchMock)
+const warn = vi.fn()
+vi.mock('@main/lib/logger', () => ({
+  logger: { warn: (...args: unknown[]) => warn(...args) }
+}))
 // The built-in loader's one I/O: a pinned GET that never follows a redirect
 // (net/pinned-fetch.ts, tested on its own).
 const pinnedMock = vi.fn()
@@ -18,6 +23,7 @@ vi.mock('@main/lib/net/pinned-fetch', () => ({
 afterEach(() => {
   fetchMock.mockReset()
   pinnedMock.mockReset()
+  warn.mockReset()
 })
 
 function htmlResponse(
@@ -475,5 +481,92 @@ describe('fetchWebSearch — a picture belongs to the page it came from', () => 
     expect(own?.media?.map((m) => m.url)).toEqual(['https://c.com/old.jpg'])
     // Said to the model plainly: the page itself was not read.
     expect(own?.content).toContain('not read')
+  })
+})
+
+describe('fetchWebSearch — a failed search is not "no results"', () => {
+  const status = (code: number) => ({ ok: false, status: code }) as Response
+  const okEmpty = () => ctxResponse([])
+  const okOne = () =>
+    ctxResponse([
+      { url: 'https://site.example/a', title: 'A', snippets: ['a'] }
+    ])
+
+  it('answers null when Brave found nothing', async () => {
+    fetchMock.mockResolvedValue(okEmpty())
+
+    await expect(
+      fetchWebSearch({ query: 'q', braveApiKey: 'k' })
+    ).resolves.toBeNull()
+  })
+
+  it.each([
+    [401, 'unauthorized'],
+    [403, 'unauthorized'],
+    [402, 'quota'],
+    [500, 'http']
+  ])('throws on HTTP %i (%s)', async (code, failure) => {
+    fetchMock.mockResolvedValue(status(code))
+
+    const error = await fetchWebSearch({ query: 'q', braveApiKey: 'k' }).catch(
+      (e: unknown) => e
+    )
+
+    expect(error).toBeInstanceOf(WebSearchError)
+    expect((error as WebSearchError).failure).toBe(failure)
+    expect(warn).toHaveBeenCalledWith(
+      'web-search',
+      'Brave request failed',
+      expect.objectContaining({ endpoint: 'llm/context', status: code })
+    )
+  })
+
+  it('retries a 429 once, then says the rate limit was reached', async () => {
+    fetchMock.mockResolvedValue(status(429))
+
+    await expect(
+      fetchWebSearch({ query: 'q', braveApiKey: 'k' })
+    ).rejects.toMatchObject({ failure: 'rate_limited' })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('throws a network failure when Brave never answered', async () => {
+    fetchMock.mockRejectedValue(new TypeError('fetch failed'))
+
+    await expect(
+      fetchWebSearch({ query: 'q', braveApiKey: 'k' })
+    ).rejects.toMatchObject({ failure: 'network' })
+  })
+
+  it('keeps what answered when another request failed', async () => {
+    fetchMock.mockImplementation((url: string) =>
+      Promise.resolve(
+        new URL(url).pathname.endsWith('/llm/context') ? okOne() : status(500)
+      )
+    )
+
+    const results = await fetchWebSearch({
+      query: 'q',
+      braveApiKey: 'k',
+      deep: true
+    })
+
+    expect(results?.map((r) => r.link)).toEqual(['https://site.example/a'])
+  })
+
+  it('answers null, not a failure, once the search was stopped', async () => {
+    const controller = new AbortController()
+    fetchMock.mockImplementation(() => {
+      controller.abort()
+      return Promise.reject(new DOMException('aborted', 'AbortError'))
+    })
+
+    await expect(
+      fetchWebSearch({
+        query: 'q',
+        braveApiKey: 'k',
+        signal: controller.signal
+      })
+    ).resolves.toBeNull()
   })
 })

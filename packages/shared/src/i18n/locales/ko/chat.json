@@ -51,7 +51,8 @@
     "mapItineraryStopCount_other": "{{count}}개 경유지",
     "mapItinerarySummary": "{{days}}, {{stops}}",
     "toolFailed": "{{tool}} 실패",
-    "webSearchResultCount_other": "결과 {{count}}건"
+    "webSearchResultCount_other": "결과 {{count}}건",
+    "webSearchResultCountFor_other": "\"{{query}}\" 결과 {{count}}건"
   },
   "toolFailedToast": {
     "title": "도구 실패: {{tool}}"

@@ -60,3 +60,16 @@ export function employeeModelLabel(
   const provider = agent.provider as AiProviders
   return modelLabel(provider, agent.model, modelCatalog(settings, provider))
 }
+
+/**
+ * The card's chip: what the employee runs on. A coding agent always says
+ * which CLI it is, on that CLI's default model too ("Claude Code"); only an
+ * Actovia employee on the app's default has nothing to add.
+ */
+export function employeeModelChip(
+  agent: Pick<AgentData, 'runtime' | 'provider' | 'model'>,
+  settings: Settings | undefined
+): string | null {
+  if (agent.runtime === 'actovia' && !agent.model) return null
+  return employeeModelLabel(agent, settings)
+}

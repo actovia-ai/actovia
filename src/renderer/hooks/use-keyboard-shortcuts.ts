@@ -16,6 +16,12 @@ const isMac = navigator.platform.toUpperCase().includes('MAC')
 export const MOD_KEY = isMac ? '⌘' : 'Ctrl'
 
 /**
+ * The Return key's glyph. U+21A9 alone has emoji presentation on macOS (a
+ * blue tile beside a monochrome ⌘); VS15 asks for the text glyph.
+ */
+export const RETURN_GLYPH = '\u21A9\uFE0E'
+
+/**
  * How a key of `ShortcutDef.keys` is drawn: on a Mac every modifier is its
  * glyph (⌘ ⇧ ⌥ ↩), as the menu bar draws them; elsewhere their names.
  */
@@ -28,7 +34,7 @@ export function keyLabel(key: string): string {
     case '⌥':
       return isMac ? '⌥' : 'Alt'
     case 'Enter':
-      return isMac ? '↩' : 'Enter'
+      return isMac ? RETURN_GLYPH : 'Enter'
     default:
       return key
   }

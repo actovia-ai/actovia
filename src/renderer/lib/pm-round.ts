@@ -112,7 +112,13 @@ export function describeRound(
       case 'usage':
         lines.push({
           kind: 'usage',
-          inputTokens: num(p.inputTokens),
+          // What the model read, the cached part included — Anthropic
+          // reports a long prompt's cached prefix apart from `input`, which
+          // alone read '14 in' for a round of 32k tokens.
+          inputTokens:
+            num(p.inputTokens) +
+            num(p.cacheReadTokens) +
+            num(p.cacheWriteTokens),
           outputTokens: num(p.outputTokens),
           costUsd: num(p.costUsd)
         })

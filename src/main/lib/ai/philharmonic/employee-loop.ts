@@ -1,10 +1,12 @@
 // src/main/lib/ai/philharmonic/employee-loop.ts
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
-import type { Message, Usage } from '@earendil-works/pi-ai'
+import type { Message } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
+import { getEmployeeReports } from '../../db/conversation-queries'
 import {
   createTaskExecutionEvent,
   getAgentMemories,
@@ -35,6 +37,43 @@ export interface RunEmployeeLoopArgs {
   /** Extra tools (e.g. none for employees in v1). */
   extraTools?: AgentTool[]
   signal?: AbortSignal
+  /** The id its live bubble streams under — the saved row takes the same one,
+   * so the transcript shows it once. A fresh one when not given. */
+  messageId?: string
+}
+
+/**
+ * Who reads an employee's report — the PM, then the owner — never sees its
+ * search results, so a numbered marker ("【8】") points nowhere: it cites by
+ * link, which the group's transcript renders and opens.
+ */
+export const WEB_CITATIONS = `
+
+Citing the web: whoever reads your report cannot see your search results, so never cite by number (no 【3】, [3] or 【3-source】). Put the source after the sentence it supports as a Markdown link with the site or page title as its text — ([The Verge](https://www.theverge.com/...)) — using the URL a web_search result or web_fetch gave you, never one you made up.`
+
+/** How many of an employee's own earlier reports it is shown, and how much of each. */
+export const EARLIER_REPORTS = { count: 3, chars: 6000 }
+
+/**
+ * An employee's own earlier reports in this group, oldest first. Each run of
+ * the loop starts fresh, so without them a second task found the employee
+ * unaware of its own work, and the PM pasted the report back in.
+ */
+export function earlierReportsBlock(
+  reports: Array<{ content: string; createdAt: Date }>
+): string {
+  if (reports.length === 0) return ''
+  const items = [...reports]
+    .reverse()
+    .map((r) => {
+      const text =
+        r.content.length > EARLIER_REPORTS.chars
+          ? `${r.content.slice(0, EARLIER_REPORTS.chars)}\n[… cut, ${r.content.length - EARLIER_REPORTS.chars} more characters]`
+          : r.content
+      return `<report at="${r.createdAt.toISOString()}">\n${text}\n</report>`
+    })
+    .join('\n')
+  return `\n\nYour earlier reports in this group (oldest first). Build on them instead of redoing the work; where the PM's new instructions differ, follow the instructions.\n${items}`
 }
 
 function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
@@ -99,9 +138,19 @@ export async function runEmployeeLoop(
           .map((m) => `- ${JSON.stringify(m.value)}`)
           .join('\n')
       : ''
+  const reportsBlock = earlierReportsBlock(
+    await getEmployeeReports(conversationId, agent.id, EARLIER_REPORTS.count)
+  )
   const team = agent.teamId ? ((await getTeamById(agent.teamId)) ?? null) : null
+  const searches = tools.some(
+    (t) => t.name === TOOL_NAMES.webSearch || t.name === TOOL_NAMES.webFetch
+  )
   const systemPrompt =
-    buildEmployeeSystemPrompt(agent, team) + memoryBlock + skillsContent
+    buildEmployeeSystemPrompt(agent, team) +
+    (searches ? WEB_CITATIONS : '') +
+    memoryBlock +
+    reportsBlock +
+    skillsContent
 
   const userMessage: Message = {
     role: 'user',
@@ -109,7 +158,7 @@ export async function runEmployeeLoop(
     timestamp: Date.now()
   }
 
-  const messageId = uuidV4()
+  const messageId = args.messageId ?? uuidV4()
   emit({
     type: 'message_start',
     conversationId,
@@ -119,9 +168,12 @@ export async function runEmployeeLoop(
   })
 
   let finalOutput = ''
+  // Every step of the loop is a request of its own: its tokens and its cost
+  // are added up — the cost was the last step's alone. Input counts what the
+  // model read, the cached part included (the dashboard's "total processed").
   let totalInput = 0
   let totalOutput = 0
-  let lastUsage: Usage | undefined
+  let totalCost = 0
 
   const stream = agentLoop(
     [userMessage as AgentMessage],
@@ -187,9 +239,12 @@ export async function runEmployeeLoop(
             .join('')
           if (endText) finalOutput = endText
           if (msg.usage) {
-            lastUsage = msg.usage
-            totalInput += msg.usage.input ?? 0
+            totalInput +=
+              (msg.usage.input ?? 0) +
+              (msg.usage.cacheRead ?? 0) +
+              (msg.usage.cacheWrite ?? 0)
             totalOutput += msg.usage.output ?? 0
+            totalCost += calculateCost(msg.usage, model).total
           }
         }
       } else if (event.type === 'tool_execution_start') {
@@ -231,11 +286,14 @@ export async function runEmployeeLoop(
       }
     }
 
-    const cost = calculateCost(lastUsage, model).total
     await updateTaskExecution(executionId, {
       status: 'completed',
       completedAt: new Date(),
-      tokenUsage: { inputTokens: totalInput, outputTokens: totalOutput, cost }
+      tokenUsage: {
+        inputTokens: totalInput,
+        outputTokens: totalOutput,
+        cost: totalCost
+      }
     })
 
     return finalOutput

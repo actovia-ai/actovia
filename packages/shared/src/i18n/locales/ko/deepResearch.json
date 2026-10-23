@@ -22,6 +22,7 @@
     "queriesDeeper_other": "이전 조사를 위한 검색어 {{count}}개를 생성했습니다",
     "queriesForTopic_other": "\"{{query}}\"에 대한 검색어 {{count}}개를 생성했습니다",
     "searchedFor": "\"{{query}}\" 검색함",
+    "moreSources": "+{{n}}개 더",
     "writingReport": {
       "title": "최종 보고서 작성을 시작합니다...",
       "description": "심층 조사 단계가 완료되었습니다. 최종 보고서를 생성 중이며 곧 제공됩니다."

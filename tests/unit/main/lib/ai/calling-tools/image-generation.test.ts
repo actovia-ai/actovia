@@ -116,6 +116,26 @@ describe('image_generation', () => {
     })
   })
 
+  it("leaves out a choice saved as '' — the API refuses an empty background, size or quality", async () => {
+    generate.mockResolvedValue({
+      output_format: 'png',
+      data: [{ b64_json: png().toString('base64') }]
+    })
+    // What Settings saves for selects the user never touched (2026-10-22).
+    const unset = {
+      providers: { openaiApiKey: 'sk-test' },
+      image: { model: null, size: '', quality: '', background: '' }
+    } as unknown as Settings
+    await imageGeneration(unset, { chatId: CHAT }).execute('c1', {
+      prompt: 'a fox'
+    })
+    const [params] = generate.mock.calls[0] as [Record<string, unknown>]
+    expect(params).toMatchObject({ model: 'gpt-image-2', prompt: 'a fox' })
+    expect(params.size).toBeUndefined()
+    expect(params.quality).toBeUndefined()
+    expect(params.background).toBeUndefined()
+  })
+
   it('downloads a URL result right away and saves it, typed by its bytes', async () => {
     const bytes = png(8, 8)
     fetchMock.mockResolvedValue(downloaded(bytes, 'image/png'))

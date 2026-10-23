@@ -1,4 +1,5 @@
 {
+  "experimental": "Computer Use est expérimental. Il est lent, peut mal lire l’écran ou cliquer au mauvais endroit, et n’agit que tant que l’app est devant toutes les autres fenêtres. Surveillez-le pendant qu’il travaille et arrêtez-le avec ⌥⇧⎋.",
   "alert": "Utilisation de l'ordinateur permet à l'IA de piloter une fenêtre sur votre Mac avec une souris et un clavier virtuels — elle voit une capture d'écran à chaque étape et agit comme le ferait une personne. Un modèle d'IA capable de traiter des images est nécessaire. Elle ne touche que les applications ajoutées à la liste d'autorisation ci-dessous (et ouvrira celles qui ne sont pas déjà en cours d'exécution) ; vous pouvez l'arrêter à tout moment avec ⌥⇧⎋, et chaque session est journalisée. Désactivé par défaut.",
   "enable": {
     "label": "Activer l'utilisation de l'ordinateur",

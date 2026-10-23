@@ -8,9 +8,11 @@ import { useSetAtom } from 'jotai'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { FAVICON_BACKING } from '@/components/markdown/source-favicon'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { withReferences } from '@/lib/citation-references'
 import { compactRelativeTime } from '@/lib/relative-time'
+import { cn } from '@/lib/utils'
 import { chatPanelAtom } from '@/stores/chat'
 
 import { Button } from '../ui/button'
@@ -57,7 +59,12 @@ function SourcesButton({
     >
       <span className="*:ring-background flex gap-[-0.375rem] *:ring-2">
         {favicons.map((src, i) => (
-          <img key={i} src={src} className="size-3.5 rounded-full" alt="" />
+          <img
+            key={i}
+            src={src}
+            className={cn('size-3.5 rounded-full', FAVICON_BACKING)}
+            alt=""
+          />
         ))}
       </span>
       {t('messageAction.sources')}

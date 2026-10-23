@@ -1,9 +1,11 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
 import { Guard } from '../../computer/guard'
+import { getHelper } from '../../computer/helper'
 import { liveness } from '../../computer/liveness'
 import { isSelfTarget, SELF_TARGET_MESSAGE } from '../../computer/self'
 import { runComputerSession } from '../../computer/session'
@@ -21,6 +23,32 @@ const schema = Type.Object({
       "user's allowlist it will be opened automatically when it isn't running."
   })
 })
+
+const norm = (s: string): string => s.trim().toLowerCase()
+
+/**
+ * The allowlist entry `target` names, or null. Exact (case-insensitive) match
+ * only — substring matching would let a model-supplied target like "Not
+ * Chess" slip past an allowlisted "Chess". The schema also takes a bundle id,
+ * and the allowlist holds names (the Settings picker stores them): a bundle id
+ * stands for the entry of the installed app that has it. Until 2026-10-22
+ * `com.apple.Chess` was refused with "Chess" allowlisted.
+ */
+async function allowedTarget(
+  target: string,
+  allowlist: string[]
+): Promise<string | null> {
+  const wanted = norm(target)
+  const byName = allowlist.find((a) => norm(a) === wanted)
+  if (byName) return byName
+  if (!wanted.includes('.')) return null
+  const app = (await getHelper().listApps()).find(
+    (a) => norm(a.bundleId) === wanted
+  )
+  return app
+    ? (allowlist.find((a) => norm(a) === norm(app.name)) ?? null)
+    : null
+}
 
 export const computerUse: AgentTool<typeof schema> = {
   name: TOOL_NAMES.computerUse,
@@ -58,11 +86,9 @@ export const computerUse: AgentTool<typeof schema> = {
         }
       }
 
-      // Exact (case-insensitive) match only — substring matching would let a
-      // model-supplied target like "Not Chess" slip past an allowlisted "Chess".
       const allowlist = s.computerUse.targetAllowlist ?? []
-      const wanted = target.trim().toLowerCase()
-      if (!allowlist.some((a) => a.trim().toLowerCase() === wanted)) {
+      const allowed = await allowedTarget(target, allowlist)
+      if (!allowed) {
         return {
           content: [
             {
@@ -84,11 +110,13 @@ export const computerUse: AgentTool<typeof schema> = {
         const result = await runComputerSession({
           sessionId,
           task,
-          target,
+          target: allowed,
           agent,
           guard,
-          maxSteps: s.computerUse.maxSteps ?? 25,
-          settleMs: s.computerUse.settleMs ?? 800,
+          maxSteps:
+            s.computerUse.maxSteps ?? SETTING_DEFAULTS.computerUse.maxSteps,
+          settleMs:
+            s.computerUse.settleMs ?? SETTING_DEFAULTS.computerUse.settleMs,
           askHumanTimeoutMs: s.computerUse.askHumanTimeoutMs ?? 300_000,
           // Re-checked against the *resolved* window inside the session — the
           // exact match above only gates the model's `target` string.

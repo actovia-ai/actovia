@@ -252,6 +252,34 @@ describe('runDiscoverRefresh', () => {
     expect(written.groups[0].memoryId).toBe('mem-2')
   })
 
+  it('when every Brave query fails, marks the feed failed and keeps the old one', async () => {
+    mockGetActiveMemories.mockResolvedValue([
+      memoryRow({ id: 'mem-1' }),
+      memoryRow({ id: 'mem-2', key: 'Argentina' })
+    ])
+    llmReturns({
+      items: [
+        { memoryId: 'mem-1', topic: 'SoftBank', query: 'q1' },
+        { memoryId: 'mem-2', topic: 'Argentina', query: 'q2' }
+      ]
+    })
+    mockSearchBraveNews.mockRejectedValue(
+      new Error('Brave News search failed: 402')
+    )
+
+    await expect(runDiscoverRefresh()).rejects.toThrow('402')
+
+    expect(
+      mockSetDiscoverFeed.mock.calls.find((c) => c[0].status === 'idle')
+    ).toBeUndefined()
+    const failedCall = mockSetDiscoverFeed.mock.calls.find(
+      (c) => c[0].status === 'failed'
+    )?.[0]
+    expect(failedCall.error).toContain('Every Brave News query failed')
+    expect(failedCall.groups).toBeUndefined()
+    expect(failedCall.generatedAt).toBeUndefined()
+  })
+
   it('keeps valid groups when one LLM item is malformed (lenient per-item parse)', async () => {
     mockGetActiveMemories.mockResolvedValue([
       memoryRow({ id: 'mem-1', key: 'SoftBank' }),

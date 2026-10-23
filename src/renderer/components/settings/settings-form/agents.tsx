@@ -1,3 +1,4 @@
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { CLI_NAMES, type CliStatus } from '@actovia/shared/types/agents'
 import { useEffect, useState } from 'react'
@@ -7,13 +8,14 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { cliStatusView } from '@/lib/cli-status'
+import { cliStatusView, displayCliPath } from '@/lib/cli-status'
 import { cn } from '@/lib/utils'
 import { checkCli, getClis } from '@/services/agents'
 import { pickFolder } from '@/services/projects'
 
 import { SettingsIntro } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
+import { ShownDefault } from '../shown-default'
 
 const DOT = {
   ok: 'bg-emerald-500',
@@ -33,7 +35,11 @@ function CliRow({
   const { t } = useTranslation('philharmonic')
   const view = cliStatusView(status)
   const facts =
-    [status.path, status.version, status.authMethod]
+    [
+      status.path && displayCliPath(status.path),
+      status.version,
+      status.authMethod
+    ]
       .filter(Boolean)
       .join(' · ') || t('agents.cli.notFound')
   const description = [
@@ -145,15 +151,22 @@ export function Agents({ form }: { form: UseFormReturnType }) {
             control={form.control}
             name="agents.maxRunning"
             render={({ field }) => (
-              <Input
-                type="number"
-                min={1}
-                max={8}
-                placeholder="2"
-                value={field.value ?? ''}
-                onChange={field.onChange}
-                className="w-20"
-              />
+              <ShownDefault
+                value={field.value}
+                fallback={SETTING_DEFAULTS.agents.maxRunning}
+                onBlur={field.onBlur}
+              >
+                {(shown) => (
+                  <Input
+                    type="number"
+                    min={1}
+                    max={8}
+                    {...shown}
+                    onChange={field.onChange}
+                    className="w-20"
+                  />
+                )}
+              </ShownDefault>
             )}
           />
         </SettingsRow>
@@ -165,15 +178,22 @@ export function Agents({ form }: { form: UseFormReturnType }) {
             control={form.control}
             name="agents.keepAliveMinutes"
             render={({ field }) => (
-              <Input
-                type="number"
-                min={0}
-                max={120}
-                placeholder="10"
-                value={field.value ?? ''}
-                onChange={field.onChange}
-                className="w-20"
-              />
+              <ShownDefault
+                value={field.value}
+                fallback={SETTING_DEFAULTS.agents.keepAliveMinutes}
+                onBlur={field.onBlur}
+              >
+                {(shown) => (
+                  <Input
+                    type="number"
+                    min={0}
+                    max={120}
+                    {...shown}
+                    onChange={field.onChange}
+                    className="w-20"
+                  />
+                )}
+              </ShownDefault>
             )}
           />
         </SettingsRow>

@@ -10,6 +10,7 @@ import started from 'electron-squirrel-startup'
 
 import { agentRegistry } from './lib/agents/registry'
 import { stopStaleSessions } from './lib/agents/stale-cards'
+import { settleDeepResearchResults } from './lib/ai/deep-research/chat-result'
 import { closeDuckDB } from './lib/analytics/duckdb'
 import {
   registerArtifactScheme,
@@ -114,6 +115,14 @@ app.on('ready', async () => {
       'secrets',
       secretSafeWriteError('Startup pass failed', err).message
     )
+  })
+
+  // Deep Research reports an earlier build never wrote into their chats
+  // (see ai/deep-research/chat-result.ts). Idempotent.
+  await settleDeepResearchResults().catch((err) => {
+    logger.error('deep-research', 'Failed to settle old research results', {
+      error: err
+    })
   })
 
   // Resolves the effective locale from settings + OS and registers the
