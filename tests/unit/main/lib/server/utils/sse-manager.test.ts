@@ -81,16 +81,23 @@ describe('startHeartbeat', () => {
       new TextDecoder().decode(bytes as Uint8Array)
     )
 
-  it('sends a comment line every interval', async () => {
+  // URLSession hands a client an event stream's response only with its first
+  // byte: without one at once, a quiet stream reads as unopened for 15 s.
+  it('sends a comment line at once, then every interval', async () => {
     vi.useFakeTimers()
     try {
       const { startHeartbeat, SSE_HEARTBEAT_MS } =
         await import('@main/lib/server/utils/sse-manager')
       const controller = makeController()
       startHeartbeat(controller)
+      expect(decode(controller)).toEqual([': ping\n\n'])
       vi.advanceTimersByTime(SSE_HEARTBEAT_MS * 2)
       expect(SSE_HEARTBEAT_MS).toBe(15_000)
-      expect(decode(controller)).toEqual([': ping\n\n', ': ping\n\n'])
+      expect(decode(controller)).toEqual([
+        ': ping\n\n',
+        ': ping\n\n',
+        ': ping\n\n'
+      ])
     } finally {
       vi.useRealTimers()
     }
@@ -106,7 +113,8 @@ describe('startHeartbeat', () => {
       startHeartbeat(controller, abort.signal)
       abort.abort()
       vi.advanceTimersByTime(60_000)
-      expect(controller.enqueue).not.toHaveBeenCalled()
+      // Only the one sent at once.
+      expect(controller.enqueue).toHaveBeenCalledTimes(1)
     } finally {
       vi.useRealTimers()
     }

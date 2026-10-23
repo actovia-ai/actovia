@@ -22,15 +22,19 @@ export function startHeartbeat(
   signal?: AbortSignal,
   intervalMs = SSE_HEARTBEAT_MS
 ): () => void {
-  const timer = setInterval(() => {
+  const ping = () => {
     try {
       controller.enqueue(HEARTBEAT)
     } catch {
       stop()
     }
-  }, intervalMs)
+  }
+  const timer = setInterval(ping, intervalMs)
   const stop = () => clearInterval(timer)
   signal?.addEventListener('abort', stop, { once: true })
+  // The first at once: a client may see the stream as open only once a byte
+  // has come (URLSession does), and a quiet group sends nothing else.
+  ping()
   return stop
 }
 
