@@ -4,7 +4,8 @@ vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
 vi.mock('@main/lib/server/utils', () => ({
   getRequiredParam: (_c: unknown, _k: string) => 'id',
   handleDatabaseOperation: (fn: () => unknown) => fn(),
-  successResponse: (_c: unknown, data: unknown) => data,
+  successResponse: (c: { json: (d: unknown) => unknown }, data: unknown) =>
+    c.json(data),
   deletionSuccessResponse: (c: { json: (d: unknown) => unknown }) =>
     c.json({ success: true }),
   validateSchema: (_s: unknown, d: unknown) => d
@@ -16,7 +17,17 @@ const getPhilharmonicCostRows = vi.fn()
 const deleteConversation = vi.fn(async () => {
   order.push('delete')
 })
-vi.mock('@main/lib/db/conversation-queries', () => ({ deleteConversation }))
+const getMessagesByConversationId = vi.fn(async (_id: string) => [{ id: 'm1' }])
+const getMessagesAfter = vi.fn(
+  async (_id: string, _after: string): Promise<{ id: string }[] | null> => [
+    { id: 'm2' }
+  ]
+)
+vi.mock('@main/lib/db/conversation-queries', () => ({
+  deleteConversation,
+  getMessagesByConversationId: (id: string) => getMessagesByConversationId(id),
+  getMessagesAfter: (id: string, after: string) => getMessagesAfter(id, after)
+}))
 const removeGroupMedia = vi.fn(async () => {})
 vi.mock('@main/lib/media/store', () => ({ removeGroupMedia }))
 vi.mock('@main/lib/ai/philharmonic/pm-coordinator', () => ({
@@ -115,5 +126,38 @@ describe('DELETE /conversations/:id', () => {
     expect(abort).toHaveBeenCalledWith('id')
     expect(stopConversation).toHaveBeenCalledWith('id')
     expect(order).toEqual(['abort', 'stop agents', 'delete'])
+  })
+})
+
+describe('GET /conversations/:id/messages', () => {
+  async function request(path: string) {
+    const { Hono } = await import('hono')
+    const { NotFoundError } = await import('@actovia/shared/errors/app-error')
+    const app = new Hono()
+    app.onError((err, c) =>
+      c.json({}, err instanceof NotFoundError ? 404 : 500)
+    )
+    app.route('/', conversationsRouter)
+    return app.request(path)
+  }
+
+  it('reads every row without `after`', async () => {
+    const res = await request('/conversations/id/messages')
+    expect(await res.json()).toEqual([{ id: 'm1' }])
+    expect(getMessagesByConversationId).toHaveBeenCalledWith('id')
+  })
+
+  it('reads the rows after the given one', async () => {
+    getMessagesByConversationId.mockClear()
+    const res = await request('/conversations/id/messages?after=x')
+    expect(await res.json()).toEqual([{ id: 'm2' }])
+    expect(getMessagesAfter).toHaveBeenCalledWith('id', 'x')
+    expect(getMessagesByConversationId).not.toHaveBeenCalled()
+  })
+
+  it('answers 404 for an anchor that is not a row of the group', async () => {
+    getMessagesAfter.mockResolvedValueOnce(null)
+    const res = await request('/conversations/id/messages?after=gone')
+    expect(res.status).toBe(404)
   })
 })

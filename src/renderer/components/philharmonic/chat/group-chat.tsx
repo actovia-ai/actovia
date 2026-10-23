@@ -1,4 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import { HttpError } from '@actovia/shared/utils/http'
 import { isSameDay, isToday, isYesterday } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +26,7 @@ import type {
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { PhilharmonicEmptyState } from '../empty-state'
 import { Composer } from './composer'
+import { appendRows } from './group-history'
 import { GroupMessageBubble } from './group-message-bubble'
 import { mergeGroupMessages, type BubbleWithDate } from './merge-group-messages'
 import { NewGroupButton } from './new-group-button'
@@ -82,9 +84,24 @@ export function GroupChat({
   const load = useCallback(() => {
     getConversationMessages(conversationId).then(setHistory)
   }, [conversationId])
+  const historyRef = useRef(history)
+  historyRef.current = history
 
+  // The whole group when it opens; after each message_end only the rows
+  // saved since the last one held. Rows can change after they are saved (an
+  // agent card's parts), but those changes reach a page that is open through
+  // the stream's agent_card events; a page that opens reads them all.
   useEffect(() => load(), [load])
-  useEffect(() => load(), [revision, load]) // refetch on each message_end
+  useEffect(() => {
+    if (revision === 0) return
+    const last = historyRef.current.at(-1)?.id
+    if (!last) return load()
+    getConversationMessages(conversationId, last)
+      .then((rows) => setHistory((h) => appendRows(h, rows)))
+      .catch((err: unknown) => {
+        if (err instanceof HttpError && err.statusCode === 404) load()
+      })
+  }, [revision, conversationId, load])
 
   const merged: BubbleWithDate[] = useMemo(
     () => mergeGroupMessages({ conversationId, history, bubbles, agentCards }),

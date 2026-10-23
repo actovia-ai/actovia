@@ -31,8 +31,12 @@ export const deleteConversation = async (id: string) =>
     method: 'DELETE',
     headers: await presenceHeaders()
   })
-export const getConversationMessages = (id: string) =>
-  fetcher<ConversationMessageData[]>(`${BASE}/conversations/${id}/messages`)
+// `after`: only the rows saved after that one (a 404 when it is not a row of
+// the group) — for the re-read after a `message_end`.
+export const getConversationMessages = (id: string, after?: string) =>
+  fetcher<ConversationMessageData[]>(
+    `${BASE}/conversations/${id}/messages${after ? `?after=${encodeURIComponent(after)}` : ''}`
+  )
 // A group message and an answer to the PM carry the window's presence
 // token: no other local process may set the group's agents to work.
 export const sendConversationMessage = async (

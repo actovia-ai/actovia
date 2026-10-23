@@ -14,6 +14,7 @@ import {
   deleteConversation,
   getAllConversations,
   getLatestMessagePerConversation,
+  getMessagesAfter,
   getMessagesByConversationId,
   updateConversation
 } from '../../db/conversation-queries'
@@ -176,9 +177,16 @@ router.put('/conversations/:id', async (c) => {
   )
 })
 
+// `?after=<messageId>`: only the rows saved after that one (404 when it is not
+// a row of the group). For the re-read after a `message_end` — rows can change
+// after they are saved, so a client that (re)connects reads them all.
 router.get('/conversations/:id/messages', async (c) => {
   const id = getRequiredParam(c, 'id')
-  return successResponse(c, await getMessagesByConversationId(id))
+  const after = c.req.query('after')
+  if (!after) return successResponse(c, await getMessagesByConversationId(id))
+  const rows = await getMessagesAfter(id, after)
+  if (!rows) throw new NotFoundError()
+  return successResponse(c, rows)
 })
 
 // A PM round's decision trail, in order — what the disclosure under its message shows.

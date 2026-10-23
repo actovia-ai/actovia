@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, ne } from 'drizzle-orm'
+import { and, asc, desc, eq, ne, sql } from 'drizzle-orm'
 
 import { db } from './db'
 import { conversation, conversationMessage, type Conversation } from './schema'
@@ -105,12 +105,59 @@ export async function addMemberToConversation(
 
 // ─── Conversation messages ────────────────────────────────────────────────────
 
+// A group's rows in one order: by time, then by id, so two rows saved in the
+// same millisecond never swap between two reads (`getMessagesAfter` relies on it).
+const MESSAGE_ORDER = [
+  asc(conversationMessage.createdAt),
+  asc(conversationMessage.id)
+] as const
+
 export async function getMessagesByConversationId(conversationId: string) {
   return db
     .select()
     .from(conversationMessage)
     .where(eq(conversationMessage.conversationId, conversationId))
-    .orderBy(asc(conversationMessage.createdAt))
+    .orderBy(...MESSAGE_ORDER)
+}
+
+/**
+ * The rows saved after `afterId`, in the order above; null when `afterId` is
+ * not a row of the conversation. Rows are edited after they are saved (an
+ * agent card's parts), and this does not return those edits: it is for the
+ * re-read after a `message_end`, while a client that (re)connects reads
+ * everything.
+ */
+export async function getMessagesAfter(
+  conversationId: string,
+  afterId: string
+) {
+  // The anchor's time is compared inside the database, never round-tripped
+  // through a JS Date: `createdAt` keeps microseconds, a Date only
+  // milliseconds, and a truncated anchor would sort before itself.
+  const anchor = db
+    .select({
+      createdAt: conversationMessage.createdAt,
+      id: conversationMessage.id
+    })
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        eq(conversationMessage.id, afterId)
+      )
+    )
+  const [found] = await anchor
+  if (!found) return null
+  return db
+    .select()
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        sql`(${conversationMessage.createdAt}, ${conversationMessage.id}) > (${anchor})`
+      )
+    )
+    .orderBy(...MESSAGE_ORDER)
 }
 
 /** An employee's latest reports in a group, newest first. */

@@ -1045,7 +1045,13 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   Philharmonic SSE stream (`/conversations/:id/sse`, `/sse`, `/tasks/:id/sse`)
   sends a `: ping` comment line every 15 s (`startHeartbeat()` in
   `server/utils/sse-manager.ts`), so a client tells a quiet round from a
-  dropped connection
+  dropped connection; `GET /conversations/:id/messages?after=<messageId>`
+  answers only the rows saved after that one (ordered by `createdAt`, then
+  `id`; `404` for an id not of the group — `getMessagesAfter()` in
+  `db/conversation-queries.ts`). Saved rows are edited later (an agent card's
+  parts) with no record of when, so `after` is only for the re-read after a
+  `message_end`; a client reads the whole list when it opens or reconnects
+  (`GroupChat` does: `appendRows()` in `chat/group-history.ts`)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
