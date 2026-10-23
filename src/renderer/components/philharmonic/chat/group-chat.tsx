@@ -1,7 +1,6 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { HttpError } from '@actovia/shared/utils/http'
 import { isSameDay, isToday, isYesterday } from 'date-fns'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -11,7 +10,6 @@ import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import {
-  getConversationMessages,
   interruptConversation,
   respondToConversation,
   sendConversationMessage
@@ -19,14 +17,13 @@ import {
 import type {
   AgentData,
   ConversationData,
-  ConversationMessageData,
   TeamData
 } from '@/stores/philharmonic'
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { PhilharmonicEmptyState } from '../empty-state'
 import { Composer } from './composer'
-import { appendRows } from './group-history'
+import { useGroupHistory } from './group-history'
 import { GroupMessageBubble } from './group-message-bubble'
 import { mergeGroupMessages, type BubbleWithDate } from './merge-group-messages'
 import { NewGroupButton } from './new-group-button'
@@ -75,33 +72,12 @@ export function GroupChat({
   const conversationId = conversation.id
   const { open: sidebarOpen } = useSidebar()
   const isFullscreen = useIsFullscreen()
-  const [history, setHistory] = useState<ConversationMessageData[]>([])
   const { bubbles, askUser, error, revision, plan, pmRunning, agentCards } =
     stream
   const [answer, setAnswer] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const load = useCallback(() => {
-    getConversationMessages(conversationId).then(setHistory)
-  }, [conversationId])
-  const historyRef = useRef(history)
-  historyRef.current = history
-
-  // The whole group when it opens; after each message_end only the rows
-  // saved since the last one held. Rows can change after they are saved (an
-  // agent card's parts), but those changes reach a page that is open through
-  // the stream's agent_card events; a page that opens reads them all.
-  useEffect(() => load(), [load])
-  useEffect(() => {
-    if (revision === 0) return
-    const last = historyRef.current.at(-1)?.id
-    if (!last) return load()
-    getConversationMessages(conversationId, last)
-      .then((rows) => setHistory((h) => appendRows(h, rows)))
-      .catch((err: unknown) => {
-        if (err instanceof HttpError && err.statusCode === 404) load()
-      })
-  }, [revision, conversationId, load])
+  const history = useGroupHistory(conversationId, revision)
 
   const merged: BubbleWithDate[] = useMemo(
     () => mergeGroupMessages({ conversationId, history, bubbles, agentCards }),
