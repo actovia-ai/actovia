@@ -1,0 +1,46 @@
+{
+  "incorrectPin": "Неверный PIN-код",
+  "screen": {
+    "prompt": "Введите PIN-код, чтобы разблокировать Actovia",
+    "unlockWithTouchId": "Разблокировать с Touch ID",
+    "tooManyAttempts": "Слишком много попыток. Повторите через {{seconds}} с."
+  },
+  "privacy": {
+    "title": "Блокировка и конфиденциальность",
+    "thirdParty": "Биржевой график в чате — это встроенный виджет TradingView: TradingView видит тикер и ваш IP-адрес, как и при любом встроенном графике.",
+    "enroll": {
+      "description": "Задайте 6-значный PIN-код, чтобы блокировать Actovia. Пока приложение заблокировано, интерфейс и локальный API недоступны, но фоновые задачи продолжают работать.",
+      "enterLabel": "Введите 6-значный PIN-код",
+      "confirmLabel": "Подтвердите PIN-код",
+      "startOver": "Начать заново"
+    },
+    "idleOptions": {
+      "off": "Выкл.",
+      "oneMinute": "1 минута",
+      "fiveMinutes": "5 минут",
+      "fifteenMinutes": "15 минут",
+      "thirtyMinutes": "30 минут"
+    },
+    "touchIdToggleLabel": "Разблокировать с Touch ID",
+    "autoLockIdle": "Автоблокировка при бездействии",
+    "lockOnLaunch": "Блокировать при запуске",
+    "lockOnSystemSleep": "Блокировать при переходе в режим сна",
+    "removeLock": {
+      "label": "Снять блокировку",
+      "description": "Отключить блокировку приложения. Нужен текущий PIN-код.",
+      "button": "Снять",
+      "dialogTitle": "Снять блокировку?",
+      "dialogDescription": "Введите текущий PIN-код для подтверждения. Actovia больше не будет запрашивать PIN-код при открытии.",
+      "confirmButton": "Снять блокировку"
+    },
+    "toast": {
+      "pinsDoNotMatch": "PIN-коды не совпадают",
+      "setPinFailed": {
+        "title": "Не удалось задать PIN-код",
+        "description": "PIN-код уже задан."
+      },
+      "lockEnabled": "Блокировка включена",
+      "lockRemoved": "Блокировка снята"
+    }
+  }
+}

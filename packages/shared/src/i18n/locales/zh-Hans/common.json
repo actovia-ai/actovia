@@ -1,0 +1,52 @@
+{
+  "appName": "Actovia",
+  "action": {
+    "save": "保存",
+    "saving": "正在保存…",
+    "cancel": "取消",
+    "delete": "删除",
+    "close": "关闭",
+    "retry": "重试",
+    "confirm": "确认",
+    "edit": "编辑",
+    "add": "添加",
+    "create": "创建",
+    "copy": "复制"
+  },
+  "state": {
+    "loading": "正在加载…",
+    "local": "本地",
+    "runOnLocal": "在本地运行",
+    "you": "你",
+    "copied": "已复制"
+  },
+  "nav": {
+    "settings": "设置"
+  },
+  "composer": {
+    "reasoning": "推理",
+    "reasoningPill": "推理：{{label}}",
+    "reasoningLevel": {
+      "off": "关闭",
+      "low": "低",
+      "medium": "中",
+      "high": "高",
+      "xhigh": "超高",
+      "max": "最高"
+    }
+  },
+  "uploader": {
+    "dragDrop": "将文件拖放到此处",
+    "hint": "或点按浏览（最多 2 个文件，每个不超过 5MB）"
+  },
+  "clipboard": {
+    "failedTitle": "复制失败",
+    "genericError": "请重试！"
+  },
+  "attachment": {
+    "download": "下载",
+    "copied": "已拷贝图像",
+    "saveFailed": "无法保存文件",
+    "copyFailed": "无法拷贝图像"
+  }
+}

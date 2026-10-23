@@ -1,5 +1,6 @@
 export const LOCALE_IDS = [
   'en',
+  'zh-Hans',
   'zh-Hant-TW',
   'zh-Hant-HK',
   'ja',
@@ -8,6 +9,7 @@ export const LOCALE_IDS = [
   'de',
   'es',
   'pt-BR',
+  'ru',
   'it'
 ] as const
 export type LocaleId = (typeof LOCALE_IDS)[number]
@@ -34,6 +36,12 @@ export const LOCALES: Record<
     nativeName: 'English',
     englishName: 'English',
     flagCode: 'US'
+  },
+  'zh-Hans': {
+    id: 'zh-Hans',
+    nativeName: '简体中文',
+    englishName: 'Chinese (Simplified)',
+    flagCode: 'CN'
   },
   'zh-Hant-TW': {
     id: 'zh-Hant-TW',
@@ -78,6 +86,12 @@ export const LOCALES: Record<
     englishName: 'Portuguese (Brazil)',
     flagCode: 'BR'
   },
+  ru: {
+    id: 'ru',
+    nativeName: 'Русский',
+    englishName: 'Russian',
+    flagCode: 'RU'
+  },
   it: {
     id: 'it',
     nativeName: 'Italiano',
@@ -118,14 +132,17 @@ export function resolveLocale(prefs: string[]): LocaleId {
     if ((LOCALE_IDS as readonly string[]).includes(tag)) return tag as LocaleId
 
     if (lang === 'zh') {
-      if (rest.includes('Hans')) {
-        continue // zh-Hans* must fall through to en
-      }
+      // The script decides first (zh-Hans-TW is Simplified, zh-Hant-CN is
+      // Traditional); without one, the region does: TW → Taiwan, HK / MO →
+      // Hong Kong, anything else (CN, SG, none) → Simplified.
       const region = rest.find((p) => p.length === 2)
-      if (rest.includes('Hant') || region === 'TW' || region === 'HK') {
-        return region === 'HK' ? 'zh-Hant-HK' : 'zh-Hant-TW'
-      }
-      continue // zh, zh-CN -> fall through to en
+      const traditionalHK = region === 'HK' || region === 'MO'
+      if (rest.includes('Hans')) return 'zh-Hans'
+      if (rest.includes('Hant'))
+        return traditionalHK ? 'zh-Hant-HK' : 'zh-Hant-TW'
+      if (region === 'TW') return 'zh-Hant-TW'
+      if (traditionalHK) return 'zh-Hant-HK'
+      return 'zh-Hans'
     }
 
     if (lang === 'pt') return 'pt-BR'

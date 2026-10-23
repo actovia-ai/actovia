@@ -34,8 +34,14 @@ describe('resolveLocale', () => {
     expect(resolveLocale(['zh-TW'])).toBe('zh-Hant-TW')
   })
 
-  it('falls through zh-Hans (Simplified) to English rather than guessing Traditional', () => {
-    expect(resolveLocale(['zh-Hans-CN'])).toBe('en')
+  it('maps Simplified Chinese (script Hans, or a mainland / Singapore / bare zh) to zh-Hans', () => {
+    expect(resolveLocale(['zh-Hans-CN'])).toBe('zh-Hans')
+    expect(resolveLocale(['zh-CN'])).toBe('zh-Hans')
+    expect(resolveLocale(['zh'])).toBe('zh-Hans')
+  })
+
+  it('maps any Russian variant to ru', () => {
+    expect(resolveLocale(['ru-RU'])).toBe('ru')
   })
 
   it('redirects any Portuguese variant to pt-BR', () => {

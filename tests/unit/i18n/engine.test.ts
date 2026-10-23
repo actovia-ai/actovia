@@ -31,6 +31,28 @@ describe('createI18n', () => {
     expect(i18n.t('common:action.save')).toBe('儲存')
   })
 
+  it('loads the Simplified Chinese catalog', async () => {
+    const { i18n, ready } = createI18n('zh-Hans', { isRenderer: false })
+    await ready
+    expect(i18n.t('common:action.save')).toBe('保存')
+  })
+
+  it('gives Russian its one / few / many plural forms', async () => {
+    // The renderer's namespaces: main loads only common / errors / menu.
+    const { i18n, ready } = createI18n('ru', { isRenderer: true })
+    await ready
+    const word = (count: number) =>
+      i18n
+        .t('knowledgeBase:toast.docsCount', { count })
+        .replace(/\d+/g, '')
+        .trim()
+    // CLDR: 1 / 21 → one, 3 / 22 → few, 5 / 11 → many.
+    expect(new Set([word(1), word(3), word(5)]).size).toBe(3)
+    expect(word(21)).toBe(word(1))
+    expect(word(22)).toBe(word(3))
+    expect(word(11)).toBe(word(5))
+  })
+
   it('renderer mode initialises without throwing', async () => {
     const { i18n, ready } = createI18n('fr', { isRenderer: true })
     await ready

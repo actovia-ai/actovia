@@ -1,0 +1,512 @@
+{
+  "imageGeneration": {
+    "status": {
+      "queued": "Ожидает генерации",
+      "generating": "Создаём изображение",
+      "refining": "Прорабатываем детали",
+      "complete": "Изображение готово",
+      "error": "Не удалось создать",
+      "unavailable": "Изображение недоступно"
+    },
+    "retry": "Повторить",
+    "generatedImageAlt": "Сгенерированное изображение",
+    "labelWithPrompt": "{{status}}: {{prompt}}",
+    "quotedPrompt": "«{{prompt}}»"
+  },
+  "composer": {
+    "placeholder": "Спросите что угодно",
+    "listening": "Слушаю…",
+    "pleaseWaitTitle": "Подождите",
+    "pleaseWaitDescription": "Модель ещё формирует ответ.",
+    "stop": "Остановить",
+    "send": "Отправить"
+  },
+  "composerTools": {
+    "attachFiles": "Прикрепить файлы",
+    "mcpTools": "Инструменты MCP",
+    "mcpDialog": {
+      "title": "Доступные инструменты MCP",
+      "description": "Инструменты активных MCP-серверов. Серверами можно управлять в <strong>Настройки > MCP-серверы</strong>.",
+      "noDescription": "Нет описания для {{name}}."
+    }
+  },
+  "advancedTools": {
+    "deepResearch": "Глубокое исследование"
+  },
+  "messageList": {
+    "greetingTitle": "Куда отправимся сегодня?",
+    "greetingSubtitle": "Задайте вопрос, изучите тему или поручите задачу.",
+    "attachmentAlt": "вложение",
+    "scrollToBottom": "Прокрутить вниз",
+    "moreImages": "Показать ещё {{count}}",
+    "showMore": "Показать ещё"
+  },
+  "history": {
+    "olderFailed": "Не удалось загрузить предыдущие сообщения",
+    "loadingOlder": "Загружаем предыдущие сообщения",
+    "loading": "Загружаем беседу"
+  },
+  "toolPreview": {
+    "mapItineraryDayCount_one": "{{count}} день",
+    "mapItineraryDayCount_few": "{{count}} дня",
+    "mapItineraryDayCount_many": "{{count}} дней",
+    "mapItineraryDayCount_other": "{{count}} дня",
+    "mapItineraryStopCount_one": "{{count}} остановка",
+    "mapItineraryStopCount_few": "{{count}} остановки",
+    "mapItineraryStopCount_many": "{{count}} остановок",
+    "mapItineraryStopCount_other": "{{count}} остановки",
+    "mapItinerarySummary": "{{days}}, {{stops}}",
+    "toolFailed": "Ошибка: {{tool}}",
+    "webSearchResultCount_one": "{{count}} результат",
+    "webSearchResultCount_few": "{{count}} результата",
+    "webSearchResultCount_many": "{{count}} результатов",
+    "webSearchResultCount_other": "{{count}} результата"
+  },
+  "toolFailedToast": {
+    "title": "Сбой инструмента: {{tool}}"
+  },
+  "messageAction": {
+    "copy": "Копировать",
+    "regenerate": "Сгенерировать заново",
+    "sources": "Источники"
+  },
+  "thinkingTimeline": {
+    "thinking": "Размышляю…",
+    "working": "Работаю…",
+    "thought": "Размышлял",
+    "worked": "Работал",
+    "done": "Готово",
+    "thoughtFor": "{{verb}} {{duration}}",
+    "durationSeconds_one": "{{count}} секунду",
+    "durationSeconds_few": "{{count}} секунды",
+    "durationSeconds_many": "{{count}} секунд",
+    "durationSeconds_other": "{{count}} секунды",
+    "durationMinutes": "{{minutes}} мин",
+    "durationMinutesSeconds": "{{minutes}} мин {{seconds}} с",
+    "searchResultCount_one": "{{count}} результат поиска",
+    "searchResultCount_few": "{{count}} результата поиска",
+    "searchResultCount_many": "{{count}} результатов поиска",
+    "searchResultCount_other": "{{count}} результата поиска"
+  },
+  "toc": {
+    "fallbackLabel": "Сообщение"
+  },
+  "toast": {
+    "chatUpdated": "Чат обновлён",
+    "chatDeleted": "Чат удалён",
+    "sendFailedTitle": "Что-то пошло не так",
+    "sendFailedDescription": "Произошла ошибка, попробуйте ещё раз!",
+    "responseReadyTitle": "Ответ готов",
+    "chatFallbackTitle": "Чат",
+    "viewButton": "Открыть",
+    "chatFailedTitle": "Ошибка чата",
+    "genericErrorFallback": "Произошла ошибка",
+    "headsUpTitle": "Обратите внимание",
+    "approvalTitle": "Ожидает вашего разрешения"
+  },
+  "lcm": {
+    "compacting": "Сжимаем историю беседы…",
+    "compactedSummary_one": "Сжато {{count}} сообщение · сэкономлено ~{{tokens}} токенов",
+    "compactedSummary_few": "Сжато {{count}} сообщения · сэкономлено ~{{tokens}} токенов",
+    "compactedSummary_many": "Сжато {{count}} сообщений · сэкономлено ~{{tokens}} токенов",
+    "compactedSummary_other": "Сжато {{count}} сообщения · сэкономлено ~{{tokens}} токенов",
+    "compactionFailed": "Не удалось сжать (повторим на следующем ходе)"
+  },
+  "upload": {
+    "failedTitle": "Ошибка загрузки",
+    "failedDescription": "Не удалось загрузить файлы."
+  },
+  "artifactCard": {
+    "cannotOpenTitle": "Не удаётся открыть файл артефакта",
+    "missingFileDescription": "Сохранённый файл .tsx отсутствует — возможно, его переместили или удалили.",
+    "resolveFailedDescription": "Не удалось определить путь к артефакту.",
+    "revealAriaLabel": "Показать {{title}} в файловом менеджере",
+    "revealTitle": "Показать в файловом менеджере",
+    "exitFullscreen": "Выйти из полноэкранного режима",
+    "enterFullscreen": "Во весь экран",
+    "exitFullscreenEsc": "Выйти из полноэкранного режима (Esc)",
+    "fullscreen": "Во весь экран",
+    "draft": {
+      "untitled": "Артефакт без названия",
+      "writing_one": "Пишем · {{count}} строка",
+      "writing_few": "Пишем · {{count}} строки",
+      "writing_many": "Пишем · {{count}} строк",
+      "writing_other": "Пишем · {{count}} строки"
+    }
+  },
+  "computerUseCard": {
+    "title": "Управление компьютером",
+    "stopFailedTitle": "Не удалось остановить сеанс",
+    "stopFailedDescription": "Запрос на остановку не прошёл — попробуйте ещё раз.",
+    "answerFailedTitle": "Не удалось отправить ответ",
+    "answerFailedDescription": "Запрос не прошёл — попробуйте ещё раз.",
+    "error": "ошибка",
+    "running": "выполняется…",
+    "outcome": {
+      "success": "успешно",
+      "failed": "не удалось",
+      "aborted": "прервано",
+      "abandoned": "заброшено",
+      "stuck": "зависло"
+    },
+    "stepBadge": "шаг {{step}}",
+    "stepWithAction": "Шаг {{step}}: {{action}}",
+    "stepNoAction": "Шаг {{step}}: …",
+    "targetWindowAlt": "Целевое окно на шаге {{step}}",
+    "replyPlaceholder": "Введите ответ или оставьте пустым, когда закончите",
+    "doneContinue": "Готово — продолжить",
+    "waitingForReply": "Ждём, пока сеанс примет ответ…",
+    "stop": "Остановить",
+    "session": "сеанс: {{sessionId}}"
+  },
+  "deepResearchCard": {
+    "researching": "Идёт глубокое исследование...",
+    "completedSummary_one": "Исследование завершено за {{minutes}} мин · {{count}} источник",
+    "completedSummary_few": "Исследование завершено за {{minutes}} мин · {{count}} источника",
+    "completedSummary_many": "Исследование завершено за {{minutes}} мин · {{count}} источников",
+    "completedSummary_other": "Исследование завершено за {{minutes}} мин · {{count}} источника",
+    "failed": "Исследование не удалось",
+    "exportAriaLabel": "Экспортировать в PDF",
+    "downloadPdfTooltip": "Скачать PDF",
+    "exportFailedTitle": "Ошибка экспорта",
+    "exportFailedDescription": "Не удалось создать PDF-отчёт.",
+    "unknownSource": "[{{rank}}] Неизвестный источник",
+    "referencesHeading": "Источники"
+  },
+  "drawioCard": {
+    "noSource": "Инструмент Draw.io не вернул исходник диаграммы.",
+    "iframeTitle": "Диаграмма draw.io",
+    "openInDrawio": "Открыть в draw.io",
+    "loadFailed": "Не удалось загрузить редактор draw.io"
+  },
+  "genericToolCard": {
+    "fallbackLabel": "Инструмент",
+    "badge": "инструмент"
+  },
+  "mapItineraryCard": {
+    "missingApiKey": "Добавьте ключ Google API в Настройки → Google Cloud, чтобы показать карту поездки.",
+    "tabsAriaLabel": "Дни маршрута",
+    "openRouteTitle": "Открыть маршрут в Google Картах",
+    "copyMarkdownTitle": "Скопировать день в Markdown"
+  },
+  "placeDetail": {
+    "goToPhotoAriaLabel": "Перейти к фото {{index}}",
+    "closeAriaLabel": "Закрыть панель сведений",
+    "open": "Открыто",
+    "closed": "Закрыто",
+    "tabsAriaLabel": "Разделы места",
+    "tabOverview": "Обзор",
+    "tabReviews": "Отзывы",
+    "tabHours": "Часы работы",
+    "notes": "Заметки",
+    "anonymousReviewer": "Аноним",
+    "previousAriaLabel": "Предыдущее место",
+    "nextAriaLabel": "Следующее место",
+    "pagination": "{{index}} из {{total}}"
+  },
+  "terminalCard": {
+    "exitCode": "код выхода {{code}}",
+    "noOutput": "Нет вывода"
+  },
+  "weatherCard": {
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "humidity": "Влажность",
+    "precip": "Осадки",
+    "visibility": "Видимость",
+    "uvIndex": "УФ-индекс",
+    "wind": "Ветер",
+    "pressure": "Давление",
+    "feelsLike": "Ощущается как {{temp}}°",
+    "sunrise": "Восход",
+    "sunset": "Закат",
+    "rainChance": "Дождь {{percent}}%",
+    "observedAt": "Данные на {{time}}",
+    "details": "Подробнее",
+    "less": "Свернуть"
+  },
+  "header": {
+    "back": "Назад",
+    "forward": "Вперёд",
+    "streaming": "Отвечает…",
+    "noModel": "Выберите модель",
+    "noModels": "Модели ещё не загружены",
+    "modelScope": "Только для этого чата. Новые чаты начинаются с модели по умолчанию, заданной в разделе «Провайдеры ИИ».",
+    "openProviders": "Открыть «Провайдеры ИИ»",
+    "menu": "Параметры чата",
+    "exportMarkdown": "Экспортировать в Markdown…",
+    "exportPdf": "Экспортировать в PDF…",
+    "exportFailed": "Не удалось экспортировать чат",
+    "panel": "Файлы, инструменты и источники"
+  },
+  "export": {
+    "you": "Вы",
+    "assistant": "Actovia",
+    "pictures_one": "Прикреплено {{count}} изображение",
+    "pictures_few": "Прикреплено {{count}} изображения",
+    "pictures_many": "Прикреплено {{count}} изображений",
+    "pictures_other": "Прикреплено {{count}} изображения",
+    "tool": "Инструмент: {{name}}"
+  },
+  "panel": {
+    "files": "Файлы",
+    "tools": "Инструменты",
+    "sources": "Источники",
+    "empty": "Здесь появятся файлы, инструменты и источники из этого чата.",
+    "yours": "Ваши",
+    "madeHere": "Созданы здесь",
+    "picture": "Изображение {{index}}",
+    "generatedPicture": "Сгенерированное изображение {{index}}",
+    "calls_one": "{{count}} вызов",
+    "calls_few": "{{count}} вызова",
+    "calls_many": "{{count}} вызовов",
+    "calls_other": "{{count}} вызова",
+    "untitledQuestion": "(без текста)"
+  },
+  "sidebar": {
+    "newChat": "Новый чат",
+    "searchChats": "Поиск по чатам",
+    "history": {
+      "empty": "Здесь появятся ваши беседы, как только вы начнёте общаться!",
+      "favoriteAction": "В избранное",
+      "unfavorite": "Убрать из избранного",
+      "favoritesGroup": "Избранное",
+      "chats": "Чаты",
+      "more": "Ещё",
+      "rename": "Переименовать",
+      "copyId": "Скопировать ID беседы",
+      "idCopied": "ID беседы скопирован"
+    },
+    "renameDialog": {
+      "title": "Переименовать чат",
+      "submit": "Сохранить"
+    },
+    "deleteDialog": {
+      "title": "Удалить чат?",
+      "description": "Чат <strong>{{title}}</strong> будет удалён."
+    },
+    "search": {
+      "title": "Поиск по чатам",
+      "description": "Найдите чат по названию или по тому, что в нём обсуждалось.",
+      "placeholder": "Поиск по чатам…",
+      "ariaLabel": "Поиск по чатам",
+      "recent": "Недавние",
+      "noResults": "Нет чатов по запросу «{{query}}»",
+      "hint": {
+        "move": "Перейти",
+        "open": "Открыть",
+        "close": "Закрыть"
+      }
+    }
+  },
+  "run": {
+    "error": "Ответ прервался с ошибкой: {{message}}"
+  },
+  "memoryStrip": {
+    "updating": "Обновляем память…",
+    "updated": "Память обновлена · {{keys}}",
+    "partlyUpdated": "Память обновлена частично · {{keys}}",
+    "undo": "Отменить",
+    "undone": "Отменено",
+    "partial": "Отменено: {{undone}} · {{skipped}} с тех пор изменено и сохранено",
+    "stale": "Уже отменено или изменено",
+    "failed": "Не удалось обновить память",
+    "undoFailed": "Не удалось отменить",
+    "new": "Новое",
+    "deleted": "Удалено"
+  },
+  "usedMemories": {
+    "label_one": "Использовано {{count}} воспоминание · {{keys}}",
+    "label_few": "Использовано {{count}} воспоминания · {{keys}}",
+    "label_many": "Использовано {{count}} воспоминаний · {{keys}}",
+    "label_other": "Использовано {{count}} воспоминания · {{keys}}",
+    "intro": "Они повлияли на этот ответ.",
+    "wrong": "Неверно?",
+    "fixHint": "Что-то запомнено неверно? Нажмите «Неверно?» и исправьте это в чате — Actovia обновит память.",
+    "openSettings": "Открыть в настройках",
+    "deleted": "Удалено",
+    "prefill": "Воспоминание «{{key}}» неверно: "
+  },
+  "renderFailed": "Не удалось показать: {{what}}.",
+  "remoteImage": {
+    "loadButton": "Загрузить изображение",
+    "inlineImage": "Встроенное изображение"
+  },
+  "findInPage": {
+    "placeholder": "Найти на странице...",
+    "noResults": "Ничего не найдено",
+    "previous": "Предыдущее совпадение (Shift+Enter)",
+    "next": "Следующее совпадение (Enter)",
+    "close": "Закрыть (Esc)"
+  },
+  "quickChat": {
+    "placeholder": "Чем могу помочь сегодня?"
+  },
+  "approval": {
+    "title": "Разрешить доступ к секрету?",
+    "fileHint": "Инструмент хочет использовать этот файл, в котором могут быть учётные данные:",
+    "commandHint": "Команда хочет обратиться к учётным данным на этом компьютере:",
+    "allow": "Разрешить один раз",
+    "deny": "Запретить",
+    "allowed": "Разрешено один раз",
+    "denied": "Запрещено",
+    "timedOut": "Время истекло",
+    "stopped": "Остановлено",
+    "expired": "Больше не ожидает",
+    "decideFailed": "Не удалось отправить ответ",
+    "truncatedNote_one": "Ещё {{count}} символ не показан",
+    "truncatedNote_few": "Ещё {{count}} символа не показано",
+    "truncatedNote_many": "Ещё {{count}} символов не показано",
+    "truncatedNote_other": "Ещё {{count}} символа не показано"
+  },
+  "compare": {
+    "useThis": "Выбрать этот",
+    "useInstead": "Выбрать вместо него",
+    "otherVersion_one": "Ещё {{count}} версия",
+    "otherVersion_few": "Ещё {{count}} версии",
+    "otherVersion_many": "Ещё {{count}} версий",
+    "otherVersion_other": "Ещё {{count}} версии",
+    "answerTab": "Ответ {{n}}",
+    "tabsLabel": "Ответы",
+    "otherVersionTitle": "Другая версия",
+    "otherVersionDescription": "Ответ, который вы не оставили.",
+    "locked": "Беседа уже продолжилась, поэтому этот ответ больше нельзя выбрать.",
+    "chooseFailed": "Не удалось сменить ответ"
+  },
+  "citation": {
+    "previous": "Предыдущий источник",
+    "next": "Следующий источник",
+    "position": "{{current}}/{{total}}"
+  },
+  "ask": {
+    "button": "Спросить Actovia",
+    "remove": "Убрать цитату"
+  },
+  "health": {
+    "attached": "С этим вопросом отправлены данные о здоровье: {{values}}",
+    "fallback": "Здоровье",
+    "asOf": "{{date}}, {{time}}",
+    "lastDays_one": "{{category}}, последний {{count}} день",
+    "lastDays_few": "{{category}}, последние {{count}} дня",
+    "lastDays_many": "{{category}}, последние {{count}} дней",
+    "lastDays_other": "{{category}}, последние {{count}} дня",
+    "noData": "Нет данных",
+    "withUsual": "{{value}} · обычно {{usual}}",
+    "ofGoal": "{{value}} из {{goal}}",
+    "bpm": "{{value}} уд/мин",
+    "ms": "{{value}} мс",
+    "kg": "{{value}} кг",
+    "kcal": "{{value}} ккал",
+    "perMin": "{{value}}/мин",
+    "cups_one": "{{count}} стакан",
+    "cups_few": "{{count}} стакана",
+    "cups_many": "{{count}} стаканов",
+    "cups_other": "{{count}} стакана",
+    "hours_one": "{{count}} час",
+    "hours_few": "{{count}} часа",
+    "hours_many": "{{count}} часов",
+    "hours_other": "{{count}} часа",
+    "category": {
+      "sleep": "Сон",
+      "activity": "Активность",
+      "recovery": "Сердце и восстановление",
+      "body": "Тело и настроение"
+    },
+    "field": {
+      "asleep": "Сон",
+      "inBed": "В постели",
+      "deep": "Глубокий",
+      "core": "Базовый",
+      "rem": "Быстрый (REM)",
+      "awake": "Бодрствование",
+      "wake": "Подъём",
+      "steps": "Шаги",
+      "activeEnergy": "Активная энергия",
+      "exercise": "Упражнения",
+      "stand": "Стояние",
+      "workouts": "Тренировки",
+      "level": "Восстановление",
+      "hrv": "ВСР",
+      "restingHr": "Пульс в покое",
+      "respRate": "Частота дыхания",
+      "water": "Вода",
+      "weight": "Вес",
+      "weightTrend": "Изменение за 30 дней",
+      "mood": "Настроение"
+    },
+    "level": {
+      "good": "Хорошо",
+      "fair": "Удовлетворительно",
+      "low": "Низко"
+    },
+    "mood": {
+      "veryUnpleasant": "Очень неприятно",
+      "unpleasant": "Неприятно",
+      "slightlyUnpleasant": "Слегка неприятно",
+      "neutral": "Нейтрально",
+      "slightlyPleasant": "Слегка приятно",
+      "pleasant": "Приятно",
+      "veryPleasant": "Очень приятно"
+    }
+  },
+  "interactive": {
+    "other": "Другое…",
+    "otherPlaceholder": "Ваш ответ",
+    "noteDefault": "Что-нибудь ещё?",
+    "notePlaceholder": "Необязательно",
+    "submit": "Отправить",
+    "previous": "Назад",
+    "next": "Далее",
+    "skip": "Пропустить",
+    "progress": "Вопрос {{current}} из {{total}}",
+    "chooseOrSkip": "Выберите ответ или пропустите этот вопрос.",
+    "approve": "Одобрить",
+    "reject": "Отклонить",
+    "approved": "Одобрено",
+    "rejected": "Отклонено",
+    "answered": "Отвечено",
+    "answer": {
+      "other": "Другое",
+      "addition": "Также",
+      "note": "Примечание",
+      "title": "Ваш ответ"
+    }
+  },
+  "richBlocks": {
+    "stepLabel": "Шаг {{number}}",
+    "openOnTradingView": "Открыть в TradingView",
+    "chartBy": "График TradingView",
+    "chartUnavailable": "Не удалось загрузить график.",
+    "entityLoading": "Загрузка…",
+    "entityNothing": "В Википедии ничего не найдено.",
+    "entityFailed": "Не удалось связаться с Википедией.",
+    "readMore": "Подробнее в Википедии"
+  },
+  "workspaceFile": {
+    "created": "Создан",
+    "edited": "Изменён",
+    "meta": "{{change}} · {{size}}",
+    "open": "Открыть",
+    "quickLook": "Быстрый просмотр",
+    "revealInFinder": "Показать в Finder",
+    "showInExplorer": "Показать в Проводнике",
+    "showInFolder": "Показать в папке",
+    "missing": "Файла больше нет",
+    "outside": "Вне рабочей папки",
+    "untitled": "Файл",
+    "linkTitle": "Нажмите, чтобы открыть · правый клик — другие действия",
+    "previewMeta": "{{size}} · Только чтение",
+    "readOnly": "Только чтение",
+    "copy": "Копировать",
+    "copied": "Скопировано",
+    "tooLarge": "Файл слишком большой для предпросмотра. Откройте его в приложении.",
+    "binary": "Это не текстовый файл, поэтому его нельзя просмотреть здесь. Откройте его в приложении.",
+    "readFailed": "Не удалось прочитать файл.",
+    "missingDescription": "Возможно, его переместили или удалили.",
+    "outsideDescription": "Отсюда можно открывать только файлы из рабочей папки чата.",
+    "unsafeTitle": "Вместо этого показан в папке",
+    "unsafeDescription": "Открытие этого файла запустило бы его, поэтому он не был открыт.",
+    "openFailed": "Не удалось открыть файл",
+    "revealFailed": "Не удалось показать файл"
+  }
+}

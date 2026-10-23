@@ -2205,7 +2205,7 @@ Shared:
 - `packages/shared/src/constants/` — constants (`test-ids.ts`, `systems.ts`, `tool-names.ts`)
 - `packages/shared/src/schemas/` — Zod schemas
 - `packages/shared/src/utils/` — shared utilities, incl. `attempts.ts`: regenerate groups as pure functions — which runs the model sees (`excludedRuns`, `runsForContext`) and what a client shows before the server has answered (`attemptsAfterRegenerate` / `attemptsAfterChoice` / `attemptsAfterSettling`, the rules of `src/main/lib/chat/attempts.ts`)
-- `packages/shared/src/i18n/` — application i18n: `locales.ts` (the 10 locale IDs +
+- `packages/shared/src/i18n/` — application i18n: `locales.ts` (the 12 locale IDs +
   `resolveLocale`), `namespaces.ts`, `index.ts` (`createI18n` — one i18next
   config for both processes, JSON catalogs lazy-loaded per locale),
   `catalog-audit.ts`, `types.d.ts` (typed `t()` keys), `locales/<id>/<ns>.json`.

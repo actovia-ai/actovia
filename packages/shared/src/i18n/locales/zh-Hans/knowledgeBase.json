@@ -1,0 +1,74 @@
+{
+  "alert": "Actovia 的知识库是可选功能，由<strong>你自行运行的自托管 LightRAG 服务器</strong>提供支持——Actovia 只负责连接它，推送你的文档并请求相关上下文；它从不运行、升级或管理 LightRAG 本身。将 URL 留空即可保持知识库停用。检索仅提供上下文：LightRAG 查找相关段落，但答案始终由你配置的聊天模型撰写。嵌入模型<strong>在导入第一份文档后即被锁定</strong>——之后若要更改，需要清空 LightRAG 的存储并重新添加所有文档，所以请选一个会长期使用的模型。",
+  "serverUrl": {
+    "label": "服务器 URL",
+    "description": "你的自托管 LightRAG 服务器。留空则停用知识库。"
+  },
+  "apiKey": {
+    "label": "API 密钥",
+    "description": "以 X-API-Key 请求头发送（即你的 LIGHTRAG_API_KEY）。"
+  },
+  "queryMode": {
+    "label": "查询模式",
+    "description": "mix 结合知识图谱与向量搜索——质量最佳，速度稍慢。",
+    "options": {
+      "naive": "朴素",
+      "local": "局部",
+      "global": "全局",
+      "hybrid": "混合",
+      "mix": "Mix"
+    }
+  },
+  "advancedToggle": "高级",
+  "topK": {
+    "label": "Top K",
+    "description": "要检索的知识图谱实体 / 关系数量。默认 60。"
+  },
+  "chunkTopK": {
+    "label": "Chunk Top K",
+    "description": "重排序后保留的文本块数量。默认 10。"
+  },
+  "connection": {
+    "label": "连接",
+    "description": "检查 Actovia 能否连接到你的 LightRAG 服务器。",
+    "testingLabel": "正在测试…",
+    "testButton": "测试连接"
+  },
+  "documents": {
+    "title": "文档",
+    "reindexAllButton": "全部重新索引",
+    "empty": "还没有文档。",
+    "needsUrlHint": "请先在上方添加服务器 URL，才能管理文档。"
+  },
+  "docList": {
+    "updatedAgo": "{{distance}}前更新",
+    "status": {
+      "pending": "等待中",
+      "processing": "正在索引…",
+      "processed": "已索引",
+      "failed": "失败",
+      "stale": "需要重新索引"
+    }
+  },
+  "docDialog": {
+    "editTitle": "编辑文档",
+    "addTitle": "添加文档",
+    "titleLabel": "标题",
+    "contentLabel": "内容"
+  },
+  "deleteDialog": {
+    "title": "删除文档？",
+    "description": "“{{title}}”将从知识库中移除。"
+  },
+  "toast": {
+    "saveFailed": "保存文档失败",
+    "loadFailed": "加载文档失败",
+    "connected": "已连接",
+    "embeddingLabel": "嵌入",
+    "docsCount_other": "{{count}} 份文档",
+    "connectFailed": "连接失败",
+    "reindexQueued_other": "已将 {{count}} 份文档加入重新索引队列",
+    "reindexFailed": "重新索引失败",
+    "deleteFailed": "删除文档失败"
+  }
+}

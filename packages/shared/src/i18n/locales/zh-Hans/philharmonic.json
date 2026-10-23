@@ -1,0 +1,444 @@
+{
+  "container": {
+    "toast": {
+      "groupDeleted": "群组已删除",
+      "deleteGroupFailed": "无法删除此群组"
+    },
+    "tabs": {
+      "costs": "费用",
+      "schedule": "日程"
+    },
+    "noGroupSelected": {
+      "title": "未选择群组",
+      "description": "从左侧选择一个群组，或新建一个群组，给你的虚拟团队发消息。",
+      "createButton": "创建群组"
+    },
+    "newGroupDefaultTitle": "新群组"
+  },
+  "schedule": {
+    "tab": {
+      "upcomingTrigger": "即将执行",
+      "recurringTrigger": "定期执行"
+    },
+    "unknownGroup": "未知群组",
+    "scheduleTaskButton": "安排任务",
+    "upcomingList": {
+      "empty": "没有即将执行的一次性任务。安排一个后会显示在这里。"
+    },
+    "recurringList": {
+      "empty": "还没有定期任务。",
+      "lastRun": "上次 {{time}}",
+      "nextRun": "下次 {{time}}"
+    },
+    "taskCard": {
+      "status": {
+        "pending": "待处理",
+        "running": "运行中",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消",
+        "waiting_for_user": "等待中"
+      },
+      "priority": {
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "urgent": "紧急"
+      },
+      "cancelAria": "取消已安排的任务"
+    },
+    "toast": {
+      "loadUpcomingFailed": "无法加载即将执行的任务",
+      "loadRecurringFailed": "无法加载定期任务",
+      "taskCancelled": "任务已取消",
+      "cancelTaskFailed": "无法取消任务",
+      "taskScheduled": "任务已安排",
+      "scheduleTaskFailed": "无法安排任务"
+    },
+    "form": {
+      "title": "安排任务",
+      "description": "在现有群组中运行，可以只运行一次，也可以定期运行。",
+      "titleLabel": "标题",
+      "descriptionLabel": "描述",
+      "groupLabel": "群组",
+      "groupPlaceholder": "选择群组",
+      "onceButton": "一次性",
+      "recurringButton": "定期",
+      "pickDateButton": "选择日期",
+      "submitting": "正在安排…",
+      "cronPresets": {
+        "dailyNine": "每天上午 9:00",
+        "mondayNine": "每周一上午 9:00",
+        "custom": "自定义"
+      }
+    }
+  },
+  "chat": {
+    "attachmentPreview": {
+      "removeAria": "移除 {{name}}"
+    },
+    "folder": {
+      "none": "无文件夹",
+      "recent": "最近",
+      "new": "新建项目…",
+      "namePlaceholder": "输入项目名称后按 Enter",
+      "open": "打开文件夹…",
+      "worktree": "工作树",
+      "failed": "无法更改文件夹",
+      "listFailed": "无法加载最近的项目",
+      "refused": "无法使用此文件夹",
+      "missing": "{{name}} — 文件夹不存在；请用“打开文件夹…”重新选择"
+    },
+    "uploader": {
+      "attachAria": "添加图片",
+      "s3FallbackTitle": "S3 上传失败，改用内嵌数据",
+      "attachFailedTitle": "无法添加文件"
+    },
+    "composer": {
+      "placeholder": "给你的团队发消息…",
+      "stopAria": "停止",
+      "sendAria": "发送"
+    },
+    "planCard": {
+      "elapsed": {
+        "lessThanMin": "不到 1 分钟",
+        "minutes": "{{count}} 分钟",
+        "hoursMinutes": "{{hours}} 小时 {{minutes}} 分钟"
+      },
+      "status": {
+        "active": "进行中",
+        "done": "已完成",
+        "aborted": "已中止",
+        "draft": "草稿"
+      },
+      "stepStatusAria": {
+        "pending": "待处理",
+        "running": "运行中",
+        "done": "已完成",
+        "skipped": "已跳过",
+        "failed": "失败"
+      }
+    },
+    "roles": {
+      "pm": "项目经理",
+      "employeeFallback": "员工"
+    },
+    "membersPanel": {
+      "heading": "成员",
+      "coordinatorsLabel": "协调人",
+      "unassignedLabel": "未分配",
+      "idleCount": "{{count}} 位空闲",
+      "busyCount": "{{count}} 位忙碌",
+      "idle": "空闲",
+      "noTeam": "无团队",
+      "pmIdleActivity": "策略规划 · 空闲",
+      "emptyState": {
+        "title": "还没有队友",
+        "description": "项目经理会按需招募队友。"
+      },
+      "quota": {
+        "fiveHour": "5 小时 {{percent}}%",
+        "sevenDay": "本周 {{percent}}%",
+        "other": "{{name}} {{percent}}%",
+        "limited": "已达上限 · {{time}} 重置"
+      }
+    },
+    "conversationList": {
+      "configNav": {
+        "workforce": "团队成员",
+        "dashboard": "仪表盘"
+      },
+      "searchPlaceholder": "搜索群组",
+      "newGroupMenuItem": "新群组",
+      "emptyState": {
+        "title": "还没有群组",
+        "description": "创建一个群组，给你的虚拟团队发消息。",
+        "createButton": "+ 新群组"
+      },
+      "searchNoMatch": "没有与“{{query}}”匹配的群组",
+      "noMessagesYetPreview": "新群组 · 还没有消息",
+      "deleteDialog": {
+        "title": "删除此群组？",
+        "description": "<0>{{title}}</0> 及其所有消息、任务和执行记录都将被永久删除。"
+      },
+      "rename": "重命名",
+      "renameDialog": {
+        "title": "重命名群组"
+      }
+    },
+    "dateLabels": {
+      "today": "今天",
+      "yesterday": "昨天"
+    },
+    "groupChat": {
+      "errorTitle": "群组出错了",
+      "memberCount_other": "{{count}} 位成员",
+      "toggleMembersAria": "显示/隐藏成员",
+      "emptyState": {
+        "title": "把任务交给你的团队",
+        "description": "描述你的需求。项目经理会进行分析、招募并分派给虚拟员工，完成后在这里汇报。"
+      },
+      "askUser": {
+        "replyPlaceholder": "回复项目经理…",
+        "sendButton": "发送"
+      }
+    },
+    "decision": {
+      "toggle": "决策过程",
+      "delegations": "已分派：{{count}}",
+      "waits": "已等待：{{count}}",
+      "loading": "加载中…",
+      "unavailable": "这一轮的记录不可用。",
+      "triggerUser": "你写道",
+      "triggerScheduled": "定时",
+      "reports": "读取了以下汇报",
+      "thinking": "思考",
+      "delegate": "把一个步骤交给了 {{who}}",
+      "refused": "未开始 — {{name}} 的额度已用完",
+      "wait": "等待 {{name}} 的额度 — {{reason}}",
+      "plan": "规划的步骤：{{count}}",
+      "updateStep": "将一个步骤标记为{{status}}",
+      "appendStep": "添加了一个步骤",
+      "recruit": "招募了 {{name}}",
+      "report": "写了一份汇报",
+      "askUser": "向你提问",
+      "search": "搜索了知识库",
+      "otherTool": "调用了 {{tool}}",
+      "failed": "失败",
+      "details": "参数和结果",
+      "usage": "输入 {{input}} · 输出 {{output}} · ${{cost}}",
+      "error": "已停止：{{message}}",
+      "interrupted": "你停止了这一轮",
+      "formerEmployee": "前员工",
+      "waitRefused": "没有等待 — {{reason}}",
+      "wakeAt": "于 {{time}} 唤醒",
+      "cliDefault": "CLI 默认",
+      "status": {
+        "pending": "待处理",
+        "running": "进行中",
+        "done": "完成",
+        "skipped": "跳过",
+        "failed": "失败"
+      }
+    }
+  },
+  "employees": {
+    "avatar": {
+      "alt": "头像"
+    },
+    "picker": {
+      "reroll": "换一个"
+    },
+    "editor": {
+      "header": {
+        "label": "员工",
+        "newFallback": "新员工"
+      },
+      "avatarAria": "编辑头像",
+      "fields": {
+        "name": "名称",
+        "team": "团队",
+        "teamPlaceholder": "选择团队",
+        "teamHelp": "每位员工都属于一个团队——团队的系统提示词会应用到所有成员。",
+        "description": "描述",
+        "descriptionPlaceholder": "用一句话说明这位员工做什么。",
+        "systemPrompt": "系统提示词",
+        "systemPromptPlaceholder": "叠加在团队提示词之上。",
+        "skills": "技能",
+        "noSkills": "尚未安装任何技能。",
+        "mcpServers": "MCP 服务器",
+        "noMcpServers": "尚未配置任何 MCP 服务器。",
+        "mcpServersHelp": "如果未选择任何服务器，该员工可以使用所有可用的服务器。",
+        "memory": "记忆（只读）",
+        "noMemory": "还没有积累的记忆"
+      }
+    },
+    "runtime": {
+      "label": "运行于",
+      "actovia": "Actovia"
+    },
+    "model": {
+      "label": "模型",
+      "default": "默认（应用的模型）",
+      "cliDefault": "CLI 的默认模型",
+      "cliHint": "使用 CLI 的叫法：opus、sonnet、haiku，或完整的模型 ID。"
+    },
+    "permission": {
+      "label": "权限",
+      "hint": "无需询问你即可做的事。其他操作一律先询问。",
+      "default": "更改前先询问",
+      "acceptEdits": "可自由编辑文件，执行命令前询问",
+      "auto": "自动（由 CLI 判断哪些安全）",
+      "codex": {
+        "default": "每次执行命令和修改文件前都先询问",
+        "acceptEdits": "在文件夹内自由工作；超出文件夹时先询问",
+        "auto": "从不询问；仅限文件夹内，无网络",
+        "hint": "Codex 始终在仅限于群组文件夹的沙盒中工作。"
+      }
+    },
+    "systemPrompt": {
+      "cliLabel": "附加到每个任务的指令"
+    }
+  },
+  "teams": {
+    "editor": {
+      "header": {
+        "label": "团队",
+        "newFallback": "新团队"
+      },
+      "fields": {
+        "name": "名称",
+        "icon": "图标（表情符号，可选）",
+        "description": "描述",
+        "descriptionPlaceholder": "简要说明这个团队做什么。",
+        "systemPrompt": "系统提示词",
+        "systemPromptPlaceholder": "添加到此团队每位成员提示词中的共享指令。"
+      }
+    }
+  },
+  "costAnalysis": {
+    "header": {
+      "title": "仪表盘"
+    },
+    "periodToggle": {
+      "sevenDays": "7 天",
+      "thirtyDays": "30 天",
+      "all": "全部"
+    },
+    "loading": "正在加载用量数据…",
+    "kpi": {
+      "totalCost": "总费用",
+      "totalCostHint_other": "共 {{count}} 位员工",
+      "tokens": "Token 数",
+      "tokensHint": "处理总量",
+      "employees": "员工",
+      "employeesHint": "有用量记录",
+      "conversations": "对话",
+      "conversationsHint": "有活动"
+    },
+    "chart": {
+      "costLabel": "费用",
+      "sectionTitle": "费用趋势"
+    },
+    "agentCostList": {
+      "title": "按员工统计费用",
+      "empty": "还没有员工用量数据",
+      "tokens": "{{tokens}} 个 token"
+    },
+    "conversationCostList": {
+      "title": "按对话统计费用",
+      "empty": "还没有对话用量数据",
+      "deleted": "已删除的群组"
+    }
+  },
+  "workforce": {
+    "header": {
+      "title": "团队成员",
+      "employeeCount_other": "{{count}} 位员工",
+      "teamCount_other": "{{count}} 个团队",
+      "addTeamButton": "团队",
+      "addEmployeeButton": "员工",
+      "createTeamFirstTitle": "请先创建团队"
+    },
+    "emptyState": {
+      "title": "从创建团队开始",
+      "description": "每位员工都属于一个提供共享系统提示词的团队。请先创建团队，再添加其中的员工。",
+      "createButton": "+ 新团队"
+    },
+    "teamSection": {
+      "editTeam": "编辑团队",
+      "addEmployeeHere": "在此添加员工",
+      "deleteTeam": "删除团队",
+      "unassignedFallback": "无团队",
+      "addEmployeeButton": "添加员工"
+    },
+    "newEmployeeDefaultName": "新员工",
+    "newTeamDefaultName": "新团队",
+    "deleteEmployeeDialog": {
+      "title": "删除此员工？",
+      "description": "<0>{{name}}</0> 及其积累的记忆都将被永久删除。"
+    },
+    "deleteTeamDialog": {
+      "title": "删除此团队？",
+      "description": "<0>{{name}}</0> 将被删除。现有成员会保留各自的记录，但不再属于这个团队。"
+    },
+    "toast": {
+      "created": "已创建“{{name}}”",
+      "deleted": "已删除“{{name}}”",
+      "saveEmployeeFailed": "无法保存此员工",
+      "deleteEmployeeFailed": "无法删除此员工",
+      "saveTeamFailed": "无法保存此团队",
+      "deleteTeamFailed": "无法删除此团队"
+    }
+  },
+  "agents": {
+    "settings": {
+      "intro": "编程代理是由你安装并已登录的 CLI 运行的 Philharmonic 员工。Actovia 会在群组的文件夹中启动它、显示它在做什么，并在它每次提问时停下来等你回应。",
+      "clisTitle": "在这台 Mac 上",
+      "runTitle": "运行方式",
+      "projectsDir": {
+        "label": "项目文件夹",
+        "description": "新项目会创建在这里，每个项目的笔记和日志也都保存在这里——即使工作是在你打开的文件夹中进行的。",
+        "choose": "选择…"
+      },
+      "maxRunning": {
+        "label": "同时运行的代理数",
+        "description": "其余步骤会等待空闲名额。每个代理都会占用你的电脑和你的套餐额度。"
+      },
+      "keepAlive": {
+        "label": "让代理保持待命（分钟）",
+        "description": "一个步骤结束后，其进程会等待这么久，让下一个步骤立即开始。0 表示立即停止。"
+      },
+      "worktrees": {
+        "label": "独立的 worktree",
+        "description": "当两个代理同时在同一个 git 仓库中工作时，各自使用自己的 worktree 和分支。是否合并由你决定。"
+      },
+      "safety": "编程代理以自己的权限在你指定的文件夹中运行。Actovia 绝不会替你回答它们的问题或批准它们的操作。"
+    },
+    "cli": {
+      "check": "检查",
+      "notFound": "在这台 Mac 上未找到",
+      "state": {
+        "ready": "就绪",
+        "notInstalled": "未安装",
+        "broken": "已损坏",
+        "tooOld": "版本过旧",
+        "loggedOut": "未登录"
+      },
+      "hint": {
+        "install": "安装后点击“检查”。",
+        "reinstall": "启动器还在，但它要启动的程序不见了——请重新安装。",
+        "update": "更新到最新版本后点击“检查”。",
+        "login": "在“终端”中运行一次并登录，然后点击“检查”。"
+      }
+    },
+    "notify": {
+      "waitingTitle": "{{name}} 正在等你"
+    },
+    "card": {
+      "state": {
+        "queued": "等待空闲名额",
+        "working": "工作中",
+        "waiting": "等待你回复",
+        "done": "完成",
+        "stopped": "已停止",
+        "failed": "失败"
+      },
+      "moreSteps_other": "更早的 {{count}} 个步骤",
+      "wantsTo": "{{name}} 想使用 {{tool}}",
+      "reasonPlaceholder": "告诉它原因（可选，拒绝时发送）",
+      "allow": "允许",
+      "deny": "拒绝",
+      "other": "其他…",
+      "secretPlaceholder": "机密信息——会发送给代理，不会保存",
+      "submit": "回答",
+      "answerFailed": "你的回答没有送达",
+      "stop": "停止",
+      "continueInTerminal": "在终端中继续",
+      "terminalFailed": "无法打开终端",
+      "stopFailed": "无法停止",
+      "folderFailed": "无法打开文件夹",
+      "inTerminal": "已在终端中继续——Actovia 会在下一步重新接手。"
+    }
+  }
+}
