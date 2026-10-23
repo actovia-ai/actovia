@@ -104,7 +104,8 @@
       "integrations": "Интеграции",
       "storage": "Хранилище",
       "developer": "Для разработчиков"
-    }
+    },
+    "experimental": "Экспериментальное"
   },
   "common": {
     "searchPlaceholder": "Поиск в настройках…",
@@ -1098,5 +1099,6 @@
       "s3SecretAccessKey": "Секретный ключ доступа Amazon S3",
       "mcp": "Сервер MCP «{{server}}»: {{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "например, {{example}}"
 }

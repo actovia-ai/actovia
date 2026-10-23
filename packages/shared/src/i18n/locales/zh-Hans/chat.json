@@ -51,7 +51,8 @@
     "mapItineraryStopCount_other": "{{count}} 个停靠点",
     "mapItinerarySummary": "{{days}}，{{stops}}",
     "toolFailed": "{{tool}} 失败",
-    "webSearchResultCount_other": "{{count}} 条结果"
+    "webSearchResultCount_other": "{{count}} 条结果",
+    "webSearchResultCountFor_other": "“{{query}}”的 {{count}} 条结果"
   },
   "toolFailedToast": {
     "title": "工具失败：{{tool}}"

@@ -34,6 +34,7 @@
     "queriesForTopic_many": "Создано {{count}} поисковых запросов для «{{query}}»",
     "queriesForTopic_other": "Создано {{count}} поискового запроса для «{{query}}»",
     "searchedFor": "Поиск: «{{query}}»",
+    "moreSources": "ещё {{n}}",
     "writingReport": {
       "title": "Начинаю писать итоговый отчёт...",
       "description": "Этап глубокого исследования завершён. Итоговый отчёт создаётся и скоро будет показан."

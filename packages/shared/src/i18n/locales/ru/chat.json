@@ -60,7 +60,11 @@
     "webSearchResultCount_one": "{{count}} результат",
     "webSearchResultCount_few": "{{count}} результата",
     "webSearchResultCount_many": "{{count}} результатов",
-    "webSearchResultCount_other": "{{count}} результата"
+    "webSearchResultCount_other": "{{count}} результата",
+    "webSearchResultCountFor_one": "{{count}} результат по запросу «{{query}}»",
+    "webSearchResultCountFor_few": "{{count}} результата по запросу «{{query}}»",
+    "webSearchResultCountFor_many": "{{count}} результатов по запросу «{{query}}»",
+    "webSearchResultCountFor_other": "{{count}} результата по запросу «{{query}}»"
   },
   "toolFailedToast": {
     "title": "Сбой инструмента: {{tool}}"

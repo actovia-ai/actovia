@@ -104,7 +104,8 @@
       "integrations": "集成",
       "storage": "存储",
       "developer": "开发者"
-    }
+    },
+    "experimental": "实验功能"
   },
   "common": {
     "searchPlaceholder": "搜索设置…",
@@ -1075,5 +1076,6 @@
       "s3SecretAccessKey": "Amazon S3 私有访问密钥",
       "mcp": "MCP 服务器“{{server}}”：{{field}}"
     }
-  }
+  },
+  "examplePlaceholder": "例如 {{example}}"
 }

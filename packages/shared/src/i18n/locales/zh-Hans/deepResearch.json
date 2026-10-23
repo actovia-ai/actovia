@@ -22,6 +22,7 @@
     "queriesDeeper_other": "已针对之前的研究生成 {{count}} 个搜索查询",
     "queriesForTopic_other": "已针对“{{query}}”生成 {{count}} 个搜索查询",
     "searchedFor": "已搜索“{{query}}”",
+    "moreSources": "还有 {{n}} 个",
     "writingReport": {
       "title": "开始撰写最终报告...",
       "description": "深度研究阶段已完成，最终报告正在生成，稍后即可查看。"
