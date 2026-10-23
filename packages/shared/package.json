@@ -60,6 +60,7 @@
     "./utils/attempts": "./src/utils/attempts.ts",
     "./utils/run-merge": "./src/utils/run-merge.ts",
     "./utils/quoted-text": "./src/utils/quoted-text.ts",
+    "./utils/plain-title": "./src/utils/plain-title.ts",
     "./utils/health-context": "./src/utils/health-context.ts",
     "./utils/log-query": "./src/utils/log-query.ts",
     "./utils/interactive-answer": "./src/utils/interactive-answer.ts",

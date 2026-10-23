@@ -1,4 +1,5 @@
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { plainTitle } from '@actovia/shared/utils/plain-title'
 import { ArrowLeft02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { createContext, memo, useContext, useMemo, useState } from 'react'
@@ -89,12 +90,15 @@ function SourceCard({
       data-source-card=""
       inert={hidden}
       aria-hidden={hidden || undefined}
-      className={cn('col-start-1 row-start-1 block', hidden && 'invisible')}
+      className={cn(
+        'col-start-1 row-start-1 block min-w-0',
+        hidden && 'invisible'
+      )}
     >
       {source.thumbnail ? (
         <LazyLoadImage
           src={source.thumbnail}
-          alt={source.title}
+          alt={plainTitle(source.title)}
           className="h-32 w-full"
           fallback={<SourceCover source={source} />}
         />
@@ -111,7 +115,7 @@ function SourceCard({
           <span className="truncate">{chipLabel([source]).name}</span>
         </div>
         <div className="line-clamp-2 text-sm leading-snug font-semibold">
-          {source.title}
+          {plainTitle(source.title)}
         </div>
         {source.snippet && (
           <div className="text-muted-foreground line-clamp-3 text-xs leading-relaxed">
@@ -208,7 +212,11 @@ const CitationChip = memo(function CitationChip({
             className="ring-border size-[11px] rounded-full ring-[0.5px]"
           />
           <span className="truncate">{name}</span>
-          {more > 0 && <span className="font-normal">+{more}</span>}
+          {more > 0 && (
+            <span className="shrink-0 font-normal whitespace-nowrap">
+              +{more}
+            </span>
+          )}
         </span>
       </HoverCardTrigger>
       <HoverCardContent
@@ -226,8 +234,10 @@ const CitationChip = memo(function CitationChip({
         {/* Every source in one grid cell, the others out of sight: the card
             is as tall as its tallest source whichever it shows, so the pager
             does not move from under the pointer when a shorter source comes
-            (the card closed on the click that paged it). */}
-        <div className="grid">
+            (the card closed on the click that paged it). One column no wider
+            than the card: an auto track grows to its widest line that will
+            not wrap — a long site name — and the card cut the text off. */}
+        <div className="grid grid-cols-1">
           {sources.map((source) => (
             <SourceCard
               key={source.link}

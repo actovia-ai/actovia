@@ -1,5 +1,6 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
+import { plainTitle } from '@actovia/shared/utils/plain-title'
 import {
   File01Icon,
   SparklesIcon,
@@ -315,7 +316,7 @@ function SourceLink({ item }: { item: WebSearchResult }) {
           <span className="truncate">{item.siteName || hostname}</span>
         </div>
         <div className="line-clamp-2 text-sm leading-snug font-semibold">
-          {item.title}
+          {plainTitle(item.title)}
         </div>
         {typeof item.snippet === 'string' && item.snippet && (
           <div className="text-muted-foreground line-clamp-2 text-xs leading-snug">

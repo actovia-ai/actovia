@@ -3,6 +3,7 @@ import type {
   WebSearchMediaResult,
   WebSearchResult
 } from '@actovia/shared/types/web-search'
+import { plainTitle } from '@actovia/shared/utils/plain-title'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
 import * as cheerio from 'cheerio'
 import TurndownService from 'turndown'
@@ -576,7 +577,7 @@ export function webResultsToSources(
     seen.add(r.url)
     out.push({
       url: r.url,
-      title: r.title,
+      title: plainTitle(r.title),
       content,
       age: r.age,
       siteName: r.profile?.name ?? r.profile?.long_name,
@@ -598,7 +599,7 @@ export function webResultsToSources(
       .filter(Boolean)
       .join('\n\n')
     seen.add(r.url)
-    out.push({ url: r.url, title: r.title, content, age: r.age })
+    out.push({ url: r.url, title: plainTitle(r.title), content, age: r.age })
   }
 
   return out
