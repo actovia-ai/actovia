@@ -1,5 +1,7 @@
 # Dynamic Model Catalog + Single Model/Effort Selection — Design
 
+> Cost/price parts superseded by 2026-10-27-remove-cost-context-panel-design.md (ISSUE-235).
+
 **Date**: 2026-09-12
 
 **Status**: approved (brainstorming 2026-09-12)

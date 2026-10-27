@@ -1,5 +1,7 @@
 # The PM's decision trail — every round recorded, shown under its message, queryable in Chat Audit
 
+> Cost/price parts superseded by 2026-10-27-remove-cost-context-panel-design.md (ISSUE-235).
+
 Date: 2026-10-17 · Status: implemented 2026-10-17 (plan docs/superpowers/plans/2026-10-17-pm-decision-trail.md)
 Repo: `actovia`, branch `maintenance`
 Builds on: `2026-10-16-pm-quota-aware-dealing-design.md` (the PM's roster, quota lines, `waitForQuota`)

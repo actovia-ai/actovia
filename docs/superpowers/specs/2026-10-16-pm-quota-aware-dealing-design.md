@@ -1,5 +1,7 @@
 # Quota-aware dealing — the PM picks the employee (and so the model) with the CLIs' limits in view
 
+> Cost/price parts superseded by 2026-10-27-remove-cost-context-panel-design.md (ISSUE-235).
+
 Date: 2026-10-16 · Status: implemented 2026-10-16 (plan docs/superpowers/plans/2026-10-16-pm-quota-aware-dealing.md)
 Repo: `actovia`, branch `maintenance`
 Builds on: `2026-10-09-coding-agent-employees-design.md` (Claude Code employees) and
