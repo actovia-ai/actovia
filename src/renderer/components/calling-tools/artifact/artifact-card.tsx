@@ -20,42 +20,17 @@ import {
 import { cn } from '@/lib/utils'
 import { revealArtifactAtom } from '@/stores/chat'
 
+import {
+  ARTIFACT_ORIGIN,
+  getArtifactSandboxUrl,
+  sendToIframe
+} from './sandbox-frame'
+
 interface ArtifactDetails {
   type: 'artifact'
   title: string
   code: string
   artifactId: string
-}
-
-// The sandbox is another HTML entry of this same renderer build (see
-// vite.renderer.config.mts). Vite's root is the repo root, so its page keeps
-// the `src/renderer/sub-apps/` prefix — in the dev server and in the built
-// renderer directory alike, which is what the scheme below serves.
-const ARTIFACT_SANDBOX_PAGE = 'src/renderer/sub-apps/artifacts/index.html'
-
-// The sandbox runs model-written code, so it gets an origin of its own — served
-// by the main process through a custom scheme (src/main/lib/artifact-protocol.ts)
-// rather than from this window's origin, where `window.parent` would hand that
-// code the IPC bridge and the API. Same URL in dev and packaged. A literal, as
-// the renderer cannot import main-process code.
-const ARTIFACT_ORIGIN = 'actovia-artifact://sandbox'
-
-function getArtifactSandboxUrl(): string {
-  return `${ARTIFACT_ORIGIN}/${ARTIFACT_SANDBOX_PAGE}`
-}
-
-function sendToIframe(
-  iframe: HTMLIFrameElement | null,
-  code: string,
-  title: string
-) {
-  const win = iframe?.contentWindow
-  if (!win || !code) return
-  const theme = window.localStorage.getItem('vite-ui-theme') ?? 'system'
-  // Addressed to the sandbox's origin: if the frame were ever navigated
-  // elsewhere, the artifact's code would not be delivered to it.
-  win.postMessage({ type: 'theme', theme }, ARTIFACT_ORIGIN)
-  win.postMessage({ type: 'render', code, artifactId: title }, ARTIFACT_ORIGIN)
 }
 
 /** Track whether the Electron window is in macOS native fullscreen. */

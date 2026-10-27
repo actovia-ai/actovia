@@ -134,6 +134,8 @@ export const TEST_IDS = {
   artifacts: {
     page: 'artifacts.page',
     card: 'artifacts.card',
+    /** A card's picture of its page: the sandbox frame, scaled down. */
+    preview: 'artifacts.preview',
     search: 'artifacts.search'
   },
   chatLayout: {

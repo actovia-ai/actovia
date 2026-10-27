@@ -1187,8 +1187,18 @@ buttons, the one on show pressed. Under it: New, Search, and **Artifacts**
 (`/artifacts`, `containers/artifacts.tsx`): every `create_artifact` result of
 every chat, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
 in `db/queries.ts`, no code; `ArtifactListItem` in
-`@actovia/shared/types/artifact-list`); a card opens its chat at the run that
-made it, through the same `SearchReveal` state Search chats uses. The account
+`@actovia/shared/types/artifact-list`); a card opens its chat at the card
+that drew it, through the same `SearchReveal` state Search chats uses (its
+`toolCallId`; the chat's card carries `data-artifact-call`, and
+`revealTarget()` lands on it — after a long answer the run's top is a window
+or more above it, ISSUE-265). A card draws its page
+(`components/artifacts/artifact-preview.tsx`): the chat card's sandbox
+(`calling-tools/artifact/sandbox-frame.ts`) laid out at 1280 × 720 and scaled
+down, with the code from `GET /api/v1/artifacts/:chatId/:artifactId/code`
+(`getArtifactCode()`, the row the chat's card renders), mounted only while the
+card is within 400 px of the screen (`hooks/use-in-view.ts`) and out of reach —
+no pointer, no focus, `aria-hidden`; the card's title button covers the card
+(a frame may not sit inside a button). The account
 menu (`layouts/chat-layout/nav-footer.tsx`) has Settings, Get the apps (opens
 `components/app/apps-dialog.tsx`, "Actovia everywhere": the iPhone app — Pair
 an iPhone goes to Settings → Devices — Health and the CLI, each linking its

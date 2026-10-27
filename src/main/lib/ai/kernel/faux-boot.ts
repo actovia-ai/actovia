@@ -13,6 +13,9 @@ import {
 import { logger } from '../../logger'
 import { fauxHandle, registerFauxProvider, setFauxHandle } from './faux'
 import {
+  ARTIFACT_CALL,
+  ARTIFACT_LEAD,
+  ARTIFACT_QUESTION,
   COMPARE_QUESTION,
   compareAnswer,
   MEMORY_CORRECTION_MESSAGE,
@@ -155,6 +158,18 @@ function respondToChatCall(ctx: Context): AssistantMessage {
     )
   }
 
+  // The Artifacts e2e: a long answer, then the page, so its card sits far
+  // below the run's top.
+  if (last?.role === 'user' && textOf(last).includes(ARTIFACT_QUESTION)) {
+    return fauxAssistantMessage(
+      [
+        fauxText(ARTIFACT_LEAD),
+        fauxToolCall(TOOL_NAMES.createArtifact, ARTIFACT_CALL)
+      ],
+      { stopReason: 'toolUse' }
+    )
+  }
+
   // The regenerate e2e: the same question, a different answer each time.
   if (last?.role === 'user' && textOf(last).includes(COMPARE_QUESTION)) {
     compareTakes += 1
@@ -185,7 +200,8 @@ function respondToChatCall(ctx: Context): AssistantMessage {
  * (an `update_memory` tool call and the engine call underneath it) and a
  * question the memory read filter answers for, and
  * `tests/e2e/regenerate-compare.spec.ts` a question answered differently
- * each time it is asked — see the branches above.
+ * each time it is asked, and `tests/e2e/artifacts.spec.ts` a page made after
+ * a long answer — see the branches above.
  */
 export function bootFauxProviderIfRequested(): FauxProviderHandle | null {
   if (process.env.ACTOVIA_FAUX_PROVIDER !== '1') return null

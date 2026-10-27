@@ -289,9 +289,6 @@ export async function updateMessage({
   }
 }
 
-/** Rewrite an artifact toolResult message's `details.code` (used to re-sync
- * a hand-edited .tsx on disk back into the DB row that the card actually
- * renders from). Returns the number of rows updated. */
 /**
  * Every artifact the chats made, newest first (ISSUE-237's Artifacts page):
  * a `create_artifact` result that did not fail and carries an artifact id,
@@ -337,6 +334,47 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
   }
 }
 
+/**
+ * One artifact's code as the chat's card renders it (ISSUE-265: the
+ * Artifacts page draws each card's page): the newest successful
+ * `create_artifact` result of that artifact in that chat, or null.
+ */
+export async function getArtifactCode(
+  chatId: string,
+  artifactId: string
+): Promise<{ title: string; code: string } | null> {
+  try {
+    const [row] = await db
+      .select({
+        title: sql<string | null>`${message.details}->>'title'`,
+        code: sql<string | null>`${message.details}->>'code'`
+      })
+      .from(message)
+      .where(
+        and(
+          eq(message.chatId, chatId),
+          eq(message.role, 'toolResult'),
+          eq(message.toolName, TOOL_NAMES.createArtifact),
+          sql`coalesce(${message.isError}, false) = false`,
+          sql`${message.details}->>'artifactId' = ${artifactId}`
+        )
+      )
+      .orderBy(desc(message.createdAt))
+      .limit(1)
+    if (!row?.code) return null
+    return { title: row.title ?? '', code: row.code }
+  } catch (error) {
+    logDbError('Failed to read an artifact', error)
+    throw new DatabaseError(
+      ErrorCode.DB_QUERY_FAILED,
+      'Failed to read an artifact'
+    )
+  }
+}
+
+/** Rewrite an artifact toolResult message's `details.code` (used to re-sync
+ * a hand-edited .tsx on disk back into the DB row that the card actually
+ * renders from). Returns the number of rows updated. */
 export async function updateArtifactCodeByArtifactId({
   artifactId,
   code

@@ -19,7 +19,8 @@ vi.mock('@main/lib/db/db', async () => {
 
 const { pglite, db } = await import('@main/lib/db/db')
 const { chat, message } = await import('@main/lib/db/schema')
-const { listAllArtifacts } = await import('@main/lib/db/queries')
+const { getArtifactCode, listAllArtifacts } =
+  await import('@main/lib/db/queries')
 
 afterAll(async () => {
   await pglite.close()
@@ -112,5 +113,33 @@ describe('listAllArtifacts', () => {
     await addResult(a, 2, { results: [] }, { toolName: 'web_search' })
     await addResult(a, 3, null)
     expect(await listAllArtifacts()).toEqual([])
+  })
+})
+
+describe('getArtifactCode', () => {
+  it('is the newest row’s code of that artifact in that chat', async () => {
+    const a = await addChat('Trip planning')
+    const b = await addChat('Other')
+    await addResult(a, 1, { artifactId: 'art-1', title: 'Old', code: 'v1' })
+    await addResult(a, 2, { artifactId: 'art-1', title: 'Kyoto', code: 'v2' })
+    await addResult(b, 3, {
+      artifactId: 'art-9',
+      title: 'Elsewhere',
+      code: 'x'
+    })
+
+    expect(await getArtifactCode(a, 'art-1')).toEqual({
+      title: 'Kyoto',
+      code: 'v2'
+    })
+    expect(await getArtifactCode(a, 'art-9')).toBeNull()
+  })
+
+  it('is null for a failed call or a result without code', async () => {
+    const a = await addChat('Mixed')
+    await addResult(a, 1, { artifactId: 'bad', code: 'x' }, { isError: true })
+    await addResult(a, 2, { artifactId: 'empty', title: 'No code' })
+    expect(await getArtifactCode(a, 'bad')).toBeNull()
+    expect(await getArtifactCode(a, 'empty')).toBeNull()
   })
 })

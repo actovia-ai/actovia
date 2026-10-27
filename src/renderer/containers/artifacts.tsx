@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
+import { ArtifactPreview } from '@/components/artifacts/artifact-preview'
 import {
   Empty,
   EmptyDescription,
@@ -152,28 +153,30 @@ function ArtifactCard({
       className={cn(index < 12 && ENTER_UP)}
       style={index < 12 ? staggerDelay(index) : undefined}
     >
-      <button
-        type="button"
-        onClick={open}
-        data-testid={TEST_IDS.artifacts.card}
-        className="group bg-background ring-border/70 hover:ring-border focus-visible:ring-ring flex w-full flex-col overflow-hidden rounded-xl text-left ring-1 transition-[box-shadow,transform] duration-150 ease-out outline-none hover:shadow-sm focus-visible:ring-2 active:scale-[0.99]"
-      >
-        <div className="bg-muted text-muted-foreground flex aspect-[16/9] items-center justify-center">
-          <HugeiconsIcon
-            icon={SparklesIcon}
-            className="size-8 opacity-60 transition-opacity duration-150 group-hover:opacity-90"
-          />
-        </div>
+      {/* The preview is a frame, which a button may not hold: the button is
+          the title's, stretched over the whole card by its ::after. */}
+      <div className="group bg-background ring-border/70 hover:ring-border has-[:focus-visible]:ring-ring relative flex flex-col overflow-hidden rounded-xl ring-1 transition-[box-shadow,transform] duration-150 ease-out hover:shadow-sm has-[:active]:scale-[0.99] has-[:focus-visible]:ring-2">
+        <ArtifactPreview
+          chatId={artifact.chatId}
+          artifactId={artifact.artifactId}
+          title={title}
+        />
         <div className="flex min-w-0 flex-col gap-0.5 px-4 py-3">
-          <span className="truncate text-sm font-medium" title={title}>
+          <button
+            type="button"
+            onClick={open}
+            data-testid={TEST_IDS.artifacts.card}
+            className="truncate text-left text-sm font-medium outline-none after:absolute after:inset-0"
+            title={title}
+          >
             {title}
-          </span>
+          </button>
           <span className="text-muted-foreground truncate text-xs">
             {artifact.chatTitle} ·{' '}
             {format.relativeTime(new Date(artifact.createdAt))}
           </span>
         </div>
-      </button>
+      </div>
     </div>
   )
 }

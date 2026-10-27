@@ -54,3 +54,24 @@ export const SECRET_READ_PATH = '~/.ssh/id_rsa'
 export const COMPARE_QUESTION = 'Give me your take on tabs versus spaces.'
 export const compareAnswer = (take: number) =>
   `Take ${take}: it depends on the team.`
+
+/** The Artifacts e2e's question (`tests/e2e/artifacts.spec.ts`): answered
+ *  with a long answer, then a `create_artifact` call — the card sits far
+ *  below its run's top, where the reveal used to land (ISSUE-265). */
+export const ARTIFACT_QUESTION = 'Make me a page that says hello.'
+
+/** Thirty paragraphs before the call: more than a window's height. */
+export const ARTIFACT_LEAD = Array.from(
+  { length: 30 },
+  (_, i) => `Paragraph ${i + 1} of the plan before the page is drawn.`
+).join('\n\n')
+
+/** What the page draws, and the call's arguments. */
+export const ARTIFACT_GREETING = 'Hello from the preview'
+export const ARTIFACT_CALL = {
+  title: 'Hello page',
+  code: `const React = require('react')
+module.exports = function Hello() {
+  return React.createElement('div', { className: 'p-10 text-4xl' }, '${ARTIFACT_GREETING}')
+}`
+}

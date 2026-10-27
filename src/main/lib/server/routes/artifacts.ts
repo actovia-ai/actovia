@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 
 import { getArtifact, listArtifacts } from '../../ai/artifacts'
 import {
+  getArtifactCode,
   listAllArtifacts,
   updateArtifactCodeByArtifactId
 } from '../../db/queries'
@@ -15,6 +16,17 @@ const artifactsRouter = new Hono<{ Variables: Variables }>()
 // Every artifact the chats made, newest first: the Artifacts page.
 artifactsRouter.get('/', async (c) => {
   return successResponse(c, await listAllArtifacts())
+})
+
+// One artifact's code from its row, for the Artifacts page's preview.
+artifactsRouter.get('/:chatId/:artifactId/code', async (c) => {
+  const result = await getArtifactCode(
+    c.req.param('chatId'),
+    c.req.param('artifactId')
+  )
+  if (!result)
+    throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND, 'Artifact not found')
+  return successResponse(c, result)
 })
 
 artifactsRouter.get('/:chatId', async (c) => {
