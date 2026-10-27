@@ -337,6 +337,8 @@
       "refreshing": "Aggiornamento in corso…",
       "retrieve": "Recupera elenco modelli",
       "refresh": "Aggiorna elenco modelli",
+      "refreshedTitle": "Elenco dei modelli aggiornato",
+      "refreshedDescription": "{{total}} modelli disponibili",
       "fetchErrorTitle": "Impossibile recuperare l'elenco dei modelli",
       "fetchErrorFallback": "Recupero dell'elenco dei modelli non riuscito",
       "reenterKey": "Inserisci di nuovo la chiave API per usarla con il nuovo URL di base.",

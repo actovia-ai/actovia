@@ -337,6 +337,8 @@
       "refreshing": "更新中…",
       "retrieve": "モデル一覧を取得",
       "refresh": "モデル一覧を更新",
+      "refreshedTitle": "モデル一覧を更新しました",
+      "refreshedDescription": "利用できるモデル：{{total}} 件",
       "fetchErrorTitle": "モデル一覧を取得できませんでした",
       "fetchErrorFallback": "モデル一覧の取得に失敗しました",
       "reenterKey": "新しいベース URL で使うには、API キーをもう一度入力してください。",

@@ -337,6 +337,8 @@
       "refreshing": "Wird aktualisiert…",
       "retrieve": "Modellliste abrufen",
       "refresh": "Modellliste aktualisieren",
+      "refreshedTitle": "Modellliste aktualisiert",
+      "refreshedDescription": "{{total}} Modelle verfügbar",
       "fetchErrorTitle": "Modellliste konnte nicht abgerufen werden",
       "fetchErrorFallback": "Abrufen der Modellliste fehlgeschlagen",
       "reenterKey": "Geben Sie den API-Schlüssel erneut ein, um ihn mit der neuen Basis-URL zu verwenden.",

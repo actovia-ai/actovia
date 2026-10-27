@@ -337,6 +337,8 @@
       "refreshing": "重新整理中…",
       "retrieve": "取得模型清單",
       "refresh": "重新整理模型清單",
+      "refreshedTitle": "模型列表已重新整理",
+      "refreshedDescription": "共 {{total}} 個可用模型",
       "fetchErrorTitle": "無法取得模型清單",
       "fetchErrorFallback": "取得模型清單失敗",
       "reenterKey": "請重新輸入 API 金鑰，才能搭配新的基礎 URL 使用。",

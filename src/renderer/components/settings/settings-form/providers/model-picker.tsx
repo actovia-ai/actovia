@@ -130,6 +130,12 @@ export function ModelPicker({
       )
       form.setValue(modelCatalogField, result.models, { shouldDirty: true })
       setRefusedKey(null)
+      sileo.success({
+        title: t('settings:providers.model.refreshedTitle'),
+        description: t('settings:providers.model.refreshedDescription', {
+          total: result.models.length
+        })
+      })
     } catch (error) {
       if (
         error instanceof HttpError &&

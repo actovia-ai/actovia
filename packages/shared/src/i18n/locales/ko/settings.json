@@ -337,6 +337,8 @@
       "refreshing": "새로고침 중…",
       "retrieve": "모델 목록 가져오기",
       "refresh": "모델 목록 새로고침",
+      "refreshedTitle": "모델 목록을 새로 고쳤습니다",
+      "refreshedDescription": "사용 가능한 모델 {{total}}개",
       "fetchErrorTitle": "모델 목록을 가져올 수 없습니다",
       "fetchErrorFallback": "모델 목록을 가져오지 못했습니다",
       "reenterKey": "새 기본 URL에서 사용하려면 API 키를 다시 입력해 주세요.",

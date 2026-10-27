@@ -20,8 +20,12 @@ vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 const sileoError = vi.fn()
+const sileoSuccess = vi.fn()
 vi.mock('sileo', () => ({
-  sileo: { success: vi.fn(), error: (...a: unknown[]) => sileoError(...a) }
+  sileo: {
+    success: (...a: unknown[]) => sileoSuccess(...a),
+    error: (...a: unknown[]) => sileoError(...a)
+  }
 }))
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -81,6 +85,7 @@ afterEach(() => {
   host.remove()
   fetcherMock.mockReset()
   sileoError.mockClear()
+  sileoSuccess.mockClear()
 })
 
 describe('ModelPicker: a saved key refused for a new base URL', () => {
@@ -121,5 +126,20 @@ describe('ModelPicker: a saved key refused for a new base URL', () => {
       root.render(createElement(Harness, { apiKey: 'sk-typed-again' }))
     })
     expect(inlineError()).toBeNull()
+  })
+})
+
+describe('ModelPicker: a refresh that succeeds (ISSUE-250)', () => {
+  it('says so with a toast, and only then', async () => {
+    fetcherMock.mockResolvedValue({
+      models: [{ id: 'gpt-5', displayName: 'GPT-5' }]
+    })
+    await renderAndRefresh('sk-live')
+    expect(sileoSuccess).toHaveBeenCalledTimes(1)
+    expect(sileoSuccess.mock.calls[0][0]).toMatchObject({
+      title: 'settings:providers.model.refreshedTitle',
+      description: 'settings:providers.model.refreshedDescription'
+    })
+    expect(sileoError).not.toHaveBeenCalled()
   })
 })

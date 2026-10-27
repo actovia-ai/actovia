@@ -337,6 +337,8 @@
       "refreshing": "Refreshing…",
       "retrieve": "Retrieve model list",
       "refresh": "Refresh model list",
+      "refreshedTitle": "Model list refreshed",
+      "refreshedDescription": "{{total}} models available",
       "fetchErrorTitle": "Could not fetch model list",
       "fetchErrorFallback": "Failed to fetch model list",
       "reenterKey": "Re-enter the API key to use it with the new base URL.",
