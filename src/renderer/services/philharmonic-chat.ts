@@ -79,16 +79,23 @@ export const interruptConversation = (id: string) =>
 export const getActivePlan = (conversationId: string) =>
   fetcher<PlanDto | null>(`${BASE}/conversations/${conversationId}/plan`)
 
+interface CostFigures {
+  cost: number
+  /** CLI employees' cost at API prices — not spent. Absent from an older Actovia. */
+  estimatedCost?: number
+  tokens: number
+}
+
 export interface PhilharmonicCostSummary {
   totalCost: number
+  /** Absent from an older Actovia. */
+  estimatedCost?: number
   totalTokens: number
-  byConversation: Array<{
-    conversationId: string
-    cost: number
-    tokens: number
-  }>
-  byAgent: Array<{ agentId: string; cost: number; tokens: number }>
-  daily: Array<{ date: string; cost: number; tokens: number }>
+  byConversation: Array<{ conversationId: string } & CostFigures>
+  byAgent: Array<{ agentId: string } & CostFigures>
+  /** The PM's own rounds. Absent from an older Actovia. */
+  pm?: { cost: number; tokens: number }
+  daily: Array<{ date: string } & CostFigures>
 }
 // `days`: today and the days before it; without it, all time.
 export const getPhilharmonicCosts = (days?: 7 | 30) =>

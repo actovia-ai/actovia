@@ -563,6 +563,8 @@ export const taskExecution = pgTable('task_execution', {
     inputTokens: number
     outputTokens: number
     cost?: number
+    /** A CLI employee: `cost` is its API-price estimate, not spend. */
+    estimated?: boolean
   }>()
 })
 

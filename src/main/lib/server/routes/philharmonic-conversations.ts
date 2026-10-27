@@ -21,7 +21,7 @@ import {
 } from '../../db/conversation-queries'
 import { getPhilharmonicCostRows } from '../../db/philharmonic-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
-import { listRoundEvents } from '../../db/pm-round-queries'
+import { getPmCostRows, listRoundEvents } from '../../db/pm-round-queries'
 import { localDateStr } from '../../local-date'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
@@ -42,63 +42,110 @@ interface CostRow {
     inputTokens: number
     outputTokens: number
     cost?: number
+    /** A CLI employee: `cost` is the CLI's API-price estimate, not spend. */
+    estimated?: boolean
   } | null
   startedAt: Date
 }
 
-export interface PhilharmonicCostSummary {
-  totalCost: number
-  totalTokens: number
-  byConversation: Array<{
-    conversationId: string
-    cost: number
-    tokens: number
-  }>
-  byAgent: Array<{ agentId: string; cost: number; tokens: number }>
-  daily: Array<{ date: string; cost: number; tokens: number }>
+/** One PM round's usage (`pm_round_event`, kind `usage`). */
+export interface PmCostRow {
+  conversationId: string
+  tokens: number
+  cost: number
+  createdAt: Date
 }
 
-/** Pure aggregation — unit tested. Costs come ONLY from philharmonic executions. */
-export function aggregateCosts(rows: CostRow[]): PhilharmonicCostSummary {
-  let totalCost = 0
-  let totalTokens = 0
-  const conv = new Map<string, { cost: number; tokens: number }>()
-  const agent = new Map<string, { cost: number; tokens: number }>()
-  const day = new Map<string, { cost: number; tokens: number }>()
+interface Figures {
+  cost: number
+  /** What CLI employees' runs would have cost at API prices — not spent. */
+  estimatedCost: number
+  tokens: number
+}
+
+export interface PhilharmonicCostSummary {
+  totalCost: number
+  estimatedCost: number
+  totalTokens: number
+  byConversation: Array<{ conversationId: string } & Figures>
+  byAgent: Array<{ agentId: string } & Figures>
+  /** The PM's own rounds. */
+  pm: { cost: number; tokens: number }
+  daily: Array<{ date: string } & Figures>
+}
+
+const zero = (): Figures => ({ cost: 0, estimatedCost: 0, tokens: 0 })
+
+function add(
+  map: Map<string, Figures>,
+  key: string,
+  cost: number,
+  estimatedCost: number,
+  tokens: number
+) {
+  const f = map.get(key) ?? zero()
+  f.cost += cost
+  f.estimatedCost += estimatedCost
+  f.tokens += tokens
+  map.set(key, f)
+}
+
+/**
+ * Pure aggregation — unit tested. Employees' executions and the PM's rounds;
+ * a CLI employee's dollar figure is an estimate, kept apart (ISSUE-132).
+ */
+export function aggregateCosts(
+  rows: CostRow[],
+  pmRows: PmCostRow[] = []
+): PhilharmonicCostSummary {
+  const total = zero()
+  const pm = { cost: 0, tokens: 0 }
+  const conv = new Map<string, Figures>()
+  const agent = new Map<string, Figures>()
+  const day = new Map<string, Figures>()
+
+  const count = (
+    conversationId: string | null,
+    agentId: string | null,
+    at: Date,
+    cost: number,
+    estimatedCost: number,
+    tokens: number
+  ) => {
+    total.cost += cost
+    total.estimatedCost += estimatedCost
+    total.tokens += tokens
+    if (conversationId) add(conv, conversationId, cost, estimatedCost, tokens)
+    if (agentId) add(agent, agentId, cost, estimatedCost, tokens)
+    // The user's day, not the UTC one: the chart labels it as a local date.
+    add(day, localDateStr(at), cost, estimatedCost, tokens)
+  }
 
   for (const r of rows) {
     const u = r.tokenUsage
     if (!u) continue
     const tokens = (u.inputTokens ?? 0) + (u.outputTokens ?? 0)
     const cost = u.cost ?? 0
-    totalCost += cost
-    totalTokens += tokens
-    if (r.conversationId) {
-      const c = conv.get(r.conversationId) ?? { cost: 0, tokens: 0 }
-      c.cost += cost
-      c.tokens += tokens
-      conv.set(r.conversationId, c)
-    }
-    const a = agent.get(r.agentId) ?? { cost: 0, tokens: 0 }
-    a.cost += cost
-    a.tokens += tokens
-    agent.set(r.agentId, a)
-    // The user's day, not the UTC one: the chart labels it as a local date.
-    const d = localDateStr(r.startedAt)
-    const dd = day.get(d) ?? { cost: 0, tokens: 0 }
-    dd.cost += cost
-    dd.tokens += tokens
-    day.set(d, dd)
+    if (u.estimated)
+      count(r.conversationId, r.agentId, r.startedAt, 0, cost, tokens)
+    else count(r.conversationId, r.agentId, r.startedAt, cost, 0, tokens)
+  }
+  for (const r of pmRows) {
+    pm.cost += r.cost
+    pm.tokens += r.tokens
+    count(r.conversationId, null, r.createdAt, r.cost, 0, r.tokens)
   }
 
   return {
-    totalCost,
-    totalTokens,
+    totalCost: total.cost,
+    estimatedCost: total.estimatedCost,
+    totalTokens: total.tokens,
     byConversation: [...conv.entries()].map(([conversationId, v]) => ({
       conversationId,
       ...v
     })),
     byAgent: [...agent.entries()].map(([agentId, v]) => ({ agentId, ...v })),
+    pm,
     daily: [...day.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, v]) => ({ date, ...v }))
@@ -351,8 +398,11 @@ router.get('/costs', async (c) => {
     since.setHours(0, 0, 0, 0)
     since.setDate(since.getDate() - (days - 1))
   }
-  const rows = await getPhilharmonicCostRows(since)
-  return successResponse(c, aggregateCosts(rows as never))
+  const [rows, pmRows] = await Promise.all([
+    getPhilharmonicCostRows(since),
+    getPmCostRows(since)
+  ])
+  return successResponse(c, aggregateCosts(rows as never, pmRows))
 })
 
 export default router

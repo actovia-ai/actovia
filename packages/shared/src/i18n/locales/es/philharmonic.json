@@ -317,7 +317,8 @@
       "employees": "Empleados",
       "employeesHint": "Con uso registrado",
       "conversations": "Conversaciones",
-      "conversationsHint": "Con actividad"
+      "conversationsHint": "Con actividad",
+      "totalCostEstimatedHint": "Más ~{{cost}} estimados de empleados CLI"
     },
     "chart": {
       "costLabel": "Costo",
@@ -326,13 +327,17 @@
     "agentCostList": {
       "title": "Costo por empleado",
       "empty": "Aún no hay datos de uso de empleados",
-      "tokens": "{{tokens}} tokens"
+      "tokens": "{{tokens}} tokens",
+      "pm": "PM",
+      "pmHint": "{{tokens}} tokens · sus propias rondas"
     },
     "conversationCostList": {
       "title": "Costo por conversación",
       "empty": "Aún no hay datos de uso de conversaciones",
       "deleted": "Grupo eliminado"
-    }
+    },
+    "estimated": "~{{cost}} est.",
+    "estimatedTitle": "Lo que la CLI indica que costarían estos tokens a precios de API. Con una suscripción no se cobran por token, así que no se suma al total."
   },
   "workforce": {
     "header": {

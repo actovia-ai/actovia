@@ -315,7 +315,8 @@
       "employees": "직원",
       "employeesHint": "사용 기록이 있는 직원",
       "conversations": "대화",
-      "conversationsHint": "활동이 있는 대화"
+      "conversationsHint": "활동이 있는 대화",
+      "totalCostEstimatedHint": "CLI 직원 추정 약 {{cost}} 별도"
     },
     "chart": {
       "costLabel": "비용",
@@ -324,13 +325,17 @@
     "agentCostList": {
       "title": "직원별 비용",
       "empty": "아직 직원 사용 데이터가 없습니다",
-      "tokens": "토큰 {{tokens}}개"
+      "tokens": "토큰 {{tokens}}개",
+      "pm": "PM",
+      "pmHint": "{{tokens}} 토큰 · 자체 라운드"
     },
     "conversationCostList": {
       "title": "대화별 비용",
       "empty": "아직 대화 사용 데이터가 없습니다",
       "deleted": "삭제된 그룹"
-    }
+    },
+    "estimated": "약 {{cost}} (추정)",
+    "estimatedTitle": "CLI가 API 요금으로 환산한 이 토큰의 비용입니다. 구독에서는 토큰별로 청구되지 않으므로 합계에 포함하지 않습니다."
   },
   "workforce": {
     "header": {

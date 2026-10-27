@@ -29,6 +29,11 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getPhilharmonicCostRows: getPhilharmonicCostRows
 }))
 const getPhilharmonicCostRows = vi.fn()
+const getPmCostRows = vi.fn(async (_since?: Date) => [])
+vi.mock('@main/lib/db/pm-round-queries', () => ({
+  getPmCostRows: (since?: Date) => getPmCostRows(since),
+  listRoundEvents: vi.fn(async () => [])
+}))
 const deleteConversation = vi.fn(async () => {
   order.push('delete')
 })
@@ -123,6 +128,64 @@ describe('aggregateCosts', () => {
     } finally {
       process.env.TZ = tz
     }
+  })
+})
+
+// ISSUE-132: a CLI employee's cost is the CLI's own API-price estimate (on a
+// subscription nothing is paid per token), so it is counted by tokens and
+// kept apart from what was spent; the PM's rounds are spent money.
+describe('aggregateCosts — CLI estimates and the PM', () => {
+  const at = new Date('2026-05-01T10:00:00')
+
+  it('counts a CLI run by tokens and keeps its estimate out of the total', () => {
+    const summary = aggregateCosts([
+      {
+        conversationId: 'c1',
+        agentId: 'api',
+        tokenUsage: { inputTokens: 100, outputTokens: 50, cost: 0.5 },
+        startedAt: at
+      },
+      {
+        conversationId: 'c1',
+        agentId: 'cli',
+        tokenUsage: {
+          inputTokens: 1000,
+          outputTokens: 200,
+          cost: 2,
+          estimated: true
+        },
+        startedAt: at
+      }
+    ])
+
+    expect(summary.totalCost).toBeCloseTo(0.5)
+    expect(summary.estimatedCost).toBeCloseTo(2)
+    expect(summary.totalTokens).toBe(1350)
+    const cli = summary.byAgent.find((a) => a.agentId === 'cli')!
+    expect(cli).toMatchObject({ cost: 0, tokens: 1200 })
+    expect(cli.estimatedCost).toBeCloseTo(2)
+    const c1 = summary.byConversation[0]
+    expect(c1.cost).toBeCloseTo(0.5)
+    expect(c1.estimatedCost).toBeCloseTo(2)
+    expect(summary.daily[0].estimatedCost).toBeCloseTo(2)
+  })
+
+  it("adds the PM's rounds to the total, the group and the day", () => {
+    const summary = aggregateCosts(
+      [],
+      [
+        { conversationId: 'c1', tokens: 300, cost: 0.25, createdAt: at },
+        { conversationId: 'c2', tokens: 100, cost: 0.05, createdAt: at }
+      ]
+    )
+
+    expect(summary.totalCost).toBeCloseTo(0.3)
+    expect(summary.totalTokens).toBe(400)
+    expect(summary.pm.tokens).toBe(400)
+    expect(summary.pm.cost).toBeCloseTo(0.3)
+    expect(summary.byConversation).toHaveLength(2)
+    expect(summary.byAgent).toHaveLength(0)
+    expect(summary.daily).toHaveLength(1)
   })
 })
 
@@ -254,6 +317,7 @@ describe('GET /costs', () => {
     getPhilharmonicCostRows.mockReset().mockResolvedValue([])
     await get('/costs')
     expect(getPhilharmonicCostRows).toHaveBeenCalledWith(undefined)
+    expect(getPmCostRows).toHaveBeenCalledWith(undefined)
   })
 
   it.each(['abc', '0', '14'])('refuses ?days=%s', async (days) => {

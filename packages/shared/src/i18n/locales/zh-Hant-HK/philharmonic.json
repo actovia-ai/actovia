@@ -315,7 +315,8 @@
       "employees": "員工",
       "employeesHint": "有使用記錄",
       "conversations": "對話",
-      "conversationsHint": "有活動記錄"
+      "conversationsHint": "有活動記錄",
+      "totalCostEstimatedHint": "另有 CLI 員工估算約 {{cost}}"
     },
     "chart": {
       "costLabel": "花費",
@@ -324,13 +325,17 @@
     "agentCostList": {
       "title": "各員工花費",
       "empty": "尚無員工使用量資料",
-      "tokens": "{{tokens}} 個 token"
+      "tokens": "{{tokens}} 個 token",
+      "pm": "PM",
+      "pmHint": "{{tokens}} token · 自身的輪次"
     },
     "conversationCostList": {
       "title": "各對話花費",
       "empty": "尚無對話使用量資料",
       "deleted": "已刪除的群組"
-    }
+    },
+    "estimated": "約 {{cost}}（估算）",
+    "estimatedTitle": "CLI 按 API 價格折算的這些 token 的費用。訂閱下並不按 token 收費，所以不計入總額。"
   },
   "workforce": {
     "header": {

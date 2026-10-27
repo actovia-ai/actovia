@@ -277,6 +277,7 @@ export function parseLine(line: string): ParsedLine {
             text: str(e.result) ?? '',
             costUsd:
               typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null,
+            usage: turnUsage(e.usage),
             denials: Array.isArray(e.permission_denials)
               ? e.permission_denials.length
               : 0
@@ -302,5 +303,20 @@ export function parseLine(line: string): ParsedLine {
 
     default:
       return { events: [] }
+  }
+}
+
+/** A `result` event's tokens, the cache counted as input (as Philharmonic's own loop counts them). */
+function turnUsage(
+  u: unknown
+): { inputTokens: number; outputTokens: number } | null {
+  if (!isObj(u)) return null
+  const n = (v: unknown) => (typeof v === 'number' ? v : 0)
+  return {
+    inputTokens:
+      n(u.input_tokens) +
+      n(u.cache_creation_input_tokens) +
+      n(u.cache_read_input_tokens),
+    outputTokens: n(u.output_tokens)
   }
 }

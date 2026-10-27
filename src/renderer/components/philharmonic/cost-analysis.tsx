@@ -56,6 +56,24 @@ function useCostFormat() {
   )
 }
 
+/**
+ * A CLI employee's cost, as the CLI reports it: what the tokens would cost at
+ * API prices. On a subscription nothing is charged per token, so it is shown
+ * apart from what was spent, never added to it (ISSUE-132).
+ */
+function Estimated({ usd }: { usd: number }) {
+  const { t } = useTranslation('philharmonic')
+  const fmt = useCostFormat()
+  return (
+    <span
+      className="text-muted-foreground text-2xs tabular-nums"
+      title={t('costAnalysis.estimatedTitle')}
+    >
+      {t('costAnalysis.estimated', { cost: fmt.cost(usd) })}
+    </span>
+  )
+}
+
 // ─── KPI card ────────────────────────────────────────────────────────────────
 
 function KpiCard({
@@ -91,9 +109,11 @@ function KpiCard({
 
 function AgentCostList({
   rows,
+  pm,
   agentsById
 }: {
   rows: PhilharmonicCostSummary['byAgent']
+  pm?: PhilharmonicCostSummary['pm']
   agentsById: Record<string, AgentData>
 }) {
   const { t } = useTranslation('philharmonic')
@@ -103,12 +123,32 @@ function AgentCostList({
       <div className="text-foreground text-ui mb-2 font-semibold">
         {t('costAnalysis.agentCostList.title')}
       </div>
-      {rows.length === 0 ? (
+      {rows.length === 0 && !pm?.tokens ? (
         <div className="text-muted-foreground py-6 text-center text-xs">
           {t('costAnalysis.agentCostList.empty')}
         </div>
       ) : (
         <div className="flex flex-col gap-1.5">
+          {!!pm?.tokens && (
+            <div className="bg-card flex items-center gap-2.5 rounded-lg px-2 py-2">
+              <div className="bg-background text-muted-foreground flex size-[30px] items-center justify-center rounded-full">
+                <HugeiconsIcon icon={UserGroupIcon} className="size-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground truncate text-xs font-semibold">
+                  {t('costAnalysis.agentCostList.pm')}
+                </div>
+                <div className="text-muted-foreground text-2xs">
+                  {t('costAnalysis.agentCostList.pmHint', {
+                    tokens: fmt.tokens(pm.tokens)
+                  })}
+                </div>
+              </div>
+              <div className="text-foreground text-xs font-semibold tabular-nums">
+                {fmt.cost(pm.cost)}
+              </div>
+            </div>
+          )}
           {rows.map((r) => {
             const agent = agentsById[r.agentId]
             const label = agent ? agent.name : `${r.agentId.slice(0, 8)}…`
@@ -136,9 +176,13 @@ function AgentCostList({
                     })}
                   </div>
                 </div>
-                <div className="text-foreground text-xs font-semibold tabular-nums">
-                  {fmt.cost(r.cost)}
-                </div>
+                {r.estimatedCost && !r.cost ? (
+                  <Estimated usd={r.estimatedCost} />
+                ) : (
+                  <div className="text-foreground text-xs font-semibold tabular-nums">
+                    {fmt.cost(r.cost)}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -186,6 +230,7 @@ function ConversationCostList({
                 <span className="text-muted-foreground text-2xs tabular-nums">
                   {fmt.tokens(r.tokens)}
                 </span>
+                {!!r.estimatedCost && <Estimated usd={r.estimatedCost} />}
                 <span className="text-foreground text-xs font-semibold tabular-nums">
                   {fmt.cost(r.cost)}
                 </span>
@@ -214,6 +259,11 @@ function ConversationCostList({
 }
 
 // ─── Main ────────────────────────────────────────────────────────────────────
+
+// The period on show is filled: the primitive's pressed `bg-muted` was the
+// hover colour, and in dark barely off the page (ISSUE-132).
+const PERIOD_ITEM =
+  'aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary aria-pressed:hover:text-primary-foreground'
 
 type Period = '7d' | '30d' | 'all'
 const PERIOD_DAYS: Record<Period, 7 | 30 | undefined> = {
@@ -293,13 +343,13 @@ export function CostAnalysis() {
           variant="outline"
           size="sm"
         >
-          <ToggleGroupItem value="7d">
+          <ToggleGroupItem value="7d" className={PERIOD_ITEM}>
             {t('costAnalysis.periodToggle.sevenDays')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="30d">
+          <ToggleGroupItem value="30d" className={PERIOD_ITEM}>
             {t('costAnalysis.periodToggle.thirtyDays')}
           </ToggleGroupItem>
-          <ToggleGroupItem value="all">
+          <ToggleGroupItem value="all" className={PERIOD_ITEM}>
             {t('costAnalysis.periodToggle.all')}
           </ToggleGroupItem>
         </ToggleGroup>
@@ -312,7 +362,13 @@ export function CostAnalysis() {
             label={t('costAnalysis.kpi.totalCost')}
             value={fmt.cost(data.totalCost)}
             icon={Dollar01Icon}
-            hint={t('costAnalysis.kpi.totalCostHint', { count: agentCount })}
+            hint={
+              data.estimatedCost
+                ? t('costAnalysis.kpi.totalCostEstimatedHint', {
+                    cost: fmt.cost(data.estimatedCost)
+                  })
+                : t('costAnalysis.kpi.totalCostHint', { count: agentCount })
+            }
           />
           <KpiCard
             label={t('costAnalysis.kpi.tokens')}
@@ -405,7 +461,11 @@ export function CostAnalysis() {
 
         {/* Breakdown lists */}
         <div className="grid grid-cols-1 gap-2.5 lg:grid-cols-2">
-          <AgentCostList rows={data.byAgent} agentsById={agentsById} />
+          <AgentCostList
+            rows={data.byAgent}
+            pm={data.pm}
+            agentsById={agentsById}
+          />
           <ConversationCostList
             rows={data.byConversation}
             groupsById={groupsById}

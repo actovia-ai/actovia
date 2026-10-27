@@ -304,6 +304,32 @@ describe('runAgentEmployee', () => {
     })
   })
 
+  // ISSUE-132: the step's own turn — its tokens and the CLI's cost — goes
+  // back to the engine for the Costs page; a turn with no usage, nothing.
+  it("hands back the step's tokens and cost", async () => {
+    const run = makeRun((r) => {
+      r.fire({ type: 'init', cliSessionId: 'cli-1', model: 'opus' })
+      r.fire({
+        type: 'turn_end',
+        ok: true,
+        interrupted: false,
+        text: 'Done.',
+        costUsd: 0.03,
+        usage: { inputTokens: 500, outputTokens: 40 },
+        denials: 0
+      })
+    })
+    const out = await runAgentEmployee(args({}), deps(run, []))
+    expect(out.usage).toEqual({
+      inputTokens: 500,
+      outputTokens: 40,
+      costUsd: 0.03
+    })
+
+    const quiet = await runAgentEmployee(args({}), deps(makeRun(happy), []))
+    expect(quiet.usage).toBeUndefined()
+  })
+
   it('resumes the employee’s last session in its own folder', async () => {
     resumable = {
       id: 'sess-old',

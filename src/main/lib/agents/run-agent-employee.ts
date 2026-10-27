@@ -46,6 +46,9 @@ export interface DelegatedOutput {
   /** Actovia's own loop: the id its bubble streamed under, which the saved
    * report takes so the live bubble and the row are one message. */
   liveMessageId?: string
+  /** A CLI step's own turn: tokens, and the cost the CLI reports at API
+   * prices (an estimate on a subscription). Absent when the CLI says nothing. */
+  usage?: { inputTokens: number; outputTokens: number; costUsd: number | null }
 }
 
 export interface RunAgentEmployeeArgs {
@@ -225,6 +228,7 @@ export async function runAgentEmployee(
     let lastEmit = 0
     /** Set once the step resolved: later (unprompted) turns update the persisted message. */
     let stepDone = false
+    let stepUsage: DelegatedOutput['usage']
     /** This step started the process, and its first turn began. */
     let startedHere = false
     let began = false
@@ -404,6 +408,12 @@ export async function runAgentEmployee(
               break
             case 'turn_end':
               flush()
+              if (e.usage)
+                stepUsage = {
+                  inputTokens: e.usage.inputTokens,
+                  outputTokens: e.usage.outputTokens,
+                  costUsd: e.costUsd
+                }
               stepDone = true
               resolve()
               break
@@ -431,7 +441,11 @@ export async function runAgentEmployee(
       } finally {
         signal?.removeEventListener('abort', onAbort)
       }
-      return { output: formatAgentOutput(card, session.id), messageId }
+      return {
+        output: formatAgentOutput(card, session.id),
+        messageId,
+        ...(stepUsage ? { usage: stepUsage } : {})
+      }
     } finally {
       unclaim()
       release?.()

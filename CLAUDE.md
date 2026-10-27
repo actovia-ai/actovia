@@ -1057,6 +1057,15 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   (`fitImageDataUrl()` in `ai/utils/image-fit.ts`); `GET /costs?days=7|30`
   counts only today and the days before it, by local day (no parameter: all
   time; anything else is a 400) — the Dashboard's 7d / 30d / All switch passes it
+- **Costs** (`GET /api/v1/philharmonic/costs`, `aggregateCosts()` in
+  `routes/philharmonic-conversations.ts`, page `philharmonic/cost-analysis.tsx`):
+  employees' `task_execution.tokenUsage` plus the PM's rounds
+  (`getPmCostRows()`, the `usage` events of `pm_round_event`, as `pm` and in
+  the totals). A CLI employee's step records its turn's tokens and the CLI's
+  own cost marked `estimated: true` (Claude Code's `result` event; Codex
+  reports neither yet): what the tokens would cost at API prices, not spend
+  on a subscription, so it is `estimatedCost`, shown apart and never added to
+  `totalCost` (ISSUE-132)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`

@@ -124,10 +124,22 @@ export async function runDelegatedTask(args: {
           })
     const output = outcome.output
     // Actovia's loop closes its own execution row; a CLI run leaves it to us.
+    // Its cost is the CLI's figure at API prices — on a subscription nothing
+    // is paid per token — so the Costs page keeps it apart (ISSUE-132).
     if (agent.runtime !== 'actovia')
       await updateTaskExecution(execution.id, {
         status: 'completed',
-        completedAt: new Date()
+        completedAt: new Date(),
+        ...(outcome.usage
+          ? {
+              tokenUsage: {
+                inputTokens: outcome.usage.inputTokens,
+                outputTokens: outcome.usage.outputTokens,
+                cost: outcome.usage.costUsd ?? 0,
+                estimated: true
+              }
+            }
+          : {})
       })
 
     await updateTask(taskId, {

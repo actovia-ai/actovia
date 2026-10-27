@@ -91,6 +91,16 @@ describe('Claude Code protocol', () => {
     expect((ends[0] as { costUsd: number }).costUsd).toBeGreaterThan(0)
   })
 
+  // ISSUE-132: the turn's tokens, cache included, for the Costs page.
+  it("reports the turn's tokens with its cost", () => {
+    const ends = eventsOf('deny-interrupt-continue.jsonl').filter(
+      (e) => e.type === 'turn_end'
+    )
+    expect(ends[0]).toMatchObject({
+      usage: { inputTokens: 4 + 4865 + 63616, outputTokens: 267 }
+    })
+  })
+
   it('streams text deltas that add up to the final text', () => {
     const evs = eventsOf('partial-messages.jsonl')
     const streamed = evs

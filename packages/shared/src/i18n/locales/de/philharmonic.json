@@ -317,7 +317,8 @@
       "employees": "Mitarbeiter",
       "employeesHint": "Mit erfasster Nutzung",
       "conversations": "Unterhaltungen",
-      "conversationsHint": "Mit Aktivität"
+      "conversationsHint": "Mit Aktivität",
+      "totalCostEstimatedHint": "Plus ~{{cost}} geschätzt für CLI-Mitarbeiter"
     },
     "chart": {
       "costLabel": "Kosten",
@@ -326,13 +327,17 @@
     "agentCostList": {
       "title": "Kosten nach Mitarbeiter",
       "empty": "Noch keine Mitarbeiternutzungsdaten",
-      "tokens": "{{tokens}} Tokens"
+      "tokens": "{{tokens}} Tokens",
+      "pm": "PM",
+      "pmHint": "{{tokens}} Tokens · eigene Runden"
     },
     "conversationCostList": {
       "title": "Kosten nach Unterhaltung",
       "empty": "Noch keine Unterhaltungsnutzungsdaten",
       "deleted": "Gelöschte Gruppe"
-    }
+    },
+    "estimated": "~{{cost}} geschätzt",
+    "estimatedTitle": "Was die CLI für diese Tokens zu API-Preisen angibt. Im Abo werden Tokens nicht einzeln berechnet, daher zählt das nicht zur Summe."
   },
   "workforce": {
     "header": {

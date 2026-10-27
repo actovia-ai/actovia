@@ -315,7 +315,8 @@
       "employees": "従業員数",
       "employeesHint": "利用記録のある従業員",
       "conversations": "会話数",
-      "conversationsHint": "活動のあった会話"
+      "conversationsHint": "活動のあった会話",
+      "totalCostEstimatedHint": "ほかに CLI 社員の推定 約 {{cost}}"
     },
     "chart": {
       "costLabel": "コスト",
@@ -324,13 +325,17 @@
     "agentCostList": {
       "title": "従業員別コスト",
       "empty": "従業員の利用データはまだありません",
-      "tokens": "{{tokens}}トークン"
+      "tokens": "{{tokens}}トークン",
+      "pm": "PM",
+      "pmHint": "{{tokens}} トークン・自身のラウンド"
     },
     "conversationCostList": {
       "title": "会話別コスト",
       "empty": "会話の利用データはまだありません",
       "deleted": "削除されたグループ"
-    }
+    },
+    "estimated": "約 {{cost}}（推定）",
+    "estimatedTitle": "CLI が API 料金で換算したこれらのトークンの費用です。サブスクリプションではトークン単位で課金されないため、合計には含めません。"
   },
   "workforce": {
     "header": {
