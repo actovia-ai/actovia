@@ -43,6 +43,12 @@ export function makeFormatters(localeId: string) {
       new Intl.DateTimeFormat(intlTag, o).format(d),
     number: (n: number, o?: Intl.NumberFormatOptions) =>
       new Intl.NumberFormat(intlTag, o).format(n),
+    /** A token count the short way: "586.3K", "1M". */
+    compactNumber: (n: number) =>
+      new Intl.NumberFormat(intlTag, {
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(n),
     /** A list of names the locale's way — "A, B, and C", 「A、B、C」. A
      *  conjunction list, long style: `type: 'unit'` would drop the
      *  separator entirely in Chinese and Japanese ("ABC"). */

@@ -223,7 +223,8 @@
     "exportMarkdown": "Als Markdown exportieren…",
     "exportPdf": "Als PDF exportieren…",
     "exportFailed": "Chat konnte nicht exportiert werden",
-    "panel": "Dateien, Tools und Quellen"
+    "panel": "Dateien, Tools und Quellen",
+    "contextRing": "Kontext {{percent}} % · {{used}} / {{window}}"
   },
   "export": {
     "you": "Du",
@@ -243,7 +244,27 @@
     "generatedPicture": "Generiertes Bild {{index}}",
     "calls_one": "{{count}} Aufruf",
     "calls_other": "{{count}} Aufrufe",
-    "untitledQuestion": "(kein Text)"
+    "untitledQuestion": "(kein Text)",
+    "context": {
+      "tab": "Kontext",
+      "used": "{{percent}} % belegt · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} Tokens",
+      "part": {
+        "system": "Systemprompt",
+        "skills": "Skills",
+        "mcp": "MCP",
+        "tools": "Tools",
+        "memory": "Erinnerungen",
+        "summaries": "Zusammenfassungen",
+        "messages": "Nachrichten"
+      },
+      "free": "Frei",
+      "estimated": "Geschätzt",
+      "asOf": "Stand {{time}}.",
+      "compactsAt": "Wird verdichtet, sobald Nachrichten {{percent}} % erreichen.",
+      "compactionOff": "Verdichtung ist aus.",
+      "empty": "Sende eine Nachricht, um zu sehen, was den Kontext dieses Chats füllt."
+    }
   },
   "sidebar": {
     "newChat": "Neuer Chat",

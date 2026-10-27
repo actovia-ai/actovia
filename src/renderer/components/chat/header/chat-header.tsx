@@ -12,13 +12,14 @@ import { chatMessagesAtom, chatPanelAtom } from '@/stores/chat'
 import { chatStatusAtom } from '@/stores/input'
 
 import { ChatMenu } from './chat-menu'
+import { ContextRing } from './context-ring'
 import { HeaderButton } from './header-button'
 import { ModelChip } from './model-chip'
 
 /**
  * The chat header (spec 2026-10-08 §2), after the sidebar toggle and the
  * history arrows: on the left, on a chat page, the title with a dot while a
- * reply is on its way, the model chip and the `▾` menu; on the right the
+ * reply is on its way, the model chip, the context ring and the `▾` menu; on the right the
  * panel toggle. A left-and-right bar, as Claude's (owner, 2026-10-08), not a
  * centred title. The header is the window's drag region,
  * so every control here is `no-drag`.
@@ -64,6 +65,7 @@ function TitleGroup({ id }: { id: string }) {
         />
       )}
       <ModelChip chatId={id} />
+      <ContextRing chatId={id} />
       <ChatMenu chat={chat} />
     </div>
   )

@@ -34,16 +34,20 @@ import {
   revealArtifactAtom
 } from '@/stores/chat'
 
-const SECTIONS: ChatPanelSection[] = ['files', 'tools', 'sources']
+import { ContextSection } from './context-section'
+
+const SECTIONS: ChatPanelSection[] = ['context', 'files', 'tools', 'sources']
 const SECTION_LABELS = {
+  context: 'panel.context.tab',
   files: 'panel.files',
   tools: 'panel.tools',
   sources: 'panel.sources'
 } as const
 
 /**
- * The header's panel (spec 2026-10-08 §5): what the chat produced and used —
- * files, tools, sources — derived from its messages, a `SheetPanel` beside
+ * The header's panel (spec 2026-10-08 §5): what fills the chat's context
+ * (ISSUE-235, its own data) and what the chat produced and used — files,
+ * tools, sources — derived from its messages, a `SheetPanel` beside
  * the content where the Sources panel was. Each row leads back to its run.
  */
 export function ChatPanel() {
@@ -106,9 +110,11 @@ export function ChatPanel() {
                 data-section={section}
               >
                 {t(SECTION_LABELS[section])}
-                <span className="text-muted-foreground ml-1 tabular-nums">
-                  {counts[section]}
-                </span>
+                {section !== 'context' && (
+                  <span className="text-muted-foreground ml-1 tabular-nums">
+                    {counts[section]}
+                  </span>
+                )}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -117,7 +123,9 @@ export function ChatPanel() {
 
       {panel.open && (
         <div ref={bodyRef} className="bg-background flex-1 overflow-y-auto p-3">
-          {hasPanelItems(items) ? (
+          {panel.section === 'context' ? (
+            id && <ContextSection chatId={id} />
+          ) : hasPanelItems(items) ? (
             panel.section === 'files' ? (
               <FilesSection items={items} />
             ) : panel.section === 'tools' ? (

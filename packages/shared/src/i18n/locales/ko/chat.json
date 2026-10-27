@@ -214,7 +214,8 @@
     "exportMarkdown": "Markdown으로 내보내기…",
     "exportPdf": "PDF로 내보내기…",
     "exportFailed": "채팅을 내보낼 수 없습니다",
-    "panel": "파일, 도구 및 출처"
+    "panel": "파일, 도구 및 출처",
+    "contextRing": "컨텍스트 {{percent}}% · {{used}} / {{window}}"
   },
   "export": {
     "you": "나",
@@ -232,7 +233,27 @@
     "picture": "사진 {{index}}",
     "generatedPicture": "생성된 사진 {{index}}",
     "calls_other": "{{count}}회",
-    "untitledQuestion": "(텍스트 없음)"
+    "untitledQuestion": "(텍스트 없음)",
+    "context": {
+      "tab": "컨텍스트",
+      "used": "{{percent}}% 사용 · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} 토큰",
+      "part": {
+        "system": "시스템 프롬프트",
+        "skills": "스킬",
+        "mcp": "MCP",
+        "tools": "도구",
+        "memory": "메모리",
+        "summaries": "요약",
+        "messages": "메시지"
+      },
+      "free": "여유 공간",
+      "estimated": "추정",
+      "asOf": "{{time}} 기준.",
+      "compactsAt": "메시지가 {{percent}}%에 도달하면 압축합니다.",
+      "compactionOff": "압축이 꺼져 있습니다.",
+      "empty": "메시지를 보내면 이 채팅의 컨텍스트가 무엇으로 채워지는지 볼 수 있습니다."
+    }
   },
   "sidebar": {
     "newChat": "새 채팅",

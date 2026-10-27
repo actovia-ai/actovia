@@ -40,7 +40,7 @@ export const chatMessagesAtom = atom<ChatMessage[]>([])
  */
 export const revealArtifactAtom = atom<string | null>(null)
 
-export type ChatPanelSection = 'files' | 'tools' | 'sources'
+export type ChatPanelSection = 'context' | 'files' | 'tools' | 'sources'
 
 export interface ChatPanelState {
   open: boolean
@@ -49,7 +49,7 @@ export interface ChatPanelState {
   runId?: string
 }
 
-/** The header's files / tools / sources panel (`chat/panel/chat-panel.tsx`). */
+/** The header's context / files / tools / sources panel (`chat/panel/chat-panel.tsx`). */
 export const chatPanelAtom = atom<ChatPanelState>({
   open: false,
   section: 'files'

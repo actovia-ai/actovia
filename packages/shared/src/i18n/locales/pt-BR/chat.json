@@ -223,7 +223,8 @@
     "exportMarkdown": "Exportar como Markdown…",
     "exportPdf": "Exportar como PDF…",
     "exportFailed": "Não foi possível exportar o chat",
-    "panel": "Arquivos, ferramentas e fontes"
+    "panel": "Arquivos, ferramentas e fontes",
+    "contextRing": "Contexto {{percent}}% · {{used}} / {{window}}"
   },
   "export": {
     "you": "Você",
@@ -243,7 +244,27 @@
     "generatedPicture": "Imagem gerada {{index}}",
     "calls_one": "{{count}} chamada",
     "calls_other": "{{count}} chamadas",
-    "untitledQuestion": "(sem texto)"
+    "untitledQuestion": "(sem texto)",
+    "context": {
+      "tab": "Contexto",
+      "used": "{{percent}}% usado · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} tokens",
+      "part": {
+        "system": "Prompt do sistema",
+        "skills": "Skills",
+        "mcp": "MCP",
+        "tools": "Ferramentas",
+        "memory": "Memória",
+        "summaries": "Resumos",
+        "messages": "Mensagens"
+      },
+      "free": "Espaço livre",
+      "estimated": "Estimado",
+      "asOf": "Em {{time}}.",
+      "compactsAt": "Compacta quando as mensagens chegam a {{percent}}%.",
+      "compactionOff": "A compactação está desativada.",
+      "empty": "Envie uma mensagem para ver o que preenche o contexto deste chat."
+    }
   },
   "sidebar": {
     "newChat": "Novo chat",

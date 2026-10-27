@@ -241,7 +241,8 @@
     "exportMarkdown": "Экспортировать в Markdown…",
     "exportPdf": "Экспортировать в PDF…",
     "exportFailed": "Не удалось экспортировать чат",
-    "panel": "Файлы, инструменты и источники"
+    "panel": "Файлы, инструменты и источники",
+    "contextRing": "Контекст {{percent}}% · {{used}} / {{window}}"
   },
   "export": {
     "you": "Вы",
@@ -265,7 +266,27 @@
     "calls_few": "{{count}} вызова",
     "calls_many": "{{count}} вызовов",
     "calls_other": "{{count}} вызова",
-    "untitledQuestion": "(без текста)"
+    "untitledQuestion": "(без текста)",
+    "context": {
+      "tab": "Контекст",
+      "used": "Занято {{percent}}% · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} токенов",
+      "part": {
+        "system": "Системный промпт",
+        "skills": "Навыки",
+        "mcp": "MCP",
+        "tools": "Инструменты",
+        "memory": "Память",
+        "summaries": "Сводки",
+        "messages": "Сообщения"
+      },
+      "free": "Свободно",
+      "estimated": "Оценка",
+      "asOf": "По состоянию на {{time}}.",
+      "compactsAt": "Сжимается, когда сообщения достигают {{percent}}%.",
+      "compactionOff": "Сжатие выключено.",
+      "empty": "Отправьте сообщение, чтобы увидеть, чем заполнен контекст этого чата."
+    }
   },
   "sidebar": {
     "newChat": "Новый чат",

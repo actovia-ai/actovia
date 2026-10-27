@@ -38,6 +38,9 @@ vi.mock('@/components/chat/header/model-chip', () => ({
 vi.mock('@/components/chat/header/chat-menu', () => ({
   ChatMenu: () => createElement('div', { 'data-stub': 'menu' })
 }))
+vi.mock('@/components/chat/header/context-ring', () => ({
+  ContextRing: () => createElement('div', { 'data-stub': 'ring' })
+}))
 
 const pass =
   (tag: string) =>
@@ -116,6 +119,12 @@ describe('<ChatHeader>', () => {
     expect(byId(TEST_IDS.chat.header.title)?.textContent).toBe('Trip planning')
     expect(host.querySelector('[data-stub="chip"]')).not.toBeNull()
     expect(host.querySelector('[data-stub="menu"]')).not.toBeNull()
+    // The context ring sits between the chip and the menu (ISSUE-235).
+    expect(
+      [...host.querySelectorAll('[data-stub]')].map((el) =>
+        el.getAttribute('data-stub')
+      )
+    ).toEqual(['chip', 'ring', 'menu'])
     expect(byId(TEST_IDS.chat.header.panelToggle)).not.toBeNull()
   })
 

@@ -214,7 +214,8 @@
     "exportMarkdown": "Markdownとして書き出す…",
     "exportPdf": "PDFとして書き出す…",
     "exportFailed": "チャットを書き出せませんでした",
-    "panel": "ファイル・ツール・ソース"
+    "panel": "ファイル・ツール・ソース",
+    "contextRing": "コンテキスト {{percent}}% · {{used}} / {{window}}"
   },
   "export": {
     "you": "あなた",
@@ -232,7 +233,27 @@
     "picture": "画像 {{index}}",
     "generatedPicture": "生成画像 {{index}}",
     "calls_other": "{{count}} 回",
-    "untitledQuestion": "（テキストなし）"
+    "untitledQuestion": "（テキストなし）",
+    "context": {
+      "tab": "コンテキスト",
+      "used": "{{percent}}% 使用中 · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} トークン",
+      "part": {
+        "system": "システムプロンプト",
+        "skills": "スキル",
+        "mcp": "MCP",
+        "tools": "ツール",
+        "memory": "メモリ",
+        "summaries": "要約",
+        "messages": "メッセージ"
+      },
+      "free": "空き",
+      "estimated": "推定",
+      "asOf": "{{time}}時点。",
+      "compactsAt": "メッセージが {{percent}}% に達すると圧縮されます。",
+      "compactionOff": "圧縮はオフです。",
+      "empty": "メッセージを送ると、このチャットのコンテキストの内訳が表示されます。"
+    }
   },
   "sidebar": {
     "newChat": "新しいチャット",

@@ -1433,11 +1433,19 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   `chat.model`, read through `hooks/use-chat-model.ts`, else the default in
   `providerConfig`; a pick from the cached `modelCatalog` of the providers
   with a key is saved on that chat alone through `PUT /api/v1/chat`
-  (`useSetChatModel`), never on the default) and `chat-menu.tsx` (rename, favourite, export as Markdown / PDF
+  (`useSetChatModel`), never on the default), `context-ring.tsx` (ISSUE-235:
+  how full the chat's context is, from `GET /api/v1/chat/:id/context`
+  through `hooks/use-chat-context.ts` and `lib/context-meter.ts` — a ring in
+  `text-primary-ink`, `text-warning` once summaries + messages reach LCM's
+  mark, the numbers in its tooltip, hidden before a run; a click opens the
+  panel on Context) and `chat-menu.tsx` (rename, favourite, export as Markdown / PDF
   through `lib/chat-export.ts` and the `md-to-pdf` route's print sheet
   `main/lib/pdf/print-document.ts`, delete); and the toggle of
-  `components/chat/panel/chat-panel.tsx` — files, tools and sources derived
-  from the open chat's messages (`chatMessagesAtom`, set by `<Chat>` when a
+  `components/chat/panel/chat-panel.tsx` — Context first (`panel/context-section.tsx`:
+  the share used, one stacked bar with LCM's mark, a row per part and the
+  free space, "as of" and where compaction starts; the stream manager
+  invalidates `['chat', id, 'context']` when a run ends), then files, tools
+  and sources derived from the open chat's messages (`chatMessagesAtom`, set by `<Chat>` when a
   message is added or the stream settles) by `lib/chat-panel-items.ts`, each
   row scrolling to its run (`lib/scroll-to-run.ts`, the rail's rule) and an
   artifact row opening its card (`revealArtifactAtom`). It replaced the
@@ -1674,7 +1682,8 @@ audit that applied it is in the commit history (`style(motion): …`).
   holds it against the shadcn generator.
 - **Colour:** the light neutral base is `oklch(0.985)` (page) / `0.995`
   (card, popover) / `0.975` (sidebar) — never pure white; dark is `0.145`.
-  No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces and no
+  No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces (a
+  heads-up is `--warning`, `text-warning` — only `:root` / `.dark` set it) and no
   `bg-black`/`bg-white` except an overlay scrim; use the tokens. `--accent`
   (a hover, a chip, a selected item) stays at least 0.03 L from `--muted`,
   and the light `--sidebar-accent` (the active row) 0.035 under `--sidebar`

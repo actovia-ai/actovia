@@ -285,14 +285,18 @@ export const TEST_IDS = {
       /** One per model in the chip's list (`data-model` holds the id). */
       modelOption: 'chat.header.model-option',
       menu: 'chat.header.menu',
-      panelToggle: 'chat.header.panel-toggle'
+      panelToggle: 'chat.header.panel-toggle',
+      /** How full the chat's context is; opens the panel on Context (ISSUE-235). */
+      contextRing: 'chat.header.context-ring'
     },
     /** The header's files / tools / sources panel (chat/panel/): its root, a section tab, a row, the empty line. */
     panel: {
       root: 'chat.panel.root',
       tab: 'chat.panel.tab',
       item: 'chat.panel.item',
-      empty: 'chat.panel.empty'
+      empty: 'chat.panel.empty',
+      /** The Context section: the bar, a row per part, the foot. */
+      contextSection: 'chat.panel.context-section'
     }
   },
   composer: {

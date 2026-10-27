@@ -214,7 +214,8 @@
     "exportMarkdown": "导出为 Markdown…",
     "exportPdf": "导出为 PDF…",
     "exportFailed": "无法导出聊天",
-    "panel": "文件、工具和来源"
+    "panel": "文件、工具和来源",
+    "contextRing": "上下文 {{percent}}% · {{used}} / {{window}}"
   },
   "export": {
     "you": "你",
@@ -232,7 +233,27 @@
     "picture": "图片 {{index}}",
     "generatedPicture": "生成的图片 {{index}}",
     "calls_other": "{{count}} 次调用",
-    "untitledQuestion": "（无文本）"
+    "untitledQuestion": "（无文本）",
+    "context": {
+      "tab": "上下文",
+      "used": "已用 {{percent}}% · {{used}} / {{window}}",
+      "usedNoWindow": "{{used}} 个 token",
+      "part": {
+        "system": "系统提示词",
+        "skills": "技能",
+        "mcp": "MCP",
+        "tools": "工具",
+        "memory": "记忆",
+        "summaries": "摘要",
+        "messages": "消息"
+      },
+      "free": "剩余空间",
+      "estimated": "估算",
+      "asOf": "截至 {{time}}。",
+      "compactsAt": "消息达到 {{percent}}% 时压缩。",
+      "compactionOff": "压缩已关闭。",
+      "empty": "发送一条消息，看看这个对话的上下文由什么组成。"
+    }
   },
   "sidebar": {
     "newChat": "新聊天",

@@ -119,7 +119,7 @@ afterEach(() => {
 function mount(
   panel: {
     open: boolean
-    section: 'files' | 'tools' | 'sources'
+    section: 'context' | 'files' | 'tools' | 'sources'
     runId?: string
   },
   path = '/chat/c1',
@@ -192,6 +192,8 @@ describe('<ChatPanel>', () => {
     expect(
       tabs.map((tab) => `${tab.dataset.section}:${tab.textContent}`)
     ).toEqual([
+      // What fills the context has no count (ISSUE-235).
+      'context:panel.context.tab',
       'files:panel.files3',
       'tools:panel.tools3',
       // Every source, not the one run they are grouped under.

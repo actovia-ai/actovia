@@ -13,6 +13,7 @@ import {
   recordApprovalRequired,
   recordApprovalResolved
 } from '@/hooks/use-approvals'
+import { chatContextKeys } from '@/hooks/use-chat-context'
 import { invalidateHistory } from '@/hooks/use-chat-history'
 import { memoryKeys } from '@/hooks/use-memory'
 import { i18n } from '@/lib/i18n'
@@ -291,6 +292,10 @@ export function startStream(opts: {
       // the list orders by the latest message. Done here rather than by the
       // chat page, which is gone when the user has opened another chat.
       void invalidateHistory(queryClient)
+      // The run saved what filled its context (ISSUE-235).
+      void queryClient.invalidateQueries({
+        queryKey: chatContextKeys.detail(stream.chatId)
+      })
     }
   })()
 }
