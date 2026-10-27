@@ -25,7 +25,7 @@ they do act on is how full a chat's context is — when it will compact, what is
 - Rewriting stored rows. Old `message.usage.cost`, `task_execution.tokenUsage.cost` and PM round
   `costUsd` stay in their JSON; nothing reads them **(call)** — a migration over every message row
   buys nothing.
-- Changing *how* LCM compacts. One fix is in scope (§3): it is handed the model's real window.
+- Changing _how_ LCM compacts. One fix is in scope (§3): it is handed the model's real window.
 
 ## Anti-goals
 
@@ -38,6 +38,7 @@ they do act on is how full a chat's context is — when it will compact, what is
 ## 1. Removing money
 
 **Main**
+
 - `ai/utils/cost.ts` (`calculateCost`) is deleted; the kernel stops attaching its own `cost`
   (`run.ts`, `ChatAssistantMessage.cost` / `CostBreakdown` in `types/chat.ts` go) and the employee
   loop stops calling it. pi's types require `usage.cost` and `model.cost`, and pi computes
@@ -76,15 +77,15 @@ round so the rest of the dashboard (upcoming, recurring) loads without it.
 **What is measured.** At the start of every chat run the route already holds every part of the
 request. It records, per run, a context snapshot:
 
-| part | from |
-| --- | --- |
-| System prompt | `systemContent` without the parts below |
-| Skills | the `skillsIndex` string |
-| MCP | `mcpDirectory(mcpTools)` + the two toolbox tools' schemas (bound only when MCP tools exist) |
-| Tools | the other bound tools' names, descriptions and schemas |
-| Memory | `formatRunMemory(memoryRows)` + the `runMemory` blocks put before earlier runs |
-| Summaries | LCM summary messages in the context |
-| Messages | everything else: the runs and this question |
+| part          | from                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------- |
+| System prompt | `systemContent` without the parts below                                                     |
+| Skills        | the `skillsIndex` string                                                                    |
+| MCP           | `mcpDirectory(mcpTools)` + the two toolbox tools' schemas (bound only when MCP tools exist) |
+| Tools         | the other bound tools' names, descriptions and schemas                                      |
+| Memory        | `formatRunMemory(memoryRows)` + the `runMemory` blocks put before earlier runs              |
+| Summaries     | LCM summary messages in the context                                                         |
+| Messages      | everything else: the runs and this question                                                 |
 
 The route holds each of these as a separate value before it joins them (`systemContent` is
 `getSystemPrompt(...) + personalityPrompt`; Deep Research uses `deepResearchBootPrompt`, so
@@ -115,6 +116,7 @@ compactAt | null, total, estimated, parts: [{ key, tokens }] }`; `404` for a cha
 nothing.
 
 **UI** **(owner: header ring + side panel)**
+
 - Header, beside the model chip: a small ring filled to the share used, the ink colour of the
   tone; amber past the compaction mark. Tooltip "Context 59% · 586k / 1M". Click opens the chat
   panel on its Context section.
@@ -152,7 +154,7 @@ reach 75%".
 - Route: 404 before any run; shape after one.
 - Renderer: the ring's percentage and amber state; the section's rows and the "estimated" note;
   a Playwright check on the faux provider that the ring appears after a send and opens the panel
-  (`TEST_IDS.chat.contextRing`, `TEST_IDS.chat.panel.contextSection`).
+  (`TEST_IDS.chat.header.contextRing`, `TEST_IDS.chat.panel.contextSection`).
 - LCM: the route and the post-turn job construct `LcmManager` with the model's window (a test
   that a 1M model does not compact at 96k of messages).
 - `resolveModel()`: every return path has zero `cost`.
