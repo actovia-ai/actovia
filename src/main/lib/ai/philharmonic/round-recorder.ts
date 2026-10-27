@@ -94,7 +94,6 @@ export function createRoundRecorder(
     outputTokens: 0,
     cacheReadTokens: 0,
     cacheWriteTokens: 0,
-    costUsd: 0,
     seen: false
   }
   const counts = { delegations: 0, waits: 0 }
@@ -150,10 +149,7 @@ export function createRoundRecorder(
       try {
         if (usage.seen) {
           const { seen: _seen, ...rest } = usage
-          write('usage', {
-            ...rest,
-            costUsd: Math.round(rest.costUsd * 1e6) / 1e6
-          })
+          write('usage', rest)
         }
       } catch (error) {
         captureFailed(error)
@@ -195,8 +191,6 @@ export function createRoundRecorder(
           typeof u.cacheRead === 'number' ? u.cacheRead : 0
         usage.cacheWriteTokens +=
           typeof u.cacheWrite === 'number' ? u.cacheWrite : 0
-        usage.costUsd +=
-          isObj(u.cost) && typeof u.cost.total === 'number' ? u.cost.total : 0
       }
     } else if (event.type === 'tool_execution_start') {
       write('tool_call', {

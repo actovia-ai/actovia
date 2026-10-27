@@ -91,8 +91,7 @@ describe('round recorder', () => {
       inputTokens: 150,
       outputTokens: 30,
       cacheReadTokens: 5,
-      cacheWriteTokens: 0,
-      costUsd: 0.015
+      cacheWriteTokens: 0
     })
   })
 

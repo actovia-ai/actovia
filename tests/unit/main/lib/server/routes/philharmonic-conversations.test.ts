@@ -83,111 +83,8 @@ vi.mock('@main/lib/agents/registry', () => ({
   agentRegistry: { stopConversation: (id: string) => stopConversation(id) }
 }))
 
-const { aggregateCosts, default: conversationsRouter } =
+const { default: conversationsRouter } =
   await import('@main/lib/server/routes/philharmonic-conversations')
-
-describe('aggregateCosts', () => {
-  it('sums tokens and cost by conversation and agent', () => {
-    const rows = [
-      {
-        conversationId: 'c1',
-        agentId: 'a1',
-        tokenUsage: { inputTokens: 100, outputTokens: 50, cost: 0.5 },
-        startedAt: new Date('2026-05-01')
-      },
-      {
-        conversationId: 'c1',
-        agentId: 'a2',
-        tokenUsage: { inputTokens: 200, outputTokens: 80, cost: 0.7 },
-        startedAt: new Date('2026-05-01')
-      }
-    ]
-    const summary = aggregateCosts(rows as never)
-    expect(summary.totalCost).toBeCloseTo(1.2)
-    expect(summary.totalTokens).toBe(430)
-    expect(
-      summary.byConversation.find((c) => c.conversationId === 'c1')!.cost
-    ).toBeCloseTo(1.2)
-    expect(summary.byAgent).toHaveLength(2)
-  })
-
-  it('puts a run on the day it started where the user is, not the UTC day', () => {
-    const tz = process.env.TZ
-    process.env.TZ = 'Asia/Shanghai'
-    try {
-      const summary = aggregateCosts([
-        {
-          conversationId: 'c1',
-          agentId: 'a1',
-          tokenUsage: { inputTokens: 1, outputTokens: 1, cost: 0.1 },
-          // 04:30 on 2 May in Shanghai.
-          startedAt: new Date('2026-05-01T20:30:00.000Z')
-        }
-      ])
-      expect(summary.daily.map((d) => d.date)).toEqual(['2026-05-02'])
-    } finally {
-      process.env.TZ = tz
-    }
-  })
-})
-
-// ISSUE-132: a CLI employee's cost is the CLI's own API-price estimate (on a
-// subscription nothing is paid per token), so it is counted by tokens and
-// kept apart from what was spent; the PM's rounds are spent money.
-describe('aggregateCosts — CLI estimates and the PM', () => {
-  const at = new Date('2026-05-01T10:00:00')
-
-  it('counts a CLI run by tokens and keeps its estimate out of the total', () => {
-    const summary = aggregateCosts([
-      {
-        conversationId: 'c1',
-        agentId: 'api',
-        tokenUsage: { inputTokens: 100, outputTokens: 50, cost: 0.5 },
-        startedAt: at
-      },
-      {
-        conversationId: 'c1',
-        agentId: 'cli',
-        tokenUsage: {
-          inputTokens: 1000,
-          outputTokens: 200,
-          cost: 2,
-          estimated: true
-        },
-        startedAt: at
-      }
-    ])
-
-    expect(summary.totalCost).toBeCloseTo(0.5)
-    expect(summary.estimatedCost).toBeCloseTo(2)
-    expect(summary.totalTokens).toBe(1350)
-    const cli = summary.byAgent.find((a) => a.agentId === 'cli')!
-    expect(cli).toMatchObject({ cost: 0, tokens: 1200 })
-    expect(cli.estimatedCost).toBeCloseTo(2)
-    const c1 = summary.byConversation[0]
-    expect(c1.cost).toBeCloseTo(0.5)
-    expect(c1.estimatedCost).toBeCloseTo(2)
-    expect(summary.daily[0].estimatedCost).toBeCloseTo(2)
-  })
-
-  it("adds the PM's rounds to the total, the group and the day", () => {
-    const summary = aggregateCosts(
-      [],
-      [
-        { conversationId: 'c1', tokens: 300, cost: 0.25, createdAt: at },
-        { conversationId: 'c2', tokens: 100, cost: 0.05, createdAt: at }
-      ]
-    )
-
-    expect(summary.totalCost).toBeCloseTo(0.3)
-    expect(summary.totalTokens).toBe(400)
-    expect(summary.pm.tokens).toBe(400)
-    expect(summary.pm.cost).toBeCloseTo(0.3)
-    expect(summary.byConversation).toHaveLength(2)
-    expect(summary.byAgent).toHaveLength(0)
-    expect(summary.daily).toHaveLength(1)
-  })
-})
 
 describe('DELETE /conversations/:id', () => {
   it('removes the Group’s generated media with it', async () => {
@@ -293,37 +190,12 @@ describe('POST /conversations/:id/messages', () => {
 })
 
 describe('GET /costs', () => {
-  async function get(path: string) {
+  // ISSUE-235: the Costs page and its route are gone.
+  it('is not served', async () => {
     const { Hono } = await import('hono')
     const app = new Hono()
-    app.onError((_err, c) => c.json({}, 400))
     app.route('/', conversationsRouter)
-    return app.request(path)
-  }
-
-  it('reads today and the six days before it for ?days=7', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date(2026, 9, 23, 15, 30))
-    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
-    const res = await get('/costs?days=7')
-    vi.useRealTimers()
-    expect(res.status).toBe(200)
-    expect(getPhilharmonicCostRows).toHaveBeenCalledWith(
-      new Date(2026, 9, 17, 0, 0)
-    )
-  })
-
-  it('reads everything without ?days', async () => {
-    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
-    await get('/costs')
-    expect(getPhilharmonicCostRows).toHaveBeenCalledWith(undefined)
-    expect(getPmCostRows).toHaveBeenCalledWith(undefined)
-  })
-
-  it.each(['abc', '0', '14'])('refuses ?days=%s', async (days) => {
-    getPhilharmonicCostRows.mockReset().mockResolvedValue([])
-    const res = await get(`/costs?days=${days}`)
-    expect(res.status).toBe(400)
-    expect(getPhilharmonicCostRows).not.toHaveBeenCalled()
+    const res = await app.request('/costs?days=7')
+    expect(res.status).toBe(404)
   })
 })

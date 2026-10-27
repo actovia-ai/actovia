@@ -101,10 +101,8 @@ export interface AgentCard {
   /** The text block being written now. */
   pending: string
   prompts: AgentPrompt[]
-  /** The CLI's notices, verbatim (rate limit, cost). */
+  /** The CLI's notices, verbatim (a rate limit, …). */
   notices: string[]
-  /** Sum of the turns' `total_cost_usd`, as reported. */
-  costUsd: number | null
   /** Tools the owner denied in this run. */
   denials: number
   error: string | null

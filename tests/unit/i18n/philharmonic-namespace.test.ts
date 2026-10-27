@@ -31,10 +31,7 @@ describe('philharmonic namespace (en)', () => {
   })
 
   it('has the container tab keys', () => {
-    expect(philharmonic.container.tabs).toMatchObject({
-      costs: 'Costs',
-      schedule: 'Schedule'
-    })
+    expect(philharmonic.container.tabs).toEqual({ schedule: 'Schedule' })
   })
 
   it('has the no-group-selected empty state keys', () => {
@@ -218,33 +215,10 @@ describe('philharmonic namespace (en)', () => {
     )
   })
 
-  it('has the cost analysis header, period toggle, and kpi keys', () => {
-    expect(philharmonic.costAnalysis.header.title).toBe('Dashboard')
-    expect(philharmonic.costAnalysis.periodToggle).toMatchObject({
-      sevenDays: '7d',
-      thirtyDays: '30d',
-      all: 'All'
-    })
-    expect(philharmonic.costAnalysis.kpi).toMatchObject({
-      totalCostHint_one: 'Across {{count}} employee',
-      totalCostHint_other: 'Across {{count}} employees'
-    })
-  })
-
-  it('has the cost analysis chart and list keys', () => {
-    expect(philharmonic.costAnalysis.chart).toMatchObject({
-      costLabel: 'Cost',
-      sectionTitle: 'Cost over time'
-    })
-    expect(philharmonic.costAnalysis.agentCostList).toMatchObject({
-      title: 'Cost by employee',
-      empty: 'No employee usage data yet',
-      tokens: '{{tokens}} tokens'
-    })
-    expect(philharmonic.costAnalysis.conversationCostList).toMatchObject({
-      title: 'Cost by conversation',
-      empty: 'No conversation usage data yet'
-    })
+  it('titles the Dashboard and carries no cost keys (ISSUE-235)', () => {
+    expect(philharmonic.container.dashboardTitle).toBe('Dashboard')
+    expect(philharmonic).not.toHaveProperty('costAnalysis')
+    expect(philharmonic.chat.decision.usage).not.toContain('cost')
   })
 
   it('has the workforce header, empty state, and team section keys', () => {

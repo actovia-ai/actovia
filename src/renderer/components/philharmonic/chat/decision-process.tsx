@@ -268,8 +268,7 @@ function Line({
         <span>
           {t('chat.decision.usage', {
             input: fmt.number(line.inputTokens),
-            output: fmt.number(line.outputTokens),
-            cost: fmt.number(line.costUsd, { maximumFractionDigits: 4 })
+            output: fmt.number(line.outputTokens)
           })}
         </span>
       )

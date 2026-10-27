@@ -5,7 +5,6 @@
       "deleteGroupFailed": "Не удалось удалить группу"
     },
     "tabs": {
-      "costs": "Расходы",
       "schedule": "Расписание"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "Выберите группу слева или создайте новую, чтобы написать своей виртуальной команде.",
       "createButton": "Создать группу"
     },
-    "newGroupDefaultTitle": "Новая группа"
+    "newGroupDefaultTitle": "Новая группа",
+    "dashboardTitle": "Панель"
   },
   "schedule": {
     "tab": {
@@ -210,7 +210,7 @@
       "otherTool": "Вызвал {{tool}}",
       "failed": "ошибка",
       "details": "Аргументы и результат",
-      "usage": "{{input}} вход · {{output}} выход · ${{cost}}",
+      "usage": "{{input}} вход · {{output}} выход",
       "error": "Остановлено: {{message}}",
       "interrupted": "Вы остановили этот раунд",
       "formerEmployee": "бывший сотрудник",
@@ -299,49 +299,6 @@
         "systemPromptPlaceholder": "Общие инструкции, добавляемые в промпт каждого участника команды."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "Панель"
-    },
-    "periodToggle": {
-      "sevenDays": "7 дн",
-      "thirtyDays": "30 дн",
-      "all": "Всё"
-    },
-    "loading": "Загружаем данные об использовании…",
-    "kpi": {
-      "totalCost": "Общие расходы",
-      "totalCostHint_one": "По {{count}} сотруднику",
-      "totalCostHint_few": "По {{count}} сотрудникам",
-      "totalCostHint_many": "По {{count}} сотрудникам",
-      "totalCostHint_other": "По {{count}} сотрудникам",
-      "tokens": "Токены",
-      "tokensHint": "Всего обработано",
-      "employees": "Сотрудники",
-      "employeesHint": "С учтённым использованием",
-      "conversations": "Беседы",
-      "conversationsHint": "С активностью",
-      "totalCostEstimatedHint": "Плюс ~{{cost}} — оценка для CLI-сотрудников"
-    },
-    "chart": {
-      "costLabel": "Расходы",
-      "sectionTitle": "Расходы по времени"
-    },
-    "agentCostList": {
-      "title": "Расходы по сотрудникам",
-      "empty": "Данных об использовании сотрудниками пока нет",
-      "tokens": "Токенов: {{tokens}}",
-      "pm": "PM",
-      "pmHint": "{{tokens}} токенов · собственные раунды"
-    },
-    "conversationCostList": {
-      "title": "Расходы по беседам",
-      "empty": "Данных об использовании в беседах пока нет",
-      "deleted": "Удалённая группа"
-    },
-    "estimated": "~{{cost}} (оценка)",
-    "estimatedTitle": "Столько, по данным CLI, стоили бы эти токены по ценам API. По подписке токены не оплачиваются поштучно, поэтому в итог это не входит."
   },
   "workforce": {
     "header": {

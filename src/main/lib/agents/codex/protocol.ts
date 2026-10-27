@@ -474,7 +474,6 @@ export function createCodexParser(nonce: string): CodexParser {
             ok: status === 'completed',
             interrupted: status === 'interrupted',
             text: status === 'failed' ? (error ?? lastText) : lastText,
-            costUsd: null,
             denials: declined
           }
           lastText = ''

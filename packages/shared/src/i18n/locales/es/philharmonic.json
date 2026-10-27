@@ -5,7 +5,6 @@
       "deleteGroupFailed": "No se pudo eliminar el grupo"
     },
     "tabs": {
-      "costs": "Costos",
       "schedule": "Agenda"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "Elija un grupo de la izquierda o inicie uno nuevo para enviar un mensaje a su equipo virtual.",
       "createButton": "Crear un grupo"
     },
-    "newGroupDefaultTitle": "Grupo nuevo"
+    "newGroupDefaultTitle": "Grupo nuevo",
+    "dashboardTitle": "Panel"
   },
   "schedule": {
     "tab": {
@@ -208,7 +208,7 @@
       "otherTool": "Llamó a {{tool}}",
       "failed": "falló",
       "details": "Argumentos y resultado",
-      "usage": "{{input}} de entrada · {{output}} de salida · ${{cost}}",
+      "usage": "{{input}} de entrada · {{output}} de salida",
       "error": "Detenido: {{message}}",
       "interrupted": "Detuviste esta ronda",
       "formerEmployee": "antiguo empleado",
@@ -297,47 +297,6 @@
         "systemPromptPlaceholder": "Instrucciones compartidas añadidas al prompt de todos los miembros de este equipo."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "Panel"
-    },
-    "periodToggle": {
-      "sevenDays": "7 d",
-      "thirtyDays": "30 d",
-      "all": "Todo"
-    },
-    "loading": "Cargando datos de uso…",
-    "kpi": {
-      "totalCost": "Costo total",
-      "totalCostHint_one": "En {{count}} empleado",
-      "totalCostHint_other": "En {{count}} empleados",
-      "tokens": "Tokens",
-      "tokensHint": "Total procesado",
-      "employees": "Empleados",
-      "employeesHint": "Con uso registrado",
-      "conversations": "Conversaciones",
-      "conversationsHint": "Con actividad",
-      "totalCostEstimatedHint": "Más ~{{cost}} estimados de empleados CLI"
-    },
-    "chart": {
-      "costLabel": "Costo",
-      "sectionTitle": "Costo a lo largo del tiempo"
-    },
-    "agentCostList": {
-      "title": "Costo por empleado",
-      "empty": "Aún no hay datos de uso de empleados",
-      "tokens": "{{tokens}} tokens",
-      "pm": "PM",
-      "pmHint": "{{tokens}} tokens · sus propias rondas"
-    },
-    "conversationCostList": {
-      "title": "Costo por conversación",
-      "empty": "Aún no hay datos de uso de conversaciones",
-      "deleted": "Grupo eliminado"
-    },
-    "estimated": "~{{cost}} est.",
-    "estimatedTitle": "Lo que la CLI indica que costarían estos tokens a precios de API. Con una suscripción no se cobran por token, así que no se suma al total."
   },
   "workforce": {
     "header": {

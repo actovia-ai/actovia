@@ -25,7 +25,6 @@ export function newCard(
     pending: '',
     prompts: [],
     notices: [],
-    costUsd: null,
     denials: 0,
     error: null,
     continuedInTerminal: false,
@@ -100,8 +99,6 @@ export function applyAgentEvent(card: AgentCard, e: AgentEvent): AgentCard {
         blocks,
         pending: '',
         prompts: [],
-        costUsd:
-          e.costUsd === null ? card.costUsd : (card.costUsd ?? 0) + e.costUsd,
         denials: card.denials + e.denials,
         state,
         error:

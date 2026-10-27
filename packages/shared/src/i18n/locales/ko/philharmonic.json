@@ -5,7 +5,6 @@
       "deleteGroupFailed": "그룹을 삭제할 수 없습니다"
     },
     "tabs": {
-      "costs": "비용",
       "schedule": "일정"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "왼쪽에서 그룹을 선택하거나, 새 그룹을 만들어 가상 팀에 메시지를 보내세요.",
       "createButton": "그룹 만들기"
     },
-    "newGroupDefaultTitle": "새 그룹"
+    "newGroupDefaultTitle": "새 그룹",
+    "dashboardTitle": "대시보드"
   },
   "schedule": {
     "tab": {
@@ -207,7 +207,7 @@
       "otherTool": "{{tool}} 호출함",
       "failed": "실패",
       "details": "인수와 결과",
-      "usage": "입력 {{input}} · 출력 {{output}} · ${{cost}}",
+      "usage": "입력 {{input}} · 출력 {{output}}",
       "error": "중지됨: {{message}}",
       "interrupted": "내가 이 라운드를 중지함",
       "formerEmployee": "이전 직원",
@@ -296,46 +296,6 @@
         "systemPromptPlaceholder": "이 팀의 모든 구성원 프롬프트에 추가되는 공통 지침입니다."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "대시보드"
-    },
-    "periodToggle": {
-      "sevenDays": "7일",
-      "thirtyDays": "30일",
-      "all": "전체"
-    },
-    "loading": "사용량 데이터 불러오는 중…",
-    "kpi": {
-      "totalCost": "총 비용",
-      "totalCostHint_other": "직원 {{count}}명 기준",
-      "tokens": "토큰",
-      "tokensHint": "처리된 총량",
-      "employees": "직원",
-      "employeesHint": "사용 기록이 있는 직원",
-      "conversations": "대화",
-      "conversationsHint": "활동이 있는 대화",
-      "totalCostEstimatedHint": "CLI 직원 추정 약 {{cost}} 별도"
-    },
-    "chart": {
-      "costLabel": "비용",
-      "sectionTitle": "기간별 비용"
-    },
-    "agentCostList": {
-      "title": "직원별 비용",
-      "empty": "아직 직원 사용 데이터가 없습니다",
-      "tokens": "토큰 {{tokens}}개",
-      "pm": "PM",
-      "pmHint": "{{tokens}} 토큰 · 자체 라운드"
-    },
-    "conversationCostList": {
-      "title": "대화별 비용",
-      "empty": "아직 대화 사용 데이터가 없습니다",
-      "deleted": "삭제된 그룹"
-    },
-    "estimated": "약 {{cost}} (추정)",
-    "estimatedTitle": "CLI가 API 요금으로 환산한 이 토큰의 비용입니다. 구독에서는 토큰별로 청구되지 않으므로 합계에 포함하지 않습니다."
   },
   "workforce": {
     "header": {

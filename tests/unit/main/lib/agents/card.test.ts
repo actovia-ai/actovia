@@ -46,7 +46,7 @@ describe('agent card', () => {
     ).toBe(card)
   })
 
-  it('ends a recorded run done, with steps ticked, cost summed and the text kept', () => {
+  it('ends a recorded run done, with steps ticked and the text kept', () => {
     const card = events('allow-write-bash-question.jsonl').reduce(
       (c, e) => applyAgentEvent(c, e),
       base()
@@ -57,7 +57,7 @@ describe('agent card', () => {
       ['Bash', 'ok'],
       ['AskUserQuestion', 'ok']
     ])
-    expect(card.costUsd).toBeGreaterThan(0.1)
+    expect(card).not.toHaveProperty('costUsd')
     expect(cardText(card)).toMatch(/You chose Blue!/u)
     expect(card.prompts).toEqual([])
     expect(touchedFiles(card)).toEqual(['/tmp/actovia-project/hello.txt'])
@@ -112,7 +112,6 @@ describe('agent card', () => {
       ok: true,
       interrupted: false,
       text: 'ok',
-      costUsd: 0.01,
       denials: 0
     })
     expect(c.state).toBe('done')
@@ -140,7 +139,6 @@ describe('agent card', () => {
       ok: true,
       interrupted: false,
       text: '',
-      costUsd: null,
       denials: 0
     })
     expect(

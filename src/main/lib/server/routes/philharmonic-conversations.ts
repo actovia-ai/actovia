@@ -19,10 +19,8 @@ import {
   getMessagesByConversationId,
   updateConversation
 } from '../../db/conversation-queries'
-import { getPhilharmonicCostRows } from '../../db/philharmonic-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
-import { getPmCostRows, listRoundEvents } from '../../db/pm-round-queries'
-import { localDateStr } from '../../local-date'
+import { listRoundEvents } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
 import type { Variables } from '../types'
@@ -34,123 +32,6 @@ import {
   validateSchema
 } from '../utils'
 import { emitToConversation } from './philharmonic-sse'
-
-interface CostRow {
-  conversationId: string | null
-  agentId: string
-  tokenUsage: {
-    inputTokens: number
-    outputTokens: number
-    cost?: number
-    /** A CLI employee: `cost` is the CLI's API-price estimate, not spend. */
-    estimated?: boolean
-  } | null
-  startedAt: Date
-}
-
-/** One PM round's usage (`pm_round_event`, kind `usage`). */
-export interface PmCostRow {
-  conversationId: string
-  tokens: number
-  cost: number
-  createdAt: Date
-}
-
-interface Figures {
-  cost: number
-  /** What CLI employees' runs would have cost at API prices — not spent. */
-  estimatedCost: number
-  tokens: number
-}
-
-export interface PhilharmonicCostSummary {
-  totalCost: number
-  estimatedCost: number
-  totalTokens: number
-  byConversation: Array<{ conversationId: string } & Figures>
-  byAgent: Array<{ agentId: string } & Figures>
-  /** The PM's own rounds. */
-  pm: { cost: number; tokens: number }
-  daily: Array<{ date: string } & Figures>
-}
-
-const zero = (): Figures => ({ cost: 0, estimatedCost: 0, tokens: 0 })
-
-function add(
-  map: Map<string, Figures>,
-  key: string,
-  cost: number,
-  estimatedCost: number,
-  tokens: number
-) {
-  const f = map.get(key) ?? zero()
-  f.cost += cost
-  f.estimatedCost += estimatedCost
-  f.tokens += tokens
-  map.set(key, f)
-}
-
-/**
- * Pure aggregation — unit tested. Employees' executions and the PM's rounds;
- * a CLI employee's dollar figure is an estimate, kept apart (ISSUE-132).
- */
-export function aggregateCosts(
-  rows: CostRow[],
-  pmRows: PmCostRow[] = []
-): PhilharmonicCostSummary {
-  const total = zero()
-  const pm = { cost: 0, tokens: 0 }
-  const conv = new Map<string, Figures>()
-  const agent = new Map<string, Figures>()
-  const day = new Map<string, Figures>()
-
-  const count = (
-    conversationId: string | null,
-    agentId: string | null,
-    at: Date,
-    cost: number,
-    estimatedCost: number,
-    tokens: number
-  ) => {
-    total.cost += cost
-    total.estimatedCost += estimatedCost
-    total.tokens += tokens
-    if (conversationId) add(conv, conversationId, cost, estimatedCost, tokens)
-    if (agentId) add(agent, agentId, cost, estimatedCost, tokens)
-    // The user's day, not the UTC one: the chart labels it as a local date.
-    add(day, localDateStr(at), cost, estimatedCost, tokens)
-  }
-
-  for (const r of rows) {
-    const u = r.tokenUsage
-    if (!u) continue
-    const tokens = (u.inputTokens ?? 0) + (u.outputTokens ?? 0)
-    const cost = u.cost ?? 0
-    if (u.estimated)
-      count(r.conversationId, r.agentId, r.startedAt, 0, cost, tokens)
-    else count(r.conversationId, r.agentId, r.startedAt, cost, 0, tokens)
-  }
-  for (const r of pmRows) {
-    pm.cost += r.cost
-    pm.tokens += r.tokens
-    count(r.conversationId, null, r.createdAt, r.cost, 0, r.tokens)
-  }
-
-  return {
-    totalCost: total.cost,
-    estimatedCost: total.estimatedCost,
-    totalTokens: total.tokens,
-    byConversation: [...conv.entries()].map(([conversationId, v]) => ({
-      conversationId,
-      ...v
-    })),
-    byAgent: [...agent.entries()].map(([agentId, v]) => ({ agentId, ...v })),
-    pm,
-    daily: [...day.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, v]) => ({ date, ...v }))
-  }
-}
 
 const router = new Hono<{ Variables: Variables }>()
 
@@ -377,32 +258,5 @@ router.get('/conversations/:id/plan', async (c) => {
 // Knowledge base management moved to /api/v1/knowledge-base (Settings → Knowledge
 // Base). Retrieval is bound as the `searchKnowledgeBase` tool for every
 // employee loop via `bindCallingTools`.
-
-// ─── Costs (philharmonic only) ──────────────────────────────────────────────────────
-
-// `?days=7|30`: today and the days before it, by the local day the chart
-// buckets on (`localDateStr`); without it, all time.
-router.get('/costs', async (c) => {
-  const raw = c.req.query('days')
-  const days =
-    raw === undefined
-      ? undefined
-      : validateSchema(
-          z.enum(['7', '30']).transform(Number),
-          raw,
-          'Invalid period'
-        )
-  let since: Date | undefined
-  if (days) {
-    since = new Date()
-    since.setHours(0, 0, 0, 0)
-    since.setDate(since.getDate() - (days - 1))
-  }
-  const [rows, pmRows] = await Promise.all([
-    getPhilharmonicCostRows(since),
-    getPmCostRows(since)
-  ])
-  return successResponse(c, aggregateCosts(rows as never, pmRows))
-})
 
 export default router

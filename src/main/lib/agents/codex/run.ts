@@ -196,7 +196,6 @@ export function startCodex(input: StartInput): AgentRun {
           ok: false,
           interrupted: false,
           text: '',
-          costUsd: null,
           denials: 0
         })
       }
@@ -295,7 +294,6 @@ export function startCodex(input: StartInput): AgentRun {
           ok: false,
           interrupted: true,
           text: '',
-          costUsd: null,
           denials: 0
         })
         return true

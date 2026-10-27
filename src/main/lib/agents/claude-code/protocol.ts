@@ -275,8 +275,6 @@ export function parseLine(line: string): ParsedLine {
             ok: e.subtype === 'success' && e.is_error !== true,
             interrupted: false,
             text: str(e.result) ?? '',
-            costUsd:
-              typeof e.total_cost_usd === 'number' ? e.total_cost_usd : null,
             usage: turnUsage(e.usage),
             denials: Array.isArray(e.permission_denials)
               ? e.permission_denials.length

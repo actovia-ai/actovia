@@ -46,9 +46,8 @@ export interface DelegatedOutput {
   /** Actovia's own loop: the id its bubble streamed under, which the saved
    * report takes so the live bubble and the row are one message. */
   liveMessageId?: string
-  /** A CLI step's own turn: tokens, and the cost the CLI reports at API
-   * prices (an estimate on a subscription). Absent when the CLI says nothing. */
-  usage?: { inputTokens: number; outputTokens: number; costUsd: number | null }
+  /** A CLI step's own turn: its tokens. Absent when the CLI says nothing. */
+  usage?: { inputTokens: number; outputTokens: number }
 }
 
 export interface RunAgentEmployeeArgs {
@@ -411,8 +410,7 @@ export async function runAgentEmployee(
               if (e.usage)
                 stepUsage = {
                   inputTokens: e.usage.inputTokens,
-                  outputTokens: e.usage.outputTokens,
-                  costUsd: e.costUsd
+                  outputTokens: e.usage.outputTokens
                 }
               stepDone = true
               resolve()

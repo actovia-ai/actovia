@@ -24,7 +24,6 @@ export type RoundLine =
       kind: 'usage'
       inputTokens: number
       outputTokens: number
-      costUsd: number
     }
   | { kind: 'error'; message: string; aborted: boolean }
 
@@ -119,8 +118,7 @@ export function describeRound(
             num(p.inputTokens) +
             num(p.cacheReadTokens) +
             num(p.cacheWriteTokens),
-          outputTokens: num(p.outputTokens),
-          costUsd: num(p.costUsd)
+          outputTokens: num(p.outputTokens)
         })
         break
       case 'error':

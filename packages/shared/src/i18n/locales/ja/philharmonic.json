@@ -5,7 +5,6 @@
       "deleteGroupFailed": "グループを削除できませんでした"
     },
     "tabs": {
-      "costs": "コスト",
       "schedule": "スケジュール"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "左側からグループを選ぶか、新しいグループを作成して仮想チームにメッセージを送りましょう。",
       "createButton": "グループを作成"
     },
-    "newGroupDefaultTitle": "新しいグループ"
+    "newGroupDefaultTitle": "新しいグループ",
+    "dashboardTitle": "ダッシュボード"
   },
   "schedule": {
     "tab": {
@@ -207,7 +207,7 @@
       "otherTool": "{{tool}} を呼び出した",
       "failed": "失敗",
       "details": "引数と結果",
-      "usage": "入力 {{input}} · 出力 {{output}} · ${{cost}}",
+      "usage": "入力 {{input}} · 出力 {{output}}",
       "error": "停止: {{message}}",
       "interrupted": "あなたがこのラウンドを停止しました",
       "formerEmployee": "元社員",
@@ -296,46 +296,6 @@
         "systemPromptPlaceholder": "このチームの全メンバーのプロンプトに追加される共通の指示。"
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "ダッシュボード"
-    },
-    "periodToggle": {
-      "sevenDays": "7日",
-      "thirtyDays": "30日",
-      "all": "全期間"
-    },
-    "loading": "利用状況データを読み込み中…",
-    "kpi": {
-      "totalCost": "総コスト",
-      "totalCostHint_other": "{{count}}人の従業員の合計",
-      "tokens": "トークン数",
-      "tokensHint": "処理された合計",
-      "employees": "従業員数",
-      "employeesHint": "利用記録のある従業員",
-      "conversations": "会話数",
-      "conversationsHint": "活動のあった会話",
-      "totalCostEstimatedHint": "ほかに CLI 社員の推定 約 {{cost}}"
-    },
-    "chart": {
-      "costLabel": "コスト",
-      "sectionTitle": "コストの推移"
-    },
-    "agentCostList": {
-      "title": "従業員別コスト",
-      "empty": "従業員の利用データはまだありません",
-      "tokens": "{{tokens}}トークン",
-      "pm": "PM",
-      "pmHint": "{{tokens}} トークン・自身のラウンド"
-    },
-    "conversationCostList": {
-      "title": "会話別コスト",
-      "empty": "会話の利用データはまだありません",
-      "deleted": "削除されたグループ"
-    },
-    "estimated": "約 {{cost}}（推定）",
-    "estimatedTitle": "CLI が API 料金で換算したこれらのトークンの費用です。サブスクリプションではトークン単位で課金されないため、合計には含めません。"
   },
   "workforce": {
     "header": {

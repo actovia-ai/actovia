@@ -95,9 +95,8 @@ describe('runDelegatedTask', () => {
     )
   })
 
-  // ISSUE-132: the Costs page counts a CLI step by its tokens; its dollar
-  // figure is the CLI's API-price estimate, marked so.
-  it("records a CLI step's tokens, its cost marked estimated", async () => {
+  // A CLI step is counted by its tokens (ISSUE-132); no money (ISSUE-235).
+  it("records a CLI step's tokens and nothing else", async () => {
     agentRow = {
       id: 'a1',
       name: 'Claude Code',
@@ -107,7 +106,7 @@ describe('runDelegatedTask', () => {
     runAgentEmployee.mockResolvedValueOnce({
       output: 'done',
       messageId: 'm1',
-      usage: { inputTokens: 900, outputTokens: 100, costUsd: 0.04 }
+      usage: { inputTokens: 900, outputTokens: 100 }
     })
     await call()
     expect(updateTaskExecution).toHaveBeenCalledWith(
@@ -116,9 +115,7 @@ describe('runDelegatedTask', () => {
         status: 'completed',
         tokenUsage: {
           inputTokens: 900,
-          outputTokens: 100,
-          cost: 0.04,
-          estimated: true
+          outputTokens: 100
         }
       })
     )

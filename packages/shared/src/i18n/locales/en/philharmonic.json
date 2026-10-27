@@ -5,7 +5,6 @@
       "deleteGroupFailed": "Could not delete the group"
     },
     "tabs": {
-      "costs": "Costs",
       "schedule": "Schedule"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "Pick a group from the left, or start a new one to message your virtual team.",
       "createButton": "Create a group"
     },
-    "newGroupDefaultTitle": "New group"
+    "newGroupDefaultTitle": "New group",
+    "dashboardTitle": "Dashboard"
   },
   "schedule": {
     "tab": {
@@ -208,7 +208,7 @@
       "otherTool": "Called {{tool}}",
       "failed": "failed",
       "details": "Arguments and result",
-      "usage": "{{input}} in · {{output}} out · ${{cost}}",
+      "usage": "{{input}} in · {{output}} out",
       "error": "Stopped: {{message}}",
       "interrupted": "You stopped this round",
       "formerEmployee": "former employee",
@@ -297,47 +297,6 @@
         "systemPromptPlaceholder": "Shared instructions added to every member of this team's prompt."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "Dashboard"
-    },
-    "periodToggle": {
-      "sevenDays": "7d",
-      "thirtyDays": "30d",
-      "all": "All"
-    },
-    "loading": "Loading usage data…",
-    "kpi": {
-      "totalCost": "Total cost",
-      "totalCostHint_one": "Across {{count}} employee",
-      "totalCostHint_other": "Across {{count}} employees",
-      "tokens": "Tokens",
-      "tokensHint": "Total processed",
-      "employees": "Employees",
-      "employeesHint": "With recorded usage",
-      "conversations": "Conversations",
-      "conversationsHint": "With activity",
-      "totalCostEstimatedHint": "Plus ~{{cost}} estimated for CLI employees"
-    },
-    "chart": {
-      "costLabel": "Cost",
-      "sectionTitle": "Cost over time"
-    },
-    "agentCostList": {
-      "title": "Cost by employee",
-      "empty": "No employee usage data yet",
-      "tokens": "{{tokens}} tokens",
-      "pm": "PM",
-      "pmHint": "{{tokens}} tokens · its own rounds"
-    },
-    "conversationCostList": {
-      "title": "Cost by conversation",
-      "empty": "No conversation usage data yet",
-      "deleted": "Deleted group"
-    },
-    "estimated": "~{{cost}} est.",
-    "estimatedTitle": "What the CLI reports these tokens would cost at API prices. On a subscription they are not charged per token, so this is not added to the total."
   },
   "workforce": {
     "header": {

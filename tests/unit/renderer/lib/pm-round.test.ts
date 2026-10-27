@@ -76,7 +76,7 @@ describe('describeRound', () => {
         isError: false,
         refused: false
       },
-      { kind: 'usage', inputTokens: 10, outputTokens: 5, costUsd: 0.01 },
+      { kind: 'usage', inputTokens: 10, outputTokens: 5 },
       { kind: 'error', message: 'boom', aborted: false }
     ])
   })
@@ -95,6 +95,8 @@ describe('describeRound', () => {
       ''
     )
     expect(line).toMatchObject({ kind: 'usage', inputTokens: 32612 })
+    // ISSUE-235: an older round's recorded cost is not read.
+    expect(line).not.toHaveProperty('costUsd')
   })
 
   it('a call without a result has result null', () => {

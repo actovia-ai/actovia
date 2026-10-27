@@ -5,7 +5,6 @@
       "deleteGroupFailed": "無法刪除此群組"
     },
     "tabs": {
-      "costs": "花費",
       "schedule": "排程"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "從左側選擇一個群組，或建立新群組，與你的虛擬團隊溝通。",
       "createButton": "建立群組"
     },
-    "newGroupDefaultTitle": "新群組"
+    "newGroupDefaultTitle": "新群組",
+    "dashboardTitle": "儀表板"
   },
   "schedule": {
     "tab": {
@@ -207,7 +207,7 @@
       "otherTool": "呼叫了 {{tool}}",
       "failed": "失敗",
       "details": "參數與結果",
-      "usage": "輸入 {{input}} · 輸出 {{output}} · ${{cost}}",
+      "usage": "輸入 {{input}} · 輸出 {{output}}",
       "error": "已停止：{{message}}",
       "interrupted": "你停止了這一輪",
       "formerEmployee": "前員工",
@@ -296,46 +296,6 @@
         "systemPromptPlaceholder": "會加入此團隊每位成員提示詞的共用指示。"
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "儀表板"
-    },
-    "periodToggle": {
-      "sevenDays": "7 天",
-      "thirtyDays": "30 天",
-      "all": "全部"
-    },
-    "loading": "正在載入使用量資料…",
-    "kpi": {
-      "totalCost": "總花費",
-      "totalCostHint_other": "橫跨 {{count}} 位員工",
-      "tokens": "Token 數",
-      "tokensHint": "已處理總量",
-      "employees": "員工",
-      "employeesHint": "有使用記錄",
-      "conversations": "對話",
-      "conversationsHint": "有活動記錄",
-      "totalCostEstimatedHint": "另有 CLI 員工估算約 {{cost}}"
-    },
-    "chart": {
-      "costLabel": "花費",
-      "sectionTitle": "花費趨勢"
-    },
-    "agentCostList": {
-      "title": "各員工花費",
-      "empty": "尚無員工使用量資料",
-      "tokens": "{{tokens}} 個 token",
-      "pm": "PM",
-      "pmHint": "{{tokens}} token · 自身的輪次"
-    },
-    "conversationCostList": {
-      "title": "各對話花費",
-      "empty": "尚無對話使用量資料",
-      "deleted": "已刪除的群組"
-    },
-    "estimated": "約 {{cost}}（估算）",
-    "estimatedTitle": "CLI 按 API 價格折算的這些 token 的費用。訂閱下並不按 token 收費，所以不計入總額。"
   },
   "workforce": {
     "header": {

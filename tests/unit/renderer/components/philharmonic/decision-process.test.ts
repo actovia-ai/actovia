@@ -232,7 +232,9 @@ describe('DecisionProcess', () => {
     expect(text).toContain('Asked you')
     expect(text).not.toContain('escalateToUser')
     expect(text).toContain('Planned steps: 3')
-    expect(text).toContain('1,200 in · 300 out · $0.0123')
+    // An older round's recorded cost is not shown (ISSUE-235).
+    expect(text).toContain('1,200 in · 300 out')
+    expect(text).not.toContain('$')
     // The instructions are one clamped line under the delegation.
     const instructions = [...host.querySelectorAll('span')].find(
       (el) =>

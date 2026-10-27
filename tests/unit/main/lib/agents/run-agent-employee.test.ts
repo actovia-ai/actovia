@@ -133,7 +133,6 @@ function makeRun(script: (run: FakeRun) => void): FakeRun {
           ok: false,
           interrupted: true,
           text: '',
-          costUsd: null,
           denials: 0
         })
       )
@@ -223,7 +222,6 @@ const happy = (run: FakeRun) => {
     ok: true,
     interrupted: false,
     text: 'Built it.',
-    costUsd: 0.02,
     denials: 0
   })
 }
@@ -304,9 +302,9 @@ describe('runAgentEmployee', () => {
     })
   })
 
-  // ISSUE-132: the step's own turn — its tokens and the CLI's cost — goes
-  // back to the engine for the Costs page; a turn with no usage, nothing.
-  it("hands back the step's tokens and cost", async () => {
+  // ISSUE-132: the step's own turn — its tokens — goes back to the engine;
+  // a turn with no usage, nothing. No cost (ISSUE-235).
+  it("hands back the step's tokens", async () => {
     const run = makeRun((r) => {
       r.fire({ type: 'init', cliSessionId: 'cli-1', model: 'opus' })
       r.fire({
@@ -314,7 +312,6 @@ describe('runAgentEmployee', () => {
         ok: true,
         interrupted: false,
         text: 'Done.',
-        costUsd: 0.03,
         usage: { inputTokens: 500, outputTokens: 40 },
         denials: 0
       })
@@ -322,8 +319,7 @@ describe('runAgentEmployee', () => {
     const out = await runAgentEmployee(args({}), deps(run, []))
     expect(out.usage).toEqual({
       inputTokens: 500,
-      outputTokens: 40,
-      costUsd: 0.03
+      outputTokens: 40
     })
 
     const quiet = await runAgentEmployee(args({}), deps(makeRun(happy), []))
@@ -387,7 +383,6 @@ describe('runAgentEmployee', () => {
           ok: true,
           interrupted: false,
           text: 'ok',
-          costUsd: null,
           denials: 0
         })
       }, 5)
@@ -513,7 +508,6 @@ describe('runAgentEmployee', () => {
       ok: true,
       interrupted: false,
       text: '',
-      costUsd: null,
       denials: 0
     })
     await vi.waitFor(() =>
@@ -570,7 +564,6 @@ describe('runAgentEmployee', () => {
         ok: true,
         interrupted: false,
         text: '',
-        costUsd: null,
         denials: 0
       })
     }
@@ -590,7 +583,6 @@ describe('runAgentEmployee', () => {
       ok: true,
       interrupted: false,
       text: '',
-      costUsd: null,
       denials: 0
     })
     const out = await second
@@ -681,7 +673,6 @@ describe('runAgentEmployee', () => {
           ok: true,
           interrupted: false,
           text: 'ok',
-          costUsd: null,
           denials: 0
         })
       })

@@ -3,7 +3,6 @@ import {
   asc,
   desc,
   eq,
-  gte,
   inArray,
   isNotNull,
   isNull,
@@ -282,21 +281,6 @@ export async function cleanupStaleRunningTasks() {
     .update(task)
     .set({ status: 'failed', updatedAt: new Date() })
     .where(eq(task.status, 'running'))
-}
-
-/** All philharmonic executions joined to their task's conversation, for Costs. */
-/** Every execution's usage — or only those started at `since` or later. */
-export async function getPhilharmonicCostRows(since?: Date) {
-  return db
-    .select({
-      conversationId: task.conversationId,
-      agentId: taskExecution.agentId,
-      tokenUsage: taskExecution.tokenUsage,
-      startedAt: taskExecution.startedAt
-    })
-    .from(taskExecution)
-    .innerJoin(task, eq(taskExecution.taskId, task.id))
-    .where(since ? gte(taskExecution.startedAt, since) : undefined)
 }
 
 // MCP Server queries moved to mcp-queries.ts

@@ -29,7 +29,6 @@ export type AgentEvent =
       ok: boolean
       interrupted: boolean
       text: string
-      costUsd: number | null
       /** The turn's tokens, cache reads and writes in the input; absent when the CLI does not say. */
       usage?: { inputTokens: number; outputTokens: number } | null
       denials: number

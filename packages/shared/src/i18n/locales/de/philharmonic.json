@@ -5,7 +5,6 @@
       "deleteGroupFailed": "Die Gruppe konnte nicht gelöscht werden"
     },
     "tabs": {
-      "costs": "Kosten",
       "schedule": "Zeitplan"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "Wählen Sie links eine Gruppe aus oder starten Sie eine neue, um Ihr virtuelles Team zu kontaktieren.",
       "createButton": "Gruppe erstellen"
     },
-    "newGroupDefaultTitle": "Neue Gruppe"
+    "newGroupDefaultTitle": "Neue Gruppe",
+    "dashboardTitle": "Dashboard"
   },
   "schedule": {
     "tab": {
@@ -208,7 +208,7 @@
       "otherTool": "{{tool}} aufgerufen",
       "failed": "fehlgeschlagen",
       "details": "Argumente und Ergebnis",
-      "usage": "{{input}} ein · {{output}} aus · ${{cost}}",
+      "usage": "{{input}} ein · {{output}} aus",
       "error": "Angehalten: {{message}}",
       "interrupted": "Du hast diese Runde angehalten",
       "formerEmployee": "ehemaliger Mitarbeiter",
@@ -297,47 +297,6 @@
         "systemPromptPlaceholder": "Gemeinsame Anweisungen, die dem Prompt jedes Mitglieds dieses Teams hinzugefügt werden."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "Dashboard"
-    },
-    "periodToggle": {
-      "sevenDays": "7 T.",
-      "thirtyDays": "30 T.",
-      "all": "Alle"
-    },
-    "loading": "Nutzungsdaten werden geladen…",
-    "kpi": {
-      "totalCost": "Gesamtkosten",
-      "totalCostHint_one": "Über {{count}} Mitarbeiter",
-      "totalCostHint_other": "Über {{count}} Mitarbeiter",
-      "tokens": "Tokens",
-      "tokensHint": "Insgesamt verarbeitet",
-      "employees": "Mitarbeiter",
-      "employeesHint": "Mit erfasster Nutzung",
-      "conversations": "Unterhaltungen",
-      "conversationsHint": "Mit Aktivität",
-      "totalCostEstimatedHint": "Plus ~{{cost}} geschätzt für CLI-Mitarbeiter"
-    },
-    "chart": {
-      "costLabel": "Kosten",
-      "sectionTitle": "Kosten im Zeitverlauf"
-    },
-    "agentCostList": {
-      "title": "Kosten nach Mitarbeiter",
-      "empty": "Noch keine Mitarbeiternutzungsdaten",
-      "tokens": "{{tokens}} Tokens",
-      "pm": "PM",
-      "pmHint": "{{tokens}} Tokens · eigene Runden"
-    },
-    "conversationCostList": {
-      "title": "Kosten nach Unterhaltung",
-      "empty": "Noch keine Unterhaltungsnutzungsdaten",
-      "deleted": "Gelöschte Gruppe"
-    },
-    "estimated": "~{{cost}} geschätzt",
-    "estimatedTitle": "Was die CLI für diese Tokens zu API-Preisen angibt. Im Abo werden Tokens nicht einzeln berechnet, daher zählt das nicht zur Summe."
   },
   "workforce": {
     "header": {

@@ -82,17 +82,17 @@ describe('Claude Code protocol', () => {
     })
   })
 
-  it('reports a turn end with text, cost and denials', () => {
+  it('reports a turn end with text and denials, and no cost', () => {
     const ends = eventsOf('deny-interrupt-continue.jsonl').filter(
       (e) => e.type === 'turn_end'
     )
     expect(ends[0]).toMatchObject({ ok: true, interrupted: false, denials: 1 })
     expect(ends[1]).toMatchObject({ ok: false }) // error_during_execution after the interrupt
-    expect((ends[0] as { costUsd: number }).costUsd).toBeGreaterThan(0)
+    expect(ends[0]).not.toHaveProperty('costUsd')
   })
 
-  // ISSUE-132: the turn's tokens, cache included, for the Costs page.
-  it("reports the turn's tokens with its cost", () => {
+  // ISSUE-132: the turn's tokens, cache included.
+  it("reports the turn's tokens", () => {
     const ends = eventsOf('deny-interrupt-continue.jsonl').filter(
       (e) => e.type === 'turn_end'
     )

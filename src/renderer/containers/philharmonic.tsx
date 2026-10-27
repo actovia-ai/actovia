@@ -43,12 +43,6 @@ import type {
   TeamData
 } from '@/stores/philharmonic'
 
-const CostAnalysis = lazy(() =>
-  import('@/components/philharmonic/cost-analysis').then((m) => ({
-    default: m.CostAnalysis
-  }))
-)
-
 const ScheduleTab = lazy(() =>
   import('@/components/philharmonic/schedule/schedule-tab').then((m) => ({
     default: m.ScheduleTab
@@ -160,7 +154,7 @@ export function PhilharmonicContainer({
     if (activePage === 'dashboard')
       return (
         <Tabs
-          defaultValue="costs"
+          defaultValue="schedule"
           className="flex h-full min-h-0 flex-col gap-0"
         >
           {/* The page's title and its tabs in the content bar, as Workforce's;
@@ -168,12 +162,9 @@ export function PhilharmonicContainer({
           <PhilharmonicHeaderSlot>
             <div className="no-drag flex min-w-0 items-center gap-3 pl-2">
               <h1 className="truncate text-sm font-medium">
-                {t('costAnalysis.header.title')}
+                {t('container.dashboardTitle')}
               </h1>
               <TabsList className="w-fit shrink-0">
-                <TabsTrigger value="costs">
-                  {t('container.tabs.costs')}
-                </TabsTrigger>
                 <TabsTrigger
                   value="schedule"
                   data-testid={TEST_IDS.schedule.tab}
@@ -184,11 +175,6 @@ export function PhilharmonicContainer({
             </div>
             <div className="min-w-0 flex-1" />
           </PhilharmonicHeaderSlot>
-          <TabsContent value="costs" className="min-h-0 flex-1">
-            <Suspense fallback={null}>
-              <CostAnalysis />
-            </Suspense>
-          </TabsContent>
           <TabsContent value="schedule" className="min-h-0 flex-1">
             <Suspense fallback={null}>
               <ScheduleTab conversations={conversations} />

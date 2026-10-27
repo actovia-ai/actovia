@@ -5,7 +5,6 @@
       "deleteGroupFailed": "Impossible de supprimer le groupe"
     },
     "tabs": {
-      "costs": "Coûts",
       "schedule": "Planification"
     },
     "noGroupSelected": {
@@ -13,7 +12,8 @@
       "description": "Choisissez un groupe à gauche, ou créez-en un nouveau pour envoyer un message à votre équipe virtuelle.",
       "createButton": "Créer un groupe"
     },
-    "newGroupDefaultTitle": "Nouveau groupe"
+    "newGroupDefaultTitle": "Nouveau groupe",
+    "dashboardTitle": "Tableau de bord"
   },
   "schedule": {
     "tab": {
@@ -208,7 +208,7 @@
       "otherTool": "A appelé {{tool}}",
       "failed": "échec",
       "details": "Arguments et résultat",
-      "usage": "{{input}} en entrée · {{output}} en sortie · ${{cost}}",
+      "usage": "{{input}} en entrée · {{output}} en sortie",
       "error": "Arrêté : {{message}}",
       "interrupted": "Vous avez arrêté ce tour",
       "formerEmployee": "ancien employé",
@@ -297,47 +297,6 @@
         "systemPromptPlaceholder": "Instructions communes ajoutées au prompt de chaque membre de cette équipe."
       }
     }
-  },
-  "costAnalysis": {
-    "header": {
-      "title": "Tableau de bord"
-    },
-    "periodToggle": {
-      "sevenDays": "7j",
-      "thirtyDays": "30j",
-      "all": "Tout"
-    },
-    "loading": "Chargement des données d'utilisation…",
-    "kpi": {
-      "totalCost": "Coût total",
-      "totalCostHint_one": "Sur {{count}} employé",
-      "totalCostHint_other": "Sur {{count}} employés",
-      "tokens": "Jetons",
-      "tokensHint": "Total traité",
-      "employees": "Employés",
-      "employeesHint": "Avec utilisation enregistrée",
-      "conversations": "Conversations",
-      "conversationsHint": "Avec activité",
-      "totalCostEstimatedHint": "Plus ~{{cost}} estimé pour les employés CLI"
-    },
-    "chart": {
-      "costLabel": "Coût",
-      "sectionTitle": "Coût dans le temps"
-    },
-    "agentCostList": {
-      "title": "Coût par employé",
-      "empty": "Aucune donnée d'utilisation par employé pour le moment",
-      "tokens": "{{tokens}} jetons",
-      "pm": "PM",
-      "pmHint": "{{tokens}} tokens · ses propres tours"
-    },
-    "conversationCostList": {
-      "title": "Coût par conversation",
-      "empty": "Aucune donnée d'utilisation par conversation pour le moment",
-      "deleted": "Groupe supprimé"
-    },
-    "estimated": "~{{cost}} estimé",
-    "estimatedTitle": "Ce que la CLI indique que ces tokens coûteraient au tarif de l'API. Avec un abonnement, ils ne sont pas facturés au token : ce montant n'est pas ajouté au total."
   },
   "workforce": {
     "header": {
