@@ -111,7 +111,12 @@ export class LcmManager {
     this.contextWindowPercent =
       options.contextWindowPercent ??
       SETTING_DEFAULTS.memory.contextWindowPercent
-    this.contextWindow = options.contextWindow ?? DEFAULT_CONTEXT_WINDOW
+    // The chat model's own window (ISSUE-235); a model that reports none
+    // (0, an unknown id) keeps the fallback rather than compacting every turn.
+    this.contextWindow =
+      options.contextWindow && options.contextWindow > 0
+        ? options.contextWindow
+        : DEFAULT_CONTEXT_WINDOW
   }
 
   get tokenBudget(): number {

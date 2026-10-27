@@ -295,7 +295,8 @@ chat.post('/', async (c) => {
         freshTailRuns: freshTailRuns(memoryConfig),
         contextWindowPercent:
           memoryConfig?.contextWindowPercent ??
-          SETTING_DEFAULTS.memory.contextWindowPercent
+          SETTING_DEFAULTS.memory.contextWindowPercent,
+        contextWindow: model.contextWindow
       })
     : null
 

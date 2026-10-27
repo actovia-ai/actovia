@@ -58,7 +58,8 @@ export const handlers: Record<QueueName, (payload: unknown) => Promise<void>> =
       if (!apiKey) return
       const lcm = new LcmManager(p.chatId, p.model, apiKey, {
         freshTailRuns: p.freshTailRuns,
-        contextWindowPercent: p.contextWindowPercent
+        contextWindowPercent: p.contextWindowPercent,
+        contextWindow: p.model.contextWindow
       })
       await lcm.compactAfterTurn()
     },

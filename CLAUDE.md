@@ -1128,6 +1128,12 @@ Compacts long conversations without losing information, surfacing summaries the 
 
 - Main process: `src/main/lib/ai/context-management/` (compaction, context assembler, token counter, status bus)
 - Route: `/api/v1/lcm`
+- **When it compacts**: once a chat's context items (messages + summaries)
+  pass the chat model's `contextWindow × memory.contextWindowPercent`
+  (default 75 %) — the route and the `lcm-post-turn` job both hand
+  `LcmManager` the model's window (ISSUE-235; before it every chat compacted
+  against a fixed 128k, which stays the fallback for a model that reports
+  none)
 - Related built-in tools: `lcm_describe`, `lcm_expand`, `lcm_grep`; and `recall`,
   which reads back the full form of an aged tool output (see "Tool output
   ages"), and whose digests leaf compaction summarises from

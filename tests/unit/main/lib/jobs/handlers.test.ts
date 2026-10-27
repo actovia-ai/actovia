@@ -52,7 +52,8 @@ const { handlers } = await import('@main/lib/jobs/handlers')
 const fakeModel = {
   id: 'gpt-4.1-mini',
   provider: 'openai',
-  baseUrl: 'https://api.openai.com/v1'
+  baseUrl: 'https://api.openai.com/v1',
+  contextWindow: 1_047_576
 } as unknown as Model<string>
 
 /** Settings whose OpenAI key the jobs resolve at run time (ruling R3). */
@@ -84,6 +85,11 @@ describe('handlers.lcm-post-turn', () => {
     expect(mockTrackContextMessages).not.toHaveBeenCalled()
     expect(mockCompactAfterTurn).toHaveBeenCalledTimes(1)
     expect(vi.mocked(LcmManager).mock.calls[0][2]).toBe('sk-from-settings')
+    // ISSUE-235: compaction measures against the model's own window.
+    expect(vi.mocked(LcmManager).mock.calls[0][3]).toMatchObject({
+      contextWindow: 1_047_576,
+      contextWindowPercent: 75
+    })
   })
 
   // A job an earlier build queued still carries its run: it is tracked —

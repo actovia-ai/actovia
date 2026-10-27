@@ -39,6 +39,47 @@ function makeItems(count: number, perItemTokens: number) {
   }))
 }
 
+// ISSUE-235: the threshold is the chat model's window × the percent, not a
+// fixed 128k — 100k of messages is far from full on a 1M model.
+describe("LcmManager compacts against the model's window", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  async function startsAt(
+    contextWindow: number,
+    items = 100
+  ): Promise<boolean> {
+    // 100 items × 1 000 = 100 000 tokens; compaction leaves them as they are.
+    vi.mocked(getContextItems).mockResolvedValue(makeItems(items, 1_000))
+    vi.mocked(runFullCompaction).mockResolvedValue(undefined)
+    const events: LcmStatusEvent[] = []
+    const off = lcmStatusBus.subscribe('chat-test', (e) => events.push(e))
+    const lcm = new LcmManager('chat-test', fakeModel, 'k', {
+      contextWindow,
+      contextWindowPercent: 75,
+      freshTailRuns: 6
+    })
+    await lcm.compactAfterTurn()
+    off()
+    return events.some((e) => e.type === 'start')
+  }
+
+  it('does not compact 100k of messages on a 1M model', async () => {
+    expect(await startsAt(1_000_000)).toBe(false)
+  })
+
+  it('compacts 100k of messages on a 128k model', async () => {
+    expect(await startsAt(128_000)).toBe(true)
+  })
+
+  // 90k is under 75 % of the 128k fallback; a window of 0 taken as given
+  // would compact every turn.
+  it('falls back to 128k for a model with no window', async () => {
+    expect(await startsAt(0, 90)).toBe(false)
+  })
+})
+
 describe('LcmManager.compactAfterTurn emits status events', () => {
   beforeEach(() => {
     vi.clearAllMocks()
