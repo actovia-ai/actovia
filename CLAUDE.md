@@ -1161,6 +1161,27 @@ Compacts long conversations without losing information, surfacing summaries the 
   when it counted messages). Philharmonic's own LCM keeps a fixed 16-message
   tail
 
+### Sidebar, Artifacts and the account menu
+
+The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, 18rem) sits on the
+window's material like Settings' and Philharmonic's (`SIDEBAR_ON_MATERIAL`,
+`layouts/shared/sidebar-material.ts`). Its top row carries
+`components/app/workspace-switcher.tsx` — Chat / Philharmonic as two icon
+buttons, the one on show pressed. Under it: New, Search, and **Artifacts**
+(`/artifacts`, `containers/artifacts.tsx`): every `create_artifact` result of
+every chat, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
+in `db/queries.ts`, no code; `ArtifactListItem` in
+`@actovia/shared/types/artifact-list`); a card opens its chat at the run that
+made it, through the same `SearchReveal` state Search chats uses. The account
+menu (`layouts/chat-layout/nav-footer.tsx`) has Settings, Get the apps (opens
+`components/app/apps-dialog.tsx`, "Actovia everywhere": the iPhone app — Pair
+an iPhone goes to Settings → Devices — Health and the CLI, each linking its
+docs page), Help & docs, What's new (the GitHub releases), and Lock Actovia
+while a PIN is set. The site's URLs are in `external-urls.ts`
+(`ACTOVIA_DOCS`, `ACTOVIA_IPHONE_DOCS`, `ACTOVIA_HEALTH_DOCS`,
+`ACTOVIA_CLI_DOCS`, `ACTOVIA_RELEASES`); a link opens through the window-open
+handler (`openExternalSafely`).
+
 ### Sub-apps
 
 Separate renderer entry points under `src/renderer/sub-apps/`: `searchbar`, `quick-chat`, `artifacts`.

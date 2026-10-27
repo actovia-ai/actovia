@@ -1,10 +1,23 @@
+import {
+  ACTOVIA_DOCS,
+  ACTOVIA_RELEASES
+} from '@actovia/shared/constants/external-urls'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { UnfoldMoreIcon, SettingsIcon } from '@hugeicons/core-free-icons'
+import {
+  HelpCircleIcon,
+  LockIcon,
+  News01Icon,
+  SettingsIcon,
+  SmartPhone01Icon,
+  UnfoldMoreIcon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import React from 'react'
+import { useAtomValue } from 'jotai'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
+import { AppsDialog } from '@/components/app/apps-dialog'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -21,14 +34,23 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar'
 import { useSettings } from '@/hooks/use-settings'
+import { lockNow } from '@/lib/lock-ipc'
+import { lockStatusAtom } from '@/stores/lock'
+
+/** Opens a page in the browser; the window-open handler sends it out safely. */
+const openInBrowser = (url: string) => {
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
 
 export function NavFooter({
   ...props
 }: React.ComponentProps<typeof SidebarMenu>) {
-  const { t } = useTranslation('common')
+  const { t } = useTranslation(['common', 'chat'])
   const navigate = useNavigate()
   const location = useLocation()
   const { data: settings } = useSettings()
+  const lockStatus = useAtomValue(lockStatusAtom)
+  const [appsOpen, setAppsOpen] = useState(false)
 
   const onSettings = location.pathname.includes('settings')
   const nickname = settings?.personality?.nickname?.trim() || 'You'
@@ -101,13 +123,40 @@ export function NavFooter({
                 <HugeiconsIcon icon={SettingsIcon} />
                 {t('nav.settings')}
               </DropdownMenuItem>
+              <DropdownMenuItem
+                data-testid={TEST_IDS.chatLayout.accountApps}
+                onClick={() => setAppsOpen(true)}
+              >
+                <HugeiconsIcon icon={SmartPhone01Icon} />
+                {t('chat:sidebar.account.apps')}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
-            {/* Future account-menu items (online/offline mode switch, sign
-                out) once those features exist — Actovia is local-first with
-                no external auth today (see CLAUDE.md), so there's nothing
-                to wire these to yet. */}
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => openInBrowser(ACTOVIA_DOCS)}>
+                <HugeiconsIcon icon={HelpCircleIcon} />
+                {t('chat:sidebar.account.help')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => openInBrowser(ACTOVIA_RELEASES)}>
+                <HugeiconsIcon icon={News01Icon} />
+                {t('chat:sidebar.account.whatsNew')}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            {lockStatus?.hasPin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  data-testid={TEST_IDS.chatLayout.accountLock}
+                  onClick={() => void lockNow()}
+                >
+                  <HugeiconsIcon icon={LockIcon} />
+                  {t('chat:sidebar.account.lock')}
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
+        <AppsDialog open={appsOpen} onOpenChange={setAppsOpen} />
       </SidebarMenuItem>
     </SidebarMenu>
   )

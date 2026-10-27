@@ -278,6 +278,12 @@
       "new": "새로 만들기",
       "search": "검색",
       "artifacts": "아티팩트"
+    },
+    "account": {
+      "apps": "앱 받기",
+      "help": "도움말 및 문서",
+      "whatsNew": "새로운 기능",
+      "lock": "Actovia 잠그기"
     }
   },
   "run": {
@@ -480,5 +486,23 @@
     "emptyTitle": "아직 아티팩트가 없습니다",
     "emptyDescription": "채팅에서 차트, 대시보드, 작은 앱을 요청하면 여기에 나타납니다.",
     "untitled": "제목 없음"
+  },
+  "apps": {
+    "title": "어디서나 Actovia",
+    "description": "이 Mac이 허브입니다. 휴대폰이나 터미널에서 접속하세요. 채팅, 키, 메모리는 여기에 남습니다.",
+    "learnMore": "자세히 알아보기",
+    "iphone": {
+      "title": "iPhone용 Actovia",
+      "body": "집에서든 밖에서든 휴대폰으로 채팅하고 그룹을 운영하세요. QR 코드로 이 Mac과 페어링합니다.",
+      "pair": "iPhone 페어링"
+    },
+    "health": {
+      "title": "건강",
+      "body": "iPhone 앱에서 Apple 건강의 수면, 활동, 심장 데이터에 대해 물어보세요. 그날의 수치만 질문과 함께 전송되고, 그 밖의 것은 휴대폰을 떠나지 않습니다."
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "터미널에서 스킬 설치, 기기 페어링, 앱 잠금이나 재시작을 할 수 있습니다."
+    }
   }
 }

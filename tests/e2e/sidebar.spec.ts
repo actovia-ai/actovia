@@ -99,6 +99,27 @@ test.describe('Sidebar', () => {
       .toContain('settings')
   })
 
+  test('account menu opens Actovia everywhere, which pairs an iPhone', async ({
+    mainWindow
+  }) => {
+    const account = mainWindow.getByTestId(TEST_IDS.chatLayout.account)
+    await account.waitFor({ state: 'visible', timeout: 10_000 })
+    await account.click()
+    await mainWindow.getByTestId(TEST_IDS.chatLayout.accountApps).click()
+
+    const dialog = mainWindow.getByTestId(TEST_IDS.chatLayout.appsDialog)
+    await expect(dialog).toBeVisible({ timeout: 5_000 })
+    await expect(dialog).toContainText('npm i -g @actovia-ai/cli')
+
+    await mainWindow.getByTestId(TEST_IDS.chatLayout.appsPairIphone).click()
+    await expect(dialog).toBeHidden()
+    await expect
+      .poll(() => mainWindow.evaluate(() => window.location.hash), {
+        timeout: 10_000
+      })
+      .toContain('tab=devices')
+  })
+
   test('workspace switcher navigates to Philharmonic', async ({
     mainWindow
   }) => {

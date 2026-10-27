@@ -34,9 +34,9 @@ test('set PIN → lock blocks API (423) → unlock restores (200)', async ({
   )
   expect(setOk).toBe(true)
 
-  await mainWindow.evaluate(() =>
-    window.electron.ipcRenderer.invoke('lock:lock-now')
-  )
+  // Lock from the account menu: its Lock item shows once a PIN is set.
+  await mainWindow.getByTestId(TEST_IDS.chatLayout.account).click()
+  await mainWindow.getByTestId(TEST_IDS.chatLayout.accountLock).click()
 
   await expect(mainWindow.getByTestId(TEST_IDS.lock.pinInput)).toBeVisible()
   // References TEST_IDS.lock.touchIdButton for linkage; presence is platform-dependent.

@@ -278,6 +278,12 @@
       "new": "新增",
       "search": "搜尋",
       "artifacts": "Artifacts"
+    },
+    "account": {
+      "apps": "取得應用程式",
+      "help": "說明與文件",
+      "whatsNew": "新功能",
+      "lock": "鎖定 Actovia"
     }
   },
   "run": {
@@ -480,5 +486,23 @@
     "emptyTitle": "還沒有 Artifact",
     "emptyDescription": "在聊天裡讓它做一張圖表、一個看板或一個小應用，就會出現在這裡。",
     "untitled": "未命名"
+  },
+  "apps": {
+    "title": "隨處使用 Actovia",
+    "description": "這部 Mac 是中樞。從手機或終端機連上它——你的對話、金鑰和記憶都留在這裡。",
+    "learnMore": "了解更多",
+    "iphone": {
+      "title": "Actovia iPhone 版",
+      "body": "在家或在外，都能用手機聊天、調度你的群組。掃 QR 碼即可與這部 Mac 配對。",
+      "pair": "配對 iPhone"
+    },
+    "health": {
+      "title": "健康",
+      "body": "在 iPhone 應用程式裡，就 Apple 健康中的睡眠、活動和心臟數據提問。隨問題送出的只有當天的數據，其餘都不會離開手機。"
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "在終端機裡安裝技能、配對裝置、鎖定或重新啟動應用程式。"
+    }
   }
 }

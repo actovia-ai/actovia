@@ -141,6 +141,14 @@ export const TEST_IDS = {
     newChat: 'chat-layout.new-chat',
     account: 'chat-layout.account',
     accountSettings: 'chat-layout.account-settings',
+    /** In the account menu: opens the "Actovia everywhere" dialog. */
+    accountApps: 'chat-layout.account-apps',
+    /** In the account menu, while a PIN is set: locks the app now. */
+    accountLock: 'chat-layout.account-lock',
+    /** The "Actovia everywhere" dialog (iPhone, Health, CLI). */
+    appsDialog: 'chat-layout.apps-dialog',
+    /** In that dialog: Settings → Devices, to pair an iPhone. */
+    appsPairIphone: 'chat-layout.apps-pair-iphone',
     /** One per chat in the sidebar: the "…" that opens its menu. */
     historyItemMenu: 'chat-layout.history-item-menu',
     /** In that menu: puts the conversation's id on the clipboard. */

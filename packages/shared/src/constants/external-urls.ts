@@ -13,6 +13,11 @@
 export const ACTOVIA_WEBSITE = 'https://actovia.yancey.app'
 export const ACTOVIA_REPO = 'https://github.com/actovia-ai/actovia'
 export const ACTOVIA_TWITTER = 'https://x.com/YanceyOfficial'
+export const ACTOVIA_DOCS = `${ACTOVIA_WEBSITE}/docs`
+export const ACTOVIA_IPHONE_DOCS = `${ACTOVIA_DOCS}/iphone`
+export const ACTOVIA_HEALTH_DOCS = `${ACTOVIA_DOCS}/iphone/health`
+export const ACTOVIA_CLI_DOCS = `${ACTOVIA_DOCS}/cli`
+export const ACTOVIA_RELEASES = `${ACTOVIA_REPO}/releases`
 
 // skills.sh (Agent Skills registry). The main process reaches it through the
 // same BFF relay the Actovia CLI uses; `ACTOVIA_SKILLS_BFF_URL` overrides the relay.

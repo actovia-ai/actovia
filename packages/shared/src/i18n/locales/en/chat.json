@@ -289,6 +289,12 @@
       "new": "New",
       "search": "Search",
       "artifacts": "Artifacts"
+    },
+    "account": {
+      "apps": "Get the apps",
+      "help": "Help & docs",
+      "whatsNew": "What's new",
+      "lock": "Lock Actovia"
     }
   },
   "run": {
@@ -497,5 +503,23 @@
     "emptyTitle": "No artifacts yet",
     "emptyDescription": "Ask for a chart, a dashboard or a small app in a chat, and it will appear here.",
     "untitled": "Untitled"
+  },
+  "apps": {
+    "title": "Actovia everywhere",
+    "description": "This Mac is the hub. Reach it from your phone or your terminal — your chats, keys and memory stay here.",
+    "learnMore": "Learn more",
+    "iphone": {
+      "title": "Actovia for iPhone",
+      "body": "Chat and run your Groups from your phone, at home or away. It pairs with this Mac by QR code.",
+      "pair": "Pair an iPhone"
+    },
+    "health": {
+      "title": "Health",
+      "body": "On the iPhone app, ask about your sleep, activity and heart from Apple Health. The day's figures go with the question; nothing else leaves the phone."
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "Install skills, pair devices, lock or restart the app — from your terminal."
+    }
   }
 }

@@ -289,6 +289,12 @@
       "new": "Neu",
       "search": "Suchen",
       "artifacts": "Artefakte"
+    },
+    "account": {
+      "apps": "Apps holen",
+      "help": "Hilfe & Doku",
+      "whatsNew": "Neuigkeiten",
+      "lock": "Actovia sperren"
     }
   },
   "run": {
@@ -497,5 +503,23 @@
     "emptyTitle": "Noch keine Artefakte",
     "emptyDescription": "Bitte in einem Chat um ein Diagramm, ein Dashboard oder eine kleine App – es erscheint dann hier.",
     "untitled": "Ohne Titel"
+  },
+  "apps": {
+    "title": "Actovia überall",
+    "description": "Dieser Mac ist die Zentrale. Erreiche ihn vom Handy oder Terminal aus – Chats, Schlüssel und Erinnerungen bleiben hier.",
+    "learnMore": "Mehr erfahren",
+    "iphone": {
+      "title": "Actovia für iPhone",
+      "body": "Chatte und steuere deine Gruppen vom Handy aus, zu Hause oder unterwegs. Gekoppelt wird per QR-Code mit diesem Mac.",
+      "pair": "iPhone koppeln"
+    },
+    "health": {
+      "title": "Health",
+      "body": "Frag in der iPhone-App nach Schlaf, Aktivität und Herz aus Apple Health. Die Werte des Tages gehen mit der Frage mit, sonst verlässt nichts das Handy."
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "Skills installieren, Geräte koppeln, die App sperren oder neu starten – im Terminal."
+    }
   }
 }

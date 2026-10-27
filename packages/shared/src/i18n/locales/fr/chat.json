@@ -289,6 +289,12 @@
       "new": "Nouveau",
       "search": "Rechercher",
       "artifacts": "Artefacts"
+    },
+    "account": {
+      "apps": "Obtenir les apps",
+      "help": "Aide et documentation",
+      "whatsNew": "Nouveautés",
+      "lock": "Verrouiller Actovia"
     }
   },
   "run": {
@@ -497,5 +503,23 @@
     "emptyTitle": "Aucun artefact pour l’instant",
     "emptyDescription": "Demandez un graphique, un tableau de bord ou une petite app dans une conversation : il apparaîtra ici.",
     "untitled": "Sans titre"
+  },
+  "apps": {
+    "title": "Actovia partout",
+    "description": "Ce Mac est le centre. Accédez-y depuis votre téléphone ou votre terminal — vos discussions, clés et souvenirs restent ici.",
+    "learnMore": "En savoir plus",
+    "iphone": {
+      "title": "Actovia pour iPhone",
+      "body": "Discutez et pilotez vos Groupes depuis votre téléphone, chez vous ou ailleurs. Il s'associe à ce Mac par QR code.",
+      "pair": "Associer un iPhone"
+    },
+    "health": {
+      "title": "Santé",
+      "body": "Dans l'app iPhone, posez des questions sur votre sommeil, votre activité et votre cœur depuis Apple Santé. Les chiffres du jour accompagnent la question ; rien d'autre ne quitte le téléphone."
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "Installez des skills, associez des appareils, verrouillez ou redémarrez l'app — depuis votre terminal."
+    }
   }
 }

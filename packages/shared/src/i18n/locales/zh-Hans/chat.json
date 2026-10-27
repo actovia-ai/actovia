@@ -278,6 +278,12 @@
       "new": "新建",
       "search": "搜索",
       "artifacts": "Artifacts"
+    },
+    "account": {
+      "apps": "获取应用",
+      "help": "帮助与文档",
+      "whatsNew": "更新内容",
+      "lock": "锁定 Actovia"
     }
   },
   "run": {
@@ -480,5 +486,23 @@
     "emptyTitle": "还没有 Artifact",
     "emptyDescription": "在聊天里让它做一张图表、一个看板或一个小应用，就会出现在这里。",
     "untitled": "未命名"
+  },
+  "apps": {
+    "title": "随处使用 Actovia",
+    "description": "这台 Mac 是中枢。从手机或终端连上它——你的对话、密钥和记忆都留在这里。",
+    "learnMore": "了解更多",
+    "iphone": {
+      "title": "Actovia iPhone 版",
+      "body": "在家或在外，都能用手机聊天、调度你的群组。扫二维码即可与这台 Mac 配对。",
+      "pair": "配对 iPhone"
+    },
+    "health": {
+      "title": "健康",
+      "body": "在 iPhone 应用里，就 Apple 健康中的睡眠、活动和心脏数据提问。随问题发出的只有当天的数据，其余都不会离开手机。"
+    },
+    "cli": {
+      "title": "Actovia CLI",
+      "body": "在终端里安装技能、配对设备、锁定或重启应用。"
+    }
   }
 }
