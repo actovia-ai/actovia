@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
-// ISSUE-237: Chat / Philharmonic is a pair of icon buttons at the sidebar's
-// top right — the current one pressed, the other a click away.
+// ISSUE-237: Chat / Philharmonic at the sidebar's top right — the current one
+// selected, the other a click away. ISSUE-266: shadcn's Tabs, so it is a
+// tablist of two tabs (arrow keys move between them).
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -58,15 +59,20 @@ afterEach(() => {
 })
 
 describe('WorkspaceSwitcher', () => {
-  it('presses Chat on a chat page, and goes to Philharmonic on a click', async () => {
+  it('selects Chat on a chat page, and goes to Philharmonic on a click', async () => {
     await render('/chat/abc')
-    expect(button(TEST_IDS.chatLayout.workspaceSwitcher)).toBeTruthy()
     expect(
-      button(TEST_IDS.chatLayout.workspaceChat).getAttribute('aria-pressed')
+      button(TEST_IDS.chatLayout.workspaceSwitcher).getAttribute('role')
+    ).toBe('tablist')
+    expect(button(TEST_IDS.chatLayout.workspaceChat).getAttribute('role')).toBe(
+      'tab'
+    )
+    expect(
+      button(TEST_IDS.chatLayout.workspaceChat).getAttribute('aria-selected')
     ).toBe('true')
     expect(
       button(TEST_IDS.chatLayout.workspacePhilharmonic).getAttribute(
-        'aria-pressed'
+        'aria-selected'
       )
     ).toBe('false')
     await act(async () =>
@@ -75,11 +81,11 @@ describe('WorkspaceSwitcher', () => {
     expect(path).toBe('/philharmonic')
   })
 
-  it('presses Philharmonic inside it', async () => {
+  it('selects Philharmonic inside it', async () => {
     await render('/philharmonic/groups/g1')
     expect(
       button(TEST_IDS.chatLayout.workspacePhilharmonic).getAttribute(
-        'aria-pressed'
+        'aria-selected'
       )
     ).toBe('true')
     await act(async () => button(TEST_IDS.chatLayout.workspaceChat).click())

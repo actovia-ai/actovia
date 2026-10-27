@@ -129,7 +129,7 @@ test.describe('Sidebar', () => {
     await switcher.waitFor({ state: 'visible', timeout: 10_000 })
     await expect(
       mainWindow.getByTestId(TEST_IDS.chatLayout.workspaceChat)
-    ).toHaveAttribute('aria-pressed', 'true')
+    ).toHaveAttribute('aria-selected', 'true')
 
     await mainWindow
       .getByTestId(TEST_IDS.chatLayout.workspacePhilharmonic)

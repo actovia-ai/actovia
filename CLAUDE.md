@@ -1182,8 +1182,9 @@ Compacts long conversations without losing information, surfacing summaries the 
 The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, 18rem) sits on the
 window's material like Settings' and Philharmonic's (`SIDEBAR_ON_MATERIAL`,
 `layouts/shared/sidebar-material.ts`). Its top row carries
-`components/app/workspace-switcher.tsx` — Chat / Philharmonic as two icon
-buttons, the one on show pressed. Under it: New, Search, and **Artifacts**
+`components/app/workspace-switcher.tsx` — Chat / Philharmonic as shadcn
+`Tabs`, icon-only (Hugeicons' `Chatting01Icon`, and `icons/music-conductor.tsx`
+traced from Streamline's conductor; ISSUE-266), the one on show selected. Under it: New, Search, and **Artifacts**
 (`/artifacts`, `containers/artifacts.tsx`): every `create_artifact` result of
 every chat, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
 in `db/queries.ts`, no code; `ArtifactListItem` in
