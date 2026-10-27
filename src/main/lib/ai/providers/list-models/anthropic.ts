@@ -71,7 +71,6 @@ export const listAnthropicModels: ListModelsFn = async ({
         contextWindow: m.max_input_tokens,
         maxOutputTokens: m.max_tokens,
         reasoningLevels: levels,
-        cost: null, // Anthropic's list API doesn't report price
         // Left unset when the API doesn't say (resolveModel's id rule).
         ...(thinkingTypes
           ? {

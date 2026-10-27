@@ -1,4 +1,3 @@
-import { MODEL_METADATA_FALLBACK } from '../resolve-model'
 import type { ListModelsFn, NormalizedModel } from './types'
 
 interface GoogleModel {
@@ -27,7 +26,6 @@ export const listGoogleModels: ListModelsFn = async ({ apiKey, baseUrl }) => {
 
   return sorted.map((m): NormalizedModel => {
     const id = m.name.replace(/^models\//, '')
-    const fallback = MODEL_METADATA_FALLBACK[id]
     // Gemini's `thinking` flag is boolean, not leveled — this 2-state mapping
     // is a fixed convention (spec §2), not per-model data. pi-ai's own
     // thinkingLevelMap collapses named levels to Gemini's numeric
@@ -40,8 +38,7 @@ export const listGoogleModels: ListModelsFn = async ({ apiKey, baseUrl }) => {
       snapshot: {
         contextWindow: m.inputTokenLimit,
         maxOutputTokens: m.outputTokenLimit,
-        reasoningLevels: [...reasoningLevels],
-        cost: fallback?.cost ?? null
+        reasoningLevels: [...reasoningLevels]
       }
     }
   })

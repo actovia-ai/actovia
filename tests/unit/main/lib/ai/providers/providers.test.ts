@@ -43,8 +43,7 @@ describe('providers table', () => {
           modelSnapshot: {
             contextWindow: 12345,
             maxOutputTokens: 999,
-            reasoningLevels: ['off', 'max'],
-            cost: { input: 1, output: 2 }
+            reasoningLevels: ['off', 'max']
           }
         }
       } as Partial<Settings>)
@@ -52,7 +51,7 @@ describe('providers table', () => {
     expect(model.id).toBe('my-model')
     expect(model.baseUrl).toBe('https://proxy.example.com')
     expect(model.contextWindow).toBe(12345)
-    expect(model.cost.input).toBe(1)
+    expect(model.cost.input).toBe(0)
   })
 
   it('falls back to each provider default base URL', () => {

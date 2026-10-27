@@ -24,8 +24,7 @@ describe('listOpenAiModels', () => {
         snapshot: {
           contextWindow: 1_050_000,
           maxOutputTokens: 128_000,
-          reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh'],
-          cost: { input: 4, output: 20 }
+          reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh']
         }
       }
     ])
@@ -80,8 +79,7 @@ describe('listOpenAiModels', () => {
     expect(models[0].snapshot).toEqual({
       contextWindow: null,
       maxOutputTokens: null,
-      reasoningLevels: [],
-      cost: null
+      reasoningLevels: []
     })
   })
 

@@ -22,14 +22,6 @@ export type {
   UserMessage
 }
 
-export interface CostBreakdown {
-  input: number
-  output: number
-  cacheRead: number
-  cacheWrite: number
-  total: number
-}
-
 /**
  * Every message carries the run it belongs to: the id of the run's user
  * message (which is its own `runId`). One run = one user message and every
@@ -57,7 +49,6 @@ export type Attempt = 'comparing' | 'chosen' | 'folded' | 'hidden'
 export type ChatAssistantMessage = AssistantMessage & {
   id: string
   runId: string
-  cost?: CostBreakdown
   /** Wall-clock duration of the entire turn this message belongs to. Set only
    * on the LAST assistant message of a turn by the server (chat route) so the
    * UI can show an accurate "Worked for X seconds" without relying on message

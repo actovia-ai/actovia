@@ -60,8 +60,7 @@ function isSameUsage(a: Usage | null, b: Usage): boolean {
     a !== null &&
     a.input === b.input &&
     a.output === b.output &&
-    a.totalTokens === b.totalTokens &&
-    a.cost?.total === b.cost?.total
+    a.totalTokens === b.totalTokens
   )
 }
 

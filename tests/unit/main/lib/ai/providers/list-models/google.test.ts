@@ -32,9 +32,7 @@ describe('listGoogleModels', () => {
         snapshot: {
           contextWindow: 1_000_000,
           maxOutputTokens: 65_536,
-          reasoningLevels: ['off', 'high'],
-          // gemini-3.8-flash has a MODEL_METADATA_FALLBACK cost entry
-          cost: { input: 0.75, output: 3.75 }
+          reasoningLevels: ['off', 'high']
         }
       }
     ])

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 describe('listXaiModels', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  it('normalizes context_length and converts per-token price to per-million', async () => {
+  it('normalizes context_length and carries no price, even one the API sends', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue(
@@ -31,8 +31,7 @@ describe('listXaiModels', () => {
         snapshot: {
           contextWindow: 500_000,
           maxOutputTokens: null,
-          reasoningLevels: [], // from MODEL_METADATA_FALLBACK
-          cost: { input: 2, output: 6 }
+          reasoningLevels: [] // from MODEL_METADATA_FALLBACK
         }
       }
     ])

@@ -34,8 +34,7 @@ export const listOllamaModels: ListModelsFn = async ({ baseUrl }) => {
     snapshot: {
       contextWindow: null,
       maxOutputTokens: null,
-      reasoningLevels: [],
-      cost: null
+      reasoningLevels: []
     }
   }))
 }

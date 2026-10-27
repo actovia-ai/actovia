@@ -568,7 +568,7 @@ serves the Responses API only). Every path resolves through the shared
 `resolveModel()` in `resolve-model.ts` (do not duplicate model-resolution
 logic); it looks the id up in the collection's catalog and accepts an
 optional live-fetched `snapshot` parameter (from `POST /api/v1/settings/models`)
-to override it. Per-provider fallback defaults (contextWindow, cost) and
+to override it. Per-provider fallback defaults (contextWindow, maxTokens; every model is priced at zero — `ZERO_MODEL_COST`, ISSUE-235) and
 `MODEL_METADATA_FALLBACK` (narrower scope: only what a provider's own list API
 omits) live there. Live model lists are fetched per-provider from
 `src/main/lib/ai/providers/list-models/`.
@@ -1339,7 +1339,7 @@ straight from `src/main/lib/db/schema.ts` (the shared package must not import th
 
 - Providers resolve a `Model` (from `@earendil-works/pi-ai`) via the shared `resolveModel()` in `src/main/lib/ai/providers/resolve-model.ts` — do NOT duplicate model resolution logic
 - `resolveModel()` accepts an optional `snapshot` parameter (live-fetched from `POST /api/v1/settings/models`) to override the pi-ai registry
-- Per-provider fallback defaults (contextWindow, cost) and `MODEL_METADATA_FALLBACK` are centralized in `resolve-model.ts`
+- Per-provider fallback defaults (contextWindow, maxTokens; every model is priced at zero — `ZERO_MODEL_COST`, ISSUE-235) and `MODEL_METADATA_FALLBACK` are centralized in `resolve-model.ts`
 - Model lists are now live-fetched per provider from Settings via `src/main/lib/ai/providers/list-models/`
 - Model names/API keys are retrieved from settings (never hardcode)
 - One-shot completions go through `completeSimple` from `src/main/lib/ai/utils/complete.ts` (see Shared Utilities) — pi-ai does not throw on a failed request

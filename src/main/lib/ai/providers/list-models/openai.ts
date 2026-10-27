@@ -50,8 +50,7 @@ export const listOpenAiModels: ListModelsFn = async ({ apiKey, baseUrl }) => {
       snapshot: {
         contextWindow: fallback?.contextWindow ?? null,
         maxOutputTokens: fallback?.maxOutputTokens ?? null,
-        reasoningLevels: fallback?.reasoningLevels ?? [],
-        cost: fallback?.cost ?? null
+        reasoningLevels: fallback?.reasoningLevels ?? []
       },
       ...(retiresAt ? { retiresAt } : {})
     }

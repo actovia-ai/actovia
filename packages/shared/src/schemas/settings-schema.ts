@@ -55,7 +55,6 @@ export const ModelSnapshotSchema = z.object({
   contextWindow: z.number().nullish(),
   maxOutputTokens: z.number().nullish(),
   reasoningLevels: z.array(EffortLevelSchema).default([]),
-  cost: z.object({ input: z.number(), output: z.number() }).nullish(),
   // Which Anthropic thinking modes the model accepts, from the Models API's
   // `capabilities.thinking.types` — adaptive (`{type:"adaptive"}` + effort)
   // and budget-based (`{type:"enabled", budget_tokens}`). Optional: snapshots

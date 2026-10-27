@@ -25,7 +25,6 @@ import {
   extractToolErrorMessage,
   isEmptyAssistantTurn
 } from '../../server/routes/chat-errors'
-import { calculateCost } from '../utils/cost'
 import { withBareImages } from '../utils/image-data'
 import { declinedReason, refusedReason, sensitiveTarget } from './approval'
 import type { KernelEvent } from './events'
@@ -220,7 +219,7 @@ export async function* runAgent(input: RunInput): AsyncIterable<KernelEvent> {
         push({
           type: 'message_update',
           runId,
-          message: toAssistant(m, assistantId, runId, input.model, false)
+          message: toAssistant(m, assistantId, runId, false)
         })
         return
       }
@@ -245,7 +244,7 @@ export async function* runAgent(input: RunInput): AsyncIterable<KernelEvent> {
           failure = EMPTY_TURN_MESSAGE
           return
         }
-        const final = toAssistant(m, assistantId, runId, input.model)
+        const final = toAssistant(m, assistantId, runId)
         done.push(final)
         push({ type: 'message_end', runId, message: final })
         assistantId = uuidV4()
@@ -377,7 +376,6 @@ function toAssistant(
   m: AssistantMessage,
   id: string,
   runId: string,
-  model: Model<string>,
   final = true
 ): ChatAssistantMessage {
   return {
@@ -389,7 +387,6 @@ function toAssistant(
       final
     ) as AssistantMessage['content'],
     usage: m.usage,
-    cost: calculateCost(m.usage, model),
     api: m.api,
     provider: m.provider,
     model: m.model,

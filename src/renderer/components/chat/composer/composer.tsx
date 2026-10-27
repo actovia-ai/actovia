@@ -335,16 +335,6 @@ function InputBox({
           </div>
         </div>
       </VoiceBeam>
-      {/* {lastUsage && (
-        <div className="text-muted-foreground/70 flex justify-end gap-2 px-1 py-1 text-2xs">
-          <span>↑{lastUsage.input.toLocaleString()}</span>
-          <span>↓{lastUsage.output.toLocaleString()}</span>
-          <span>∑{lastUsage.totalTokens.toLocaleString()}</span>
-          {lastUsage.cost.total > 0 && (
-            <span>${lastUsage.cost.total.toFixed(4)}</span>
-          )}
-        </div>
-      )} */}
     </BorderBeam>
   )
 }

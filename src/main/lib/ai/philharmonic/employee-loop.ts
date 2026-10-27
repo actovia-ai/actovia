@@ -22,7 +22,6 @@ import {
   getSkillsContentBySlugs
 } from '../skills/skills-manager'
 import { bindCallingTools } from '../utils/chat-message-util'
-import { calculateCost } from '../utils/cost'
 import { resolveEmployeeModel } from '../utils/employee-model'
 import { groupBeforeToolCall } from './sensitive-guard'
 
@@ -168,12 +167,11 @@ export async function runEmployeeLoop(
   })
 
   let finalOutput = ''
-  // Every step of the loop is a request of its own: its tokens and its cost
-  // are added up — the cost was the last step's alone. Input counts what the
+  // Every step of the loop is a request of its own: its tokens are added up.
+  // Input counts what the
   // model read, the cached part included (the dashboard's "total processed").
   let totalInput = 0
   let totalOutput = 0
-  let totalCost = 0
 
   const stream = agentLoop(
     [userMessage as AgentMessage],
@@ -244,7 +242,6 @@ export async function runEmployeeLoop(
               (msg.usage.cacheRead ?? 0) +
               (msg.usage.cacheWrite ?? 0)
             totalOutput += msg.usage.output ?? 0
-            totalCost += calculateCost(msg.usage, model).total
           }
         }
       } else if (event.type === 'tool_execution_start') {
@@ -291,8 +288,7 @@ export async function runEmployeeLoop(
       completedAt: new Date(),
       tokenUsage: {
         inputTokens: totalInput,
-        outputTokens: totalOutput,
-        cost: totalCost
+        outputTokens: totalOutput
       }
     })
 

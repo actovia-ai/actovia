@@ -191,7 +191,7 @@ describe('runEmployeeLoop', () => {
     )
   })
 
-  it('adds up every step — its tokens, the cached input included, and its cost', async () => {
+  it('adds up every step — its tokens, the cached input included', async () => {
     const step = (usage: Record<string, number>) => ({
       type: 'message_end',
       message: {
@@ -225,14 +225,12 @@ describe('runEmployeeLoop', () => {
       conversationId: 'c1',
       emit: vi.fn()
     })
-    // $1 (step 1's input) + $2 (step 2's output) + $0.20 (its cache reads)
     expect(updateTaskExecution).toHaveBeenCalledWith(
       'e2',
       expect.objectContaining({
         tokenUsage: {
           inputTokens: 3_000_000,
-          outputTokens: 1_000_000,
-          cost: expect.closeTo(3.2, 6)
+          outputTokens: 1_000_000
         }
       })
     )

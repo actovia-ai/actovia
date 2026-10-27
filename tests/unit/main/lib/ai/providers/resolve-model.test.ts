@@ -2,7 +2,10 @@ import {
   ModelSnapshotSchema,
   type ModelSnapshot
 } from '@actovia/shared/schemas/settings-schema'
-import { resolveModel } from '@main/lib/ai/providers/resolve-model'
+import {
+  resolveModel,
+  ZERO_MODEL_COST
+} from '@main/lib/ai/providers/resolve-model'
 import { thinkingLevelFor } from '@main/lib/ai/providers/thinking-level'
 import { describe, expect, it } from 'vitest'
 
@@ -45,8 +48,8 @@ describe('resolveModel', () => {
       'anthropic-messages'
     )
     expect(model.id).toBe('claude-opus-4-7')
-    // Registry-backed models carry real (non-zero) pricing.
-    expect(model.cost.input).toBeGreaterThan(0)
+    // pi's catalog prices are not carried over (ISSUE-235: no money anywhere).
+    expect(model.cost).toEqual(ZERO_MODEL_COST)
   })
 
   it('falls back to zero cost + the provider default context for an unknown model', () => {
@@ -82,14 +85,12 @@ describe('resolveModel', () => {
       {
         contextWindow: 999,
         maxOutputTokens: 111,
-        reasoningLevels: ['off', 'max'],
-        cost: { input: 1, output: 2 }
+        reasoningLevels: ['off', 'max']
       }
     )
     expect(model.contextWindow).toBe(999)
     expect(model.maxTokens).toBe(111)
-    expect(model.cost.input).toBe(1)
-    expect(model.cost.output).toBe(2)
+    expect(model.cost).toEqual(ZERO_MODEL_COST)
     expect(model.reasoning).toBe(true) // reasoningLevels has more than just 'off'
   })
 
@@ -101,7 +102,8 @@ describe('resolveModel', () => {
       'openai-responses'
     )
     // gpt-5.6 has a MODEL_METADATA_FALLBACK entry (OpenAI's own list API gives us nothing else)
-    expect(model.cost.input).toBeGreaterThan(0)
+    expect(model.contextWindow).toBe(1_050_000)
+    expect(model.cost).toEqual(ZERO_MODEL_COST)
   })
 
   it('falls back to PROVIDER_DEFAULTS for a snapshot with null fields (Ollama live-fetch shape)', () => {
@@ -113,8 +115,7 @@ describe('resolveModel', () => {
       {
         contextWindow: null,
         maxOutputTokens: null,
-        reasoningLevels: [],
-        cost: null
+        reasoningLevels: []
       }
     )
     expect(model.contextWindow).toBe(128_000)
@@ -134,8 +135,7 @@ describe('resolveModel', () => {
       {
         contextWindow: 1_000_000,
         maxOutputTokens: 128_000,
-        reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'],
-        cost: { input: 5, output: 25 }
+        reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh', 'max']
       }
     )
     expect(model.thinkingLevelMap).toEqual({ xhigh: 'xhigh', max: 'max' })
@@ -150,8 +150,7 @@ describe('resolveModel', () => {
       {
         contextWindow: 1_000_000,
         maxOutputTokens: 128_000,
-        reasoningLevels: ['off', 'high', 'xhigh'],
-        cost: { input: 5, output: 25 }
+        reasoningLevels: ['off', 'high', 'xhigh']
       }
     )
     expect(model.thinkingLevelMap).toEqual({ xhigh: 'xhigh' })
@@ -166,8 +165,7 @@ describe('resolveModel', () => {
       {
         contextWindow: 200_000,
         maxOutputTokens: 64_000,
-        reasoningLevels: [],
-        cost: { input: 1, output: 5 }
+        reasoningLevels: []
       }
     )
     expect(model.thinkingLevelMap).toBeUndefined()
@@ -178,7 +176,6 @@ describe('resolveModel', () => {
       contextWindow: 900_000,
       maxOutputTokens: 100_000,
       reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'],
-      cost: { input: 5, output: 25 },
       ...extra
     })
 
@@ -202,7 +199,7 @@ describe('resolveModel', () => {
       // The live numbers still win.
       expect(model.contextWindow).toBe(900_000)
       expect(model.maxTokens).toBe(100_000)
-      expect(model.cost.input).toBe(5)
+      expect(model.cost).toEqual(ZERO_MODEL_COST)
     })
 
     it("derives adaptive-only thinking for an unregistered id from the snapshot's capability", () => {
@@ -245,25 +242,22 @@ describe('resolveModel', () => {
       expect(model.thinkingLevelMap?.off).toBeUndefined()
     })
 
-    it("prices a live model its list API gives no price for from pi's registry, cache rates included", () => {
+    it("carries no price for a live model pi's registry prices", () => {
       const model = resolveModel(
         'anthropic',
         'claude-opus-5-5',
         'https://api.anthropic.com',
         'anthropic-messages',
-        live({ cost: null })
+        live()
       )
-      expect(model.cost.input).toBeGreaterThan(0)
-      expect(model.cost.output).toBeGreaterThan(0)
-      expect(model.cost.cacheRead).toBeGreaterThan(0)
+      expect(model.cost).toEqual(ZERO_MODEL_COST)
     })
 
     it('falls back to the id rule for a stored snapshot saved before the capability fields', () => {
       const stored = ModelSnapshotSchema.parse({
         contextWindow: 1_000_000,
         maxOutputTokens: 128_000,
-        reasoningLevels: ['off', 'low', 'high', 'max'],
-        cost: null
+        reasoningLevels: ['off', 'low', 'high', 'max']
       })
       const opus = resolveModel(
         'anthropic',
@@ -301,8 +295,7 @@ describe('resolveModel', () => {
     const snap: ModelSnapshot = {
       contextWindow: 1_000_000,
       maxOutputTokens: 128_000,
-      reasoningLevels: ['off', 'low', 'high'],
-      cost: null
+      reasoningLevels: ['off', 'low', 'high']
     }
 
     it('turns "off" into the lowest effort when the model cannot disable thinking', () => {

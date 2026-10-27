@@ -27,8 +27,7 @@ describe('listOllamaModels', () => {
         snapshot: {
           contextWindow: null,
           maxOutputTokens: null,
-          reasoningLevels: [],
-          cost: null
+          reasoningLevels: []
         }
       },
       {
@@ -37,8 +36,7 @@ describe('listOllamaModels', () => {
         snapshot: {
           contextWindow: null,
           maxOutputTokens: null,
-          reasoningLevels: [],
-          cost: null
+          reasoningLevels: []
         }
       }
     ])

@@ -41,8 +41,7 @@ describe('listAnthropicModels', () => {
         snapshot: {
           contextWindow: 1_000_000,
           maxOutputTokens: 128_000,
-          reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh', 'max'],
-          cost: null
+          reasoningLevels: ['off', 'low', 'medium', 'high', 'xhigh', 'max']
         }
       }
     ])

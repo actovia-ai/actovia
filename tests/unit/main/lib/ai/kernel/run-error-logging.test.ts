@@ -24,17 +24,21 @@ vi.mock('@main/lib/logger', () => ({
 
 // What each of the kernel's own steps throws, when a test says so.
 const thrownBy: {
-  cost?: Error
+  listener?: Error
   invariant?: Error
   approval?: Error
 } = {}
-vi.mock('@main/lib/ai/utils/cost', async (original) => {
-  const real = await original<typeof import('@main/lib/ai/utils/cost')>()
+vi.mock('@actovia/shared/utils/thinking-tags', async (original) => {
+  const real =
+    await original<typeof import('@actovia/shared/utils/thinking-tags')>()
   return {
     ...real,
-    calculateCost: (...args: Parameters<typeof real.calculateCost>) => {
-      if (thrownBy.cost) throw thrownBy.cost
-      return real.calculateCost(...args)
+    // Runs inside the kernel's listener, on every assistant message.
+    splitThinkingTagsInContent: (
+      ...args: Parameters<typeof real.splitThinkingTagsInContent>
+    ) => {
+      if (thrownBy.listener) throw thrownBy.listener
+      return real.splitThinkingTagsInContent(...args)
     }
   }
 })
@@ -111,7 +115,7 @@ const kernelErrors = () =>
 
 beforeEach(() => {
   error.mockClear()
-  delete thrownBy.cost
+  delete thrownBy.listener
   delete thrownBy.invariant
   delete thrownBy.approval
 })
@@ -128,7 +132,7 @@ describe('runAgent — a throw inside the kernel', () => {
   it('from the listener: logged once as the Error, with the chat and the run', async () => {
     const faux = registerFauxProvider()
     faux.setResponses([fauxAssistantMessage([fauxText('hello')])])
-    thrownBy.cost = new TypeError(TOTAL_TOKENS)
+    thrownBy.listener = new TypeError(TOTAL_TOKENS)
 
     const events = await collect(runAgent(input(faux.getModel())))
 
@@ -143,7 +147,7 @@ describe('runAgent — a throw inside the kernel', () => {
     expect(logged).toHaveLength(1)
     const [, message, detail] = logged[0]
     expect(message).toMatch(/listener/u)
-    expect(detail.error).toBe(thrownBy.cost)
+    expect(detail.error).toBe(thrownBy.listener)
     expect(detail).toMatchObject({ chatId: CHAT_ID, runId: RUN_ID })
   })
 
