@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import {
   findWordRanges,
   isSearchReveal,
+  revealTarget,
   runElement
 } from '@/lib/reveal-search-hit'
 
@@ -58,5 +59,29 @@ describe('isSearchReveal', () => {
     )
     expect(isSearchReveal({ runId: 'r', role: 'tool', words: [] })).toBe(false)
     expect(isSearchReveal(null)).toBe(false)
+  })
+
+  it('takes the Artifacts page’s card id, and nothing else in its place', () => {
+    const base = { runId: 'r', role: 'assistant', words: [] }
+    expect(isSearchReveal({ ...base, toolCallId: 'call-1' })).toBe(true)
+    expect(isSearchReveal({ ...base, toolCallId: 7 })).toBe(false)
+  })
+})
+
+// ISSUE-265: an artifact made after a long answer sat below the fold when the
+// chat opened at its run's top; the reveal now lands on the card itself.
+describe('revealTarget', () => {
+  const run = html(
+    '<div data-run-id="r"><p>A long answer</p>' +
+      '<div data-artifact-call="call-1"></div></div>'
+  ).firstElementChild as HTMLElement
+
+  it('is the artifact card the reveal names', () => {
+    expect(revealTarget(run, 'call-1')?.dataset.artifactCall).toBe('call-1')
+  })
+
+  it('is the run when no card is named or the card is not drawn', () => {
+    expect(revealTarget(run)).toBe(run)
+    expect(revealTarget(run, 'call-9')).toBe(run)
   })
 })

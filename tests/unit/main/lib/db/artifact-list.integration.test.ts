@@ -58,7 +58,7 @@ async function addResult(
     details,
     createdAt: at(minute)
   })
-  return { id, runId }
+  return { id, runId, toolCallId: `call-${id}` }
 }
 
 describe('listAllArtifacts', () => {
@@ -85,6 +85,7 @@ describe('listAllArtifacts', () => {
         chatId: b,
         chatTitle: 'Sales dashboard',
         runId: second.runId,
+        toolCallId: second.toolCallId,
         createdAt: at(5).toISOString()
       },
       {
@@ -93,6 +94,7 @@ describe('listAllArtifacts', () => {
         chatId: a,
         chatTitle: 'Trip planning',
         runId: first.runId,
+        toolCallId: first.toolCallId,
         createdAt: at(1).toISOString()
       }
     ])

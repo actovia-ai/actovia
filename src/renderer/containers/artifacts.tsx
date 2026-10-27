@@ -27,8 +27,8 @@ import { cn } from '@/lib/utils'
 
 /**
  * The Artifacts page (ISSUE-237): every artifact the chats made, newest
- * first. A card opens its chat at the run that made it — the same reveal
- * Search chats uses, with no words to mark — where the card draws it.
+ * first. A card opens its chat at the card that drew it — the same reveal
+ * Search chats uses, with no words to mark and the call's id to land on.
  */
 export function Artifacts() {
   const { t } = useTranslation('chat')
@@ -139,7 +139,8 @@ function ArtifactCard({
     const reveal: SearchReveal = {
       runId: artifact.runId,
       role: 'assistant',
-      words: []
+      words: [],
+      toolCallId: artifact.toolCallId
     }
     navigate(`/chat/${artifact.chatId}`, { state: reveal })
   }

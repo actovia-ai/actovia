@@ -386,6 +386,8 @@ export function ArtifactCard({
       <div
         className="border-border/70 bg-card overflow-hidden rounded-lg border shadow-sm"
         style={expanded ? { display: 'none' } : undefined}
+        // Where the Artifacts page's reveal lands (`revealTarget`).
+        data-artifact-call={toolCallId}
       >
         <InlineChromeBar
           title={toolResult.title}

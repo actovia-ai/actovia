@@ -11,11 +11,15 @@
 /** The `::highlight()` name globals.css styles. */
 export const SEARCH_HIGHLIGHT = 'actovia-search-hit'
 
-/** What the search dialog hands the chat page in the location's state. */
+/**
+ * What the search dialog hands the chat page in the location's state. The
+ * Artifacts page sends the same with no words and the card's `toolCallId`.
+ */
 export interface SearchReveal {
   runId: string
   role: 'user' | 'assistant'
   words: string[]
+  toolCallId?: string
 }
 
 export function isSearchReveal(value: unknown): value is SearchReveal {
@@ -24,7 +28,25 @@ export function isSearchReveal(value: unknown): value is SearchReveal {
     !!v &&
     typeof v.runId === 'string' &&
     (v.role === 'user' || v.role === 'assistant') &&
-    Array.isArray(v.words)
+    Array.isArray(v.words) &&
+    (v.toolCallId === undefined || typeof v.toolCallId === 'string')
+  )
+}
+
+/**
+ * What a reveal with no marked word scrolls to: the artifact card the
+ * reveal names (`data-artifact-call`), which can sit far below its run's top
+ * after a long answer (ISSUE-265), else the run itself.
+ */
+export function revealTarget(
+  run: HTMLElement,
+  toolCallId?: string
+): HTMLElement {
+  if (!toolCallId) return run
+  return (
+    run.querySelector<HTMLElement>(
+      `[data-artifact-call="${CSS.escape(toolCallId)}"]`
+    ) ?? run
   )
 }
 

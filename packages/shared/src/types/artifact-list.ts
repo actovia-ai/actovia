@@ -10,6 +10,8 @@ export interface ArtifactListItem {
   chatTitle: string
   /** The run that made it: the chat page opens there. */
   runId: string
+  /** The `create_artifact` call: the chat page scrolls to its card. */
+  toolCallId: string
   /** ISO 8601, UTC. */
   createdAt: string
 }

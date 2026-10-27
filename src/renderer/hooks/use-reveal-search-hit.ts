@@ -5,6 +5,7 @@ import {
   findWordRanges,
   isSearchReveal,
   markRanges,
+  revealTarget,
   runElement,
   scrollToReveal
 } from '@/lib/reveal-search-hit'
@@ -57,7 +58,7 @@ export function useRevealSearchHit(
       if (!box || !el) return false
       const ranges = findWordRanges(el, reveal.words)
       markRanges(ranges)
-      scrollToReveal(box, ranges, el)
+      scrollToReveal(box, ranges, revealTarget(el, reveal.toolCallId))
       return true
     }
 

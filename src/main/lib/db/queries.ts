@@ -306,6 +306,7 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
         chatId: message.chatId,
         chatTitle: chat.title,
         runId: message.runId,
+        toolCallId: message.toolCallId,
         createdAt: message.createdAt
       })
       .from(message)
@@ -322,6 +323,9 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
     return rows.map((r) => ({
       ...r,
       title: r.title ?? '',
+      // Every tool result carries its call's id; the column is nullable only
+      // for the other roles.
+      toolCallId: r.toolCallId ?? '',
       createdAt: r.createdAt.toISOString()
     }))
   } catch (error) {
