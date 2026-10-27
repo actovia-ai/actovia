@@ -5,8 +5,9 @@ import type {
 } from '@actovia/shared/types/chat'
 import type { Model } from '@earendil-works/pi-ai'
 
+import { scaleSnapshot, type ContextParts } from '../../chat/context-snapshot'
 import { saveChatSources, sourcesOfRows } from '../../chat/sources'
-import { saveMessages } from '../../db/queries'
+import { saveChatContextSnapshot, saveMessages } from '../../db/queries'
 import { enqueueAndProcess, logEnqueueFailure } from '../../jobs/worker'
 import { logger } from '../../logger'
 import { toDbRow } from '../../server/routes/chat-persistence'
@@ -22,6 +23,17 @@ export interface RecorderDeps {
   lcm: { freshTailRuns: number; contextWindowPercent: number } | null
   /** Whether the memory-consolidation job runs after the run. */
   memoryCapture: boolean
+  /**
+   * The request's parts as the route measured them before the run
+   * (`measureContext`), saved as the chat's context snapshot (ISSUE-235).
+   */
+  context?: {
+    parts: ContextParts
+    contextWindow: number
+    compactAt: number | null
+    model: string
+    runId: string
+  } | null
 }
 
 /**
@@ -36,10 +48,16 @@ export class RunRecorder {
   private done: ChatMessage[] = []
   private durationMs = 0
   private persisted = false
+  /** The provider's input for the run's first call — the context it sent. */
+  private firstInput: number | null = null
 
   constructor(private readonly deps: RecorderDeps) {}
 
   observe(event: KernelEvent): void {
+    if (event.type === 'message_end' && this.firstInput === null) {
+      const u = event.message.usage
+      if (u) this.firstInput = u.input + u.cacheRead + u.cacheWrite
+    }
     if (event.type === 'run_end') {
       this.done = event.messages
       this.durationMs = event.durationMs
@@ -79,6 +97,7 @@ export class RunRecorder {
       }
     }
     await saveMessages({ messages: rows })
+    await this.saveContextSnapshot()
     // The run's numbered sources, for `recall` and the next run's numbering.
     await saveChatSources(sourcesOfRows(rows))
     // A research job that ended before its run was saved (one that failed
@@ -117,6 +136,28 @@ export class RunRecorder {
       enqueueAndProcess('memory-consolidate', { chatId, model }).catch(
         (error) => logEnqueueFailure('memory-consolidate', error)
       )
+    }
+  }
+
+  /**
+   * Only a run that answered: one that failed before any answer leaves the
+   * last good snapshot. Never fails the run's save.
+   */
+  private async saveContextSnapshot(): Promise<void> {
+    const { chatId, context } = this.deps
+    if (!context || !this.done.some((m) => m.role === 'assistant')) return
+    const { parts, ...rest } = context
+    try {
+      await saveChatContextSnapshot(chatId, {
+        takenAt: new Date().toISOString(),
+        ...rest,
+        ...scaleSnapshot(parts, this.firstInput)
+      })
+    } catch (error) {
+      logger.error('kernel', 'Failed to save the context snapshot', {
+        chatId,
+        error
+      })
     }
   }
 }

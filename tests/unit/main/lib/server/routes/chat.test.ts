@@ -84,6 +84,7 @@ vi.mock('@main/lib/db/queries', () => ({
   getChatById: vi.fn(async () => null),
   getMessagesByChatId: vi.fn(async () => []),
   saveChat: vi.fn(async () => {}),
+  saveChatContextSnapshot: vi.fn(async () => {}),
   saveMessages: vi.fn(async () => {}),
   searchChats: vi.fn(async () => []),
   updateChat: vi.fn(async () => {}),

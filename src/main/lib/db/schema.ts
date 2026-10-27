@@ -18,6 +18,7 @@ import {
   WebSearchSchema
 } from '@actovia/shared/schemas/settings-schema'
 import type { Attempt } from '@actovia/shared/types/chat'
+import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { DiscoverGroup } from '@actovia/shared/types/discover'
 import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 import { WebSearchResult } from '@actovia/shared/types/web-search'
@@ -50,7 +51,10 @@ export const chat = pgTable('chat', {
   // header's model chip; null on a chat older than the columns, which follows
   // the default in Settings.
   provider: varchar('provider'),
-  model: varchar('model')
+  model: varchar('model'),
+  // What filled the chat's context on its last run that answered
+  // (ISSUE-235, migration 0021): the Context view's data. Null until then.
+  contextSnapshot: jsonb('contextSnapshot').$type<ChatContextSnapshot>()
 })
 
 export type Chat = InferSelectModel<typeof chat>

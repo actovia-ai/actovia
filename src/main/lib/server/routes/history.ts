@@ -4,8 +4,12 @@ import type { ChatHistoryPage } from '@actovia/shared/types/chat-history'
 import { parseChatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
 import { Hono } from 'hono'
 
-import { getAllChats, getChatsPage, getFavoriteChats } from '../../db/queries'
-import type { Chat } from '../../db/schema'
+import {
+  getAllChats,
+  getChatsPage,
+  getFavoriteChats,
+  type ChatListRow
+} from '../../db/queries'
 import { Variables } from '../types'
 import { handleDatabaseOperation, successResponse } from '../utils'
 
@@ -51,7 +55,8 @@ history.get('/', async (c) => {
     () => getChatsPage({ limit, before }),
     'Failed to get a page of chat history'
   )
-  if (before) return successResponse(c, page satisfies ChatHistoryPage<Chat>)
+  if (before)
+    return successResponse(c, page satisfies ChatHistoryPage<ChatListRow>)
   const favorites = await handleDatabaseOperation(
     () => getFavoriteChats(),
     'Failed to get favourite chats'
@@ -59,7 +64,7 @@ history.get('/', async (c) => {
   return successResponse(c, {
     ...page,
     favorites
-  } satisfies ChatHistoryPage<Chat>)
+  } satisfies ChatHistoryPage<ChatListRow>)
 })
 
 export default history

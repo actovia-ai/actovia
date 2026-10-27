@@ -1,9 +1,20 @@
 import { ErrorCode, DatabaseError } from '@actovia/shared'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { ArtifactListItem } from '@actovia/shared/types/artifact-list'
+import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
 import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
-import { and, asc, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm'
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  getTableColumns,
+  lt,
+  or,
+  sql,
+  type SQL
+} from 'drizzle-orm'
 
 import { logger } from '../logger'
 import { addLogSecrets } from '../logger/secret-mask'
@@ -79,9 +90,21 @@ export async function updateChat(
   }
 }
 
+/**
+ * A chat as the lists carry it: without its context snapshot (ISSUE-235),
+ * which only `GET /api/v1/chat/:id/context` serves — `getAllChats` returns
+ * every chat.
+ */
+export type ChatListRow = Omit<Chat, 'contextSnapshot'>
+const { contextSnapshot: _contextSnapshot, ...chatListColumns } =
+  getTableColumns(chat)
+
 export async function getAllChats() {
   try {
-    return await db.select().from(chat).orderBy(desc(chat.createdAt))
+    return await db
+      .select(chatListColumns)
+      .from(chat)
+      .orderBy(desc(chat.createdAt))
   } catch (error) {
     logDbError('Failed to get chats', error)
     throw error
@@ -105,11 +128,11 @@ export async function getChatsPage({
 }: {
   limit: number
   before?: { createdAt: Date; id: string }
-}): Promise<{ chats: Chat[]; olderCursor: string | null }> {
+}): Promise<{ chats: ChatListRow[]; olderCursor: string | null }> {
   try {
     const at = before && sql`${before.createdAt.toISOString()}::timestamp`
     const rows = await db
-      .select()
+      .select(chatListColumns)
       .from(chat)
       .where(
         before
@@ -137,7 +160,7 @@ export async function getChatsPage({
 export async function getFavoriteChats() {
   try {
     return await db
-      .select()
+      .select(chatListColumns)
       .from(chat)
       .where(eq(chat.favorite, true))
       .orderBy(desc(chat.createdAt), desc(chat.id))
@@ -165,6 +188,37 @@ export async function getChatById({ id }: { id: string }) {
     return selectedChat
   } catch (error) {
     logDbError('Failed to get chat by id', error)
+    throw error
+  }
+}
+
+/** What filled a chat's context on its last run that answered (ISSUE-235). */
+export async function saveChatContextSnapshot(
+  chatId: string,
+  snapshot: ChatContextSnapshot
+) {
+  try {
+    await db
+      .update(chat)
+      .set({ contextSnapshot: snapshot })
+      .where(eq(chat.id, chatId))
+  } catch (error) {
+    logDbError('Failed to save context snapshot', error)
+    throw error
+  }
+}
+
+export async function getChatContextSnapshot(
+  chatId: string
+): Promise<ChatContextSnapshot | null> {
+  try {
+    const [row] = await db
+      .select({ snapshot: chat.contextSnapshot })
+      .from(chat)
+      .where(eq(chat.id, chatId))
+    return row?.snapshot ?? null
+  } catch (error) {
+    logDbError('Failed to get context snapshot', error)
     throw error
   }
 }

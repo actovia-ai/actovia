@@ -148,6 +148,13 @@
       "when": 1792633398123,
       "tag": "0020_utc_timestamps",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1793094394014,
+      "tag": "0021_chat_context_snapshot",
+      "breakpoints": true
     }
   ]
 }

@@ -67,6 +67,7 @@
     "APP_LOCKED": "应用已锁定。",
     "APPROVAL_NOT_FOUND": "此请求已不再等待回复。",
     "RUN_NOT_FOUND": "该回答已不在此对话中。",
+    "CONTEXT_NOT_FOUND": "此对话还没有上下文。",
     "ATTEMPT_LOCKED": "对话已继续进行，无法再切换此回答。",
     "AGENT_PROMPT_GONE": "此请求已得到回复，或 Claude Code 已继续执行。",
     "AGENT_NOT_RUNNING": "Claude Code 未在执行此步骤。"

@@ -39,6 +39,8 @@ export enum ErrorCode {
   APPROVAL_NOT_FOUND = 'APPROVAL_NOT_FOUND',
   /** No run with that id in this chat (the choose route). */
   RUN_NOT_FOUND = 'RUN_NOT_FOUND',
+  /** The chat has no context snapshot: it has run nothing yet. */
+  CONTEXT_NOT_FOUND = 'CONTEXT_NOT_FOUND',
 
   // ── Validation Errors (400) ────────────────────────────────────────────────
   VALIDATION_FAILED = 'VALIDATION_FAILED',
@@ -132,6 +134,7 @@ export const ErrorCodeToStatus: Record<ErrorCode, number> = {
   [ErrorCode.AUDIO_NOT_FOUND]: 404,
   [ErrorCode.APPROVAL_NOT_FOUND]: 404,
   [ErrorCode.RUN_NOT_FOUND]: 404,
+  [ErrorCode.CONTEXT_NOT_FOUND]: 404,
 
   // Validation Errors
   [ErrorCode.VALIDATION_FAILED]: 400,
@@ -228,6 +231,7 @@ export const ErrorMessages: Record<ErrorCode, string> = {
   [ErrorCode.APPROVAL_NOT_FOUND]:
     'This request is no longer waiting for an answer.',
   [ErrorCode.RUN_NOT_FOUND]: 'That answer is no longer in this chat.',
+  [ErrorCode.CONTEXT_NOT_FOUND]: 'This chat has no context yet.',
 
   // Validation Errors
   [ErrorCode.VALIDATION_FAILED]: 'Input validation failed.',

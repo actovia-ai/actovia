@@ -87,6 +87,7 @@ client meets:
 | `VALIDATION_NO_USER_MESSAGE` | 400    | the message a send carries is not a user message                                          |
 | `RUN_NOT_FOUND`              | 404    | a regenerate's `alternateOf`, a `choose`'s `runId`, a page cursor: not a run of this chat |
 | `MESSAGE_NOT_FOUND`          | 404    | `GET …/messages/:messageId`: not a message of this chat                                   |
+| `CONTEXT_NOT_FOUND`          | 404    | `GET …/:id/context`: the chat has run nothing that answered                               |
 | `APPROVAL_NOT_FOUND`         | 404    | nothing waits under that `runId` + `toolCallId` (answered, timed out, stopped)            |
 | `ATTEMPT_LOCKED`             | 409    | `choose` once a later run exists                                                          |
 | `APP_LOCKED`                 | 423    | the app is locked                                                                         |
@@ -513,6 +514,7 @@ model "The user declined access to <summary>." Allow is per call, never remember
 | `GET /api/v1/memory/usage?chatId=`       | which memories each run used, by `runId`                                                 |
 | `POST /api/v1/memory/undo` `{ changes }` | reverses an `update_memory` run's changes, newest first, each only while unchanged since |
 | `GET /api/v1/media/:chatId/:file`        | a generated image                                                                        |
+| `GET /api/v1/chat/:id/context`           | what filled the chat's context on its last run that answered (below)                     |
 
 **The chat list.** Without `limit`, `GET /api/v1/history` answers every chat as a bare array, newest first — the
 desktop renderer's contract, unchanged. With `limit` (1–100) it answers a page (`ChatHistoryPage`,
@@ -522,6 +524,21 @@ millisecond) then `id`, both descending, favourites included; `olderCursor` is `
 one, passed back as `before`, and `null` on the last page (`utils/chat-history-cursor.ts`; the iOS app builds the same
 string). `favorites` — every favourite, newest first — is on the first page only. A bad `limit` or cursor is `400
 VALIDATION_FAILED`.
+
+**The context** (ISSUE-235, `chat/context-snapshot.ts`). Before every run the route measures the request part by part
+— `system` (the system prompt without the two below), `skills` (the skills index), `mcp` (the MCP directory and the
+`list_mcp_tools` / `call_mcp_tool` schemas), `tools` (every other bound tool's name, description and schema),
+`memory` (this run's `<user_memory>` block and those put before earlier runs), `summaries` (LCM summaries, by the
+assembler's `kinds`) and `messages` (the rest, this question included) — with the context-management estimate, a
+picture counting a fixed 1 600 tokens. `RunRecorder.persist()` scales the parts to the provider's input for the run's
+first call (`input + cacheRead + cacheWrite` of the first `message_end`) and saves them on `chat.contextSnapshot`;
+when the provider reported none they stay estimates (`estimated: true`). Only a run with an assistant message writes
+it: one that failed before any answer leaves the last. `GET /api/v1/chat/:id/context` answers
+`ChatContextSnapshot` (`packages/shared/src/types/chat-context.ts`) — `{ takenAt, runId, model, contextWindow,
+compactAt, total, estimated, parts: [{ key, tokens }] }`, all seven parts in that order, `contextWindow` 0 for a
+model that reports none, `compactAt` = `floor(contextWindow × memory.contextWindowPercent / 100)` with LCM on (the
+mark LCM compacts at, compared with `summaries` + `messages`), `null` with LCM off or no window — or `404
+CONTEXT_NOT_FOUND`. The chat list (`GET /api/v1/history`) leaves the column out.
 
 ## 11. Compatibility
 
@@ -552,6 +569,7 @@ client working is an `/api/v2` route beside v1.
 | Pages: whole runs and groups, cursors, compaction, large rows         | `chat/page.test.ts`, `routes/chat-attempts.test.ts`                                                              |
 | Clients page and resolve unloaded sources                             | `hooks/use-older-pages.test.ts`, `messages-rerender.test.ts`, iOS `ChatDetailOlderPagesTests`                    |
 | Persistence however a run ends                                        | `kernel/record.test.ts`, `routes/chat-error-logging.test.ts`                                                     |
+| The context snapshot: parts, scaling, only a run that answered        | `chat/context-snapshot.test.ts`, `kernel/record.test.ts`, `routes/chat.faux.test.ts`                             |
 | Approvals                                                             | `kernel/approval*.test.ts`, `routes/chat-approval.test.ts`                                                       |
 | LAN compression                                                       | `middlewares/compress.test.ts`, `lan/lan.integration.test.ts`                                                    |
 

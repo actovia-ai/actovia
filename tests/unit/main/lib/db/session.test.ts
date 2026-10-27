@@ -18,7 +18,7 @@ describe('pinSessionUtc', () => {
     'runs a database initialised in %s in UTC',
     async (zone) => {
       process.env.TZ = zone
-      const pg = await createMigratedPglite('0020')
+      const pg = await createMigratedPglite('9999')
       process.env.TZ = originalTz
 
       const tz = await pg.query<{ TimeZone: string }>('SHOW timezone')

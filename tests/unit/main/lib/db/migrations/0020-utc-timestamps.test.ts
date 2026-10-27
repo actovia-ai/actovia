@@ -28,10 +28,9 @@ async function legacyDatabase(zone: string): Promise<PGlite> {
 async function seed(pg: PGlite) {
   const db = drizzle(pg)
   const before = Date.now()
-  const [c] = await db
-    .insert(chat)
-    .values({ id: crypto.randomUUID(), title: 'Chat' })
-    .returning()
+  // Raw SQL: the schema now names columns 0019 does not have yet (0021).
+  const c = { id: crypto.randomUUID() }
+  await pg.query(`INSERT INTO "chat" ("id","title") VALUES ($1,'Chat')`, [c.id])
   const sent = new Date()
   await db.insert(message).values({
     chatId: c.id,
@@ -96,14 +95,20 @@ describe('migration 0020 — DEFAULT now() values onto UTC', () => {
     const db = drizzle(pg)
 
     // The bug: a defaulted value reads back eight hours ahead.
-    const [stale] = await db.select().from(chat).where(eq(chat.id, s.chatId))
+    const [stale] = await db
+      .select({ createdAt: chat.createdAt })
+      .from(chat)
+      .where(eq(chat.id, s.chatId))
     expect(stale.createdAt.getTime() - s.before).toBeGreaterThan(7 * 3600_000)
 
     await migrate(pg)
 
     const near = (d: Date | null) =>
       Math.abs((d?.getTime() ?? 0) - s.before) < 1000
-    const [c] = await db.select().from(chat).where(eq(chat.id, s.chatId))
+    const [c] = await db
+      .select({ createdAt: chat.createdAt })
+      .from(chat)
+      .where(eq(chat.id, s.chatId))
     expect(near(c.createdAt)).toBe(true)
 
     const [m] = await db.select().from(message)
@@ -152,7 +157,7 @@ describe('migration 0020 — DEFAULT now() values onto UTC', () => {
       chatBefore
     )
     const [c] = await drizzle(pg)
-      .select()
+      .select({ createdAt: chat.createdAt })
       .from(chat)
       .where(eq(chat.id, s.chatId))
     expect(Math.abs(c.createdAt.getTime() - s.before)).toBeLessThan(1000)

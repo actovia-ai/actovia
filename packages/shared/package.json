@@ -25,6 +25,7 @@
     "./types/health": "./src/types/health.ts",
     "./types/interactive": "./src/types/interactive.ts",
     "./types/entity": "./src/types/entity.ts",
+    "./types/chat-context": "./src/types/chat-context.ts",
     "./types/chat-page": "./src/types/chat-page.ts",
     "./types/chat-history": "./src/types/chat-history.ts",
     "./types/chat-search": "./src/types/chat-search.ts",

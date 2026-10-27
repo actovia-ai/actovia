@@ -121,6 +121,30 @@ describe('assembleContext says which message opens which run', () => {
   })
 })
 
+// The context view counts compaction summaries apart from the chat's own
+// messages (ISSUE-235); a summary is a user message of XML, so the assembler
+// says which is which.
+describe('assembleContext says which message is a summary', () => {
+  it('marks a summary item and every message, parallel to messages', async () => {
+    const chatId = await seedFollowUp(USAGE)
+    await assembleContext(chatId, 100_000, 6) // seeds the context items
+    await pglite.exec(
+      `INSERT INTO "lcm_summary" ("id","chatId","kind","content","tokenCount","earliestAt","latestAt") VALUES ('sum_kinds','${chatId}','leaf','Earlier: the user asked about rain.',10,'${at(0)}','${at(0)}')`
+    )
+    await pglite.exec(
+      `INSERT INTO "lcm_context_items" ("chatId","ordinal","kind","refId","tokenCount") VALUES ('${chatId}',-1,'summary','sum_kinds',10)`
+    )
+
+    const { messages, kinds } = await assembleContext(chatId, 100_000, 6)
+
+    expect(kinds).toHaveLength(messages.length)
+    expect(kinds).toEqual([
+      'summary',
+      ...messages.slice(1).map(() => 'message')
+    ])
+  })
+})
+
 // pi compares an assistant message's api / provider / model with the model it
 // is sending to: rebuilt without them, every earlier answer looked like
 // another model's, and pi turned its thinking into plain text and dropped

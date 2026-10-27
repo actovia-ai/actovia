@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { mcpDirectory } from '../../ai/calling-tools/mcp-toolbox'
 import { LcmManager, freshTailRuns } from '../../ai/context-management'
 import { ageToolOutput } from '../../ai/context-management/aging'
+import type { ContextMessageKind } from '../../ai/context-management/context-assembler'
 import { decideApproval } from '../../ai/kernel/pending-approvals'
 import { RunRecorder } from '../../ai/kernel/record'
 import { runAgent } from '../../ai/kernel/run'
@@ -49,6 +50,7 @@ import {
   settleOpenComparison
 } from '../../chat/attempts'
 import { settingsForChat } from '../../chat/chat-model'
+import { measureContext } from '../../chat/context-snapshot'
 import { loadChatHistory } from '../../chat/history'
 import { loadChatPage, loadChatRow } from '../../chat/page'
 import { highestSourceRank } from '../../chat/sources'
@@ -56,6 +58,7 @@ import type { MemoryRow } from '../../db/memory-queries'
 import {
   deleteChatById,
   getChatById,
+  getChatContextSnapshot,
   getMessagesByChatId,
   saveChat,
   saveMessages,
@@ -199,6 +202,29 @@ chat.get('/:id/messages/:messageId', async (c) => {
   return successResponse(c, await loadChatRow(id, messageId))
 })
 
+/**
+ * What filled the chat's context on its last run that answered (ISSUE-235):
+ * `ChatContextSnapshot`, or 404 `CONTEXT_NOT_FOUND` before any.
+ */
+chat.get('/:id/context', async (c) => {
+  const id = validateSchema(
+    z.uuid(),
+    getRequiredParam(c, 'id'),
+    'Invalid chat id'
+  )
+  const snapshot = await handleDatabaseOperation(
+    () => getChatContextSnapshot(id),
+    'Failed to get the context snapshot'
+  )
+  if (!snapshot) {
+    throw new NotFoundError(
+      ErrorCode.CONTEXT_NOT_FOUND,
+      'This chat has run nothing yet.'
+    )
+  }
+  return successResponse(c, snapshot)
+})
+
 chat.get('/:id', async (c) => {
   const id = validateSchema(
     z.uuid(),
@@ -334,6 +360,7 @@ chat.post('/', async (c) => {
   const lcmPromise: Promise<{
     messages: Message[]
     heads: (string | null)[]
+    kinds: ContextMessageKind[]
   }> = lcm
     ? lcm
         .trackNewMessages([
@@ -342,7 +369,8 @@ chat.post('/', async (c) => {
         .then(() => lcm.assembleContext(currentRun))
         .then((assembled) => ({
           messages: assembled.messages.slice(0, -1),
-          heads: (assembled.runHeads ?? []).slice(0, -1)
+          heads: (assembled.runHeads ?? []).slice(0, -1),
+          kinds: (assembled.kinds ?? []).slice(0, -1)
         }))
     : Promise.resolve(
         runsForContext(
@@ -354,7 +382,8 @@ chat.post('/', async (c) => {
         messages: runs.map(stripId),
         heads: runs.map((m) =>
           m.role === 'user' && m.id === m.runId ? m.runId : null
-        )
+        ),
+        kinds: runs.map((): ContextMessageKind => 'message')
       }))
 
   // Deep Research runs on its own boot prompt, which carries no
@@ -406,10 +435,8 @@ chat.post('/', async (c) => {
   // Each run's memory goes before its question, never into the system prompt:
   // chosen afresh for every message, it changed the system prompt every time,
   // and with it the whole cached prefix (`run-memory.ts`).
-  const promptWithMemory = withRunMemory(
-    userMessage,
-    formatRunMemory(memoryRows)
-  )
+  const thisRunMemory = formatRunMemory(memoryRows)
+  const promptWithMemory = withRunMemory(userMessage, thisRunMemory)
 
   const tools = bindCallingTools({
     advancedTools,
@@ -437,13 +464,33 @@ chat.post('/', async (c) => {
     deepResearch: isDeepResearch,
     skills: skillsIndex ? skillsIndex.split('\n').length : 0
   })
+  const directory = mcpDirectory(mcpTools)
   const systemContent = isDeepResearch
     ? deepResearchBootPrompt
     : getSystemPrompt({
-        mcpDirectory: mcpDirectory(mcpTools),
+        mcpDirectory: directory,
         workspaceDir: getChatWorkspaceDir(id),
         skillsIndex
       }) + personalityPrompt
+
+  // What fills this request, part by part (ISSUE-235): the recorder scales
+  // it to the provider's input and saves it as the chat's context snapshot.
+  const contextWindow = model.contextWindow > 0 ? model.contextWindow : 0
+  const contextPercent =
+    memoryConfig?.contextWindowPercent ??
+    SETTING_DEFAULTS.memory.contextWindowPercent
+  const contextParts = measureContext({
+    systemPrompt: systemContent,
+    skillsIndex: isDeepResearch ? '' : skillsIndex,
+    mcpDirectory: isDeepResearch ? '' : directory,
+    tools,
+    memoryTexts: [
+      thisRunMemory,
+      ...heads.map((head) => (head ? (runMemory.get(head) ?? '') : ''))
+    ],
+    messages: [...contextMessages, promptWithMemory],
+    kinds: [...assembledContext.kinds, 'message']
+  })
 
   // Deep Research forces a strong reasoning effort regardless of what the
   // composer's picker requested. pi's ThinkingLevel has every tier of the
@@ -471,7 +518,18 @@ chat.post('/', async (c) => {
             SETTING_DEFAULTS.memory.contextWindowPercent
         }
       : null,
-    memoryCapture
+    memoryCapture,
+    context: {
+      parts: contextParts,
+      contextWindow,
+      // Compared, like LCM, with summaries + messages.
+      compactAt:
+        lcm && contextWindow > 0
+          ? Math.floor((contextWindow * contextPercent) / 100)
+          : null,
+      model: model.id,
+      runId: userMessage.id
+    }
   })
 
   // The run streams as SSE: every kernel event maps onto one wire event

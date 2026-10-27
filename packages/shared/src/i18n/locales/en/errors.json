@@ -67,6 +67,7 @@
     "APP_LOCKED": "Application is locked.",
     "APPROVAL_NOT_FOUND": "This request is no longer waiting for an answer.",
     "RUN_NOT_FOUND": "That answer is no longer in this chat.",
+    "CONTEXT_NOT_FOUND": "This chat has no context yet.",
     "ATTEMPT_LOCKED": "The conversation has moved on, so this answer can no longer be swapped.",
     "AGENT_PROMPT_GONE": "This request was already answered, or Claude Code has moved on.",
     "AGENT_NOT_RUNNING": "Claude Code is not running for this step."

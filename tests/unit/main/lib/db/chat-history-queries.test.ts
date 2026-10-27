@@ -12,7 +12,13 @@ vi.mock('@main/lib/db/db', async () => {
 })
 
 const { pglite } = await import('@main/lib/db/db')
-const { getChatsPage, getFavoriteChats } = await import('@main/lib/db/queries')
+const {
+  getAllChats,
+  getChatsPage,
+  getFavoriteChats,
+  saveChatContextSnapshot,
+  getChatContextSnapshot
+} = await import('@main/lib/db/queries')
 const { parseChatHistoryCursor } =
   await import('@actovia/shared/utils/chat-history-cursor')
 
@@ -75,5 +81,39 @@ describe('getChatsPage', () => {
 describe('getFavoriteChats', () => {
   it('answers every favourite, newest first', async () => {
     expect((await getFavoriteChats()).map((c) => c.id)).toEqual([id(6), id(2)])
+  })
+})
+
+// A chat's context snapshot (ISSUE-235) is read by its own route; the lists
+// leave it out — getAllChats returns every chat.
+describe('the context snapshot', () => {
+  const snapshot = {
+    takenAt: '2026-10-27T10:00:00.000Z',
+    runId: id(99),
+    model: 'gpt-5',
+    contextWindow: 400_000,
+    compactAt: 300_000,
+    total: 1000,
+    estimated: false,
+    parts: [{ key: 'messages' as const, tokens: 1000 }]
+  }
+
+  it('saves, reads back, and stays out of every list', async () => {
+    await insert(50, '2026-10-05 10:00:00', true)
+    expect(await getChatContextSnapshot(id(50))).toBeNull()
+    await saveChatContextSnapshot(id(50), snapshot)
+    expect(await getChatContextSnapshot(id(50))).toEqual(snapshot)
+
+    const rows = [
+      ...(await getAllChats()),
+      ...(await getChatsPage({ limit: 100 })).chats,
+      ...(await getFavoriteChats())
+    ]
+    expect(rows.some((r) => r.id === id(50))).toBe(true)
+    for (const r of rows) expect(r).not.toHaveProperty('contextSnapshot')
+  })
+
+  it('reads null for a chat that does not exist', async () => {
+    expect(await getChatContextSnapshot(id(404))).toBeNull()
   })
 })

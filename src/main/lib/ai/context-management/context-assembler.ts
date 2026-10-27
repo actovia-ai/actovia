@@ -33,7 +33,15 @@ export interface AssembledContext {
    * result. The route puts each run's memory block before its question.
    */
   runHeads: (string | null)[]
+  /**
+   * Aligned with `messages`: whether it is a compaction summary (a user
+   * message of `<summary>` XML, which a person could also type) or one of
+   * the chat's own messages. The context view counts by it (ISSUE-235).
+   */
+  kinds: ContextMessageKind[]
 }
+
+export type ContextMessageKind = 'summary' | 'message'
 
 /**
  * A run of context items: the rows of one `message.runId`, or one summary
@@ -130,7 +138,13 @@ export async function assembleContext(
   )
 
   if (items.length === 0) {
-    return { messages: [], totalTokens: 0, trackedMessageIds, runHeads: [] }
+    return {
+      messages: [],
+      totalTokens: 0,
+      trackedMessageIds,
+      runHeads: [],
+      kinds: []
+    }
   }
 
   const rows = await getMessagesByIds(Array.from(trackedMessageIds))
@@ -140,11 +154,13 @@ export async function assembleContext(
   type Materialized = {
     messages: Message[]
     heads: (string | null)[]
+    kinds: ContextMessageKind[]
     tokens: number
   }
   const materialize = async (group: RunGroup): Promise<Materialized> => {
     const out: Message[] = []
     const heads: (string | null)[] = []
+    const kinds: ContextMessageKind[] = []
     let tokens = 0
     for (const item of group.items) {
       if (item.kind === 'message') {
@@ -155,15 +171,17 @@ export async function assembleContext(
         heads.push(
           row.role === 'user' && row.id === row.runId ? row.runId : null
         )
+        kinds.push('message')
       } else {
         const [summary] = await getSummariesByIds([item.refId])
         if (!summary) continue
         tokens += item.tokenCount ?? estimateTokens(summary.content)
         out.push(summaryToMessage(summary, await getParentIds(summary.id)))
         heads.push(null)
+        kinds.push('summary')
       }
     }
-    return { messages: out, heads, tokens }
+    return { messages: out, heads, kinds, tokens }
   }
 
   // Fresh tail: the most recent N runs, always included whole.
@@ -191,7 +209,8 @@ export async function assembleContext(
     messages: all.flatMap((r) => r.messages),
     totalTokens: prefixTokens + freshTokens,
     trackedMessageIds,
-    runHeads: all.flatMap((r) => r.heads)
+    runHeads: all.flatMap((r) => r.heads),
+    kinds: all.flatMap((r) => r.kinds)
   }
 }
 

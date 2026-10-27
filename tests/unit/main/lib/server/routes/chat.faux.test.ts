@@ -18,9 +18,10 @@ vi.mock('electron', () => ({
 
 /** What the mocked LCM hands the route; a test can put a history in it. */
 const lcmState = vi.hoisted(() => ({
-  assembled: { messages: [], runHeads: [] } as {
+  assembled: { messages: [], runHeads: [], kinds: [] } as {
     messages: unknown[]
     runHeads: (string | null)[]
+    kinds: ('summary' | 'message')[]
   }
 }))
 vi.mock('@main/lib/ai/context-management', () => ({
@@ -67,6 +68,8 @@ vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
   )
 }))
 const saveMessages = vi.fn(async () => {})
+/** The chat's context snapshot column, by chat id (ISSUE-235). */
+const snapshots = new Map<string, unknown>()
 // Regenerate-group transitions (lib/chat/attempts.ts) are tested on a real
 // PGlite in attempts.test.ts; no run here is a regenerate.
 vi.mock('@main/lib/chat/attempts', () => ({
@@ -84,6 +87,12 @@ vi.mock('@main/lib/chat/sources', () => ({
 vi.mock('@main/lib/db/queries', () => ({
   deleteChatById: vi.fn(async () => {}),
   getChatById: vi.fn(async () => ({ id: 'existing' })),
+  getChatContextSnapshot: vi.fn(
+    async (id: string) => snapshots.get(id) ?? null
+  ),
+  saveChatContextSnapshot: vi.fn(async (id: string, snapshot: unknown) => {
+    snapshots.set(id, snapshot)
+  }),
   getMessagesByChatId: vi.fn(async () => []),
   saveChat: vi.fn(async () => {}),
   saveMessages: (...args: unknown[]) => saveMessages(...(args as [])),
@@ -98,6 +107,8 @@ vi.mock('@main/lib/logger/trace-context', () => ({
   bindTraceAttributes: vi.fn()
 }))
 const { default: chat } = await import('@main/lib/server/routes/chat')
+const { errorHandler } =
+  await import('@main/lib/server/middlewares/error-handler')
 const { enqueueAndProcess } = await import('@main/lib/jobs/worker')
 const { SETTINGS_SECRET_PATHS } = await import('@main/lib/secrets/registry')
 const { registerFauxProvider } = await import('@main/lib/ai/kernel/faux')
@@ -110,6 +121,7 @@ const USER_ID = '22222222-2222-4222-8222-222222222222'
 
 function buildApp() {
   const app = new Hono()
+  app.onError(errorHandler)
   app.use('*', async (c, next) => {
     c.set('settings', {
       id: 'settings-1',
@@ -124,6 +136,7 @@ function buildApp() {
 /** Same as `buildApp()`, with LCM off: the context is the history itself. */
 function buildAppLcmOff() {
   const app = new Hono()
+  app.onError(errorHandler)
   app.use('*', async (c, next) => {
     c.set('settings', {
       id: 'settings-1',
@@ -162,6 +175,7 @@ function sseEvents(
 
 beforeEach(() => {
   saveMessages.mockClear()
+  snapshots.clear()
   vi.mocked(loadRelevantMemories).mockReset().mockResolvedValue([])
 })
 
@@ -614,5 +628,77 @@ describe('POST /api/v1/chat on the faux provider', () => {
     for (const path of SETTINGS_SECRET_PATHS) {
       expect(queued).not.toContain(secret(path))
     }
+  })
+})
+
+// What fills the chat's context (ISSUE-235): measured before the run, saved
+// with it, served by GET /:id/context.
+describe('GET /api/v1/chat/:id/context', () => {
+  async function send(
+    app: Hono,
+    contextWindow: number
+  ): Promise<Record<string, unknown>> {
+    const faux = registerFauxProvider()
+    faux.setResponses([fauxAssistantMessage([fauxText('Sunny.')])])
+    getModelFromProviderMock.mockReturnValue({
+      model: { ...faux.getModel(), contextWindow },
+      apiKey: 'k'
+    })
+    const response = await app.request('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: CHAT_ID,
+        messages: [{ id: USER_ID, role: 'user', content: 'hi', timestamp: 1 }],
+        advancedTools: []
+      })
+    })
+    await response.text()
+    const res = await app.request(`/${CHAT_ID}/context`)
+    expect(res.status).toBe(200)
+    return (await res.json()) as Record<string, unknown>
+  }
+
+  it('is a 404 for a chat that has run nothing', async () => {
+    const res = await buildApp().request(`/${CHAT_ID}/context`)
+    expect(res.status).toBe(404)
+    expect(JSON.stringify(await res.json())).toContain('CONTEXT_NOT_FOUND')
+  })
+
+  it('serves every part in order, with the compaction mark under LCM', async () => {
+    const snapshot = await send(buildApp(), 200_000)
+    expect((snapshot.parts as { key: string }[]).map((p) => p.key)).toEqual([
+      'system',
+      'skills',
+      'mcp',
+      'tools',
+      'memory',
+      'summaries',
+      'messages'
+    ])
+    expect(snapshot).toMatchObject({
+      runId: USER_ID,
+      contextWindow: 200_000,
+      compactAt: 150_000
+    })
+    const sum = (snapshot.parts as { tokens: number }[]).reduce(
+      (n, p) => n + p.tokens,
+      0
+    )
+    expect(sum).toBe(snapshot.total)
+    expect(sum).toBeGreaterThan(0)
+  })
+
+  it('has no compaction mark with LCM off', async () => {
+    expect(await send(buildAppLcmOff(), 200_000)).toMatchObject({
+      compactAt: null
+    })
+  })
+
+  it('has no window and no mark for a model that reports none', async () => {
+    expect(await send(buildApp(), 0)).toMatchObject({
+      contextWindow: 0,
+      compactAt: null
+    })
   })
 })

@@ -5,7 +5,11 @@ vi.mock('electron', () => ({
   app: { getPath: () => '/tmp', isPackaged: false }
 }))
 const saveMessages = vi.fn(async () => {})
-vi.mock('@main/lib/db/queries', () => ({ saveMessages }))
+const saveChatContextSnapshot = vi.fn(async () => {})
+vi.mock('@main/lib/db/queries', () => ({
+  saveMessages,
+  saveChatContextSnapshot
+}))
 const enqueueAndProcess = vi.fn(async () => {})
 vi.mock('@main/lib/jobs/worker', () => ({
   enqueueAndProcess,
@@ -57,6 +61,7 @@ const assistant: ChatAssistantMessage = {
 
 beforeEach(() => {
   saveMessages.mockClear()
+  saveChatContextSnapshot.mockClear()
   enqueueAndProcess.mockClear()
   trackContextMessages.mockClear()
   order.length = 0
@@ -215,5 +220,138 @@ describe('RunRecorder', () => {
       durationMs: 1
     })
     expect(r.messages).toEqual([assistant])
+  })
+})
+
+// The Context view (ISSUE-235): the route measures the request's parts, the
+// recorder scales them to what the provider reported for the run's first
+// call and saves the snapshot with the run.
+describe('RunRecorder saves the context snapshot', () => {
+  const parts = {
+    system: 300,
+    skills: 0,
+    mcp: 0,
+    tools: 200,
+    memory: 0,
+    summaries: 0,
+    messages: 500
+  }
+  const context = {
+    parts,
+    contextWindow: 400_000,
+    compactAt: 300_000,
+    model: 'm',
+    runId: RUN_ID
+  }
+  const withUsage = (input: number, cacheRead: number) => ({
+    ...assistant,
+    usage: {
+      ...assistant.usage,
+      input,
+      cacheRead,
+      totalTokens: input + cacheRead
+    }
+  })
+
+  it("scales to the first call's real input", async () => {
+    const r = recorder({ context })
+    r.observe({
+      type: 'message_end',
+      runId: RUN_ID,
+      message: withUsage(900, 100)
+    })
+    // A later step's larger input is not the context the run started with.
+    r.observe({
+      type: 'message_end',
+      runId: RUN_ID,
+      message: withUsage(5000, 0)
+    })
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [withUsage(900, 100)],
+      durationMs: 1
+    })
+    await r.persist()
+
+    expect(saveChatContextSnapshot).toHaveBeenCalledTimes(1)
+    const [chatId, snapshot] = saveChatContextSnapshot.mock
+      .calls[0] as never as [string, Record<string, unknown>]
+    expect(chatId).toBe('c')
+    expect(snapshot).toMatchObject({
+      runId: RUN_ID,
+      model: 'm',
+      contextWindow: 400_000,
+      compactAt: 300_000,
+      total: 1000,
+      estimated: false
+    })
+    expect(typeof snapshot.takenAt).toBe('string')
+  })
+
+  it('keeps the estimate when the provider reported nothing', async () => {
+    const r = recorder({ context })
+    r.observe({ type: 'message_end', runId: RUN_ID, message: withUsage(0, 0) })
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [withUsage(0, 0)],
+      durationMs: 1
+    })
+    await r.persist()
+    expect(saveChatContextSnapshot.mock.calls[0]?.[1]).toMatchObject({
+      total: 1000,
+      estimated: true
+    })
+  })
+
+  it('leaves the last snapshot alone when the run produced no answer', async () => {
+    const r = recorder({ context })
+    const question = {
+      id: RUN_ID,
+      runId: RUN_ID,
+      role: 'user',
+      content: [{ type: 'text', text: 'q' }],
+      timestamp: 1
+    } as never
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [question],
+      durationMs: 1
+    })
+    await r.persist()
+    expect(saveMessages).toHaveBeenCalled()
+    expect(saveChatContextSnapshot).not.toHaveBeenCalled()
+  })
+
+  it('never fails the run when the snapshot cannot be saved', async () => {
+    saveChatContextSnapshot.mockImplementationOnce(() => {
+      throw new Error('disk full')
+    })
+    const r = recorder({ context })
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [{ ...assistant }],
+      durationMs: 1
+    })
+    await expect(r.persist()).resolves.toBeUndefined()
+    expect(enqueueAndProcess).toHaveBeenCalledWith(
+      'lcm-post-turn',
+      expect.anything()
+    )
+  })
+
+  it('saves nothing without a measured context', async () => {
+    const r = recorder()
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [{ ...assistant }],
+      durationMs: 1
+    })
+    await r.persist()
+    expect(saveChatContextSnapshot).not.toHaveBeenCalled()
   })
 })
