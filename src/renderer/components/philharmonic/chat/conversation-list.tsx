@@ -46,6 +46,7 @@ import {
   SidebarTrigger
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
+import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
 import { plainText } from '@/lib/plain-text'
@@ -176,10 +177,7 @@ export function ConversationList({
   return (
     <Sidebar
       collapsible="none"
-      className={cn(
-        'text-foreground h-full w-full border-none bg-transparent',
-        '[--sidebar-accent:rgb(0_0_0/0.05)] dark:[--sidebar-accent:rgb(255_255_255/0.07)]'
-      )}
+      className={cn('text-foreground h-full w-full', SIDEBAR_ON_MATERIAL)}
     >
       <SidebarHeader className="draggable gap-2 pt-2.25">
         {/* The title bar's row, as Chat's sidebar has it: the sidebar toggle

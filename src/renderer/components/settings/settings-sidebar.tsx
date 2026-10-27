@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { useSettingsTab } from '@/hooks/use-settings-tab'
+import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { cn } from '@/lib/utils'
 
 import { InputGroup, InputGroupInput, InputGroupAddon } from '../ui/input-group'
@@ -45,7 +46,11 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   }, [query, t])
 
   return (
-    <Sidebar {...props} collapsible="none" className="select-none">
+    <Sidebar
+      {...props}
+      collapsible="none"
+      className={cn('text-foreground select-none', SIDEBAR_ON_MATERIAL)}
+    >
       <SidebarHeader
         className={cn(
           'draggable shrink-0 gap-2 px-3 pb-2',

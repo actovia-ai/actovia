@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
+import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { cn } from '@/lib/utils'
 import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
@@ -35,10 +36,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
       collapsible="none"
-      className={cn(
-        'text-foreground h-full w-full border-none bg-transparent',
-        '[--sidebar-accent:rgb(0_0_0/0.05)] dark:[--sidebar-accent:rgb(255_255_255/0.07)]'
-      )}
+      className={cn('text-foreground h-full w-full', SIDEBAR_ON_MATERIAL)}
       {...props}
     >
       <SidebarHeader className="draggable gap-2 pt-2.25">
