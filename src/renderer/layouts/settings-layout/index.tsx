@@ -1,11 +1,18 @@
+import type { CSSProperties } from 'react'
+
 import { AppToaster } from '@/components/app/app-toaster'
 import { SettingsForm } from '@/components/settings/settings-form'
 import { SettingsSidebar } from '@/components/settings/settings-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { SIDEBAR_WIDTH } from '@/layouts/shared/resizable-sidebar'
 
 export function SettingsLayout() {
   return (
-    <SidebarProvider className="h-screen overflow-hidden">
+    // As wide as Chat's sidebar (ISSUE-269); it does not resize.
+    <SidebarProvider
+      className="h-screen overflow-hidden"
+      style={{ '--sidebar-width': SIDEBAR_WIDTH } as CSSProperties}
+    >
       <SettingsSidebar />
       <main className="bg-background flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* Frameless-window drag strip in place of a titlebar. */}

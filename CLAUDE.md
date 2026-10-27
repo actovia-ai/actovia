@@ -1179,9 +1179,11 @@ Compacts long conversations without losing information, surfacing summaries the 
 
 ### Sidebar, Artifacts and the account menu
 
-The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, 18rem) sits on the
-window's material like Settings' and Philharmonic's (`SIDEBAR_ON_MATERIAL`,
-`layouts/shared/sidebar-material.ts`). Its top row carries
+The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, `SIDEBAR_WIDTH` in
+`layouts/shared/resizable-sidebar.tsx`) sits on the window's material like
+Philharmonic's (`SIDEBAR_ON_MATERIAL`, `layouts/shared/sidebar-material.ts`).
+Settings' sidebar is as wide but solid (`SIDEBAR_SOLID`: `--sidebar` a step
+toward black, the active row a step further; owner, ISSUE-269). Its top row carries
 `components/app/workspace-switcher.tsx` — Chat / Philharmonic as shadcn
 `Tabs`, icon-only (Hugeicons' `Chatting01Icon`, and `icons/music-conductor.tsx`
 traced from Streamline's conductor; ISSUE-266), the one on show selected. Under it: New, Search, and **Artifacts**
