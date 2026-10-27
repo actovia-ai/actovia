@@ -970,7 +970,6 @@
       "title": "プリセット",
       "cacheByRun": "ラン別のプロンプトキャッシュ",
       "messagesPerDay": "1 日あたりのメッセージ数 (30 日間)",
-      "costByModel": "モデル別トークン数とコスト",
       "toolCalls": "ツール呼び出し",
       "longestChats": "最も長いチャット",
       "errorsByModel": "モデル別エラー",

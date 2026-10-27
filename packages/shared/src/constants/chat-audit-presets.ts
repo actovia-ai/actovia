@@ -13,10 +13,9 @@ export interface ChatAuditPreset {
 
 export const CHAT_AUDIT_PRESETS: ChatAuditPreset[] = [
   {
-    // The prompt cache of each run's first model call — the one that pays for
-    // the whole history. A stable prefix (tools → system → messages) reads it
-    // at 0.1×; a prefix that changed writes it at 1.25× (Anthropic's prices,
-    // input = 1). Docs: docs/superpowers/specs/2026-10-01-chat-history-and-context-design.md §A.
+    // The prompt cache of each run's first model call — the one that carries
+    // the whole history. A stable prefix (tools → system → messages) is read
+    // from the cache; a prefix that changed is written to it again. Docs: docs/superpowers/specs/2026-10-01-chat-history-and-context-design.md §A.
     id: 'cacheByRun',
     sql: `WITH firsts AS (
   SELECT chat_id, run_id, model, created_at,
@@ -28,8 +27,7 @@ export const CHAT_AUDIT_PRESETS: ChatAuditPreset[] = [
   WHERE role = 'assistant' AND run_id IS NOT NULL
 )
 SELECT c.title, f.created_at, f.model, f.cache_read, f.cache_write, f.uncached,
-  round(100.0 * f.cache_read / nullif(f.cache_read + f.cache_write + f.uncached, 0), 1) AS hit_pct,
-  round(f.uncached + 1.25 * f.cache_write + 0.1 * f.cache_read)::BIGINT AS input_cost_units
+  round(100.0 * f.cache_read / nullif(f.cache_read + f.cache_write + f.uncached, 0), 1) AS hit_pct
 FROM firsts f
 JOIN chats c ON c.id = f.chat_id
 WHERE f.step = 1
@@ -45,18 +43,6 @@ FROM messages
 WHERE created_at >= now() - INTERVAL 30 DAY
 GROUP BY ALL
 ORDER BY day`
-  },
-  {
-    id: 'costByModel',
-    sql: `SELECT provider, model, count(*) AS turns,
-  sum(input_tokens) AS input_tokens,
-  sum(output_tokens) AS output_tokens,
-  sum(cache_read_tokens) AS cache_read_tokens,
-  round(sum(cost_usd), 4) AS cost_usd
-FROM messages
-WHERE role = 'assistant'
-GROUP BY ALL
-ORDER BY cost_usd DESC NULLS LAST`
   },
   {
     id: 'toolCalls',
@@ -117,8 +103,7 @@ ORDER BY entries DESC`
   count(*) FILTER (WHERE kind = 'tool_result' AND tool_name = 'delegateTask' AND (payload->>'text') LIKE 'Not started:%') AS refused,
   count(*) FILTER (WHERE kind = 'tool_result' AND tool_name = 'waitForQuota' AND (payload->>'text') NOT LIKE 'Refused%') AS waits,
   max(CAST(payload->>'inputTokens' AS BIGINT)) FILTER (WHERE kind = 'usage') AS input_tokens,
-  max(CAST(payload->>'outputTokens' AS BIGINT)) FILTER (WHERE kind = 'usage') AS output_tokens,
-  max(CAST(payload->>'costUsd' AS DOUBLE)) FILTER (WHERE kind = 'usage') AS cost_usd
+  max(CAST(payload->>'outputTokens' AS BIGINT)) FILTER (WHERE kind = 'usage') AS output_tokens
 FROM pm_round_events GROUP BY ALL ORDER BY started_at DESC`
   }
 ]

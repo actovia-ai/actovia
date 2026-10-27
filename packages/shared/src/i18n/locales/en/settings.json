@@ -975,7 +975,6 @@
       "title": "Presets",
       "cacheByRun": "Prompt cache by run",
       "messagesPerDay": "Messages per day (30 days)",
-      "costByModel": "Tokens & cost by model",
       "toolCalls": "Tool calls",
       "longestChats": "Longest chats",
       "errorsByModel": "Errors by model",

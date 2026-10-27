@@ -292,8 +292,8 @@ snapshot of the user's data (`src/main/lib/analytics/`, route
 `/api/v1/analytics`, page `settings-form/chat-audit.tsx`). `snapshot.ts`
 copies `chat` / `message` (and Philharmonic's `conversation_message` and `pm_round_event` as
 `group_messages` / `pm_round_events`, scrubbed with the current secrets — empty when they cannot be read; preset `pmDecisions`) out of PGlite via NDJSON into
-`~/.actovia/analytics/actovia.duckdb` (usage flattened to `*_tokens` /
-`cost_usd` columns, `content` kept as JSON) and copies
+`~/.actovia/analytics/actovia.duckdb` (usage flattened to `*_tokens`
+columns — no cost, ISSUE-235 — `content` kept as JSON) and copies
 `~/.actovia/logs/*.jsonl` into a `logs` table; `duckdb.ts` lazy-`import()`s
 `@duckdb/node-api` on first use (never at boot), opens the file
 `READ_ONLY` for queries and `READ_WRITE` only while rebuilding, serialised
@@ -804,8 +804,7 @@ system prompt has the date, day granularity); the skills index and the MCP
 directory are sorted (by slug, by server name); the memory block is per run
 (above); the kernel passes the chat id as pi's `sessionId` (OpenAI's
 `prompt_cache_key`). Chat Audit's **Prompt cache by run** preset reads each
-run's first call (`hit_pct`, `input_cost_units` at Anthropic's 1 / 1.25 /
-0.1); before this, the first call of every run read 0 % from cache.
+run's first call (`hit_pct`: read, written and uncached tokens); before this, the first call of every run read 0 % from cache.
 
 **Tool output ages** (same spec, §B; `ai/context-management/aging.ts`): a
 tool's output is for the step that called it, so the runs before this one
@@ -2013,7 +2012,7 @@ Main process:
   is where a stack is lost. `toAttributes` (`record.ts`) turns an Error into
   `exception.type` / `exception.message` / `exception.stacktrace`: the stack
   with every frame that points into a built file rewritten to its source
-  position (`at e (src/main/lib/ai/utils/cost.ts:7:27)`, not
+  position (`at e (src/main/lib/ai/utils/usage.ts:7:27)`, not
   `chat-Cw3ZonVn.js:1:91`; the function name stays the built one — the maps
   carry no names), and `exception.stacktrace_raw`, the stack as thrown, only
   when mapping changed it. `source-map.ts` does the rewriting from the hidden

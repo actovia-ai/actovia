@@ -30,7 +30,6 @@ export const CHAT_AUDIT_SCHEMA = {
     cache_read_tokens: 'BIGINT',
     cache_write_tokens: 'BIGINT',
     total_tokens: 'BIGINT',
-    cost_usd: 'DOUBLE',
     duration_ms: 'BIGINT',
     created_at: 'TIMESTAMP',
     content: 'JSON'

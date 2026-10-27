@@ -970,7 +970,6 @@
       "title": "预设查询",
       "cacheByRun": "每轮的提示词缓存",
       "messagesPerDay": "每日消息数（30 天）",
-      "costByModel": "各模型的 Token 与费用",
       "toolCalls": "工具调用",
       "longestChats": "最长的聊天",
       "errorsByModel": "各模型的错误",

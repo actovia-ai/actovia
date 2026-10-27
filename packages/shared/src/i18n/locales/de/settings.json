@@ -975,7 +975,6 @@
       "title": "Vorlagen",
       "cacheByRun": "Prompt-Cache pro Durchlauf",
       "messagesPerDay": "Nachrichten pro Tag (30 Tage)",
-      "costByModel": "Tokens & Kosten pro Modell",
       "toolCalls": "Tool-Aufrufe",
       "longestChats": "Längste Chats",
       "errorsByModel": "Fehler pro Modell",

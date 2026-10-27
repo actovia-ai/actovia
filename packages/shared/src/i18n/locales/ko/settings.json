@@ -970,7 +970,6 @@
       "title": "프리셋",
       "cacheByRun": "실행별 프롬프트 캐시",
       "messagesPerDay": "일별 메시지 수 (30일)",
-      "costByModel": "모델별 토큰 및 비용",
       "toolCalls": "도구 호출",
       "longestChats": "가장 긴 채팅",
       "errorsByModel": "모델별 오류",

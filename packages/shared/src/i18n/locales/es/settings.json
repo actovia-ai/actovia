@@ -975,7 +975,6 @@
       "title": "Consultas predefinidas",
       "cacheByRun": "Caché de prompt por turno",
       "messagesPerDay": "Mensajes por día (30 días)",
-      "costByModel": "Tokens y coste por modelo",
       "toolCalls": "Llamadas a herramientas",
       "longestChats": "Chats más largos",
       "errorsByModel": "Errores por modelo",

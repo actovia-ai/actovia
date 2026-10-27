@@ -7,7 +7,6 @@
 export const PRESET_KEYS = {
   cacheByRun: 'chatAudit.presets.cacheByRun',
   messagesPerDay: 'chatAudit.presets.messagesPerDay',
-  costByModel: 'chatAudit.presets.costByModel',
   toolCalls: 'chatAudit.presets.toolCalls',
   longestChats: 'chatAudit.presets.longestChats',
   errorsByModel: 'chatAudit.presets.errorsByModel',

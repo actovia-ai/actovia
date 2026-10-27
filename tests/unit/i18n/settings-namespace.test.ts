@@ -877,9 +877,8 @@ describe('chatAudit (Settings → Developer, DuckDB) keys', () => {
     expect(settings.chatAudit.results.rowCount_one).toBe('{{count}} row')
     expect(settings.chatAudit.results.rowCount_other).toBe('{{count}} rows')
     expect(settings.chatAudit.results.duration).toBe('{{ms}} ms')
-    expect(settings.chatAudit.presets.costByModel).toBe(
-      'Tokens & cost by model'
-    )
+    expect(settings.chatAudit.presets.cacheByRun).toBe('Prompt cache by run')
+    expect(settings.chatAudit.presets).not.toHaveProperty('costByModel')
   })
 })
 

@@ -10,7 +10,7 @@ test.describe('Usage API', () => {
     expect(status).toBe(200)
     expect(data).toBeTruthy()
     // Should have the expected shape (even if zeros for fresh DB)
-    expect(data).toHaveProperty('totalCost')
+    expect(data).not.toHaveProperty('totalCost') // no money (ISSUE-235)
     expect(data).toHaveProperty('totalTokens')
     expect(data).toHaveProperty('totalRequests')
   })

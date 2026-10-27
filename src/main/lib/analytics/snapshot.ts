@@ -121,7 +121,6 @@ export function toMessageRow(m: MessageSource) {
     cache_read_tokens: u?.cacheRead ?? null,
     cache_write_tokens: u?.cacheWrite ?? null,
     total_tokens: u?.totalTokens ?? null,
-    cost_usd: u?.cost?.total ?? null,
     duration_ms: m.durationMs,
     created_at: m.createdAt.toISOString(),
     content: m.content ?? null

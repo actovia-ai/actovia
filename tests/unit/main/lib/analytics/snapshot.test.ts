@@ -267,10 +267,11 @@ describe('snapshot row mappers', () => {
       output_tokens: 40,
       cache_read_tokens: 10,
       total_tokens: 170,
-      cost_usd: 0.003,
       duration_ms: 1200,
       created_at: '2026-09-19T10:00:00.000Z'
     })
+    // An old row still carries pi's cost; the snapshot leaves it out (ISSUE-235).
+    expect(m).not.toHaveProperty('cost_usd')
     expect(toMessageRow(rows.messages[0]).input_tokens).toBeNull()
     expect(toChatRow(rows.chats[1])).toMatchObject({ favorite: false })
   })
@@ -336,7 +337,7 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
 
     // The prompt cache of each run's first model call — what the 2026-10-01
     // stable-prefix work is measured by. Fixture: 120 uncached, 10 read, 0
-    // written → 7.7 % read; 120 + 1.25×0 + 0.1×10 = 121 input-cost units.
+    // written → 7.7 % read.
     const cache = CHAT_AUDIT_PRESETS.find((p) => p.id === 'cacheByRun')
     expect(cache).toBeDefined()
     const byRun = await runQuery(cache!.sql)
@@ -344,9 +345,9 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
     expect(byRun.rows[0]).toMatchObject({
       title: 'Hello',
       cache_read: 10,
-      hit_pct: 7.7,
-      input_cost_units: 121
+      hit_pct: 7.7
     })
+    expect(byRun.rows[0]).not.toHaveProperty('input_cost_units')
 
     const big = await runQuery(`select * from range(${MAX_RESULT_ROWS + 50})`)
     expect(big.truncated).toBe(true)
@@ -485,8 +486,8 @@ describe('buildSnapshot + runQuery (real DuckDB)', () => {
       // A refused wait waited for nothing.
       waits: 1,
       input_tokens: 900,
-      output_tokens: 70,
-      cost_usd: 0.0123
+      output_tokens: 70
     })
+    expect(out.rows[0]).not.toHaveProperty('cost_usd')
   }, 60_000)
 })

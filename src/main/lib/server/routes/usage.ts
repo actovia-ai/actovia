@@ -7,16 +7,14 @@ import { successResponse } from '../utils'
 
 const usage = new Hono<{ Variables: Variables }>()
 
-export interface DailyCost {
+export interface DailyUsage {
   date: string // YYYY-MM-DD
-  cost: number
   tokens: number
 }
 
-export interface ModelCost {
+export interface ModelUsage {
   model: string
   provider: string
-  cost: number
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
@@ -28,16 +26,14 @@ export interface ModelCost {
 usage.get('/', async (c) => {
   const rows = await getUsageRows()
 
-  let totalCost = 0
   let totalTokens = 0
   const totalRequests = rows.length
 
-  const dailyMap = new Map<string, { cost: number; tokens: number }>()
+  const dailyMap = new Map<string, { tokens: number }>()
   const modelMap = new Map<
     string,
     {
       provider: string
-      cost: number
       inputTokens: number
       outputTokens: number
       cacheReadTokens: number
@@ -50,15 +46,12 @@ usage.get('/', async (c) => {
     const u = row.usage
     if (!u) continue
 
-    const cost = u.cost?.total ?? 0
     const tokens = u.totalTokens ?? 0
-    totalCost += cost
     totalTokens += tokens
 
     // Daily aggregation, by the user's day (the heatmap's keys are local)
     const date = localDateStr(row.createdAt)
-    const daily = dailyMap.get(date) ?? { cost: 0, tokens: 0 }
-    daily.cost += cost
+    const daily = dailyMap.get(date) ?? { tokens: 0 }
     daily.tokens += tokens
     dailyMap.set(date, daily)
 
@@ -66,14 +59,12 @@ usage.get('/', async (c) => {
     const modelKey = row.model ?? 'unknown'
     const model = modelMap.get(modelKey) ?? {
       provider: row.provider ?? 'unknown',
-      cost: 0,
       inputTokens: 0,
       outputTokens: 0,
       cacheReadTokens: 0,
       totalTokens: 0,
       requests: 0
     }
-    model.cost += cost
     model.inputTokens += u.input ?? 0
     model.outputTokens += u.output ?? 0
     model.cacheReadTokens += u.cacheRead ?? 0
@@ -83,17 +74,16 @@ usage.get('/', async (c) => {
   }
 
   // Sort daily by date ascending
-  const daily: DailyCost[] = [...dailyMap.entries()]
+  const daily: DailyUsage[] = [...dailyMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, v]) => ({ date, cost: v.cost, tokens: v.tokens }))
+    .map(([date, v]) => ({ date, tokens: v.tokens }))
 
-  // Sort models by cost descending
-  const models: ModelCost[] = [...modelMap.entries()]
-    .sort(([, a], [, b]) => b.cost - a.cost)
+  // Sort models by tokens descending
+  const models: ModelUsage[] = [...modelMap.entries()]
+    .sort(([, a], [, b]) => b.totalTokens - a.totalTokens)
     .map(([model, v]) => ({ model, ...v }))
 
   return successResponse(c, {
-    totalCost,
     totalTokens,
     totalRequests,
     daily,

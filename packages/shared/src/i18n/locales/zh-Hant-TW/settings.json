@@ -970,7 +970,6 @@
       "title": "預設查詢",
       "cacheByRun": "每輪的提示快取",
       "messagesPerDay": "每日訊息數 (30 天)",
-      "costByModel": "各模型的 Token 與費用",
       "toolCalls": "工具呼叫",
       "longestChats": "最長的對話",
       "errorsByModel": "各模型的錯誤",

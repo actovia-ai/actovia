@@ -1,15 +1,13 @@
 import { fetcher } from '@actovia/shared/utils/http'
 
-export interface DailyCost {
+export interface DailyUsage {
   date: string
-  cost: number
   tokens: number
 }
 
-export interface ModelCost {
+export interface ModelUsage {
   model: string
   provider: string
-  cost: number
   inputTokens: number
   outputTokens: number
   cacheReadTokens: number
@@ -18,11 +16,10 @@ export interface ModelCost {
 }
 
 export interface UsageSummary {
-  totalCost: number
   totalTokens: number
   totalRequests: number
-  daily: DailyCost[]
-  models: ModelCost[]
+  daily: DailyUsage[]
+  models: ModelUsage[]
 }
 
 export const getUsageSummary = () => fetcher<UsageSummary>('/api/v1/usage')

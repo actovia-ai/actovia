@@ -736,7 +736,7 @@ export async function getDeepResearchMessagesById({ id }: { id: string }) {
 }
 
 /**
- * Aggregate token usage and costs from all assistant messages.
+ * Aggregate token usage from all assistant messages.
  * Returns per-row data so the caller can group however they want.
  */
 export async function getUsageRows() {

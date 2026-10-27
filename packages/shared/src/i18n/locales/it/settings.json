@@ -975,7 +975,6 @@
       "title": "Query predefinite",
       "cacheByRun": "Cache del prompt per turno",
       "messagesPerDay": "Messaggi al giorno (30 giorni)",
-      "costByModel": "Token e costo per modello",
       "toolCalls": "Chiamate agli strumenti",
       "longestChats": "Chat più lunghe",
       "errorsByModel": "Errori per modello",

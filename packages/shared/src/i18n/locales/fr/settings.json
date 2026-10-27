@@ -975,7 +975,6 @@
       "title": "Requêtes prédéfinies",
       "cacheByRun": "Cache du prompt par tour",
       "messagesPerDay": "Messages par jour (30 jours)",
-      "costByModel": "Tokens et coût par modèle",
       "toolCalls": "Appels d’outils",
       "longestChats": "Discussions les plus longues",
       "errorsByModel": "Erreurs par modèle",

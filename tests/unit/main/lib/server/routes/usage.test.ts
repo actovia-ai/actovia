@@ -26,4 +26,40 @@ describe('GET /usage', () => {
     const body = (await res.json()) as { daily: Array<{ date: string }> }
     expect(body.daily.map((d) => d.date)).toEqual(['2026-05-02'])
   })
+  // ISSUE-235: tokens only — an older row's stored cost is not read.
+  it('answers no cost at any depth, and sorts models by tokens', async () => {
+    const at = new Date('2026-05-01T08:00:00.000Z')
+    getUsageRows.mockResolvedValue([
+      {
+        model: 'small',
+        provider: 'p',
+        usage: { input: 5, output: 5, totalTokens: 10, cost: { total: 9 } },
+        createdAt: at
+      },
+      {
+        model: 'big',
+        provider: 'p',
+        usage: { input: 50, output: 50, totalTokens: 100, cost: { total: 1 } },
+        createdAt: at
+      }
+    ])
+    const res = await usage.request('/')
+    const body = (await res.json()) as {
+      totalTokens: number
+      models: Array<{ model: string }>
+    }
+    const keys: string[] = []
+    const walk = (v: unknown): void => {
+      if (Array.isArray(v)) return v.forEach(walk)
+      if (v && typeof v === 'object')
+        for (const [k, x] of Object.entries(v)) {
+          keys.push(k)
+          walk(x)
+        }
+    }
+    walk(body)
+    expect(keys.filter((k) => /cost/i.test(k))).toEqual([])
+    expect(body.totalTokens).toBe(110)
+    expect(body.models.map((m) => m.model)).toEqual(['big', 'small'])
+  })
 })

@@ -68,10 +68,9 @@ async function mountHookOnAppClient<T>(hook: () => T) {
 }
 
 const summary = {
-  totalCost: 1.5,
   totalTokens: 1200,
   totalRequests: 7,
-  daily: [{ date: '2026-09-23', cost: 1.5, tokens: 1200 }],
+  daily: [{ date: '2026-09-23', tokens: 1200 }],
   models: []
 }
 
