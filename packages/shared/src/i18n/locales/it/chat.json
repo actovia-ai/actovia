@@ -287,7 +287,8 @@
     },
     "nav": {
       "new": "Nuovo",
-      "search": "Cerca"
+      "search": "Cerca",
+      "artifacts": "Artefatti"
     }
   },
   "run": {
@@ -487,5 +488,14 @@
     "unsafeDescription": "Aprire questo file lo eseguirebbe, quindi non è stato aperto.",
     "openFailed": "Impossibile aprire il file",
     "revealFailed": "Impossibile mostrare il file"
+  },
+  "artifacts": {
+    "title": "Artefatti",
+    "description": "Tutto ciò che è stato creato nelle tue chat. Aprine uno per tornare dove è nato.",
+    "searchPlaceholder": "Cerca artefatti",
+    "noMatches": "Nessun artefatto corrisponde a “{{query}}”",
+    "emptyTitle": "Ancora nessun artefatto",
+    "emptyDescription": "Chiedi in una chat un grafico, una dashboard o una piccola app e comparirà qui.",
+    "untitled": "Senza titolo"
   }
 }

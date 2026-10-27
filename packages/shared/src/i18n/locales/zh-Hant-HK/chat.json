@@ -276,7 +276,8 @@
     },
     "nav": {
       "new": "新增",
-      "search": "搜尋"
+      "search": "搜尋",
+      "artifacts": "Artifacts"
     }
   },
   "run": {
@@ -470,5 +471,14 @@
     "unsafeDescription": "打開這個檔案會執行它，因此沒有打開。",
     "openFailed": "無法打開檔案",
     "revealFailed": "無法顯示檔案"
+  },
+  "artifacts": {
+    "title": "Artifacts",
+    "description": "聊天中產生的所有 Artifact。點開即可回到產生它的位置。",
+    "searchPlaceholder": "搜尋 Artifact",
+    "noMatches": "沒有與「{{query}}」相符的 Artifact",
+    "emptyTitle": "還沒有 Artifact",
+    "emptyDescription": "在聊天裡讓它做一張圖表、一個看板或一個小應用，就會出現在這裡。",
+    "untitled": "未命名"
   }
 }

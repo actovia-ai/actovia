@@ -287,7 +287,8 @@
     },
     "nav": {
       "new": "New",
-      "search": "Search"
+      "search": "Search",
+      "artifacts": "Artifacts"
     }
   },
   "run": {
@@ -487,5 +488,14 @@
     "unsafeDescription": "Opening this file would run it, so it wasn't opened.",
     "openFailed": "Couldn't open the file",
     "revealFailed": "Couldn't show the file"
+  },
+  "artifacts": {
+    "title": "Artifacts",
+    "description": "Everything your chats have built. Open one to go back to where it was made.",
+    "searchPlaceholder": "Search artifacts",
+    "noMatches": "No artifacts match “{{query}}”",
+    "emptyTitle": "No artifacts yet",
+    "emptyDescription": "Ask for a chart, a dashboard or a small app in a chat, and it will appear here.",
+    "untitled": "Untitled"
   }
 }

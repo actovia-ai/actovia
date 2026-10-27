@@ -3,11 +3,19 @@ import { NotFoundError } from '@actovia/shared/errors/app-error'
 import { Hono } from 'hono'
 
 import { getArtifact, listArtifacts } from '../../ai/artifacts'
-import { updateArtifactCodeByArtifactId } from '../../db/queries'
+import {
+  listAllArtifacts,
+  updateArtifactCodeByArtifactId
+} from '../../db/queries'
 import { Variables } from '../types'
 import { successResponse } from '../utils'
 
 const artifactsRouter = new Hono<{ Variables: Variables }>()
+
+// Every artifact the chats made, newest first: the Artifacts page.
+artifactsRouter.get('/', async (c) => {
+  return successResponse(c, await listAllArtifacts())
+})
 
 artifactsRouter.get('/:chatId', async (c) => {
   const chatId = c.req.param('chatId')

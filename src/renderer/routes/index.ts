@@ -1,6 +1,7 @@
 import { createHashRouter } from 'react-router'
 
 import { RouteErrorBoundary } from '@/components/app/error-boundary'
+import { Artifacts } from '@/containers/artifacts'
 import { ChatDetail } from '@/containers/chat-detail'
 import { Home } from '@/containers/home'
 import { Layout as ChatLayout } from '@/layouts/chat-layout'
@@ -40,6 +41,7 @@ export const router = createHashRouter([
     ErrorBoundary: RouteErrorBoundary,
     children: [
       { path: '/', Component: Home },
+      { path: '/artifacts', Component: Artifacts },
       {
         path: '/chat/:id',
         Component: ChatDetail,

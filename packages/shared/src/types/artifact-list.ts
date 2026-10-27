@@ -1,0 +1,15 @@
+/**
+ * One artifact on the Artifacts page (`GET /api/v1/artifacts`): read from a
+ * chat's `create_artifact` result, without its code — the page links to the
+ * run that made it, where the card draws it.
+ */
+export interface ArtifactListItem {
+  artifactId: string
+  title: string
+  chatId: string
+  chatTitle: string
+  /** The run that made it: the chat page opens there. */
+  runId: string
+  /** ISO 8601, UTC. */
+  createdAt: string
+}

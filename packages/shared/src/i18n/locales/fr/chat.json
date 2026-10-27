@@ -287,7 +287,8 @@
     },
     "nav": {
       "new": "Nouveau",
-      "search": "Rechercher"
+      "search": "Rechercher",
+      "artifacts": "Artefacts"
     }
   },
   "run": {
@@ -487,5 +488,14 @@
     "unsafeDescription": "Ouvrir ce fichier l’exécuterait : il n’a donc pas été ouvert.",
     "openFailed": "Impossible d’ouvrir le fichier",
     "revealFailed": "Impossible d’afficher le fichier"
+  },
+  "artifacts": {
+    "title": "Artefacts",
+    "description": "Tout ce que vos conversations ont créé. Ouvrez-en un pour revenir là où il a été fait.",
+    "searchPlaceholder": "Rechercher des artefacts",
+    "noMatches": "Aucun artefact ne correspond à « {{query}} »",
+    "emptyTitle": "Aucun artefact pour l’instant",
+    "emptyDescription": "Demandez un graphique, un tableau de bord ou une petite app dans une conversation : il apparaîtra ici.",
+    "untitled": "Sans titre"
   }
 }

@@ -276,7 +276,8 @@
     },
     "nav": {
       "new": "新規",
-      "search": "検索"
+      "search": "検索",
+      "artifacts": "アーティファクト"
     }
   },
   "run": {
@@ -470,5 +471,14 @@
     "unsafeDescription": "このファイルは開くと実行されるため、開きませんでした。",
     "openFailed": "ファイルを開けませんでした",
     "revealFailed": "ファイルを表示できませんでした"
+  },
+  "artifacts": {
+    "title": "アーティファクト",
+    "description": "チャットで作られたものの一覧です。開くと作成した場所に戻ります。",
+    "searchPlaceholder": "アーティファクトを検索",
+    "noMatches": "「{{query}}」に一致するアーティファクトはありません",
+    "emptyTitle": "アーティファクトはまだありません",
+    "emptyDescription": "チャットでグラフやダッシュボード、小さなアプリを頼むと、ここに表示されます。",
+    "untitled": "無題"
   }
 }

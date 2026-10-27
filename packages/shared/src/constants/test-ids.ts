@@ -127,10 +127,16 @@ export const TEST_IDS = {
     colorTone: 'settings.color-tone',
     languageSelect: 'settings.language-select'
   },
+  artifacts: {
+    page: 'artifacts.page',
+    card: 'artifacts.card',
+    search: 'artifacts.search'
+  },
   chatLayout: {
     workspaceSwitcher: 'chat-layout.workspace-switcher',
     workspaceChat: 'chat-layout.workspace-chat',
     workspacePhilharmonic: 'chat-layout.workspace-philharmonic',
+    artifacts: 'chat-layout.artifacts',
     searchButton: 'chat-layout.search-button',
     newChat: 'chat-layout.new-chat',
     account: 'chat-layout.account',

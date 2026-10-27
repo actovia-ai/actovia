@@ -1,5 +1,6 @@
 import { ErrorCode, DatabaseError } from '@actovia/shared'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import type { ArtifactListItem } from '@actovia/shared/types/artifact-list'
 import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
 import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
 import { and, asc, desc, eq, lt, or, sql, type SQL } from 'drizzle-orm'
@@ -237,6 +238,47 @@ export async function updateMessage({
 /** Rewrite an artifact toolResult message's `details.code` (used to re-sync
  * a hand-edited .tsx on disk back into the DB row that the card actually
  * renders from). Returns the number of rows updated. */
+/**
+ * Every artifact the chats made, newest first (ISSUE-237's Artifacts page):
+ * a `create_artifact` result that did not fail and carries an artifact id,
+ * with its chat's title and the run it came from. The code stays in the row.
+ */
+export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
+  try {
+    const rows = await db
+      .select({
+        artifactId: sql<string>`${message.details}->>'artifactId'`,
+        title: sql<string | null>`${message.details}->>'title'`,
+        chatId: message.chatId,
+        chatTitle: chat.title,
+        runId: message.runId,
+        createdAt: message.createdAt
+      })
+      .from(message)
+      .innerJoin(chat, eq(chat.id, message.chatId))
+      .where(
+        and(
+          eq(message.role, 'toolResult'),
+          eq(message.toolName, TOOL_NAMES.createArtifact),
+          sql`coalesce(${message.isError}, false) = false`,
+          sql`${message.details}->>'artifactId' is not null`
+        )
+      )
+      .orderBy(desc(message.createdAt))
+    return rows.map((r) => ({
+      ...r,
+      title: r.title ?? '',
+      createdAt: r.createdAt.toISOString()
+    }))
+  } catch (error) {
+    logDbError('Failed to list artifacts', error)
+    throw new DatabaseError(
+      ErrorCode.DB_QUERY_FAILED,
+      'Failed to list artifacts'
+    )
+  }
+}
+
 export async function updateArtifactCodeByArtifactId({
   artifactId,
   code

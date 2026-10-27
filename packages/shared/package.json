@@ -13,6 +13,7 @@
     "./i18n/catalog-audit": "./src/i18n/catalog-audit.ts",
     "./schemas/settings-schema": "./src/schemas/settings-schema.ts",
     "./types/agents": "./src/types/agents.ts",
+    "./types/artifact-list": "./src/types/artifact-list.ts",
     "./types/pm-round": "./src/types/pm-round.ts",
     "./types/discover": "./src/types/discover.ts",
     "./types/web-search": "./src/types/web-search.ts",

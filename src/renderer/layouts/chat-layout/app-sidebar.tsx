@@ -1,10 +1,14 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { PlusSignIcon, SearchIcon } from '@hugeicons/core-free-icons'
+import {
+  PlusSignIcon,
+  SearchIcon,
+  SparklesIcon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 import { WorkspaceSwitcher } from '@/components/app/workspace-switcher'
 import { HistoryArrows } from '@/components/chat/header/history-arrows'
@@ -35,6 +39,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation('chat')
   const isFullscreen = useIsFullscreen()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const setIsSearchChatsVisible = useSetAtom(isSearchChatsVisibleAtom)
 
   return (
@@ -81,6 +86,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span className="text-muted-foreground text-xs tracking-wide">
                 {MOD_KEY}⇧F
               </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              data-testid={TEST_IDS.chatLayout.artifacts}
+              isActive={pathname === '/artifacts'}
+              onClick={() => navigate('/artifacts')}
+              className={NAV_ROW}
+            >
+              <HugeiconsIcon icon={SparklesIcon} />
+              <span>{t('sidebar.nav.artifacts')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
