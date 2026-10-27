@@ -535,10 +535,13 @@ first call (`input + cacheRead + cacheWrite` of the first `message_end`) and sav
 when the provider reported none they stay estimates (`estimated: true`). Only a run with an assistant message writes
 it: one that failed before any answer leaves the last. `GET /api/v1/chat/:id/context` answers
 `ChatContextSnapshot` (`packages/shared/src/types/chat-context.ts`) — `{ takenAt, runId, model, contextWindow,
-compactAt, total, estimated, parts: [{ key, tokens }] }`, all seven parts in that order, `contextWindow` 0 for a
-model that reports none, `compactAt` = `floor(contextWindow × memory.contextWindowPercent / 100)` with LCM on (the
-mark LCM compacts at, compared with `summaries` + `messages`), `null` with LCM off or no window — or `404
-CONTEXT_NOT_FOUND`. The chat list (`GET /api/v1/history`) leaves the column out.
+compactAt, lcmTokens, total, estimated, parts: [{ key, tokens }] }`, all seven parts in that order. With LCM on,
+`contextWindow` is the window LCM compacts against — the model's when known, else LCM's 128k fallback (a window that
+is only `resolveModel()`'s provider default does not count: `trustedContextWindow()`) — `compactAt` its mark
+(`floor(contextWindow × memory.contextWindowPercent / 100)`), and `lcmTokens` LCM's own count once the run was
+tracked (the stored token counts of the context items, what the post-run check compares); past the mark, compaction
+follows the run. With LCM off, `contextWindow` is the known window or 0, and `compactAt` / `lcmTokens` are `null` —
+or `404 CONTEXT_NOT_FOUND`. The chat list (`GET /api/v1/history`) leaves the column out.
 
 ## 11. Compatibility
 

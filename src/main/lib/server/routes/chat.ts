@@ -34,6 +34,7 @@ import {
   deepResearchBootPrompt,
   getSystemPrompt
 } from '../../ai/prompts'
+import { trustedContextWindow } from '../../ai/providers/resolve-model'
 import { getActiveSkillsIndex } from '../../ai/skills/skills-manager'
 import {
   bindCallingTools,
@@ -322,7 +323,7 @@ chat.post('/', async (c) => {
         contextWindowPercent:
           memoryConfig?.contextWindowPercent ??
           SETTING_DEFAULTS.memory.contextWindowPercent,
-        contextWindow: model.contextWindow
+        contextWindow: trustedContextWindow(model)
       })
     : null
 
@@ -475,10 +476,9 @@ chat.post('/', async (c) => {
 
   // What fills this request, part by part (ISSUE-235): the recorder scales
   // it to the provider's input and saves it as the chat's context snapshot.
-  const contextWindow = model.contextWindow > 0 ? model.contextWindow : 0
-  const contextPercent =
-    memoryConfig?.contextWindowPercent ??
-    SETTING_DEFAULTS.memory.contextWindowPercent
+  // Under LCM, the window and mark it compacts against (its fallback when
+  // the model's window is unknown or a guess); without it, the known window.
+  const contextWindow = lcm ? lcm.contextWindow : trustedContextWindow(model)
   const contextParts = measureContext({
     systemPrompt: systemContent,
     skillsIndex: isDeepResearch ? '' : skillsIndex,
@@ -522,11 +522,7 @@ chat.post('/', async (c) => {
     context: {
       parts: contextParts,
       contextWindow,
-      // Compared, like LCM, with summaries + messages.
-      compactAt:
-        lcm && contextWindow > 0
-          ? Math.floor((contextWindow * contextPercent) / 100)
-          : null,
+      compactAt: lcm ? lcm.tokenBudget : null,
       model: model.id,
       runId: userMessage.id
     }

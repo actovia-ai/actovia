@@ -2,6 +2,7 @@ import type { Model } from '@earendil-works/pi-ai'
 
 import { LcmManager, trackContextMessages } from '../ai/context-management'
 import { runMemoryConsolidation } from '../ai/memory/manager'
+import { trustedContextWindow } from '../ai/providers/resolve-model'
 import { getKnowledgeDocById, setIndexStatus } from '../db/knowledge-queries'
 import { getMessagesByChatId, getSettings } from '../db/queries'
 import { runDiscoverRefresh } from '../discover/manager'
@@ -59,7 +60,7 @@ export const handlers: Record<QueueName, (payload: unknown) => Promise<void>> =
       const lcm = new LcmManager(p.chatId, p.model, apiKey, {
         freshTailRuns: p.freshTailRuns,
         contextWindowPercent: p.contextWindowPercent,
-        contextWindow: p.model.contextWindow
+        contextWindow: trustedContextWindow(p.model)
       })
       await lcm.compactAfterTurn()
     },

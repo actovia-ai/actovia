@@ -21,6 +21,7 @@ vi.mock('@main/lib/ai/kernel/run', () => ({
 }))
 
 vi.mock('@main/lib/ai/context-management', () => ({
+  contextTokens: vi.fn(async () => 0),
   trackContextMessages: vi.fn(async () => {}),
   freshTailRuns: () => 6,
   LcmManager: class {

@@ -4,6 +4,7 @@ import {
 } from '@actovia/shared/schemas/settings-schema'
 import {
   resolveModel,
+  trustedContextWindow,
   ZERO_MODEL_COST
 } from '@main/lib/ai/providers/resolve-model'
 import { thinkingLevelFor } from '@main/lib/ai/providers/thinking-level'
@@ -331,5 +332,43 @@ describe('resolveModel', () => {
       )
       expect(thinkingLevelFor(model)).toBeUndefined()
     })
+  })
+})
+
+// ISSUE-235 review: LCM compacts against the model's window, so a window that
+// is only the provider's guess must not count — gpt-4o behind an unknown id
+// read as 1.05M and never compacted.
+describe('trustedContextWindow', () => {
+  const openai = (id: string, snapshot?: ModelSnapshot) =>
+    resolveModel(
+      'openai',
+      id,
+      'https://api.openai.com/v1',
+      'openai-responses',
+      snapshot
+    )
+  const snap = (contextWindow: number | null) =>
+    ModelSnapshotSchema.parse({
+      contextWindow,
+      maxOutputTokens: null,
+      reasoningLevels: []
+    })
+
+  it('is 0 for a window guessed from the provider default', () => {
+    expect(openai('gpt-nobody-knows').contextWindow).toBe(1_050_000)
+    expect(trustedContextWindow(openai('gpt-nobody-knows'))).toBe(0)
+    expect(trustedContextWindow(openai('gpt-nobody-knows', snap(null)))).toBe(0)
+  })
+
+  it('survives the JSON a job payload carries', () => {
+    const queued = JSON.parse(JSON.stringify(openai('gpt-nobody-knows')))
+    expect(trustedContextWindow(queued)).toBe(0)
+  })
+
+  it('is the window when it came from a fallback row or a snapshot', () => {
+    expect(trustedContextWindow(openai('gpt-5.6'))).toBe(1_050_000)
+    expect(trustedContextWindow(openai('gpt-nobody-knows', snap(64_000)))).toBe(
+      64_000
+    )
   })
 })

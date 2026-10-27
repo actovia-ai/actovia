@@ -92,6 +92,28 @@ describe('handlers.lcm-post-turn', () => {
     })
   })
 
+  it('compacts against the fallback when the window is only a guess', async () => {
+    mockGetSettings.mockResolvedValue(withOpenAiKey())
+    const { LcmManager } = await import('@main/lib/ai/context-management')
+    vi.mocked(LcmManager).mockClear()
+
+    await handlers['lcm-post-turn']({
+      chatId: 'chat-1',
+      model: {
+        ...fakeModel,
+        contextWindow: 1_050_000,
+        contextWindowGuessed: true
+      },
+      freshTailRuns: 6,
+      contextWindowPercent: 75
+    })
+
+    // 0 is LcmManager's "unknown": it keeps DEFAULT_CONTEXT_WINDOW.
+    expect(vi.mocked(LcmManager).mock.calls[0][3]).toMatchObject({
+      contextWindow: 0
+    })
+  })
+
   // A job an earlier build queued still carries its run: it is tracked —
   // with or without a key, since tracking needs none. Skipping it when the
   // key was gone left the run out of the context for good.

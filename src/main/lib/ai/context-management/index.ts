@@ -49,6 +49,15 @@ export function freshTailRuns(
  *   await lcm.compactAfterTurn()  // non-blocking: call without await
  */
 /**
+ * What LCM counts against its threshold: the stored token counts of the
+ * chat's context items, summed as `runCompactionIfNeeded` does.
+ */
+export async function contextTokens(chatId: string): Promise<number> {
+  const items = await getContextItems(chatId)
+  return items.reduce((sum, i) => sum + (i.tokenCount ?? 0), 0)
+}
+
+/**
  * Appends messages to a chat's context items, skipping any already there —
  * safe to call twice for the same run. Needs no model or key: the run's rows
  * enter the context as they are saved (`RunRecorder.persist`), so the next
@@ -88,7 +97,8 @@ export class LcmManager {
   private apiKey: string
   private freshTailRuns: number
   private contextWindowPercent: number
-  private contextWindow: number
+  /** The window LCM compacts against (the fallback when none is known). */
+  readonly contextWindow: number
 
   // Per-chat serialization queue to prevent concurrent compaction
   private static compactionQueues = new Map<string, Promise<void>>()

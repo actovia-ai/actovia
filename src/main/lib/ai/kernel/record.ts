@@ -11,7 +11,7 @@ import { saveChatContextSnapshot, saveMessages } from '../../db/queries'
 import { enqueueAndProcess, logEnqueueFailure } from '../../jobs/worker'
 import { logger } from '../../logger'
 import { toDbRow } from '../../server/routes/chat-persistence'
-import { trackContextMessages } from '../context-management'
+import { contextTokens, trackContextMessages } from '../context-management'
 import { settleDeepResearchResult } from '../deep-research/chat-result'
 import type { KernelEvent } from './events'
 
@@ -97,7 +97,6 @@ export class RunRecorder {
       }
     }
     await saveMessages({ messages: rows })
-    await this.saveContextSnapshot()
     // The run's numbered sources, for `recall` and the next run's numbering.
     await saveChatSources(sourcesOfRows(rows))
     // A research job that ended before its run was saved (one that failed
@@ -122,6 +121,11 @@ export class RunRecorder {
         chatId,
         this.done.map((m) => ({ id: m.id, content: m.content }))
       )
+    }
+    // After tracking: the snapshot carries LCM's count with this run in it.
+    await this.saveContextSnapshot()
+
+    if (lcm) {
       enqueueAndProcess('lcm-post-turn', {
         chatId,
         model,
@@ -151,6 +155,7 @@ export class RunRecorder {
       await saveChatContextSnapshot(chatId, {
         takenAt: new Date().toISOString(),
         ...rest,
+        lcmTokens: this.deps.lcm ? await contextTokens(chatId) : null,
         ...scaleSnapshot(parts, this.firstInput)
       })
     } catch (error) {

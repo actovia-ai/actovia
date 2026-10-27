@@ -20,7 +20,14 @@ const order: string[] = []
 const trackContextMessages = vi.fn(async () => {
   order.push('track')
 })
-vi.mock('@main/lib/ai/context-management', () => ({ trackContextMessages }))
+const contextTokens = vi.fn(async () => {
+  order.push('measure')
+  return 97_000
+})
+vi.mock('@main/lib/ai/context-management', () => ({
+  trackContextMessages,
+  contextTokens
+}))
 
 const { RunRecorder } = await import('@main/lib/ai/kernel/record')
 
@@ -64,6 +71,7 @@ beforeEach(() => {
   saveChatContextSnapshot.mockClear()
   enqueueAndProcess.mockClear()
   trackContextMessages.mockClear()
+  contextTokens.mockClear()
   order.length = 0
   enqueueAndProcess.mockImplementation(async (queue: string) => {
     order.push(queue)
@@ -287,6 +295,44 @@ describe('RunRecorder saves the context snapshot', () => {
       estimated: false
     })
     expect(typeof snapshot.takenAt).toBe('string')
+  })
+
+  // ISSUE-235 review: the ring's amber is LCM's own count — what the
+  // post-turn job compares — taken once this run is in the context.
+  it("records LCM's own total after the run is tracked", async () => {
+    const r = recorder({ context })
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [assistant],
+      durationMs: 1
+    })
+    await r.persist()
+
+    const [, snapshot] = saveChatContextSnapshot.mock.calls[0] as never as [
+      string,
+      Record<string, unknown>
+    ]
+    expect(snapshot.lcmTokens).toBe(97_000)
+    expect(order.indexOf('track')).toBeLessThan(order.indexOf('measure'))
+  })
+
+  it('records no LCM total with LCM off', async () => {
+    const r = recorder({ context, lcm: null })
+    r.observe({
+      type: 'run_end',
+      runId: RUN_ID,
+      messages: [assistant],
+      durationMs: 1
+    })
+    await r.persist()
+
+    const [, snapshot] = saveChatContextSnapshot.mock.calls[0] as never as [
+      string,
+      Record<string, unknown>
+    ]
+    expect(snapshot.lcmTokens).toBeNull()
+    expect(contextTokens).not.toHaveBeenCalled()
   })
 
   it('keeps the estimate when the provider reported nothing', async () => {

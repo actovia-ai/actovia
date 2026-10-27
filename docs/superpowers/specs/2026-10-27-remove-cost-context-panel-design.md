@@ -140,8 +140,10 @@ target; nothing else about it changes. Consequence the owner accepted: a long ch
 model sends much bigger requests before it compacts.
 
 The view's mark is that threshold: drawn on the bar at
-`contextWindow × contextWindowPercent`, compared — like LCM — with Summaries + Messages, so the
-ring turns amber exactly when the next run will compact. The note reads "Compacts when messages
+`contextWindow × contextWindowPercent`. The ring turns amber when LCM's own count (stored per context
+item, taken once the run is tracked) is over it — the count the post-run check compares, so amber
+means compaction follows that run. A window that is only the provider default is not the model's:
+LCM and the view use the 128k fallback for it (final review, 2026-10-27). The note reads "Compacts when messages
 reach 75%".
 
 ## Tests that hold it

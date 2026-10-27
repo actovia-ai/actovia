@@ -6,7 +6,7 @@ import type {
 export interface ContextMeter {
   /** Share of the window in use, 0–100; null when the window is unknown. */
   percent: number | null
-  /** Summaries + messages have reached LCM's mark: the next run compacts. */
+  /** LCM's count is over its mark: compaction follows the run. */
   pastCompaction: boolean
   rows: { key: ContextPartKey; tokens: number; share: number | null }[]
   free: number | null
@@ -23,7 +23,9 @@ export function contextMeter(s: ChatContextSnapshot): ContextMeter {
     .reduce((n, p) => n + p.tokens, 0)
   return {
     percent: share(s.total),
-    pastCompaction: s.compactAt !== null && conversation >= s.compactAt,
+    // LCM's own count when the snapshot has it; it compacts only above.
+    pastCompaction:
+      s.compactAt !== null && (s.lcmTokens ?? conversation) > s.compactAt,
     rows: s.parts.map((p) => ({ ...p, share: share(p.tokens) })),
     free: window ? Math.max(0, window - s.total) : null,
     compactPercent:

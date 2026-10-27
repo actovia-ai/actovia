@@ -26,8 +26,24 @@ const lcmState = vi.hoisted(() => ({
 }))
 vi.mock('@main/lib/ai/context-management', () => ({
   trackContextMessages: vi.fn(async () => {}),
+  contextTokens: vi.fn(async () => 0),
   freshTailRuns: () => 6,
   LcmManager: class {
+    // The window and mark the real LcmManager settles on (128k fallback).
+    readonly contextWindow: number
+    readonly tokenBudget: number
+    constructor(
+      _chatId: string,
+      _model: unknown,
+      _apiKey: string,
+      o: { contextWindow?: number; contextWindowPercent?: number } = {}
+    ) {
+      this.contextWindow =
+        o.contextWindow && o.contextWindow > 0 ? o.contextWindow : 128_000
+      this.tokenBudget = Math.floor(
+        (this.contextWindow * (o.contextWindowPercent ?? 75)) / 100
+      )
+    }
     trackNewMessages = vi.fn(async () => {})
     assembleContext = vi.fn(async () => lcmState.assembled)
     compactAfterTurn = vi.fn(async () => {})
@@ -636,12 +652,17 @@ describe('POST /api/v1/chat on the faux provider', () => {
 describe('GET /api/v1/chat/:id/context', () => {
   async function send(
     app: Hono,
-    contextWindow: number
+    contextWindow: number,
+    guessed = false
   ): Promise<Record<string, unknown>> {
     const faux = registerFauxProvider()
     faux.setResponses([fauxAssistantMessage([fauxText('Sunny.')])])
     getModelFromProviderMock.mockReturnValue({
-      model: { ...faux.getModel(), contextWindow },
+      model: {
+        ...faux.getModel(),
+        contextWindow,
+        ...(guessed ? { contextWindowGuessed: true } : {})
+      },
       apiKey: 'k'
     })
     const response = await app.request('/', {
@@ -695,8 +716,24 @@ describe('GET /api/v1/chat/:id/context', () => {
     })
   })
 
-  it('has no window and no mark for a model that reports none', async () => {
+  // The mark is where LCM compacts: with no window of its own, LCM keeps
+  // its 128k fallback, so "Compaction is off" would be untrue.
+  it("marks LCM's fallback for a model that reports no window", async () => {
     expect(await send(buildApp(), 0)).toMatchObject({
+      contextWindow: 128_000,
+      compactAt: 96_000
+    })
+  })
+
+  it("marks LCM's fallback for a window that is only a guess", async () => {
+    expect(await send(buildApp(), 1_050_000, true)).toMatchObject({
+      contextWindow: 128_000,
+      compactAt: 96_000
+    })
+  })
+
+  it('has no window and no mark with LCM off and no window known', async () => {
+    expect(await send(buildAppLcmOff(), 1_050_000, true)).toMatchObject({
       contextWindow: 0,
       compactAt: null
     })

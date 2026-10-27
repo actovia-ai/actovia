@@ -33,6 +33,11 @@ export interface ChatContextSnapshot {
   contextWindow: number
   /** Tokens of summaries + messages at which LCM compacts; null with LCM off. */
   compactAt: number | null
+  /**
+   * LCM's own count once the run was tracked — what its post-run check
+   * compares with `compactAt`; past it, compaction follows. Null with LCM off.
+   */
+  lcmTokens: number | null
   total: number
   /** True when the provider reported no input size and the parts are estimates. */
   estimated: boolean

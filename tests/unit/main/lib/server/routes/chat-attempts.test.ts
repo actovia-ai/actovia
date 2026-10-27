@@ -25,6 +25,7 @@ vi.mock('@main/lib/db/db', async () => {
   return { pglite, db: drizzle(pglite) }
 })
 vi.mock('@main/lib/ai/context-management', () => ({
+  contextTokens: vi.fn(async () => 0),
   trackContextMessages: vi.fn(async () => {}),
   freshTailRuns: () => 6,
   LcmManager: class {

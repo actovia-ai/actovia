@@ -128,6 +128,25 @@ function claudeThinking(
   }
 }
 
+/**
+ * Marks a model whose `contextWindow` is PROVIDER_DEFAULTS' guess, not the
+ * catalog's, a snapshot's or a fallback row's. A plain field, so it survives
+ * a spread and the JSON a job payload carries.
+ */
+const GUESSED = { contextWindowGuessed: true } as const
+
+/**
+ * The window a model is known to have, or 0 when it is only a guess. LCM
+ * compacts against it (0 keeps its 128k fallback): a guessed 1.05M on a
+ * 128k model never compacted (ISSUE-235 review).
+ */
+export function trustedContextWindow(model: Model<string>): number {
+  if ((model as { contextWindowGuessed?: boolean }).contextWindowGuessed) {
+    return 0
+  }
+  return model.contextWindow > 0 ? model.contextWindow : 0
+}
+
 export function resolveModel(
   provider: KnownProvider,
   id: string,
@@ -197,6 +216,7 @@ export function resolveModel(
       ...(known?.headers ? { headers: known.headers } : {}),
       ...(compat ? { compat } : {}),
       contextWindow: snapshot.contextWindow ?? defaults.contextWindow,
+      ...(snapshot.contextWindow == null ? GUESSED : {}),
       maxTokens: snapshot.maxOutputTokens ?? defaults.maxTokens,
       cost: { ...ZERO_MODEL_COST }
     } as Model<string>
@@ -231,7 +251,8 @@ export function resolveModel(
       input: ['text', 'image'],
       cost: { ...ZERO_MODEL_COST },
       contextWindow: fallback?.contextWindow ?? defaults.contextWindow,
+      ...(fallback?.contextWindow == null ? GUESSED : {}),
       maxTokens: fallback?.maxOutputTokens ?? defaults.maxTokens
-    }
+    } as Model<string>
   }
 }

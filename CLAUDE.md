@@ -1139,7 +1139,9 @@ Compacts long conversations without losing information, surfacing summaries the 
   (default 75 %) — the route and the `lcm-post-turn` job both hand
   `LcmManager` the model's window (ISSUE-235; before it every chat compacted
   against a fixed 128k, which stays the fallback for a model that reports
-  none)
+  none, or whose window is only `resolveModel()`'s provider default —
+  `trustedContextWindow()` in `resolve-model.ts` reads that mark,
+  `contextWindowGuessed`)
 - Related built-in tools: `lcm_describe`, `lcm_expand`, `lcm_grep`; and `recall`,
   which reads back the full form of an aged tool output (see "Tool output
   ages"), and whose digests leaf compaction summarises from
@@ -1291,7 +1293,7 @@ Their windows live in `src/main/lib/window.ts`.
   (actovia-ios, the Actovia CLI, the phone) can change: chat history,
   devices, installed skills, the three logs reads, the Discover feed, and the Ollama probe
   (`use-chat-history.ts`, `use-devices.ts`, `use-installed-skills.ts`,
-  `use-logs.ts`, `use-discover-feed.ts`, `use-ollama-status.ts`, and the secrets status —
+  `use-logs.ts`, `use-discover-feed.ts`, `use-ollama-status.ts`, `use-chat-context.ts`, and the secrets status —
   `use-secrets-status.ts`, its own `['secrets-status']` root, never under `['settings']`) — plus the memory list
   (`use-memory.ts`'s `useMemories()`), which the chat's own `update_memory` tool and background
   consolidation can both write with the Memory page not open. The remote skills.sh relay uses

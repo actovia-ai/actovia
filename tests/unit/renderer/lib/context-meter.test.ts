@@ -12,6 +12,7 @@ function snapshot(
     model: 'm',
     contextWindow: 1_000_000,
     compactAt: 750_000,
+    lcmTokens: null,
     total: 586_300,
     estimated: false,
     parts: [
@@ -59,6 +60,24 @@ describe('contextMeter', () => {
   it('is past compaction once summaries and messages reach the mark', () => {
     expect(contextMeter(withConversation(700_000)).pastCompaction).toBe(false)
     expect(contextMeter(withConversation(760_000)).pastCompaction).toBe(true)
+  })
+
+  // LCM compacts on its own stored count, not on what the request measured.
+  it("follows LCM's own total when the snapshot has one", () => {
+    expect(
+      contextMeter({ ...withConversation(500_000), lcmTokens: 760_000 })
+        .pastCompaction
+    ).toBe(true)
+    expect(
+      contextMeter({ ...withConversation(760_000), lcmTokens: 700_000 })
+        .pastCompaction
+    ).toBe(false)
+  })
+
+  it('is not past the mark when exactly on it: LCM compacts only above', () => {
+    expect(
+      contextMeter({ ...snapshot(), lcmTokens: 750_000 }).pastCompaction
+    ).toBe(false)
   })
 
   it('has no share without a window', () => {
