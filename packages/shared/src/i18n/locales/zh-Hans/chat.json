@@ -268,6 +268,15 @@
         "open": "打开",
         "close": "关闭"
       }
+    },
+    "workspace": {
+      "label": "工作区",
+      "chat": "聊天",
+      "philharmonic": "Philharmonic"
+    },
+    "nav": {
+      "new": "新建",
+      "search": "搜索"
     }
   },
   "run": {

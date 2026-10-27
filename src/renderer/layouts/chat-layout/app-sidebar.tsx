@@ -1,5 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { SearchIcon, PencilEdit02Icon } from '@hugeicons/core-free-icons'
+import { PlusSignIcon, SearchIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'
 import * as React from 'react'
@@ -27,6 +27,10 @@ import { isSearchChatsVisibleAtom } from '@/stores/chat'
 import { NavFooter } from './nav-footer'
 import { NavHistories } from './nav-histories'
 
+/** The sidebar's own rows (New, Search, Artifacts): a size up from a chat's
+ * row, their icons too (ISSUE-237). */
+const NAV_ROW = 'h-9 gap-2.5 text-sm [&_svg]:size-5'
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation('chat')
   const isFullscreen = useIsFullscreen()
@@ -53,27 +57,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         >
           <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
           <HistoryArrows />
-        </div>
-        <div className="flex items-center px-1">
-          <WorkspaceSwitcher />
+          <WorkspaceSwitcher className="ml-auto" />
         </div>
         <SidebarMenu className="no-drag gap-0.5">
           <SidebarMenuItem>
             <SidebarMenuButton
               data-testid={TEST_IDS.chatLayout.newChat}
               onClick={() => navigate('/')}
+              className={NAV_ROW}
             >
-              <HugeiconsIcon icon={PencilEdit02Icon} />
-              <span>{t('sidebar.newChat')}</span>
+              <HugeiconsIcon icon={PlusSignIcon} />
+              <span>{t('sidebar.nav.new')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               data-testid={TEST_IDS.chatLayout.searchButton}
               onClick={() => setIsSearchChatsVisible(true)}
+              className={NAV_ROW}
             >
               <HugeiconsIcon icon={SearchIcon} />
-              <span className="flex-1">{t('sidebar.searchChats')}</span>
+              <span className="flex-1">{t('sidebar.nav.search')}</span>
               <span className="text-muted-foreground text-xs tracking-wide">
                 {MOD_KEY}⇧F
               </span>

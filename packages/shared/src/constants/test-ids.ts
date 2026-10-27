@@ -129,6 +129,8 @@ export const TEST_IDS = {
   },
   chatLayout: {
     workspaceSwitcher: 'chat-layout.workspace-switcher',
+    workspaceChat: 'chat-layout.workspace-chat',
+    workspacePhilharmonic: 'chat-layout.workspace-philharmonic',
     searchButton: 'chat-layout.search-button',
     newChat: 'chat-layout.new-chat',
     account: 'chat-layout.account',

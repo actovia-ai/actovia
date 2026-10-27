@@ -301,6 +301,15 @@
         "open": "Открыть",
         "close": "Закрыть"
       }
+    },
+    "workspace": {
+      "label": "Рабочее пространство",
+      "chat": "Чат",
+      "philharmonic": "Philharmonic"
+    },
+    "nav": {
+      "new": "Новый",
+      "search": "Поиск"
     }
   },
   "run": {

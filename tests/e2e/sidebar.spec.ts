@@ -106,10 +106,13 @@ test.describe('Sidebar', () => {
       TEST_IDS.chatLayout.workspaceSwitcher
     )
     await switcher.waitFor({ state: 'visible', timeout: 10_000 })
-    await expect(switcher).toContainText('Chat')
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.chatLayout.workspaceChat)
+    ).toHaveAttribute('aria-pressed', 'true')
 
-    await switcher.click()
-    await mainWindow.getByRole('menuitem', { name: 'Philharmonic' }).click()
+    await mainWindow
+      .getByTestId(TEST_IDS.chatLayout.workspacePhilharmonic)
+      .click()
 
     await expect
       .poll(() => mainWindow.evaluate(() => window.location.hash), {

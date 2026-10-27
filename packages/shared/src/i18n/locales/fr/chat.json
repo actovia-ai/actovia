@@ -279,6 +279,15 @@
         "open": "Ouvrir",
         "close": "Fermer"
       }
+    },
+    "workspace": {
+      "label": "Espace de travail",
+      "chat": "Chat",
+      "philharmonic": "Philharmonic"
+    },
+    "nav": {
+      "new": "Nouveau",
+      "search": "Rechercher"
     }
   },
   "run": {

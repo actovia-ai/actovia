@@ -268,6 +268,15 @@
         "open": "열기",
         "close": "닫기"
       }
+    },
+    "workspace": {
+      "label": "작업 공간",
+      "chat": "채팅",
+      "philharmonic": "Philharmonic"
+    },
+    "nav": {
+      "new": "새로 만들기",
+      "search": "검색"
     }
   },
   "run": {

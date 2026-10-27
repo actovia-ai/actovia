@@ -193,9 +193,7 @@ export function ConversationList({
         >
           <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
           <NewGroupButton onCreate={onCreate} />
-        </div>
-        <div className="flex items-center px-1">
-          <WorkspaceSwitcher />
+          <WorkspaceSwitcher className="ml-auto" />
         </div>
 
         <div className="no-drag px-1">
