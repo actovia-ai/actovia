@@ -1,13 +1,17 @@
 import { writeFile as fsWriteFile, mkdir, stat } from 'fs/promises'
+import { homedir } from 'os'
 import { dirname } from 'path'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
+import { resolveToolPath } from './tool-path'
+
 const writeFileSchema = Type.Object({
   path: Type.String({
-    description: 'Absolute or relative path to write the file to.'
+    description:
+      'Path to write the file to: absolute, `~/…`, or relative to the chat workspace.'
   }),
   content: Type.String({ description: 'Content to write into the file.' }),
   append: Type.Optional(
@@ -17,14 +21,17 @@ const writeFileSchema = Type.Object({
   )
 })
 
-export const writeFile: AgentTool<typeof writeFileSchema> = {
+export const writeFile = (
+  baseDir: string = homedir()
+): AgentTool<typeof writeFileSchema> => ({
   name: TOOL_NAMES.writeFile,
   label: 'Write File',
   description:
     'Write content to a file at the given path. Creates parent directories if they do not exist. Overwrites existing files.',
   parameters: writeFileSchema,
-  execute: async (_toolCallId, { path, content, append }, signal) => {
+  execute: async (_toolCallId, { path: rawPath, content, append }, signal) => {
     if (signal?.aborted) throw new Error('Aborted')
+    const path = resolveToolPath(rawPath, baseDir)
     try {
       // Whether the file is new, for the card's "Created" / "Edited".
       const existed = await stat(path).then(
@@ -57,4 +64,4 @@ export const writeFile: AgentTool<typeof writeFileSchema> = {
       })
     }
   }
-}
+})

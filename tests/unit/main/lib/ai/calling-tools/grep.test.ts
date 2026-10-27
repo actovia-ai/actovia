@@ -12,7 +12,7 @@ afterAll(() => rmSync(base, { recursive: true, force: true }))
 
 describe('grep file_glob matching', () => {
   it('matches a file against a glob with more than one wildcard', async () => {
-    const r = await grep.execute('t', {
+    const r = await grep().execute('t', {
       pattern: 'TARGET',
       path: base,
       file_glob: '*bar*'
@@ -36,7 +36,7 @@ describe('grep and symlinks', () => {
       writeFileSync(join(root, 'own.txt'), 'SECRET KEY\n')
       symlinkSync(join(outside, 'id_rsa'), join(root, 'link-file'))
       symlinkSync(join(outside, 'dir'), join(root, 'link-dir'))
-      const r = await grep.execute('t', { pattern: 'SECRET', path: root })
+      const r = await grep().execute('t', { pattern: 'SECRET', path: root })
       const files = (r.details as { results: { file: string }[] }).results.map(
         (x) => x.file
       )

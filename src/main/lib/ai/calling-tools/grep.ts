@@ -1,4 +1,5 @@
 import { lstat, readFile, readdir, stat } from 'fs/promises'
+import { homedir } from 'os'
 import path from 'path'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
@@ -6,6 +7,7 @@ import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
 import { GREP_SKIP_DIRS } from './grep-skip-dirs'
+import { resolveToolPath } from './tool-path'
 
 const MAX_RESULTS = 100
 interface GrepMatch {
@@ -127,7 +129,8 @@ const grepSchema = Type.Object({
     description: 'Regular expression pattern to search for.'
   }),
   path: Type.String({
-    description: 'File or directory path to search in. Use absolute path.'
+    description:
+      'File or directory to search in: absolute, `~/…`, or relative to the chat workspace.'
   }),
   file_glob: Type.Optional(
     Type.String({
@@ -146,7 +149,9 @@ const grepSchema = Type.Object({
   )
 })
 
-export const grep: AgentTool<typeof grepSchema> = {
+export const grep = (
+  baseDir: string = homedir()
+): AgentTool<typeof grepSchema> => ({
   name: TOOL_NAMES.grep,
   label: 'Grep',
   description:
@@ -156,10 +161,11 @@ export const grep: AgentTool<typeof grepSchema> = {
   parameters: grepSchema,
   execute: async (
     _toolCallId,
-    { pattern, path: searchPath, file_glob, context_lines, case_insensitive },
+    { pattern, path: rawPath, file_glob, context_lines, case_insensitive },
     signal
   ) => {
     if (signal?.aborted) throw new Error('Aborted')
+    const searchPath = resolveToolPath(rawPath, baseDir)
     let regex: RegExp
     try {
       regex = new RegExp(pattern, case_insensitive ? 'ig' : 'g')
@@ -208,4 +214,4 @@ export const grep: AgentTool<typeof grepSchema> = {
       details
     }
   }
-}
+})

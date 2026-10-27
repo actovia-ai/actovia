@@ -1,3 +1,5 @@
+import { join } from 'path'
+
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import { AdvancedTools, McpTools } from '@actovia/shared/types/ai'
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
@@ -6,7 +8,7 @@ import type { Model } from '@earendil-works/pi-ai'
 
 import { Settings } from '../../db/schema'
 import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-base'
-import { getChatWorkspaceDir } from '../../paths'
+import { getChatWorkspaceDir, getGroupsDir } from '../../paths'
 import {
   computerUse,
   createArtifact,
@@ -89,13 +91,17 @@ export function bindCallingTools({
   // The chat's workspace is where its shell and file tools work by default;
   // Philharmonic binds without a chatId and keeps the user's home.
   const workspaceDir = chatId ? getChatWorkspaceDir(chatId) : undefined
+  // A relative path to a file tool lands in the chat's workspace, or the
+  // Group's (`~/.actovia/groups/<id>`, where its approval guard looks too).
+  const fileBase =
+    workspaceDir ?? (groupId ? join(getGroupsDir(), groupId) : undefined)
   if (enabled(TOOL_NAMES.terminal)) tools.push(terminal(workspaceDir))
-  if (enabled(TOOL_NAMES.readFile)) tools.push(readFile)
-  if (enabled(TOOL_NAMES.writeFile)) tools.push(writeFile)
-  if (enabled(TOOL_NAMES.editFile)) tools.push(editFile)
-  if (enabled(TOOL_NAMES.listDirectory)) tools.push(listDirectory)
+  if (enabled(TOOL_NAMES.readFile)) tools.push(readFile(fileBase))
+  if (enabled(TOOL_NAMES.writeFile)) tools.push(writeFile(fileBase))
+  if (enabled(TOOL_NAMES.editFile)) tools.push(editFile(fileBase))
+  if (enabled(TOOL_NAMES.listDirectory)) tools.push(listDirectory(fileBase))
   if (enabled(TOOL_NAMES.findFiles)) tools.push(findFiles(workspaceDir))
-  if (enabled(TOOL_NAMES.grep)) tools.push(grep)
+  if (enabled(TOOL_NAMES.grep)) tools.push(grep(fileBase))
   // webSearch + webFetch share one rank registry so 【N-source】 citations
   // resolve regardless of which tool produced source N.
   const webSources = new Map<string, WebSearchResult>()

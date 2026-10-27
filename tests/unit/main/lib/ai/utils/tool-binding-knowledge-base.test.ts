@@ -6,16 +6,16 @@ const stub = (name: string) => ({ name })
 vi.mock('@main/lib/ai/calling-tools', () => ({
   createArtifact: () => stub('create_artifact'),
   deepResearch: stub('deep_research'),
-  editFile: stub('edit_file'),
+  editFile: () => stub('edit_file'),
   findFiles: () => stub('find_files'),
-  grep: stub('grep'),
+  grep: () => stub('grep'),
   imageGeneration: () => stub('image_generation'),
   lcmDescribe: stub('lcm_describe'),
   lcmExpand: () => stub('lcm_expand'),
   lcmGrep: () => stub('lcm_grep'),
-  listDirectory: stub('list_directory'),
+  listDirectory: () => stub('list_directory'),
   mapItinerary: () => stub('map_itinerary'),
-  readFile: stub('read_file'),
+  readFile: () => stub('read_file'),
   recall: () => stub('recall'),
   searchKnowledgeBase: (_client: unknown, _cfg: unknown) =>
     stub('search_knowledge_base'),
@@ -23,7 +23,7 @@ vi.mock('@main/lib/ai/calling-tools', () => ({
   weather: stub('weather'),
   webFetch: () => stub('web_fetch'),
   webSearch: () => stub('web_search'),
-  writeFile: stub('write_file')
+  writeFile: () => stub('write_file')
 }))
 
 const mockResolveKnowledgeBase = vi.fn()

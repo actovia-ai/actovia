@@ -152,7 +152,7 @@ ${
   workspaceDir
     ? `
 <workspace>
-Your workspace for this chat is ${workspaceDir}. Put the files you create there unless the user names another place; the terminal starts there. Anywhere else on the machine is fine to read, and fine to write when the user asks for it there — say where you put things.
+Your workspace for this chat is ${workspaceDir}. Put the files you create there unless the user names another place; the terminal starts there, and the file tools read a relative path from there. Anywhere else on the machine is fine to read, and fine to write when the user asks for it there — say where you put things.
 </workspace>
 `
     : ''

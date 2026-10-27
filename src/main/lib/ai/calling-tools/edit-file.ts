@@ -1,11 +1,17 @@
 import { readFile, writeFile } from 'fs/promises'
+import { homedir } from 'os'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
+import { resolveToolPath } from './tool-path'
+
 const editFileSchema = Type.Object({
-  path: Type.String({ description: 'Absolute path to the file to edit.' }),
+  path: Type.String({
+    description:
+      'Path of the file to edit: absolute, `~/…`, or relative to the chat workspace.'
+  }),
   old_string: Type.String({
     description:
       'The exact string to find and replace. Must be unique in the file.'
@@ -22,7 +28,9 @@ const editFileSchema = Type.Object({
   )
 })
 
-export const editFile: AgentTool<typeof editFileSchema> = {
+export const editFile = (
+  baseDir: string = homedir()
+): AgentTool<typeof editFileSchema> => ({
   name: TOOL_NAMES.editFile,
   label: 'Edit File',
   description:
@@ -34,10 +42,11 @@ export const editFile: AgentTool<typeof editFileSchema> = {
   parameters: editFileSchema,
   execute: async (
     _toolCallId,
-    { path, old_string, new_string, replace_all },
+    { path: rawPath, old_string, new_string, replace_all },
     signal
   ) => {
     if (signal?.aborted) throw new Error('Aborted')
+    const path = resolveToolPath(rawPath, baseDir)
     let fileContent: string
     try {
       fileContent = await readFile(path, { encoding: 'utf-8', signal })
@@ -88,4 +97,4 @@ export const editFile: AgentTool<typeof editFileSchema> = {
       details
     }
   }
-}
+})

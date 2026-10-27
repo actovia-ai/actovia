@@ -1,4 +1,5 @@
 import { stat as fsStat, readdir } from 'fs/promises'
+import { homedir } from 'os'
 import { isAbsolute, join, relative, resolve, sep } from 'path'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
@@ -6,9 +7,13 @@ import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
 import { getWorkspacesDir } from '../../paths'
+import { resolveToolPath } from './tool-path'
 
 const listDirectorySchema = Type.Object({
-  path: Type.String({ description: 'Directory path to list.' }),
+  path: Type.String({
+    description:
+      'Directory to list: absolute, `~/…`, or relative to the chat workspace.'
+  }),
   recursive: Type.Optional(
     Type.Boolean({
       description: 'If true, list recursively up to 3 levels deep.'
@@ -32,13 +37,16 @@ function isUnmadeWorkspace(path: string, err: unknown): boolean {
   )
 }
 
-export const listDirectory: AgentTool<typeof listDirectorySchema> = {
+export const listDirectory = (
+  baseDir: string = homedir()
+): AgentTool<typeof listDirectorySchema> => ({
   name: TOOL_NAMES.listDirectory,
   label: 'List Directory',
   description: 'List files and directories at a given path.',
   parameters: listDirectorySchema,
-  execute: async (_toolCallId, { path, recursive }, signal) => {
+  execute: async (_toolCallId, { path: rawPath, recursive }, signal) => {
     if (signal?.aborted) throw new Error('Aborted')
+    const path = resolveToolPath(rawPath, baseDir)
     async function listDir(
       dir: string,
       depth: number
@@ -91,4 +99,4 @@ export const listDirectory: AgentTool<typeof listDirectorySchema> = {
       })
     }
   }
-}
+})
