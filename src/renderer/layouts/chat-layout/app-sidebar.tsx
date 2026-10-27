@@ -1,9 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import {
-  PlusSignIcon,
-  SearchIcon,
-  SparklesIcon
-} from '@hugeicons/core-free-icons'
+import { PlusIcon, SearchIcon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'
 import * as React from 'react'
@@ -71,7 +67,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               onClick={() => navigate('/')}
               className={NAV_ROW}
             >
-              <HugeiconsIcon icon={PlusSignIcon} />
+              <HugeiconsIcon icon={PlusIcon} />
               <span>{t('sidebar.nav.new')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
