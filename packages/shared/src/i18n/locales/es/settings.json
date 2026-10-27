@@ -1055,6 +1055,9 @@
       "heading": "Revocados, aún sin avisar",
       "row": "Revocado {{date}} · lo sabrá la próxima vez que se conecte",
       "unnamed": "Un dispositivo"
+    },
+    "certificateUnreadable": {
+      "description": "Este Mac no puede leer su certificado de vinculación: se selló con otra clave del llavero, como ocurre cuando cambia la firma de la app o se copian datos de otro ordenador. Ningún dispositivo puede conectarse hasta que restablezcas: se crea un certificado nuevo y cada dispositivo se vuelve a vincular."
     }
   },
   "secrets": {

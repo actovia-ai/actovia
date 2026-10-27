@@ -28,6 +28,11 @@ export interface DevicesState {
   lanRunning: boolean
   /** Absent from an Actovia older than the list. */
   revoked?: RevokedDeviceInfo[]
+  /**
+   * `unreadable`: the certificate's key does not decrypt on this Mac, so no
+   * device can connect until Reset all. Absent from an older Actovia.
+   */
+  certificate?: 'ok' | 'unreadable'
 }
 
 export const DEVICES_URL = '/api/v1/devices'

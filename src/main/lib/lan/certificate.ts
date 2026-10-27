@@ -48,10 +48,43 @@ function writeKey(keyPem: string): void {
   writeFileSync(keyPath(), keyPem, { mode: 0o600 })
 }
 
+/**
+ * The private key was sealed by a safeStorage key this Mac does not hold — a
+ * new signing identity, or a data dir copied from another computer. It never
+ * opens again; only a reset (a new certificate, every device pairing again)
+ * gets the LAN back, and that is the user's call (ISSUE-135).
+ */
+export class CertificateUnreadableError extends Error {
+  constructor(options?: { cause?: unknown }) {
+    super('The LAN certificate key cannot be decrypted on this Mac', options)
+    this.name = 'CertificateUnreadableError'
+  }
+}
+
 function readKey(): string {
   const raw = readFileSync(keyPath())
   const text = raw.toString('utf8')
-  return text.startsWith('-----BEGIN') ? text : safeStorage.decryptString(raw)
+  if (text.startsWith('-----BEGIN')) return text
+  try {
+    return safeStorage.decryptString(raw)
+  } catch (cause) {
+    throw new CertificateUnreadableError({ cause })
+  }
+}
+
+/**
+ * `unreadable` while a certificate exists whose key does not decrypt; `ok`
+ * otherwise — including when there is none yet, since one is made on demand.
+ */
+export function certificateStatus(): 'ok' | 'unreadable' {
+  if (!existsSync(certPath()) || !existsSync(keyPath())) return 'ok'
+  try {
+    readKey()
+    return 'ok'
+  } catch (error) {
+    if (error instanceof CertificateUnreadableError) return 'unreadable'
+    throw error
+  }
 }
 
 /**

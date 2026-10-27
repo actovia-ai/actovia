@@ -21,8 +21,17 @@ vi.mock('electron', () => ({
     isEncryptionAvailable: () => encryptionAvailable,
     encryptString: (s: string) =>
       Buffer.from(`enc:${Buffer.from(s).toString('hex')}`),
-    decryptString: (b: Buffer) =>
-      Buffer.from(b.toString('utf8').slice(4), 'hex').toString('utf8')
+    // A key sealed under another keychain entry does not open: throw, as
+    // Electron does.
+    decryptString: (b: Buffer) => {
+      const text = b.toString('utf8')
+      if (!text.startsWith('enc:')) {
+        throw new Error(
+          'Error while decrypting the ciphertext provided to safeStorage.decryptString.'
+        )
+      }
+      return Buffer.from(text.slice(4), 'hex').toString('utf8')
+    }
   }
 }))
 vi.mock('@main/lib/paths', () => ({ getTlsDir: () => tlsDir }))
@@ -30,8 +39,13 @@ vi.mock('@main/lib/logger', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() }
 }))
 
-const { fingerprintOf, loadOrCreateCertificate, resetCertificate } =
-  await import('@main/lib/lan/certificate')
+const {
+  CertificateUnreadableError,
+  certificateStatus,
+  fingerprintOf,
+  loadOrCreateCertificate,
+  resetCertificate
+} = await import('@main/lib/lan/certificate')
 
 beforeEach(() => {
   encryptionAvailable = true
@@ -155,5 +169,42 @@ describe('LAN certificate', () => {
     expect((await loadOrCreateCertificate()).fingerprint).toBe(
       after.fingerprint
     )
+  })
+
+  // ISSUE-135: a key sealed by another safeStorage key (a new signing
+  // identity, a data dir copied from another Mac) never opens again. That is
+  // reported as such and nothing is replaced until the user resets.
+  describe('a key this Mac cannot decrypt', () => {
+    async function sealedElsewhere() {
+      const { certPem } = await loadOrCreateCertificate()
+      writeFileSync(join(tlsDir, 'key.enc'), Buffer.from('sealed-elsewhere'))
+      return certPem
+    }
+
+    it('fails as unreadable and keeps the certificate as it is', async () => {
+      const certPem = await sealedElsewhere()
+
+      await expect(loadOrCreateCertificate()).rejects.toBeInstanceOf(
+        CertificateUnreadableError
+      )
+      expect(readFileSync(join(tlsDir, 'cert.pem'), 'utf8')).toBe(certPem)
+      expect(certificateStatus()).toBe('unreadable')
+    })
+
+    it('reset issues a new one, and the status is ok again', async () => {
+      const certPem = await sealedElsewhere()
+
+      const after = await resetCertificate()
+
+      expect(after.fingerprint).not.toBe(fingerprintOf(certPem))
+      expect(certificateStatus()).toBe('ok')
+      expect((await loadOrCreateCertificate()).fingerprint).toBe(
+        after.fingerprint
+      )
+    })
+
+    it('reads ok when there is no certificate yet (one is made on demand)', () => {
+      expect(certificateStatus()).toBe('ok')
+    })
   })
 })

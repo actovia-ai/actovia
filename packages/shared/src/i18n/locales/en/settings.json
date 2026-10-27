@@ -1055,6 +1055,9 @@
       "heading": "Revoked, not told yet",
       "row": "Revoked {{date}} · it learns the next time it connects",
       "unnamed": "A device"
+    },
+    "certificateUnreadable": {
+      "description": "This Mac can't read its pairing certificate — it was sealed by another keychain key, as happens after the app's signature changes or when data is copied from another computer. No device can connect until you reset: a new certificate is made and every device pairs again."
     }
   },
   "secrets": {

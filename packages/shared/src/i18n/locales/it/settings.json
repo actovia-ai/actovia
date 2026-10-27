@@ -1055,6 +1055,9 @@
       "heading": "Revocati, non ancora avvisati",
       "row": "Revocato {{date}} · lo scoprirà alla prossima connessione",
       "unnamed": "Un dispositivo"
+    },
+    "certificateUnreadable": {
+      "description": "Questo Mac non riesce a leggere il suo certificato di abbinamento: è stato sigillato con un'altra chiave del portachiavi, come succede quando cambia la firma dell'app o i dati vengono copiati da un altro computer. Nessun dispositivo può connettersi finché non reimposti: viene creato un nuovo certificato e ogni dispositivo va abbinato di nuovo."
     }
   },
   "secrets": {

@@ -1055,6 +1055,9 @@
       "heading": "Révoqués, pas encore informés",
       "row": "Révoqué {{date}} · il l’apprendra à sa prochaine connexion",
       "unnamed": "Un appareil"
+    },
+    "certificateUnreadable": {
+      "description": "Ce Mac ne peut pas lire son certificat d'association — il a été scellé par une autre clé du trousseau, comme après un changement de signature de l'app ou une copie des données depuis un autre ordinateur. Aucun appareil ne peut se connecter tant que vous n'avez pas réinitialisé : un nouveau certificat est créé et chaque appareil doit être associé à nouveau."
     }
   },
   "secrets": {

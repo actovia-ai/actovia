@@ -1,7 +1,9 @@
 import { createHash } from 'node:crypto'
+import { writeFileSync } from 'node:fs'
 import http from 'node:http'
 import net from 'node:net'
-import { networkInterfaces } from 'node:os'
+import { homedir, networkInterfaces } from 'node:os'
+import { join } from 'node:path'
 import tls from 'node:tls'
 
 import { TEST_IDS } from '../../packages/shared/src/constants/test-ids'
@@ -190,6 +192,52 @@ test.describe('LAN pairing', () => {
     expect(await canConnect('127.0.0.1', LAN_PORT)).toBe(true)
     expect((await pinned(pin, '/api/v1/history', { token })).status).toBe(401)
     await expect.poll(() => canConnect('127.0.0.1', LAN_PORT)).toBe(false)
+  })
+
+  // ISSUE-135: a key sealed by another safeStorage key (a new signature, a
+  // copied data dir) is said so on the page, and Reset all brings pairing back.
+  test('a certificate this Mac cannot decrypt asks for a reset', async ({
+    mainWindow
+  }) => {
+    const modKey = process.platform === 'darwin' ? 'Meta' : 'Control'
+    await mainWindow.keyboard.press(`${modKey}+,`)
+    const devicesTab = mainWindow.getByRole('button', {
+      name: 'Devices',
+      exact: true
+    })
+    await devicesTab.click()
+    // Opening a window is what makes the certificate.
+    await mainWindow.getByTestId(TEST_IDS.devices.pairButton).click()
+    await mainWindow.getByTestId(TEST_IDS.devices.cancelPairingButton).click()
+    writeFileSync(
+      join(homedir(), '.actovia', 'tls', 'key.enc'),
+      Buffer.from('sealed by another keychain key')
+    )
+
+    await mainWindow
+      .getByRole('button', { name: 'General', exact: true })
+      .click()
+    await devicesTab.click()
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.devices.certificateUnreadable)
+    ).toBeVisible()
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.devices.pairButton)
+    ).toBeHidden()
+
+    await mainWindow
+      .getByTestId(TEST_IDS.devices.certificateResetButton)
+      .click()
+    await mainWindow
+      .getByRole('alertdialog')
+      .getByRole('button', { name: 'Reset', exact: true })
+      .click()
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.devices.certificateUnreadable)
+    ).toBeHidden()
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.devices.pairButton)
+    ).toBeVisible()
   })
 
   test('the plaintext API is not reachable from the LAN', async ({

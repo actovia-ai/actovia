@@ -1,5 +1,9 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { SmartPhone01Icon, Tablet01Icon } from '@hugeicons/core-free-icons'
+import {
+  Alert02Icon,
+  SmartPhone01Icon,
+  Tablet01Icon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -30,7 +34,8 @@ import {
   ENTER_UP,
   SettingsEmpty,
   SettingsIntro,
-  SettingsItem
+  SettingsItem,
+  SettingsNotice
 } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { PairCard, PairingPanel } from './devices-pairing'
@@ -162,7 +167,26 @@ export function Devices() {
     <>
       <SettingsIntro>{t('devices.description')}</SettingsIntro>
 
-      {pairing ? (
+      {data?.certificate === 'unreadable' ? (
+        // ISSUE-135: the key was sealed by another safeStorage key; nothing
+        // but a new certificate brings the LAN back, so pairing waits on it.
+        <div data-testid={TEST_IDS.devices.certificateUnreadable}>
+          <SettingsNotice icon={Alert02Icon}>
+            <div className="flex flex-col items-start gap-3">
+              <span>{t('devices.certificateUnreadable.description')}</span>
+              <Button
+                type="button"
+                size="sm"
+                variant="destructive"
+                data-testid={TEST_IDS.devices.certificateResetButton}
+                onClick={() => setResetting(true)}
+              >
+                {t('devices.reset.button')}
+              </Button>
+            </div>
+          </SettingsNotice>
+        </div>
+      ) : pairing ? (
         <PairingPanel
           pairing={pairing}
           onCancel={() => cancelPairing.mutate()}

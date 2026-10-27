@@ -2,7 +2,10 @@ import { serve } from '@hono/node-server'
 
 import { logger } from '../logger'
 import type { Bindings } from '../server/types'
-import { loadOrCreateCertificate } from './certificate'
+import {
+  CertificateUnreadableError,
+  loadOrCreateCertificate
+} from './certificate'
 import { hasDevices } from './devices'
 import { createLanListener, type LanListener } from './listener'
 import {
@@ -40,13 +43,33 @@ export function initLan(
   })
 }
 
+// Said once per run of failures: an unreadable key fails every sync the same
+// way until the user resets, and the Devices page already says so.
+let unreadableLogged = false
+
 /** Never rejects: callers are request handlers and boot code. */
 export async function syncLan(): Promise<void> {
-  await listener?.sync().catch((error) => {
-    logger.error('lan', 'Failed to sync the LAN listener', {
-      error
+  await listener
+    ?.sync()
+    .then(() => {
+      unreadableLogged = false
     })
-  })
+    .catch((error) => {
+      if (error instanceof CertificateUnreadableError) {
+        if (!unreadableLogged) {
+          logger.warn(
+            'lan',
+            'LAN listener not started: the certificate key does not decrypt on this Mac; Settings → Devices offers a reset',
+            { error }
+          )
+        }
+        unreadableLogged = true
+        return
+      }
+      logger.error('lan', 'Failed to sync the LAN listener', {
+        error
+      })
+    })
 }
 
 /** A window nobody uses must also take the listener back down when it lapses. */

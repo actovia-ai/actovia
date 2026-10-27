@@ -2072,7 +2072,13 @@ Main process:
   through a cache every write drops, so a revocation bites on the next
   request), `certificate.ts` (self-signed P-256, ten years, key under
   `safeStorage` in `~/.actovia/tls/`; its fingerprint is what devices pin — never
-  rotated except by "Reset all"), `listener.ts` (`sync()` makes the HTTPS
+  rotated except by "Reset all"; a key that does not decrypt on
+  this Mac — a new signing identity, a copied data dir — throws
+  `CertificateUnreadableError`, logged once per run of failed syncs, and
+  `certificateStatus()` reports `unreadable`: `GET /api/v1/devices` carries it
+  as `certificate`, `POST /api/v1/devices/pairing` answers `409
+  LAN_CERTIFICATE_UNREADABLE`, and Settings → Devices shows a notice whose
+  Reset all is the way back — nothing is replaced until then, ISSUE-135), `listener.ts` (`sync()` makes the HTTPS
   listener match "wanted"; resolves once listening), `index.ts` (the process's
   `pairing`, `syncLan()`, `openPairingWindow()`), `revoked.ts` (a device
   revoked here learns it only from a 401 on its next request, and the

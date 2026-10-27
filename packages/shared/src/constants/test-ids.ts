@@ -80,7 +80,11 @@ export const TEST_IDS = {
     cancelPairingButton: 'devices.cancel-pairing-button',
     deviceRow: 'devices.device-row',
     revokeButton: 'devices.revoke-button',
-    resetButton: 'devices.reset-button'
+    resetButton: 'devices.reset-button',
+    /** The notice shown while the certificate's key does not decrypt. */
+    certificateUnreadable: 'devices.certificate-unreadable',
+    /** In that notice: Reset all, the way back. */
+    certificateResetButton: 'devices.certificate-reset-button'
   },
   knowledgeBase: {
     testConnectionButton: 'knowledge-base.test-connection-button',

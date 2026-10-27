@@ -1055,6 +1055,9 @@
       "heading": "Revogados, ainda não avisados",
       "row": "Revogado {{date}} · ele saberá na próxima conexão",
       "unnamed": "Um dispositivo"
+    },
+    "certificateUnreadable": {
+      "description": "Este Mac não consegue ler o certificado de emparelhamento — ele foi selado por outra chave do Keychain, como acontece quando a assinatura do app muda ou os dados são copiados de outro computador. Nenhum dispositivo consegue se conectar até você redefinir: um novo certificado é criado e cada dispositivo precisa ser emparelhado de novo."
     }
   },
   "secrets": {

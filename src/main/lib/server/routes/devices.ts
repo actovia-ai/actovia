@@ -5,6 +5,7 @@ import { Hono } from 'hono'
 
 import { isLanRunning, openPairingWindow, pairing, syncLan } from '../../lan'
 import {
+  certificateStatus,
   loadOrCreateCertificate,
   resetCertificate
 } from '../../lan/certificate'
@@ -48,6 +49,9 @@ devicesRouter.get('/', async (c) => {
     devices,
     pairing: await describeWindow(pairing.current()),
     lanRunning: isLanRunning(),
+    // `unreadable`: its key does not decrypt on this Mac (ISSUE-135); the
+    // page offers Reset all, the only way back.
+    certificate: certificateStatus(),
     // Revoked here, and the device has not come back to learn it yet.
     revoked: pendingRevocations().map((r) => ({
       name: r.name,
@@ -57,6 +61,20 @@ devicesRouter.get('/', async (c) => {
 })
 
 devicesRouter.post('/pairing', async (c) => {
+  // A phone could never connect: the listener cannot start without the key.
+  if (certificateStatus() === 'unreadable') {
+    return c.json(
+      {
+        type: 'error',
+        error: {
+          code: 'LAN_CERTIFICATE_UNREADABLE',
+          message:
+            "This Mac can't read its pairing certificate. Reset all to make a new one."
+        }
+      },
+      409
+    )
+  }
   const window = openPairingWindow()
   await syncLan()
   return successResponse(c, await describeWindow(window))

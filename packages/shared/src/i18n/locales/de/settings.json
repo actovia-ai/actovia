@@ -1055,6 +1055,9 @@
       "heading": "Widerrufen, noch nicht mitgeteilt",
       "row": "Widerrufen {{date}} · erfährt es bei der nächsten Verbindung",
       "unnamed": "Ein Gerät"
+    },
+    "certificateUnreadable": {
+      "description": "Dieser Mac kann sein Kopplungszertifikat nicht lesen – es wurde mit einem anderen Schlüsselbund-Schlüssel versiegelt, etwa nach einer geänderten App-Signatur oder wenn Daten von einem anderen Computer kopiert wurden. Kein Gerät kann sich verbinden, bis du zurücksetzt: Es wird ein neues Zertifikat erstellt und jedes Gerät wird neu gekoppelt."
     }
   },
   "secrets": {
