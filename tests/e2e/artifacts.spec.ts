@@ -17,6 +17,14 @@ import { electronTest as test, expect } from '../fixtures/electron'
 const ANSWER_TIMEOUT = 30_000
 
 test.describe('Artifacts', () => {
+  test.beforeEach(async ({ mainWindow: _mw }) => {
+    await new ApiClient().updateSettings({
+      providers: { openaiApiKey: 'faux' },
+      providerConfig: { provider: 'OpenAI GPT', model: 'faux-1' },
+      memory: { useInChat: false, autoCapture: false }
+    })
+  })
+
   test('the sidebar opens the page', async ({ mainWindow }) => {
     await mainWindow.getByTestId(TEST_IDS.chatLayout.artifacts).click()
     await expect(mainWindow.getByTestId(TEST_IDS.artifacts.page)).toBeVisible({
@@ -34,13 +42,10 @@ test.describe('Artifacts', () => {
   test('a chat’s page is drawn on its card and opens at it', async ({
     mainWindow
   }) => {
-    await new ApiClient().updateSettings({
-      providers: { openaiApiKey: 'faux' },
-      providerConfig: { provider: 'OpenAI GPT', model: 'faux-1' },
-      memory: { useInChat: false, autoCapture: false }
-    })
     const composer = mainWindow.getByTestId(TEST_IDS.composer.textarea)
+    await composer.waitFor({ state: 'visible', timeout: 10_000 })
     await composer.fill(ARTIFACT_QUESTION)
+    await expect(composer).toHaveValue(ARTIFACT_QUESTION)
     await composer.press('Enter')
     await expect(mainWindow.locator('[data-artifact-call]')).toHaveCount(1, {
       timeout: ANSWER_TIMEOUT

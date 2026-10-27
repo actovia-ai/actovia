@@ -67,7 +67,7 @@ export function WorkspaceSwitcher({ className }: { className?: string }) {
                       value={w.id}
                       aria-label={label}
                       data-testid={w.testId}
-                      className="size-6 flex-none rounded-md px-0"
+                      className="size-6 flex-none rounded-md px-0 data-active:shadow-xs"
                     />
                   }
                 >

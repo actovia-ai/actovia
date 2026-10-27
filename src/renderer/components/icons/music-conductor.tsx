@@ -21,31 +21,29 @@ const STROKE = {
 } as const
 
 export const MusicConductor: IconSvgElement = [
-  // Head, with a parting across it.
-  ['circle', { cx: '11.9', cy: '8', r: '3.2', ...STROKE, key: '0' }],
-  ['path', { d: 'M8.9 7c1.8-.3 4-.1 5.9.6', ...STROKE, key: '1' }],
+  ['circle', { cx: '12', cy: '8.2', r: '2.7', ...STROKE, key: '0' }],
   // Shoulders and arms, top edge: left hand to the baton hand.
   [
     'path',
-    { d: 'M3.8 12.4c1.8.1 3.3-.3 4.8-.8h8.4l2.6-1.2', ...STROKE, key: '2' }
+    { d: 'M4.2 12.6c1.7 0 3.1-.4 4.5-.9h6.8l3.4-1.5', ...STROKE, key: '1' }
   ],
   // Bottom edge: under the left arm, the two legs, under the right arm.
   [
     'path',
     {
-      d: 'M3.8 15.3c1.7.2 3.4-.4 5-1.7l-.1 8.9m2.5 0 .7-4.8.8 4.8m2.3 0 .3-7.6 3.3-.8 2.6-1.8',
+      d: 'M4.2 15.4c1.6.1 3.1-.5 4.6-1.6v8.2m2.4 0 .8-4.6.8 4.6m2.4 0v-7.4l3.6-1.2 1.6-1.2',
       ...STROKE,
-      key: '3'
+      key: '2'
     }
   ],
-  ['circle', { cx: '2.8', cy: '13.9', r: '1.3', ...STROKE, key: '4' }],
-  ['circle', { cx: '20.4', cy: '11.3', r: '1.1', ...STROKE, key: '5' }],
+  ['circle', { cx: '3', cy: '14', r: '1.3', ...STROKE, key: '3' }],
+  ['circle', { cx: '20.3', cy: '11.4', r: '1.1', ...STROKE, key: '4' }],
   // Baton.
-  ['path', { d: 'M20.7 10.2 22.2 2.8', ...STROKE, key: '6' }],
+  ['path', { d: 'M20.8 10.3 22.3 3.2', ...STROKE, key: '5' }],
   // Two beamed eighth notes, top left; one, top right.
-  ['path', { d: 'M2.6 5V2.6l4.2.4v3', ...STROKE, key: '7' }],
-  ['circle', { cx: '1.9', cy: '5.1', r: '.8', ...STROKE, key: '8' }],
-  ['circle', { cx: '6.1', cy: '6', r: '.8', ...STROKE, key: '9' }],
-  ['path', { d: 'M18.1 4.6V1.9h1.6', ...STROKE, key: '10' }],
-  ['circle', { cx: '17.4', cy: '4.8', r: '.8', ...STROKE, key: '11' }]
+  ['path', { d: 'M3 5.2V2.4l3.6.5v2.8', ...STROKE, key: '6' }],
+  ['circle', { cx: '2.3', cy: '5.4', r: '.7', ...STROKE, key: '7' }],
+  ['circle', { cx: '5.9', cy: '5.9', r: '.7', ...STROKE, key: '8' }],
+  ['path', { d: 'M17 4.6V2h1.4', ...STROKE, key: '9' }],
+  ['circle', { cx: '16.3', cy: '4.8', r: '.7', ...STROKE, key: '10' }]
 ]
