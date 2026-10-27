@@ -69,6 +69,10 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
         <InputGroup
           className={cn(
             'no-drag',
+            // On the solid, deeper sidebar the primitive's `bg-input/50`
+            // washes into it (ISSUE-269): a field on a muted surface is
+            // `bg-background` with a hairline, as a chip is.
+            'bg-background border-border/70 dark:bg-input/50 dark:border-transparent',
             // drop the primitive's default focus-visible ring + border-ring
             'has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0'
           )}
@@ -103,7 +107,9 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                     {'experimental' in item && item.experimental && (
                       <Badge
                         variant="outline"
-                        className="text-2xs ml-auto font-normal"
+                        // A chip on the solid sidebar, active row included:
+                        // filled, or its light border ghosts on the row.
+                        className="text-2xs bg-background border-border/70 ml-auto font-normal"
                       >
                         {t('nav.experimental')}
                       </Badge>
