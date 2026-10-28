@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "Envie uma mensagem para sua equipe…",
+      "placeholderNamed": "Mensagem para {{name}}",
       "stopAria": "Parar",
       "sendAria": "Enviar"
     },

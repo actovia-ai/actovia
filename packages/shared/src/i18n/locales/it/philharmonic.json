@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "Scrivi al tuo team…",
+      "placeholderNamed": "Messaggio a {{name}}",
       "stopAria": "Interrompi",
       "sendAria": "Invia"
     },

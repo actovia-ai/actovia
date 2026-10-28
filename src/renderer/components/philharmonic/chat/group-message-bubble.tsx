@@ -62,11 +62,14 @@ const jumpToMessage = (messageId: string) =>
 export function GroupMessageBubble({
   bubble,
   agentsById,
-  teamsById
+  teamsById,
+  continued = false
 }: {
   bubble: BubbleModel
   agentsById: Record<string, AgentData>
   teamsById: Record<string, TeamData>
+  /** The message before it is the same voice's: no avatar or name again. */
+  continued?: boolean
 }) {
   const { t } = useTranslation(['common', 'philharmonic'])
   const { dateTime } = useFormat()
@@ -93,14 +96,13 @@ export function GroupMessageBubble({
   )
 
   if (isSystem) {
+    // Grok's: a line of muted text across the middle, no pill.
     return (
       <div
         data-message-id={bubble.messageId}
-        className="flex flex-col items-center gap-1 py-2"
+        className="text-muted-foreground flex flex-col items-center gap-1 px-6 py-2 text-center text-xs"
       >
-        <span className="bg-muted text-muted-foreground rounded-full px-3 py-0.5 text-xs">
-          {bubble.text}
-        </span>
+        <span>{bubble.text}</span>
         {decisionProcess}
       </div>
     )
@@ -120,34 +122,44 @@ export function GroupMessageBubble({
     : ''
 
   const headerLine = (
-    <span className="text-muted-foreground text-2xs flex items-baseline gap-1.5 px-0.5">
+    <span className="text-muted-foreground flex items-baseline gap-1.5 px-1 text-xs">
       <span className="text-foreground font-medium">{name}</span>
       {team && (
-        <span className="text-muted-foreground">
-          · {team.icon ? `${team.icon} ` : ''}
+        <span>
+          {team.icon ? `${team.icon} ` : ''}
           {team.name}
         </span>
       )}
-      {time && <span>· {time}</span>}
+      {time && <span className="tabular-nums">{time}</span>}
     </span>
+  )
+
+  // The avatar's column stays when a message continues its voice, so the
+  // bubbles line up under the first one.
+  const avatar = isUser ? null : continued ? (
+    <span className="w-8 shrink-0" />
+  ) : isPm ? (
+    <div className="bg-primary text-primary-foreground text-2xs flex size-8 shrink-0 items-center justify-center rounded-full font-semibold">
+      {t('philharmonic:chat.roles.pm')}
+    </div>
+  ) : (
+    <EmployeeAvatar
+      seed={agent?.avatarSeed ?? null}
+      style={agent?.avatarStyle ?? null}
+      size={32}
+    />
   )
 
   return (
     <div
       data-message-id={bubble.messageId}
-      className={cn('flex gap-2.5 px-1 py-1.5', isUser && 'flex-row-reverse')}
-    >
-      {isPm ? (
-        <div className="bg-primary text-primary-foreground ring-accent flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-[3px]">
-          {t('philharmonic:chat.roles.pm')}
-        </div>
-      ) : isUser ? null : (
-        <EmployeeAvatar
-          seed={agent?.avatarSeed ?? null}
-          style={agent?.avatarStyle ?? null}
-          size={36}
-        />
+      className={cn(
+        'flex gap-2.5 px-1',
+        continued ? 'pt-0.5 pb-0.5' : 'pt-3 pb-0.5',
+        isUser && 'flex-row-reverse'
       )}
+    >
+      {avatar}
       <div
         className={cn(
           'flex min-w-0 max-w-[78%] flex-col gap-1',
@@ -155,7 +167,7 @@ export function GroupMessageBubble({
         )}
       >
         {/* Your own message is the bubble alone, as in Chat. */}
-        {!isUser && headerLine}
+        {!isUser && !continued && headerLine}
         {bubble.attachments && bubble.attachments.length > 0 && (
           <div
             className={cn(
@@ -194,12 +206,13 @@ export function GroupMessageBubble({
           bubble.text.length > 0 && (
             <div
               className={cn(
-                'text-foreground px-4 py-2.5 text-sm leading-relaxed wrap-break-word',
-                // The user's message is Chat's bubble (`--bubble`, the tone
-                // far toward the page); the group's voices stay on muted.
+                'rounded-[20px] px-4 py-2.5 text-sm leading-relaxed wrap-break-word',
+                // Grok's (ISSUE-272): the group's voices on grey, your own
+                // message on the tone's fill — black in the neutral tone, as
+                // Grok draws it — its links in the bubble's own ink.
                 isUser
-                  ? 'bg-bubble rounded-2xl rounded-br-sm'
-                  : 'bg-muted rounded-2xl rounded-tl-sm'
+                  ? 'bg-primary text-primary-foreground [--primary-ink:currentColor] [&_a]:underline'
+                  : 'bg-muted text-foreground'
               )}
             >
               <BubbleMarkdown text={bubble.text} />
@@ -230,10 +243,7 @@ export function GroupMessageBubble({
             {bubble.toolCards.map((card) => (
               <div
                 key={`${card.toolName}-${card.phase}`}
-                className="border-border bg-card flex items-center gap-2.5 border px-3 py-2"
-                style={{
-                  borderRadius: '6px 14px 14px 14px'
-                }}
+                className="border-border bg-card flex items-center gap-2.5 rounded-2xl border px-3 py-2"
               >
                 <div className="bg-accent text-accent-foreground flex h-6 w-6 items-center justify-center rounded-md">
                   <HugeiconsIcon

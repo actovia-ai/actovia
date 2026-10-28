@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "给你的团队发消息…",
+      "placeholderNamed": "发消息给 {{name}}",
       "stopAria": "停止",
       "sendAria": "发送"
     },

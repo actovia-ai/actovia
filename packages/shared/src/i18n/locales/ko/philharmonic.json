@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "팀에게 메시지 보내기…",
+      "placeholderNamed": "{{name}}에 메시지 보내기",
       "stopAria": "중지",
       "sendAria": "전송"
     },

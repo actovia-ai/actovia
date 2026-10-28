@@ -237,7 +237,7 @@ export function ConversationList({
             })}
           </div>
         ) : (
-          <SidebarMenu className="gap-0.5">
+          <SidebarMenu className="gap-1">
             {filtered.map((c) => {
               const isActive = activePage === 'chat' && c.id === activeId
               const preview = previewLine(c.latestMessage, agentsById)
@@ -248,22 +248,25 @@ export function ConversationList({
                       <button
                         type="button"
                         onClick={() => onSelect(c.id)}
+                        // Grok's list (ISSUE-272): a roomy row under a big
+                        // round avatar, the group on show a card outlined
+                        // on the material.
                         className={cn(
-                          'flex w-full items-start gap-2.5 rounded-lg px-2 py-2 text-left transition-colors',
+                          'flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left transition-[background-color,box-shadow] duration-150 ease-out',
                           isActive
-                            ? 'bg-sidebar-accent'
+                            ? 'bg-sidebar-accent ring-foreground/10 ring-1'
                             : 'hover:bg-sidebar-accent/60'
                         )}
                       >
                         <span
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base"
+                          className="flex size-10 shrink-0 items-center justify-center rounded-full text-lg"
                           style={hueStyle(pickHue(c.id))}
                         >
                           {c.icon ?? '💬'}
                         </span>
-                        <span className="flex min-w-0 flex-1 flex-col gap-0.5 pt-0.5">
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="flex items-baseline justify-between gap-2">
-                            <span className="text-ui truncate font-medium">
+                            <span className="truncate text-sm font-medium">
                               {c.title}
                             </span>
                             <span className="text-muted-foreground text-2xs shrink-0 tabular-nums">

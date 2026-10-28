@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "Напишите команде…",
+      "placeholderNamed": "Сообщение в {{name}}",
       "stopAria": "Остановить",
       "sendAria": "Отправить"
     },

@@ -22,12 +22,26 @@ import type {
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { PhilharmonicEmptyState } from '../empty-state'
+import { hueStyle, pickHue } from '../lib/hue'
 import { Composer } from './composer'
 import { useGroupHistory } from './group-history'
 import { GroupMessageBubble } from './group-message-bubble'
 import { mergeGroupMessages, type BubbleWithDate } from './merge-group-messages'
 import { NewGroupButton } from './new-group-button'
 import { PlanCard } from './plan-card'
+
+/**
+ * A message that follows one from the same voice goes under it without the
+ * avatar and the name again, as Grok's (and every messenger's) do.
+ */
+function continuesFrom(
+  prev: BubbleWithDate | null,
+  b: BubbleWithDate
+): boolean {
+  if (!prev || prev.role === 'system' || b.role === 'system') return false
+  if (prev.role !== b.role) return false
+  return b.role !== 'employee' || prev.agentId === b.agentId
+}
 
 function formatDayLabel(d: Date): string {
   if (isToday(d)) return i18n.t('philharmonic:chat.dateLabels.today')
@@ -90,7 +104,6 @@ export function GroupChat({
 
   const memberCount = conversation.memberAgentIds?.length ?? members.length
   const visibleMembers = members.slice(0, 3)
-  const overflow = Math.max(0, memberCount - 3)
   const primaryTeam = visibleMembers[0]?.teamId
     ? (teamsById[visibleMembers[0].teamId]?.name ?? null)
     : null
@@ -113,50 +126,51 @@ export function GroupChat({
             <NewGroupButton onCreate={onCreateGroup} />
           </>
         )}
-        <div className="no-drag flex min-w-0 flex-1 items-center gap-3 pl-2">
+        {/* Grok's bar (ISSUE-272): the group's avatar and its name, nothing
+            under it; who is in it is the button at the right end. */}
+        <div className="no-drag flex min-w-0 flex-1 items-center gap-2 pl-2">
+          <span
+            className="flex size-6 shrink-0 items-center justify-center rounded-full text-xs"
+            style={hueStyle(pickHue(conversation.id))}
+          >
+            {conversation.icon ?? '💬'}
+          </span>
+          {/* Renamed from the sidebar's menu, as a chat is. */}
+          <h1 className="text-foreground truncate text-sm font-medium">
+            {conversation.title}
+          </h1>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          aria-label={t('chat.groupChat.toggleMembersAria')}
+          title={
+            t('chat.groupChat.memberCount', { count: memberCount }) +
+            (primaryTeam ? ` · ${primaryTeam}` : '')
+          }
+          data-testid={TEST_IDS.philharmonic.membersToggle}
+          onClick={onToggleMembers}
+          className={cn(
+            'no-drag text-muted-foreground hover:text-foreground h-8 shrink-0 gap-1.5 rounded-full px-1.5',
+            membersOpen && 'bg-accent text-foreground'
+          )}
+        >
           {visibleMembers.length > 0 ? (
-            <div className="flex">
+            <span className="flex">
               {visibleMembers.map((m, i) => (
                 <EmployeeAvatar
                   key={m.id}
                   seed={m.avatarSeed}
                   style={m.avatarStyle}
-                  size={30}
-                  className={cn(i > 0 && '-ml-2 ring-2 ring-card')}
+                  size={22}
+                  className={cn(i > 0 && 'ring-card -ml-1.5 ring-2')}
                 />
               ))}
-              {overflow > 0 && (
-                <span className="bg-muted text-muted-foreground ring-card text-2xs -ml-2 flex h-[30px] w-[30px] items-center justify-center rounded-full font-semibold ring-2">
-                  +{overflow}
-                </span>
-              )}
-            </div>
+            </span>
           ) : (
-            <span className="text-base">{conversation.icon ?? '💬'}</span>
+            <HugeiconsIcon icon={UserGroupIcon} />
           )}
-          <div className="min-w-0">
-            {/* Renamed from the sidebar's menu, as a chat is. */}
-            <h1 className="text-foreground truncate text-sm font-semibold tracking-tight">
-              {conversation.title}
-            </h1>
-            <div className="text-muted-foreground text-2xs">
-              {t('chat.groupChat.memberCount', { count: memberCount })}
-              {primaryTeam ? ` · ${primaryTeam}` : ''}
-            </div>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t('chat.groupChat.toggleMembersAria')}
-          data-testid={TEST_IDS.philharmonic.membersToggle}
-          onClick={onToggleMembers}
-          className={cn(
-            'no-drag text-muted-foreground hover:text-foreground shrink-0 rounded-full',
-            membersOpen && 'bg-accent text-foreground'
-          )}
-        >
-          <HugeiconsIcon icon={UserGroupIcon} />
+          <span className="text-xs tabular-nums">{memberCount}</span>
         </Button>
       </header>
 
@@ -181,7 +195,7 @@ export function GroupChat({
               description={t('chat.groupChat.emptyState.description')}
             />
           ) : (
-            <div className="mx-auto flex max-w-2xl flex-col gap-1">
+            <div className="mx-auto flex max-w-2xl flex-col">
               {merged.map((b, i) => {
                 const prev = i > 0 ? merged[i - 1] : null
                 // Use null when createdAt is absent (e.g. live streaming bubble) so
@@ -196,16 +210,13 @@ export function GroupChat({
                 return (
                   <div key={b.messageId}>
                     {showDay && curDate && (
-                      <div className="my-3 flex items-center gap-3">
-                        <div className="border-border/60 flex-1 border-t" />
-                        <span className="text-muted-foreground text-2xs tracking-wider uppercase">
-                          {formatDayLabel(curDate)}
-                        </span>
-                        <div className="border-border/60 flex-1 border-t" />
+                      <div className="text-muted-foreground my-4 text-center text-xs font-medium">
+                        {formatDayLabel(curDate)}
                       </div>
                     )}
                     <GroupMessageBubble
                       bubble={b}
+                      continued={!showDay && continuesFrom(prev, b)}
                       agentsById={agentsById}
                       teamsById={teamsById}
                     />
@@ -258,6 +269,7 @@ export function GroupChat({
         <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t to-transparent pt-8 pb-6 [&>*]:pointer-events-auto">
           <Composer
             conversationId={conversationId}
+            groupTitle={conversation.title}
             onSend={(text, attachments) =>
               sendConversationMessage(conversationId, text, attachments)
             }

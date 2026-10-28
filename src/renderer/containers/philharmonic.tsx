@@ -210,7 +210,7 @@ export function PhilharmonicContainer({
         <div className="max-w-xs text-xs">
           {t('container.noGroupSelected.description')}
         </div>
-        <Button size="sm" onClick={handleCreate}>
+        <Button size="sm" className="rounded-full" onClick={handleCreate}>
           {t('container.noGroupSelected.createButton')}
         </Button>
       </div>

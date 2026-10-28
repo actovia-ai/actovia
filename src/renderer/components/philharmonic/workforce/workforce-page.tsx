@@ -79,7 +79,7 @@ function EmployeeCard({ employee, onEdit, onAskDelete }: EmployeeCardProps) {
         <button
           type="button"
           onClick={() => onEdit(employee)}
-          className="group bg-muted hover:bg-accent flex h-full w-full items-start gap-3 rounded-xl px-3.5 py-3 text-left transition-colors"
+          className="group bg-muted hover:bg-accent flex h-full w-full items-start gap-3 rounded-2xl px-4 py-3.5 text-left transition-colors"
         >
           <EmployeeAvatar
             seed={employee.avatarSeed}
@@ -277,7 +277,7 @@ function TeamSection({
             <button
               type="button"
               onClick={() => onAddEmployeeToTeam(team.id)}
-              className="border-border text-muted-foreground hover:text-primary-ink flex min-h-[88px] items-center justify-center gap-2 rounded-xl border-2 border-dashed text-xs transition-colors"
+              className="border-border text-muted-foreground hover:text-primary-ink flex min-h-[88px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-xs transition-colors"
             >
               <HugeiconsIcon
                 icon={Add01Icon}
@@ -484,7 +484,12 @@ export function WorkforcePage() {
         </div>
         <div className="min-w-0 flex-1" />
         <div className="no-drag flex items-center gap-1.5">
-          <Button variant="ghost" size="sm" onClick={openNewTeam}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full"
+            onClick={openNewTeam}
+          >
             <HugeiconsIcon
               icon={Add01Icon}
 
@@ -494,6 +499,7 @@ export function WorkforcePage() {
           </Button>
           <Button
             size="sm"
+            className="rounded-full"
             onClick={() => openNewEmployee()}
             disabled={noTeams}
             title={

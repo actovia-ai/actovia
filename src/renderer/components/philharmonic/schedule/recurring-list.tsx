@@ -68,7 +68,7 @@ export function RecurringList({
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-2 p-3">
+      <div className="mx-auto max-w-2xl space-y-2 px-4 py-3">
         {tasks.map((task) => (
           <TaskCard
             key={task.id}

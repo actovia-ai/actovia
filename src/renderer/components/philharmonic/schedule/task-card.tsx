@@ -47,14 +47,14 @@ export function TaskCard({
   return (
     <div
       data-testid={TEST_IDS.schedule.taskCard}
-      className="border-border bg-card flex items-start justify-between gap-3 rounded-xl border p-3"
+      className="bg-muted flex items-start justify-between gap-3 rounded-2xl px-4 py-3"
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-foreground truncate text-sm font-semibold">
             {task.title}
           </span>
-          <Badge variant="outline" className="text-2xs shrink-0">
+          <Badge variant="outline" className="bg-background text-2xs shrink-0">
             {priorityLabel[task.priority]}
           </Badge>
           <Badge

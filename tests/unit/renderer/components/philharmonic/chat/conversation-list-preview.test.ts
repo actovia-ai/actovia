@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
+// Imported once, outside the test: the module carries the whole sidebar
+// (the account menu among it), and its import alone can pass the test's
+// 5 s under a loaded full run.
+const { previewLine } =
+  await import('@/components/philharmonic/chat/conversation-list')
+
 const latest = (content: string) => ({
   role: 'system' as const,
   content,
@@ -8,9 +14,7 @@ const latest = (content: string) => ({
 })
 
 describe('previewLine', () => {
-  it('shows a Markdown message as plain text on one line', async () => {
-    const { previewLine } =
-      await import('@/components/philharmonic/chat/conversation-list')
+  it('shows a Markdown message as plain text on one line', () => {
     expect(
       previewLine(
         latest(

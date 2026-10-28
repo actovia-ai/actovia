@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "傳訊息給你的團隊…",
+      "placeholderNamed": "傳訊息給 {{name}}",
       "stopAria": "停止",
       "sendAria": "傳送"
     },

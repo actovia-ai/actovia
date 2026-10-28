@@ -32,7 +32,7 @@ export function UpcomingList({
 
   return (
     <ScrollArea className="h-full">
-      <div className="space-y-4 p-3">
+      <div className="mx-auto max-w-2xl space-y-4 px-4 py-3">
         {groups.map((group) => (
           <div key={group.day.toISOString()}>
             <div className="bg-card text-muted-foreground sticky top-0 z-10 mb-2 py-1 text-xs font-semibold">

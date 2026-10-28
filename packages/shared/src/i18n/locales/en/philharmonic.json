@@ -97,6 +97,7 @@
     },
     "composer": {
       "placeholder": "Message your team…",
+      "placeholderNamed": "Message {{name}}",
       "stopAria": "Stop",
       "sendAria": "Send"
     },

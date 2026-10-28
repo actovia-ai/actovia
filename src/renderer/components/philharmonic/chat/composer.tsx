@@ -1,9 +1,7 @@
 import type { Attachment } from '@actovia/shared/types/chat'
 import { ArrowUpIcon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { BorderBeam } from 'border-beam'
 import { useAtom } from 'jotai'
-import { useTheme } from 'next-themes'
 import {
   type ClipboardEvent,
   useCallback,
@@ -29,11 +27,12 @@ import { ComposerUploader } from './uploader'
 
 /** `gap-x-1` on the row, in pixels: what the field's compact width is measured with. */
 const ROW_GAP = 4
-/** The pill's `rounded-[28px]`, for the border beam around it. */
-const PILL_RADIUS = 28
 
 /**
- * The group's composer, Chat's pill (`chat/composer/composer.tsx`): the
+ * The group's composer, Grok's pill (ISSUE-272): a plain field on the card's
+ * colour with a hairline and a soft shadow, "Message <group>", and the
+ * round send / stop button — Chat's beam is not drawn here. Laid out as
+ * Chat's (`chat/composer/composer.tsx`): the
  * attach button and the round send / stop button at the ends; while the text
  * fits one line the field sits between them, once it wraps the field takes
  * the top alone and the buttons a row under it. It floats over the
@@ -41,12 +40,15 @@ const PILL_RADIUS = 28
  */
 export function Composer({
   conversationId,
+  groupTitle,
   onSend,
   disabled,
   busy = false,
   onStop
 }: {
   conversationId: string
+  /** The group's name, for "Message <group>". */
+  groupTitle?: string
   onSend: (text: string, attachments: Attachment[]) => void
   disabled?: boolean
   /** PM is currently running — the Send button becomes a Stop button. */
@@ -54,7 +56,6 @@ export function Composer({
   onStop?: () => void
 }) {
   const { t } = useTranslation('philharmonic')
-  const { resolvedTheme } = useTheme()
   const [text, setText] = useState('')
   const [attachments, setAttachments] = useAtom(philharmonicAttachmentAtom)
   const { upload } = usePhilharmonicUpload()
@@ -118,12 +119,8 @@ export function Composer({
   return (
     <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col gap-2">
       <FolderChip key={conversationId} conversationId={conversationId} />
-      <BorderBeam
-        size={resolvedTheme === 'light' ? 'pulse-outside' : 'pulse-inner'}
-        borderRadius={PILL_RADIUS}
-        className="flex w-full flex-col rounded-[28px] shadow-[0_2px_6px_rgb(0_0_0/0.04),0_10px_28px_rgb(0_0_0/0.06)]"
-      >
-        <div className="border-border/60 focus-within:border-border/90 z-1 flex flex-col gap-1.5 rounded-[28px] border bg-transparent px-2.5 py-2 backdrop-blur-md transition-colors">
+      <div className="flex w-full flex-col rounded-[28px] shadow-[0_2px_6px_rgb(0_0_0/0.04),0_10px_28px_rgb(0_0_0/0.06)]">
+        <div className="border-border focus-within:border-foreground/20 bg-card/90 flex flex-col gap-1.5 rounded-[28px] border px-2.5 py-2 backdrop-blur-md transition-colors">
           <AttachmentPreview />
           <div
             ref={rowRef}
@@ -151,7 +148,11 @@ export function Composer({
                 isComposingRef.current = false
               }}
               onPaste={onPaste}
-              placeholder={t('chat.composer.placeholder')}
+              placeholder={
+                groupTitle
+                  ? t('chat.composer.placeholderNamed', { name: groupTitle })
+                  : t('chat.composer.placeholder')
+              }
               rows={1}
               className={cn(
                 'max-h-[45dvh] min-h-8 w-full min-w-0 resize-none rounded-none border-none bg-transparent! px-1 py-1 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-sm',
@@ -179,7 +180,7 @@ export function Composer({
               ) : (
                 <Button
                   size="icon"
-                  className="bg-primary-ink hover:bg-primary-ink/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 rounded-full text-white"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
                   onClick={submit}
                   disabled={!canSend}
                   aria-label={t('chat.composer.sendAria')}
@@ -190,7 +191,7 @@ export function Composer({
             </div>
           </div>
         </div>
-      </BorderBeam>
+      </div>
     </div>
   )
 }

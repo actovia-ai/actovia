@@ -67,7 +67,11 @@ export function PhilharmonicEmptyState({
         </div>
       )}
       {action && (
-        <Button size="sm" onClick={action.onClick} className="mt-4">
+        <Button
+          size="sm"
+          onClick={action.onClick}
+          className="mt-4 rounded-full"
+        >
           {action.label}
         </Button>
       )}

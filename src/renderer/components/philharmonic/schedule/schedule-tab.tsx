@@ -91,7 +91,7 @@ export function ScheduleTab({
       {/* "Schedule task" at the content bar's right end; the bar's tab names the page. */}
       <PhilharmonicHeaderSlot>
         <Button
-          className="no-drag"
+          className="no-drag rounded-full"
           data-testid={TEST_IDS.schedule.createButton}
           type="button"
           size="sm"
@@ -102,7 +102,7 @@ export function ScheduleTab({
         </Button>
       </PhilharmonicHeaderSlot>
       <Tabs defaultValue="upcoming" className="flex min-h-0 flex-1 flex-col">
-        <TabsList className="mx-4 mt-3 w-fit shrink-0">
+        <TabsList className="mx-auto mt-3 w-fit shrink-0">
           <TabsTrigger value="upcoming">
             {t('schedule.tab.upcomingTrigger')}
           </TabsTrigger>

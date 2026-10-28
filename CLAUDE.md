@@ -1077,6 +1077,16 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   and the PM's round `usage` events carry tokens only — a CLI employee's step
   records its turn's tokens (Claude Code's `result` event; Codex reports none
   yet). Older rows may still hold a `cost` / `costUsd`; nothing reads it
+- **Its look is Grok's bots** (owner, ISSUE-272, 2026-10-28): the group list
+  is roomy rows under 40 px round avatars, the group on show an outlined
+  card; the group's bar is its avatar and name, with the members as a small
+  avatar stack at the right; the transcript draws the group's voices on
+  grey bubbles (a voice's following messages without its avatar and name
+  again — `continuesFrom()` in `chat/group-chat.tsx`), your own on the
+  tone's fill (`bg-primary` — black in the neutral tone, unlike Chat's
+  `--bubble`), system lines as plain centred text; the composer is a plain
+  pill reading "Message <group>", without Chat's `BorderBeam`. Workforce and
+  Schedule use the same grey `rounded-2xl` cards and `rounded-full` buttons
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
