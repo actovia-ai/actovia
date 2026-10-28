@@ -46,6 +46,7 @@ import {
   SidebarTrigger
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
+import { NavFooter } from '@/layouts/chat-layout/nav-footer'
 import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
@@ -326,6 +327,8 @@ export function ConversationList({
             )
           })}
         </SidebarMenu>
+        {/* The account menu, as Chat's sidebar has it (ISSUE-276). */}
+        <NavFooter />
       </SidebarFooter>
 
       <AlertDialog
