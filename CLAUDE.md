@@ -1370,8 +1370,9 @@ re-exports). What is Actovia's stays in `ai/utils/web-search-util.ts` (the
 limits, the merge into numbered sources, `WebSearchError`'s model-facing
 messages) and `discover/brave-news-client.ts`. Its tests are
 `tests/unit/packages/brave-search/`; `bun run typecheck` checks it
-(`typecheck:brave-search`). It is `private` until the owner decides to
-publish it.
+(`typecheck:brave-search`). Every `packages/*` package is `private` and
+stays so: they are for the owner's own projects, never published to npm
+(owner, 2026-10-28).
 
 **Web Reader** (`packages/web-reader/src/`, imported as `@actovia-ai/web-reader`,
 ISSUE-270): reading a page for a model, and fetching a URL someone else
