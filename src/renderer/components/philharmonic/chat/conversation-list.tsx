@@ -249,12 +249,13 @@ export function ConversationList({
                         type="button"
                         onClick={() => onSelect(c.id)}
                         // Grok's list (ISSUE-272): a roomy row under a big
-                        // round avatar, the group on show a card outlined
-                        // on the material.
+                        // round avatar, the group on show in the sidebar's
+                        // own active fill — no outline (owner: the outlined
+                        // card looked heavy).
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-xl px-2.5 py-2.5 text-left transition-[background-color,box-shadow] duration-150 ease-out',
+                          'flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors duration-150 ease-out',
                           isActive
-                            ? 'bg-sidebar-accent ring-foreground/10 ring-1'
+                            ? 'bg-sidebar-accent'
                             : 'hover:bg-sidebar-accent/60'
                         )}
                       >

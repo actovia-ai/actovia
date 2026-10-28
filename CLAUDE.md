@@ -1078,8 +1078,8 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   records its turn's tokens (Claude Code's `result` event; Codex reports none
   yet). Older rows may still hold a `cost` / `costUsd`; nothing reads it
 - **Its look is Grok's bots** (owner, ISSUE-272, 2026-10-28): the group list
-  is roomy rows under 40 px round avatars, the group on show an outlined
-  card; the group's bar is its avatar and name, with the members as a small
+  is roomy rows under 40 px round avatars, the group on show in the
+  sidebar's active fill, no outline; the group's bar is its avatar and name, with the members as a small
   avatar stack at the right; the transcript draws the group's voices on
   grey bubbles (a voice's following messages without its avatar and name
   again — `continuesFrom()` in `chat/group-chat.tsx`), your own on the
