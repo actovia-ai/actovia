@@ -57,21 +57,6 @@ describe('webSearch tool', () => {
     })
   })
 
-  it('asks for structured data when the model says the question wants it', async () => {
-    mockedFetchWebSearch.mockResolvedValue([result(1, 'https://example.com/1')])
-
-    await webSearch(settings).execute('call-1', {
-      query: 'kospi today',
-      structured: true
-    })
-    await webSearch(settings).execute('call-2', { query: 'history of kospi' })
-
-    expect(mockedFetchWebSearch.mock.calls.map(([o]) => o.rich)).toEqual([
-      true,
-      false
-    ])
-  })
-
   it('fans out and adds the breadth pass with deep recall on', async () => {
     mockedFetchWebSearch.mockResolvedValue([result(1, 'https://example.com/1')])
     const deep = {

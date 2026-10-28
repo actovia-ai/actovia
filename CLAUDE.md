@@ -336,14 +336,15 @@ group's transcript and composer (`group-chat.tsx`) are toned.
 **What leaves the app** (same date): Copy writes an answer's `【N-source】`
 markers as `[n]` with a References list under it (`lib/citation-references.ts`,
 the rule of the Deep Research PDF and of actovia-ios's copy); a `web_search`
-brings back about ten sources in one Brave request — two per site, 8k
+brings back about ten sources from `llm/context` — two per site, 8k
 tokens — and deep recall (three phrasings plus a breadth pass, six requests)
 is off unless switched on (`SEARCH_LIMITS` in `ai/utils/web-search-util.ts`;
-Deep Research keeps its own volume, `DEEP_RESEARCH_LIMITS`). With
-`structured: true` (the model sets it for live figures: weather, a quote, a
-rate, a score…) the search also runs `web/search` with
-`enable_rich_callback` and follows the `rich` hint to `web/rich`
-(ISSUE-240): Brave's structured data leads the list as a source of its own
+Deep Research keeps its own volume, `DEEP_RESEARCH_LIMITS`). Beside it, every
+search runs `web/search` with `enable_rich_callback` for the primary query
+(ISSUE-240; owner, 2026-10-28: Brave decides which questions have data, not a
+list of question types in the tool), and when the answer carries a `rich`
+hint its `callback_key` is sent to `web/rich` — two requests a search, three
+when Brave has data (Deep Research's searches too). Brave's structured data leads the list as a source of its own
 (`WebSearchResult.rich`, its `content` the data as compact JSON, its link
 the query on search.brave.com), outside the ten. The Brave requests and the
 mapping of their answers are the `@actovia-ai/brave-search` package

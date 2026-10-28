@@ -355,9 +355,10 @@ function richResult(
  * `llm/context` is the primary layer — the source list and the extracted
  * content the model grounds on. With `deep`, a parallel `web/search` breadth
  * pass is merged in behind it (forums, news clusters, URLs the grounding
- * threshold dropped) as snippet-only secondary sources. With `rich` (or
- * `deep`, whose breadth pass asks anyway), the primary query's `web/search`
- * asks for Brave's structured data too, which leads the list when it exists.
+ * threshold dropped) as snippet-only secondary sources. The primary query's
+ * `web/search` always asks for Brave's rich callback: when Brave has
+ * structured data for the query (weather, a stock, a score…) it answers a
+ * callback key, `web/rich` is asked for it, and the data leads the list.
  */
 export async function fetchWebSearch({
   query,
@@ -370,7 +371,6 @@ export async function fetchWebSearch({
   recencyFilter,
   domainFilter,
   deep = false,
-  rich = false,
   threshold,
   expandedQueries,
   limits = SEARCH_LIMITS,
@@ -388,9 +388,6 @@ export async function fetchWebSearch({
   recencyFilter?: string | null
   domainFilter?: string[] | null
   deep?: boolean
-  /** Ask for Brave's structured data (weather, stocks, scores…): one more
-   *  request, and one more when Brave has some. */
-  rich?: boolean
   threshold?: 'broad' | 'strict'
   /** Fan-out reformulations searched alongside `query` and merged. */
   expandedQueries?: string[] | null
@@ -448,7 +445,7 @@ export async function fetchWebSearch({
               threshold
             })
           ),
-          deep || (rich && primary)
+          deep || primary
             ? soft(
                 'web/search',
                 webSearch(client, {

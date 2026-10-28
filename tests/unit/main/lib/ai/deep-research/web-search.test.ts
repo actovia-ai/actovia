@@ -35,8 +35,13 @@ describe('deep research web search', () => {
       { braveApiKey: 'k' }
     )
 
-    expect(fetchMock).toHaveBeenCalledTimes(1)
-    const request = new URL(fetchMock.mock.calls[0][0] as string)
+    // The grounding request, and the rich hint's web/search beside it.
+    const requests = fetchMock.mock.calls.map(([u]) => new URL(u as string))
+    expect(requests.map((r) => r.pathname)).toEqual([
+      '/res/v1/llm/context',
+      '/res/v1/web/search'
+    ])
+    const [request] = requests
     expect(request.searchParams.get('count')).toBe('20')
     expect(request.searchParams.get('maximum_number_of_tokens')).toBe('16384')
     expect(request.searchParams.get('maximum_number_of_tokens_per_url')).toBe(

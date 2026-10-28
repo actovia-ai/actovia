@@ -111,14 +111,17 @@ describe('fetchWebSearch — how much one search brings back', () => {
   const requests = () =>
     fetchMock.mock.calls.map(([url]) => new URL(url as string))
 
-  it('is one request to the grounding endpoint, for ten sources', async () => {
+  it('is the grounding endpoint, for ten sources, and the rich hint beside it', async () => {
     fetchMock.mockResolvedValue(ctxResponse(grounded(3)))
 
     await fetchWebSearch({ query: 'q', braveApiKey: 'k' })
 
-    expect(requests()).toHaveLength(1)
+    // No hint came back, so no third request.
+    expect(requests().map((r) => r.pathname)).toEqual([
+      '/res/v1/llm/context',
+      '/res/v1/web/search'
+    ])
     const [request] = requests()
-    expect(request.pathname).toBe('/res/v1/llm/context')
     expect(request.searchParams.get('count')).toBe('10')
     expect(request.searchParams.get('maximum_number_of_urls')).toBe('10')
     expect(request.searchParams.get('maximum_number_of_tokens')).toBe('8192')
@@ -133,10 +136,11 @@ describe('fetchWebSearch — how much one search brings back', () => {
     await fetchWebSearch({ query: 'q', braveApiKey: 'k', maxResults: 5 })
     await fetchWebSearch({ query: 'q', braveApiKey: 'k', maxResults: 50 })
 
-    expect(requests().map((r) => r.searchParams.get('count'))).toEqual([
-      '5',
-      '20'
-    ])
+    expect(
+      requests()
+        .filter((r) => r.pathname.endsWith('/llm/context'))
+        .map((r) => r.searchParams.get('count'))
+    ).toEqual(['5', '20'])
   })
 
   it('hands over no more sources than that, however many came back', async () => {
@@ -457,7 +461,8 @@ describe('fetchWebSearch — a failed search is not "no results"', () => {
     await expect(
       fetchWebSearch({ query: 'q', braveApiKey: 'k' })
     ).rejects.toMatchObject({ failure: 'rate_limited' })
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    // Each of the two requests is tried twice.
+    expect(fetchMock).toHaveBeenCalledTimes(4)
   })
 
   it('throws a network failure when Brave never answered', async () => {
@@ -561,21 +566,12 @@ describe('fetchWebSearch — structured data', () => {
       return `${u.pathname.replace('/res/v1', '')}${u.searchParams.has('enable_rich_callback') ? '+rich' : ''}`
     })
 
-  it('asks for it only when told to', async () => {
-    mockBrave()
-
-    await fetchWebSearch({ query: 'kospi today', braveApiKey: 'k' })
-
-    expect(paths()).toEqual(['/llm/context'])
-  })
-
   it('follows the hint and puts the data first', async () => {
     mockBrave()
 
     const results = await fetchWebSearch({
       query: 'kospi today',
       braveApiKey: 'k',
-      rich: true,
       rankBase: 4
     })
 
@@ -623,8 +619,7 @@ describe('fetchWebSearch — structured data', () => {
 
     const results = await fetchWebSearch({
       query: 'q',
-      braveApiKey: 'k',
-      rich: true
+      braveApiKey: 'k'
     })
 
     expect(results).toHaveLength(11)
@@ -634,8 +629,7 @@ describe('fetchWebSearch — structured data', () => {
     mockBrave({ hint: false })
     const noHint = await fetchWebSearch({
       query: 'q',
-      braveApiKey: 'k',
-      rich: true
+      braveApiKey: 'k'
     })
     expect(paths()).not.toContain('/web/rich')
     expect(noHint?.map((r) => r.link)).toEqual(grounded.map((g) => g.url))
@@ -644,8 +638,7 @@ describe('fetchWebSearch — structured data', () => {
     mockBrave({ richStatus: 500 })
     const failed = await fetchWebSearch({
       query: 'q',
-      braveApiKey: 'k',
-      rich: true
+      braveApiKey: 'k'
     })
     expect(failed?.map((r) => r.link)).toEqual(grounded.map((g) => g.url))
     expect(warn).toHaveBeenCalledWith(
