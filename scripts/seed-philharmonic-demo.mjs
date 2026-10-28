@@ -15,9 +15,9 @@ import { randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
 
 import { PGlite } from '@electric-sql/pglite'
-import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm'
 import { pgmq } from '@electric-sql/pglite-pgmq'
 import { vector } from '@electric-sql/pglite-pgvector'
+import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm'
 
 const dataDir = process.argv[2]
 if (!dataDir || !existsSync(`${dataDir}/PG_VERSION`)) {
@@ -58,7 +58,7 @@ const TEAMS = [
     icon: '🎨',
     description: "Alex's portfolio site: content, code and review.",
     systemPrompt:
-      'You work on Alex\'s portfolio, a Next.js site. Keep it fast, accessible and quiet; the work is the hero.'
+      "You work on Alex's portfolio, a Next.js site. Keep it fast, accessible and quiet; the work is the hero."
   }
 ]
 
@@ -69,8 +69,10 @@ const AGENTS = [
     name: 'Mika',
     seed: 'mika-kyoto',
     style: 'notionists',
-    description: 'Destination researcher — neighbourhoods, temples, seasonal events.',
-    systemPrompt: 'Research places with current opening hours and how busy they get.'
+    description:
+      'Destination researcher — neighbourhoods, temples, seasonal events.',
+    systemPrompt:
+      'Research places with current opening hours and how busy they get.'
   },
   {
     key: 'theo',
@@ -78,7 +80,8 @@ const AGENTS = [
     name: 'Theo',
     seed: 'theo-routes',
     style: 'notionists',
-    description: 'Itinerary planner — turns a list of places into walkable days.',
+    description:
+      'Itinerary planner — turns a list of places into walkable days.',
     systemPrompt: 'Group places by area, keep transfers under 30 minutes.'
   },
   {
@@ -176,7 +179,7 @@ const GROUPS = [
       [
         'employee',
         'priya',
-        "For two people, five nights:\n\n| Item | USD | JPY |\n|---|---|---|\n| Machiya stay, Higashiyama (5 nights) | 1,150 | 172,000 |\n| Haruka + IC cards | 70 | 10,500 |\n| Local trains & buses | 60 | 9,000 |\n| Entry fees | 55 | 8,200 |\n| Food & coffee (≈ 95 a day) | 475 | 71,000 |\n| **Subtotal** | **1,810** | **270,700** |\n| Buffer 10 % | 180 | 27,000 |\n| **Total** | **≈ 1,990** | **≈ 297,700** |\n\nThe machiya is the big lever: a business hotel near Kyoto Station saves about 450.",
+        'For two people, five nights:\n\n| Item | USD | JPY |\n|---|---|---|\n| Machiya stay, Higashiyama (5 nights) | 1,150 | 172,000 |\n| Haruka + IC cards | 70 | 10,500 |\n| Local trains & buses | 60 | 9,000 |\n| Entry fees | 55 | 8,200 |\n| Food & coffee (≈ 95 a day) | 475 | 71,000 |\n| **Subtotal** | **1,810** | **270,700** |\n| Buffer 10 % | 180 | 27,000 |\n| **Total** | **≈ 1,990** | **≈ 297,700** |\n\nThe machiya is the big lever: a business hotel near Kyoto Station saves about 450.',
         41
       ],
       [
@@ -223,13 +226,13 @@ const GROUPS = [
       [
         'pm',
         null,
-        "Sub-2:00 means **5:41 /km** — 18 seconds a kilometre faster than your 2:09. Very doable in twelve weeks. **Jordan** will build the plan around four days with a Sunday long run; **Lena** will cover what you eat around the long runs and on race morning.",
+        'Sub-2:00 means **5:41 /km** — 18 seconds a kilometre faster than your 2:09. Very doable in twelve weeks. **Jordan** will build the plan around four days with a Sunday long run; **Lena** will cover what you eat around the long runs and on race morning.',
         2
       ],
       [
         'employee',
         'jordan',
-        "**The shape of the 12 weeks**\n\n- **Tue** — intervals: 6 × 800 m at 5:15 /km building to 8 × 1 km at 5:20.\n- **Thu** — tempo: 5 km at 5:35, growing to 10 km.\n- **Fri** — easy 6–8 km at 6:30 or slower.\n- **Sun** — long run: 12 km in week 1 up to 19 km in week 9, at 6:20.\n\nWeeks 4 and 8 are lighter (recovery); weeks 11–12 taper. Week 10 has a 15 km dress rehearsal with the middle 8 km at race pace.",
+        '**The shape of the 12 weeks**\n\n- **Tue** — intervals: 6 × 800 m at 5:15 /km building to 8 × 1 km at 5:20.\n- **Thu** — tempo: 5 km at 5:35, growing to 10 km.\n- **Fri** — easy 6–8 km at 6:30 or slower.\n- **Sun** — long run: 12 km in week 1 up to 19 km in week 9, at 6:20.\n\nWeeks 4 and 8 are lighter (recovery); weeks 11–12 taper. Week 10 has a 15 km dress rehearsal with the middle 8 km at race pace.',
         19
       ],
       [
@@ -276,7 +279,7 @@ const GROUPS = [
       [
         'pm',
         null,
-        "Plan: **Iris** builds one case-study template in the repo, **Oskar** reviews it for speed and accessibility, then Iris moves the three studies onto it. One step at a time so the review lands before the content moves.",
+        'Plan: **Iris** builds one case-study template in the repo, **Oskar** reviews it for speed and accessibility, then Iris moves the three studies onto it. One step at a time so the review lands before the content moves.',
         1
       ],
       [
@@ -294,7 +297,7 @@ const GROUPS = [
       [
         'pm',
         null,
-        "The template is in and reviewed — mobile Lighthouse went from 71 to 94. Next, Iris moves the three case studies across. Shall she start with the banking app redesign?",
+        'The template is in and reviewed — mobile Lighthouse went from 71 to 94. Next, Iris moves the three case studies across. Shall she start with the banking app redesign?',
         63
       ]
     ]
@@ -304,10 +307,9 @@ const GROUPS = [
 const pg = new PGlite({ dataDir, extensions: { vector, pgmq, pg_trgm } })
 await pg.exec(`SET TIME ZONE 'UTC'`)
 
-const existing = await pg.query(
-  `SELECT name FROM team WHERE name = ANY($1)`,
-  [TEAMS.map((t) => t.name)]
-)
+const existing = await pg.query(`SELECT name FROM team WHERE name = ANY($1)`, [
+  TEAMS.map((t) => t.name)
+])
 if (existing.rows.length > 0) {
   console.error(
     `Already seeded (found team ${existing.rows.map((r) => r.name).join(', ')}); nothing written.`
@@ -412,9 +414,13 @@ await pg.transaction(async (tx) => {
         ]
       )
     }
-    console.log(`✓ ${g.title} — ${g.messages.length} messages, ${g.plan.steps.length} plan steps`)
+    console.log(
+      `✓ ${g.title} — ${g.messages.length} messages, ${g.plan.steps.length} plan steps`
+    )
   }
 })
 
-console.log(`Seeded ${TEAMS.length} teams, ${AGENTS.length} employees, ${GROUPS.length} groups.`)
+console.log(
+  `Seeded ${TEAMS.length} teams, ${AGENTS.length} employees, ${GROUPS.length} groups.`
+)
 await pg.close()
