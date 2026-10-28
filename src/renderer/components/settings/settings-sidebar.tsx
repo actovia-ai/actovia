@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { useSettingsTab } from '@/hooks/use-settings-tab'
-import { SIDEBAR_SOLID } from '@/layouts/shared/sidebar-material'
+import { SIDEBAR_FIELD, SIDEBAR_SOLID } from '@/layouts/shared/sidebar-material'
 import { cn } from '@/lib/utils'
 
 import { InputGroup, InputGroupInput, InputGroupAddon } from '../ui/input-group'
@@ -70,9 +70,10 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
           className={cn(
             'no-drag',
             // On the solid, deeper sidebar the primitive's `bg-input/50`
-            // washes into it (ISSUE-269): a field on a muted surface is
-            // `bg-background` with a hairline, as a chip is.
-            'bg-background border-border/70 dark:bg-input/50 dark:border-transparent',
+            // washes into it (ISSUE-269), and `bg-background` stood out as
+            // white in light: the field is the sidebar's own colour a step
+            // lighter than the panel, with a hairline. Dark keeps the input.
+            `${SIDEBAR_FIELD} dark:bg-input/50 dark:border-transparent`,
             // drop the primitive's default focus-visible ring + border-ring
             'has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0'
           )}
@@ -108,8 +109,13 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                       <Badge
                         variant="outline"
                         // A chip on the solid sidebar, active row included:
-                        // filled, or its light border ghosts on the row.
-                        className="text-2xs bg-background border-border/70 ml-auto font-normal"
+                        // filled, or its light border ghosts on the row —
+                        // the field's fill in light, the page's in dark.
+                        className={cn(
+                          'text-2xs ml-auto font-normal',
+                          SIDEBAR_FIELD,
+                          'dark:bg-background'
+                        )}
                       >
                         {t('nav.experimental')}
                       </Badge>

@@ -13,3 +13,10 @@ export const SIDEBAR_ON_MATERIAL =
  */
 export const SIDEBAR_SOLID =
   'border-none bg-[color-mix(in_oklch,var(--sidebar),black_4%)] [--sidebar-accent:color-mix(in_oklch,var(--sidebar),black_8%)] dark:bg-[color-mix(in_oklch,var(--sidebar),black_15%)] dark:[--sidebar-accent:color-mix(in_oklch,var(--sidebar),white_8%)]'
+
+// A field or a chip on the solid sidebar, in light: the sidebar's colour a
+// step under the panel's 4 % (the active row is 8 %), not the page's near
+// white, which read as a white patch on it (owner, 2026-10-28). Callers set
+// their own dark fill.
+export const SIDEBAR_FIELD =
+  'bg-[color-mix(in_oklch,var(--sidebar),black_1%)] border-border/60'
