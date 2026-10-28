@@ -1,65 +1,53 @@
-import { type ReactNode } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
 
+import { MusicConductor } from '@/components/icons/music-conductor'
 import { Button } from '@/components/ui/button'
 
-import type { HueName } from './lib/hue'
-
-interface AvatarSpec {
-  hue: HueName
-  content?: ReactNode
-}
-
 interface Props {
-  avatars: AvatarSpec[]
   title: string
   description?: string
   action?: { label: string; onClick: () => void }
 }
 
-const SMALL = 48
-const LARGE = 56
+const STAFF_LINES = [0, 1, 2, 3, 4]
 
-export function PhilharmonicEmptyState({
-  avatars,
-  title,
-  description,
-  action
-}: Props) {
+/**
+ * Philharmonic's mark (owner, ISSUE-272, in place of the three hue bubbles):
+ * the conductor in a round tile, standing on a five-line staff that fades out
+ * at both ends — the workspace glyph, set as a score.
+ */
+function ConductorMark() {
+  return (
+    <div className="relative mb-4 flex h-14 w-44 items-center justify-center">
+      <svg
+        aria-hidden
+        className="text-border absolute inset-0 size-full [mask-image:linear-gradient(to_right,transparent,black_30%,black_70%,transparent)]"
+        viewBox="0 0 176 56"
+        preserveAspectRatio="none"
+      >
+        {STAFF_LINES.map((i) => (
+          <line
+            key={i}
+            x1="0"
+            x2="176"
+            y1={12 + i * 8}
+            y2={12 + i * 8}
+            stroke="currentColor"
+            strokeWidth="1"
+          />
+        ))}
+      </svg>
+      <div className="bg-background ring-border text-foreground relative flex size-14 items-center justify-center rounded-full shadow-sm ring-1">
+        <HugeiconsIcon icon={MusicConductor} className="size-7" />
+      </div>
+    </div>
+  )
+}
+
+export function PhilharmonicEmptyState({ title, description, action }: Props) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="mb-4 flex">
-        {avatars.map((a, i) => {
-          const size = i === 1 ? LARGE : SMALL
-          const isCenter = i === 1
-          const offset = i === 0 ? 6 : i === 2 ? -6 : 0
-          return (
-            <div
-              key={a.hue}
-              className={i === 0 ? '' : '-ml-2'}
-              style={{
-                width: size,
-                height: size,
-                borderRadius: '50%',
-                background: `var(--ph-hue-${a.hue}-fill)`,
-                boxShadow: `inset 0 0 0 1.5px var(--ph-hue-${a.hue}-ring), 0 0 0 3px var(--card)`,
-                transform:
-                  i === 0
-                    ? `rotate(-8deg) translateX(${offset}px)`
-                    : i === 2
-                      ? `rotate(8deg) translateX(${offset}px)`
-                      : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 22,
-                zIndex: isCenter ? 1 : 0
-              }}
-            >
-              {a.content}
-            </div>
-          )
-        })}
-      </div>
+      <ConductorMark />
       <div className="text-foreground text-sm font-semibold">{title}</div>
       {description && (
         <div className="text-muted-foreground text-ui mt-1 max-w-[280px]">

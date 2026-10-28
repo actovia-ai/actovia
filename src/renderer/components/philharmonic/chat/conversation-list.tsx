@@ -200,7 +200,9 @@ export function ConversationList({
         </div>
 
         <div className="no-drag px-1">
-          <InputGroup className="has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0">
+          {/* The sidebar's accent fill, the selected row's grey: InputGroup's
+              own bg-input/50 all but vanishes on the window's material. */}
+          <InputGroup className="bg-sidebar-accent h-9 has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0">
             <InputGroupInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -218,7 +220,6 @@ export function ConversationList({
       <SidebarContent className="no-scrollbar px-1">
         {conversations.length === 0 ? (
           <PhilharmonicEmptyState
-            avatars={[{ hue: 'lilac' }, { hue: 'mint' }, { hue: 'peach' }]}
             title={t('philharmonic:chat.conversationList.emptyState.title')}
             description={t(
               'philharmonic:chat.conversationList.emptyState.description'

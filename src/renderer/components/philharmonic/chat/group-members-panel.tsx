@@ -125,7 +125,6 @@ export function GroupMembersPanel({
       <div className="flex-1 overflow-y-auto px-3 pb-3">
         {members.length === 0 && !hasPm ? (
           <PhilharmonicEmptyState
-            avatars={[{ hue: 'lilac' }, { hue: 'mint' }, { hue: 'peach' }]}
             title={t('chat.membersPanel.emptyState.title')}
             description={t('chat.membersPanel.emptyState.description')}
           />

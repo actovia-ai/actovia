@@ -1086,7 +1086,11 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   tone's fill (`bg-primary` — black in the neutral tone, unlike Chat's
   `--bubble`), system lines as plain centred text; the composer is a plain
   pill reading "Message <group>", without Chat's `BorderBeam`. Workforce and
-  Schedule use the same grey `rounded-2xl` cards and `rounded-full` buttons
+  Schedule use the same grey `rounded-2xl` cards and `rounded-full` buttons.
+  Every empty state carries Philharmonic's mark (`empty-state.tsx`): the
+  conductor glyph in a round tile on a five-line staff, not hue bubbles; the
+  group search is on `bg-sidebar-accent` (`bg-input/50` vanishes on the
+  material)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`

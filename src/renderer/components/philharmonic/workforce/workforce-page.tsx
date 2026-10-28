@@ -521,7 +521,6 @@ export function WorkforcePage() {
       <div className="flex-1 overflow-y-auto px-5 py-5">
         {totalEmpty ? (
           <PhilharmonicEmptyState
-            avatars={[{ hue: 'lilac' }, { hue: 'mint' }, { hue: 'peach' }]}
             title={t('philharmonic:workforce.emptyState.title')}
             description={t('philharmonic:workforce.emptyState.description')}
             action={{

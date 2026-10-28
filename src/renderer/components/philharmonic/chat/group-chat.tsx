@@ -190,7 +190,6 @@ export function GroupChat({
           )}
           {merged.length === 0 ? (
             <PhilharmonicEmptyState
-              avatars={[{ hue: 'lilac' }, { hue: 'mint' }, { hue: 'peach' }]}
               title={t('chat.groupChat.emptyState.title')}
               description={t('chat.groupChat.emptyState.description')}
             />
