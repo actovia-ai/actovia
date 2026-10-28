@@ -7,6 +7,7 @@
       "dependencies": {
         "@actovia-ai/brave-search": "workspace:*",
         "@actovia-ai/secret-detect": "workspace:*",
+        "@actovia-ai/streaming-markdown": "workspace:*",
         "@actovia-ai/web-reader": "workspace:*",
         "@actovia/shared": "workspace:*",
         "@aws-sdk/client-s3": "^3.1154.0",
@@ -164,6 +165,23 @@
         "@actovia-ai/secret-detect": "workspace:*",
       },
     },
+    "packages/streaming-markdown": {
+      "name": "@actovia-ai/streaming-markdown",
+      "version": "0.1.0",
+      "dependencies": {
+        "micromark-core-commonmark": "^2.0.4",
+        "micromark-util-types": "^2.0.3",
+        "remark-parse": "^11.0.0",
+        "remend": "^1.4.0",
+        "unified": "^11.0.5",
+      },
+      "peerDependencies": {
+        "react": ">=18",
+      },
+      "optionalPeers": [
+        "react",
+      ],
+    },
     "packages/web-reader": {
       "name": "@actovia-ai/web-reader",
       "version": "0.1.0",
@@ -188,6 +206,8 @@
     "@actovia-ai/brave-search": ["@actovia-ai/brave-search@workspace:packages/brave-search"],
 
     "@actovia-ai/secret-detect": ["@actovia-ai/secret-detect@workspace:packages/secret-detect"],
+
+    "@actovia-ai/streaming-markdown": ["@actovia-ai/streaming-markdown@workspace:packages/streaming-markdown"],
 
     "@actovia-ai/web-reader": ["@actovia-ai/web-reader@workspace:packages/web-reader"],
 

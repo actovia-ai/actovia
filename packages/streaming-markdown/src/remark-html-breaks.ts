@@ -1,4 +1,5 @@
-// Raw HTML in an answer is never rendered: it is shown as the text it is.
+// For a renderer that shows raw HTML as the text it is (react-markdown without
+// rehype-raw): a model's raw HTML is never rendered.
 // A line break is the one tag with a markdown meaning of its own, and models
 // write it (`<br>` between a card and the text under it), so it becomes the
 // break it asks for instead of five characters on a line.
@@ -45,7 +46,7 @@ function rewrite(parent: Node, isRoot: boolean): void {
 
 /**
  * A remark transform. It changes nodes, never positions: the block splitter
- * (`markdown-blocks.ts`) cuts on what the parser reports, before any
+ * (`createBlockSplitter`) cuts on what the parser reports, before any
  * transform runs.
  */
 export function remarkHtmlBreaks() {

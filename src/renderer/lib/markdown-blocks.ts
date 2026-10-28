@@ -1,106 +1,33 @@
-import remarkParse from 'remark-parse'
-import remend from 'remend'
-import { unified } from 'unified'
+import {
+  createBlockSplitter,
+  healStreamingTail as heal
+} from '@actovia-ai/streaming-markdown'
 
 import { remarkPluginsStable } from './markdown-plugins'
 
-/**
- * Splits a markdown document into its top-level blocks (a paragraph, a list, a
- * fenced code block, a table, a `$$` block …) so each can be rendered — and
- * memoized — on its own. While a reply streams the text only grows at the end,
- * so every block but the last is byte-for-byte what it was a frame ago and its
- * render can be skipped (strictly: every block but the last two, see below);
- * without this each frame re-ran remark, rehype, KaTeX and the syntax
- * highlighter over the whole answer so far.
- *
- * The blocks are contiguous slices: joined back together they are exactly
- * `src`. Boundaries come from the same parser configuration the renderer uses,
- * so a block never cuts through a construct (a loose list, a fence containing
- * blank lines, a math block).
- */
-
-const parser = unified().use(remarkParse).use(remarkPluginsStable)
+// The streaming split and heal are `@actovia-ai/streaming-markdown`
+// (packages/streaming-markdown, ISSUE-270); what is Actovia's — the remark
+// configuration the split must match, the citation marker — is here.
+export {
+  createMarkdownBlockCache,
+  INCOMPLETE_LINK_HREF,
+  type MarkdownBlockCache
+} from '@actovia-ai/streaming-markdown'
 
 /**
- * A link-reference or footnote definition (`[id]: …`, `[^1]: …`) is looked up
- * from anywhere in the document, so its blocks are not independent. Rare in
- * model output; such a document is simply rendered whole.
+ * Top-level blocks of a markdown document, parsed with the renderer's own
+ * plugins (`markdown-plugins.ts`), so a block never cuts through a construct.
  */
-const DEFINITION = /^ {0,3}\[[^\]\n]+\]:/m
-
-/** Where the previous call's blocks started, to continue from. */
-export interface MarkdownBlockCache {
-  src: string
-  starts: number[]
-}
-
-export function createMarkdownBlockCache(): MarkdownBlockCache {
-  return { src: '', starts: [] }
-}
-
-/** Line-start offsets of the top-level blocks of `text`. */
-function blockStarts(text: string): number[] {
-  const starts: number[] = []
-  for (const node of parser.parse(text).children) {
-    const offset = node.position?.start.offset
-    if (offset === undefined) continue
-    // From the start of the node's line, not of its content: an indented code
-    // block's indent is what makes it one.
-    const lineStart = text.lastIndexOf('\n', offset - 1) + 1
-    if (starts.at(-1) !== lineStart) starts.push(lineStart)
-  }
-  return starts
-}
-
-export function splitMarkdownBlocks(
-  src: string,
-  cache?: MarkdownBlockCache
-): string[] {
-  if (src === '') return []
-
-  let starts: number[]
-  if (DEFINITION.test(src)) {
-    starts = [0]
-  } else {
-    // Appended-to text: parse from where the second-to-last block began
-    // instead of from the top. Not from the last block — that one can still
-    // fold back into its predecessor: a streamed "2" is a paragraph of its own
-    // until the "." arrives and makes it the next item of the list above.
-    // Anything earlier is closed; more text cannot reach it.
-    const resumable =
-      cache !== undefined &&
-      cache.starts.length >= 2 &&
-      src.startsWith(cache.src)
-    const resumeAt = resumable ? cache.starts.at(-2)! : 0
-    const kept = resumable ? cache.starts.slice(0, -2) : []
-    const tail = blockStarts(src.slice(resumeAt)).map((s) => s + resumeAt)
-    // The first block owns any leading blank lines.
-    tail[0] = resumeAt
-    starts = [...kept, ...tail]
-  }
-
-  if (cache) {
-    cache.src = src
-    cache.starts = starts
-  }
-  return starts.map((start, i) => src.slice(start, starts[i + 1]))
-}
-
-/** The href `remend` gives a link whose URL has not finished streaming (its own sentinel). */
-export const INCOMPLETE_LINK_HREF = 'streamdown:incomplete-link'
+export const splitMarkdownBlocks = createBlockSplitter(remarkPluginsStable)
 
 /** A citation marker still arriving: `【`, `【1`, `【1,2-sou` … at the very end. */
 const PARTIAL_CITATION = /【[^】]*$/u
 
 /**
- * The block that is still streaming, made renderable as it stands. An
- * unclosed `**`, `*`, `~~`, `` ` `` or `$$` renders as literal markup until
- * its closing token arrives — a flash of asterisks on every emphasised phrase
- * — so `remend` (streamdown's healer) closes them; a half-typed link keeps
- * its text and gets a sentinel href the renderer shows as plain text. A
- * half-streamed `【N-source】` marker is ours alone: dropped until whole.
- * Finished text and `$200 - $300` pass through unchanged.
+ * The block that is still streaming, made renderable as it stands (`remend`
+ * closes open markup); a half-streamed `【N-source】` marker is ours alone:
+ * dropped until whole.
  */
 export function healStreamingTail(block: string): string {
-  return remend(block.replace(PARTIAL_CITATION, ''))
+  return heal(block, { drop: PARTIAL_CITATION })
 }

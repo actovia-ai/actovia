@@ -1,3 +1,4 @@
+import { useMarkdownBlocks } from '@actovia-ai/streaming-markdown/react'
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { entityTitle } from '@actovia/shared/utils/entity-link'
 import {
@@ -6,10 +7,10 @@ import {
   SourceCodeIcon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useTheme } from 'next-themes'
 
 import 'katex/dist/katex.min.css'
-import { memo, useMemo, useRef, useState } from 'react'
+import { useTheme } from 'next-themes'
+import { memo, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import SyntaxHighlighter from 'react-syntax-highlighter'
@@ -17,10 +18,8 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { useClipboard } from '@/hooks/use-clipboard'
 import {
   INCOMPLETE_LINK_HREF,
-  createMarkdownBlockCache,
   healStreamingTail,
-  splitMarkdownBlocks,
-  type MarkdownBlockCache
+  splitMarkdownBlocks
 } from '@/lib/markdown-blocks'
 import {
   rehypePluginsStable,
@@ -109,32 +108,6 @@ const MarkdownBlock = memo(function MarkdownBlock({
 })
 
 /**
- * The document as the blocks to render. Text that never changes — all of a
- * chat's history — stays a single block: splitting costs a parse of its own and
- * only pays for itself when there are frames to skip. The first time `src`
- * differs from what this instance mounted with, it is a streaming reply, and
- * from then on it is split (incrementally — see splitMarkdownBlocks).
- */
-function useMarkdownBlocks(src: string): string[] {
-  const [mountedWith] = useState(src)
-  const [streams, setStreams] = useState(false)
-  if (!streams && src !== mountedWith) setStreams(true)
-
-  // A memo table for the splitter, nothing more: what it returns depends on
-  // `src` alone, the cache only lets it skip re-parsing the closed blocks.
-  const cacheRef = useRef<MarkdownBlockCache | null>(null)
-  return useMemo(() => {
-    if (!streams) return [src]
-    cacheRef.current ??= createMarkdownBlockCache()
-    const blocks = splitMarkdownBlocks(src, cacheRef.current)
-    // Only the last block is still arriving; the ones above it are closed.
-    const last = blocks.length - 1
-    if (last >= 0) blocks[last] = healStreamingTail(blocks[last])
-    return blocks
-  }, [src, streams])
-}
-
-/**
  * The text above each block; only the last one is healed, so the ones above
  * it are the document's own.
  */
@@ -189,7 +162,9 @@ export function Markdown({
   const themeKey: 'light' | 'dark' = resolvedTheme === 'dark' ? 'dark' : 'light'
   const { codeTheme } = useMemo(() => themes[themeKey], [themeKey])
 
-  const blocks = useMarkdownBlocks(src)
+  // History renders whole; a streaming reply block by block, its last block
+  // healed (see `@actovia-ai/streaming-markdown/react`).
+  const blocks = useMarkdownBlocks(src, splitMarkdownBlocks, healStreamingTail)
   const befores = useTextsAbove(blocks)
 
   const rankMap = useMemo(() => {

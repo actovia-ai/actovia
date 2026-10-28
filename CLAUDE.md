@@ -1543,16 +1543,18 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   identities — never build a fresh array or object per render for a prop of
   either.
 - **Markdown renders block by block while it streams.** `useMarkdownBlocks`
-  splits a changing document into top-level blocks
-  (`lib/markdown-blocks.ts`, same remark config as the renderer via
-  `lib/markdown-plugins.ts`), each a memoized `MarkdownBlock`, so a frame
+  (`@actovia-ai/streaming-markdown/react`; the splitter, the healer,
+  `remarkHtmlBreaks` and `remarkCjkEmphasis` are that package,
+  `packages/streaming-markdown/`, ISSUE-270) splits a changing document into
+  top-level blocks (`lib/markdown-blocks.ts` binds it to the renderer's own
+  remark config, `lib/markdown-plugins.ts`), each a memoized `MarkdownBlock`, so a frame
   re-parses the last block or two instead of the whole answer. Text that never
   changes (history) is rendered whole. A plugin added to the renderer must be
   added to `markdown-plugins.ts`, not to `markdown.tsx` — that file also holds
   the two "prose is not markup" settings: `singleDollarTextMath: false`
   (`$200 - $300` is money) and GFM's `singleTilde: false` (`19~32°C` is a
   range; only `~~` strikes through) — and `remarkHtmlBreaks`
-  (`lib/remark-html-breaks.ts`): raw HTML is shown as the text it is, except
+  (`packages/streaming-markdown/src/remark-html-breaks.ts`): raw HTML is shown as the text it is, except
   `<br>`, which models write and which becomes the line break it asks for
   (on a line of its own it leaves nothing). The last block is
   passed through `healStreamingTail` (`remend` closes an open `**`, `*`,
@@ -2334,6 +2336,7 @@ Packages:
 
 - `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
 - `packages/secret-detect/` — the pure secret detectors and the mask (`@actovia-ai/secret-detect`, no dependencies; `@actovia/shared/utils/secret-detect` re-exports it, tests in `tests/unit/packages/secret-detect/`, `typecheck:secret-detect`)
+- `packages/streaming-markdown/` — rendering a streaming reply block by block: `createBlockSplitter`, `healStreamingTail`, `remarkHtmlBreaks`, `remarkCjkEmphasis`, and `useMarkdownBlocks` under `/react` (`@actovia-ai/streaming-markdown`; Actovia's plugin config and citation marker stay in `src/renderer/lib/`; tests in `tests/unit/packages/streaming-markdown/`, `typecheck:streaming-markdown`)
 - `packages/web-reader/` — a page as Markdown for a model, the SSRF-checked fetches and the local-port guard (`@actovia-ai/web-reader`, see Path Aliases)
 
 Shared:

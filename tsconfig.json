@@ -21,6 +21,9 @@
     },
     {
       "path": "./packages/secret-detect/tsconfig.json"
+    },
+    {
+      "path": "./packages/streaming-markdown/tsconfig.json"
     }
   ],
   "compilerOptions": {

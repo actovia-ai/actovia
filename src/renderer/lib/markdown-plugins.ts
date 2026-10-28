@@ -1,10 +1,12 @@
+import {
+  remarkCjkEmphasis,
+  remarkHtmlBreaks
+} from '@actovia-ai/streaming-markdown'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
 import { remarkCitations } from './remark-citations'
-import { remarkCjkEmphasis } from './remark-cjk-emphasis'
-import { remarkHtmlBreaks } from './remark-html-breaks'
 
 // One definition of the markdown pipeline, shared by the renderer
 // (components/markdown.tsx) and the block splitter (lib/markdown-blocks.ts) —
