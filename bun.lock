@@ -5,6 +5,7 @@
     "": {
       "name": "actovia",
       "dependencies": {
+        "@actovia-ai/agent-guard": "workspace:*",
         "@actovia-ai/brave-search": "workspace:*",
         "@actovia-ai/secret-detect": "workspace:*",
         "@actovia-ai/streaming-markdown": "workspace:*",
@@ -149,6 +150,10 @@
         "vitest": "^5.0.5",
       },
     },
+    "packages/agent-guard": {
+      "name": "@actovia-ai/agent-guard",
+      "version": "0.1.0",
+    },
     "packages/brave-search": {
       "name": "@actovia-ai/brave-search",
       "version": "0.1.0",
@@ -202,6 +207,8 @@
     "@actions/http-client": ["@actions/http-client@4.0.1", "", { "dependencies": { "tunnel": "^0.0.6", "undici": "^6.23.0" } }, "sha512-+Nvd1ImaOZBSoPbsUtEhv+1z99H12xzncCkz0a3RuehINE81FZSe2QTj3uvAPTcJX/SCzUQHQ0D1GrPMbrPitg=="],
 
     "@actions/io": ["@actions/io@3.0.2", "", {}, "sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw=="],
+
+    "@actovia-ai/agent-guard": ["@actovia-ai/agent-guard@workspace:packages/agent-guard"],
 
     "@actovia-ai/brave-search": ["@actovia-ai/brave-search@workspace:packages/brave-search"],
 

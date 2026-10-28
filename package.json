@@ -27,7 +27,7 @@
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "typecheck": "bun run typecheck:node && bun run typecheck:web && bun run typecheck:shared && bun run typecheck:brave-search && bun run typecheck:web-reader && bun run typecheck:secret-detect && bun run typecheck:streaming-markdown",
+    "typecheck": "bun run typecheck:node && bun run typecheck:web && bun run typecheck:shared && bun run typecheck:brave-search && bun run typecheck:web-reader && bun run typecheck:secret-detect && bun run typecheck:streaming-markdown && bun run typecheck:agent-guard",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck:shared": "tsc --noEmit -p packages/shared/tsconfig.json --composite false",
@@ -35,6 +35,7 @@
     "typecheck:web-reader": "tsc --noEmit -p packages/web-reader/tsconfig.json --composite false",
     "typecheck:secret-detect": "tsc --noEmit -p packages/secret-detect/tsconfig.json --composite false",
     "typecheck:streaming-markdown": "tsc --noEmit -p packages/streaming-markdown/tsconfig.json --composite false",
+    "typecheck:agent-guard": "tsc --noEmit -p packages/agent-guard/tsconfig.json --composite false",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:staged": "env -u GIT_INDEX_FILE -u GIT_DIR -u GIT_WORK_TREE -u GIT_PREFIX -u GIT_OBJECT_DIRECTORY vitest related --run --passWithNoTests $(git diff --cached --name-only --diff-filter=ACMR -- '*.ts' '*.tsx' '*.mts')",
@@ -50,6 +51,7 @@
     "icons": "node scripts/render-icons.mjs"
   },
   "dependencies": {
+    "@actovia-ai/agent-guard": "workspace:*",
     "@actovia-ai/brave-search": "workspace:*",
     "@actovia-ai/secret-detect": "workspace:*",
     "@actovia-ai/streaming-markdown": "workspace:*",

@@ -24,6 +24,9 @@
     },
     {
       "path": "./packages/streaming-markdown/tsconfig.json"
+    },
+    {
+      "path": "./packages/agent-guard/tsconfig.json"
     }
   ],
   "compilerOptions": {

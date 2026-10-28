@@ -606,7 +606,10 @@ rendering work in.
   call's `tool_start` and `tool_end`) · `run_end` (always, with the messages
   that completed) · `error` (after `run_end`, when a provider failed). Stop
   aborts the agent; a partial answer is kept, marked `aborted`
-- `approval.ts` — the approval gate's matcher (spec
+- `approval.ts` — the approval gate's matcher: Actovia's configuration
+  (`~/.actovia`'s refused entries, the two API ports, the tool names, grep's
+  skipped directories) of `@actovia-ai/agent-guard`'s `createGuard()`
+  (`packages/agent-guard/`, ISSUE-270, which holds the rules below; spec
   `docs/superpowers/specs/2026-09-25-secrets-and-exfiltration-hardening-design.md`
   §2.5): `sensitiveTarget(toolName, args, workspaceDir)` → `ask` (the file
   tools on `~/.ssh`, `~/.aws`, `~/.gnupg`, `~/.kube`, `~/.docker/config.json`,
@@ -2334,6 +2337,7 @@ Renderer:
 
 Packages:
 
+- `packages/agent-guard/` — the approval gate's matcher, for any app (`@actovia-ai/agent-guard`: `createGuard({ appName, appDirName, refused, ownPorts, tools, skipDirs })`, `sanitizeSummary`, `capSummary`, `forModel`); Actovia's configuration is `src/main/lib/ai/kernel/approval.ts`, whose test (`tests/unit/main/lib/ai/kernel/approval.test.ts`) runs the rules through it; the package's own tests use another app's configuration (`tests/unit/packages/agent-guard/`, `typecheck:agent-guard`)
 - `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
 - `packages/secret-detect/` — the pure secret detectors and the mask (`@actovia-ai/secret-detect`, no dependencies; `@actovia/shared/utils/secret-detect` re-exports it, tests in `tests/unit/packages/secret-detect/`, `typecheck:secret-detect`)
 - `packages/streaming-markdown/` — rendering a streaming reply block by block: `createBlockSplitter`, `healStreamingTail`, `remarkHtmlBreaks`, `remarkCjkEmphasis`, and `useMarkdownBlocks` under `/react` (`@actovia-ai/streaming-markdown`; Actovia's plugin config and citation marker stay in `src/renderer/lib/`; tests in `tests/unit/packages/streaming-markdown/`, `typecheck:streaming-markdown`)
