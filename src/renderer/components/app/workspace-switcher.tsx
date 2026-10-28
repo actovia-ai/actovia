@@ -31,6 +31,13 @@ const WORKSPACES = [
   }
 ] as const
 
+// In light the selected icon sits in the sidebar's own row highlight, as the
+// rows below it do, not in a white pill on a grey track — which read as a
+// patch on the window's material (owner, ISSUE-273). Dark keeps the track
+// and its lifted pill.
+const SWITCHER_TRIGGER =
+  'size-6 flex-none rounded-md px-0 data-active:bg-sidebar-accent data-active:shadow-none dark:data-active:bg-input/30 dark:data-active:shadow-xs'
+
 /**
  * Chat / Philharmonic at the right of the sidebar's top row (ISSUE-237,
  * after Claude's chat / code switch): shadcn's Tabs (ISSUE-266), icon-only,
@@ -55,7 +62,7 @@ export function WorkspaceSwitcher({ className }: { className?: string }) {
         <TabsList
           aria-label={t('sidebar.workspace.label')}
           data-testid={TEST_IDS.chatLayout.workspaceSwitcher}
-          className="bg-sidebar-accent h-7! rounded-lg"
+          className="dark:bg-sidebar-accent h-7! rounded-lg bg-transparent"
         >
           {WORKSPACES.map((w) => {
             const label = t(w.labelKey)
@@ -67,7 +74,7 @@ export function WorkspaceSwitcher({ className }: { className?: string }) {
                       value={w.id}
                       aria-label={label}
                       data-testid={w.testId}
-                      className="size-6 flex-none rounded-md px-0 data-active:shadow-xs"
+                      className={SWITCHER_TRIGGER}
                     />
                   }
                 >
