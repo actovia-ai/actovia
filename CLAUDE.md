@@ -2213,8 +2213,10 @@ Main process:
   (every current secret value, and masking them out of copied text). The pure
   detectors — `isSecretName`, `maskSecret`, `maskMcpUrl` / `maskMcpArgs`,
   `argsHoldSecret` (the MCP form's "secrets in arguments are visible to
-  `ps`" notice) — live in `packages/shared/src/utils/secret-detect.ts`, so the
-  renderer judges a value by the same rules; `registry.ts`, `mask.ts` and
+  `ps`" notice) — are the `@actovia-ai/secret-detect` package
+  (`packages/secret-detect/`, ISSUE-270), re-exported as
+  `packages/shared/src/utils/secret-detect.ts`, so the renderer judges a
+  value by the same rules; `registry.ts`, `mask.ts` and
   `locators.ts` re-export them. A
   startup self-check turns encryption off if `safeStorage` output is not a
   recognizable envelope. An MCP row that did not fully decrypt carries
@@ -2331,6 +2333,7 @@ Renderer:
 Packages:
 
 - `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
+- `packages/secret-detect/` — the pure secret detectors and the mask (`@actovia-ai/secret-detect`, no dependencies; `@actovia/shared/utils/secret-detect` re-exports it, tests in `tests/unit/packages/secret-detect/`, `typecheck:secret-detect`)
 - `packages/web-reader/` — a page as Markdown for a model, the SSRF-checked fetches and the local-port guard (`@actovia-ai/web-reader`, see Path Aliases)
 
 Shared:

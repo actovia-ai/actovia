@@ -18,6 +18,9 @@
     },
     {
       "path": "./packages/web-reader/tsconfig.json"
+    },
+    {
+      "path": "./packages/secret-detect/tsconfig.json"
     }
   ],
   "compilerOptions": {

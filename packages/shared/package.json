@@ -76,6 +76,7 @@
     "./errors/app-error": "./src/errors/app-error.ts"
   },
   "dependencies": {
-    "@actovia-ai/brave-search": "workspace:*"
+    "@actovia-ai/brave-search": "workspace:*",
+    "@actovia-ai/secret-detect": "workspace:*"
   }
 }

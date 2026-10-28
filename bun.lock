@@ -6,6 +6,7 @@
       "name": "actovia",
       "dependencies": {
         "@actovia-ai/brave-search": "workspace:*",
+        "@actovia-ai/secret-detect": "workspace:*",
         "@actovia-ai/web-reader": "workspace:*",
         "@actovia/shared": "workspace:*",
         "@aws-sdk/client-s3": "^3.1154.0",
@@ -151,11 +152,16 @@
       "name": "@actovia-ai/brave-search",
       "version": "0.1.0",
     },
+    "packages/secret-detect": {
+      "name": "@actovia-ai/secret-detect",
+      "version": "0.1.0",
+    },
     "packages/shared": {
       "name": "@actovia/shared",
       "version": "0.0.0",
       "dependencies": {
         "@actovia-ai/brave-search": "workspace:*",
+        "@actovia-ai/secret-detect": "workspace:*",
       },
     },
     "packages/web-reader": {
@@ -180,6 +186,8 @@
     "@actions/io": ["@actions/io@3.0.2", "", {}, "sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw=="],
 
     "@actovia-ai/brave-search": ["@actovia-ai/brave-search@workspace:packages/brave-search"],
+
+    "@actovia-ai/secret-detect": ["@actovia-ai/secret-detect@workspace:packages/secret-detect"],
 
     "@actovia-ai/web-reader": ["@actovia-ai/web-reader@workspace:packages/web-reader"],
 
