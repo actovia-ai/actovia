@@ -74,5 +74,8 @@
     "./utils/thinking-tags": "./src/utils/thinking-tags.ts",
     "./constants/error-codes": "./src/constants/error-codes.ts",
     "./errors/app-error": "./src/errors/app-error.ts"
+  },
+  "dependencies": {
+    "@actovia-ai/brave-search": "workspace:*"
   }
 }

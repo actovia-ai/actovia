@@ -26,6 +26,12 @@ const webSearchSchema = Type.Object({
       description:
         'Optional visual media search. Use "images" or "all" when building visual artifacts, comparisons, product/place explainers, or any answer that benefits from photos. Use "videos" or "all" for tutorials, demonstrations, or video-rich topics. Default: "none".'
     })
+  ),
+  structured: Type.Optional(
+    Type.Boolean({
+      description:
+        "Set true when the question asks for live figures: weather, a stock, index or crypto price, an exchange rate, a sports score or fixture, a unit conversion, a calculation, a parcel, a definition. The search then also brings Brave's structured data, as the first source: exact numbers to reason from and to chart in an artifact. Leave it out otherwise (it costs another request)."
+    })
   )
 })
 
@@ -47,7 +53,11 @@ export const webSearch = (
     // The system prompt carries the date (day granularity).
     description: `Search the web for up-to-date information. Results are numbered [1],[2],… — you MUST cite every factual sentence in your reply using 【N-source】 markers. Numbers run through the whole conversation: sources from earlier searches keep theirs and are cited the same way. A search brings back about ten sources: search again with a sharper query when they are not enough, and call web_fetch to read one in full. Set media="images", "videos", or "all" when the user asks for a visual artifact, visual comparison, product/place explanation, tutorial, or any answer that would be better with media.`,
     parameters: webSearchSchema,
-    execute: async (_toolCallId, { query, media, precision }, signal) => {
+    execute: async (
+      _toolCallId,
+      { query, media, precision, structured },
+      signal
+    ) => {
       const search = async () => {
         if (signal?.aborted) throw new Error('Aborted')
         if (!setting?.webSearch?.braveApiKey) {
@@ -93,6 +103,7 @@ export const webSearch = (
                 .filter(Boolean)
             : null,
           deep,
+          rich: structured === true,
           threshold: precision,
           signal
         })

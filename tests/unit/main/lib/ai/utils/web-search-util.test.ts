@@ -1,9 +1,7 @@
 import {
   fetchWebSearch,
   loadDocumentBuiltin,
-  pickAgeLabel,
-  WebSearchError,
-  webResultsToSources
+  WebSearchError
 } from '@main/lib/ai/utils/web-search-util'
 import { LocalApiTargetError } from '@main/lib/net/local-api-guard'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -248,74 +246,6 @@ describe('fetchWebSearch — how much one search brings back', () => {
     expect(request.searchParams.get('count')).toBe('20')
     expect(request.searchParams.get('maximum_number_of_tokens')).toBe('16384')
     expect(results).toHaveLength(20)
-  })
-})
-
-describe('webResultsToSources', () => {
-  it('flattens web + news + discussions, deduping by url', () => {
-    const flat = webResultsToSources({
-      web: {
-        results: [
-          {
-            title: 'A',
-            url: 'https://a.com',
-            description: 'desc a',
-            extra_snippets: ['more a'],
-            profile: { name: 'Site A' },
-            meta_url: { hostname: 'a.com' }
-          },
-          { title: 'no content', url: 'https://x.com' }
-        ]
-      },
-      news: {
-        results: [{ title: 'A dup', url: 'https://a.com', description: 'dup' }]
-      },
-      discussions: {
-        results: [
-          {
-            title: 'Q',
-            url: 'https://forum.com/t',
-            data: {
-              forum_name: 'r/rust',
-              num_answers: 3,
-              question: 'how?',
-              top_comment: 'like this'
-            }
-          }
-        ]
-      }
-    })
-    expect(flat.map((s) => s.url)).toEqual([
-      'https://a.com',
-      'https://forum.com/t'
-    ])
-    expect(flat[0].content).toBe('desc a\n\nmore a')
-    expect(flat[0].siteName).toBe('Site A')
-    expect(flat[1].content).toContain('[Forum: r/rust, 3 answers]')
-    expect(flat[1].content).toContain('how?')
-  })
-
-  it('returns [] for a null response', () => {
-    expect(webResultsToSources(null)).toEqual([])
-  })
-})
-
-describe('pickAgeLabel', () => {
-  it('prefers a relative label', () => {
-    expect(
-      pickAgeLabel(['Thursday, June 18, 2026', '2026-06-18', '5 days ago'])
-    ).toBe('5 days ago')
-  })
-
-  it('falls back to the ISO date when no relative label', () => {
-    expect(pickAgeLabel(['Monday, October 23, 2023', '2023-10-23'])).toBe(
-      '2023-10-23'
-    )
-  })
-
-  it('returns undefined for empty/missing input', () => {
-    expect(pickAgeLabel([])).toBeUndefined()
-    expect(pickAgeLabel(undefined)).toBeUndefined()
   })
 })
 
@@ -568,5 +498,173 @@ describe('fetchWebSearch — a failed search is not "no results"', () => {
         signal: controller.signal
       })
     ).resolves.toBeNull()
+  })
+})
+
+// ISSUE-240: a query Brave has structured data for (weather, a stock, a
+// score…) answers a rich hint on web/search; its callback brings the data,
+// which is handed over as a source of its own, first.
+describe('fetchWebSearch — structured data', () => {
+  const grounded = [
+    { url: 'https://a.example/1', title: 'A', snippets: ['a'] },
+    { url: 'https://b.example/2', title: 'B', snippets: ['b'] }
+  ]
+  const rich = {
+    type: 'rich',
+    response_callback_info: {
+      vertical: 'stock',
+      callback_key: 'cb',
+      callback_status: 'success'
+    },
+    results: [
+      {
+        type: 'rich',
+        subtype: 'stock',
+        provider: { name: 'FMP', url: 'https://financialmodelingprep.com' },
+        stock: { quote: { symbol: 'KOSPI', price: 2611.4, change: null } }
+      }
+    ]
+  }
+  const ok = (body: unknown) =>
+    ({ ok: true, status: 200, json: async () => body }) as Response
+
+  function mockBrave({ hint = true, richStatus = 200 } = {}) {
+    fetchMock.mockImplementation((url: string) => {
+      const path = new URL(url).pathname
+      if (path.endsWith('/llm/context'))
+        return Promise.resolve(ctxResponse(grounded))
+      if (path.endsWith('/web/search'))
+        return Promise.resolve(
+          ok(
+            hint
+              ? {
+                  rich: {
+                    type: 'rich',
+                    hint: { vertical: 'stock', callback_key: 'cb' }
+                  }
+                }
+              : {}
+          )
+        )
+      if (path.endsWith('/web/rich'))
+        return Promise.resolve(
+          richStatus === 200
+            ? ok(rich)
+            : ({ ok: false, status: richStatus } as Response)
+        )
+      throw new Error(`unexpected ${url}`)
+    })
+  }
+  const paths = () =>
+    fetchMock.mock.calls.map(([url]) => {
+      const u = new URL(url as string)
+      return `${u.pathname.replace('/res/v1', '')}${u.searchParams.has('enable_rich_callback') ? '+rich' : ''}`
+    })
+
+  it('asks for it only when told to', async () => {
+    mockBrave()
+
+    await fetchWebSearch({ query: 'kospi today', braveApiKey: 'k' })
+
+    expect(paths()).toEqual(['/llm/context'])
+  })
+
+  it('follows the hint and puts the data first', async () => {
+    mockBrave()
+
+    const results = await fetchWebSearch({
+      query: 'kospi today',
+      braveApiKey: 'k',
+      rich: true,
+      rankBase: 4
+    })
+
+    expect(paths().toSorted()).toEqual([
+      '/llm/context',
+      '/web/rich',
+      '/web/search+rich'
+    ])
+    expect(
+      fetchMock.mock.calls.some(([u]) => String(u).includes('callback_key=cb'))
+    ).toBe(true)
+    expect(results?.map((r) => r.rank)).toEqual([5, 6, 7])
+    const [data] = results!
+    expect(data.rich).toEqual({ vertical: 'stock', provider: 'FMP' })
+    expect(data.siteName).toBe('FMP')
+    expect(data.content).toContain('"price":2611.4')
+    expect(data.content).not.toContain('change')
+    expect(data.link).toBe('https://search.brave.com/search?q=kospi%20today')
+    // The breadth list of that web/search is deep recall's, not this one's.
+    expect(results?.slice(1).map((r) => r.link)).toEqual([
+      'https://a.example/1',
+      'https://b.example/2'
+    ])
+  })
+
+  it('still counts ten sources besides the data', async () => {
+    fetchMock.mockImplementation((url: string) => {
+      const path = new URL(url).pathname
+      if (path.endsWith('/llm/context'))
+        return Promise.resolve(
+          ctxResponse(
+            Array.from({ length: 12 }, (_, i) => ({
+              url: `https://s${i}.example/p`,
+              title: `T${i}`,
+              snippets: ['s']
+            }))
+          )
+        )
+      if (path.endsWith('/web/search'))
+        return Promise.resolve(
+          ok({ rich: { hint: { vertical: 'stock', callback_key: 'cb' } } })
+        )
+      return Promise.resolve(ok(rich))
+    })
+
+    const results = await fetchWebSearch({
+      query: 'q',
+      braveApiKey: 'k',
+      rich: true
+    })
+
+    expect(results).toHaveLength(11)
+  })
+
+  it('searches on without it when there is no hint or the callback fails', async () => {
+    mockBrave({ hint: false })
+    const noHint = await fetchWebSearch({
+      query: 'q',
+      braveApiKey: 'k',
+      rich: true
+    })
+    expect(paths()).not.toContain('/web/rich')
+    expect(noHint?.map((r) => r.link)).toEqual(grounded.map((g) => g.url))
+
+    fetchMock.mockReset()
+    mockBrave({ richStatus: 500 })
+    const failed = await fetchWebSearch({
+      query: 'q',
+      braveApiKey: 'k',
+      rich: true
+    })
+    expect(failed?.map((r) => r.link)).toEqual(grounded.map((g) => g.url))
+    expect(warn).toHaveBeenCalledWith(
+      'web-search',
+      'Brave request failed',
+      expect.objectContaining({ endpoint: 'web/rich', status: 500 })
+    )
+  })
+
+  it('asks for the hint on the breadth pass of deep recall', async () => {
+    mockBrave()
+
+    const results = await fetchWebSearch({
+      query: 'q',
+      braveApiKey: 'k',
+      deep: true
+    })
+
+    expect(paths()).toContain('/web/search+rich')
+    expect(results?.[0].rich?.vertical).toBe('stock')
   })
 })

@@ -12,6 +12,9 @@
     },
     {
       "path": "./packages/shared/tsconfig.json"
+    },
+    {
+      "path": "./packages/brave-search/tsconfig.json"
     }
   ],
   "compilerOptions": {

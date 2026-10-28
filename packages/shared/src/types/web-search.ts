@@ -35,4 +35,7 @@ export interface WebSearchResult {
   thumbnail?: string
   /** Human freshness label, e.g. "5 days ago". */
   age?: string
+  /** Set on the source that is Brave's structured data (`web/rich`), whose
+   *  `content` is that data as JSON. */
+  rich?: { vertical: string; provider?: string }
 }

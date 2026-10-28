@@ -339,7 +339,15 @@ the rule of the Deep Research PDF and of actovia-ios's copy); a `web_search`
 brings back about ten sources in one Brave request — two per site, 8k
 tokens — and deep recall (three phrasings plus a breadth pass, six requests)
 is off unless switched on (`SEARCH_LIMITS` in `ai/utils/web-search-util.ts`;
-Deep Research keeps its own volume, `DEEP_RESEARCH_LIMITS`). Sources are
+Deep Research keeps its own volume, `DEEP_RESEARCH_LIMITS`). With
+`structured: true` (the model sets it for live figures: weather, a quote, a
+rate, a score…) the search also runs `web/search` with
+`enable_rich_callback` and follows the `rich` hint to `web/rich`
+(ISSUE-240): Brave's structured data leads the list as a source of its own
+(`WebSearchResult.rich`, its `content` the data as compact JSON, its link
+the query on search.brave.com), outside the ten. The Brave requests and the
+mapping of their answers are the `@actovia-ai/brave-search` package
+(`packages/brave-search/`, see Code Structure). Sources are
 numbered through a chat, not per run: the tools' rank registry is made anew
 for every request, so the chat route hands `bindCallingTools` the highest
 number the conversation has got to (`highestSourceRank()` in
@@ -1345,6 +1353,22 @@ straight from `src/main/lib/db/schema.ts` (the shared package must not import th
 - `@actovia/shared/*` → the `packages/shared` workspace package (subpath exports, see its `package.json`)
 - DB row types come from `@/types/db` (a renderer-side passthrough of `src/main/lib/db/schema.ts`)
 
+**Brave Search** (`packages/brave-search/src/`, imported as `@actovia-ai/brave-search`):
+a workspace package of plain TypeScript over `fetch` — no Electron, no
+Actovia import, no dependency — so another project can take it whole:
+`createBraveClient()` (gzip, one retry of a 429, `BraveSearchError` with a
+`failure` and no key in its message), one function per endpoint
+(`llmContext`, `webSearch`, `richSearch`, `imageSearch`, `videoSearch`,
+`newsSearch`), the mapping of their answers (`webResultsToSources`,
+`imageResultsToMedia`, `videoResultsToMedia`, `newsArticles` / `freshest`,
+`richHint` / `richToSource`, `plainTitle`, which `@actovia/shared`
+re-exports). What is Actovia's stays in `ai/utils/web-search-util.ts` (the
+limits, the merge into numbered sources, `WebSearchError`'s model-facing
+messages) and `discover/brave-news-client.ts`. Its tests are
+`tests/unit/packages/brave-search/`; `bun run typecheck` checks it
+(`typecheck:brave-search`). It is `private` until the owner decides to
+publish it.
+
 **Shared Code** (`packages/shared/src/`, imported as `@actovia/shared/...`):
 
 - `types/` - Shared TypeScript types
@@ -2281,6 +2305,10 @@ Renderer:
   answer it)
 - `src/renderer/components/app/tone-bridge.tsx` — follows `settings.colorTone` and re-applies it
 - `src/renderer/sub-apps/` — searchbar, quick-chat, artifacts entry points
+
+Packages:
+
+- `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
 
 Shared:
 
