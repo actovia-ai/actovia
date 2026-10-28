@@ -1,13 +1,5 @@
-import { networkInterfaces } from 'os'
-
+import { createLocalPortGuard } from '@actovia-ai/web-reader'
 import { LAN_SERVER_PORT, SERVER_PORT } from '@actovia/shared/constants/systems'
-
-import {
-  canonicalizeIp,
-  isLocalhostName,
-  isLoopbackOrUnspecified,
-  resolveAddresses
-} from './safe-fetch'
 
 /**
  * `web_fetch` (and anything else that fetches a model-chosen URL from this
@@ -29,6 +21,7 @@ import {
  * once, judges those addresses with `assertAddressesNotActoviaApi` and
  * connects to exactly them — so a DNS answer that rebinds between check and
  * connect is never used. Every redirect hop is re-checked by the caller.
+ * The rule itself is `@actovia-ai/web-reader`'s `createLocalPortGuard`.
  */
 
 export class LocalApiTargetError extends Error {
@@ -38,37 +31,14 @@ export class LocalApiTargetError extends Error {
   }
 }
 
-const GUARDED_PORTS = new Set<number>([SERVER_PORT, LAN_SERVER_PORT])
-
-function defaultPortFor(protocol: string): number {
-  return protocol === 'https:' ? 443 : 80
-}
-
-function sameAddress(a: string, b: string): boolean {
-  const ca = canonicalizeIp(a)
-  const cb = canonicalizeIp(b)
-  if (!ca || !cb || ca.family !== cb.family) return false
-  return ca.bytes.every((byte, i) => byte === cb.bytes[i])
-}
-
-/** Every address configured on one of this machine's network interfaces. */
-function ownInterfaceAddresses(): string[] {
-  const out: string[] = []
-  for (const addrs of Object.values(networkInterfaces())) {
-    for (const info of addrs ?? []) out.push(info.address)
-  }
-  return out
-}
-
-function isThisMachine(ip: string): boolean {
-  if (isLoopbackOrUnspecified(ip)) return true
-  return ownInterfaceAddresses().some((own) => sameAddress(own, ip))
-}
+const guard = createLocalPortGuard({
+  ports: [SERVER_PORT, LAN_SERVER_PORT],
+  error: () => new LocalApiTargetError()
+})
 
 /** Whether `url`'s port is one of the two Actovia's API listens on. */
 export function isGuardedPort(url: URL): boolean {
-  const port = url.port ? Number(url.port) : defaultPortFor(url.protocol)
-  return GUARDED_PORTS.has(port)
+  return guard.isGuardedPort(url)
 }
 
 /**
@@ -80,10 +50,7 @@ export function assertAddressesNotActoviaApi(
   url: URL,
   addresses: readonly string[]
 ): void {
-  if (!isGuardedPort(url)) return
-  const host = url.hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '')
-  if (isLocalhostName(host)) throw new LocalApiTargetError()
-  if (addresses.some((a) => isThisMachine(a))) throw new LocalApiTargetError()
+  guard.assertAddresses(url, addresses)
 }
 
 /**
@@ -95,18 +62,6 @@ export function assertAddressesNotActoviaApi(
  * way, and the real fetch this guards will fail on its own for the same
  * reason.
  */
-export async function assertNotActoviaApi(url: URL): Promise<void> {
-  const port = url.port ? Number(url.port) : defaultPortFor(url.protocol)
-  if (!GUARDED_PORTS.has(port)) return
-
-  const host = url.hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '')
-  if (isLocalhostName(host)) throw new LocalApiTargetError()
-
-  let addresses: string[]
-  try {
-    addresses = (await resolveAddresses(host)).map((a) => a.address)
-  } catch {
-    return
-  }
-  if (addresses.some((a) => isThisMachine(a))) throw new LocalApiTargetError()
+export function assertNotActoviaApi(url: URL): Promise<void> {
+  return guard.assertUrl(url)
 }

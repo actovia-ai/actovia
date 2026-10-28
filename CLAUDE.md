@@ -1370,6 +1370,27 @@ messages) and `discover/brave-news-client.ts`. Its tests are
 (`typecheck:brave-search`). It is `private` until the owner decides to
 publish it.
 
+**Web Reader** (`packages/web-reader/src/`, imported as `@actovia-ai/web-reader`,
+ISSUE-270): reading a page for a model, and fetching a URL someone else
+chose, for Node — no Electron, no Actovia import; its dependencies are
+`cheerio` and `turndown`. `safe-fetch.ts` (`fetchPublicHttps()` — public
+`https:` only, every redirect re-checked, the connection pinned —
+`isPublicAddress()`, `resolveAddresses()`, `UnsafeUrlError`),
+`pinned-fetch.ts` (`fetchPinned()`: one GET pinned to the addresses its
+`checkAddresses` hook judged, never following a redirect, the body decoded
+and capped), `local-port-guard.ts` (`createLocalPortGuard({ ports })`: refuse
+those ports on this machine, nothing else) and `reader.ts` (`readPage()`:
+Jina Reader, then `readDirect()` — redirects followed with a `guard` before
+every hop, the main content to Markdown, a PDF through the caller's
+`parsePdf`). Actovia's side keeps its paths as thin wrappers:
+`net/safe-fetch.ts` re-exports, `net/pinned-fetch.ts` binds the guard and
+the user agent, `net/local-api-guard.ts` is the guard on `SERVER_PORT` /
+`LAN_SERVER_PORT` with `LocalApiTargetError`, and `ai/utils/web-search-util.ts`'s
+`loadDocument*` add LangChain's PDF loader. Tests in
+`tests/unit/packages/web-reader/` (the Actovia wrappers keep theirs under
+`tests/unit/main/lib/net/`); `typecheck:web-reader`; `private` like
+brave-search.
+
 **Shared Code** (`packages/shared/src/`, imported as `@actovia/shared/...`):
 
 - `types/` - Shared TypeScript types
@@ -2010,7 +2031,7 @@ Main process:
 - `src/main/lib/ai/skills/` — skills.sh client, install store, and the prompt seam (see Skills)
 - `src/main/lib/analytics/` — DuckDB chat-audit snapshot + read-only query wrapper (see Chat Audit)
 - `src/main/lib/media/` — generated images on disk (`store.ts`: `mediaDirFor` — the one way to name a chat's / Group's media dir, refusing a bad id — `saveMedia`, the `resolveMediaFile` path guard the media route uses, per-chat / per-Group / all removal); see the `image_generation` note
-- `src/main/lib/net/` — `safe-fetch.ts`: `fetchPublicHttps()` / `isPublicAddress()`, the SSRF guard for a URL someone else chose (see `docs/security-hardening.md`); `local-api-guard.ts`: web_fetch cannot reach 60223 / 63129; `pinned-fetch.ts`: `fetchPinned()`, web_fetch's built-in loader's GET, pinned to the addresses it judged and never following a redirect itself
+- `src/main/lib/net/` — Actovia's paths over `@actovia-ai/web-reader` (see Path Aliases): `safe-fetch.ts`: `fetchPublicHttps()` / `isPublicAddress()`, the SSRF guard for a URL someone else chose (see `docs/security-hardening.md`); `local-api-guard.ts`: web_fetch cannot reach 60223 / 63129; `pinned-fetch.ts`: `fetchPinned()`, web_fetch's built-in loader's GET, pinned to the addresses it judged and never following a redirect itself
 - `src/main/lib/ai/philharmonic/` — multi-agent Groups
 - `src/main/lib/ai/context-management/` — LCM
 - `src/main/lib/ai/memory/` — personalization memory (consolidation + recall)
@@ -2310,6 +2331,7 @@ Renderer:
 Packages:
 
 - `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
+- `packages/web-reader/` — a page as Markdown for a model, the SSRF-checked fetches and the local-port guard (`@actovia-ai/web-reader`, see Path Aliases)
 
 Shared:
 

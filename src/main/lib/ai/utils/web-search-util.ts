@@ -18,14 +18,17 @@ import {
   webResultsToSources,
   webSearch
 } from '@actovia-ai/brave-search'
+import {
+  readDirect,
+  type ReadDocument,
+  readWithJina
+} from '@actovia-ai/web-reader'
 import type {
   WebSearchMediaKind,
   WebSearchMediaResult,
   WebSearchResult
 } from '@actovia/shared/types/web-search'
 import { WebPDFLoader } from '@langchain/community/document_loaders/web/pdf'
-import * as cheerio from 'cheerio'
-import TurndownService from 'turndown'
 
 import { logger } from '../../logger'
 import {
@@ -34,145 +37,49 @@ import {
 } from '../../net/local-api-guard'
 import { fetchPinned } from '../../net/pinned-fetch'
 
-/* ================= Constants ================= */
-
-const TURNDOWN_OPTIONS = {
-  headingStyle: 'atx',
-  codeBlockStyle: 'fenced'
-} as const
-
-// A page webFetch loads directly (not through Jina) may redirect; each hop
-// is re-checked against assertNotActoviaApi (see loadDocumentBuiltin) so a
-// redirect can't land on Actovia's own API even when the original URL didn't.
-const MAX_BUILTIN_REDIRECTS = 5
-const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308])
-
-/**
- * A GET through `fetchPinned` (the connection pinned to the addresses it
- * judged; it never follows a redirect), following redirects here so every
- * hop — including the first — passes `assertNotActoviaApi` before the request
- * for it is made. Only `http:` / `https:` hops are followed.
- */
-async function fetchFollowingLocalGuard(initial: URL, signal?: AbortSignal) {
-  let current = initial
-  for (let hop = 0; ; hop++) {
-    if (current.protocol !== 'http:' && current.protocol !== 'https:') {
-      throw new Error(`Refused: ${current.protocol} is not http(s)`)
-    }
-    await assertNotActoviaApi(current)
-    const response = await fetchPinned(current, { signal })
-    if (!REDIRECT_STATUSES.has(response.status)) return response
-    const location = response.headers.get('location')
-    if (!location || hop >= MAX_BUILTIN_REDIRECTS) return response
-    current = new URL(location, current)
-  }
-}
-
 /* ================= URL-to-Markdown (for webFetch) ================= */
+// The reading is `@actovia-ai/web-reader` (packages/web-reader, ISSUE-270);
+// what is Actovia's — the guard on its own API, the PDF parser — is here.
 
-function getOgImageLink($: cheerio.CheerioAPI) {
-  return (
-    $('meta[property="og:image"]').attr('content') ??
-    $('meta[name="og:image"]').attr('content') ??
-    $('meta[name="twitter:image"]').attr('content') ??
-    ''
-  )
-}
+type LoadedDocument = ReadDocument
 
-async function loadPdf(blob: Blob) {
-  try {
-    const loader = new WebPDFLoader(blob, { parsedItemSeparator: '' })
-    const docs = await loader.load()
-    return docs.map((d) => d.pageContent).join('\n')
-  } catch {
-    return ''
-  }
-}
-
-function extractHtmlBody(html: string) {
-  try {
-    const $ = cheerio.load(html)
-
-    $('script, style, noscript, iframe, svg, footer, nav, header').remove()
-
-    return {
-      ogImage: getOgImageLink($),
-      html:
-        $('article').html() ||
-        $('#content').html() ||
-        $('.content').html() ||
-        $('#main').html() ||
-        $('main').html() ||
-        $('body').html() ||
-        ''
-    }
-  } catch {
-    return null
-  }
-}
-
-function htmlToMarkdown(html: string) {
-  const turndown = new TurndownService(TURNDOWN_OPTIONS)
-  return turndown.turndown(html)
+async function parsePdf(blob: Blob) {
+  const loader = new WebPDFLoader(blob, { parsedItemSeparator: '' })
+  const docs = await loader.load()
+  return docs.map((d) => d.pageContent).join('\n')
 }
 
 /**
- * Built-in loader: cheerio + turndown (HTML) or LangChain (PDF). Fetches
- * directly from this process (unlike the Jina loader, which asks Jina's
- * servers to fetch on our behalf), so it is the one loader that must not be
- * allowed to reach Actovia's own API — `fetchFollowingLocalGuard` checks the
- * initial URL and every redirect hop.
+ * Built-in loader: the page fetched from this process (unlike the Jina
+ * loader, which asks Jina's servers to fetch on our behalf), so it is the
+ * one loader that must not be allowed to reach Actovia's own API —
+ * `assertNotActoviaApi` checks the initial URL and every redirect hop before
+ * its request, and the pinned connection checks the addresses it connects
+ * to. Either refusal is thrown as `LocalApiTargetError`.
  */
-export async function loadDocumentBuiltin(link: string, signal?: AbortSignal) {
-  try {
-    let initial: URL
-    try {
-      initial = new URL(link)
-    } catch {
-      return null
-    }
-    const response = await fetchFollowingLocalGuard(initial, signal)
-    // A 4xx/5xx body is an error page, not the document — turning it into
-    // markdown would hand the agent "404 Not Found" as if it were content.
-    // A redirect left unresolved (no Location, or too many hops) is not
-    // `ok` either, so it falls into the same case.
-    if (!response.ok) return null
-    const contentType = response.headers.get('content-type') ?? ''
-
-    if (contentType.includes('application/pdf')) {
-      const blob = await response.blob()
-      const pdf = await loadPdf(blob)
-      return pdf ? { ogImage: '', type: 'pdf' as const, content: pdf } : null
-    }
-
-    if (contentType.includes('text/html')) {
-      const html = await response.text()
-      const dom = extractHtmlBody(html)
-      if (!dom?.html) return null
-      const markdown = htmlToMarkdown(dom.html)
-      return markdown
-        ? { ogImage: dom.ogImage, type: 'html' as const, content: markdown }
-        : null
-    }
-
-    return null
-  } catch (error) {
-    if (error instanceof LocalApiTargetError) throw error
-    return null
-  }
+export function loadDocumentBuiltin(
+  link: string,
+  signal?: AbortSignal
+): Promise<LoadedDocument | null> {
+  return readDirect(link, {
+    signal,
+    fetchHop: (url, s) => fetchPinned(url, { signal: s }),
+    guard: assertNotActoviaApi,
+    isRefusal: (error) => error instanceof LocalApiTargetError,
+    parsePdf
+  })
 }
 
 /**
  * Load a URL as markdown, used by the webFetch tool. Jina Reader is the
  * primary path (handles JS-rendered SPAs and most paywalled previews); if it
- * returns null we fall back to the built-in cheerio+turndown loader so a
- * single blocked or rate-limited Jina response doesn't break the agent's
- * fetch — the user no longer picks between them.
+ * returns null we fall back to the built-in loader so a single blocked or
+ * rate-limited Jina response doesn't break the agent's fetch.
  */
 export async function loadDocument(
   link: string,
   signal?: AbortSignal
-): Promise<{ ogImage: string; type: 'pdf' | 'html'; content: string } | null> {
+): Promise<LoadedDocument | null> {
   return (
     (await loadDocumentWithJina(link, signal)) ??
     (await loadDocumentBuiltin(link, signal))
@@ -180,20 +87,8 @@ export async function loadDocument(
 }
 
 /** Jina Reader loader */
-export async function loadDocumentWithJina(link: string, signal?: AbortSignal) {
-  try {
-    const response = await fetch(`https://r.jina.ai/${link}`, {
-      headers: { Accept: 'text/plain' },
-      signal
-    })
-
-    if (!response.ok) return null
-
-    const content = await response.text()
-    return content ? { ogImage: '', type: 'html' as const, content } : null
-  } catch {
-    return null
-  }
+export function loadDocumentWithJina(link: string, signal?: AbortSignal) {
+  return readWithJina(link, { signal })
 }
 
 /* ================= Brave Search ================= */

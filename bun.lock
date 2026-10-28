@@ -6,6 +6,7 @@
       "name": "actovia",
       "dependencies": {
         "@actovia-ai/brave-search": "workspace:*",
+        "@actovia-ai/web-reader": "workspace:*",
         "@actovia/shared": "workspace:*",
         "@aws-sdk/client-s3": "^3.1154.0",
         "@aws-sdk/s3-request-presigner": "^3.1154.0",
@@ -157,6 +158,17 @@
         "@actovia-ai/brave-search": "workspace:*",
       },
     },
+    "packages/web-reader": {
+      "name": "@actovia-ai/web-reader",
+      "version": "0.1.0",
+      "dependencies": {
+        "cheerio": "^1.2.0",
+        "turndown": "^7.2.4",
+      },
+      "devDependencies": {
+        "@types/turndown": "^5.0.6",
+      },
+    },
   },
   "packages": {
     "@actions/core": ["@actions/core@3.0.1", "", { "dependencies": { "@actions/exec": "^3.0.0", "@actions/http-client": "^4.0.0" } }, "sha512-a6d/Nwahm9fliVGRhdhofo40HjHQasUPusmc7vBfyky+7Z+P2A1J68zyFVaNcEclc/Se+eO595oAr5nwEIoIUA=="],
@@ -168,6 +180,8 @@
     "@actions/io": ["@actions/io@3.0.2", "", {}, "sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw=="],
 
     "@actovia-ai/brave-search": ["@actovia-ai/brave-search@workspace:packages/brave-search"],
+
+    "@actovia-ai/web-reader": ["@actovia-ai/web-reader@workspace:packages/web-reader"],
 
     "@actovia/shared": ["@actovia/shared@workspace:packages/shared"],
 

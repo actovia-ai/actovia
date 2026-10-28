@@ -1,4 +1,4 @@
-// src/main/lib/net/safe-fetch.ts — fetching a URL someone else chose (an
+// @actovia-ai/web-reader's safe-fetch — fetching a URL someone else chose (an
 // images API's link) without letting it reach loopback, the LAN or cloud
 // metadata. DNS and the HTTPS transport are both mocked: nothing here leaves
 // the process.
@@ -65,7 +65,7 @@ vi.mock('https', () => ({
 }))
 
 const { isPublicAddress, fetchPublicHttps } =
-  await import('@main/lib/net/safe-fetch')
+  await import('@actovia-ai/web-reader')
 
 afterEach(() => {
   dnsLookup.mockReset()
@@ -313,7 +313,7 @@ describe('fetchPublicHttps', () => {
 describe('canonicalizeIp — the IPv4-in-IPv6 forms (S5 minor)', () => {
   it('unwraps ::/96 and ::ffff:0:0/96 to the IPv4 address', async () => {
     const { canonicalizeIp, isLoopbackOrUnspecified, isPublicAddress } =
-      await import('@main/lib/net/safe-fetch')
+      await import('@actovia-ai/web-reader')
     expect(canonicalizeIp('::127.0.0.1')).toEqual({
       family: 4,
       bytes: [127, 0, 0, 1]

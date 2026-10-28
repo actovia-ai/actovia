@@ -1,0 +1,20 @@
+{
+  "name": "@actovia-ai/web-reader",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read a web page for a model: Jina Reader, then the page fetched with a pinned, SSRF-checked connection and turned into Markdown. Includes fetchPublicHttps (public https only, every redirect re-checked) and a guard for a local service's ports.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "turndown": "^7.2.4"
+  },
+  "devDependencies": {
+    "@types/turndown": "^5.0.6"
+  }
+}
