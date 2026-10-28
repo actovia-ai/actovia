@@ -18,6 +18,42 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses'
 import DMG from './brand/dmg.json'
 import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
 
+// macOS signing is switched on by the environment, so a build without it
+// (`bun run package` for e2e, a fork's CI) stays ad-hoc and still valid (see
+// the postPackage hook). `APPLE_SIGNING_IDENTITY` names a keychain identity,
+// e.g. "Developer ID Application: Yanzhao Liu (A542S7SY83)"; release.yml
+// imports the certificate from secrets. A signature by one identity keeps the
+// app's designated requirement the same across versions, so the Keychain
+// item "Actovia Safe Storage" stops asking for the password after an update
+// and Squirrel.Mac can install updates (CLAUDE.md "Updates and code signing").
+const signingIdentity = process.env.APPLE_SIGNING_IDENTITY || undefined
+
+// Notarization needs a signed build and one of two credentials: an App Store
+// Connect API key (the .p8 file's path, its id and the issuer) or an Apple ID
+// with an app-specific password and the team id. Neither set: signed, not
+// notarized — Gatekeeper then still asks on first open of a download.
+function notarizeOptions(): NonNullable<
+  ForgeConfig['packagerConfig']
+>['osxNotarize'] {
+  if (!signingIdentity) return undefined
+  const env = process.env
+  if (env.APPLE_API_KEY && env.APPLE_API_KEY_ID && env.APPLE_API_ISSUER) {
+    return {
+      appleApiKey: env.APPLE_API_KEY,
+      appleApiKeyId: env.APPLE_API_KEY_ID,
+      appleApiIssuer: env.APPLE_API_ISSUER
+    }
+  }
+  if (env.APPLE_ID && env.APPLE_APP_SPECIFIC_PASSWORD && env.APPLE_TEAM_ID) {
+    return {
+      appleId: env.APPLE_ID,
+      appleIdPassword: env.APPLE_APP_SPECIFIC_PASSWORD,
+      teamId: env.APPLE_TEAM_ID
+    }
+  }
+  return undefined
+}
+
 const config: ForgeConfig = {
   packagerConfig: {
     // Unpack DuckDB from the asar: AutoUnpackNativesPlugin only extracts
@@ -36,9 +72,9 @@ const config: ForgeConfig = {
     appBundleId: 'app.yancey.actovia',
     appCategoryType: 'public.app-category.utilities',
     // macOS permission prompts' purpose strings (carried over from
-    // universal-client's electron-builder `mac.extendInfo`). Signing with
-    // build/entitlements.mac.plist isn't wired (`osxSign`) — this repo
-    // doesn't sign builds yet; add it together with a signing identity.
+    // universal-client's electron-builder `mac.extendInfo`). Under the
+    // hardened runtime a signed build also needs the matching entitlement in
+    // build/entitlements.mac.plist (camera, microphone).
     extendInfo: {
       NSCameraUsageDescription:
         "Application requests access to the device's camera.",
@@ -49,12 +85,20 @@ const config: ForgeConfig = {
       NSDownloadsFolderUsageDescription:
         "Application requests access to the user's Downloads folder."
     },
-    // TODO(signing): the owner has applied for the Apple Developer Program
-    // (2026-10-19). Signing is one later change: set `osxSign` (identity,
-    // hardened runtime, entitlements) and `osxNotarize` here, with the secrets
-    // in release.yml (CLAUDE.md "Updates and code signing"). Until then
-    // `osxSign` stays unset so the postPackage ad-hoc re-sign keeps the bundle
-    // valid.
+    // Every Mach-O in the bundle is signed — the DuckDB `.node` / dylib under
+    // app.asar.unpacked and resources/bin/actovia-input included — with the
+    // hardened runtime and the one entitlements file (osx-sign's default
+    // would give helpers a narrower set; Electron's helpers need JIT too).
+    osxSign: signingIdentity
+      ? {
+          identity: signingIdentity,
+          optionsForFile: () => ({
+            hardenedRuntime: true,
+            entitlements: './build/entitlements.mac.plist'
+          })
+        }
+      : undefined,
+    osxNotarize: notarizeOptions(),
     // @electron-forge/plugin-vite normally sets `ignore` itself, excluding
     // everything except `.vite/**` on the assumption the whole app is
     // bundled into it. That breaks `@electric-sql/pglite` (and its two
@@ -102,9 +146,9 @@ const config: ForgeConfig = {
     // `codesign --verify` says "invalid Info.plist (plist or signature have
     // been modified)", and that is exactly the error every downloaded update
     // failed with. Seal the whole bundle once, after everything has touched it.
-    // Skipped when a real identity is configured (`osxSign`), which signs
-    // properly itself — that is the switch to flip once a Developer ID exists
-    // (see "Updates and code signing" in CLAUDE.md).
+    // Skipped when a real identity is configured (`osxSign`, from
+    // APPLE_SIGNING_IDENTITY), which signs the whole bundle itself after the
+    // fuses (see "Updates and code signing" in CLAUDE.md).
     postPackage: async (forgeConfig, { platform, outputPaths }) => {
       if (
         platform !== 'darwin' ||

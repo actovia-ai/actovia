@@ -67,6 +67,16 @@ jobs:
       run:
         shell: bash
 
+    # macOS signing and notarization (ISSUE-82) run only when their secrets
+    # are set; without them the build is ad-hoc as before (forge.config.ts).
+    #   MACOS_CERTIFICATE           the Developer ID Application .p12, base64
+    #   MACOS_CERTIFICATE_PASSWORD  its export password
+    #   APPLE_API_KEY_P8            an App Store Connect API key (.p8 contents)
+    #   APPLE_API_KEY_ID / APPLE_API_ISSUER  that key's id and issuer
+    env:
+      HAS_MAC_CERT: ${{ secrets.MACOS_CERTIFICATE != '' }}
+      HAS_NOTARY_KEY: ${{ secrets.APPLE_API_KEY_P8 != '' }}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,11 +105,53 @@ jobs:
           NEXT_VERSION: ${{ needs.version.outputs.version }}
         run: npm pkg set version="$NEXT_VERSION"
 
+      # A keychain of the job's own holds the certificate; the identity it
+      # contains becomes APPLE_SIGNING_IDENTITY, which turns osxSign on.
+      - name: Import the Developer ID certificate
+        if: matrix.os == 'macos-26' && env.HAS_MAC_CERT == 'true'
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
+          printf '%s' "$MACOS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          rm -f "$RUNNER_TEMP/certificate.p12"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" \
+            | grep -o '"Developer ID Application: [^"]*"' | head -1 | tr -d '"')"
+          if [ -z "$IDENTITY" ]; then echo "No Developer ID Application identity in the certificate" >&2; exit 1; fi
+          echo "APPLE_SIGNING_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+
+      - name: Prepare the notarization key
+        if: matrix.os == 'macos-26' && env.HAS_MAC_CERT == 'true' && env.HAS_NOTARY_KEY == 'true'
+        env:
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+        run: |
+          printf '%s' "$APPLE_API_KEY_P8" > "$RUNNER_TEMP/AuthKey.p8"
+          echo "APPLE_API_KEY=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+
       # `make` = electron-forge make with data-testid stripped (see package.json).
       # Output: macOS ZIP + DMG, Windows Squirrel (.exe/.nupkg/RELEASES),
-      # Linux .deb + .rpm — all under out/make/. Unsigned for now.
+      # Linux .deb + .rpm — all under out/make/. The macOS build is signed and
+      # notarized when the steps above ran, ad-hoc otherwise.
       - name: Build distributables
+        env:
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: bun run make
+
+      - name: Remove the signing keychain
+        if: always() && matrix.os == 'macos-26' && env.HAS_MAC_CERT == 'true'
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" || true
+          rm -f "$RUNNER_TEMP/AuthKey.p8"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

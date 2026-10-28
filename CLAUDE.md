@@ -191,11 +191,31 @@ settings and memories as the packaged app:
 
 ### Updates and code signing
 
-The macOS releases are **ad-hoc signed** (no Apple Developer account yet).
-Squirrel.Mac only accepts an update that satisfies the _running_ app's
-designated requirement, and an ad-hoc app's requirement is its own `cdhash` —
-so no update can ever pass, whatever the network does. The updater therefore
-has two modes (`UpdateMode`, in the payload the panel receives):
+A macOS build is signed with the owner's **Developer ID** when
+`APPLE_SIGNING_IDENTITY` names a keychain identity (ISSUE-82,
+`forge.config.ts`: `osxSign` — hardened runtime and
+`build/entitlements.mac.plist` on every Mach-O in the bundle, the DuckDB
+`.node` / dylib and `resources/bin/actovia-input` included — and
+`osxNotarize` when an App Store Connect API key, `APPLE_API_KEY` (the .p8
+file's path) + `APPLE_API_KEY_ID` + `APPLE_API_ISSUER`, or an Apple ID,
+`APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` + `APPLE_TEAM_ID`, is in the
+environment). Without the identity a build is **ad-hoc** as before:
+`bun run package` for e2e, and CI without the secrets. `release.yml` imports
+the certificate into a keychain of the job's own from the secrets
+`MACOS_CERTIFICATE` (the .p12, base64) and `MACOS_CERTIFICATE_PASSWORD`, and
+notarizes with `APPLE_API_KEY_P8` / `APPLE_API_KEY_ID` / `APPLE_API_ISSUER`;
+each step is skipped while its secret is missing. The entitlements are JIT
+(V8, PGlite's WebAssembly) plus the microphone and the camera — under the
+hardened runtime a device without its entitlement is refused before macOS
+asks.
+
+Why it matters: an ad-hoc app's designated requirement is its own `cdhash`,
+which changes with every version. So every update of an ad-hoc build asks
+for the login password to open the Keychain item "Actovia Safe Storage", and
+Squirrel.Mac, which only accepts an update that satisfies the _running_ app's
+requirement, can never install one. A Developer ID requirement names the
+team, the same for every version. The updater has two modes (`UpdateMode`,
+in the payload the panel receives):
 
 - **`auto`** — Squirrel through `update-electron-app` (10-minute re-checks,
   downloads by itself, `ready` → "Restart & Install"). Windows, and any mac
@@ -208,38 +228,31 @@ has two modes (`UpdateMode`, in the payload the panel receives):
 
 Which one is decided at runtime by `detectUpdateMode()` reading
 `codesign -dv` on the running bundle (`Signature=adhoc` → `manual`) — no build
-flag, so a build signed with a Developer ID switches to `auto` by itself.
+flag, so a Developer ID build is `auto` by itself.
 
-The packaged bundle's signature is made self-consistent by the `postPackage`
-hook in `forge.config.ts` (`codesign --force --deep --sign -`, skipped as soon as
-`packagerConfig.osxSign` is set). Without it the bundle fails
+An ad-hoc bundle's signature is made self-consistent by the `postPackage`
+hook in `forge.config.ts` (`codesign --force --deep --sign -`, skipped
+whenever `osxSign` is set). Without it the bundle fails
 `codesign --verify` with "invalid Info.plist (plist or signature have been
 modified)": the packager rewrites `Info.plist`, and flipping fuses re-signs only
 the executable — that was the exact error every downloaded update failed with.
 
-**When a Developer ID exists** (none of this is wired or tested yet):
+**Moving from ad-hoc to the Developer ID** (the first signed release):
 
-- forge: `osxSign` (identity, hardened runtime, an entitlements file for
-  Electron's JIT/unsigned-memory needs) and `osxNotarize`; the secrets and
-  certificate import in `release.yml`. Every Mach-O in the bundle must be signed,
-  including the unpacked DuckDB `.node`/dylib and `resources/bin/actovia-input`,
-  or notarization fails.
-- The first signed release cannot be reached by auto-update from an ad-hoc one
-  (the old requirement is a `cdhash`): users install it by hand once.
-- On the first signed build, check what is bound to the signing identity:
-  `safeStorage` data (`lock.dat`, the LAN certificate's private key — a lost key
-  means a new fingerprint and every paired device has to re-pair), and the
-  Accessibility / Screen Recording grants Computer Use needs.
-- The settings secrets are `safeStorage`-bound too: every registry value in
-  `settings` and every MCP secret is stored `enc:v1:…` under the same key
-  (`src/main/lib/secrets/`). If the new identity cannot open them, nothing
-  crashes and no ciphertext is ever sent — each key reads as unset,
-  `GET /api/v1/settings/secrets-status` lists it in `needsReentry`, and the
-  user pastes each API key (and MCP token) in again once; a save that does not
-  touch a key keeps its old ciphertext until then.
+- It cannot be reached by auto-update from an ad-hoc one (the old requirement
+  is a `cdhash`): users install it by hand once.
+- The Keychain asks once more for "Actovia Safe Storage" (Always Allow), and
+  never again after: `safeStorage` data (`lock.dat`, the LAN certificate's
+  private key, every `enc:v1:` secret in `settings` and `mcp_server`) stays
+  readable. If it cannot be opened, nothing crashes and no ciphertext is
+  sent: each key reads as unset, `GET /api/v1/settings/secrets-status` lists
+  it in `needsReentry`, and a lost LAN key means a new fingerprint and every
+  paired device re-pairs.
+- The Accessibility / Screen Recording grants Computer Use needs are tied to
+  the signature: grant them again once.
 - `quitAndInstall()` together with the "closing the window only hides it"
-  handler in `window.ts` has never run (no update has ever got past validation):
-  test it with two consecutive signed builds.
+  handler in `window.ts` has never run: test it with two consecutive signed
+  builds.
 
 ### Skills (skills.sh)
 
