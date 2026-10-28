@@ -1,3 +1,19 @@
+# [2.3.0](https://github.com/actovia-ai/actovia/compare/v2.2.0...v2.3.0) (2026-10-21)
+
+
+### Bug Fixes
+
+* **chat,philharmonic:** search opens at the hit; group rename in the sidebar menu; a cover for sources without a picture ([2ece5f4](https://github.com/actovia-ai/actovia/commit/2ece5f44ad70754247dced1b05210eaa1f717b34))
+* **chat:** an opaque composer dock; one button in the account row; the compare question in the column ([f68a8cd](https://github.com/actovia-ai/actovia/commit/f68a8cd83fb81683359c4af1561b9cbbdcbea79c))
+* **philharmonic:** Chat's user bubble; costs by group name; quieter dashboard; even workforce cards ([5756980](https://github.com/actovia-ai/actovia/commit/575698082e697b26aa08da866666edc1c1f3cf26))
+* **settings:** no focus grab on open; plain-language memory; one provider vocabulary ([50aff9a](https://github.com/actovia-ai/actovia/commit/50aff9aedb8c3679a800ee5b4325cd2e0af3f1f2))
+
+
+### Features
+
+* **chat:** the header's model belongs to the chat ([675a023](https://github.com/actovia-ai/actovia/commit/675a0235bf1fd32bdbb477f4dd0f32ed81b7747a))
+* **ui:** Ody on the landing and the lock screen; a calm route error page ([d0a8cec](https://github.com/actovia-ai/actovia/commit/d0a8cecf55c4d8c0b8aa65ba3ab91699d5b1b6c8))
+
 # [2.2.0](https://github.com/actovia-ai/actovia/compare/v2.1.0...v2.2.0) (2026-10-21)
 
 
