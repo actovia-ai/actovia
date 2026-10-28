@@ -127,9 +127,10 @@ test.describe('Sidebar', () => {
       TEST_IDS.chatLayout.workspaceSwitcher
     )
     await switcher.waitFor({ state: 'visible', timeout: 10_000 })
+    await switcher.click()
     await expect(
       mainWindow.getByTestId(TEST_IDS.chatLayout.workspaceChat)
-    ).toHaveAttribute('aria-selected', 'true')
+    ).toHaveAttribute('aria-current', 'page')
 
     await mainWindow
       .getByTestId(TEST_IDS.chatLayout.workspacePhilharmonic)

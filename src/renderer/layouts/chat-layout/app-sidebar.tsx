@@ -58,7 +58,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         >
           <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
           <HistoryArrows />
-          <WorkspaceSwitcher className="ml-auto" />
+        </div>
+        <div className="flex items-center px-1">
+          <WorkspaceSwitcher />
         </div>
         <SidebarMenu className="no-drag gap-0.5">
           <SidebarMenuItem>

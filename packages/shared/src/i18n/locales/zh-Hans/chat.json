@@ -293,7 +293,9 @@
     "workspace": {
       "label": "工作区",
       "chat": "聊天",
-      "philharmonic": "Philharmonic"
+      "chatDescription": "提问、研究与创作",
+      "philharmonic": "Philharmonic",
+      "philharmonicDescription": "一支协作的智能体团队"
     },
     "nav": {
       "new": "新建",

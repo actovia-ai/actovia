@@ -293,7 +293,9 @@
     "workspace": {
       "label": "작업 공간",
       "chat": "채팅",
-      "philharmonic": "Philharmonic"
+      "chatDescription": "질문하고, 조사하고, 만들기",
+      "philharmonic": "Philharmonic",
+      "philharmonicDescription": "함께 일하는 에이전트 팀"
     },
     "nav": {
       "new": "새로 만들기",

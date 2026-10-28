@@ -304,7 +304,9 @@
     "workspace": {
       "label": "Area di lavoro",
       "chat": "Chat",
-      "philharmonic": "Philharmonic"
+      "chatDescription": "Chiedi, ricerca e crea",
+      "philharmonic": "Philharmonic",
+      "philharmonicDescription": "Un team di agenti al lavoro"
     },
     "nav": {
       "new": "Nuovo",

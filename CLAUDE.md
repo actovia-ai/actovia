@@ -1195,10 +1195,12 @@ The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, `SIDEBAR_WIDTH` in
 `layouts/shared/resizable-sidebar.tsx`) sits on the window's material like
 Philharmonic's (`SIDEBAR_ON_MATERIAL`, `layouts/shared/sidebar-material.ts`).
 Settings' sidebar is as wide but solid (`SIDEBAR_SOLID`: `--sidebar` a step
-toward black, the active row a step further; owner, ISSUE-269). Its top row carries
-`components/app/workspace-switcher.tsx` — Chat / Philharmonic as shadcn
-`Tabs`, icon-only (Hugeicons' `Chatting01Icon`, and `icons/music-conductor.tsx`
-traced from Streamline's conductor; ISSUE-266), the one on show selected. Under it: New, Search, and **Artifacts**
+toward black, the active row a step further; owner, ISSUE-269). Under its
+title row is `components/app/workspace-switcher.tsx`, the sidebar's title:
+the surface on show (Chat / Philharmonic) and a chevron, a shadcn
+`DropdownMenu` listing both with a line on what each is for and a check on
+the one on show — ChatGPT's ChatGPT / Codex menu (owner, 2026-10-28, back
+from ISSUE-237/266's icon tabs). Under it: New, Search, and **Artifacts**
 (`/artifacts`, `containers/artifacts.tsx`): every `create_artifact` result of
 every chat, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
 in `db/queries.ts`, no code; `ArtifactListItem` in

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
-// ISSUE-237: Chat / Philharmonic at the sidebar's top right — the current one
-// selected, the other a click away. ISSUE-266: shadcn's Tabs, so it is a
-// tablist of two tabs (arrow keys move between them).
+// Chat / Philharmonic as the sidebar's title (owner, 2026-10-28, back from
+// ISSUE-237's icon switch): the surface on show names the trigger, and its
+// menu lists both, the one on show checked.
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -45,8 +45,12 @@ async function render(at: string) {
   })
 }
 
-const button = (id: string) =>
-  host.querySelector<HTMLButtonElement>(`[data-testid="${id}"]`)!
+const byId = (id: string) =>
+  document.querySelector<HTMLElement>(`[data-testid="${id}"]`)
+
+async function openMenu() {
+  await act(async () => byId(TEST_IDS.chatLayout.workspaceSwitcher)!.click())
+}
 
 beforeEach(() => {
   host = document.createElement('div')
@@ -59,36 +63,37 @@ afterEach(() => {
 })
 
 describe('WorkspaceSwitcher', () => {
-  it('selects Chat on a chat page, and goes to Philharmonic on a click', async () => {
+  it('names Chat on a chat page, and goes to Philharmonic from its menu', async () => {
     await render('/chat/abc')
+    const trigger = byId(TEST_IDS.chatLayout.workspaceSwitcher)!
+    expect(trigger.textContent).toContain('sidebar.workspace.chat')
+    expect(byId(TEST_IDS.chatLayout.workspacePhilharmonic)).toBeNull()
+
+    await openMenu()
     expect(
-      button(TEST_IDS.chatLayout.workspaceSwitcher).getAttribute('role')
-    ).toBe('tablist')
-    expect(button(TEST_IDS.chatLayout.workspaceChat).getAttribute('role')).toBe(
-      'tab'
-    )
+      byId(TEST_IDS.chatLayout.workspaceChat)!.getAttribute('aria-current')
+    ).toBe('page')
     expect(
-      button(TEST_IDS.chatLayout.workspaceChat).getAttribute('aria-selected')
-    ).toBe('true')
-    expect(
-      button(TEST_IDS.chatLayout.workspacePhilharmonic).getAttribute(
-        'aria-selected'
-      )
-    ).toBe('false')
+      byId(TEST_IDS.chatLayout.workspacePhilharmonic)!.textContent
+    ).toContain('sidebar.workspace.philharmonicDescription')
     await act(async () =>
-      button(TEST_IDS.chatLayout.workspacePhilharmonic).click()
+      byId(TEST_IDS.chatLayout.workspacePhilharmonic)!.click()
     )
     expect(path).toBe('/philharmonic')
   })
 
-  it('selects Philharmonic inside it', async () => {
+  it('names Philharmonic inside it, and goes back to Chat', async () => {
     await render('/philharmonic/groups/g1')
+    expect(byId(TEST_IDS.chatLayout.workspaceSwitcher)!.textContent).toContain(
+      'sidebar.workspace.philharmonic'
+    )
+    await openMenu()
     expect(
-      button(TEST_IDS.chatLayout.workspacePhilharmonic).getAttribute(
-        'aria-selected'
+      byId(TEST_IDS.chatLayout.workspacePhilharmonic)!.getAttribute(
+        'aria-current'
       )
-    ).toBe('true')
-    await act(async () => button(TEST_IDS.chatLayout.workspaceChat).click())
+    ).toBe('page')
+    await act(async () => byId(TEST_IDS.chatLayout.workspaceChat)!.click())
     expect(path).toBe('/')
   })
 })

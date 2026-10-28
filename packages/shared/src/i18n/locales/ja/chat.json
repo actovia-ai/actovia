@@ -293,7 +293,9 @@
     "workspace": {
       "label": "ワークスペース",
       "chat": "チャット",
-      "philharmonic": "Philharmonic"
+      "chatDescription": "質問・リサーチ・作成",
+      "philharmonic": "Philharmonic",
+      "philharmonicDescription": "エージェントのチームが働く"
     },
     "nav": {
       "new": "新規",

@@ -326,7 +326,9 @@
     "workspace": {
       "label": "Рабочее пространство",
       "chat": "Чат",
-      "philharmonic": "Philharmonic"
+      "chatDescription": "Спрашивайте, исследуйте, создавайте",
+      "philharmonic": "Philharmonic",
+      "philharmonicDescription": "Команда агентов за работой"
     },
     "nav": {
       "new": "Новый",
