@@ -8,11 +8,11 @@ import {
 } from '@/components/ui/resizable'
 import { useSidebar } from '@/components/ui/sidebar'
 
-// Initial + minimum sidebar width: room for the top row's traffic lights,
-// toggle, history arrows and the Chat / Philharmonic switch (ISSUE-237; it
-// was shadcn's 16rem `--sidebar-width`). Settings' sidebar takes it too
-// (ISSUE-269), so the two are the same width.
-export const SIDEBAR_WIDTH = '17rem'
+// Initial + minimum sidebar width: shadcn's 16rem `--sidebar-width` again
+// now the Chat / Philharmonic switch is the title under the top row, not
+// beside it (owner, 2026-10-28). Settings' sidebar takes it too (ISSUE-269),
+// so the two are the same width.
+export const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_MAX_WIDTH = '30rem'
 /** How long a toggle (Cmd+B, the trigger) takes to slide the sidebar. */
 const TOGGLE_MS = 200
