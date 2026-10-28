@@ -1,6 +1,4 @@
-import { randomBytes } from 'node:crypto'
-import { release, type } from 'node:os'
-
+import { createResource } from '@actovia-ai/logger'
 import { app } from 'electron'
 
 export interface Resource {
@@ -12,10 +10,6 @@ export interface Resource {
   'os.version': string
   'session.id': string
 }
-
-// One id per app launch — distinguishes runs within a single day's log file
-// (crash → relaunch appends to the same YYYY-MM-DD.jsonl).
-const SESSION_ID = randomBytes(8).toString('hex')
 
 let cached: Resource | null = null
 
@@ -30,15 +24,10 @@ function resolveVersion(): string {
 }
 
 export function getResource(): Resource {
-  if (cached) return cached
-  cached = Object.freeze({
-    'service.name': 'actovia',
-    'service.version': resolveVersion(),
-    'process.pid': process.pid,
-    'process.runtime.name': 'electron',
-    'os.type': type(),
-    'os.version': release(),
-    'session.id': SESSION_ID
-  })
+  cached ??= createResource({
+    serviceName: 'actovia',
+    version: resolveVersion(),
+    runtimeName: 'electron'
+  }) as Resource
   return cached
 }

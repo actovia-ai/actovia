@@ -7,6 +7,7 @@
       "dependencies": {
         "@actovia-ai/agent-guard": "workspace:*",
         "@actovia-ai/brave-search": "workspace:*",
+        "@actovia-ai/logger": "workspace:*",
         "@actovia-ai/secret-detect": "workspace:*",
         "@actovia-ai/streaming-markdown": "workspace:*",
         "@actovia-ai/web-reader": "workspace:*",
@@ -158,6 +159,13 @@
       "name": "@actovia-ai/brave-search",
       "version": "0.1.0",
     },
+    "packages/logger": {
+      "name": "@actovia-ai/logger",
+      "version": "0.1.0",
+      "dependencies": {
+        "@jridgewell/trace-mapping": "^0.3.31",
+      },
+    },
     "packages/secret-detect": {
       "name": "@actovia-ai/secret-detect",
       "version": "0.1.0",
@@ -211,6 +219,8 @@
     "@actovia-ai/agent-guard": ["@actovia-ai/agent-guard@workspace:packages/agent-guard"],
 
     "@actovia-ai/brave-search": ["@actovia-ai/brave-search@workspace:packages/brave-search"],
+
+    "@actovia-ai/logger": ["@actovia-ai/logger@workspace:packages/logger"],
 
     "@actovia-ai/secret-detect": ["@actovia-ai/secret-detect@workspace:packages/secret-detect"],
 

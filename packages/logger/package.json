@@ -1,0 +1,16 @@
+{
+  "name": "@actovia-ai/logger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenTelemetry-shaped JSONL logging for a Node process, with no OpenTelemetry dependency: one record per line, per-unit-of-work trace ids through AsyncLocalStorage, Errors recorded with their stack, and stack frames in a built file mapped back to source through hidden source maps.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@jridgewell/trace-mapping": "^0.3.31"
+  }
+}

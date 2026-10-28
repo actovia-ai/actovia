@@ -27,6 +27,9 @@
     },
     {
       "path": "./packages/agent-guard/tsconfig.json"
+    },
+    {
+      "path": "./packages/logger/tsconfig.json"
     }
   ],
   "compilerOptions": {

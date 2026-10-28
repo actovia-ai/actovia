@@ -1,7 +1,7 @@
-import { readdirSync, unlinkSync } from 'fs'
-import { appendFile } from 'fs/promises'
-import { join } from 'path'
-
+import {
+  cleanupOldLogs as cleanupLogsIn,
+  createLogger
+} from '@actovia-ai/logger'
 import { app } from 'electron'
 
 import { localDateStr } from '../local-date'
@@ -11,13 +11,11 @@ import {
   type LogRecord,
   MIN_SEVERITY_DEV,
   MIN_SEVERITY_PROD,
-  normalizeToLogRecord,
-  severityOf,
-  toAttributes
+  normalizeToLogRecord
 } from './record'
 import { getResource } from './resource'
 import { maskLogText } from './secret-mask'
-import { currentTrace } from './trace-context'
+import { mapStackTrace } from './source-map'
 
 export type { LogLevel, LogRecord }
 export { normalizeToLogRecord }
@@ -48,85 +46,27 @@ type KnownLogSurface =
 // type-checks — new subsystems no longer have to edit this list.
 export type LogSurface = KnownLogSurface | (string & {})
 
-const MIN_SEVERITY = app.isPackaged ? MIN_SEVERITY_PROD : MIN_SEVERITY_DEV
 const RETENTION_DAYS = 7
 
 // Log files are named by the user's local day (and cleaned up by it), as the
 // renderer's day picker names them — see local-date.ts.
 export { localDateStr }
 
-function todayFileName(): string {
-  return localDateStr() + '.jsonl'
-}
-
-function write(
-  level: LogLevel,
-  surface: LogSurface,
-  message: string,
-  detail?: Record<string, unknown> | null
-) {
-  const { severityNumber, severityText } = severityOf(level)
-  if (severityNumber < MIN_SEVERITY) return
-
-  let attributes: Record<string, unknown>
-  let resource: LogRecord['resource']
-  let traceId: string | undefined
-  let originTraceId: string | undefined
-  try {
-    const ctx = currentTrace()
-    traceId = ctx?.traceId
-    originTraceId = ctx?.originTraceId
-    attributes = toAttributes({ ...ctx?.attributes, ...detail })
-    resource = getResource()
-  } catch {
-    // The logger must never throw into a caller — degrade the record instead.
-    attributes = toAttributes(detail)
-    resource = {} as LogRecord['resource']
-  }
-
-  const record: LogRecord = {
-    timestamp: new Date().toISOString(),
-    severityNumber,
-    severityText,
-    body: message,
-    scope: { name: surface },
-    attributes,
-    resource,
-    ...(traceId ? { traceId } : {}),
-    ...(originTraceId ? { originTraceId } : {})
-  }
-
-  // Known secret values are masked before the line is written (M4).
-  let line: string
-  try {
-    line = maskLogText(JSON.stringify(record)) + '\n'
-  } catch {
-    line = JSON.stringify(record) + '\n'
-  }
-  // Fire-and-forget async write.
-  appendFile(join(getLogsDir(), todayFileName()), line, 'utf-8').catch(() => {})
-
-  // Also output to console for dev visibility.
-  const consoleFn =
-    level === 'error'
-      ? console.error
-      : level === 'warn'
-        ? console.warn
-        : console.log
-  consoleFn(`[${severityText}] [${surface}] ${message}`, detail ?? '')
-}
+// The writer is @actovia-ai/logger's: one OpenTelemetry-shaped record per
+// line of `~/.actovia/logs/<local day>.jsonl`, with the ambient trace, known
+// secret values masked before the line is written (M4), and stacks mapped
+// through the running build's source maps.
+const write = createLogger({
+  dir: getLogsDir,
+  minSeverity: app.isPackaged ? MIN_SEVERITY_PROD : MIN_SEVERITY_DEV,
+  resource: getResource as () => LogRecord['resource'],
+  mask: maskLogText,
+  mapStack: mapStackTrace,
+  fileName: () => localDateStr() + '.jsonl'
+})
 
 export function cleanupOldLogs() {
-  const dir = getLogsDir()
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - RETENTION_DAYS)
-  const cutoffStr = localDateStr(cutoff)
-
-  for (const file of readdirSync(dir)) {
-    if (file.endsWith('.jsonl') && file.slice(0, 10) < cutoffStr) {
-      unlinkSync(join(dir, file))
-    }
-  }
+  cleanupLogsIn(getLogsDir(), RETENTION_DAYS)
 }
 
 /**
@@ -147,20 +87,20 @@ export const logger = {
     surface: LogSurface,
     message: string,
     detail?: Record<string, unknown> | null
-  ) => write('debug', surface, message, detail),
+  ) => write.debug(surface, message, detail),
   info: (
     surface: LogSurface,
     message: string,
     detail?: Record<string, unknown> | null
-  ) => write('info', surface, message, detail),
+  ) => write.info(surface, message, detail),
   warn: (
     surface: LogSurface,
     message: string,
     detail?: Record<string, unknown> | null
-  ) => write('warn', surface, message, detail),
+  ) => write.warn(surface, message, detail),
   error: (
     surface: LogSurface,
     message: string,
     detail?: Record<string, unknown> | null
-  ) => write('error', surface, message, detail)
+  ) => write.error(surface, message, detail)
 }

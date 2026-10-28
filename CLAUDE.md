@@ -2075,11 +2075,14 @@ Main process:
   (`__originTraceId`); `worker.ts` runs each handler in a `withTrace` linked
   to it
 - `src/main/lib/logger/` — OpenTelemetry-shaped structured logging (no
-  `@opentelemetry/*` dep): `record.ts` (LogRecord shape + severity/exception/
-  legacy mapping), `resource.ts` (service/process identity), `trace-context.ts`
+  `@opentelemetry/*` dep), Actovia's configuration of `@actovia-ai/logger`
+  (`packages/logger/`, ISSUE-270: the writer, the record, the trace context
+  and the source mapper live there): `record.ts` (LogRecord shape +
+  severity/exception mapping, stacks mapped through `source-map.ts`),
+  `resource.ts` (service/process identity), `trace-context.ts`
   (`AsyncLocalStorage` per-unit-of-work trace ids — `withTrace` /
-  `currentTrace` / `bindTraceAttributes`), `index.ts` (the `logger` API,
-  call signature unchanged), `secret-mask.ts` (every secret value decrypted
+  `currentTrace` / `bindTraceAttributes`, the package's one instance),
+  `index.ts` (the `logger` API, call signature unchanged), `secret-mask.ts` (every secret value decrypted
   so far — fed by the settings cache fill and each MCP row read — masked in
   each line before it is written). `withTrace` wraps the `/api/*` middleware, the
   job worker, and the scheduler. JSONL at `~/.actovia/logs/`; read via
@@ -2103,7 +2106,8 @@ Main process:
   position (`at e (src/main/lib/ai/utils/usage.ts:7:27)`, not
   `chat-Cw3ZonVn.js:1:91`; the function name stays the built one — the maps
   carry no names), and `exception.stacktrace_raw`, the stack as thrown, only
-  when mapping changed it. `source-map.ts` does the rewriting from the hidden
+  when mapping changed it. `source-map.ts` (the package's `createSourceMapper`,
+  rooted at the running build's `.vite`) does the rewriting from the hidden
   source maps the build writes (see the Vite configs under Tests & config):
   it reads a `.map` only when an error is being logged, only for a file under
   the running build's own `.vite/` (a client names the paths in what it
@@ -2337,6 +2341,7 @@ Renderer:
 
 Packages:
 
+- `packages/logger/` — JSONL logging in the OpenTelemetry record shape, for any Node process (`@actovia-ai/logger`: `createLogger({ dir, minSeverity, resource, mask, mapStack })`, `withTrace`, `toAttributes` / `stackFramesOf`, `createSourceMapper({ root })` / `findBuildRoot`, `createResource`, `cleanupOldLogs`); Actovia's configuration is `src/main/lib/logger/`, whose tests run through it unchanged; the package's own tests use another app's (`tests/unit/packages/logger/`, `typecheck:logger`)
 - `packages/agent-guard/` — the approval gate's matcher, for any app (`@actovia-ai/agent-guard`: `createGuard({ appName, appDirName, refused, ownPorts, tools, skipDirs })`, `sanitizeSummary`, `capSummary`, `forModel`); Actovia's configuration is `src/main/lib/ai/kernel/approval.ts`, whose test (`tests/unit/main/lib/ai/kernel/approval.test.ts`) runs the rules through it; the package's own tests use another app's configuration (`tests/unit/packages/agent-guard/`, `typecheck:agent-guard`)
 - `packages/brave-search/` — the Brave Search API client and result mapping (`@actovia-ai/brave-search`, see Path Aliases)
 - `packages/secret-detect/` — the pure secret detectors and the mask (`@actovia-ai/secret-detect`, no dependencies; `@actovia/shared/utils/secret-detect` re-exports it, tests in `tests/unit/packages/secret-detect/`, `typecheck:secret-detect`)
