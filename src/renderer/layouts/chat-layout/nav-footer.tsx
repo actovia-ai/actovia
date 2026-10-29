@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router'
 
 import { AppsDialog } from '@/components/app/apps-dialog'
+import { UpdateReadyCard } from '@/components/app/update-ready'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -58,6 +59,9 @@ export function NavFooter({
 
   return (
     <SidebarMenu {...props}>
+      <SidebarMenuItem>
+        <UpdateReadyCard className="mb-1" />
+      </SidebarMenuItem>
       <SidebarMenuItem>
         <DropdownMenu>
           {/* The trigger renders as the menu button itself: one <button>,

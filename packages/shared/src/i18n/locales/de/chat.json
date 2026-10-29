@@ -324,6 +324,12 @@
       "help": "Hilfe & Doku",
       "whatsNew": "Neuigkeiten",
       "lock": "Actovia sperren"
+    },
+    "update": {
+      "ready": "Actovia {{version}} ist bereit",
+      "readyNoVersion": "Ein Update ist bereit",
+      "hint": "Neu starten, um das Update abzuschließen",
+      "restart": "Neu starten"
     }
   },
   "run": {

@@ -312,6 +312,12 @@
       "help": "ヘルプとドキュメント",
       "whatsNew": "新機能",
       "lock": "Actovia をロック"
+    },
+    "update": {
+      "ready": "Actovia {{version}} の準備ができました",
+      "readyNoVersion": "アップデートの準備ができました",
+      "hint": "再起動してアップデートを完了",
+      "restart": "再起動"
     }
   },
   "run": {

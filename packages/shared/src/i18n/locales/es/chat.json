@@ -324,6 +324,12 @@
       "help": "Ayuda y documentación",
       "whatsNew": "Novedades",
       "lock": "Bloquear Actovia"
+    },
+    "update": {
+      "ready": "Actovia {{version}} está lista",
+      "readyNoVersion": "Hay una actualización lista",
+      "hint": "Reinicia para terminar de actualizar",
+      "restart": "Reiniciar"
     }
   },
   "run": {

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router'
 
+import { HeaderSidebarTrigger } from '@/components/app/update-ready'
 import { ChatHeader } from '@/components/chat/header/chat-header'
 import { HistoryArrows } from '@/components/chat/header/history-arrows'
 import { ChatPanel } from '@/components/chat/panel/chat-panel'
@@ -7,7 +8,6 @@ import { DeepResearchProcess } from '@/components/deep-research'
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
   useSidebar
 } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toast'
@@ -49,7 +49,7 @@ function ContentHeader() {
           every control in it is `no-drag`. */}
       {!open && (
         <>
-          <SidebarTrigger className="no-drag" />
+          <HeaderSidebarTrigger />
           <HistoryArrows />
         </>
       )}

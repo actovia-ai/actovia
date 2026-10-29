@@ -3,9 +3,10 @@ import { isSameDay, isToday, isYesterday } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { HeaderSidebarTrigger } from '@/components/app/update-ready'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
@@ -122,7 +123,7 @@ export function GroupChat({
       >
         {!sidebarOpen && (
           <>
-            <SidebarTrigger className="no-drag shrink-0" />
+            <HeaderSidebarTrigger />
             <NewGroupButton onCreate={onCreateGroup} />
           </>
         )}

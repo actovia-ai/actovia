@@ -18,14 +18,17 @@ vi.mock('@main/lib/lock/lock-manager', () => ({
     getStatus: () => ({ hasPin: true, locked: locked.value })
   })
 }))
+const updater = { state: 'available' }
+const updaterInstall = vi.fn()
 vi.mock('@main/lib/auto-updater', () => ({
   updaterGetState: () => ({
-    state: 'available',
+    state: updater.state,
     availableVersion: '2.2.0',
     downloadProgress: 0,
     errorMessage: null,
     mode: 'manual'
-  })
+  }),
+  updaterInstall
 }))
 vi.mock('@main/lib/db/queries', () => ({ getSettings: async () => ({}) }))
 vi.mock('@main/lib/db/mcp-queries', () => ({
@@ -53,6 +56,7 @@ app.route('/api/v1/host', hostRouter)
 beforeEach(() => {
   vi.clearAllMocks()
   locked.value = false
+  updater.state = 'available'
 })
 
 describe('host routes', () => {
@@ -104,5 +108,39 @@ describe('host routes', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('installs the update the app has downloaded, after answering', async () => {
+    updater.state = 'ready'
+    vi.useFakeTimers()
+    try {
+      const res = await app.request('/api/v1/host/install-update', {
+        method: 'POST'
+      })
+      expect(await res.json()).toEqual({ installing: '2.2.0' })
+      expect(updaterInstall).not.toHaveBeenCalled()
+      vi.runAllTimers()
+      expect(updaterInstall).toHaveBeenCalledOnce()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('with nothing downloaded there is nothing to install', async () => {
+    const res = await app.request('/api/v1/host/install-update', {
+      method: 'POST'
+    })
+    expect(res.status).toBe(409)
+    expect((await res.json()).error.code).toBe('UPDATE_NOT_READY')
+    expect(updaterInstall).not.toHaveBeenCalled()
+  })
+
+  it('install-update is loopback only', async () => {
+    const res = await app.request(
+      '/api/v1/host/install-update',
+      { method: 'POST' },
+      { listener: 'lan' }
+    )
+    expect(res.status).toBe(403)
   })
 })

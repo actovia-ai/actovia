@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
+import { HeaderSidebarTrigger } from '@/components/app/update-ready'
 import { NewGroupButton } from '@/components/philharmonic/chat/new-group-button'
-import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { cn } from '@/lib/utils'
 
@@ -39,7 +40,7 @@ export function PhilharmonicContentHeader({
     >
       {!open && (
         <>
-          <SidebarTrigger className="no-drag" />
+          <HeaderSidebarTrigger />
           <NewGroupButton onCreate={onCreateGroup} />
         </>
       )}

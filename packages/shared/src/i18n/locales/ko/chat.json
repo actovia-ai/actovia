@@ -312,6 +312,12 @@
       "help": "도움말 및 문서",
       "whatsNew": "새로운 기능",
       "lock": "Actovia 잠그기"
+    },
+    "update": {
+      "ready": "Actovia {{version}} 준비 완료",
+      "readyNoVersion": "업데이트가 준비되었습니다",
+      "hint": "다시 시작하면 업데이트가 완료됩니다",
+      "restart": "다시 시작"
     }
   },
   "run": {

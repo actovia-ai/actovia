@@ -155,6 +155,11 @@ export const TEST_IDS = {
     accountApps: 'chat-layout.account-apps',
     /** In the account menu, while a PIN is set: locks the app now. */
     accountLock: 'chat-layout.account-lock',
+    /** Above the account menu while a downloaded update waits for a restart. */
+    updateReady: 'chat-layout.update-ready',
+    updateRestart: 'chat-layout.update-restart',
+    /** On the header's sidebar toggle, while the sidebar is away. */
+    updateDot: 'chat-layout.update-dot',
     /** The "Actovia everywhere" dialog (iPhone, Health, CLI). */
     appsDialog: 'chat-layout.apps-dialog',
     /** In that dialog: Settings → Devices, to pair an iPhone. */

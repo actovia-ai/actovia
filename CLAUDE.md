@@ -246,6 +246,14 @@ Squirrel still installs only a build with the team's signature). The main
 window's hide-on-close yields to `autoUpdater`'s `before-quit-for-update`
 (`window.ts`): `quitAndInstall()` closes the windows before `before-quit`.
 
+An update that downloaded by itself waits for a restart, and the window
+only hides on close, so the quit that installs it can be weeks away: while
+the state is `ready` (in `auto` mode) the sidebars show
+`components/app/update-ready.tsx`'s `UpdateReadyCard` above the account menu
+(`NavFooter`) — the version and a Restart button, `quitAndInstall()` — and the
+header's sidebar toggle, shown while the sidebar is away, carries a dot
+(`HeaderSidebarTrigger`). Nothing restarts by itself.
+
 Which one is decided at runtime by `detectUpdateMode()` reading
 `codesign -dv` on the running bundle (`Signature=adhoc` → `manual`) — no build
 flag, so a Developer ID build is `auto` by itself.
@@ -485,7 +493,7 @@ The main process runs a **Hono HTTP server** that handles all business logic:
 
 Every business endpoint is mounted on one versioned sub-app (`app.route('/api/v1', v1)`), so the public paths are `/api/v1/<route>`; the lock/trace/settings middlewares still match `/api/*`. A breaking API change ships as a new `/api/v2` sub-app beside v1 rather than mutating v1 in place. Any client of this backend (the renderer, `tests/api`, `actovia-ios`) must address `/api/v1/...`.
 
-`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart` sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
+`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart`, `/install-update` (the update the app has downloaded, `409 UPDATE_NOT_READY` otherwise — `actovia app update` hands off to it rather than swapping the bundle under Squirrel) sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
 
 The `/api/v1/settings` route includes `POST /api/v1/settings/models` — dispatches to the appropriate list-models handler based on the provider in the request body, reading the API key from the request (not from saved settings) to fetch live model catalogs; a posted mask stands for the stored key, and only with the stored (or default) base URL — a mask with another base URL is a 400 ("re-enter the API key"; code `SECRET_REENTRY_REQUIRED`, `params.field: 'apiKey'` — the model picker shows it inline under the key), so a stored key is never sent to a caller-chosen host.
 

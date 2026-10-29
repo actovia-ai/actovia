@@ -312,6 +312,12 @@
       "help": "帮助与文档",
       "whatsNew": "更新内容",
       "lock": "锁定 Actovia"
+    },
+    "update": {
+      "ready": "Actovia {{version}} 已就绪",
+      "readyNoVersion": "更新已就绪",
+      "hint": "重启以完成更新",
+      "restart": "重启"
     }
   },
   "run": {

@@ -2,7 +2,7 @@ import { LAN_SERVER_PORT } from '@actovia/shared/constants/systems'
 import { app } from 'electron'
 import { Hono, type Context } from 'hono'
 
-import { updaterGetState } from '../../auto-updater'
+import { updaterGetState, updaterInstall } from '../../auto-updater'
 import { getAllMcpServers } from '../../db/mcp-queries'
 import { getSettings } from '../../db/queries'
 import { listDevices } from '../../lan/devices'
@@ -107,4 +107,28 @@ hostRouter.post('/restart', (c) => {
     app.quit()
   }, AFTER_RESPONSE_MS)
   return successResponse(c, { restarting: true })
+})
+
+/**
+ * Installs the update the app's own updater has downloaded, and restarts on
+ * it — what Settings → About's Restart & Install does, for a Mac nobody looks
+ * at. `actovia app update` calls it instead of downloading a second copy and
+ * racing Squirrel, which installs that copy when the app quits.
+ */
+hostRouter.post('/install-update', (c) => {
+  const update = updaterGetState()
+  if (update.state !== 'ready') {
+    return c.json(
+      {
+        type: 'error',
+        error: { code: 'UPDATE_NOT_READY', message: 'UPDATE_NOT_READY' }
+      },
+      409
+    )
+  }
+  logger.info('app', 'Update install requested from the CLI', {
+    version: update.availableVersion
+  })
+  setTimeout(() => updaterInstall(), AFTER_RESPONSE_MS)
+  return successResponse(c, { installing: update.availableVersion })
 })
