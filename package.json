@@ -97,7 +97,7 @@
     "electron-updater": "^6.8.11",
     "embla-carousel-react": "^8.6.0",
     "hono": "^4.13.13",
-    "i18next": "^26.5.3",
+    "i18next": "^26.5.11",
     "i18next-resources-to-backend": "^1.2.3",
     "input-otp": "^1.5.0",
     "jszip": "^3.10.2",
