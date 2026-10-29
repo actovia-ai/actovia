@@ -163,7 +163,7 @@
     "change-case": "^5.4.4",
     "dotenv": "^18.0.8",
     "drizzle-kit": "^0.31.11",
-    "electron": "44.9.2",
+    "electron": "45.0.0",
     "framer-motion": "^14.4.0",
     "happy-dom": "^21.0.4",
     "husky": "^9.1.7",
