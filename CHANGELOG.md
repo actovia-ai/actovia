@@ -1,3 +1,10 @@
+# [2.6.0](https://github.com/actovia-ai/actovia/compare/v2.5.1...v2.6.0) (2026-10-29)
+
+
+### Features
+
+* **updater:** a restart card when an update has downloaded, and an install route for the CLI (ISSUE-290) ([8c588d2](https://github.com/actovia-ai/actovia/commit/8c588d2022c974071f39c41556cacb70dfda2169))
+
 ## [2.5.1](https://github.com/actovia-ai/actovia/compare/v2.5.0...v2.5.1) (2026-10-29)
 
 
