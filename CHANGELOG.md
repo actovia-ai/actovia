@@ -1,3 +1,15 @@
+# [2.5.0](https://github.com/actovia-ai/actovia/compare/v2.4.0...v2.5.0) (2026-10-29)
+
+
+### Bug Fixes
+
+* **ci:** find the Developer ID identity without the code-signing validity filter (ISSUE-82) ([b746e9f](https://github.com/actovia-ai/actovia/commit/b746e9fdfb8a1486a76fcd788d57a59139ccf87b))
+
+
+### Features
+
+* **updater:** differential macOS updates through electron-updater blockmaps (ISSUE-290) ([32894fb](https://github.com/actovia-ai/actovia/commit/32894fb18a36b84d4342e44b1863131f8daca410))
+
 # [2.4.0](https://github.com/actovia-ai/actovia/compare/v2.3.0...v2.4.0) (2026-10-28)
 
 
