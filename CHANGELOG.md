@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/actovia-ai/actovia/compare/v2.6.0...v2.7.0) (2026-10-29)
+
+
+### Features
+
+* **philharmonic:** serve employee avatars as PNG for the phone (ISSUE-296) ([2e0300d](https://github.com/actovia-ai/actovia/commit/2e0300dac61ae5fa5315df67f491f4e8d6332ec7))
+
 # [2.6.0](https://github.com/actovia-ai/actovia/compare/v2.5.1...v2.6.0) (2026-10-29)
 
 
