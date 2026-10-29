@@ -123,10 +123,23 @@ jobs:
             -A -t cert -f pkcs12 -k "$KEYCHAIN"
           rm -f "$RUNNER_TEMP/certificate.p12"
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          # The intermediates the certificate may chain through (the original
+          # Developer ID CA and G2), so codesign can build the chain on a runner.
+          for CA in DeveloperIDCA DeveloperIDG2CA; do
+            curl -fsSL "https://www.apple.com/certificateauthority/$CA.cer" -o "$RUNNER_TEMP/$CA.cer"
+            security import "$RUNNER_TEMP/$CA.cer" -k "$KEYCHAIN" || true
+          done
           security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
-          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" \
-            | grep -o '"Developer ID Application: [^"]*"' | head -1 | tr -d '"')"
-          if [ -z "$IDENTITY" ]; then echo "No Developer ID Application identity in the certificate" >&2; exit 1; fi
+          # Not `-v`: the code-signing policy reports this certificate as not
+          # valid although codesign signs with it, and under pipefail a grep
+          # that matches nothing ends the step without a word.
+          IDENTITIES="$(security find-identity -p codesigning "$KEYCHAIN")"
+          IDENTITY="$(printf '%s\n' "$IDENTITIES" | grep -o '"Developer ID Application: [^"]*"' | head -1 | tr -d '"' || true)"
+          if [ -z "$IDENTITY" ]; then
+            echo "No Developer ID Application identity in the certificate. The keychain holds:" >&2
+            printf '%s\n' "$IDENTITIES" | sed -E 's/[0-9A-F]{40}/<sha1>/' >&2
+            exit 1
+          fi
           echo "APPLE_SIGNING_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
 
       - name: Prepare the notarization key
