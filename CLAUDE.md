@@ -1092,7 +1092,9 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   Philharmonic SSE stream (`/conversations/:id/sse`, `/sse`, `/tasks/:id/sse`)
   sends a `: ping` comment line every 15 s (`startHeartbeat()` in
   `server/utils/sse-manager.ts`), so a client tells a quiet round from a
-  dropped connection; `GET /conversations/:id/messages?after=<messageId>`
+  dropped connection, and deleting a group ends its streams
+  (`SseManager.closeTopic()`, ISSUE-249), so a phone watching it reconnects
+  and finds it gone; `GET /conversations/:id/messages?after=<messageId>`
   answers only the rows saved after that one (ordered by `createdAt`, then
   `id`; `404` for an id not of the group — `getMessagesAfter()` in
   `db/conversation-queries.ts`). Saved rows are edited later (an agent card's

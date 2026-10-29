@@ -34,6 +34,33 @@ describe('SseManager', () => {
     expect(controller.enqueue).toHaveBeenCalled()
   })
 
+  it('closeTopic ends every stream of a topic and forgets them', () => {
+    const manager = new SseManager<string>()
+    const a = makeController()
+    const b = makeController()
+    const other = makeController()
+    manager.register('group-1', a)
+    manager.register('group-1', b)
+    manager.register('group-2', other)
+    manager.closeTopic('group-1')
+    expect(a.close).toHaveBeenCalledOnce()
+    expect(b.close).toHaveBeenCalledOnce()
+    expect(other.close).not.toHaveBeenCalled()
+    expect(manager.hasClients('group-1')).toBe(false)
+    expect(manager.hasClients('group-2')).toBe(true)
+  })
+
+  it('closeTopic survives a stream that is already closed', () => {
+    const manager = new SseManager<string>()
+    const gone = makeController()
+    vi.mocked(gone.close).mockImplementation(() => {
+      throw new TypeError('Invalid state: Controller is already closed')
+    })
+    manager.register('group-1', gone)
+    expect(() => manager.closeTopic('group-1')).not.toThrow()
+    expect(manager.hasClients('group-1')).toBe(false)
+  })
+
   it('cleans up on abort signal', () => {
     const manager = new SseManager<string>()
     const controller = makeController()

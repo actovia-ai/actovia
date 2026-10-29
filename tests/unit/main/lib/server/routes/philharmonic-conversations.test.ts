@@ -60,8 +60,12 @@ vi.mock('@main/lib/ai/philharmonic/pm-coordinator', () => ({
 vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
   askUserRegistry: { resolve: vi.fn() }
 }))
+const closeTopic = vi.fn((_topic: string) => {
+  order.push('close streams')
+})
 vi.mock('@main/lib/server/routes/philharmonic-sse', () => ({
-  emitToConversation: vi.fn()
+  emitToConversation: vi.fn(),
+  sseManager: { closeTopic: (topic: string) => closeTopic(topic) }
 }))
 const order: string[] = []
 const abort = vi.fn((_id: string) => {
@@ -109,7 +113,17 @@ describe('DELETE /conversations/:id', () => {
 
     expect(abort).toHaveBeenCalledWith('id')
     expect(stopConversation).toHaveBeenCalledWith('id')
-    expect(order).toEqual(['abort', 'stop agents', 'delete'])
+    expect(order).toEqual(['abort', 'stop agents', 'delete', 'close streams'])
+  })
+
+  it('ends the streams still watching the group once it is gone (ISSUE-249)', async () => {
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+
+    await app.request('/conversations/id', { method: 'DELETE' })
+
+    expect(closeTopic).toHaveBeenCalledWith('id')
   })
 })
 

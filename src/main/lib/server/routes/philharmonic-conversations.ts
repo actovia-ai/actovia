@@ -31,7 +31,7 @@ import {
   successResponse,
   validateSchema
 } from '../utils'
-import { emitToConversation } from './philharmonic-sse'
+import { emitToConversation, sseManager } from './philharmonic-sse'
 
 const router = new Hono<{ Variables: Variables }>()
 
@@ -83,6 +83,9 @@ router.delete('/conversations/:id', async (c) => {
     'Failed to delete conversation'
   )
   await removeGroupMedia(id)
+  // A client still watching the group (the phone) is told by its stream
+  // ending: its reconnect then finds the group gone.
+  sseManager.closeTopic(id)
   return deletionSuccessResponse(c, 'Conversation')
 })
 

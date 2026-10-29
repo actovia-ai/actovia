@@ -66,6 +66,25 @@ export class SseManager<Topic extends string = string> {
     }
   }
 
+  /**
+   * Ends every stream of a topic whose subject is gone (a deleted group), so
+   * a client's next connect finds that out instead of waiting on a stream
+   * that will never speak again (ISSUE-249). The heartbeat stops on its own
+   * at the closed stream.
+   */
+  closeTopic(topic: Topic): void {
+    const clients = this.topicClients.get(topic)
+    if (!clients) return
+    this.topicClients.delete(topic)
+    for (const controller of clients) {
+      try {
+        controller.close()
+      } catch {
+        // Already closed: the client went first.
+      }
+    }
+  }
+
   registerGlobal(
     controller: ReadableStreamDefaultController,
     signal?: AbortSignal
