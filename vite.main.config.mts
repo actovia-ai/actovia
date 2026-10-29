@@ -59,7 +59,11 @@ export default defineConfig({
         // lazy-loaded via `import()` in lib/analytics/duckdb.ts, so keeping
         // it external also keeps it out of the boot path.
         '@duckdb/node-api',
-        '@duckdb/node-bindings'
+        '@duckdb/node-bindings',
+        // resvg's WebAssembly build (the Philharmonic avatar PNGs,
+        // ai/philharmonic/avatar-image.ts): its `index_bg.wasm` is read from
+        // the real package at runtime, so the package stays in node_modules.
+        '@resvg/resvg-wasm'
       ]
     }
   }

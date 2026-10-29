@@ -1120,6 +1120,15 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   photos are data URLs, as in Chat — `POST …/messages` refuses an image
   attachment that is a link (400) and fits each one before the row is saved
   (`fitImageDataUrl()` in `ai/utils/image-fit.ts`)
+  An employee's face is `GET /api/v1/philharmonic/avatar?seed=&style=&size=`
+  (`routes/philharmonic-avatar.ts`, ISSUE-296): the agent's `avatarSeed` /
+  `avatarStyle` drawn by DiceBear exactly as the renderer's `EmployeeAvatar`
+  draws it (same fallbacks: no seed → `'default'`, an unknown style → the
+  default), rasterised to a transparent PNG of `size` px (16–512, default 128) by resvg's WebAssembly build (`ai/philharmonic/avatar-image.ts`; the
+  package is a Vite external that forge ships, its `.wasm` read at first
+  use), `Cache-Control: private, max-age=31536000, immutable`. The hue disc
+  and ring behind it (`lib/hue.ts`'s `pickHue`, FNV-1a over the seed) are
+  the client's to draw, as the renderer's wrapper draws them
 - **No money** (ISSUE-235, 2026-10-27): the Costs page and `GET /costs` are
   gone; the Dashboard is the Schedule tab. Employees' `task_execution.tokenUsage`
   and the PM's round `usage` events carry tokens only — a CLI employee's step

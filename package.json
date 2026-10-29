@@ -79,6 +79,7 @@
     "@langchain/core": "^1.2.20",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@peculiar/x509": "^2.2.0",
+    "@resvg/resvg-wasm": "2.6.2",
     "@shadcn/react": "^0.3.1",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/hotkeys": "0.17.0",

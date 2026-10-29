@@ -124,11 +124,13 @@ const config: ForgeConfig = {
       // with only the leaf-path check in place.
       // Same rule for DuckDB (lib/analytics/duckdb.ts): the Node-API binding
       // plus the platform package it requires at runtime, and `detect-libc`,
-      // its one runtime dependency.
+      // its one runtime dependency. And resvg's WebAssembly build
+      // (ai/philharmonic/avatar-image.ts reads its `index_bg.wasm`).
       const kept = [
         '/node_modules/@electric-sql',
         '/node_modules/@duckdb',
-        '/node_modules/detect-libc'
+        '/node_modules/detect-libc',
+        '/node_modules/@resvg'
       ]
       for (const target of kept) {
         if (
