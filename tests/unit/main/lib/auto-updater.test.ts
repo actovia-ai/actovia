@@ -13,13 +13,35 @@ const electronApp = {
   getVersion: () => '1.15.0',
   getPath: () => '/Applications/Actovia.app/Contents/MacOS/Actovia'
 }
-const netFetch = vi.fn()
 vi.mock('electron', () => ({
   app: electronApp,
   autoUpdater: squirrel,
-  BrowserWindow: { getAllWindows: () => [{ webContents: { send } }] },
-  net: { fetch: (...args: unknown[]) => netFetch(...args) }
+  BrowserWindow: { getAllWindows: () => [{ webContents: { send } }] }
 }))
+
+const macUpdater = vi.hoisted(() => ({ emitter: null as unknown }))
+vi.mock('electron-updater', async () => {
+  const { EventEmitter: Emitter } = await import('node:events')
+  const updater = Object.assign(new Emitter(), {
+    autoDownload: true,
+    autoInstallOnAppQuit: true,
+    logger: null as unknown,
+    setFeedURL: vi.fn(),
+    checkForUpdates: vi.fn(async () => null),
+    downloadUpdate: vi.fn(async () => []),
+    quitAndInstall: vi.fn()
+  })
+  macUpdater.emitter = updater
+  return { autoUpdater: updater }
+})
+type MacUpdaterMock = EventEmitter & {
+  autoDownload: boolean
+  autoInstallOnAppQuit: boolean
+  setFeedURL: ReturnType<typeof vi.fn>
+  checkForUpdates: ReturnType<typeof vi.fn>
+  downloadUpdate: ReturnType<typeof vi.fn>
+  quitAndInstall: ReturnType<typeof vi.fn>
+}
 
 const updateElectronApp = vi.fn()
 vi.mock('update-electron-app', () => ({
@@ -75,17 +97,20 @@ async function load() {
 /** Let the mode detection and whatever it kicks off settle. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 
-function feedResponse(status: number, body?: unknown) {
-  return {
-    status,
-    ok: status >= 200 && status < 300,
-    json: async () => body
-  }
+/** The electron-updater mock, as the module under test sees it. */
+async function mac(): Promise<MacUpdaterMock> {
+  await import('electron-updater')
+  return macUpdater.emitter as MacUpdaterMock
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   vi.clearAllMocks()
+  vi.useRealTimers()
   squirrel.removeAllListeners()
+  const updater = await mac()
+  updater.removeAllListeners()
+  updater.autoDownload = true
+  updater.autoInstallOnAppQuit = true
   electronApp.isPackaged = true
   setPlatform('darwin')
   codesign.run.mockResolvedValue({ stdout: '', stderr: DEVELOPER_ID })
@@ -128,31 +153,210 @@ describe('detectUpdateMode', () => {
   })
 })
 
-describe('auto mode (a signed build)', () => {
-  it('records a failed update with its full message, and surfaces it in the panel state', async () => {
+describe('macOS, a signed build (electron-updater, auto)', () => {
+  it('reads the GitHub release feed, downloads by itself and installs on quit', async () => {
+    const updater = await mac()
     const { setupAutoUpdater, updaterGetState } = await load()
     setupAutoUpdater(true)
     await settle()
 
-    const message =
-      'Code signature at URL file:///Users/x/Library/Caches/app.yancey.actovia.ShipIt/update.1/Actovia.app did not pass validation'
-    squirrel.emit('error', new Error(message))
+    expect(updater.setFeedURL).toHaveBeenCalledWith({
+      provider: 'github',
+      owner: 'actovia-ai',
+      repo: 'actovia'
+    })
+    expect(updater.autoDownload).toBe(true)
+    expect(updater.autoInstallOnAppQuit).toBe(true)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(1)
+    expect(updateElectronApp).not.toHaveBeenCalled()
+    expect(updaterGetState().mode).toBe('auto')
+  })
+
+  it('ACTOVIA_UPDATE_FEED points it at a local feed instead', async () => {
+    vi.stubEnv('ACTOVIA_UPDATE_FEED', 'http://127.0.0.1:8123/')
+    const updater = await mac()
+    const { setupAutoUpdater } = await load()
+    setupAutoUpdater(true)
+    await settle()
+    vi.unstubAllEnvs()
+
+    expect(updater.setFeedURL).toHaveBeenCalledWith({
+      provider: 'generic',
+      url: 'http://127.0.0.1:8123/'
+    })
+  })
+
+  it('walks checking → downloading with real progress → ready', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater, updaterGetState } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    updater.emit('checking-for-update')
+    expect(updaterGetState().state).toBe('checking')
+    updater.emit('update-available', { version: '2.6.0' })
+    expect(updaterGetState()).toMatchObject({
+      state: 'downloading',
+      availableVersion: '2.6.0',
+      downloadProgress: 0
+    })
+    updater.emit('download-progress', { percent: 41.6 })
+    expect(updaterGetState().downloadProgress).toBe(42)
+    updater.emit('update-downloaded', { version: '2.6.0' })
+    expect(updaterGetState()).toMatchObject({
+      state: 'ready',
+      availableVersion: '2.6.0',
+      downloadProgress: 100
+    })
+  })
+
+  it('surfaces an error in the panel and logs the Error itself', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater, updaterGetState } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    const error = new Error(
+      'Cannot find latest-mac.yml in the latest release artifacts'
+    )
+    updater.emit('error', error)
 
     expect(updaterGetState()).toMatchObject({
       state: 'error',
-      errorMessage: message,
-      mode: 'auto'
+      errorMessage: error.message
     })
-    // The Error itself, so the log carries its stack.
     expect(logger.error).toHaveBeenCalledWith('app', 'Updater: error', {
-      error: expect.objectContaining({ message })
+      error
     })
-    expect(vi.mocked(logger.error).mock.calls.at(-1)![2]!.error).toBeInstanceOf(
-      Error
-    )
   })
 
-  it('walks checking → downloading → ready, logging each step', async () => {
+  it('re-checks every ten minutes, and not while updates are switched off', async () => {
+    vi.useFakeTimers()
+    const updater = await mac()
+    const { setupAutoUpdater, updaterSetAutoDownload } = await load()
+    setupAutoUpdater(true)
+    await vi.advanceTimersByTimeAsync(0)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(1)
+
+    await vi.advanceTimersByTimeAsync(10 * 60 * 1000)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(2)
+
+    updaterSetAutoDownload(false)
+    expect(updater.autoDownload).toBe(false)
+    await vi.advanceTimersByTimeAsync(10 * 60 * 1000)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(2)
+  })
+
+  it('"Restart & Install" goes through electron-updater', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater, updaterInstall } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    updaterInstall()
+    expect(updater.quitAndInstall).toHaveBeenCalledTimes(1)
+  })
+
+  it('"download" fetches an update a check found while downloads were off', async () => {
+    const updater = await mac()
+    const {
+      setupAutoUpdater,
+      updaterDownload,
+      updaterSetAutoDownload,
+      updaterGetState
+    } = await load()
+    setupAutoUpdater(true)
+    await settle()
+    updaterSetAutoDownload(false)
+
+    updater.emit('update-available', { version: '2.6.0' })
+    expect(updaterGetState().state).toBe('available')
+
+    updaterDownload()
+    expect(updater.downloadUpdate).toHaveBeenCalledTimes(1)
+    expect(openExternalSafely).not.toHaveBeenCalled()
+  })
+})
+
+describe('macOS, an ad-hoc build (electron-updater, manual)', () => {
+  beforeEach(() => {
+    codesign.run.mockResolvedValue({ stdout: '', stderr: ADHOC })
+  })
+
+  it('checks once at launch and downloads nothing', async () => {
+    vi.useFakeTimers()
+    const updater = await mac()
+    const { setupAutoUpdater, updaterGetState } = await load()
+    setupAutoUpdater(true)
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(updater.autoDownload).toBe(false)
+    expect(updater.autoInstallOnAppQuit).toBe(false)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(60 * 60 * 1000)
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(1)
+    expect(updateElectronApp).not.toHaveBeenCalled()
+    expect(updaterGetState().mode).toBe('manual')
+  })
+
+  it('a newer release becomes "available", and "download" opens the release page', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater, updaterGetState, updaterDownload } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    updater.emit('update-available', { version: '2.6.0' })
+    expect(updaterGetState()).toMatchObject({
+      state: 'available',
+      availableVersion: '2.6.0',
+      mode: 'manual'
+    })
+
+    updaterDownload()
+    expect(openExternalSafely).toHaveBeenCalledWith(
+      'https://github.com/actovia-ai/actovia/releases/latest'
+    )
+    expect(updater.downloadUpdate).not.toHaveBeenCalled()
+  })
+
+  it('a manual check asks electron-updater again, still without downloading', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater, updaterCheck } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    await updaterCheck()
+    expect(updater.checkForUpdates).toHaveBeenCalledTimes(2)
+    expect(updater.autoDownload).toBe(false)
+  })
+
+  it('does nothing at launch when automatic updates are turned off', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater } = await load()
+    setupAutoUpdater(false)
+    await settle()
+
+    expect(codesign.run).not.toHaveBeenCalled()
+    expect(updater.checkForUpdates).not.toHaveBeenCalled()
+    expect(updateElectronApp).not.toHaveBeenCalled()
+  })
+})
+
+describe('Windows (Squirrel through update-electron-app)', () => {
+  beforeEach(() => setPlatform('win32'))
+
+  it('starts update-electron-app, never electron-updater', async () => {
+    const updater = await mac()
+    const { setupAutoUpdater } = await load()
+    setupAutoUpdater(true)
+    await settle()
+
+    expect(updateElectronApp).toHaveBeenCalledTimes(1)
+    expect(updater.setFeedURL).not.toHaveBeenCalled()
+    expect(codesign.run).not.toHaveBeenCalled()
+  })
+
+  it('walks checking → downloading → ready', async () => {
     const { setupAutoUpdater, updaterGetState } = await load()
     setupAutoUpdater(true)
     await settle()
@@ -161,29 +365,30 @@ describe('auto mode (a signed build)', () => {
     expect(updaterGetState().state).toBe('checking')
     squirrel.emit('update-available')
     expect(updaterGetState().state).toBe('downloading')
-    squirrel.emit('update-downloaded', {}, '', 'v1.16.0')
+    squirrel.emit('update-downloaded', {}, '', 'v2.6.0')
     expect(updaterGetState()).toMatchObject({
       state: 'ready',
-      availableVersion: 'v1.16.0'
+      availableVersion: 'v2.6.0'
     })
   })
 
-  it('records "no update available" with the version it checked from', async () => {
+  it('records a failed update with its full message', async () => {
     const { setupAutoUpdater, updaterGetState } = await load()
     setupAutoUpdater(true)
     await settle()
 
-    squirrel.emit('update-not-available')
-
-    expect(updaterGetState().state).toBe('up-to-date')
-    expect(logger.info).toHaveBeenCalledWith(
-      'app',
-      'Updater: no update available',
-      { version: '1.15.0' }
-    )
+    const error = new Error('Update.exe not found')
+    squirrel.emit('error', error)
+    expect(updaterGetState()).toMatchObject({
+      state: 'error',
+      errorMessage: error.message
+    })
+    expect(logger.error).toHaveBeenCalledWith('app', 'Updater: error', {
+      error
+    })
   })
 
-  it("routes update-electron-app's own log lines (the feed URL) into our log", async () => {
+  it("routes update-electron-app's own log lines into our log", async () => {
     const { setupAutoUpdater } = await load()
     setupAutoUpdater(true)
     await settle()
@@ -193,17 +398,10 @@ describe('auto mode (a signed build)', () => {
     }
     libLogger.log(
       'feedURL',
-      'https://update.electronjs.org/o/r/darwin-arm64/1.15.0'
+      'https://update.electronjs.org/o/r/win32-x64/2.5.0'
     )
-    libLogger.log('requestHeaders', {
-      'User-Agent': 'update-electron-app/3.3.0'
-    })
-
     expect(logger.info).toHaveBeenCalledWith('app', 'update-electron-app', {
-      message: 'feedURL https://update.electronjs.org/o/r/darwin-arm64/1.15.0'
-    })
-    expect(logger.info).toHaveBeenCalledWith('app', 'update-electron-app', {
-      message: expect.stringContaining('update-electron-app/3.3.0')
+      message: 'feedURL https://update.electronjs.org/o/r/win32-x64/2.5.0'
     })
   })
 
@@ -214,117 +412,7 @@ describe('auto mode (a signed build)', () => {
 
     await updaterCheck()
     expect(squirrel.checkForUpdates).toHaveBeenCalledTimes(1)
-    expect(netFetch).not.toHaveBeenCalled()
-
     updaterDownload()
     expect(openExternalSafely).not.toHaveBeenCalled()
-  })
-})
-
-describe('manual mode (an ad-hoc build that cannot validate its own updates)', () => {
-  beforeEach(() => {
-    codesign.run.mockResolvedValue({ stdout: '', stderr: ADHOC })
-  })
-
-  it('never starts Squirrel or its 10-minute re-check', async () => {
-    netFetch.mockResolvedValue(feedResponse(204))
-    const { setupAutoUpdater } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    expect(updateElectronApp).not.toHaveBeenCalled()
-    expect(squirrel.listenerCount('error')).toBe(0)
-    expect(squirrel.listenerCount('update-available')).toBe(0)
-  })
-
-  it('looks the feed up once at launch, with the same URL Squirrel would use', async () => {
-    netFetch.mockResolvedValue(feedResponse(204))
-    const { setupAutoUpdater, updaterGetState } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    expect(netFetch).toHaveBeenCalledTimes(1)
-    const [url, init] = netFetch.mock.calls[0]
-    expect(url).toBe(
-      `https://update.electronjs.org/actovia-ai/actovia/darwin-${process.arch}/1.15.0`
-    )
-    expect(init.headers['User-Agent']).toMatch(/^actovia\/1\.15\.0/)
-    expect(updaterGetState()).toMatchObject({
-      state: 'up-to-date',
-      mode: 'manual'
-    })
-  })
-
-  it('a newer release becomes "available", carrying its version', async () => {
-    netFetch.mockResolvedValue(
-      feedResponse(200, { name: 'v1.16.0', url: 'https://example/zip' })
-    )
-    const { setupAutoUpdater, updaterGetState } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    expect(updaterGetState()).toMatchObject({
-      state: 'available',
-      availableVersion: 'v1.16.0',
-      mode: 'manual'
-    })
-  })
-
-  it('"download" opens the release page instead of downloading anything', async () => {
-    netFetch.mockResolvedValue(feedResponse(200, { name: 'v1.16.0' }))
-    const { setupAutoUpdater, updaterDownload } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    updaterDownload()
-
-    expect(openExternalSafely).toHaveBeenCalledWith(
-      'https://github.com/actovia-ai/actovia/releases/latest'
-    )
-  })
-
-  it('a failed lookup is an error the user can retry, and it is logged', async () => {
-    netFetch.mockRejectedValueOnce(
-      new Error('net::ERR_PROXY_CONNECTION_FAILED')
-    )
-    const { setupAutoUpdater, updaterCheck, updaterGetState } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    expect(updaterGetState()).toMatchObject({
-      state: 'error',
-      errorMessage: 'net::ERR_PROXY_CONNECTION_FAILED'
-    })
-    expect(logger.warn).toHaveBeenCalledWith(
-      'app',
-      'Updater: feed check failed',
-      { error: new Error('net::ERR_PROXY_CONNECTION_FAILED') }
-    )
-
-    netFetch.mockResolvedValueOnce(feedResponse(204))
-    await updaterCheck()
-    expect(updaterGetState().state).toBe('up-to-date')
-  })
-
-  it('an error status from the server is an error, not "up to date"', async () => {
-    netFetch.mockResolvedValue(feedResponse(502))
-    const { setupAutoUpdater, updaterGetState } = await load()
-    setupAutoUpdater(true)
-    await settle()
-
-    expect(updaterGetState()).toMatchObject({
-      state: 'error',
-      errorMessage: 'The update server answered 502'
-    })
-  })
-
-  it('does nothing at launch when automatic updates are turned off', async () => {
-    const { setupAutoUpdater } = await load()
-    setupAutoUpdater(false)
-    await settle()
-
-    expect(codesign.run).not.toHaveBeenCalled()
-    expect(netFetch).not.toHaveBeenCalled()
-    expect(updateElectronApp).not.toHaveBeenCalled()
   })
 })

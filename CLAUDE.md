@@ -138,7 +138,7 @@ Actovia uses a three-process architecture:
    - Runs Hono HTTP server on `localhost:60223` (constant `SERVER_PORT` in `packages/shared/src/constants/systems.ts`)
    - Initializes PGlite database with pgvector extension
    - Connects the active MCP servers on demand — each chat request (and each Philharmonic employee loop) calls `getMcpTools()` (`src/main/lib/ai/mcp.ts`, a 5-minute per-server cache); nothing connects at startup
-   - Handles updates (`src/main/lib/auto-updater.ts`, which keeps the state machine the renderer's update panel speaks): Squirrel via `update-electron-app` for a signed build, a release-page link for an unsigned one — see "Updates and code signing"
+   - Handles updates (`src/main/lib/auto-updater.ts`, which keeps the state machine the renderer's update panel speaks): electron-updater with blockmap downloads on macOS (a release-page link for an unsigned build), Squirrel via `update-electron-app` on Windows — see "Updates and code signing"
 
 2. **Renderer Process** (`src/renderer/`):
    - React 19 application with React Router v7
@@ -217,14 +217,34 @@ requirement, can never install one. A Developer ID requirement names the
 team, the same for every version. The updater has two modes (`UpdateMode`,
 in the payload the panel receives):
 
-- **`auto`** — Squirrel through `update-electron-app` (10-minute re-checks,
-  downloads by itself, `ready` → "Restart & Install"). Windows, and any mac
-  build with a real signature.
-- **`manual`** — a mac build with an ad-hoc or missing signature. Squirrel is
-  never started (its re-check would download the ~180 MB zip and fail every ten
-  minutes); one lookup of the same update.electronjs.org feed at launch and one
-  per manual check say whether a newer version exists, and the panel's button
-  opens the GitHub releases page (`updaterDownload()`).
+- **`auto`** — on macOS, **electron-updater** against the release's
+  `latest-mac.yml` (ISSUE-290): 10-minute re-checks, downloads by itself with
+  real progress, `ready` → "Restart & Install" (or installs on quit), handing
+  the zip to Squirrel.Mac. It downloads only the blocks of the zip that
+  changed since the zip it downloaded last (the zip's `.blockmap`), so the
+  first update after an install by hand is a whole download and the ones
+  after it are not. Windows stays on Squirrel through `update-electron-app`
+  (update.electronjs.org), which reports no progress.
+- **`manual`** — a mac build with an ad-hoc or missing signature: the same
+  electron-updater, checking only (at launch and on a manual check, no
+  download); the panel's button opens the GitHub releases page
+  (`updaterDownload()`).
+
+The feed is made at `make`: forge writes neither file, so
+`forge.config.ts`'s `postMake` calls `writeMacUpdateFeed()`
+(`scripts/mac-update-feed.ts`: `<zip>.blockmap` through `app-builder-bin`,
+`latest-mac.yml` with the zip's SHA-512) and `release.yml` uploads both with
+the zip. electron-updater finds the previous version's blockmap by putting
+its version into the new one's URL, so every release must keep its
+`.blockmap`. The bundle carries `build/app-update.yml` in
+`Contents/Resources` (`extraResource`): electron-updater reads it before
+every download for its cache directory (`~/Library/Caches/actovia-updater`,
+where the previous zip a differential download starts from is kept), and
+without it every download fails with ENOENT. `ACTOVIA_UPDATE_FEED` points a mac build at a local directory
+served over http instead (to try an update end to end before a release;
+Squirrel still installs only a build with the team's signature). The main
+window's hide-on-close yields to `autoUpdater`'s `before-quit-for-update`
+(`window.ts`): `quitAndInstall()` closes the windows before `before-quit`.
 
 Which one is decided at runtime by `detectUpdateMode()` reading
 `codesign -dv` on the running bundle (`Signature=adhoc` → `manual`) — no build
@@ -250,9 +270,6 @@ the executable — that was the exact error every downloaded update failed with.
   paired device re-pairs.
 - The Accessibility / Screen Recording grants Computer Use needs are tied to
   the signature: grant them again once.
-- `quitAndInstall()` together with the "closing the window only hides it"
-  handler in `window.ts` has never run: test it with two consecutive signed
-  builds.
 
 ### Skills (skills.sh)
 

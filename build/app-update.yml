@@ -1,0 +1,4 @@
+owner: actovia-ai
+repo: actovia
+provider: github
+updaterCacheDirName: actovia-updater

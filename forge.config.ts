@@ -13,10 +13,12 @@ import { VitePlugin } from '@electron-forge/plugin-vite'
 import { PublisherGitHub } from '@electron-forge/publisher-github'
 import type { ForgeConfig } from '@electron-forge/shared-types'
 import { FuseV1Options, FuseVersion } from '@electron/fuses'
+import { appBuilderPath } from 'app-builder-bin'
 
 // Relative: Forge loads this file itself, without the Vite aliases.
 import DMG from './brand/dmg.json'
 import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
+import { writeMacUpdateFeed } from './scripts/mac-update-feed'
 
 // macOS signing is switched on by the environment, so a build without it
 // (`bun run package` for e2e, a fork's CI) stays ad-hoc and still valid (see
@@ -62,7 +64,9 @@ const config: ForgeConfig = {
     // this pattern with its own rather than replacing it.)
     asar: { unpack: '**/node_modules/@duckdb/**' },
     icon: './build/icon',
-    extraResource: ['./resources'],
+    // app-update.yml: electron-updater reads it from Contents/Resources before
+    // every macOS download, for its cache directory (ISSUE-290).
+    extraResource: ['./resources', './build/app-update.yml'],
     // The bundle a person sees is Actovia; package.json's productName stays
     // "Actovia" (the runtime name: Keychain item, userData, single-instance
     // lock). Windows keeps Actovia.exe: a Squirrel update would otherwise leave
@@ -167,12 +171,30 @@ const config: ForgeConfig = {
           )
         }
       }
+    },
+    // The macOS update feed (ISSUE-290): electron-updater reads
+    // `latest-mac.yml` from the release and downloads only the changed blocks
+    // of the zip through its `.blockmap`. Forge writes neither, so they are
+    // made here and added to the make result; release.yml uploads them.
+    postMake: async (_forgeConfig, makeResults) => {
+      for (const result of makeResults) {
+        if (result.platform !== 'darwin') continue
+        result.artifacts.push(
+          ...(await writeMacUpdateFeed(
+            result.artifacts,
+            result.packageJSON.version,
+            appBuilderPath
+          ))
+        )
+      }
+      return makeResults
     }
   },
   makers: [
     new MakerSquirrel({ setupIcon: './build/icon.ico' }),
-    // ZIP feeds the auto-updater (update.electronjs.org needs
-    // `*-darwin-*.zip`); the DMG is what people download.
+    // ZIP feeds the auto-updater (electron-updater, through latest-mac.yml and
+    // the zip's blockmap — see postMake) and `actovia app update`; the DMG is
+    // what people download.
     new MakerZIP({}, ['darwin']),
     // The installer window: background and icon positions come from
     // brand/art.mjs (`bun run icons` renders build/dmg-background{,@2x}.png),
@@ -204,10 +226,9 @@ const config: ForgeConfig = {
       options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }
     })
   ],
-  // Manual publishing to GitHub Releases — the prerequisite for the free
-  // update.electronjs.org auto-update service (see lib/auto-updater.ts, which
-  // derives the repo from package.json's `repository`, so keep the two in
-  // sync). Auth: set GITHUB_TOKEN when running `electron-forge publish`.
+  // Manual publishing to GitHub Releases, which both updaters read (see
+  // lib/auto-updater.ts: electron-updater on macOS, update.electronjs.org on
+  // Windows). Auth: set GITHUB_TOKEN when running `electron-forge publish`.
   // CI does not use this: .github/workflows/release.yml builds with `make`
   // and lets semantic-release create the release, then attaches the assets.
   publishers: [

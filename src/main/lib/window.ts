@@ -1,6 +1,12 @@
 import { join } from 'path'
 
-import { BrowserWindow, WebContentsView, app, screen } from 'electron'
+import {
+  BrowserWindow,
+  WebContentsView,
+  app,
+  autoUpdater,
+  screen
+} from 'electron'
 
 import { logger } from './logger'
 import { getResourcePath } from './paths'
@@ -61,6 +67,12 @@ export function createWindow(): void {
   mainWindow.webContents.on('did-navigate', () => closeSearchBar())
 
   app.on('before-quit', () => {
+    isQuitting = true
+  })
+  // "Restart & Install" (`quitAndInstall()`) closes every window *before*
+  // `before-quit`, so the hide-on-close below would keep the main window
+  // open and the quit, and with it the update, would never happen.
+  autoUpdater.on('before-quit-for-update', () => {
     isQuitting = true
   })
 

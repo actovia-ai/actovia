@@ -3,7 +3,8 @@ import { resolve } from 'node:path'
 import { inspect, promisify } from 'node:util'
 
 import { ACTOVIA_REPO } from '@actovia/shared/constants/external-urls'
-import { app, autoUpdater, BrowserWindow, net } from 'electron'
+import { app, autoUpdater, BrowserWindow } from 'electron'
+import { autoUpdater as macUpdater } from 'electron-updater'
 import { updateElectronApp } from 'update-electron-app'
 
 import { logger } from './logger'
@@ -47,8 +48,9 @@ let payload: UpdaterPayload = {
 let autoUpdateEnabled = true
 let modeReady: Promise<UpdateMode> = Promise.resolve('auto')
 const RELEASES_LATEST_URL = `${ACTOVIA_REPO}/releases/latest`
-const FEED_HOST = 'https://update.electronjs.org'
-const FEED_TIMEOUT_MS = 15_000
+/** update-electron-app's own cadence, kept for macOS. */
+const CHECK_INTERVAL_MS = 10 * 60 * 1000
+const isMac = () => process.platform === 'darwin' && app.isPackaged
 
 function broadcast() {
   BrowserWindow.getAllWindows().forEach((win) => {
@@ -84,43 +86,79 @@ export async function detectUpdateMode(): Promise<UpdateMode> {
   }
 }
 
+// Every step is logged: a packaged app has no console, and without this an
+// update that fails (or claims "up to date") leaves nothing to look at.
+const macUpdaterLogger = {
+  info: (message?: unknown) =>
+    logger.info('app', 'electron-updater', { message: String(message) }),
+  warn: (message?: unknown) =>
+    logger.warn('app', 'electron-updater', { message: String(message) }),
+  error: (message?: unknown) =>
+    logger.error('app', 'electron-updater', { message: String(message) }),
+  debug: (message: string) =>
+    logger.debug('app', 'electron-updater', { message })
+}
+
 /**
- * The same lookup Squirrel does (update.electronjs.org, 204 = nothing newer),
- * without downloading anything. `net.fetch` rather than `fetch` so it follows
- * the system proxy like the rest of Chromium's networking does.
+ * macOS: electron-updater against the GitHub release's `latest-mac.yml`
+ * (ISSUE-290). It downloads only the blocks of the zip that changed since the
+ * zip it downloaded last (`.blockmap`, made by forge.config.ts's postMake), so
+ * the first update after an install by hand is a whole download and the ones
+ * after it are not; then it hands the zip to Squirrel.Mac, which installs it
+ * on quit. In `manual` mode (ad-hoc build) it only checks: nothing is
+ * downloaded, and the panel's button opens the release page.
  */
-async function checkFeed(): Promise<void> {
-  setState('checking')
-  const url = `${FEED_HOST}/${new URL(ACTOVIA_REPO).pathname.slice(1)}/${process.platform}-${process.arch}/${app.getVersion()}`
-  try {
-    logger.info('app', 'Updater: checking feed', { url })
-    const res = await net.fetch(url, {
-      headers: {
-        'User-Agent': `actovia/${app.getVersion()} (${process.platform}: ${process.arch})`
-      },
-      signal: AbortSignal.timeout(FEED_TIMEOUT_MS)
+function startMacUpdater(mode: UpdateMode): void {
+  const [owner, repo] = new URL(ACTOVIA_REPO).pathname.slice(1).split('/')
+  // ACTOVIA_UPDATE_FEED: a directory served over http holding latest-mac.yml,
+  // the zip and its blockmap, for trying an update end to end before a
+  // release. Squirrel.Mac still installs only a build that satisfies this
+  // one's designated requirement (the team's signature), whatever the feed.
+  const feed = process.env.ACTOVIA_UPDATE_FEED
+  macUpdater.setFeedURL(
+    feed
+      ? { provider: 'generic', url: feed }
+      : { provider: 'github', owner, repo }
+  )
+  macUpdater.logger = macUpdaterLogger
+  macUpdater.autoDownload = mode === 'auto' && autoUpdateEnabled
+  macUpdater.autoInstallOnAppQuit = mode === 'auto'
+
+  macUpdater.on('checking-for-update', () => setState('checking'))
+  macUpdater.on('update-not-available', () => setState('up-to-date'))
+  macUpdater.on('update-available', (info) => {
+    logger.info('app', 'Updater: update available', { version: info.version })
+    setState(macUpdater.autoDownload ? 'downloading' : 'available', {
+      availableVersion: info.version,
+      downloadProgress: 0
     })
-    if (res.status === 204) {
-      logger.info('app', 'Updater: no update available', {
-        version: app.getVersion()
-      })
-      setState('up-to-date')
-      return
-    }
-    if (!res.ok) throw new Error(`The update server answered ${res.status}`)
-    const release = (await res.json()) as { name?: string }
-    logger.info('app', 'Updater: newer version found', { name: release.name })
-    setState('available', { availableVersion: release.name ?? null })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    logger.warn('app', 'Updater: feed check failed', { error: err })
-    setState('error', { errorMessage: message })
+  })
+  macUpdater.on('download-progress', (progress) => {
+    setState('downloading', { downloadProgress: Math.round(progress.percent) })
+  })
+  macUpdater.on('update-downloaded', (info) => {
+    logger.info('app', 'Updater: update downloaded', { version: info.version })
+    setState('ready', { availableVersion: info.version, downloadProgress: 100 })
+  })
+  macUpdater.on('error', (err) => {
+    logger.error('app', 'Updater: error', { error: err })
+    setState('error', { errorMessage: err.message ?? 'Unknown error' })
+  })
+
+  const check = () => {
+    macUpdater.checkForUpdates().catch(() => {
+      // Reported through the 'error' event above.
+    })
+  }
+  check()
+  if (mode === 'auto') {
+    setInterval(() => {
+      if (autoUpdateEnabled) check()
+    }, CHECK_INTERVAL_MS).unref()
   }
 }
 
 function startSquirrel(): void {
-  // Every step is logged: a packaged app has no console, and without this an
-  // update that fails (or claims "up to date") leaves nothing to look at.
   autoUpdater.on('checking-for-update', () => {
     logger.info('app', 'Updater: checking for update', {
       version: app.getVersion()
@@ -171,23 +209,20 @@ function startSquirrel(): void {
 }
 
 /**
- * Update flow, by build:
+ * Update flow, by platform:
  *
- * - Signed with a real identity (`auto`): Electron's `autoUpdater` (Squirrel)
- *   against update.electronjs.org for Forge + GitHub Releases, wired by
- *   `update-electron-app` — the mechanism electron-forge's own docs recommend
- *   (https://www.electronforge.io/advanced/auto-update). Squirrel always
- *   downloads by itself and reports no progress, so `available` is skipped: an
- *   update goes straight to `downloading` (indeterminate) and then `ready`.
- *   (`electron-updater` needs `latest.yml` that only electron-builder makes.)
- * - macOS build with no stable signature (`manual`, today's releases): Squirrel
- *   can never validate an update, and its 10-minute re-check would download the
- *   whole zip and fail every time — so it is not started. One feed lookup at
- *   launch, and one per manual check, tell the user a newer version exists;
+ * - macOS: electron-updater (`startMacUpdater`), in one of two modes. `auto`, a
+ *   build signed with the Developer ID: downloads by itself, with progress, and
+ *   installs on quit or on "Restart & Install". `manual`, an ad-hoc build:
+ *   Squirrel.Mac can never validate an update for it, so it only checks, and
  *   `updaterDownload()` opens the release page.
+ * - Windows: Electron's `autoUpdater` (Squirrel.Windows) against
+ *   update.electronjs.org, wired by `update-electron-app`. Squirrel downloads by
+ *   itself and reports no progress, so an update goes straight to
+ *   `downloading` (indeterminate) and then `ready`.
  *
  * The exported state machine keeps the shape the renderer's update panel
- * speaks (universal-client's electron-updater one), plus `mode`.
+ * speaks, plus `mode`.
  */
 export function setupAutoUpdater(autoUpdate = true): void {
   autoUpdateEnabled = autoUpdate
@@ -199,12 +234,14 @@ export function setupAutoUpdater(autoUpdate = true): void {
     return mode
   })
   void modeReady.then((mode) => {
-    if (mode === 'manual') {
-      logger.info(
-        'app',
-        'Updater: this build has no stable code signature, so Squirrel cannot validate updates; using the release page instead'
-      )
-      void checkFeed()
+    if (isMac()) {
+      if (mode === 'manual') {
+        logger.info(
+          'app',
+          'Updater: this build has no stable code signature, so Squirrel cannot validate updates; checking only, the release page installs'
+        )
+      }
+      startMacUpdater(mode)
     } else {
       startSquirrel()
     }
@@ -233,8 +270,11 @@ export async function updaterCheck(): Promise<void> {
     version: app.getVersion(),
     mode
   })
-  if (mode === 'manual') {
-    await checkFeed()
+  if (isMac()) {
+    macUpdater.autoDownload = mode === 'auto'
+    await macUpdater.checkForUpdates().catch(() => {
+      // Reported through the 'error' event.
+    })
     return
   }
   setState('checking')
@@ -248,22 +288,35 @@ export async function updaterCheck(): Promise<void> {
 }
 
 /**
- * Squirrel downloads on its own as soon as an update is found; in `manual`
- * mode there is nothing to download in-app, so this opens the release page.
+ * In `manual` mode there is nothing to download in-app, so this opens the
+ * release page. On macOS in `auto` mode it downloads an update a check found
+ * while automatic downloads were off; Squirrel.Windows always downloads on
+ * its own.
  */
 export function updaterDownload(): void {
-  if (payload.mode === 'manual') openExternalSafely(RELEASES_LATEST_URL)
+  if (payload.mode === 'manual') {
+    openExternalSafely(RELEASES_LATEST_URL)
+    return
+  }
+  if (isMac()) {
+    macUpdater.downloadUpdate().catch(() => {
+      // Reported through the 'error' event.
+    })
+  }
 }
 
 export function updaterInstall(): void {
-  autoUpdater.quitAndInstall()
+  if (isMac()) macUpdater.quitAndInstall()
+  else autoUpdater.quitAndInstall()
 }
 
 /**
+ * macOS: stops (or resumes) the periodic checks and their downloads. Windows:
  * Squirrel can't be told to stop downloading, so this only gates manual
  * checks; the periodic check `updateElectronApp` started at launch keeps
  * running until the next launch, when the persisted setting is re-read.
  */
 export function updaterSetAutoDownload(enable: boolean): void {
   autoUpdateEnabled = enable
+  if (isMac()) macUpdater.autoDownload = enable && payload.mode === 'auto'
 }

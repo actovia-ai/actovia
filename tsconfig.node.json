@@ -3,6 +3,7 @@
     "src/main/**/*",
     "src/preload/**/*",
     "forge.config.ts",
+    "scripts/mac-update-feed.ts",
     "forge.env.d.ts",
     "vite.main.config.mts",
     "vite.preload.config.mts",
