@@ -52,9 +52,11 @@ function dropWorkerSourceMaps(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   resolve: {
-    alias: {
-      '@': resolve('src/renderer')
-    },
+    alias: [
+      { find: '@', replacement: resolve('src/renderer') },
+      // shadcn's components import `cn` bare; ours knows the type scale.
+      { find: /^cn$/, replacement: resolve('src/renderer/lib/cn.ts') }
+    ],
     // @electron-forge/plugin-vite forces `preserveSymlinks: true`, which keeps
     // the @actovia/shared workspace package at its node_modules path — so in dev
     // Vite treats it as a third-party dependency: its modules are served with

@@ -18,7 +18,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useMemo, useState } from 'react'
 import { FieldPath } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -30,6 +29,7 @@ import {
   ComboboxList
 } from '@/components/ui/combobox'
 import { InputGroupAddon } from '@/components/ui/input-group'
+import { toast } from '@/components/ui/toast'
 import { ENTER } from '@/lib/motion'
 import { modelRetirement } from '@/lib/provider-labels'
 import { cn } from '@/lib/utils'
@@ -130,7 +130,8 @@ export function ModelPicker({
       )
       form.setValue(modelCatalogField, result.models, { shouldDirty: true })
       setRefusedKey(null)
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: t('settings:providers.model.refreshedTitle'),
         description: t('settings:providers.model.refreshedDescription', {
           total: result.models.length
@@ -144,7 +145,8 @@ export function ModelPicker({
         setRefusedKey(apiKey ?? '')
         return
       }
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('settings:providers.model.fetchErrorTitle'),
         description:
           getHttpErrorMessage(error, toErrorI18n(i18n)) ??

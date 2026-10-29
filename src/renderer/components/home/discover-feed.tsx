@@ -9,11 +9,11 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { formatDistanceToNow } from 'date-fns'
 import { memo, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { LazyLoadImage } from '@/components/markdown/lazy-load-image'
 import { SourceFavicon } from '@/components/markdown/source-favicon'
 import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/toast'
 import {
   useDiscoverFeed,
   useRefreshDiscoverFeed
@@ -146,7 +146,8 @@ export function DiscoverFeed() {
     try {
       await refreshFeed()
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('discover:toast.refreshFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })

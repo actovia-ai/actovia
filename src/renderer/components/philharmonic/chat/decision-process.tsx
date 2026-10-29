@@ -1,12 +1,18 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { CLI_IDS, CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import type { TFunction } from 'i18next'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Reveal } from '@/components/motion/morph'
+import { CodeBlock, CodeBlockContent } from '@/components/ui/code-block'
+import {
+  Trace,
+  TraceCollapsible,
+  TraceCollapsibleContent,
+  TraceCollapsibleTrigger,
+  TraceLine,
+  TraceTitle
+} from '@/components/ui/trace'
 import { usePmRound } from '@/hooks/use-pm-round'
 import { useFormat } from '@/lib/format'
 import {
@@ -54,16 +60,6 @@ export interface DecisionProcessProps {
   agentOf(agentId: string): DecisionAgent | undefined
   onJumpTo(messageId: string): void
 }
-
-const Chevron = ({ open }: { open: boolean }) => (
-  <HugeiconsIcon
-    icon={ArrowDown01Icon}
-    className={cn(
-      'h-3 w-3 shrink-0 transition-transform duration-200 ease-out',
-      !open && '-rotate-90'
-    )}
-  />
-)
 
 const asString = (v: unknown) => (typeof v === 'string' ? v : '')
 
@@ -125,46 +121,43 @@ function callSentence(
   }
 }
 
-/** A row that folds something longer under it (thinking, a call's details). */
+/**
+ * A row that folds something longer under it (thinking, a call's details),
+ * as the chat's tool lines do (ISSUE-293). Mounted on first open, then kept:
+ * a long thinking block or a call's arguments cost nothing until asked for.
+ */
 function Folded({
   label,
-  className,
   children
 }: {
   label: string
-  className?: string
   children: React.ReactNode
 }) {
-  const [open, setOpen] = useState(false)
-  // Mounted on first open, then kept: a long thinking block or a call's
-  // arguments cost nothing until asked for, and folding still animates.
   const [opened, setOpened] = useState(false)
   return (
-    <div className="flex flex-col gap-1">
-      <button
-        type="button"
-        onClick={() => {
-          setOpened(true)
-          setOpen((o) => !o)
-        }}
-        aria-expanded={open}
-        className={cn(
-          'hover:text-foreground flex items-center gap-1 self-start text-left',
-          className
-        )}
-      >
-        <Chevron open={open} />
-        {label}
-      </button>
-      <Reveal open={open}>{opened ? children : null}</Reveal>
-    </div>
+    <TraceCollapsible
+      onOpenChange={(open) => {
+        if (open) setOpened(true)
+      }}
+    >
+      <TraceCollapsibleTrigger>
+        <TraceLine className="text-xs">
+          <TraceTitle>{label}</TraceTitle>
+        </TraceLine>
+      </TraceCollapsibleTrigger>
+      <TraceCollapsibleContent keepMounted={opened} className="mt-1.5 pl-3">
+        {children}
+      </TraceCollapsibleContent>
+    </TraceCollapsible>
   )
 }
 
 const Pre = ({ children }: { children: React.ReactNode }) => (
-  <pre className="bg-muted text-foreground max-h-60 overflow-auto rounded-md px-2 py-1.5 font-mono text-xs break-all whitespace-pre-wrap">
-    {children}
-  </pre>
+  <CodeBlock size="sm">
+    <CodeBlockContent wrap className="max-h-60">
+      {children}
+    </CodeBlockContent>
+  </CodeBlock>
 )
 
 function Line({
@@ -220,7 +213,7 @@ function Line({
                 key={r.messageId}
                 type="button"
                 onClick={() => onJumpTo(r.messageId)}
-                className="text-primary-ink hover:underline"
+                className="text-primary hover:underline"
               >
                 {name}
               </button>
@@ -315,19 +308,16 @@ export function DecisionProcess({
     .join(' · ')
 
   return (
-    <div className="flex flex-col gap-1 px-0.5">
-      <button
-        type="button"
-        data-testid={TEST_IDS.philharmonic.decisionToggle}
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="text-muted-foreground hover:text-foreground flex items-center gap-1 self-start text-xs"
-      >
-        <Chevron open={open} />
-        {label}
-      </button>
-      <Reveal open={open}>
-        <div className="text-muted-foreground border-border ml-1.5 flex flex-col gap-1.5 border-l py-1 pl-3 text-xs">
+    <Trace className="px-0.5">
+      <TraceCollapsible open={open} onOpenChange={setOpen}>
+        <TraceCollapsibleTrigger
+          data-testid={TEST_IDS.philharmonic.decisionToggle}
+        >
+          <TraceLine className="text-xs">
+            <TraceTitle>{label}</TraceTitle>
+          </TraceLine>
+        </TraceCollapsibleTrigger>
+        <TraceCollapsibleContent className="mt-1.5 flex flex-col gap-1.5 pl-3 text-xs">
           {isError ? (
             <span>{t('chat.decision.unavailable')}</span>
           ) : isPending ? (
@@ -337,8 +327,8 @@ export function DecisionProcess({
               <Line key={i} line={line} agentOf={agentOf} onJumpTo={onJumpTo} />
             ))
           )}
-        </div>
-      </Reveal>
-    </div>
+        </TraceCollapsibleContent>
+      </TraceCollapsible>
+    </Trace>
   )
 }

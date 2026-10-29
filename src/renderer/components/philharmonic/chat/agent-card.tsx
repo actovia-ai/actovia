@@ -7,10 +7,10 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
+import { toast } from '@/components/ui/toast'
 import {
   cardStateKey,
   cliToolLabel,
@@ -32,7 +32,7 @@ import {
 import { BubbleMarkdown } from './bubble-markdown'
 
 const failed = (title: string) => (err: unknown) =>
-  sileo.error({ title, description: errorText(err) })
+  toast.add({ type: 'error', title, description: errorText(err) })
 
 const STEP_ICON = {
   running: Loading03Icon,

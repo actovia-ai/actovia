@@ -96,9 +96,7 @@ export function ResizableSidebarShell({
         >
           {sidebar}
         </ResizablePanel>
-        {/* In dark the border token reads as a bright hairline between the sidebar's material and the pane
-            (owner, 2026-10-22); light keeps the token. */}
-        <ResizableHandle className="dark:bg-white/[0.06]" />
+        <ResizableHandle />
         <ResizablePanel id={`${id}-content`}>{children}</ResizablePanel>
       </ResizablePanelGroup>
     </div>

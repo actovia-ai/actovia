@@ -349,14 +349,13 @@ asar (the `.node` dlopens `libduckdb` beside itself). Research notes:
 
 The accents are the owner's reference of 2026-09-29 (ChatGPT's accent
 colours) and the ones actovia-ios draws; neutral is shadcn's black and white.
-They are too light to be text, so a tone is a fill (`--primary`, with
-`--primary-foreground` on it) and an ink (`--primary-ink`: links, tinted
-text, focus rings, thin lines — `text-primary-ink`, never `text-primary`),
-plus `--bubble` for the user's message. `tests/unit/renderer/tone-palette.test.ts`
-holds the colours, their contrast and the class rule. The tone colours a
+A tone is shadcn's `--primary` (with `--primary-foreground` on it; text in
+the tone's colour is `text-primary`, as shadcn writes it), plus `--bubble`
+for the user's message. `tests/unit/renderer/tone-palette.test.ts` holds the
+colours and their contrast. The tone colours a
 conversation, not the page around it (owner, 2026-10-09): a
 `data-tone-scope="neutral"` region is drawn with the neutral tone's accents
-(`--primary`, `--primary-ink`, `--accent`, `--ring`, `--bubble`,
+(`--primary`, `--accent`, `--ring`, `--bubble`,
 `--chart-1`, `--sidebar-primary`…; the greys keep the tone's hue, as Chat's
 do) and `data-tone-scope="tone"` inside it takes the chosen tone back
 through `--toned-*`, which `:root` computes from the tone on `<html>`
@@ -452,7 +451,9 @@ plus `iconutil`) renders everything from it:
   `boot-splash:end` markers: Ody walks in, hops with the bindle swinging,
   blinks, and three dots pulse while the module graph loads. It lives inside
   `#root`, so React's first render replaces it (the e2e fixture waits for
-  `#boot-splash` to go), has no background of its own (window vibrancy), and
+  `#boot-splash` to go), has no background of its own (window vibrancy:
+  `.app-shell body` is transparent only while `#boot-splash` is in the page,
+  then `bg-background` — the app itself is opaque), and
   animates only `transform` / `opacity` on separate HTML layers — those run
   on the compositor, so the motion does not freeze while the main thread is
   busy.
@@ -787,7 +788,14 @@ only — `hooks/use-maps-key.ts`, `lib/maps-key.ts`), and loads Places photos
 through `GET /api/v1/maps/photo?name=places/…/photos/…&maxWidth=<1–4800>`
 (`routes/maps.ts`: the name is validated, the key added in main, fetched with
 `fetchPublicHttps()` from the fixed Places host, `Cache-Control: private,
-max-age=86400`) — the same route actovia-ios uses over the LAN.
+max-age=86400`) — the same route actovia-ios uses over the LAN. The
+card's place panel floats over the map's right side on the popover surface,
+clear of the map's foot (Google's attribution must stay visible); its
+full-screen button opens `itinerary-fullscreen.tsx` (ISSUE-295, after
+ChatGPT's map view; Mapbox was looked at and dropped — no photos or reviews,
+and a second key): a map of its own with Google's zoom buttons beside a
+column listing the day's places, which opens on one (`PlaceDetail`'s
+`panel` layout). The map is `map-surface.tsx`, shared by both.
 
 `weather` is Open-Meteo (no key: a geocoding call, then seven days with 24
 hourly points, WMO codes, all in the place's local time). The card reads
@@ -1238,10 +1246,9 @@ Compacts long conversations without losing information, surfacing summaries the 
 ### Sidebar, Artifacts and the account menu
 
 The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, `SIDEBAR_WIDTH` in
-`layouts/shared/resizable-sidebar.tsx`) sits on the window's material like
-Philharmonic's (`SIDEBAR_ON_MATERIAL`, `layouts/shared/sidebar-material.ts`).
-Settings' sidebar is as wide but solid (`SIDEBAR_SOLID`: `--sidebar` a step
-toward black, the active row a step further; owner, ISSUE-269). Under its
+`layouts/shared/resizable-sidebar.tsx`), Philharmonic's and Settings' are
+shadcn's `Sidebar` as the base-nova style draws it, with no overrides
+beyond the window's drag regions. Under its
 title row is `components/app/workspace-switcher.tsx`, the sidebar's title:
 the surface on show (Chat / Philharmonic) and a chevron, a shadcn
 `DropdownMenu` listing both with a line on what each is for and a check on
@@ -1348,7 +1355,7 @@ Their windows live in `src/main/lib/window.ts`.
 
 ### Server state (React Query)
 
-- `services/*.ts` are pure `fetcher()` wrappers (no React/sileo/i18n); each domain has
+- `services/*.ts` are pure `fetcher()` wrappers (no React/toast/i18n); each domain has
   `hooks/use-<domain>.ts` with a query-key factory plus `useQuery`/`useMutation` — components never
   import `useQuery`/`useMutation`/`useQueryClient` directly.
 - The one client is `lib/query-client.ts` (`createAppQueryClient()`): a failed query is reported
@@ -1519,7 +1526,11 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   between them, so a run that called nothing with a card (a web search, a
   file read — `hasToolCard()` in `calling-tools/tool-cards.ts`) is one
   `Markdown`, as it always was; a tool that failed is a line of the
-  timeline, not a card. Text in a message whose calls only fetch
+  timeline, not a card. A `web_search` that brought back pictures or
+  videos adds a `media` block where it was made (ISSUE-294: not all at the
+  answer's foot), less what an earlier search of the run showed
+  (`web-search/search-media.ts`); it does not split the text around it
+  unless it has media to show. Text in a message whose calls only fetch
   something (web search, web fetch, file reads, grep, the lcm tools — the
   built-ins `keepsTextInAnswer()` is false for) is the model at work
   ("I'll pull the photos."): it is a `narration` step of the timeline,
@@ -1549,7 +1560,7 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   (`useSetChatModel`), never on the default), `context-ring.tsx` (ISSUE-235:
   how full the chat's context is, from `GET /api/v1/chat/:id/context`
   through `hooks/use-chat-context.ts` and `lib/context-meter.ts` — a ring in
-  `text-primary-ink`, `text-warning` once summaries + messages reach LCM's
+  `text-primary`, `text-warning` once summaries + messages reach LCM's
   mark, the numbers in its tooltip, hidden before a run; a click opens the
   panel on Context) and `chat-menu.tsx` (rename, favourite, export as Markdown / PDF
   through `lib/chat-export.ts` and the `md-to-pdf` route's print sheet
@@ -1624,8 +1635,9 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   source at a time under a pager, ← → and "2/3"), drawn as small print so
   the sources
   do not outweigh the sentence — 9px muted text, an 11px round icon, a faint
-  pill 16px high raised 2px to the middle of the line (owner's call
-  2026-09-29; actovia-ios draws the same chip). The punctuation that closes
+  pill 16px high on the baseline, its middle on the middle of a Han glyph
+  (owner's call 2026-09-29; the 2px raise it had sat 2px high, ISSUE-294;
+  actovia-ios draws the same chip). The punctuation that closes
   the sentence stays on the chip's line (`tail`): a chip is a box, and no
   line starts with "。". (A 2026-09-22
   spike compared streamdown, markdown-to-jsx and md4x: the splitter already
@@ -1698,11 +1710,12 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   meta) · `text-ui` 13 (sidebar rows, dense UI) · `text-sm` 14 (body,
   controls) · `text-base`+ for titles. No `text-[Npx]`; the only sizes under
   11 are the citation chip and a map pin's numeral. `cn()` knows `2xs` / `ui`
-  as sizes (`lib/utils.ts`) — tailwind-merge would otherwise drop `text-ui`
-  beside a text colour. The app's weight is light (`* { font-light }`), but
-  `text-2xs` / `text-xs` are 400 — they and what sits inside them — so small
-  muted meta is not faint; set once in globals.css (`--text-*--font-weight`),
-  never per call site
+  as sizes (`lib/cn.ts`: shadcn's `cn` from npm, `createCn` from
+  `cn/config`; the bare `'cn'` that `components/ui/*` import is aliased to
+  it in `vite.renderer.config.mts` and `vitest.config.ts`) — it would otherwise drop `text-ui`
+  beside a text colour. The body is the system face at its regular weight (ISSUE-294: the old
+  `* { font-light }` set Chinese in PingFang Light beside Semibold bold); an answer's
+  `.markdown` runs at 16px / 1.75, ChatGPT's measure
 - React Query hooks (`hooks/use-<domain>.ts`) for server data fetching with automatic revalidation
 - Always use path alias `@` for renderer imports
 - Tailwind + Radix UI for consistent styling
@@ -1741,12 +1754,10 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   `SecretInput`'s `sr-only` span on a long Settings page, with no positioned
   ancestor, grew the document, and the whole window — sidebar and traffic
   lights included — scrolled up
-- Toast notifications via `sileo` (mounted once as `<AppToaster />` per
-  layout — chat/settings/philharmonic; its fill is the `--foreground` token
-  read from the document, so it follows the colour tone); `sonner`'s
-  `Toaster` is a leftover shadcn primitive (`components/ui/sonner.tsx`) that
-  is never mounted, so `sonner`'s `toast()` calls render nothing — use
-  `sileo` instead
+- Toast notifications are shadcn's base toast (`components/ui/toast.tsx`,
+  Base UI's toast manager): `toast.add({ type: 'success' | 'error' | 'info' |
+  'warning', title, description, actionProps? })`, mounted once as
+  `<Toaster />` per layout — chat/settings/philharmonic
 
 ### Motion (read before animating anything)
 
@@ -1782,26 +1793,22 @@ audit that applied it is in the commit history (`style(motion): …`).
   the two are one figure that stays put; the composer
   is wrapped in `border-beam`'s `BorderBeam` (`pulse-outside` in light,
   `pulse-inner` in dark) — the owner's choice of 2026-09-27, from
-  libraries.dev; the find bar has no focus ring: the pill is the field, and
+  libraries.dev; the find bar has no focus ring: the panel is the field, and
   it only exists while it has focus.
 - **Never `transition-all`** — name the properties. Animate `transform` and
   `opacity`; a `width`/`padding`/`grid-template-rows` transition needs a
   reason in a comment. `prefers-reduced-motion` in `globals.css` removes
   movement and keeps opacity/colour at 150 ms — do not add a second rule
   that zeroes everything.
-- **A scrim dims, it never blurs.** The dialog / alert dialog / sheet /
-  drawer overlays are `bg-black/30` alone: the main window is transparent over
-  vibrancy, and a `backdrop-filter` there blurs the pane but leaves the
-  sidebar's text sharp with a glow round it, its material undimmed
-  (2026-10-15). `tests/unit/renderer/components/ui/overlay-scrim.test.ts`
-  holds it against the shadcn generator.
-- **Colour:** the light neutral base is `oklch(0.985)` (page) / `0.995`
-  (card, popover) / `0.975` (sidebar) — never pure white; dark is `0.145`.
+- **Colour:** the neutral tone is shadcn's own `:root` / `.dark`, unchanged
+  (`tone-palette.test.ts` pins it); a colour tone's light palette sits at
+  `0.985` (page) / `0.995` (card, popover) / `0.96` (sidebar).
   No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces (a
   heads-up is `--warning`, `text-warning` — only `:root` / `.dark` set it) and no
-  `bg-black`/`bg-white` except an overlay scrim; use the tokens. `--accent`
-  (a hover, a chip, a selected item) stays at least 0.03 L from `--muted`,
-  and the light `--sidebar-accent` (the active row) 0.035 under `--sidebar`
+  `bg-black`/`bg-white` except an overlay scrim; use the tokens. In a colour
+  tone `--accent` (a hover, a chip, a selected item) stays at least 0.03 L
+  from `--muted`, and the light `--sidebar-accent` (the active row) 0.035
+  under `--sidebar`
   (`tone-palette.test.ts`); a chip on a muted card is `bg-background` with
   `ring-1 ring-border`.
 - **Ody in the UI:** `components/app/ody-mark.tsx` (`OdyMark`, the app
@@ -2023,7 +2030,7 @@ Reusable AI utilities that should be used (and tested) instead of inline impleme
    `sub-apps/artifacts/sandbox.tsx`) for JSX text nodes (`.tsx` only),
    literal multi-word `placeholder` / `aria-label` / `title` / `alt`
    attributes (an example in a placeholder is `examplePlaceholder`, "e.g.
-   {{example}}" in `settings.json`), `sileo.*({ title | description })` values (including template literals
+   {{example}}" in `settings.json`), `toast.add({ title | description })` values (including template literals
    and ternaries, in both `.ts` hooks/services and `.tsx` components), and
    `label:` properties in `src/main/lib/menu.ts`/`tray.ts` that aren't
    routed through `t()`/`<Trans>`/`mainT()`. A new hardcoded string fails

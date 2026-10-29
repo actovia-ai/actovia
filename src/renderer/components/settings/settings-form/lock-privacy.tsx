@@ -1,7 +1,6 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { PinInput } from '@/components/lock/pin-input'
 import {
@@ -16,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
+import { toast } from '@/components/ui/toast'
 import { useLock } from '@/hooks/use-lock'
 import { disableLock, setLockConfig, setLockPin } from '@/lib/lock-ipc'
 
@@ -74,13 +74,17 @@ export function LockPrivacy() {
     setConfirm(value)
     if (value.length !== 6) return
     if (value !== pin) {
-      sileo.error({ title: t('lock:privacy.toast.pinsDoNotMatch') })
+      toast.add({
+        type: 'error',
+        title: t('lock:privacy.toast.pinsDoNotMatch')
+      })
       resetEnroll()
       return
     }
     const { ok } = await setLockPin(pin)
     if (!ok) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('lock:privacy.toast.setPinFailed.title'),
         description: t('lock:privacy.toast.setPinFailed.description')
       })
@@ -89,20 +93,20 @@ export function LockPrivacy() {
     }
     resetEnroll()
     await refresh()
-    sileo.success({ title: t('lock:privacy.toast.lockEnabled') })
+    toast.add({ type: 'success', title: t('lock:privacy.toast.lockEnabled') })
   }
 
   const removePin = async () => {
     const ok = await disableLock(removePinValue)
     if (!ok) {
-      sileo.error({ title: t('lock:incorrectPin') })
+      toast.add({ type: 'error', title: t('lock:incorrectPin') })
       setRemovePinValue('')
       return
     }
     setRemoving(false)
     setRemovePinValue('')
     await refresh()
-    sileo.success({ title: t('lock:privacy.toast.lockRemoved') })
+    toast.add({ type: 'success', title: t('lock:privacy.toast.lockRemoved') })
   }
 
   const update = async (patch: Parameters<typeof setLockConfig>[0]) => {

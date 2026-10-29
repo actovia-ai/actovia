@@ -12,9 +12,8 @@ import { ErrorBoundary, RenderFailed } from '../app/card-error-boundary'
 import { ArtifactDraft } from '../calling-tools/artifact/artifact-card'
 import { ImageGenerationCard } from '../calling-tools/image-generation/image-generation-card'
 import Markdown from '../markdown/markdown'
-import { collectGalleryImages } from '../web-search/collect-gallery-images'
-import { collectGalleryVideos } from '../web-search/collect-gallery-videos'
 import { ImageGallery } from '../web-search/image-gallery'
+import { searchMedia } from '../web-search/search-media'
 import { VideoCards } from '../web-search/video-cards'
 import {
   InteractiveTurnContext,
@@ -116,6 +115,10 @@ function turnBlockContent({
     )
   }
 
+  if (block.kind === 'media') {
+    return <SearchMedia results={block.results} shown={block.shown} />
+  }
+
   if (block.kind === 'image') {
     // A call still waiting for its result is forming only while the run
     // streams; in a run that was stopped it never will, so it shows nothing.
@@ -160,6 +163,30 @@ function turnBlockContent({
 }
 
 /**
+ * A search's pictures and videos, where it was made in the run. Memoized on
+ * the stored results and a string, so it sits out the frames of the text
+ * streaming under it.
+ */
+const SearchMedia = memo(function SearchMedia({
+  results,
+  shown
+}: {
+  results: WebSearchResult[]
+  shown: string
+}) {
+  const { images, videos } = useMemo(
+    () => searchMedia(results, shown),
+    [results, shown]
+  )
+  return (
+    <>
+      {images.length > 0 && <ImageGallery images={images} />}
+      {videos.length > 0 && <VideoCards videos={videos} />}
+    </>
+  )
+})
+
+/**
  * One run's answer: its timeline, its blocks in run order, one action bar and
  * the run's foot. Also what each column of a comparison is drawn with.
  */
@@ -184,14 +211,6 @@ export const AssistantTurnSegment = memo(
       citationSources && citationSources.length > 0
         ? citationSources
         : undefined
-    const galleryImages = useMemo(
-      () => collectGalleryImages(turn.webSearchResults),
-      [turn.webSearchResults]
-    )
-    const galleryVideos = useMemo(
-      () => collectGalleryVideos(turn.webSearchResults),
-      [turn.webSearchResults]
-    )
     // The run's questionnaire or confirmation: the first one of its whole
     // answer, so one in a later paragraph stays code.
     const interactiveTurn = useInteractiveTurn(
@@ -240,12 +259,6 @@ export const AssistantTurnSegment = memo(
                   />
                 </TurnTextAboveContext.Provider>
               ))}
-              {galleryImages.length > 0 && (
-                <ImageGallery images={galleryImages} />
-              )}
-              {galleryVideos.length > 0 && (
-                <VideoCards videos={galleryVideos} />
-              )}
               {error && (
                 <p role="alert" className="text-destructive mt-3 text-sm">
                   {t('run.error', { message: error })}

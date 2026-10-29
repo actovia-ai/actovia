@@ -5,8 +5,8 @@ import {
   useQuery,
   useQueryClient
 } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { refreshSecretsStatus } from '@/hooks/use-secrets-status'
 import { i18n } from '@/lib/i18n'
 import {
@@ -69,7 +69,8 @@ export function useCreateMcpServer() {
       inlineCodes: SHOWN_INLINE
     },
     onSuccess: (_server, data) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:mcpServers.toast.registered', {
           name: data.name
         }),
@@ -95,7 +96,8 @@ export function useUpdateMcpServer() {
       inlineCodes: SHOWN_INLINE
     },
     onSuccess: (_server, { data }) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:mcpServers.toast.updated', { name: data.name })
       })
       return refreshMcp(queryClient)
@@ -110,7 +112,8 @@ export function useDeleteMcpServer() {
       deleteMcpServerApi(server.id),
     meta: { errorTitle: i18n.t('settings:mcpServers.toast.removeFailed') },
     onSuccess: (_void, server) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:mcpServers.toast.removed', {
           name: server.name
         })
@@ -130,7 +133,8 @@ export function useToggleMcpServer() {
       updateMcpServerApi(server.id, { isActive: !server.isActive }),
     meta: { errorTitle: i18n.t('settings:mcpServers.toast.toggleFailed') },
     onSuccess: (_server, server) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t(
           server.isActive
             ? 'settings:mcpServers.toast.disabled'

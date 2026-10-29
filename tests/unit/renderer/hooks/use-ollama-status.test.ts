@@ -13,10 +13,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { ollamaStatusKeys, useOllamaStatus } =
   await import('@/hooks/use-ollama-status')
@@ -111,7 +119,7 @@ describe('useOllamaStatus', () => {
     focusManager.setFocused(undefined)
     fetcherMock.mockReset()
     report.mockClear()
-    sileoError.mockClear()
+    toastError.mockClear()
   })
 
   it('is running when the ping answers, and caches the result under the base URL', async () => {
@@ -143,7 +151,7 @@ describe('useOllamaStatus', () => {
       false
     )
     expect(report).not.toHaveBeenCalled()
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('does not retry a failed probe, however long it waits', async () => {

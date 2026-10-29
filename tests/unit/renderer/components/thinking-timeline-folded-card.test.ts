@@ -83,6 +83,7 @@ const disclosure = () =>
 describe('a folded card in the timeline', () => {
   it('is closed under its row with the exit code, and opens the card on a click', async () => {
     const root = await mount(0)
+    expect(container?.querySelector('[data-status="error"]')).toBeNull()
     const toggle = disclosure()
     expect(toggle).not.toBeNull()
     expect(toggle?.getAttribute('aria-expanded')).toBe('false')
@@ -100,8 +101,9 @@ describe('a folded card in the timeline', () => {
 
   it('a non-zero exit reads as a failure on the toggle', async () => {
     const root = await mount(2)
-    const badge = disclosure()?.querySelector('span')
-    expect(badge?.className).toContain('text-destructive')
+    expect(
+      disclosure()?.querySelector('[data-slot="trace-line"]')?.dataset.status
+    ).toBe('error')
     await act(async () => root.unmount())
   })
 })

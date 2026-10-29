@@ -57,7 +57,9 @@ function SourcesButton({
       onClick={onClick}
       className="text-muted-foreground hover:text-foreground h-7 gap-1.5 rounded-lg px-2 text-xs"
     >
-      <span className="*:ring-background flex gap-[-0.375rem] *:ring-2">
+      {/* The sites' icons stacked, each ringed in the page's colour so the
+          one under it reads as a separate disc. */}
+      <span className="*:ring-background flex -space-x-1 *:ring-2">
         {favicons.map((src, i) => (
           <img
             key={i}

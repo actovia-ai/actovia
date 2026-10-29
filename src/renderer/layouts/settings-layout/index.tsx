@@ -1,9 +1,9 @@
 import type { CSSProperties } from 'react'
 
-import { AppToaster } from '@/components/app/app-toaster'
 import { SettingsForm } from '@/components/settings/settings-form'
 import { SettingsSidebar } from '@/components/settings/settings-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toast'
 import { SIDEBAR_WIDTH } from '@/layouts/shared/resizable-sidebar'
 
 export function SettingsLayout() {
@@ -21,7 +21,7 @@ export function SettingsLayout() {
           <SettingsForm />
         </div>
       </main>
-      <AppToaster />
+      <Toaster />
     </SidebarProvider>
   )
 }

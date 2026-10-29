@@ -71,7 +71,6 @@
     "working": "Working…",
     "thought": "Thought",
     "worked": "Worked",
-    "done": "Done",
     "thoughtFor": "{{verb}} for {{duration}}",
     "durationSeconds_one": "{{count}} second",
     "durationSeconds_other": "{{count}} seconds",
@@ -167,13 +166,17 @@
   },
   "genericToolCard": {
     "fallbackLabel": "Tool",
-    "badge": "tool"
+    "called": "Called {{tool}}"
   },
   "mapItineraryCard": {
     "missingApiKey": "Add a Google API Key in Settings → Google Cloud to render the trip map.",
     "tabsAriaLabel": "Itinerary days",
     "openRouteTitle": "Open route in Google Maps",
-    "copyMarkdownTitle": "Copy day as markdown"
+    "copyMarkdownTitle": "Copy day as markdown",
+    "openFullscreen": "Open full screen",
+    "closeFullscreen": "Close full screen",
+    "placeCount_one": "{{count}} place",
+    "placeCount_other": "{{count}} places"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "Go to photo {{index}}",
@@ -188,11 +191,14 @@
     "anonymousReviewer": "Anonymous",
     "previousAriaLabel": "Previous place",
     "nextAriaLabel": "Next place",
-    "pagination": "{{index}} of {{total}}"
+    "pagination": "{{index}} of {{total}}",
+    "backToList": "All places"
   },
   "terminalCard": {
     "exitCode": "exit {{code}}",
-    "noOutput": "No output"
+    "noOutput": "No output",
+    "ran": "Ran {{command}}",
+    "exited": "{{command}} exited with code {{code}}"
   },
   "weatherCard": {
     "today": "Today",

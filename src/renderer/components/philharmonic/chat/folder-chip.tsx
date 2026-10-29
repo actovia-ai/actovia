@@ -7,7 +7,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 import {
   createProject,
@@ -96,7 +96,8 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
     void listProjects()
       .then((list) => alive.current && setRecent(list))
       .catch((err) =>
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('chat.folder.listFailed'),
           description: errorMessage(err)
         })
@@ -109,7 +110,8 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
       const next = await setProjectWorktrees(project.id, on)
       if (alive.current) setProject(next)
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat.folder.failed'),
         description: errorMessage(err)
       })
@@ -125,7 +127,8 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
       await setConversationProject(conversationId, next?.id ?? null)
       await refresh()
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat.folder.failed'),
         description: errorMessage(err)
       })
@@ -138,7 +141,8 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
       if (!path) return
       await bind(await openFolder(path))
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat.folder.refused'),
         description: errorMessage(err)
       })
@@ -155,7 +159,8 @@ export function FolderChip({ conversationId }: { conversationId: string }) {
       setName('')
       await bind(created)
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat.folder.failed'),
         description: errorMessage(err)
       })

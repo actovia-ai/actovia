@@ -40,6 +40,7 @@ import { cn } from '@/lib/utils'
 import { foldsIntoTimeline } from '../calling-tools/folded-tools'
 import { hasToolCard, keepsTextInAnswer } from '../calling-tools/tool-cards'
 import { DiscoverFeed } from '../home/discover-feed'
+import { searchMediaUrls } from '../web-search/search-media'
 import { AssistantTurnSegment } from './assistant-turn-segment'
 import { ZoomableAttachment } from './attachment-frame'
 import { ChatToc } from './chat-toc'
@@ -256,7 +257,7 @@ function withInline(label: string, value: string): { text: string } {
   return { text: value ? `${label}: ${value}` : label }
 }
 
-type CardBlock = Exclude<TurnBlock, { kind: 'text' }>
+type CardBlock = Exclude<TurnBlock, { kind: 'text' | 'media' }>
 
 /**
  * A turn's blocks as they are built: text goes to the text before it when
@@ -267,6 +268,8 @@ type CardBlock = Exclude<TurnBlock, { kind: 'text' }>
 function createBlocks() {
   const blocks: TurnBlock[] = []
   const cards = new Map<string, CardBlock>()
+  // Media urls the run's searches have shown so far.
+  const shown: string[] = []
   let texts = 0
 
   const card = (block: CardBlock) => {
@@ -305,7 +308,27 @@ function createBlocks() {
     result(result: ChatToolResultMessage) {
       const { toolCallId: id, toolName } = result
       const held = cards.get(id)
-      if (held?.kind === 'tool' && result.isError) {
+      if (
+        toolName === TOOL_NAMES.webSearch &&
+        !result.isError &&
+        Array.isArray(result.details)
+      ) {
+        // A search's pictures go where it was made; its sources are the
+        // timeline's.
+        const results = result.details as WebSearchResult[]
+        const fresh = searchMediaUrls(results).filter(
+          (url) => !shown.includes(url)
+        )
+        if (fresh.length > 0) {
+          blocks.push({
+            kind: 'media',
+            key: `media:${id}`,
+            results,
+            shown: shown.join('\n')
+          })
+          shown.push(...fresh)
+        }
+      } else if (held?.kind === 'tool' && result.isError) {
         // A failed tool is a line of the timeline, not a card.
         blocks.splice(blocks.indexOf(held), 1)
       } else if (held) {

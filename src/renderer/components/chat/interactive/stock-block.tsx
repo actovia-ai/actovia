@@ -125,7 +125,7 @@ export function StockBlock({ block }: { block: StockBlockData }) {
           href={tradingViewSymbolPageUrl(block.symbol)}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary-ink hover:underline"
+          className="text-primary hover:underline"
         >
           {t('richBlocks.openOnTradingView')}
         </a>

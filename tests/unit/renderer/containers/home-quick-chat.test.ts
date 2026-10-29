@@ -46,7 +46,15 @@ vi.mock('@/components/chat/lcm-status-card', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key })
 }))
-vi.mock('sileo', () => ({ sileo: { error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = { error: vi.fn() }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 // The bridge navigates the app's one router; each test gets its own.
 let router: ReturnType<typeof createMemoryRouter>

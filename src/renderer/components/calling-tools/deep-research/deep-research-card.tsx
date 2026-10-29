@@ -9,12 +9,11 @@ import { differenceInMinutes } from 'date-fns'
 import { useAtom } from 'jotai'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Markdown } from '@/components/markdown/markdown'
-import { ShimmeringText } from '@/components/motion/shimmering-text'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { toast } from '@/components/ui/toast'
 import {
   Tooltip,
   TooltipContent,
@@ -114,7 +113,8 @@ export function DeepResearchCard({
       const blob = await markdownToPdf(pdfMarkdown)
       downloadFile(blob, `${deepResearchResult.id}.pdf`)
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('deepResearchCard.exportFailedTitle'),
         description:
           e instanceof Error
@@ -152,7 +152,7 @@ export function DeepResearchCard({
           onClick={handleActiveDeepResearchSseId}
         >
           {deepResearchResult?.jobStatus === 'streaming' && (
-            <ShimmeringText text={t('deepResearchCard.researching')} />
+            <span className="shimmer">{t('deepResearchCard.researching')}</span>
           )}
           {deepResearchResult?.jobStatus === 'archived' &&
             deepResearchResult?.endTime && (

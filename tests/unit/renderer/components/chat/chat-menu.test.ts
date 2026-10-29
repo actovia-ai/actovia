@@ -19,7 +19,15 @@ const t = (key: string, options?: Record<string, unknown>) =>
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
 
 const toast = { success: vi.fn(), error: vi.fn() }
-vi.mock('sileo', () => ({ sileo: toast }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = toast
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const mutate = vi.fn()
 vi.mock('@/hooks/use-chat-history', () => ({

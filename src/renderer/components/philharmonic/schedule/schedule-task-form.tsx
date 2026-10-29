@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
@@ -27,6 +26,7 @@ import {
   SheetTitle
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { useFormat } from '@/lib/format'
 import { createScheduledTask } from '@/services/philharmonic-tasks'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
@@ -109,9 +109,10 @@ export function ScheduleTaskForm({
       onCreated(task)
       reset()
       onOpenChange(false)
-      sileo.success({ title: t('schedule.toast.taskScheduled') })
+      toast.add({ type: 'success', title: t('schedule.toast.taskScheduled') })
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('schedule.toast.scheduleTaskFailed'),
         description: err instanceof Error ? err.message : String(err)
       })

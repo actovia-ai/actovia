@@ -1,3 +1,4 @@
+import { cn as bareCn } from 'cn'
 import { describe, expect, it } from 'vitest'
 
 import { cn, convertToUIMessages } from '@/lib/utils'
@@ -62,5 +63,9 @@ describe('cn — the type scale', () => {
   it('lets a later size replace them, as any size does', () => {
     expect(cn('text-2xs', 'text-sm')).toBe('text-sm')
     expect(cn('text-xs', 'text-ui')).toBe('text-ui')
+  })
+
+  it("is the `cn` shadcn's components import bare", () => {
+    expect(bareCn).toBe(cn)
   })
 })

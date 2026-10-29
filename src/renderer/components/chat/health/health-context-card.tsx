@@ -78,7 +78,7 @@ export function HealthContextCard({ json }: { json: string }) {
                 icon={Icon}
 
                 aria-hidden
-                className="text-primary-ink size-3.5 shrink-0"
+                className="text-primary size-3.5 shrink-0"
               />
               {chip.text}
             </span>

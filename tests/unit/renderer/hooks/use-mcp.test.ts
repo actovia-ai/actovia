@@ -30,14 +30,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   mcpKeys,
@@ -166,9 +172,9 @@ function expectSingleGlobalFailure(title: string, message: string) {
   expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
     mutationKey: undefined
   })
-  expect(sileoError).toHaveBeenCalledTimes(1)
-  expect(sileoError).toHaveBeenCalledWith({ title, description: message })
-  expect(sileoSuccess).not.toHaveBeenCalled()
+  expect(toastError).toHaveBeenCalledTimes(1)
+  expect(toastError).toHaveBeenCalledWith({ title, description: message })
+  expect(toastSuccess).not.toHaveBeenCalled()
 }
 
 afterEach(() => {
@@ -178,8 +184,8 @@ afterEach(() => {
   updateMcpServerService.mockReset()
   deleteMcpServerService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('mcpKeys', () => {
@@ -220,7 +226,7 @@ describe('useMcpServers', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: mcpKeys.servers
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })
@@ -284,7 +290,7 @@ describe('useMcpTools', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: mcpKeys.tools
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })
@@ -304,12 +310,12 @@ describe('useCreateMcpServer', () => {
     expect(createMcpServerService).toHaveBeenCalledTimes(1)
     expect(createMcpServerService).toHaveBeenCalledWith(draft)
     expectMcpFamilyInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.registered[filesystem]',
       description: 'settings:mcpServers.toast.disabledByDefault'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -345,11 +351,11 @@ describe('useUpdateMcpServer', () => {
     expect(updateMcpServerService).toHaveBeenCalledTimes(1)
     expect(updateMcpServerService).toHaveBeenCalledWith('s1', draft)
     expectMcpFamilyInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.updated[filesystem]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -389,7 +395,7 @@ describe('useUpdateMcpServer', () => {
     })
     expect((thrown as { code?: string }).code).toBe('SECRET_REENTRY_REQUIRED')
     expect(report).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 })
 
@@ -406,11 +412,11 @@ describe('useDeleteMcpServer', () => {
     expect(deleteMcpServerService).toHaveBeenCalledTimes(1)
     expect(deleteMcpServerService).toHaveBeenCalledWith('s1')
     expectMcpFamilyInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.removed[filesystem]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -448,11 +454,11 @@ describe('useToggleMcpServer', () => {
       isActive: true
     })
     expectMcpFamilyInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.enabled[filesystem]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -467,7 +473,7 @@ describe('useToggleMcpServer', () => {
     expect(updateMcpServerService).toHaveBeenCalledWith('s1', {
       isActive: true
     })
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.enabled[filesystem]'
     })
   })
@@ -486,11 +492,11 @@ describe('useToggleMcpServer', () => {
       isActive: false
     })
     expectMcpFamilyInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:mcpServers.toast.disabled[filesystem]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -565,8 +571,8 @@ describe('the refresh after a save', () => {
       await api().create.mutateAsync(draft)
     })
 
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: mcpKeys.servers

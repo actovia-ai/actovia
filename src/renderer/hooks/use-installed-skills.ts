@@ -5,8 +5,8 @@ import {
   useQuery,
   useQueryClient
 } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { i18n } from '@/lib/i18n'
 import {
   getInstalledSkills,
@@ -42,7 +42,8 @@ export function useInstallSkill() {
     // and toast would make one failed write toast twice.
     meta: { errorTitle: i18n.t('settings:skillsMarket.toast.installFailed') },
     onSuccess: (installed) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:skillsMarket.toast.installedTitle', {
           name: installed.displayName
         })
@@ -59,7 +60,8 @@ export function useUninstallSkill() {
       uninstallSkill(slug),
     meta: { errorTitle: i18n.t('settings:skillsMarket.toast.uninstallFailed') },
     onSuccess: (_done, { displayName }) => {
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:skillsMarket.toast.uninstalledTitle', {
           name: displayName
         })

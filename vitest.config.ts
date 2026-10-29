@@ -5,10 +5,15 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
-    alias: {
-      '@main': resolve(import.meta.dirname, 'src/main'),
-      '@': resolve(import.meta.dirname, 'src/renderer')
-    }
+    alias: [
+      { find: '@main', replacement: resolve(import.meta.dirname, 'src/main') },
+      { find: '@', replacement: resolve(import.meta.dirname, 'src/renderer') },
+      // As in vite.renderer.config.mts: shadcn's bare `cn` is ours.
+      {
+        find: /^cn$/,
+        replacement: resolve(import.meta.dirname, 'src/renderer/lib/cn.ts')
+      }
+    ]
   },
   test: {
     globals: true,

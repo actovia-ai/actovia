@@ -38,14 +38,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { Devices } = await import('@/components/settings/settings-form/devices')
 const { createAppQueryClient } = await import('@/lib/query-client')
@@ -137,8 +143,8 @@ afterEach(async () => {
   revokeDeviceService.mockReset()
   resetDevicesService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('Devices: what its buttons write', () => {
@@ -159,8 +165,8 @@ describe('Devices: what its buttons write', () => {
     expect(getDevicesService).toHaveBeenCalledTimes(2)
     expect(byTestId(TEST_IDS.devices.qrCode)).not.toBeNull()
     expect(byTestId(TEST_IDS.devices.pairButton)).toBeNull()
-    expect(sileoSuccess).not.toHaveBeenCalled()
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('"Cancel" closes the window with no arguments and shows the invitation again', async () => {
@@ -200,8 +206,8 @@ describe('Devices: what its buttons write', () => {
     expect(document.body.querySelector('[role="alertdialog"]')).toBeNull()
     expect(getDevicesService).toHaveBeenCalledTimes(2)
     expect(byTestId(TEST_IDS.devices.deviceRow)).toBeNull()
-    expect(sileoSuccess).not.toHaveBeenCalled()
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('"Reset all" asks first, then resets with no arguments and re-reads the list', async () => {
@@ -242,8 +248,8 @@ describe('Devices: what its buttons write', () => {
     await click(byTestId(TEST_IDS.devices.pairButton))
     await flush()
 
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'settings:devices.toast.failedTitle',
       description: 'localized(errors:code.DEVICES_UNAVAILABLE)'
     })
@@ -269,14 +275,13 @@ describe('Devices: the "device paired" toast', () => {
     await advance(1500)
     await advance(1)
     expect(getDevicesService).toHaveBeenCalledTimes(3)
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
 
     await advance(1500)
     await advance(1)
     expect(getDevicesService).toHaveBeenCalledTimes(4)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    // The name is in the description: sileo capitalises a title's words.
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'devices.toast.pairedTitle',
       description: 'iPhone'
     })
@@ -285,7 +290,7 @@ describe('Devices: the "device paired" toast', () => {
     // The window is closed now, so nothing polls and nothing toasts again.
     await advance(60_000)
     expect(getDevicesService).toHaveBeenCalledTimes(4)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('stays quiet about a device that appears while no window was open', async () => {
@@ -302,6 +307,6 @@ describe('Devices: the "device paired" toast', () => {
 
     expect(getDevicesService).toHaveBeenCalledTimes(2)
     expect(byTestId(TEST_IDS.devices.deviceRow)).not.toBeNull()
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
   })
 })

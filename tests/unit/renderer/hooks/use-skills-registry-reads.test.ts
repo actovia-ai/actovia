@@ -45,14 +45,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   skillsKeys,
@@ -140,8 +146,8 @@ afterEach(async () => {
   getSkillAuditService.mockReset()
   getCuratedSkillsService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('useSkillsSearch', () => {
@@ -300,7 +306,7 @@ describe('useSkillAudit', () => {
       'success'
     )
     expect(report).not.toHaveBeenCalled()
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('exposes only what the panel reads', async () => {
@@ -385,8 +391,8 @@ describe.each(reads)('reading $name', (read) => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: read.key
     })
-    expect(sileoError).not.toHaveBeenCalled()
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })

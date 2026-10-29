@@ -25,9 +25,10 @@ describe('pickHue', () => {
 })
 
 describe('hueStyle', () => {
-  it('emits both fill and ring CSS variable references', () => {
+  it('is the hue fill under a neutral hairline, not a ring of the hue', () => {
     const style = hueStyle('lilac')
     expect(style.background).toBe('var(--ph-hue-lilac-fill)')
-    expect(style.boxShadow).toContain('var(--ph-hue-lilac-ring)')
+    expect(style.boxShadow).not.toContain('--ph-hue-lilac-ring')
+    expect(style.boxShadow).toContain('var(--foreground)')
   })
 })

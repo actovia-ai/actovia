@@ -10,7 +10,6 @@ import {
   useState
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { SheetPanel } from '@/components/app/sheet-panel'
 import {
@@ -23,6 +22,7 @@ import { WorkforcePage } from '@/components/philharmonic/workforce/workforce-pag
 import { Button } from '@/components/ui/button'
 import { SidebarInset } from '@/components/ui/sidebar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { toast } from '@/components/ui/toast'
 import { useConversationStream } from '@/hooks/use-conversation-stream'
 import type { PhilharmonicPage } from '@/layouts/philharmonic-layout'
 import {
@@ -109,9 +109,10 @@ export function PhilharmonicContainer({
         await deleteConversation(id)
         setConversations((p) => p.filter((c) => c.id !== id))
         if (id === activeId) onOpenGroup(null, { replace: true })
-        sileo.success({ title: t('container.toast.groupDeleted') })
+        toast.add({ type: 'success', title: t('container.toast.groupDeleted') })
       } catch (err) {
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('container.toast.deleteGroupFailed'),
           description: err instanceof Error ? err.message : String(err)
         })
@@ -242,7 +243,7 @@ export function PhilharmonicContainer({
           />
         }
       >
-        <SidebarInset className="bg-card flex h-full min-w-0 flex-col overflow-hidden">
+        <SidebarInset className="flex h-full min-w-0 flex-col overflow-hidden">
           {groupChatOwnsHeader ? (
             <div className="min-h-0 flex-1 overflow-hidden">{mainContent}</div>
           ) : (

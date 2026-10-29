@@ -4,8 +4,8 @@ import {
   useQuery,
   useQueryClient
 } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { i18n } from '@/lib/i18n'
 import { clearLogs, getLogDates, getLogs, getLogScopes } from '@/services/logs'
 
@@ -69,7 +69,10 @@ export function useClearLogs() {
       // Entries, dates and scopes are all gone with the files: the pickers
       // would otherwise keep offering dates and scopes that no longer exist.
       void queryClient.invalidateQueries({ queryKey: logsKeys.all })
-      sileo.success({ title: i18n.t('settings:logger.toast.cleared') })
+      toast.add({
+        type: 'success',
+        title: i18n.t('settings:logger.toast.cleared')
+      })
     }
   })
 }

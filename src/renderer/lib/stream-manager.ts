@@ -7,8 +7,8 @@ import type {
 } from '@actovia/shared/types/chat'
 import type { UsedMemory } from '@actovia/shared/types/memory'
 import { mergeRun } from '@actovia/shared/utils/run-merge'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import {
   recordApprovalRequired,
   recordApprovalResolved
@@ -48,11 +48,12 @@ const streams = new Map<string, ActiveStream>()
 // ── Toast notifications ──────────────────────────────────────────────────────
 
 function notifyCompletion(chatId: string, title: string) {
-  sileo.success({
+  toast.add({
+    type: 'success',
     title: i18n.t('chat:toast.responseReadyTitle'),
     description: title || i18n.t('chat:toast.chatFallbackTitle'),
-    button: {
-      title: i18n.t('chat:toast.viewButton'),
+    actionProps: {
+      children: i18n.t('chat:toast.viewButton'),
       onClick: () => {
         window.location.hash = `#/chat/${chatId}`
       }
@@ -61,12 +62,13 @@ function notifyCompletion(chatId: string, title: string) {
 }
 
 function notifyError(chatId: string, title: string, error: Error) {
-  sileo.error({
+  toast.add({
+    type: 'error',
     title: i18n.t('chat:toast.chatFailedTitle'),
     description:
       error.message || title || i18n.t('chat:toast.genericErrorFallback'),
-    button: {
-      title: i18n.t('chat:toast.viewButton'),
+    actionProps: {
+      children: i18n.t('chat:toast.viewButton'),
       onClick: () => {
         window.location.hash = `#/chat/${chatId}`
       }
@@ -75,11 +77,12 @@ function notifyError(chatId: string, title: string, error: Error) {
 }
 
 function notifyApproval(chatId: string, title: string) {
-  sileo.warning({
+  toast.add({
+    type: 'warning',
     title: i18n.t('chat:toast.approvalTitle'),
     description: title || i18n.t('chat:toast.chatFallbackTitle'),
-    button: {
-      title: i18n.t('chat:toast.viewButton'),
+    actionProps: {
+      children: i18n.t('chat:toast.viewButton'),
       onClick: () => {
         window.location.hash = `#/chat/${chatId}`
       }
@@ -96,12 +99,14 @@ function notifyNotice(
   if (stream.seenNotices.has(key)) return
   stream.seenNotices.add(key)
   if (level === 'info') {
-    sileo.info({
+    toast.add({
+      type: 'info',
       title: i18n.t('chat:toast.headsUpTitle'),
       description: message
     })
   } else {
-    sileo.warning({
+    toast.add({
+      type: 'warning',
       title: i18n.t('chat:toast.headsUpTitle'),
       description: message
     })

@@ -3,8 +3,8 @@ import type { Attachment } from '@actovia/shared/types/chat'
 import { useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { prepareImageFile } from '@/lib/prepare-image'
 import { convertFileToBase64 } from '@/lib/utils'
 import { philharmonicAttachmentAtom } from '@/stores/philharmonic'
@@ -38,7 +38,8 @@ export function usePhilharmonicUpload() {
       )
       setAttachments((prev) => [...prev, ...results])
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat.uploader.attachFailedTitle'),
         description: err instanceof Error ? err.message : String(err)
       })

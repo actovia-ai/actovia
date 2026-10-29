@@ -439,7 +439,7 @@ describe('<UsedMemories>', () => {
     // In the entry's title row, not on a line of its own under it.
     expect(fix?.parentElement?.textContent).toContain('Work setup')
     // Tinted in the tone, so it reads as a button.
-    expect(fix?.className).toContain('text-primary-ink')
+    expect(fix?.className).toContain('text-primary')
     expect(popover?.textContent).toContain('usedMemories.fixHint')
   })
 

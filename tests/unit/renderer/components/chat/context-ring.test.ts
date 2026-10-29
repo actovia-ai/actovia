@@ -82,7 +82,7 @@ describe('<ContextRing>', () => {
     )
     expect(ring?.hasAttribute('data-past-compaction')).toBe(false)
     expect(ring?.querySelector('svg')?.getAttribute('class')).toContain(
-      'text-primary-ink'
+      'text-primary'
     )
     act(() => ring?.click())
     expect(store.get(chatPanelAtom)).toMatchObject({

@@ -6,10 +6,10 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 import { abortComputerUse, answerComputerUse } from '@/services/computer-use'
 
@@ -64,7 +64,8 @@ export function ComputerUseCard({
 
   const stop = () => {
     abortComputerUse().catch(() => {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('computerUseCard.stopFailedTitle'),
         description: t('computerUseCard.stopFailedDescription')
       })
@@ -75,7 +76,8 @@ export function ComputerUseCard({
     if (!details.sessionId) return
     answerComputerUse(details.sessionId, answer.trim() || '(done)').catch(
       () => {
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('computerUseCard.answerFailedTitle'),
           description: t('computerUseCard.answerFailedDescription')
         })

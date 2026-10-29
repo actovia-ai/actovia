@@ -12,9 +12,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const t = (key: string) => key
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
-vi.mock('sileo', () => ({
-  sileo: { success: vi.fn(), error: vi.fn(), warning: vi.fn() }
-}))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 let beam: Record<string, unknown> = {}
 vi.mock('border-beam', () => ({
   BorderBeam: ({

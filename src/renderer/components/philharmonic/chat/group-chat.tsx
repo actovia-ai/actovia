@@ -122,7 +122,7 @@ export function GroupChat({
       >
         {!sidebarOpen && (
           <>
-            <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground shrink-0" />
+            <SidebarTrigger className="no-drag shrink-0" />
             <NewGroupButton onCreate={onCreateGroup} />
           </>
         )}
@@ -240,7 +240,7 @@ export function GroupChat({
                 <HugeiconsIcon
                   icon={HelpCircleIcon}
 
-                  className="text-primary-ink mt-0.5 h-4 w-4 shrink-0"
+                  className="text-primary mt-0.5 h-4 w-4 shrink-0"
                 />
                 <span>{askUser.question}</span>
               </div>

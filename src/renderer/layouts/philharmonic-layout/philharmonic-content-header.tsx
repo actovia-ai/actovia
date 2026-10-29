@@ -39,7 +39,7 @@ export function PhilharmonicContentHeader({
     >
       {!open && (
         <>
-          <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
+          <SidebarTrigger className="no-drag" />
           <NewGroupButton onCreate={onCreateGroup} />
         </>
       )}

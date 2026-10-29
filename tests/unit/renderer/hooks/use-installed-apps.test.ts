@@ -19,10 +19,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { installedAppsKeys, useInstalledApps } =
   await import('@/hooks/use-installed-apps')
@@ -138,7 +146,7 @@ afterEach(async () => {
   focusManager.setFocused(undefined)
   getInstalledAppsService.mockReset()
   report.mockClear()
-  sileoError.mockClear()
+  toastError.mockClear()
 })
 
 describe('installedAppsKeys', () => {
@@ -297,7 +305,7 @@ describe('useInstalledApps', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: installedAppsKeys.all
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().isLoading).toBe(false)
     expect(api().apps).toEqual([])
     expect(queryClient.getQueryData(installedAppsKeys.all)).toBeUndefined()

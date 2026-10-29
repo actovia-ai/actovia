@@ -1,5 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { Add01Icon } from '@hugeicons/core-free-icons'
+import { Album02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
 
@@ -19,8 +19,10 @@ export function ImageGallery({ images }: { images: GalleryImage[] }) {
   const hasMore = images.length > MAX_THUMBS
 
   return (
-    <div className="my-3">
-      <div className="flex gap-2">
+    // ChatGPT's row (ISSUE-294): three tall tiles, the picture left as it is
+    // and the count of the rest on a small pill in the last one's corner.
+    <div className="my-4">
+      <div className="flex gap-1.5">
         {thumbs.map((img, i) => {
           const isLastWithMore = i === MAX_THUMBS - 1 && hasMore
           return (
@@ -29,13 +31,13 @@ export function ImageGallery({ images }: { images: GalleryImage[] }) {
             <AttachmentFrame
               key={img.url}
               attachment={galleryAttachment(img)}
-              className="h-36 flex-1"
+              className="h-52 flex-1"
             >
               <button
                 type="button"
                 onClick={() => setOpenAt(i)}
                 data-testid={TEST_IDS.gallery.thumbnail}
-                className="relative size-full overflow-hidden rounded-xl"
+                className="relative size-full overflow-hidden rounded-xl transition-[filter] duration-150 ease-out hover:brightness-95"
               >
                 <LazyLoadImage
                   src={img.thumbnailUrl}
@@ -43,9 +45,10 @@ export function ImageGallery({ images }: { images: GalleryImage[] }) {
                   className="size-full"
                 />
                 {isLastWithMore && (
-                  <div className="absolute inset-0 flex items-center justify-center gap-0.5 bg-black/50 text-sm font-medium text-white">
-                    <HugeiconsIcon icon={Add01Icon} size={16} /> {images.length}
-                  </div>
+                  <span className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-xs font-medium text-white tabular-nums backdrop-blur-sm">
+                    <HugeiconsIcon icon={Album02Icon} size={14} />
+                    {images.length}
+                  </span>
                 )}
               </button>
             </AttachmentFrame>

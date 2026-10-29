@@ -67,7 +67,6 @@
     "working": "处理中…",
     "thought": "已思考",
     "worked": "已处理",
-    "done": "完成",
     "thoughtFor": "{{verb}} {{duration}}",
     "durationSeconds_other": "{{count}} 秒",
     "durationMinutes": "{{minutes}} 分钟",
@@ -158,13 +157,16 @@
   },
   "genericToolCard": {
     "fallbackLabel": "工具",
-    "badge": "工具"
+    "called": "已调用 {{tool}}"
   },
   "mapItineraryCard": {
     "missingApiKey": "请在“设置 → Google Cloud”中添加 Google API 密钥，才能显示行程地图。",
     "tabsAriaLabel": "行程天数",
     "openRouteTitle": "在 Google 地图中打开路线",
-    "copyMarkdownTitle": "将当天行程复制为 Markdown"
+    "copyMarkdownTitle": "将当天行程复制为 Markdown",
+    "openFullscreen": "全屏查看",
+    "closeFullscreen": "退出全屏",
+    "placeCount_other": "{{count}} 个地点"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "转到照片 {{index}}",
@@ -179,11 +181,14 @@
     "anonymousReviewer": "匿名",
     "previousAriaLabel": "上一个地点",
     "nextAriaLabel": "下一个地点",
-    "pagination": "第 {{index}} 个，共 {{total}} 个"
+    "pagination": "第 {{index}} 个，共 {{total}} 个",
+    "backToList": "全部地点"
   },
   "terminalCard": {
     "exitCode": "退出码 {{code}}",
-    "noOutput": "无输出"
+    "noOutput": "无输出",
+    "ran": "已运行 {{command}}",
+    "exited": "{{command}} 以代码 {{code}} 退出"
   },
   "weatherCard": {
     "today": "今天",

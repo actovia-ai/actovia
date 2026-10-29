@@ -20,10 +20,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { discoverKeys, useDiscoverFeed, useRefreshDiscoverFeed } =
   await import('@/hooks/use-discover-feed')
@@ -160,7 +168,7 @@ afterEach(async () => {
   getDiscoverFeedService.mockReset()
   refreshDiscoverFeedService.mockReset()
   report.mockClear()
-  sileoError.mockClear()
+  toastError.mockClear()
 })
 
 describe('discoverKeys', () => {
@@ -300,7 +308,7 @@ describe('useDiscoverFeed', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: discoverKeys.feed
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().feed).toBeNull()
     expect(queryClient.getQueryData(discoverKeys.feed)).toBeUndefined()
   })
@@ -338,7 +346,7 @@ describe('useRefreshDiscoverFeed', () => {
       false
     )
     expect(getDiscoverFeedService).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -487,7 +495,7 @@ describe('useRefreshDiscoverFeed', () => {
     })
     // `silent`: each call site decides what a failure looks like (the initial
     // kick says nothing, the button toasts its own localized message).
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(queryClient.getQueryData(discoverKeys.feed)).toBe(before?.data)
     expect(queryClient.getQueryState(discoverKeys.feed)?.dataUpdatedAt).toBe(
       before?.dataUpdatedAt

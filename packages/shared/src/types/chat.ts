@@ -237,6 +237,22 @@ export type TurnBlock =
       prompt: string
       result?: ChatToolResultMessage
     }
+  | {
+      /**
+       * The pictures and videos a `web_search` brought back, where the search
+       * was made (ISSUE-294), less what an earlier search of the run showed.
+       */
+      kind: 'media'
+      /** `media:<the call's id>`. */
+      key: string
+      /** The search's results as stored (their identity holds per frame). */
+      results: WebSearchResult[]
+      /**
+       * The media urls earlier searches of the run already showed, joined by
+       * newlines — a string, so a block rebuilt per frame compares equal.
+       */
+      shown: string
+    }
 
 /**
  * One run as the renderer shows it: a timeline of steps above the answer's

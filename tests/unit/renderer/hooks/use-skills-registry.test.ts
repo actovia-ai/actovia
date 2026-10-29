@@ -35,14 +35,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { skillsKeys, useSkillsInfiniteRegistry } =
   await import('@/hooks/use-skills-registry')
@@ -52,8 +58,8 @@ afterEach(async () => {
   await unmountAll()
   getSkillsRegistryService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('skillsKeys', () => {
@@ -261,7 +267,7 @@ describe('useSkillsInfiniteRegistry', () => {
     expect(api().hasNextPage).toBe(true)
     expect(api().isFetchingNextPage).toBe(false)
     expect(report).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
 
     await act(async () => {
       await api().fetchNextPage()

@@ -1,18 +1,30 @@
-import { ArrowRight01Icon, Wrench01Icon } from '@hugeicons/core-free-icons'
+import { Wrench01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { capitalCase } from 'change-case'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import {
+  CodeBlock,
+  CodeBlockActions,
+  CodeBlockContent,
+  CodeBlockCopyButton
+} from '@/components/ui/code-block'
+import {
+  Trace,
+  TraceCollapsible,
+  TraceCollapsibleContent,
+  TraceCollapsibleTrigger,
+  TraceIcon,
+  TraceLine,
+  TraceTitle
+} from '@/components/ui/trace'
 
 /**
  * Fallback card for tool results we don't have a dedicated renderer for —
  * primarily MCP tools (drawio, github, slack, …) whose names aren't in the
  * built-in dispatch list. Without this the tool appears to "do nothing" in
- * the UI, even though the LLM saw the result. We show the tool name and let
- * the user expand to inspect the raw payload.
+ * the UI, even though the LLM saw the result. AI Elements' Tool line
+ * (ISSUE-293): "Called <tool>", opening on the raw payload.
  */
 export function GenericToolCard({
   toolName,
@@ -21,9 +33,8 @@ export function GenericToolCard({
   toolName: string
   output: unknown
 }) {
-  const { t } = useTranslation('chat')
-  const [open, setOpen] = useState(false)
-  const label = toolName
+  const { t } = useTranslation(['chat', 'common'])
+  const tool = toolName
     ? capitalCase(toolName)
     : t('genericToolCard.fallbackLabel')
 
@@ -40,36 +51,37 @@ export function GenericToolCard({
             }
           })()
 
+  const line = (
+    <TraceLine>
+      <TraceIcon>
+        <HugeiconsIcon icon={Wrench01Icon} strokeWidth={2} />
+      </TraceIcon>
+      <TraceTitle>{t('genericToolCard.called', { tool })}</TraceTitle>
+    </TraceLine>
+  )
+
   return (
-    <div className="bg-card overflow-hidden rounded-lg border text-xs">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="hover:bg-accent/40 flex w-full items-center gap-2 px-3 py-2 text-left"
-      >
-        <HugeiconsIcon
-          icon={Wrench01Icon}
-
-          className="text-muted-foreground size-3.5 shrink-0"
-        />
-        <span className="font-medium">{label}</span>
-        <Badge variant="secondary" className="text-2xs">
-          {t('genericToolCard.badge')}
-        </Badge>
-        <HugeiconsIcon
-          icon={ArrowRight01Icon}
-
-          className={cn(
-            'text-muted-foreground ml-auto size-3.5 shrink-0 transition-transform',
-            open && 'rotate-90'
-          )}
-        />
-      </button>
-      {open && pretty && (
-        <pre className="bg-muted/30 text-2xs max-h-72 max-w-full overflow-auto border-t px-3 py-2 font-mono leading-snug [overflow-wrap:anywhere] whitespace-pre-wrap">
-          {pretty}
-        </pre>
+    <Trace>
+      {pretty ? (
+        <TraceCollapsible>
+          <TraceCollapsibleTrigger>{line}</TraceCollapsibleTrigger>
+          <TraceCollapsibleContent>
+            <CodeBlock size="sm">
+              <CodeBlockContent wrap className="max-h-72">
+                {pretty}
+              </CodeBlockContent>
+              <CodeBlockActions>
+                <CodeBlockCopyButton
+                  value={pretty}
+                  aria-label={t('common:action.copy')}
+                />
+              </CodeBlockActions>
+            </CodeBlock>
+          </TraceCollapsibleContent>
+        </TraceCollapsible>
+      ) : (
+        line
       )}
-    </div>
+    </Trace>
   )
 }

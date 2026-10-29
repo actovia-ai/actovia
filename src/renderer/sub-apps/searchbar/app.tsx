@@ -113,12 +113,13 @@ export function SearchBar() {
   const hasMatches = result !== null && result.matches > 0
   const noMatches = result !== null && result.matches === 0
 
-  // The pill is the field: the group inside it carries no surface, border or
-  // focus ring of its own — the bar only exists while it has focus, so a ring
-  // says nothing, and a box inside a box is what it drew.
+  // A popover's surface (base-nova's `PopoverContent`), and it is the field:
+  // the group inside it carries no surface, border or focus ring of its own —
+  // the bar only exists while it has focus, so a ring says nothing, and a box
+  // inside a box is what it drew.
   return (
     <div className="flex h-screen items-center justify-center px-4">
-      <div className="bg-popover text-popover-foreground border-border/60 flex w-full items-center gap-0.5 rounded-3xl border py-1.5 pr-1.5 pl-2 shadow-md">
+      <div className="bg-popover text-popover-foreground ring-foreground/10 flex w-full items-center gap-0.5 rounded-lg p-1 shadow-md ring-1">
         <InputGroup className="flex-1 border-0 bg-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0">
           <InputGroupAddon>
             <HugeiconsIcon icon={SearchIcon} />
@@ -154,7 +155,6 @@ export function SearchBar() {
         <Button
           variant="ghost"
           size="icon-sm"
-          className="rounded-full"
           data-testid={TEST_IDS.findInPage.previousButton}
           onClick={goPrevious}
           disabled={!hasMatches}
@@ -166,7 +166,6 @@ export function SearchBar() {
         <Button
           variant="ghost"
           size="icon-sm"
-          className="rounded-full"
           data-testid={TEST_IDS.findInPage.nextButton}
           onClick={goNext}
           disabled={!hasMatches}
@@ -178,7 +177,6 @@ export function SearchBar() {
         <Button
           variant="ghost"
           size="icon-sm"
-          className="rounded-full"
           data-testid={TEST_IDS.findInPage.closeButton}
           onClick={() => void closeSearchbar()}
           title={t('findInPage.close')}

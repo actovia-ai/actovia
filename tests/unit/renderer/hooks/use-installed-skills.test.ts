@@ -31,14 +31,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   installedSkillsKeys,
@@ -136,8 +142,8 @@ afterEach(async () => {
   uninstallService.mockReset()
   toggleService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 function deferred<T>() {
@@ -173,9 +179,9 @@ function expectSingleGlobalFailure(title: string, message: string) {
   expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
     mutationKey: undefined
   })
-  expect(sileoError).toHaveBeenCalledTimes(1)
-  expect(sileoError).toHaveBeenCalledWith({ title, description: message })
-  expect(sileoSuccess).not.toHaveBeenCalled()
+  expect(toastError).toHaveBeenCalledTimes(1)
+  expect(toastError).toHaveBeenCalledWith({ title, description: message })
+  expect(toastSuccess).not.toHaveBeenCalled()
 }
 
 describe('installedSkillsKeys', () => {
@@ -211,7 +217,7 @@ describe('useInstalledSkills', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: installedSkillsKeys.all
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })
@@ -261,11 +267,11 @@ describe('useInstallSkill', () => {
     expect(installService).toHaveBeenCalledTimes(1)
     expect(installService).toHaveBeenCalledWith('anthropics/skills/pdf')
     expectListInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:skillsMarket.toast.installedTitle[PDF Tools]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -301,11 +307,11 @@ describe('useUninstallSkill', () => {
     expect(uninstallService).toHaveBeenCalledTimes(1)
     expect(uninstallService).toHaveBeenCalledWith('pdf')
     expectListInvalidated(queryClient)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:skillsMarket.toast.uninstalledTitle[PDF]'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -341,8 +347,8 @@ describe('useToggleSkill', () => {
     expect(toggleService).toHaveBeenCalledTimes(1)
     expect(toggleService).toHaveBeenCalledWith('pdf', false)
     expectListInvalidated(queryClient)
-    expect(sileoSuccess).not.toHaveBeenCalled()
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -454,8 +460,8 @@ describe('the refresh after a write', () => {
       await api().install.mutateAsync('anthropics/skills/pdf')
     })
 
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: installedSkillsKeys.all

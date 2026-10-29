@@ -12,7 +12,6 @@ import { useSetAtom } from 'jotai'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { sileo } from 'sileo'
 
 import {
   Collapsible,
@@ -37,6 +36,7 @@ import {
   useSidebar
 } from '@/components/ui/sidebar'
 import { Skeleton } from '@/components/ui/skeleton'
+import { toast } from '@/components/ui/toast'
 import { useChatHistory, useUpdateChat } from '@/hooks/use-chat-history'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { compactRelativeTime } from '@/lib/relative-time'
@@ -47,12 +47,12 @@ import type { Chat } from '@/types/db'
 export function NavHistorySkeleton() {
   return (
     <section className="flex flex-col gap-3 p-2">
-      <Skeleton className="bg-border m-2 h-4 w-20" />
+      <Skeleton className="m-2 h-4 w-20" />
       {Array.from({ length: 10 })
         .fill(0)
         .map((_, idx) => (
           <div key={idx} className="flex px-2">
-            <Skeleton className="bg-border h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
           </div>
         ))}
     </section>
@@ -79,12 +79,12 @@ export const NavItems = memo(function NavItems({
   // message, it lets the model look this conversation up (`lcm_describe`).
   const copyId = async () => {
     if (await handleCopy(chat.id)) {
-      sileo.success({ title: t('chat:sidebar.history.idCopied') })
+      toast.add({ type: 'success', title: t('chat:sidebar.history.idCopied') })
     }
   }
 
   return (
-    <SidebarMenuItem className={cn(className, 'h-8')}>
+    <SidebarMenuItem className={className}>
       <SidebarMenuButton
         isActive={chat.id === id}
         render={<Link to={`/chat/${chat.id}`} />}
@@ -220,40 +220,37 @@ export function NavHistories() {
   return (
     <section>
       {favorite.length > 0 && (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarMenu className="gap-1">
-            <Collapsible defaultOpen>
-              <SidebarGroupLabel className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground mb-1 text-sm">
-                <CollapsibleTrigger className="group/trigger flex w-full items-center justify-between pl-0!">
-                  <SidebarGroupLabel className="p-0">
-                    {t('sidebar.history.favoritesGroup')}
-                  </SidebarGroupLabel>
-                  <HugeiconsIcon
-                    icon={ArrowRight01Icon}
-
-                    className="text-sidebar-foreground/50 h-4 w-4 transition-transform duration-200 group-data-panel-open/trigger:rotate-90"
-                  />
-                </CollapsibleTrigger>
-              </SidebarGroupLabel>
-              <CollapsibleContent>
+        <Collapsible defaultOpen>
+          <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+            <SidebarGroupLabel
+              render={<CollapsibleTrigger />}
+              className="group/trigger"
+            >
+              {t('sidebar.history.favoritesGroup')}
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                className="ml-auto transition-transform duration-200 group-data-panel-open/trigger:rotate-90"
+              />
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarMenu className="gap-0.5">
                 {favorite.map((chat) => (
                   <NavItems
                     chat={chat}
                     key={chat.id}
-                    className="mb-1 last:mb-0"
                     onToggleFavorite={toggleFavorite}
                   />
                 ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </SidebarMenu>
-        </SidebarGroup>
+              </SidebarMenu>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
       )}
 
       {chats.length > 0 && (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
           <SidebarGroupLabel>{t('sidebar.history.chats')}</SidebarGroupLabel>
-          <SidebarMenu className="gap-1">
+          <SidebarMenu className="gap-0.5">
             {chats.map((chat) => (
               <NavItems
                 chat={chat}

@@ -10,7 +10,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 const t = (key: string, opts?: Record<string, unknown>) =>
   opts ? `${key}(${Object.values(opts).join(',')})` : key
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
-vi.mock('sileo', () => ({ sileo: { error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = { error: vi.fn() }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 vi.mock('@/services/computer-use', () => ({
   abortComputerUse: vi.fn(),
   answerComputerUse: vi.fn()

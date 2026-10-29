@@ -6,12 +6,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { memoryKeys } from '@/hooks/use-memory'
 import { queryClient } from '@/lib/query-client'
 
-// Real i18n/sileo would need boot work this file has no use for — every
+// Real i18n/toasts would need boot work this file has no use for — every
 // assertion here is about `queryClient`'s cache, not a toast.
 vi.mock('@/lib/i18n', () => ({ i18n: { t: (key: string) => key } }))
-vi.mock('sileo', () => ({
-  sileo: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() }
-}))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { startStream } = await import('@/lib/stream-manager')
 

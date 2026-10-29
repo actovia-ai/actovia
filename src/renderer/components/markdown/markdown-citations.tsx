@@ -203,9 +203,11 @@ const CitationChip = memo(function CitationChip({
         }
       >
         {/* The pill is a span of its own: a link inside `.markdown` takes
-            the prose's link colour, which is not small print's. Raised 2px:
-            its middle on the middle of the line's text, Latin or Han. */}
-        <span className="bg-muted text-muted-foreground group-hover/chip:bg-accent group-hover/chip:text-foreground mr-px ml-0.5 inline-flex h-4 max-w-40 items-center gap-[3px] rounded-full pr-1.5 pl-0.5 align-[2px] text-[9px] leading-none font-medium transition-colors duration-150 ease-out select-none">
+            the prose's link colour, which is not small print's. On the
+            baseline (ISSUE-294): measured at 16px in the system face, its
+            middle lands 5.5px up, on the middle of a Han glyph (5.3px); the
+            2px raise it had put it 2px above. */}
+        <span className="bg-muted text-muted-foreground group-hover/chip:bg-accent group-hover/chip:text-foreground mr-px ml-0.5 inline-flex h-4 max-w-40 items-center gap-[3px] rounded-full pr-1.5 pl-0.5 text-[9px] leading-none font-medium transition-colors duration-150 ease-out select-none">
           <SourceFavicon
             link={first.link}
             favicon={first.favicon}

@@ -7,11 +7,14 @@ import type {
 import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import {
+  CHOICE_ROW,
+  ChoiceIndicator
+} from '@/components/chat/interactive/static-choice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CHOICE_ROW, ChoiceIndicator } from '@/components/ui/questionnaire'
+import { toast } from '@/components/ui/toast'
 import { cliToolLabel } from '@/lib/agent-card'
 import { cn } from '@/lib/utils'
 import { respondToAgent } from '@/services/agents'
@@ -40,7 +43,8 @@ function useAnswer(card: AgentCard, requestId: string) {
       setSent(true)
       return true
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('agents.card.answerFailed'),
         description: errorText(err)
       })
@@ -133,7 +137,7 @@ function QuestionChoices({
         data-slot="questionnaire-choice"
         data-type={type}
         data-checked={checked ? '' : undefined}
-        className={cn(CHOICE_ROW, 'hover:bg-input/40 cursor-pointer')}
+        className={cn(CHOICE_ROW, 'hover:bg-muted/50 cursor-pointer')}
         onClick={() => onToggle(o.label)}
       >
         <ChoiceIndicator />

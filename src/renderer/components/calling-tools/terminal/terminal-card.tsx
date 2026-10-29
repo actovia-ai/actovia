@@ -1,13 +1,22 @@
-import {
-  CheckmarkCircle02Icon,
-  ComputerTerminal01Icon,
-  CancelCircleIcon
-} from '@hugeicons/core-free-icons'
+import { ComputerTerminal01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  CodeBlock,
+  CodeBlockContent,
+  CodeBlockFooter
+} from '@/components/ui/code-block'
+import {
+  Trace,
+  TraceCollapsible,
+  TraceCollapsibleContent,
+  TraceCollapsibleTrigger,
+  TraceIcon,
+  TraceLine,
+  TraceTitle
+} from '@/components/ui/trace'
 import { foldHome } from '@/lib/display-path'
-import { cn } from '@/lib/utils'
 
 interface TerminalResult {
   command: string
@@ -17,80 +26,51 @@ interface TerminalResult {
   stderr: string
 }
 
+/**
+ * A command the model ran, as AI Elements' Terminal draws one (ISSUE-293): a
+ * line — "Ran …", or "… exited with code N" in the destructive colour — that
+ * opens on its output. A failure opens by itself; a success stays one line,
+ * since the answer is what the user reads.
+ */
 export function TerminalCard({ toolResult }: { toolResult: TerminalResult }) {
   const { t } = useTranslation('chat')
-  const success = toolResult.exitCode === 0
-  const hasOutput = toolResult.stdout.length > 0
-  const hasError = toolResult.stderr.length > 0
+  const { command, cwd, exitCode, stdout, stderr } = toolResult
+  const failed = exitCode !== 0
 
   return (
-    <div className="overflow-hidden rounded-lg border font-mono text-xs">
-      {/* Header */}
-      <div className="bg-muted/60 flex items-center gap-2 border-b px-3 py-2">
-        <HugeiconsIcon
-          icon={ComputerTerminal01Icon}
-
-          className="text-muted-foreground size-3.5 shrink-0"
-        />
-        <span className="text-foreground/80 flex-1 truncate">
-          {toolResult.command}
-        </span>
-        {success ? (
-          <HugeiconsIcon
-            icon={CheckmarkCircle02Icon}
-
-            className="size-3.5 shrink-0 text-green-500"
-          />
-        ) : (
-          <HugeiconsIcon
-            icon={CancelCircleIcon}
-
-            className="text-destructive size-3.5 shrink-0"
-          />
-        )}
-        <span
-          className={cn(
-            'shrink-0',
-            success ? 'text-green-500' : 'text-destructive'
+    <Trace>
+      <TraceCollapsible defaultOpen={failed}>
+        <TraceCollapsibleTrigger>
+          <TraceLine status={failed ? 'error' : undefined}>
+            <TraceIcon>
+              <HugeiconsIcon icon={ComputerTerminal01Icon} strokeWidth={2} />
+            </TraceIcon>
+            <TraceTitle>
+              {failed
+                ? t('terminalCard.exited', { command, code: exitCode })
+                : t('terminalCard.ran', { command })}
+            </TraceTitle>
+          </TraceLine>
+        </TraceCollapsibleTrigger>
+        <TraceCollapsibleContent className="flex flex-col gap-2">
+          {(stdout || !stderr) && (
+            <CodeBlock size="sm">
+              <CodeBlockContent wrap className="max-h-64">
+                {stdout || t('terminalCard.noOutput')}
+              </CodeBlockContent>
+              <CodeBlockFooter>{foldHome(cwd)}</CodeBlockFooter>
+            </CodeBlock>
           )}
-        >
-          {t('terminalCard.exitCode', { code: toolResult.exitCode })}
-        </span>
-      </div>
-
-      {/* stdout */}
-      {hasOutput && (
-        <pre className="text-foreground/90 max-h-64 overflow-auto bg-transparent px-3 py-2 leading-relaxed break-all whitespace-pre-wrap">
-          {toolResult.stdout}
-        </pre>
-      )}
-
-      {/* stderr */}
-      {hasError && (
-        <pre
-          className={cn(
-            'max-h-40 overflow-auto px-3 py-2 leading-relaxed break-all whitespace-pre-wrap',
-            hasOutput ? 'border-t' : '',
-            success
-              ? 'text-yellow-600 dark:text-yellow-400'
-              : 'text-destructive'
+          {stderr && (
+            <CodeBlock size="sm" variant={failed ? 'destructive' : 'default'}>
+              <CodeBlockContent wrap className="max-h-40">
+                {stderr}
+              </CodeBlockContent>
+              {!stdout && <CodeBlockFooter>{foldHome(cwd)}</CodeBlockFooter>}
+            </CodeBlock>
           )}
-        >
-          {toolResult.stderr}
-        </pre>
-      )}
-
-      {/* empty output */}
-      {!hasOutput && !hasError && (
-        <div className="text-muted-foreground px-3 py-2 italic">
-          {t('terminalCard.noOutput')}
-        </div>
-      )}
-
-      {/* cwd hint */}
-      <div className="text-muted-foreground/60 text-2xs border-t px-3 py-1.5">
-        {foldHome(toolResult.cwd)}
-      </div>
-    </div>
+        </TraceCollapsibleContent>
+      </TraceCollapsible>
+    </Trace>
   )
 }

@@ -88,7 +88,7 @@ export const UserBubble = memo(function UserBubble({ text }: { text: string }) {
         {quote !== null && (
           <blockquote
             title={quote}
-            className="border-primary-ink/40 text-muted-foreground line-clamp-3 border-l-2 pl-2.5 text-sm leading-normal whitespace-pre-wrap not-last:mb-1.5"
+            className="border-primary/40 text-muted-foreground line-clamp-3 border-l-2 pl-2.5 text-sm leading-normal whitespace-pre-wrap not-last:mb-1.5"
           >
             {quote}
           </blockquote>

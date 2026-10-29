@@ -156,7 +156,7 @@ function UsedMemoriesList({
                     onClick={() => wrong(key)}
                     // A capsule in the tone: the one thing to do with an
                     // entry, so it reads as a button at a glance.
-                    className="bg-primary/12 text-primary-ink hover:bg-primary/20 hover:text-primary-ink dark:bg-primary/20 dark:hover:bg-primary/30 shrink-0 rounded-full"
+                    className="bg-primary/12 text-primary hover:bg-primary/20 hover:text-primary dark:bg-primary/20 dark:hover:bg-primary/30 shrink-0 rounded-full"
                   >
                     <HugeiconsIcon icon={EditIcon} />
                     {t('usedMemories.wrong')}

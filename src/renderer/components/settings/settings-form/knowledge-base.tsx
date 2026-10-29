@@ -21,7 +21,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { Trans, useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import {
   AlertDialog,
@@ -51,6 +50,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 
 import {
@@ -117,7 +117,8 @@ function DocDialog({ open, doc, onClose, onSaved }: DocDialogProps) {
       onSaved()
       onClose()
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('knowledgeBase:toast.saveFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })
@@ -308,7 +309,8 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
     try {
       setDocs(await getKnowledgeDocs())
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('knowledgeBase:toast.loadFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })
@@ -347,12 +349,14 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
           ? null
           : t('knowledgeBase:toast.docsCount', { count: h.documentCount })
       ].filter(Boolean)
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: t('knowledgeBase:toast.connected'),
         description: parts.join(' · ')
       })
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('knowledgeBase:toast.connectFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })
@@ -364,12 +368,14 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
   const handleReindex = async () => {
     try {
       const { count } = await reindexAll()
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: t('knowledgeBase:toast.reindexQueued', { count })
       })
       await loadDocs()
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('knowledgeBase:toast.reindexFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })
@@ -391,7 +397,8 @@ export function KnowledgeBase({ form }: { form: UseFormReturnType }) {
       await deleteKnowledgeDoc(deleteTarget.id)
       setDocs((p) => p.filter((d) => d.id !== deleteTarget.id))
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('knowledgeBase:toast.deleteFailed'),
         description: getHttpErrorMessage(e, toErrorI18n(i18n))
       })

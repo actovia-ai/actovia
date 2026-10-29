@@ -71,7 +71,6 @@
     "working": "Trabalhando…",
     "thought": "Pensou",
     "worked": "Trabalhou",
-    "done": "Concluído",
     "thoughtFor": "{{verb}} por {{duration}}",
     "durationSeconds_one": "{{count}} segundo",
     "durationSeconds_other": "{{count}} segundos",
@@ -167,13 +166,17 @@
   },
   "genericToolCard": {
     "fallbackLabel": "Ferramenta",
-    "badge": "ferramenta"
+    "called": "{{tool}} chamado"
   },
   "mapItineraryCard": {
     "missingApiKey": "Adicione uma Chave de API do Google em Configurações → Google Cloud para renderizar o mapa da viagem.",
     "tabsAriaLabel": "Dias do itinerário",
     "openRouteTitle": "Abrir rota no Google Maps",
-    "copyMarkdownTitle": "Copiar dia como markdown"
+    "copyMarkdownTitle": "Copiar dia como markdown",
+    "openFullscreen": "Abrir em tela cheia",
+    "closeFullscreen": "Fechar tela cheia",
+    "placeCount_one": "{{count}} lugar",
+    "placeCount_other": "{{count}} lugares"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "Ir para a foto {{index}}",
@@ -188,11 +191,14 @@
     "anonymousReviewer": "Anônimo",
     "previousAriaLabel": "Local anterior",
     "nextAriaLabel": "Próximo local",
-    "pagination": "{{index}} de {{total}}"
+    "pagination": "{{index}} de {{total}}",
+    "backToList": "Todos os lugares"
   },
   "terminalCard": {
     "exitCode": "saída {{code}}",
-    "noOutput": "Sem saída"
+    "noOutput": "Sem saída",
+    "ran": "{{command}} executado",
+    "exited": "{{command}} terminou com o código {{code}}"
   },
   "weatherCard": {
     "today": "Hoje",

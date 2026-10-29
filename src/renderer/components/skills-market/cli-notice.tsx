@@ -50,10 +50,13 @@ export function CliTitle() {
 export function CliQuickStart() {
   const [manager, setManager] = useState<PackageManager>('npm')
 
+  // A soft tray (no border) holding a white sheet with the commands, the
+  // package managers as quiet line tabs (ISSUE-294: the boxed, filled tabs
+  // read as a form control, not a snippet).
   return (
-    <div className="bg-muted/40 overflow-hidden rounded-xl border pb-1">
+    <div className="bg-muted/60 rounded-xl p-1">
       {/* Wraps in a long locale or a narrow block rather than squeezing. */}
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-1.5 pr-1.5 pl-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-2.5 pt-1 pb-1.5">
         <p className="text-muted-foreground text-xs">
           <CliTitle />
         </p>
@@ -61,17 +64,19 @@ export function CliQuickStart() {
           value={manager}
           onValueChange={(value) => setManager(value as PackageManager)}
         >
-          <TabsList className="group-data-horizontal/tabs:h-6">
+          <TabsList variant="line" className="group-data-horizontal/tabs:h-5">
             {PACKAGE_MANAGERS.map((name) => (
-              <TabsTrigger key={name} value={name} className="px-2 text-sm">
+              <TabsTrigger key={name} value={name} className="px-1 text-xs">
                 {name}
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
       </div>
-      <CommandLine bare command={INSTALL_COMMANDS[manager]} />
-      <CommandLine bare command={RUN_COMMAND} />
+      <div className="bg-background ring-foreground/5 rounded-lg py-1 shadow-xs ring-1">
+        <CommandLine bare command={INSTALL_COMMANDS[manager]} />
+        <CommandLine bare command={RUN_COMMAND} />
+      </div>
     </div>
   )
 }

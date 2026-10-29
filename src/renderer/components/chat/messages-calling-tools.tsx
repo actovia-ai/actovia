@@ -4,8 +4,8 @@ import { AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { memo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { toolLabel as readableToolName } from '@/lib/tool-label'
 
 import { ArtifactCard } from '../calling-tools/artifact/artifact-card'
@@ -73,7 +73,8 @@ function CallingTools({
   // every re-render. Must run unconditionally (above any early return).
   useEffect(() => {
     if (errorMessage) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('toolFailedToast.title', { tool: toolLabel }),
         description: errorMessage
       })

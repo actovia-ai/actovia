@@ -8,7 +8,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { QuestionnaireStaticChoice } from '@/components/ui/questionnaire'
+import { StaticChoice } from '@/components/chat/interactive/static-choice'
 import { cn } from '@/lib/utils'
 
 const CARD = 'bg-card text-card-foreground rounded-2xl border p-4'
@@ -71,21 +71,18 @@ export function AnsweredQuestionnaire({
               </p>
               <div className="grid min-w-0 gap-1.5">
                 {question.options.map((option) => (
-                  <QuestionnaireStaticChoice
+                  <StaticChoice
                     key={option}
                     type={type}
                     checked={pick?.options.includes(option) ?? false}
                   >
                     {option}
-                  </QuestionnaireStaticChoice>
+                  </StaticChoice>
                 ))}
                 {question.other && (
-                  <QuestionnaireStaticChoice
-                    type={type}
-                    checked={pick?.other ?? false}
-                  >
+                  <StaticChoice type={type} checked={pick?.other ?? false}>
                     {t('interactive.other')}
-                  </QuestionnaireStaticChoice>
+                  </StaticChoice>
                 )}
               </div>
             </div>

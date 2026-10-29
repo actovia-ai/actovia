@@ -36,14 +36,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   devicesKeys,
@@ -159,8 +165,8 @@ afterEach(async () => {
   revokeDeviceService.mockReset()
   resetDevicesService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('devicesKeys', () => {
@@ -200,7 +206,7 @@ describe('useDevices', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: devicesKeys.all
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 
@@ -484,8 +490,8 @@ describe.each(writes)(
 
       expect(isInvalidated(queryClient, devicesKeys.all)).toBe(true)
       expect(isInvalidated(queryClient, ['usage'])).toBe(false)
-      expect(sileoSuccess).not.toHaveBeenCalled()
-      expect(sileoError).not.toHaveBeenCalled()
+      expect(toastSuccess).not.toHaveBeenCalled()
+      expect(toastError).not.toHaveBeenCalled()
       expect(report).not.toHaveBeenCalled()
     })
 
@@ -506,12 +512,12 @@ describe.each(writes)(
       expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
         mutationKey: undefined
       })
-      expect(sileoError).toHaveBeenCalledTimes(1)
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(toastError).toHaveBeenCalledWith({
         title: 'settings:devices.toast.failedTitle',
         description: 'localized(errors:code.DEVICES_UNAVAILABLE)'
       })
-      expect(sileoSuccess).not.toHaveBeenCalled()
+      expect(toastSuccess).not.toHaveBeenCalled()
       expect(isInvalidated(queryClient, devicesKeys.all)).toBe(true)
       expect(isInvalidated(queryClient, ['usage'])).toBe(false)
     })
@@ -526,8 +532,8 @@ describe.each(writes)(
           .catch(() => {})
       })
 
-      expect(sileoError).toHaveBeenCalledTimes(1)
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(toastError).toHaveBeenCalledWith({
         title: 'settings:devices.toast.failedTitle',
         description: 'socket hang up'
       })

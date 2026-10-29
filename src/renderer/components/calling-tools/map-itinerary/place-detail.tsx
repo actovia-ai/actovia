@@ -19,6 +19,7 @@ import {
   CarouselContent,
   CarouselItem
 } from '@/components/ui/carousel'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 
 import { buildPlacePhotoUrl, type ItineraryPlace } from './types'
@@ -31,6 +32,9 @@ type PlaceDetailProps = {
   onPrev: () => void
   onNext: () => void
   onClose: () => void
+  /** `overlay` floats over the map in the transcript's card; `panel` fills
+   *  the full-screen view's side column, where closing goes back to the list. */
+  layout?: 'overlay' | 'panel'
 }
 
 function formatReviewCount(n: number): string {
@@ -40,10 +44,11 @@ function formatReviewCount(n: number): string {
 
 type Tab = 'overview' | 'reviews' | 'hours'
 
-/** Floating overlay on the right side of the map mirroring Claude's
- *  itinerary detail panel: hero photo (carousel if Places returned more),
- *  day/time badge, name, rating, contact info, notes, reviews, hours,
- *  and prev/next pagination. */
+/** A place of the itinerary: hero photo (carousel if Places returned more),
+ *  day/time, name, rating, contact info, notes, reviews, hours, and prev/next
+ *  through the day. Floats over the map's right side on a popover surface
+ *  (`overlay`) — clear of the map's foot, where Google's attribution must stay
+ *  visible — or fills the full-screen view's column (`panel`). */
 export function PlaceDetail({
   place,
   dayLabel,
@@ -51,7 +56,8 @@ export function PlaceDetail({
   total,
   onPrev,
   onNext,
-  onClose
+  onClose,
+  layout = 'overlay'
 }: PlaceDetailProps) {
   const { t } = useTranslation('chat')
   const [tab, setTab] = useState<Tab>('overview')
@@ -93,10 +99,22 @@ export function PlaceDetail({
   const hasHours = (place.openingHours?.length ?? 0) > 0
 
   return (
-    <div className="border-border bg-card/95 absolute top-3 right-3 bottom-3 z-10 flex w-80 flex-col overflow-hidden rounded-2xl border shadow-xl backdrop-blur">
+    <div
+      className={cn(
+        'bg-popover text-popover-foreground flex flex-col overflow-hidden',
+        layout === 'overlay'
+          ? 'ring-foreground/10 absolute top-3 right-3 bottom-8 z-10 w-80 rounded-2xl shadow-lg ring-1'
+          : 'size-full'
+      )}
+    >
       {/* Hero — shadcn Carousel cycling through Places photos when we have
           more than one; falls back to a tinted gradient when we have none. */}
-      <div className="bg-muted relative h-36 shrink-0 overflow-hidden">
+      <div
+        className={cn(
+          'bg-muted relative shrink-0 overflow-hidden',
+          layout === 'overlay' ? 'h-36' : 'h-52'
+        )}
+      >
         {photoUrls.length > 0 ? (
           <Carousel
             setApi={setCarouselApi}
@@ -109,7 +127,10 @@ export function PlaceDetail({
                   <LazyLoadImage
                     src={url}
                     alt={place.name}
-                    className="h-36 w-full"
+                    className={cn(
+                      'w-full',
+                      layout === 'overlay' ? 'h-36' : 'h-52'
+                    )}
                   />
                 </CarouselItem>
               ))}
@@ -144,15 +165,25 @@ export function PlaceDetail({
         <button
           type="button"
           onClick={onClose}
-          aria-label={t('placeDetail.closeAriaLabel')}
-          className="bg-background/80 text-foreground hover:bg-background absolute top-2 right-2 z-10 flex size-7 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors"
+          aria-label={
+            layout === 'overlay'
+              ? t('placeDetail.closeAriaLabel')
+              : t('placeDetail.backToList')
+          }
+          className={cn(
+            'bg-background/80 text-foreground hover:bg-background absolute top-2 z-10 flex size-7 items-center justify-center rounded-full shadow-sm backdrop-blur transition-colors',
+            layout === 'overlay' ? 'right-2' : 'left-2'
+          )}
         >
-          <HugeiconsIcon icon={Cancel01Icon} size={14} />
+          <HugeiconsIcon
+            icon={layout === 'overlay' ? Cancel01Icon : ArrowLeft01Icon}
+            size={14}
+          />
         </button>
       </div>
 
       {/* Header strip — day · time, name, rating + type chip */}
-      <div className="border-border space-y-1.5 border-b px-4 pt-3 pb-3">
+      <div className="space-y-1.5 px-4 pt-3 pb-2">
         <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
           <span>{dayLabel}</span>
           {place.timeLabel && (
@@ -165,12 +196,7 @@ export function PlaceDetail({
             <>
               <span aria-hidden>·</span>
               <span
-                className={cn(
-                  'font-medium',
-                  place.openNow
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-muted-foreground'
-                )}
+                className={cn(place.openNow && 'text-foreground font-medium')}
               >
                 {place.openNow
                   ? t('placeDetail.open')
@@ -193,7 +219,7 @@ export function PlaceDetail({
                   icon={StarIcon}
 
                   size={11}
-                  className="fill-amber-500 text-amber-500"
+                  className="fill-warning text-warning"
                 />
                 {place.reviewCount !== undefined && (
                   <span>({formatReviewCount(place.reviewCount)})</span>
@@ -211,58 +237,39 @@ export function PlaceDetail({
       {/* Tabs — only the Reviews and Hours tabs are gated on whether we have
           that data; Overview is always present. */}
       {(hasReviews || hasHours) && (
-        <div
-          role="tablist"
-          aria-label={t('placeDetail.tabsAriaLabel')}
-          className="border-border flex shrink-0 border-b text-xs"
+        <Tabs
+          value={tab}
+          onValueChange={(v) => setTab(v as Tab)}
+          className="shrink-0 px-2"
         >
-          {/* react-doctor/js-combine-iterations: false positive — literal 3-item array, extra pass is negligible */}
-          {(
-            [
-              {
-                id: 'overview',
-                label: t('placeDetail.tabOverview'),
-                enabled: true
-              },
-              {
-                id: 'reviews',
-                label: t('placeDetail.tabReviews'),
-                enabled: hasReviews
-              },
-              {
-                id: 'hours',
-                label: t('placeDetail.tabHours'),
-                enabled: hasHours
-              }
-            ] as const
-          )
-            .filter((tabDef) => tabDef.enabled)
-            .map((tabDef) => (
-              <button
-                key={tabDef.id}
-                role="tab"
-                aria-selected={tab === tabDef.id}
-                type="button"
-                onClick={() => setTab(tabDef.id)}
-                className={cn(
-                  'flex-1 px-3 py-2 font-medium transition-colors',
-                  tab === tabDef.id
-                    ? 'text-foreground border-foreground border-b-2'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {tabDef.label}
-              </button>
-            ))}
-        </div>
+          <TabsList
+            variant="line"
+            aria-label={t('placeDetail.tabsAriaLabel')}
+            className="w-full"
+          >
+            <TabsTrigger value="overview" className="text-xs">
+              {t('placeDetail.tabOverview')}
+            </TabsTrigger>
+            {hasReviews && (
+              <TabsTrigger value="reviews" className="text-xs">
+                {t('placeDetail.tabReviews')}
+              </TabsTrigger>
+            )}
+            {hasHours && (
+              <TabsTrigger value="hours" className="text-xs">
+                {t('placeDetail.tabHours')}
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </Tabs>
       )}
 
       {/* Body */}
-      <div className="flex-1 space-y-3 overflow-x-hidden overflow-y-auto px-4 py-3">
+      <div className="border-border/60 flex-1 space-y-3 overflow-x-hidden overflow-y-auto border-t px-4 py-3">
         {tab === 'overview' && (
           <>
             {place.note && (
-              <div className="bg-muted/40 rounded-lg p-2.5">
+              <div className="bg-muted/60 rounded-lg p-2.5">
                 <div className="text-muted-foreground text-2xs mb-1 tracking-widest uppercase">
                   {t('placeDetail.notes')}
                 </div>
@@ -304,11 +311,11 @@ export function PlaceDetail({
         )}
 
         {tab === 'reviews' && hasReviews && (
-          <div className="space-y-2.5">
+          <div className="divide-border/60 -my-1 divide-y">
             {place.reviews!.map((r) => (
               <article
                 key={`${r.author ?? ''}-${r.relativeTime ?? ''}`}
-                className="border-border rounded-lg border p-2.5"
+                className="py-2.5"
               >
                 <div className="mb-1 flex items-center gap-2">
                   <ReviewAvatar src={r.authorPhotoUrl} name={r.author} />
@@ -327,7 +334,7 @@ export function PlaceDetail({
                               size={9}
                               className={
                                 j < (r.rating ?? 0)
-                                  ? 'fill-amber-500 text-amber-500'
+                                  ? 'fill-warning text-warning'
                                   : 'text-muted-foreground/40'
                               }
                             />
@@ -377,7 +384,7 @@ export function PlaceDetail({
 
       {/* Pagination — circles through the day's places without dismissing
           the card. */}
-      <div className="border-border flex items-center justify-between border-t px-2 py-1.5">
+      <div className="border-border/60 flex items-center justify-between border-t px-2 py-1.5">
         <button
           type="button"
           onClick={onPrev}

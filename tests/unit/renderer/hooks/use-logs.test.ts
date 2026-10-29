@@ -25,14 +25,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { logsKeys, useLogs, useLogDates, useLogScopes, useClearLogs } =
   await import('@/hooks/use-logs')
@@ -133,8 +139,8 @@ afterEach(() => {
   getLogScopesService.mockReset()
   clearLogsService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('logsKeys', () => {
@@ -208,7 +214,7 @@ describe('useLogs', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: logsKeys.entries(PARAMS)
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 
@@ -263,7 +269,7 @@ describe('useLogDates', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: logsKeys.dates
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 
@@ -350,7 +356,7 @@ describe('useLogScopes', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: logsKeys.scopes(DATE)
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 
@@ -397,11 +403,11 @@ describe('useClearLogs', () => {
       queryClient.getQueryState(logsKeys.scopes(DATE))?.isInvalidated
     ).toBe(true)
     expect(queryClient.getQueryState(['usage'])?.isInvalidated).toBe(false)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:logger.toast.cleared'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -420,7 +426,7 @@ describe('useClearLogs', () => {
       clearing.resolve(undefined)
       await vi.waitFor(() => expect(api().isPending).toBe(false))
     })
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('a failed clear reaches the global handler only: one report, one toast, nothing invalidated', async () => {
@@ -441,15 +447,15 @@ describe('useClearLogs', () => {
     expect(
       queryClient.getQueryState(logsKeys.scopes(DATE))?.isInvalidated
     ).toBe(false)
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
     expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
       mutationKey: undefined
     })
     // The component has no catch of its own, so this is the only error toast:
     // a second one here would be the double-toast the hook exists to avoid.
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'settings:logger.toast.clearFailed',
       description: 'permission denied'
     })

@@ -20,7 +20,7 @@ export function VideoCards({ videos }: { videos: GalleryVideo[] }) {
   if (videos.length === 0) return null
 
   return (
-    <div className="my-3 flex gap-3 overflow-x-auto pb-1">
+    <div className="scroll-fade-x no-scrollbar my-4 flex gap-3 overflow-x-auto">
       {videos.map((video) => (
         <a
           key={video.url}
@@ -28,7 +28,7 @@ export function VideoCards({ videos }: { videos: GalleryVideo[] }) {
           target="_blank"
           rel="noopener noreferrer"
           data-testid={TEST_IDS.video.card}
-          className="w-52 shrink-0"
+          className="group/video w-52 shrink-0"
         >
           <div className="relative aspect-video overflow-hidden rounded-xl">
             <LazyLoadImage
@@ -37,22 +37,21 @@ export function VideoCards({ videos }: { videos: GalleryVideo[] }) {
               className="size-full"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="flex size-10 items-center justify-center rounded-full bg-black/60 text-white">
+              <span className="flex size-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition-transform duration-150 ease-out group-hover/video:scale-105">
                 <HugeiconsIcon
                   icon={PlayIcon}
-
-                  size={18}
+                  size={16}
                   className="translate-x-px fill-current"
                 />
               </span>
             </div>
             {video.duration && (
-              <span className="absolute right-1.5 bottom-1.5 rounded bg-black/70 px-1.5 py-0.5 text-xs font-medium text-white">
+              <span className="text-2xs absolute right-2 bottom-2 rounded-full bg-black/45 px-1.5 py-0.5 font-medium text-white tabular-nums backdrop-blur-sm">
                 {video.duration}
               </span>
             )}
           </div>
-          <div className="mt-1.5 line-clamp-2 text-sm font-medium">
+          <div className="mt-2 line-clamp-2 text-sm leading-snug font-medium">
             {video.title}
           </div>
           <div className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs">

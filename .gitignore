@@ -95,6 +95,7 @@ out/
 test-results/
 playwright-report/
 blob-report/
+.playwright-mcp/
 
 # Carried over from universal-client
 .claude

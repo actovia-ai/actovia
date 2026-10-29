@@ -79,7 +79,6 @@
     "working": "Работаю…",
     "thought": "Размышлял",
     "worked": "Работал",
-    "done": "Готово",
     "thoughtFor": "{{verb}} {{duration}}",
     "durationSeconds_one": "{{count}} секунду",
     "durationSeconds_few": "{{count}} секунды",
@@ -185,13 +184,19 @@
   },
   "genericToolCard": {
     "fallbackLabel": "Инструмент",
-    "badge": "инструмент"
+    "called": "Вызван {{tool}}"
   },
   "mapItineraryCard": {
     "missingApiKey": "Добавьте ключ Google API в Настройки → Google Cloud, чтобы показать карту поездки.",
     "tabsAriaLabel": "Дни маршрута",
     "openRouteTitle": "Открыть маршрут в Google Картах",
-    "copyMarkdownTitle": "Скопировать день в Markdown"
+    "copyMarkdownTitle": "Скопировать день в Markdown",
+    "openFullscreen": "Открыть во весь экран",
+    "closeFullscreen": "Закрыть полноэкранный режим",
+    "placeCount_one": "{{count}} место",
+    "placeCount_few": "{{count}} места",
+    "placeCount_many": "{{count}} мест",
+    "placeCount_other": "{{count}} места"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "Перейти к фото {{index}}",
@@ -206,11 +211,14 @@
     "anonymousReviewer": "Аноним",
     "previousAriaLabel": "Предыдущее место",
     "nextAriaLabel": "Следующее место",
-    "pagination": "{{index}} из {{total}}"
+    "pagination": "{{index}} из {{total}}",
+    "backToList": "Все места"
   },
   "terminalCard": {
     "exitCode": "код выхода {{code}}",
-    "noOutput": "Нет вывода"
+    "noOutput": "Нет вывода",
+    "ran": "Выполнено: {{command}}",
+    "exited": "{{command}} завершилась с кодом {{code}}"
   },
   "weatherCard": {
     "today": "Сегодня",

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import {
   speechToText as speechToTextService,
   textToSpeech as textToSpeechService
@@ -19,7 +19,8 @@ export function useAudio() {
       const audioUrl = URL.createObjectURL(audioBlob)
       setData(audioUrl)
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('hook.toast.audioErrorTitle'),
         description:
           e instanceof Error ? e.message : t('hook.toast.genericErrorFallback')
@@ -37,7 +38,8 @@ export function useAudio() {
       const transcription = await speechToTextService(formData)
       setData(transcription.text)
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('hook.toast.transcriptionFailedTitle'),
         description:
           e instanceof Error ? e.message : t('hook.toast.genericErrorFallback')

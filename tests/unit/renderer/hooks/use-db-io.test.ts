@@ -16,14 +16,20 @@ vi.mock('@/services/db', () => ({
   importAllData: (...args: unknown[]) => importAllDataService(...args),
   resetAllData: (...args: unknown[]) => resetAllDataService(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { useDbIo } = await import('@/hooks/use-db-io')
 
@@ -69,8 +75,8 @@ afterEach(() => {
   exportDataService.mockReset()
   importAllDataService.mockReset()
   resetAllDataService.mockReset()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('useDbIo — importData', () => {
@@ -85,11 +91,11 @@ describe('useDbIo — importData', () => {
 
     expect(importAllDataService).toHaveBeenCalledTimes(1)
     expect(isEveryKeyInvalidated(queryClient)).toBe(true)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'dataControls.import.successToast'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('leaves the cache alone when the import fails', async () => {
@@ -102,12 +108,12 @@ describe('useDbIo — importData', () => {
     })
 
     expect(isEveryKeyInvalidated(queryClient)).toBe(false)
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'dataControls.import.errorToast',
       description: 'bad zip'
     })
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
   })
 })
 
@@ -123,11 +129,11 @@ describe('useDbIo — deleteData', () => {
 
     expect(resetAllDataService).toHaveBeenCalledTimes(1)
     expect(isEveryKeyInvalidated(queryClient)).toBe(true)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'dataControls.delete.successToast'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('leaves the cache alone when the reset fails', async () => {
@@ -140,11 +146,11 @@ describe('useDbIo — deleteData', () => {
     })
 
     expect(isEveryKeyInvalidated(queryClient)).toBe(false)
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'dataControls.delete.errorToast',
       description: 'disk full'
     })
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
   })
 })

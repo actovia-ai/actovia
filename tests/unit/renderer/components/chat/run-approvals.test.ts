@@ -25,10 +25,18 @@ let trusted = true
 vi.mock('@/lib/trusted-input', () => ({
   isTrustedActivation: () => trusted
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { RunApprovals } = await import('@/components/chat/run-approvals')
 const { recordApprovalRequired, recordApprovalResolved } =
@@ -47,7 +55,7 @@ afterEach(async () => {
   trusted = true
   for (const unmount of mounted.splice(0)) await unmount()
   decideService.mockReset()
-  sileoError.mockReset()
+  toastError.mockReset()
 })
 
 async function mount(active = true) {
@@ -273,7 +281,7 @@ describe('RunApprovals', () => {
     expect(byTestId(TEST_IDS.chat.approval.state)?.dataset.state).toBe(
       'expired'
     )
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('a command is labelled as one', async () => {

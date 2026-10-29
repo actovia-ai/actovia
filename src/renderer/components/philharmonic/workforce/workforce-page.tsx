@@ -14,7 +14,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { EmployeeAvatar } from '@/components/philharmonic/employees/employee-avatar'
 import { EmployeeEditor } from '@/components/philharmonic/employees/employee-editor'
@@ -40,6 +39,7 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { toast } from '@/components/ui/toast'
 import { useSettings } from '@/hooks/use-settings'
 import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
 import { employeeModelChip } from '@/lib/employee-model'
@@ -277,7 +277,7 @@ function TeamSection({
             <button
               type="button"
               onClick={() => onAddEmployeeToTeam(team.id)}
-              className="border-border text-muted-foreground hover:text-primary-ink flex min-h-[88px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-xs transition-colors"
+              className="border-border text-muted-foreground hover:text-primary flex min-h-[88px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-xs transition-colors"
             >
               <HugeiconsIcon
                 icon={Add01Icon}
@@ -418,7 +418,8 @@ export function WorkforcePage() {
       if (employeeEditor.isNew) {
         const created = await createAgentApi(data)
         setEmployees((p) => [...p, created])
-        sileo.success({
+        toast.add({
+          type: 'success',
           title: t('philharmonic:workforce.toast.created', {
             name: created.name
           })
@@ -429,7 +430,8 @@ export function WorkforcePage() {
       }
       setEmployeeEditor(null)
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('philharmonic:workforce.toast.saveEmployeeFailed'),
         description: err instanceof Error ? err.message : String(err)
       })
@@ -442,7 +444,8 @@ export function WorkforcePage() {
       if (teamEditor.isNew) {
         const created = await createTeamApi(data)
         setTeams((p) => [...p, created])
-        sileo.success({
+        toast.add({
+          type: 'success',
           title: t('philharmonic:workforce.toast.created', {
             name: created.name
           })
@@ -453,7 +456,8 @@ export function WorkforcePage() {
       }
       setTeamEditor(null)
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('philharmonic:workforce.toast.saveTeamFailed'),
         description: err instanceof Error ? err.message : String(err)
       })
@@ -635,11 +639,13 @@ export function WorkforcePage() {
                   setEmployeeEditor((cur) =>
                     cur?.draft.id === id ? null : cur
                   )
-                  sileo.success({
+                  toast.add({
+                    type: 'success',
                     title: t('philharmonic:workforce.toast.deleted', { name })
                   })
                 } catch (err) {
-                  sileo.error({
+                  toast.add({
+                    type: 'error',
                     title: t(
                       'philharmonic:workforce.toast.deleteEmployeeFailed'
                     ),
@@ -689,11 +695,13 @@ export function WorkforcePage() {
                     p.map((e) => (e.teamId === id ? { ...e, teamId: null } : e))
                   )
                   setTeamEditor((cur) => (cur?.draft.id === id ? null : cur))
-                  sileo.success({
+                  toast.add({
+                    type: 'success',
                     title: t('philharmonic:workforce.toast.deleted', { name })
                   })
                 } catch (err) {
-                  sileo.error({
+                  toast.add({
+                    type: 'error',
                     title: t('philharmonic:workforce.toast.deleteTeamFailed'),
                     description:
                       err instanceof Error ? err.message : String(err)

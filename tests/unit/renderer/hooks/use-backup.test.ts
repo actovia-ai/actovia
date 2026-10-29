@@ -30,14 +30,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { backupKeys, useBackupStatus, useBackupList, useCreateBackup } =
   await import('@/hooks/use-backup')
@@ -112,8 +118,8 @@ afterEach(() => {
   listBackupsService.mockReset()
   createBackupNowService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 describe('backupKeys', () => {
@@ -152,7 +158,7 @@ describe('useBackupStatus', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: backupKeys.status
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })
@@ -186,7 +192,7 @@ describe('useBackupList', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: backupKeys.list
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })
@@ -213,11 +219,11 @@ describe('useCreateBackup', () => {
     expect(queryClient.getQueryState(settingsKeys.all)?.isInvalidated).toBe(
       true
     )
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:dataControls.backupNow.successToast'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(report).not.toHaveBeenCalled()
   })
 
@@ -240,7 +246,7 @@ describe('useCreateBackup', () => {
       finish({ filePath: '/tmp/b.zip' })
       await vi.waitFor(() => expect(api().isPending).toBe(false))
     })
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('a failed backup reaches the global handler only: one report, one toast, nothing invalidated', async () => {
@@ -263,15 +269,15 @@ describe('useCreateBackup', () => {
     expect(queryClient.getQueryState(settingsKeys.all)?.isInvalidated).toBe(
       false
     )
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
     expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
       mutationKey: undefined
     })
     // The component has no catch of its own, so this is the only error toast:
     // a second one here would be the double-toast the hook exists to avoid.
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'settings:dataControls.backupNow.errorToast',
       description: 'disk full'
     })

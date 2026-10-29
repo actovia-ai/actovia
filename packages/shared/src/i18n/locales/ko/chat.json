@@ -67,7 +67,6 @@
     "working": "작업 중…",
     "thought": "생각함",
     "worked": "작업함",
-    "done": "완료",
     "thoughtFor": "{{duration}} 동안 {{verb}}",
     "durationSeconds_other": "{{count}}초",
     "durationMinutes": "{{minutes}}분",
@@ -158,13 +157,16 @@
   },
   "genericToolCard": {
     "fallbackLabel": "도구",
-    "badge": "도구"
+    "called": "{{tool}} 호출함"
   },
   "mapItineraryCard": {
     "missingApiKey": "여행 지도를 표시하려면 설정 → Google Cloud에서 Google API 키를 추가하세요.",
     "tabsAriaLabel": "여행 일정",
     "openRouteTitle": "Google 지도에서 경로 열기",
-    "copyMarkdownTitle": "해당 날짜를 마크다운으로 복사"
+    "copyMarkdownTitle": "해당 날짜를 마크다운으로 복사",
+    "openFullscreen": "전체 화면으로 열기",
+    "closeFullscreen": "전체 화면 닫기",
+    "placeCount_other": "장소 {{count}}곳"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "사진 {{index}}로 이동",
@@ -179,11 +181,14 @@
     "anonymousReviewer": "익명",
     "previousAriaLabel": "이전 장소",
     "nextAriaLabel": "다음 장소",
-    "pagination": "{{total}} 중 {{index}}"
+    "pagination": "{{total}} 중 {{index}}",
+    "backToList": "모든 장소"
   },
   "terminalCard": {
     "exitCode": "종료 코드 {{code}}",
-    "noOutput": "출력 없음"
+    "noOutput": "출력 없음",
+    "ran": "{{command}} 실행함",
+    "exited": "{{command}}이(가) 코드 {{code}}(으)로 종료됨"
   },
   "weatherCard": {
     "today": "오늘",

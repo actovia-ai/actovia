@@ -18,7 +18,6 @@ import { format } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -31,6 +30,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { useMemories, useSetMemoryList } from '@/hooks/use-memory'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
@@ -251,7 +251,8 @@ function MemoryDetail({
         await updateMemory(item.id, patch)
         onPatched({ ...item, ...patch })
       } catch (e) {
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('settings:memory.detail.toast.notSavedTitle'),
           description:
             e instanceof Error
@@ -271,7 +272,8 @@ function MemoryDetail({
       await deleteMemory(item.id, true)
       onDeleted()
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('settings:memory.detail.toast.deleteFailedTitle'),
         description:
           e instanceof Error ? e.message : t('settings:memory.genericRetryHint')
@@ -395,20 +397,23 @@ function MemoryComposer({
       const { applied } = await instructMemory(t2, scopeMemoryId)
       setText('')
       if (applied > 0) {
-        sileo.success({
+        toast.add({
+          type: 'success',
           title: t('memory.composer.toast.updatedTitle'),
           description: t('memory.composer.toast.updatedDescription', {
             count: applied
           })
         })
       } else {
-        sileo.info({
+        toast.add({
+          type: 'info',
           title: t('memory.composer.toast.noChangeTitle'),
           description: t('memory.composer.toast.noChangeDescription')
         })
       }
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('memory.composer.toast.applyFailedTitle'),
         description:
           e instanceof Error ? e.message : t('memory.genericRetryHint')
@@ -528,7 +533,8 @@ export function MemorySettings({ form }: { form: UseFormReturnType }) {
       )
       setSelectedId(row.id)
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('memory.settings.toast.createFailedTitle'),
         description:
           e instanceof Error ? e.message : t('memory.genericRetryHint')

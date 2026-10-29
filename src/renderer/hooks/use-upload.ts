@@ -1,8 +1,8 @@
 import { useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { prepareImageFile } from '@/lib/prepare-image'
 import { convertFileToBase64 } from '@/lib/utils'
 import { attachmentAtom } from '@/stores/chat'
@@ -28,7 +28,8 @@ export function useUpload() {
       setLoading(true)
       await uploadFileToBase64(files)
     } catch {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('upload.failedTitle'),
         description: t('upload.failedDescription')
       })

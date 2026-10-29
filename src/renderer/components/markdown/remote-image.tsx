@@ -247,7 +247,7 @@ export function RemoteImage({
           loadedRemoteImages.add(src)
           forceRerender()
         }}
-        className="text-primary-ink shrink-0 hover:underline"
+        className="text-primary shrink-0 hover:underline"
       >
         {t('remoteImage.loadButton')}
       </button>

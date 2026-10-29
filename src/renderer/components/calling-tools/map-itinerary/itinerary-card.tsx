@@ -1,14 +1,15 @@
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { ToolNotice } from '@actovia/shared/types/chat'
 import {
   Tick02Icon,
   Copy01Icon,
+  FullScreenIcon,
   LinkSquare02Icon,
   InformationCircleIcon,
   Alert02Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useHotkey } from '@tanstack/react-hotkeys'
-import { APIProvider, Map } from '@vis.gl/react-google-maps'
 import { useTheme } from 'next-themes'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,7 +18,9 @@ import { useClipboard } from '@/hooks/use-clipboard'
 import { useMapsJsKey } from '@/hooks/use-maps-key'
 import { cn } from '@/lib/utils'
 
-import { DayLayer, FocusedPlaceContext } from './day-layer'
+import { FocusedPlaceContext } from './day-layer'
+import { ItineraryFullscreen } from './itinerary-fullscreen'
+import { MapSurface } from './map-surface'
 import { PlaceDetail } from './place-detail'
 import type { ItineraryDay, MapItineraryDetails } from './types'
 
@@ -29,14 +32,6 @@ const MODE_TO_GMAPS_PARAM: Record<
   driving: 'driving',
   transit: 'transit'
 }
-
-// Map static props hoisted to module scope so they don't allocate fresh
-// objects on every render — saves React from comparing identity-different
-// but value-equal objects, and makes it obvious these are inert.
-const MAP_DEFAULT_CENTER = { lat: 0, lng: 0 }
-const MAP_DEFAULT_ZOOM = 2
-const MAP_LIBRARIES: ['geometry'] = ['geometry']
-const MAP_ID = 'actovia-itinerary'
 
 /** Build a Google Maps deep-link that opens the day's route with all
  *  waypoints in order. */
@@ -95,48 +90,6 @@ function buildDayMarkdown(day: ItineraryDay): string {
   return `${header}${summary}\n${places}`
 }
 
-/** Inner Map subtree, isolated and memoized so interactive parent state
- *  (focused pin, copy-button confirm flash, settings query revalidation) never
- *  reaches the map. Its whole prop set is stable for the life of the card:
- *  `apiKey`/`colorScheme` are primitives, `places` is a slice of the frozen
- *  tool result, `onMarkerClick` is a `useCallback([])`. Focus flows to
- *  `DayLayer` through `FocusedPlaceContext` (see day-layer.tsx), so a pin
- *  click re-renders only that layer, not `<APIProvider>` / `<Map>`. */
-const MapSurface = memo(function MapSurface({
-  apiKey,
-  colorScheme,
-  places,
-  onMarkerClick
-}: {
-  apiKey: string
-  colorScheme: 'LIGHT' | 'DARK'
-  places: ItineraryDay['places']
-  onMarkerClick: (idx: number) => void
-}) {
-  return (
-    <APIProvider apiKey={apiKey} libraries={MAP_LIBRARIES}>
-      <Map
-        defaultCenter={MAP_DEFAULT_CENTER}
-        defaultZoom={MAP_DEFAULT_ZOOM}
-        gestureHandling="greedy"
-        disableDefaultUI={true}
-        // `disableDefaultUI` doesn't cover the keyboard-shortcuts pill — that's
-        // a separate option. (The "Terms" / "Report a map error" / Google
-        // attribution is required by the Maps Platform ToS and has no hide flag.)
-        keyboardShortcuts={false}
-        mapId={MAP_ID}
-        colorScheme={colorScheme}
-        className="h-full w-full"
-      >
-        {/* No `key` — a day switch changes `places`, and DayLayer's effects
-            already refit bounds and rebuild the polyline on that dep; keying
-            forced a full teardown/rebuild of every marker instead. */}
-        <DayLayer places={places} onMarkerClick={onMarkerClick} />
-      </Map>
-    </APIProvider>
-  )
-})
-
 /** Non-fatal degradation banner — e.g. Places enrichment couldn't run, so the
  *  map renders from the LLM's coordinates but ratings/photos/hours are missing. */
 function ItineraryNotice({ notice }: { notice: ToolNotice }) {
@@ -148,7 +101,7 @@ function ItineraryNotice({ notice }: { notice: ToolNotice }) {
         'flex items-start gap-2 border-b px-3 py-2 text-xs',
         isInfo
           ? 'border-border/60 bg-muted/40 text-muted-foreground'
-          : 'border-amber-500/20 bg-amber-500/10 text-amber-700 dark:text-amber-400'
+          : 'border-warning/20 bg-warning/10 text-warning'
       )}
     >
       <HugeiconsIcon
@@ -175,6 +128,7 @@ function MapItineraryCardImpl({
   // Default to the first place of the first day so the detail card is
   // visible from initial render — matches the reference design.
   const [focusedPlaceIdx, setFocusedPlaceIdx] = useState<number | null>(0)
+  const [fullscreen, setFullscreen] = useState(false)
 
   const activeDay = toolResult.days[activeDayIdx] ?? toolResult.days[0]
 
@@ -205,9 +159,9 @@ function MapItineraryCardImpl({
     })
   }, [activeDay])
 
-  // Esc dismisses the detail card.
+  // Esc dismisses the detail card — not while full screen has the key.
   useHotkey('Escape', () => setFocusedPlaceIdx(null), {
-    enabled: focusedPlaceIdx != null,
+    enabled: focusedPlaceIdx != null && !fullscreen,
     conflictBehavior: 'allow',
     preventDefault: false,
     stopPropagation: false
@@ -286,38 +240,43 @@ function MapItineraryCardImpl({
           </div>
         )}
 
-        {/* Per-day actions — only when no detail card is open. */}
-        {!focusedPlace && (
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
-            {gmapsUrl && (
-              <a
-                href={gmapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={t('mapItineraryCard.openRouteTitle')}
-                className="bg-background/85 text-foreground hover:bg-background flex size-8 items-center justify-center rounded-full shadow-md backdrop-blur transition-colors"
-              >
-                <HugeiconsIcon
-                  icon={LinkSquare02Icon}
-
-                  size={14}
-                />
-              </a>
-            )}
-            <button
-              type="button"
-              onClick={onCopy}
-              title={t('mapItineraryCard.copyMarkdownTitle')}
-              className="bg-background/85 text-foreground hover:bg-background flex size-8 items-center justify-center rounded-full shadow-md backdrop-blur transition-colors"
+        {/* Per-day actions, beside the detail card while it is open. */}
+        <div
+          className={cn(
+            'absolute top-3 z-10 flex items-center gap-1.5',
+            focusedPlace ? 'right-[calc(20rem+1.5rem)]' : 'right-3'
+          )}
+        >
+          <MapAction
+            onClick={() => setFullscreen(true)}
+            label={t('mapItineraryCard.openFullscreen')}
+            testId={TEST_IDS.mapItinerary.fullscreenButton}
+          >
+            <HugeiconsIcon icon={FullScreenIcon} size={14} />
+          </MapAction>
+          {gmapsUrl && (
+            <a
+              href={gmapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t('mapItineraryCard.openRouteTitle')}
+              aria-label={t('mapItineraryCard.openRouteTitle')}
+              className={MAP_ACTION}
             >
-              {copied === copyMarkdown ? (
-                <HugeiconsIcon icon={Tick02Icon} size={14} />
-              ) : (
-                <HugeiconsIcon icon={Copy01Icon} size={14} />
-              )}
-            </button>
-          </div>
-        )}
+              <HugeiconsIcon icon={LinkSquare02Icon} size={14} />
+            </a>
+          )}
+          <MapAction
+            onClick={onCopy}
+            label={t('mapItineraryCard.copyMarkdownTitle')}
+          >
+            {copied === copyMarkdown ? (
+              <HugeiconsIcon icon={Tick02Icon} size={14} />
+            ) : (
+              <HugeiconsIcon icon={Copy01Icon} size={14} />
+            )}
+          </MapAction>
+        </div>
 
         {focusedPlace && focusedPlaceIdx != null && (
           <PlaceDetail
@@ -331,7 +290,44 @@ function MapItineraryCardImpl({
           />
         )}
       </div>
+      <ItineraryFullscreen
+        open={fullscreen}
+        onOpenChange={setFullscreen}
+        toolResult={toolResult}
+        apiKey={apiKey}
+        colorScheme={colorScheme}
+        dayIdx={activeDayIdx}
+      />
     </div>
+  )
+}
+
+const MAP_ACTION =
+  'bg-background/90 text-foreground hover:bg-background ring-foreground/10 flex size-8 items-center justify-center rounded-full shadow-md ring-1 backdrop-blur transition-colors'
+
+/** A round button floating over the map's top-right corner. */
+function MapAction({
+  onClick,
+  label,
+  testId,
+  children
+}: {
+  onClick: () => void
+  label: string
+  testId?: string
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={label}
+      aria-label={label}
+      data-testid={testId}
+      className={MAP_ACTION}
+    >
+      {children}
+    </button>
   )
 }
 

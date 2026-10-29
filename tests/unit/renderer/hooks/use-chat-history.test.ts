@@ -26,14 +26,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   historyKeys,
@@ -221,8 +227,8 @@ describe('useChatPage', () => {
 describe('useUpdateChat', () => {
   afterEach(() => {
     updateChatService.mockReset()
-    sileoSuccess.mockClear()
-    sileoError.mockClear()
+    toastSuccess.mockClear()
+    toastError.mockClear()
     report.mockClear()
   })
 
@@ -245,11 +251,11 @@ describe('useUpdateChat', () => {
     expect(
       queryClient.getQueryState(historyKeys.detail('c1'))?.isInvalidated
     ).toBe(false)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'chat:toast.chatUpdated'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('a failed save reaches the global handler only: reported and toasted, nothing invalidated', async () => {
@@ -266,13 +272,13 @@ describe('useUpdateChat', () => {
     expect(queryClient.getQueryState(historyKeys.all)?.isInvalidated).toBe(
       false
     )
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
     expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
       mutationKey: undefined
     })
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'errors:generic',
       description: 'disk full'
     })
@@ -285,8 +291,8 @@ describe('useDeleteChat', () => {
   })
   afterEach(() => {
     deleteChatService.mockReset()
-    sileoSuccess.mockClear()
-    sileoError.mockClear()
+    toastSuccess.mockClear()
+    toastError.mockClear()
     report.mockClear()
   })
 
@@ -306,8 +312,8 @@ describe('useDeleteChat', () => {
     expect(
       queryClient.getQueryState(historyKeys.detail('c1'))?.isInvalidated
     ).toBe(false)
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'chat:toast.chatDeleted',
       description: 'Old chat'
     })
@@ -360,9 +366,9 @@ describe('useDeleteChat', () => {
     expect(queryClient.getQueryState(historyKeys.all)?.isInvalidated).toBe(
       false
     )
-    expect(sileoSuccess).not.toHaveBeenCalled()
+    expect(toastSuccess).not.toHaveBeenCalled()
     expect(report).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledWith({
       title: 'errors:generic',
       description: 'locked'
     })

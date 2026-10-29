@@ -40,6 +40,10 @@ export const TEST_IDS = {
   video: {
     card: 'video.card'
   },
+  mapItinerary: {
+    fullscreenButton: 'map-itinerary.fullscreen-button',
+    placeRow: 'map-itinerary.place-row'
+  },
   schedule: {
     tab: 'schedule.tab',
     createButton: 'schedule.create-button',

@@ -13,7 +13,6 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary-ink: var(--primary-ink);
   --color-bubble: var(--bubble);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -75,30 +74,21 @@
 @theme {
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: calc(1 / 0.6875);
-  /* The two small steps are set at 400, not the app's light 300: muted meta
-     at 11–12px in a light weight read faint (2026-10-21). An explicit weight
-     utility beside them still wins. */
-  --text-2xs--font-weight: 400;
-  --text-xs--font-weight: 400;
   --text-ui: 0.8125rem;
   --text-ui--line-height: calc(1.25 / 0.8125);
 }
 
 :root {
-  /* Not pure white: a page at oklch(1) is glare, and the tinted tones already
-   * sit at 0.985 with their cards a step lighter — neutral follows the same
-   * ladder (page 0.985, card/popover 0.995, sidebar 0.975) so switching tone
-   * changes the hue, not the depth. */
-  --background: oklch(0.985 0 0);
+  /* shadcn's neutral, as the generator writes it. */
+  --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(0.995 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(0.995 0 0);
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   /* The accent as text (see the tones below); neutral's is its fill. */
-  --primary-ink: oklch(0.205 0 0);
   /* The user's message. */
   --bubble: oklch(0.97 0 0);
   /* Neutral's dot in Settings → Color tone: a tone's block overrides
@@ -112,7 +102,7 @@
      code on a tinted panel read as part of the decoration (owner,
      2026-10-08). Only :root and .dark set it. */
   --code: oklch(0.97 0 0);
-  --accent: oklch(0.935 0 0);
+  --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   /* Heads-up, not failure: the context ring past LCM's compaction mark
@@ -127,11 +117,11 @@
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
   --radius: 0.625rem;
-  --sidebar: oklch(0.975 0 0);
+  --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.935 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
@@ -146,7 +136,6 @@
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --primary-ink: oklch(0.922 0 0);
   --bubble: oklch(0.269 0 0);
   --tone-neutral: oklch(0.922 0 0);
   --secondary: oklch(0.269 0 0);
@@ -154,7 +143,7 @@
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
   --code: oklch(0.269 0 0);
-  --accent: oklch(0.3 0 0);
+  --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --warning: oklch(0.769 0.188 70.08);
@@ -182,17 +171,11 @@
  *
  * The accents are the owner's reference (ChatGPT's accent colours,
  * 2026-09-29) and the ones actovia-ios draws: softer and lighter than the
- * oklch(0.52 0.17 h) they replace, and so too light to be text. A tone is
- * therefore two colours:
- *   --primary      the fill: a button, a selected state, a swatch, with
- *                  --primary-foreground on it (dark on the light fills)
- *   --primary-ink  the same hue, dark enough (light enough, in dark) for
- *                  text, a link, a focus ring or a thin line at 4.5:1
- * and --bubble is the user's message: the fill, far toward the page.
- * The greys around them (page, card, border…) carry the tone's hue.
- * `tests/unit/renderer/tone-palette.test.ts` holds the colours and their
- * contrast; text in the tone's colour is `text-primary-ink`, never the
- * fill's own text utility. */
+ * oklch(0.52 0.17 h) they replace. A tone is --primary (the fill, with
+ * --primary-foreground on it), as shadcn has it, and text in the tone's
+ * colour is `text-primary`; --bubble is the user's message: the fill, far
+ * toward the page. The greys around them (page, card, border…) carry the
+ * tone's hue. `tests/unit/renderer/tone-palette.test.ts` holds the colours. */
 
 [data-tone='emerald'] {
   --background: oklch(0.985 0.004 141);
@@ -203,7 +186,6 @@
   --popover-foreground: oklch(0.16 0.02 141);
   --primary: #6cb362;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #3b8131;
   --bubble: #eaf4e9;
   --secondary: oklch(0.955 0.01 141);
   --secondary-foreground: oklch(0.2 0.02 141);
@@ -215,11 +197,11 @@
   --input: oklch(0.905 0.012 141);
   --ring: #3b8131;
   --chart-1: #6cb362;
-  --sidebar: oklch(0.975 0.006 141);
+  --sidebar: oklch(0.96 0.006 141);
   --sidebar-foreground: oklch(0.16 0.02 141);
   --sidebar-primary: #6cb362;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.935 0.018 141);
+  --sidebar-accent: oklch(0.925 0.018 141);
   --sidebar-accent-foreground: oklch(0.2 0.02 141);
   --sidebar-border: oklch(0.905 0.012 141);
   --sidebar-ring: #3b8131;
@@ -234,7 +216,6 @@
   --popover-foreground: oklch(0.16 0.02 265);
   --primary: #5480f0;
   --primary-foreground: oklch(0.985 0 0);
-  --primary-ink: #426bd9;
   --bubble: #e7edfd;
   --secondary: oklch(0.955 0.01 265);
   --secondary-foreground: oklch(0.2 0.02 265);
@@ -246,11 +227,11 @@
   --input: oklch(0.905 0.012 265);
   --ring: #426bd9;
   --chart-1: #5480f0;
-  --sidebar: oklch(0.975 0.006 265);
+  --sidebar: oklch(0.96 0.006 265);
   --sidebar-foreground: oklch(0.16 0.02 265);
   --sidebar-primary: #5480f0;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.935 0.018 265);
+  --sidebar-accent: oklch(0.925 0.018 265);
   --sidebar-accent-foreground: oklch(0.2 0.02 265);
   --sidebar-border: oklch(0.905 0.012 265);
   --sidebar-ring: #426bd9;
@@ -265,7 +246,6 @@
   --popover-foreground: oklch(0.16 0.02 294);
   --primary: #8553e7;
   --primary-foreground: oklch(0.985 0 0);
-  --primary-ink: #8452e6;
   --bubble: #eee7fc;
   --secondary: oklch(0.955 0.01 294);
   --secondary-foreground: oklch(0.2 0.02 294);
@@ -277,11 +257,11 @@
   --input: oklch(0.905 0.012 294);
   --ring: #8452e6;
   --chart-1: #8553e7;
-  --sidebar: oklch(0.975 0.006 294);
+  --sidebar: oklch(0.96 0.006 294);
   --sidebar-foreground: oklch(0.16 0.02 294);
   --sidebar-primary: #8553e7;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.935 0.018 294);
+  --sidebar-accent: oklch(0.925 0.018 294);
   --sidebar-accent-foreground: oklch(0.2 0.02 294);
   --sidebar-border: oklch(0.905 0.012 294);
   --sidebar-ring: #8452e6;
@@ -296,7 +276,6 @@
   --popover-foreground: oklch(0.16 0.02 351);
   --primary: #e17ead;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #b05280;
   --bubble: #fbedf4;
   --secondary: oklch(0.955 0.01 351);
   --secondary-foreground: oklch(0.2 0.02 351);
@@ -308,11 +287,11 @@
   --input: oklch(0.905 0.012 351);
   --ring: #b05280;
   --chart-1: #e17ead;
-  --sidebar: oklch(0.975 0.006 351);
+  --sidebar: oklch(0.96 0.006 351);
   --sidebar-foreground: oklch(0.16 0.02 351);
   --sidebar-primary: #e17ead;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.935 0.018 351);
+  --sidebar-accent: oklch(0.925 0.018 351);
   --sidebar-accent-foreground: oklch(0.2 0.02 351);
   --sidebar-border: oklch(0.905 0.012 351);
   --sidebar-ring: #b05280;
@@ -327,7 +306,6 @@
   --popover-foreground: oklch(0.16 0.02 53);
   --primary: #de8344;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #b15a11;
   --bubble: #faeee5;
   --secondary: oklch(0.955 0.01 53);
   --secondary-foreground: oklch(0.2 0.02 53);
@@ -339,11 +317,11 @@
   --input: oklch(0.905 0.012 53);
   --ring: #b15a11;
   --chart-1: #de8344;
-  --sidebar: oklch(0.975 0.006 53);
+  --sidebar: oklch(0.96 0.006 53);
   --sidebar-foreground: oklch(0.16 0.02 53);
   --sidebar-primary: #de8344;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.935 0.018 53);
+  --sidebar-accent: oklch(0.925 0.018 53);
   --sidebar-accent-foreground: oklch(0.2 0.02 53);
   --sidebar-border: oklch(0.905 0.012 53);
   --sidebar-ring: #b15a11;
@@ -358,7 +336,6 @@
   --popover-foreground: oklch(0.16 0.02 91);
   --primary: #edc859;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #8b6e00;
   --bubble: #fcf7e8;
   --secondary: oklch(0.955 0.01 91);
   --secondary-foreground: oklch(0.2 0.02 91);
@@ -370,11 +347,11 @@
   --input: oklch(0.905 0.012 91);
   --ring: #8b6e00;
   --chart-1: #edc859;
-  --sidebar: oklch(0.975 0.006 91);
+  --sidebar: oklch(0.96 0.006 91);
   --sidebar-foreground: oklch(0.16 0.02 91);
   --sidebar-primary: #edc859;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.935 0.018 91);
+  --sidebar-accent: oklch(0.925 0.018 91);
   --sidebar-accent-foreground: oklch(0.2 0.02 91);
   --sidebar-border: oklch(0.905 0.012 91);
   --sidebar-ring: #8b6e00;
@@ -389,7 +366,6 @@
   --popover-foreground: oklch(0.93 0.006 141);
   --primary: #79ba6f;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #79ba6f;
   --bubble: #1b2918;
   --secondary: oklch(0.22 0.025 141);
   --secondary-foreground: oklch(0.93 0.006 141);
@@ -420,7 +396,6 @@
   --popover-foreground: oklch(0.93 0.006 265);
   --primary: #5f89f1;
   --primary-foreground: oklch(0.985 0 0);
-  --primary-ink: #5f89f1;
   --bubble: #151e35;
   --secondary: oklch(0.22 0.025 265);
   --secondary-foreground: oklch(0.93 0.006 265);
@@ -451,7 +426,6 @@
   --popover-foreground: oklch(0.93 0.006 294);
   --primary: #8b60e7;
   --primary-foreground: oklch(0.985 0 0);
-  --primary-ink: #9c73fc;
   --bubble: #1f1533;
   --secondary: oklch(0.22 0.025 294);
   --secondary-foreground: oklch(0.93 0.006 294);
@@ -482,7 +456,6 @@
   --popover-foreground: oklch(0.93 0.006 351);
   --primary: #e589b4;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #e589b4;
   --bubble: #321e28;
   --secondary: oklch(0.22 0.025 351);
   --secondary-foreground: oklch(0.93 0.006 351);
@@ -513,7 +486,6 @@
   --popover-foreground: oklch(0.93 0.006 53);
   --primary: #e28d55;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #e28d55;
   --bubble: #321f13;
   --secondary: oklch(0.22 0.025 53);
   --secondary-foreground: oklch(0.93 0.006 53);
@@ -544,7 +516,6 @@
   --popover-foreground: oklch(0.93 0.006 91);
   --primary: #f3d16e;
   --primary-foreground: oklch(0.145 0 0);
-  --primary-ink: #f3d16e;
   --bubble: #352e18;
   --secondary: oklch(0.22 0.025 91);
   --secondary-foreground: oklch(0.93 0.006 91);
@@ -577,7 +548,6 @@
 :root {
   --toned-primary: var(--primary);
   --toned-primary-foreground: var(--primary-foreground);
-  --toned-primary-ink: var(--primary-ink);
   --toned-bubble: var(--bubble);
   --toned-accent: var(--accent);
   --toned-accent-foreground: var(--accent-foreground);
@@ -592,9 +562,8 @@
 [data-tone-scope='neutral'] {
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --primary-ink: oklch(0.205 0 0);
   --bubble: oklch(0.97 0 0);
-  --accent: oklch(0.935 0 0);
+  --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -606,9 +575,8 @@
 .dark [data-tone-scope='neutral'] {
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --primary-ink: oklch(0.922 0 0);
   --bubble: oklch(0.269 0 0);
-  --accent: oklch(0.3 0 0);
+  --accent: oklch(0.269 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
@@ -620,7 +588,6 @@
 [data-tone-scope='tone'] {
   --primary: var(--toned-primary);
   --primary-foreground: var(--toned-primary-foreground);
-  --primary-ink: var(--toned-primary-ink);
   --bubble: var(--toned-bubble);
   --accent: var(--toned-accent);
   --accent-foreground: var(--toned-accent-foreground);
@@ -641,13 +608,11 @@
 }
 
 @layer base {
+  /* The body is the system face at its regular weight (ISSUE-294): the
+     light 300 it used to be set in drew Chinese in PingFang Light beside
+     Semibold bold, and the two read as two sizes. */
   * {
-    @apply border-border outline-ring/50 font-light;
-  }
-  /* What sits inside a 2xs / xs element takes its 400 too (the theme's
-     `--text-*--font-weight` above sets the element itself). */
-  :where(.text-2xs, .text-xs) * {
-    font-weight: 400;
+    @apply border-border outline-ring/50;
   }
   /* Pin the app shell to the viewport so route layouts can rely on `h-full`
      cascading down — without this a tall page (a long chat) grows the
@@ -669,6 +634,15 @@
   }
   body {
     @apply text-foreground bg-transparent;
+  }
+  /* The main window is transparent over vibrancy so the boot splash (Ody,
+     in index.html's #root) draws on the material; once React has replaced
+     it the app is opaque. The sub-apps keep their transparent bodies. */
+  .app-shell body {
+    @apply bg-background;
+  }
+  .app-shell body:has(#boot-splash) {
+    @apply bg-transparent;
   }
 }
 
@@ -704,8 +678,11 @@
      of a message are flush. No per-adjacency special-casing — that's what
      made the old rhythm feel uneven and cramped. */
 
+  /* ChatGPT's measure (ISSUE-294): 16px at 1.75, so a line holding a
+     citation chip or bold CJK is as tall as the one beside it. */
   .markdown {
-    --md-gap: 1.15em;
+    --md-gap: 1em;
+    line-height: 1.75;
   }
 
   .markdown > :first-child {
@@ -756,7 +733,7 @@
       @apply list-decimal pl-[1.5em];
     }
     :scope :where(li) {
-      @apply mx-0 my-[0.35em] [line-height:1.7];
+      @apply mx-0 my-[0.25em];
     }
     :scope :where(li)::marker {
       @apply text-muted-foreground font-semibold;
@@ -796,7 +773,7 @@
 
     /* Links — subtle by default, underline on hover. */
     :scope :where(a) {
-      color: var(--primary-ink);
+      color: var(--primary);
       @apply wrap-break-word [text-decoration:none];
     }
     :scope :where(a):hover {

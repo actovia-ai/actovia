@@ -21,7 +21,15 @@ vi.mock('react-medium-image-zoom', () => ({
   default: ({ children }: { children: unknown }) => children
 }))
 const toast = { success: vi.fn(), error: vi.fn() }
-vi.mock('sileo', () => ({ sileo: toast }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = toast
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const invoke = vi.fn()
 ;(window as unknown as { electron: unknown }).electron = {

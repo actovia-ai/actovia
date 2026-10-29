@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
-import { AppToaster } from '@/components/app/app-toaster'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toast'
 import { PhilharmonicContainer } from '@/containers/philharmonic'
 import { useRouteHistoryRecorder } from '@/hooks/use-route-history'
 
@@ -53,7 +53,7 @@ export function PhilharmonicLayout() {
         onOpenPage={openPage}
         onOpenGroup={openGroup}
       />
-      <AppToaster />
+      <Toaster />
     </SidebarProvider>
   )
 }

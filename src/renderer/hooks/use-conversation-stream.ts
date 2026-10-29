@@ -8,8 +8,8 @@ import type {
 } from '@actovia/shared/types/philharmonic'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { recordAgentCard } from '@/lib/agent-card'
 import { getActivePlan } from '@/services/philharmonic-chat'
 
@@ -216,7 +216,8 @@ export function useConversationStream(
           setError(evt.error)
           // Bubble to the app shell so users see it even when the panel is
           // closed. The inline error block in GroupChat is still rendered.
-          sileo.error({
+          toast.add({
+            type: 'error',
             title: t('chat.groupChat.errorTitle'),
             description:
               evt.error.length > 200 ? `${evt.error.slice(0, 197)}…` : evt.error

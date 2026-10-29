@@ -4,7 +4,8 @@ import {
   type AttachmentResult
 } from '@actovia/shared/types/attachment-actions'
 import type { TFunction } from 'i18next'
-import { sileo } from 'sileo'
+
+import { toast } from '@/components/ui/toast'
 
 /** The `common` namespace's `t` (a hook's; this module stays hook-free). */
 export type CommonT = TFunction<'common'>
@@ -32,9 +33,10 @@ export function reportAttachmentResult(
   t: CommonT
 ): void {
   if (result.status === 'copied') {
-    sileo.success({ title: t('attachment.copied') })
+    toast.add({ type: 'success', title: t('attachment.copied') })
   } else if (result.status === 'failed') {
-    sileo.error({
+    toast.add({
+      type: 'error',
       title:
         result.action === 'copy'
           ? t('attachment.copyFailed')

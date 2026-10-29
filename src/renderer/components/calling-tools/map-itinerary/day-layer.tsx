@@ -23,6 +23,9 @@ export const FocusedPlaceContext = createContext<number | null>(null)
 type DayLayerProps = {
   places: ItineraryPlace[]
   onMarkerClick: (idx: number) => void
+  /** The place card floats over the map's right side (the card in the
+   *  transcript); full screen keeps it in a column beside the map. */
+  overlaysPanel?: boolean
 }
 
 // PlaceDetail panel: w-80 (320 px) + right-3 gap (12 px) + visual buffer.
@@ -40,7 +43,11 @@ function computeRightPad(containerWidth: number): number {
  * numeric badge — click opens the detail overlay. Lives inside <Map>
  * because it needs the map instance from useMap().
  */
-export function DayLayer({ places, onMarkerClick }: DayLayerProps) {
+export function DayLayer({
+  places,
+  onMarkerClick,
+  overlaysPanel = true
+}: DayLayerProps) {
   const map = useMap()
   const focusedIdx = useContext(FocusedPlaceContext)
 
@@ -76,11 +83,13 @@ export function DayLayer({ places, onMarkerClick }: DayLayerProps) {
     for (const p of places) bounds.extend({ lat: p.lat, lng: p.lng })
     map.fitBounds(bounds, {
       top: 64,
-      right: computeRightPad(map.getDiv()?.clientWidth ?? 0),
+      right: overlaysPanel
+        ? computeRightPad(map.getDiv()?.clientWidth ?? 0)
+        : 48,
       bottom: 32,
       left: 32
     })
-  }, [map, places])
+  }, [map, places, overlaysPanel])
 
   // Pan-without-zoom when the user scrubs through pins via prev/next or by
   // clicking an entry — keeps the surrounding context intact.
@@ -163,7 +172,7 @@ const ThumbnailPin = memo(function ThumbnailPin({
           <div
             className={cn(
               'border-background size-8 overflow-hidden rounded-md border-2 shadow-md',
-              focused && 'ring-primary-ink ring-2'
+              focused && 'ring-primary ring-2'
             )}
           >
             <LazyLoadImage src={photoUrl} alt="" />
@@ -172,7 +181,7 @@ const ThumbnailPin = memo(function ThumbnailPin({
           <div
             className={cn(
               'border-background bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md border-2 text-xs font-semibold shadow-md',
-              focused && 'ring-primary-ink ring-2'
+              focused && 'ring-primary ring-2'
             )}
           >
             {index + 1}

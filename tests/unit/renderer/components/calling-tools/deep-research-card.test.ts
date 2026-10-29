@@ -10,7 +10,15 @@ const t = (key: string, opts?: Record<string, unknown>) =>
   opts ? `${key}(${Object.values(opts).join(',')})` : key
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
 vi.mock('@/lib/i18n', () => ({ i18n: { t } }))
-vi.mock('sileo', () => ({ sileo: { error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = { error: vi.fn() }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 let current: Record<string, unknown> | undefined
 vi.mock('@/hooks/use-deep-research', () => ({

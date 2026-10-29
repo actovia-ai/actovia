@@ -82,7 +82,7 @@ export function ConfirmationBlock({
               icon={Tick02Icon}
 
               aria-hidden
-              className="text-primary-ink size-4"
+              className="text-primary size-4"
             />
           )}
           {decision === 'approve' && t('interactive.approved')}

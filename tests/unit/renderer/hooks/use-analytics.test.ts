@@ -19,10 +19,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { analyticsKeys, useAnalyticsStatus } =
   await import('@/hooks/use-analytics')
@@ -96,7 +104,7 @@ afterEach(() => {
   fetcherMock.mockReset()
   getAnalyticsStatusService.mockReset()
   report.mockClear()
-  sileoError.mockClear()
+  toastError.mockClear()
 })
 
 describe('analyticsKeys', () => {
@@ -145,7 +153,7 @@ describe('useAnalyticsStatus', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: analyticsKeys.status
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 

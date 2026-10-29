@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { downloadFile } from '@/lib/utils'
 import {
   exportData as exportDataService,
@@ -25,9 +25,13 @@ export function useDbIo() {
         blob,
         `actovia-export-${new Date().toISOString().slice(0, 10)}.zip`
       )
-      sileo.success({ title: t('dataControls.export.successToast') })
+      toast.add({
+        type: 'success',
+        title: t('dataControls.export.successToast')
+      })
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('dataControls.export.errorToast'),
         description:
           e instanceof Error
@@ -53,9 +57,13 @@ export function useDbIo() {
       // `name`-less callback a refetch-driven `reset()` fires (it only acts
       // on a named field), so no echo write could follow.
       void queryClient.invalidateQueries()
-      sileo.success({ title: t('dataControls.import.successToast') })
+      toast.add({
+        type: 'success',
+        title: t('dataControls.import.successToast')
+      })
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('dataControls.import.errorToast'),
         description:
           e instanceof Error
@@ -74,9 +82,13 @@ export function useDbIo() {
       // Same reasoning as the import path above: everything but `settings`
       // was just truncated.
       void queryClient.invalidateQueries()
-      sileo.success({ title: t('dataControls.delete.successToast') })
+      toast.add({
+        type: 'success',
+        title: t('dataControls.delete.successToast')
+      })
     } catch (e) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('dataControls.delete.errorToast'),
         description:
           e instanceof Error

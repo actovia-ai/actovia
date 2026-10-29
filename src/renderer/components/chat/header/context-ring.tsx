@@ -19,7 +19,7 @@ const CIRCUMFERENCE = 2 * Math.PI * R
 
 /**
  * How full the chat's context is (ISSUE-235), beside the model chip: a ring
- * in the tone's ink, the warning colour once the next run will compact; the
+ * in the tone's colour, the warning colour once the next run will compact; the
  * numbers are in its tooltip. Opens the panel on Context. Nothing before the
  * chat has run, or for a model whose window is unknown.
  */
@@ -59,7 +59,7 @@ export function ContextRing({ chatId }: { chatId: string }) {
           viewBox="0 0 16 16"
           className={cn(
             'size-4 -rotate-90',
-            meter.pastCompaction ? 'text-warning' : 'text-primary-ink'
+            meter.pastCompaction ? 'text-warning' : 'text-primary'
           )}
           aria-hidden
         >

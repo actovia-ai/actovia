@@ -3,8 +3,8 @@ import { useSetAtom } from 'jotai'
 import { get, isEqual, union } from 'lodash-es'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { useSettings } from '@/hooks/use-settings'
 import { buildSettingsSave } from '@/lib/settings-autosave'
 import { clearedSecretsAtom } from '@/stores/secrets'
@@ -67,7 +67,11 @@ export function useSettingsAutosave(form: UseFormReturnType) {
     const result = buildSettingsSave(persisted, changes)
     if (result.status === 'noop') return
     if (result.status === 'invalid') {
-      sileo.error({ title: t('toast.notSaved'), description: result.errors[0] })
+      toast.add({
+        type: 'error',
+        title: t('toast.notSaved'),
+        description: result.errors[0]
+      })
       return
     }
     const saved = await updateRef.current(result.payload)

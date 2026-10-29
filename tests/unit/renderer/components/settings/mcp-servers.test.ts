@@ -47,10 +47,19 @@ vi.mock('react-i18next', () => ({
   }),
   Trans: ({ children }: { children?: unknown }) => children ?? null
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { success: vi.fn(), error: (...a: unknown[]) => sileoError(...a) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: (...a: unknown[]) => toastError(...a)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { McpServers } =
   await import('@/components/settings/settings-form/mcp-servers')
@@ -123,7 +132,7 @@ afterEach(() => {
   host.remove()
   updateServer.mockReset()
   createServer.mockReset()
-  sileoError.mockClear()
+  toastError.mockClear()
   state.needsReentry = []
 })
 
@@ -213,7 +222,7 @@ describe('MCP form: a stdio server’s environment', () => {
     type(byTestId(TEST_IDS.mcpServers.envInput) as HTMLInputElement, '[1]')
     await save()
     expect(updateServer).not.toHaveBeenCalled()
-    expect(sileoError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledTimes(1)
   })
 })
 

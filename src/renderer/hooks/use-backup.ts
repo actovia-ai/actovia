@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { settingsKeys } from '@/hooks/use-settings'
 import { i18n } from '@/lib/i18n'
 import {
@@ -47,7 +47,8 @@ export function useCreateBackup() {
         queryKey: settingsKeys.all,
         exact: true
       })
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('settings:dataControls.backupNow.successToast')
       })
     }

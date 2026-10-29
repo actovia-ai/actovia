@@ -14,7 +14,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -36,6 +35,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { toast } from '@/components/ui/toast'
 import { useAnalyticsStatus } from '@/hooks/use-analytics'
 import { keyLabel, MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
 import { useFormat } from '@/lib/format'
@@ -113,10 +113,14 @@ export function ChatAudit() {
     try {
       await buildSnapshot()
       await refreshStatus()
-      sileo.success({ title: t('chatAudit.toast.snapshotBuilt') })
+      toast.add({ type: 'success', title: t('chatAudit.toast.snapshotBuilt') })
     } catch (err) {
       const description = errorText(err)
-      sileo.error({ title: t('chatAudit.toast.snapshotFailed'), description })
+      toast.add({
+        type: 'error',
+        title: t('chatAudit.toast.snapshotFailed'),
+        description
+      })
     } finally {
       setBuilding(false)
     }

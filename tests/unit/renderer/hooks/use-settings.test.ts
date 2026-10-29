@@ -14,14 +14,20 @@ const updateSettingsService = vi.fn()
 vi.mock('@/services/settings', () => ({
   updateSettings: (...args: unknown[]) => updateSettingsService(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -79,8 +85,8 @@ describe('useSettings', () => {
   afterEach(() => {
     fetcherMock.mockReset()
     updateSettingsService.mockReset()
-    sileoSuccess.mockClear()
-    sileoError.mockClear()
+    toastSuccess.mockClear()
+    toastError.mockClear()
   })
 
   it('after a successful save, the cache holds the merged payload with no revalidating GET', async () => {
@@ -104,11 +110,11 @@ describe('useSettings', () => {
     expect(queryClient.getQueryState(settingsKeys.all)?.fetchStatus).toBe(
       'idle'
     )
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).toHaveBeenCalledWith({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledWith({
       title: 'settings:toast.autoSaved'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('a failed save toasts an error and leaves the cache untouched', async () => {
@@ -124,9 +130,9 @@ describe('useSettings', () => {
 
     expect(queryClient.getQueryData(settingsKeys.all)).toBe(before)
     expect(fetcherMock).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess).not.toHaveBeenCalled()
-    expect(sileoError).toHaveBeenCalledTimes(1)
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastSuccess).not.toHaveBeenCalled()
+    expect(toastError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledWith({
       title: 'settings:toast.saveFailed',
       description: 'network down'
     })
@@ -165,7 +171,7 @@ describe('useSettings', () => {
     expect(queryClient.getQueryState(settingsKeys.all)?.fetchStatus).toBe(
       'idle'
     )
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
   })
 
   it('says whether the save landed, and marks the secrets status stale after one', async () => {

@@ -15,10 +15,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { usageKeys, useUsage } = await import('@/hooks/use-usage')
 const { createAppQueryClient } = await import('@/lib/query-client')
@@ -84,7 +92,7 @@ describe('useUsage', () => {
   afterEach(() => {
     fetcherMock.mockReset()
     report.mockClear()
-    sileoError.mockClear()
+    toastError.mockClear()
   })
 
   it('reads the usage route once and caches it at usageKeys.all', async () => {
@@ -113,7 +121,7 @@ describe('useUsage', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: usageKeys.all
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })

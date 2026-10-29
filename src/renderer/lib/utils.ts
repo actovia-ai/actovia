@@ -12,18 +12,7 @@ import type {
   Usage,
   UserMessage
 } from '@earendil-works/pi-ai'
-import { clsx, type ClassValue } from 'clsx'
-import { extendTailwindMerge } from 'tailwind-merge'
-
-// The type scale's own sizes (globals.css): unknown to tailwind-merge, which
-// would read `text-ui` as a colour and drop it beside `text-muted-foreground`.
-const twMerge = extendTailwindMerge({
-  extend: { theme: { text: ['2xs', 'ui'] } }
-})
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+export { cn } from './cn'
 
 export const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {

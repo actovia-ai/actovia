@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
+
+import { toast } from '@/components/ui/toast'
 
 export function useClipboard() {
   const { t } = useTranslation('common')
@@ -16,7 +17,8 @@ export function useClipboard() {
       }, 2000)
       return true
     } catch (error) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('clipboard.failedTitle'),
         description:
           error instanceof Error ? error.message : t('clipboard.genericError')

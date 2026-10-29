@@ -22,7 +22,7 @@ export function AnswerTitle({ head }: { head: AnswerHead }) {
         icon={Icon}
 
         aria-hidden
-        className="text-primary-ink mt-0.5 size-4 shrink-0"
+        className="text-primary mt-0.5 size-4 shrink-0"
       />
       <span data-slot="answer-title" className="min-w-0">
         {head.title || t('interactive.answer.title')}

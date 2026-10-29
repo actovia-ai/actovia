@@ -22,7 +22,7 @@ export const ALLOWLIST: AllowlistEntry[] = [
   {
     file: 'src/renderer/components/calling-tools/artifact/artifact-card.tsx',
     text: 'artifact://',
-    line: 111,
+    line: 112,
     reason: "The app's own URI scheme prefix, not user-facing prose."
   },
   {
@@ -64,13 +64,13 @@ export const ALLOWLIST: AllowlistEntry[] = [
   {
     file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
     text: '{"GITHUB_TOKEN": "ghp_..."}',
-    line: 797,
+    line: 804,
     reason: 'A JSON example of the env field — its syntax, not prose.'
   },
   {
     file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
     text: '{"Authorization": "Bearer token"}',
-    line: 852,
+    line: 859,
     reason: 'A JSON example of the headers field — its syntax, not prose.'
   }
 ]

@@ -8,7 +8,8 @@ import {
   type WorkspaceRoots
 } from '@actovia/shared/types/workspace-files'
 import type { TFunction } from 'i18next'
-import { sileo } from 'sileo'
+
+import { toast } from '@/components/ui/toast'
 
 /**
  * The page's side of the workspace file bridge
@@ -135,13 +136,15 @@ export async function openWorkspaceFileWithFeedback(
   if (result.ok) return
   if (result.reason === 'unsafe-to-open') {
     const shown = await revealWorkspaceFile(path)
-    sileo.info({
+    toast.add({
+      type: 'info',
       title: t('workspaceFile.unsafeTitle'),
       description: t('workspaceFile.unsafeDescription')
     })
     if (shown.ok) return
   }
-  sileo.error({
+  toast.add({
+    type: 'error',
     title: t('workspaceFile.openFailed'),
     description: failureDescription(result.reason, t)
   })
@@ -153,7 +156,8 @@ export async function revealWorkspaceFileWithFeedback(
 ): Promise<void> {
   const result = await revealWorkspaceFile(path)
   if (result.ok) return
-  sileo.error({
+  toast.add({
+    type: 'error',
     title: t('workspaceFile.revealFailed'),
     description: failureDescription(result.reason, t)
   })
@@ -175,13 +179,15 @@ export async function openWorkspaceFileMenu(
     if (chosen.result.reason === 'unsafe-to-open') {
       await openWorkspaceFileWithFeedback(path, t)
     } else {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('workspaceFile.openFailed'),
         description: failureDescription(chosen.result.reason, t)
       })
     }
   } else if (chosen.action === 'reveal' && !chosen.result.ok) {
-    sileo.error({
+    toast.add({
+      type: 'error',
       title: t('workspaceFile.revealFailed'),
       description: failureDescription(chosen.result.reason, t)
     })

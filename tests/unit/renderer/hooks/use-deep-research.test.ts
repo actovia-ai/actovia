@@ -23,10 +23,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { deepResearchKeys, useDeepResearchResult } =
   await import('@/hooks/use-deep-research')
@@ -154,7 +162,7 @@ afterEach(async () => {
   fetchDeepResearchResultService.mockReset()
   fetchDeepResearchMessagesService.mockReset()
   report.mockClear()
-  sileoError.mockClear()
+  toastError.mockClear()
 })
 
 describe('deepResearchKeys', () => {
@@ -347,7 +355,7 @@ describe('useDeepResearchResult', () => {
       expect(result?.isError).toBe(false)
       expect(api().data).toBeUndefined()
       expect(report).not.toHaveBeenCalled()
-      expect(sileoError).not.toHaveBeenCalled()
+      expect(toastError).not.toHaveBeenCalled()
     }
   )
 
@@ -529,7 +537,7 @@ describe('useDeepResearchResult', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: deepResearchKeys.result(ID)
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
     expect(
       queryClient.getQueryData(deepResearchKeys.result(ID))
@@ -556,7 +564,7 @@ describe('useDeepResearchResult', () => {
     await settle()
     expect(api().data?.jobStatus).toBe('streaming')
     expect(report).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
 
     await act(async () => {
       await api().refetch()

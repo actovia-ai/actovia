@@ -17,9 +17,9 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { sileo } from 'sileo'
 import { VoiceBeam } from 'voice-glow'
 
+import { toast } from '@/components/ui/toast'
 import { UseChatHelpers } from '@/hooks/use-chat'
 import { useUpload } from '@/hooks/use-upload'
 import {
@@ -302,7 +302,8 @@ function InputBox({
                   }
 
                   if (status === 'streaming') {
-                    sileo.warning({
+                    toast.add({
+                      type: 'warning',
                       title: t('composer.pleaseWaitTitle'),
                       description: t('composer.pleaseWaitDescription')
                     })

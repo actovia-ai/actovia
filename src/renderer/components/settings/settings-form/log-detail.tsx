@@ -11,7 +11,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -20,6 +19,7 @@ import {
   SheetContent,
   SheetTitle
 } from '@/components/ui/sheet'
+import { toast } from '@/components/ui/toast'
 import { useClipboard } from '@/hooks/use-clipboard'
 import { useFormat } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -102,7 +102,7 @@ export function LogDetail({
             onTrace={onTrace}
             onCopy={async () => {
               if (await handleCopy(formatLogForAi(record))) {
-                sileo.success({ title: t('logger.detail.copied') })
+                toast.add({ type: 'success', title: t('logger.detail.copied') })
               }
             }}
             formatNumber={formatNumber}

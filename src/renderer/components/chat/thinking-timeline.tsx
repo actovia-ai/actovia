@@ -8,10 +8,8 @@ import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import {
   AiBrainIcon,
   Tick02Icon,
-  ArrowDown01Icon,
   Globe02Icon,
   MessageSquareTextIcon,
-  CircleCheckBigIcon,
   CommandLineIcon,
   FileEditIcon,
   FileSearchIcon,
@@ -21,7 +19,7 @@ import {
   CancelCircleIcon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   MODE_FRAMES,
@@ -38,8 +36,17 @@ import { cn } from '@/lib/utils'
 
 import { foldedFileName, terminalExitCode } from '../calling-tools/folded-tools'
 import { Markdown } from '../markdown/markdown'
-import { ShimmeringText } from '../motion/shimmering-text'
 import { Badge } from '../ui/badge'
+import { CodeBlock, CodeBlockContent } from '../ui/code-block'
+import {
+  Trace,
+  TraceCollapsible,
+  TraceCollapsibleContent,
+  TraceCollapsibleTrigger,
+  TraceIcon,
+  TraceLine,
+  TraceTitle
+} from '../ui/trace'
 import { MessageCallingTools } from './messages-calling-tools'
 
 export type { TimelineStep }
@@ -95,58 +102,21 @@ const TOOL_ICON: Record<string, IconSvgElement> = {
   [TOOL_NAMES.webFetch]: Link01Icon
 }
 
-function StepIcon({
-  step,
-  status
-}: {
-  step: TimelineStep
-  status: StepStatus
-}) {
-  if (step.type === 'toolResult' && step.isError) {
-    return (
-      <HugeiconsIcon
-        icon={CancelCircleIcon}
-
-        size={15}
-        className="text-destructive shrink-0"
-      />
-    )
-  }
-  const cls = cn('shrink-0', STATUS_TEXT[status])
-  if (step.toolName === TOOL_NAMES.webSearch)
-    return (
-      <HugeiconsIcon
-        icon={Globe02Icon}
-
-        size={15}
-        className={cls}
-      />
-    )
-  if (step.type === 'thinking')
-    return (
-      <HugeiconsIcon
-        icon={AiBrainIcon}
-
-        size={15}
-        className={cls}
-      />
-    )
-  if (step.type === 'narration')
-    return (
-      <HugeiconsIcon
-        icon={MessageSquareTextIcon}
-
-        size={15}
-        className={cls}
-      />
-    )
+function StepIcon({ step }: { step: TimelineStep }) {
+  const icon =
+    step.type === 'toolResult' && step.isError
+      ? CancelCircleIcon
+      : step.toolName === TOOL_NAMES.webSearch
+        ? Globe02Icon
+        : step.type === 'thinking'
+          ? AiBrainIcon
+          : step.type === 'narration'
+            ? MessageSquareTextIcon
+            : (TOOL_ICON[step.toolName ?? ''] ?? Wrench01Icon)
   return (
-    <HugeiconsIcon
-      icon={TOOL_ICON[step.toolName ?? ''] ?? Wrench01Icon}
-
-      size={15}
-      className={cls}
-    />
+    <TraceIcon className="mt-0.5">
+      <HugeiconsIcon icon={icon} strokeWidth={2} />
+    </TraceIcon>
   )
 }
 
@@ -210,56 +180,47 @@ function FoldedCard({
       ? toolLabel(step.toolName ?? '')
       : t('terminalCard.exitCode', { code: exitCode })
     : (foldedFileName(step.toolResult) ?? step.toolName)
+  const failed = exitCode !== null && exitCode !== 0
   return (
-    <div className="mt-1">
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((prev) => !prev)}
-        className="text-muted-foreground hover:text-foreground -ml-1 inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs transition-colors"
-      >
-        <HugeiconsIcon
-          icon={ArrowDown01Icon}
-
-          size={13}
-          className={cn('shrink-0 transition-transform', !open && '-rotate-90')}
-        />
-        <span
-          className={cn(
-            // Success is the quiet default; only a failure takes a colour.
-            exitCode !== null && exitCode !== 0 && 'text-destructive'
-          )}
-        >
-          {label}
-        </span>
-      </button>
-      {open && (
+    <TraceCollapsible open={open} onOpenChange={setOpen} className="mt-1">
+      <TraceCollapsibleTrigger>
+        {/* Success is the quiet default; only a failure takes a colour. */}
+        <TraceLine status={failed ? 'error' : undefined} className="text-xs">
+          <TraceTitle>{label}</TraceTitle>
+        </TraceLine>
+      </TraceCollapsibleTrigger>
+      <TraceCollapsibleContent className="mt-1 ml-0 border-l-0 pl-0">
         <MessageCallingTools
           chatId={chatId}
           toolResult={step.toolResult}
           isStreaming={isStreaming}
-          className="mt-1 w-full"
+          className="w-full"
         />
-      )}
-    </div>
+      </TraceCollapsibleContent>
+    </TraceCollapsible>
   )
 }
 
-function TimelineNode({
-  icon,
-  isLast,
+/** One step of the chain: its icon, then what it was — wrapping, never cut. */
+function TimelineStepRow({
+  step,
+  status,
   children
 }: {
-  icon: React.ReactNode
-  isLast?: boolean
+  step: TimelineStep
+  status: StepStatus
   children: React.ReactNode
 }) {
   return (
-    <div className={cn(ROW_ENTER, 'flex gap-2.5 pb-3 last:pb-0')}>
-      <div className="mt-1 flex flex-col items-center">
-        <div className="flex shrink-0 items-center justify-center">{icon}</div>
-        {!isLast && <div className="border-border w-px flex-1 border-l" />}
-      </div>
+    <div
+      className={cn(
+        ROW_ENTER,
+        'flex min-w-0 gap-2',
+        STATUS_TEXT[status],
+        step.type === 'toolResult' && step.isError && 'text-destructive'
+      )}
+    >
+      <StepIcon step={step} />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
   )
@@ -314,7 +275,6 @@ export function ThinkingTimeline({
 }: ThinkingTimelineProps) {
   const { t } = useTranslation('chat')
   const [isExpanded, setIsExpanded] = useState(false)
-  const toggleExpanded = useCallback(() => setIsExpanded((prev) => !prev), [])
 
   const hasThinking = useMemo(
     () => steps.some((s) => s.type === 'thinking'),
@@ -342,152 +302,84 @@ export function ThinkingTimeline({
       : verb
   const icon = headerIcon(isStreaming, hasThinking)
 
+  // AI Elements' chain of thought, on shadcn's Trace: the header is one line
+  // that opens on the steps, each a line of its own under the rule the
+  // content draws. min-w-0 / max-w-full keep a long URL or path from pushing
+  // the turn wider than its column.
   return (
-    // min-w-0 lets the timeline shrink inside flex parents instead of pushing
-    // them wider when a tool-call URL or path is long. max-w-full clamps it
-    // to the ancestor (e.g. md:max-w-3xl) regardless of intrinsic content.
-    <div className="mb-3 max-w-full min-w-0">
-      <button
-        type="button"
-        aria-expanded={isExpanded}
-        className="text-muted-foreground hover:text-foreground flex max-w-full items-center gap-1.5 overflow-hidden text-sm transition-colors"
-        onClick={toggleExpanded}
-      >
-        {icon === 'live' ? (
-          <ThinkingOrb state="working" size={20} className="shrink-0" />
-        ) : icon === 'resting' ? (
-          <ThinkingOrb
-            state="solving"
-            size={20}
-            paused
-            frame={RESTING_FRAME}
-            aria-hidden
-            className="shrink-0"
-          />
-        ) : (
-          <HugeiconsIcon
-            icon={Tick02Icon}
-
-            size={16}
-            className="shrink-0"
-          />
-        )}
-        {isStreaming ? (
-          <ShimmeringText
-            key={headerText}
-            className="truncate font-medium"
-            text={headerText}
-          />
-        ) : (
-          <span className="truncate font-medium">{headerText}</span>
-        )}
-        <HugeiconsIcon
-          icon={ArrowDown01Icon}
-
-          size={16}
-          className={cn(
-            'shrink-0 transition-transform duration-200',
-            isExpanded && 'rotate-180'
-          )}
-        />
-      </button>
-
-      {/* CSS grid-rows trick: animates height:auto with zero JS (replaces the
-          old framer-motion AnimatePresence). Content stays mounted so the
-          per-step slide-in animations only fire once, on first appearance. */}
-      <div
-        className={cn(
-          'grid transition-[grid-template-rows,opacity] duration-200 ease-out',
-          isExpanded
-            ? 'grid-rows-[1fr] opacity-100'
-            : 'grid-rows-[0fr] opacity-0'
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="mt-2">
-            {/* react-doctor/no-array-index-as-key: suppressed — TimelineStep has no
+    <Trace className="mb-3 max-w-full min-w-0">
+      <TraceCollapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <TraceCollapsibleTrigger>
+          <TraceLine status={isStreaming ? 'running' : undefined}>
+            {/* The orb draws at 20px only; the check sits in the same box. */}
+            <TraceIcon className="size-5">
+              {icon === 'live' ? (
+                <ThinkingOrb state="working" size={20} />
+              ) : icon === 'resting' ? (
+                <ThinkingOrb
+                  state="solving"
+                  size={20}
+                  paused
+                  frame={RESTING_FRAME}
+                  aria-hidden
+                />
+              ) : (
+                <HugeiconsIcon icon={Tick02Icon} strokeWidth={2} />
+              )}
+            </TraceIcon>
+            <TraceTitle className="font-medium">{headerText}</TraceTitle>
+          </TraceLine>
+        </TraceCollapsibleTrigger>
+        {/* Kept mounted, so each step's entrance plays once, when it arrives,
+            not every time the chain is opened. */}
+        <TraceCollapsibleContent keepMounted className="flex flex-col gap-3">
+          {/* react-doctor/no-array-index-as-key: suppressed — TimelineStep has no
               stable id field. Steps are append-only during streaming (they never
               reorder or get removed while visible), so index keys are safe here. */}
-            {steps.map((step, i) => {
-              const status: StepStatus = isStreaming
-                ? i === steps.length - 1
-                  ? 'active'
-                  : 'complete'
-                : 'complete'
-              return (
-                <TimelineNode
-                  key={i}
-                  icon={<StepIcon step={step} status={status} />}
-                >
-                  <div
-                    className={cn(
-                      // min-w-0 break-words: tool-call previews like
-                      // "webFetch: https://…/long-url.pdf" must wrap mid-URL
-                      // instead of overflowing the timeline.
-                      'min-w-0 text-sm leading-relaxed wrap-break-word [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm [&_h4]:text-sm [&_ol]:my-0.5 [&_ul]:my-0.5 [&_p:first-child]:mt-0 [&_p]:my-0.5',
-                      STATUS_TEXT[status],
-                      step.type === 'toolResult' &&
-                        step.isError &&
-                        'text-destructive'
-                    )}
-                  >
-                    {/* Narration is a sentence the model said while working:
-                        drawn as the other rows are, not as Markdown, whose
-                        paragraph size and colour would stand it apart. */}
-                    {step.type === 'thinking' ? (
-                      <Markdown src={step.text} />
-                    ) : (
-                      <>
-                        <p className="wrap-break-word">{step.text}</p>
-                        {step.codeArgument && (
-                          <pre className="bg-muted/50 border-border/60 mt-1 max-h-48 overflow-auto rounded-md border p-2 font-mono text-xs leading-relaxed wrap-break-word whitespace-pre-wrap">
-                            <code>{step.codeArgument}</code>
-                          </pre>
-                        )}
-                        {step.toolResult && (
-                          <FoldedCard
-                            chatId={chatId}
-                            step={{ ...step, toolResult: step.toolResult }}
-                            isStreaming={isStreaming}
-                          />
-                        )}
-                      </>
-                    )}
+          {steps.map((step, i) => {
+            const status: StepStatus =
+              isStreaming && i === steps.length - 1 ? 'active' : 'complete'
+            return (
+              <TimelineStepRow key={i} step={step} status={status}>
+                <div className="min-w-0 text-sm leading-relaxed wrap-break-word [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm [&_h4]:text-sm [&_ol]:my-0.5 [&_p]:my-0.5 [&_p:first-child]:mt-0 [&_ul]:my-0.5">
+                  {/* Narration is a sentence the model said while working:
+                      drawn as the other rows are, not as Markdown, whose
+                      paragraph size and colour would stand it apart. */}
+                  {step.type === 'thinking' ? (
+                    <Markdown src={step.text} />
+                  ) : (
+                    <>
+                      <p className="wrap-break-word">{step.text}</p>
+                      {step.codeArgument && (
+                        <CodeBlock size="sm" className="mt-1">
+                          <CodeBlockContent wrap className="max-h-48">
+                            {step.codeArgument}
+                          </CodeBlockContent>
+                        </CodeBlock>
+                      )}
+                      {step.toolResult && (
+                        <FoldedCard
+                          chatId={chatId}
+                          step={{ ...step, toolResult: step.toolResult }}
+                          isStreaming={isStreaming}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {step.webSearchResults && step.webSearchResults.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {step.webSearchResults.map((result) => (
+                      <SearchResultPill key={result.link} item={result} />
+                    ))}
                   </div>
-
-                  {step.webSearchResults &&
-                    step.webSearchResults.length > 0 && (
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {step.webSearchResults.map((result) => (
-                          <SearchResultPill key={result.link} item={result} />
-                        ))}
-                      </div>
-                    )}
-                </TimelineNode>
-              )
-            })}
-
-            {/* Done node — only when streaming is finished */}
-            {!isStreaming && (
-              <TimelineNode
-                isLast
-                icon={
-                  <HugeiconsIcon
-                    icon={CircleCheckBigIcon}
-
-                    size={15}
-                    className="text-muted-foreground shrink-0"
-                  />
-                }
-              >
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {t('thinkingTimeline.done')}
-                </p>
-              </TimelineNode>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+                )}
+              </TimelineStepRow>
+            )
+          })}
+        </TraceCollapsibleContent>
+      </TraceCollapsible>
+    </Trace>
   )
 }

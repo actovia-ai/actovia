@@ -27,7 +27,18 @@ vi.mock('@/services/settings', () => ({
   getSecretsStatus: () =>
     Promise.resolve({ encryption: 'on', needsReentry: [] })
 }))
-vi.mock('sileo', () => ({ sileo: { success: vi.fn(), error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,

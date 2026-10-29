@@ -19,14 +19,20 @@ vi.mock('@actovia/shared/utils/http', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@actovia/shared/utils/http')>()),
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
-const sileoError = vi.fn()
-const sileoSuccess = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...a: unknown[]) => sileoSuccess(...a),
-    error: (...a: unknown[]) => sileoError(...a)
+const toastError = vi.fn()
+const toastSuccess = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...a: unknown[]) => toastSuccess(...a),
+    error: (...a: unknown[]) => toastError(...a)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string) => key,
@@ -84,8 +90,8 @@ afterEach(() => {
   act(() => root.unmount())
   host.remove()
   fetcherMock.mockReset()
-  sileoError.mockClear()
-  sileoSuccess.mockClear()
+  toastError.mockClear()
+  toastSuccess.mockClear()
 })
 
 describe('ModelPicker: a saved key refused for a new base URL', () => {
@@ -102,7 +108,7 @@ describe('ModelPicker: a saved key refused for a new base URL', () => {
     expect(inlineError()?.textContent).toBe(
       'settings:providers.model.reenterKey'
     )
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('any other failure is still a toast, with no inline error', async () => {
@@ -111,7 +117,7 @@ describe('ModelPicker: a saved key refused for a new base URL', () => {
     )
     await renderAndRefresh()
     expect(inlineError()).toBeNull()
-    expect(sileoError).toHaveBeenCalledTimes(1)
+    expect(toastError).toHaveBeenCalledTimes(1)
   })
 
   it('the inline error goes once the key is typed again', async () => {
@@ -135,11 +141,11 @@ describe('ModelPicker: a refresh that succeeds (ISSUE-250)', () => {
       models: [{ id: 'gpt-5', displayName: 'GPT-5' }]
     })
     await renderAndRefresh('sk-live')
-    expect(sileoSuccess).toHaveBeenCalledTimes(1)
-    expect(sileoSuccess.mock.calls[0][0]).toMatchObject({
+    expect(toastSuccess).toHaveBeenCalledTimes(1)
+    expect(toastSuccess.mock.calls[0][0]).toMatchObject({
       title: 'settings:providers.model.refreshedTitle',
       description: 'settings:providers.model.refreshedDescription'
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 })

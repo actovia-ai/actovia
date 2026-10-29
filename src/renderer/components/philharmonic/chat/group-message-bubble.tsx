@@ -211,7 +211,7 @@ export function GroupMessageBubble({
                 // message on the tone's fill — black in the neutral tone, as
                 // Grok draws it — its links in the bubble's own ink.
                 isUser
-                  ? 'bg-primary text-primary-foreground [--primary-ink:currentColor] [&_a]:underline'
+                  ? 'bg-primary text-primary-foreground [--primary:currentColor] [&_a]:underline'
                   : 'bg-muted text-foreground'
               )}
             >

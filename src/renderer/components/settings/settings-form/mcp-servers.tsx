@@ -5,9 +5,9 @@ import { HttpError } from '@actovia/shared/utils/http'
 import { argsHoldSecret } from '@actovia/shared/utils/secret-detect'
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import Markdown from '@/components/markdown/markdown'
+import { toast } from '@/components/ui/toast'
 
 const CodeEditor = lazy(() =>
   import('@/components/markdown/code-editor.js').then((m) => ({
@@ -374,7 +374,10 @@ export function McpServers() {
       try {
         parsedHeaders = JSON.parse(headersStr)
       } catch {
-        sileo.error({ title: t('settings:mcpServers.toast.invalidHeaders') })
+        toast.add({
+          type: 'error',
+          title: t('settings:mcpServers.toast.invalidHeaders')
+        })
         return
       }
     }
@@ -392,7 +395,10 @@ export function McpServers() {
         }
         parsedEnv = parsed as Record<string, string>
       } catch {
-        sileo.error({ title: t('settings:mcpServers.toast.invalidEnv') })
+        toast.add({
+          type: 'error',
+          title: t('settings:mcpServers.toast.invalidEnv')
+        })
         return
       }
     }
@@ -411,7 +417,8 @@ export function McpServers() {
         }
         parsedExtraConfig = parsed
       } catch (e) {
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('settings:mcpServers.toast.invalidExtraConfig'),
           description:
             e instanceof Error

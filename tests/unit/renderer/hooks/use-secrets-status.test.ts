@@ -15,10 +15,19 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { success: vi.fn(), error: (...a: unknown[]) => sileoError(...a) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: (...a: unknown[]) => toastError(...a)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 vi.mock('@/lib/i18n', () => ({
   i18n: { exists: () => false, t: (key: string) => key }
 }))
@@ -69,7 +78,7 @@ afterEach(() => {
   focusManager.setFocused(undefined)
   getSecretsStatusService.mockReset()
   report.mockClear()
-  sileoError.mockClear()
+  toastError.mockClear()
 })
 
 describe('useSecretsStatus', () => {
@@ -114,7 +123,7 @@ describe('useSecretsStatus', () => {
     await act(async () => {
       await vi.waitFor(() => expect(report).toHaveBeenCalledTimes(1))
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 })

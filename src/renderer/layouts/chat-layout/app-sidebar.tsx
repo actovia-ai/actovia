@@ -20,16 +20,11 @@ import {
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { MOD_KEY } from '@/hooks/use-keyboard-shortcuts'
-import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { cn } from '@/lib/utils'
 import { isSearchChatsVisibleAtom } from '@/stores/chat'
 
 import { NavFooter } from './nav-footer'
 import { NavHistories } from './nav-histories'
-
-/** The sidebar's own rows (New, Search, Artifacts): a size up from a chat's
- * row, their icons too (ISSUE-237). */
-const NAV_ROW = 'h-9 gap-2.5 text-sm [&_svg]:size-5'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation('chat')
@@ -39,12 +34,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const setIsSearchChatsVisible = useSetAtom(isSearchChatsVisibleAtom)
 
   return (
-    <Sidebar
-      collapsible="none"
-      className={cn('text-foreground h-full w-full', SIDEBAR_ON_MATERIAL)}
-      {...props}
-    >
-      <SidebarHeader className="draggable gap-2 pt-2.25">
+    <Sidebar collapsible="none" className="h-full w-full" {...props}>
+      <SidebarHeader className="draggable pt-2.25">
         {/* The title bar's row: the sidebar toggle to the right of the traffic
             lights, where Notes and ChatGPT keep it, and the history arrows
             beside it (as Claude's) — at the same spot they take in the content
@@ -56,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isFullscreen ? 'pl-2' : 'pl-21'
           )}
         >
-          <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
+          <SidebarTrigger className="no-drag" />
           <HistoryArrows />
         </div>
         <div className="flex items-center px-1">
@@ -67,7 +58,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               data-testid={TEST_IDS.chatLayout.newChat}
               onClick={() => navigate('/')}
-              className={NAV_ROW}
             >
               <HugeiconsIcon icon={PlusIcon} />
               <span>{t('sidebar.nav.new')}</span>
@@ -77,7 +67,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               data-testid={TEST_IDS.chatLayout.searchButton}
               onClick={() => setIsSearchChatsVisible(true)}
-              className={NAV_ROW}
             >
               <HugeiconsIcon icon={SearchIcon} />
               <span className="flex-1">{t('sidebar.nav.search')}</span>
@@ -91,7 +80,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               data-testid={TEST_IDS.chatLayout.artifacts}
               isActive={pathname === '/artifacts'}
               onClick={() => navigate('/artifacts')}
-              className={NAV_ROW}
             >
               <HugeiconsIcon icon={SparklesIcon} />
               <span>{t('sidebar.nav.artifacts')}</span>
@@ -99,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="no-scrollbar">
+      <SidebarContent>
         <NavHistories />
       </SidebarContent>
       <SidebarFooter>

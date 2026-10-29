@@ -19,7 +19,18 @@ vi.mock('@actovia/shared/utils/http', () => ({
   fetcher: (...args: unknown[]) => fetcherMock(...args)
 }))
 vi.mock('@/lib/i18n', () => ({ i18n: { t: (key: string) => key } }))
-vi.mock('sileo', () => ({ sileo: { success: vi.fn(), error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 const fetchChatPage = vi.fn()
 vi.mock('@/services/chat', () => ({
   deleteChat: vi.fn(),

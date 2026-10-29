@@ -6,8 +6,8 @@ import {
 } from '@actovia/shared/utils/http'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { refreshSecretsStatus } from '@/hooks/use-secrets-status'
 import { updateSettings as updateSettingsService } from '@/services/settings'
 
@@ -26,7 +26,8 @@ export function useSettings() {
     try {
       await updateSettingsService(payload)
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('settings:toast.saveFailed'),
         description: getHttpErrorMessage(err, toErrorI18n(i18n))
       })
@@ -49,7 +50,7 @@ export function useSettings() {
       (current: Settings | undefined) =>
         ({ ...current, ...payload }) as Settings
     )
-    sileo.success({ title: t('settings:toast.autoSaved') })
+    toast.add({ type: 'success', title: t('settings:toast.autoSaved') })
     // A key typed again drops off the re-entry notice.
     void refreshSecretsStatus(queryClient)
     return true

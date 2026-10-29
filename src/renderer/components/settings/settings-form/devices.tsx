@@ -7,7 +7,6 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import {
   AlertDialog,
@@ -20,6 +19,7 @@ import {
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { toast } from '@/components/ui/toast'
 import {
   useCancelPairing,
   useDevices,
@@ -150,9 +150,8 @@ export function Devices() {
       ? data.devices.find((device) => !previous.ids.has(device.id))
       : undefined
     if (added) {
-      // The name goes in the description: sileo capitalises every word of a
-      // title, which turns "iPhone" into "IPhone".
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: t('devices.toast.pairedTitle'),
         description: added.name
       })

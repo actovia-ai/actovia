@@ -7,9 +7,9 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
-import { sileo } from 'sileo'
 import { v4 as uuidV4 } from 'uuid'
 
+import { toast } from '@/components/ui/toast'
 import { useChooseAttempt } from '@/hooks/use-attempts'
 import { useChat } from '@/hooks/use-chat'
 import { useOlderPages } from '@/hooks/use-older-pages'
@@ -104,7 +104,8 @@ export function Chat({
       }
     },
     onError: (e) => {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('toast.sendFailedTitle'),
         description:
           e instanceof Error ? e.message : t('toast.sendFailedDescription')

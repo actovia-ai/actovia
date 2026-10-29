@@ -28,10 +28,18 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: { error: (...args: unknown[]) => sileoError(...args) }
-}))
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: (...args: unknown[]) => toastError(...args)
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const { createAppQueryClient, installWindowFocusListener } =
   await import('@/lib/query-client')
@@ -58,7 +66,7 @@ describe('createAppQueryClient', () => {
   afterEach(() => {
     vi.useRealTimers()
     report.mockClear()
-    sileoError.mockClear()
+    toastError.mockClear()
     i18nExists.mockClear()
     i18nT.mockClear()
     onlineManager.setOnline(true)
@@ -80,7 +88,7 @@ describe('createAppQueryClient', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: ['boom-query']
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('a failed mutation reports and toasts, using meta.errorTitle', async () => {
@@ -99,7 +107,7 @@ describe('createAppQueryClient', () => {
     expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
       mutationKey: ['boom-mutation']
     })
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledWith({
       title: 'Could not save',
       description: 'write failed'
     })
@@ -119,7 +127,7 @@ describe('createAppQueryClient', () => {
       .catch(() => {})
 
     expect(report).toHaveBeenCalledTimes(1)
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
   })
 
   it('a mutation with no meta.errorTitle falls back to the catalog title, errors:generic', async () => {
@@ -134,7 +142,7 @@ describe('createAppQueryClient', () => {
       .catch(() => {})
 
     expect(i18nT).toHaveBeenCalledWith('errors:generic')
-    expect(sileoError).toHaveBeenCalledWith({
+    expect(toastError).toHaveBeenCalledWith({
       title: 'localized(errors:generic)',
       description: 'write failed'
     })
@@ -154,7 +162,7 @@ describe('createAppQueryClient', () => {
     i18nT.mockImplementationOnce(() => 'Etwas ist schiefgelaufen')
     await fail()
 
-    expect(sileoError).toHaveBeenLastCalledWith({
+    expect(toastError).toHaveBeenLastCalledWith({
       title: 'Etwas ist schiefgelaufen',
       description: 'write failed'
     })
@@ -271,8 +279,8 @@ describe('createAppQueryClient', () => {
       expect(i18nT).toHaveBeenCalledWith('errors:code.KNOWN_CODE', {
         label: 'OpenAI'
       })
-      expect(sileoError).toHaveBeenCalledTimes(1)
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledTimes(1)
+      expect(toastError).toHaveBeenCalledWith({
         title: 'Could not save',
         description: 'localized(errors:code.KNOWN_CODE:{"label":"OpenAI"})'
       })
@@ -282,11 +290,11 @@ describe('createAppQueryClient', () => {
       await fail(new HttpError(503, 'NOT_IN_CATALOG', 'raw', undefined, false))
       await fail(new HttpError(418, 'NOT_IN_CATALOG', 'raw', undefined, false))
 
-      expect(sileoError).toHaveBeenNthCalledWith(1, {
+      expect(toastError).toHaveBeenNthCalledWith(1, {
         title: 'localized(errors:generic)',
         description: 'localized(errors:http.503)'
       })
-      expect(sileoError).toHaveBeenNthCalledWith(2, {
+      expect(toastError).toHaveBeenNthCalledWith(2, {
         title: 'localized(errors:generic)',
         description: 'localized(errors:http.unknown)'
       })
@@ -297,7 +305,7 @@ describe('createAppQueryClient', () => {
 
       // Only the title is looked up: the description stays as the server said.
       expect(i18nT.mock.calls).toEqual([['errors:generic']])
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledWith({
         title: 'localized(errors:generic)',
         description: 'Provider said: bad key'
       })
@@ -307,7 +315,7 @@ describe('createAppQueryClient', () => {
       await fail(new Error('write failed'))
 
       expect(i18nT.mock.calls).toEqual([['errors:generic']])
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledWith({
         title: 'localized(errors:generic)',
         description: 'write failed'
       })
@@ -316,7 +324,7 @@ describe('createAppQueryClient', () => {
     it('is String(thrown) for something that is not an Error', async () => {
       await fail('plain string failure')
 
-      expect(sileoError).toHaveBeenCalledWith({
+      expect(toastError).toHaveBeenCalledWith({
         title: 'localized(errors:generic)',
         description: 'plain string failure'
       })
@@ -327,7 +335,7 @@ describe('createAppQueryClient', () => {
         silent: true
       })
 
-      expect(sileoError).not.toHaveBeenCalled()
+      expect(toastError).not.toHaveBeenCalled()
       expect(report).toHaveBeenCalledTimes(1)
     })
 
@@ -336,13 +344,13 @@ describe('createAppQueryClient', () => {
         new HttpError(400, 'SECRET_REENTRY_REQUIRED', 'raw', { field: 'url' }),
         { inlineCodes: ['SECRET_REENTRY_REQUIRED'] }
       )
-      expect(sileoError).not.toHaveBeenCalled()
+      expect(toastError).not.toHaveBeenCalled()
       expect(report).toHaveBeenCalledTimes(1)
 
       await fail(new HttpError(500, 'DB_SAVE_FAILED', 'raw'), {
         inlineCodes: ['SECRET_REENTRY_REQUIRED']
       })
-      expect(sileoError).toHaveBeenCalledTimes(1)
+      expect(toastError).toHaveBeenCalledTimes(1)
     })
   })
 

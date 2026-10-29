@@ -5,8 +5,8 @@ import {
   useQuery,
   useQueryClient
 } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { i18n } from '@/lib/i18n'
 import { deleteChat, fetchChatPage, updateChat } from '@/services/chat'
 import type { Chat } from '@/types/db'
@@ -57,7 +57,7 @@ export function useUpdateChat() {
     meta: { errorTitle: i18n.t('errors:generic') },
     onSuccess: () => {
       void invalidateHistory(queryClient)
-      sileo.success({ title: i18n.t('chat:toast.chatUpdated') })
+      toast.add({ type: 'success', title: i18n.t('chat:toast.chatUpdated') })
     }
   })
 }
@@ -110,7 +110,8 @@ export function useDeleteChat() {
         // packaged app's `file://` origin as the filesystem root, not index.html.
         window.location.hash = '/'
       }
-      sileo.success({
+      toast.add({
+        type: 'success',
         title: i18n.t('chat:toast.chatDeleted'),
         description: chat.title
       })

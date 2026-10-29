@@ -11,7 +11,6 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { toast } from '@/components/ui/toast'
 import { useUpdateChat } from '@/hooks/use-chat-history'
 import { chatToMarkdown, exportFileName } from '@/lib/chat-export'
 import { cn, convertToUIMessages, downloadFile } from '@/lib/utils'
@@ -68,7 +68,8 @@ export function ChatMenu({ chat }: { chat: Chat | undefined }) {
     try {
       await save(await exportDocument())
     } catch (error) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('chat:header.exportFailed'),
         description: error instanceof Error ? error.message : undefined
       })

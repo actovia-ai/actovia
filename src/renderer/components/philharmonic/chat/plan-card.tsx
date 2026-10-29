@@ -1,14 +1,21 @@
 import type { PlanDto, StepStatus } from '@actovia/shared/types/philharmonic'
 import {
-  Tick02Icon,
-  ArrowDown01Icon,
   ArrowRight01Icon,
-  Cancel01Icon
+  CancelCircleIcon,
+  CheckmarkCircle02Icon,
+  DashedLineCircleIcon,
+  Loading03Icon,
+  MinusSignCircleIcon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger
+} from '@/components/ui/collapsible'
 import { i18n } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { AgentData } from '@/stores/philharmonic'
@@ -20,20 +27,22 @@ interface Props {
   agentsById: Record<string, AgentData>
 }
 
-const STATUS_GLYPH: Record<StepStatus, string> = {
-  pending: '○',
-  running: '⏳',
-  done: '✓',
-  skipped: '⊘',
-  failed: '✗'
-}
+// A step's state as AI Elements' Queue draws one (ISSUE-293): an outlined
+// glyph in the theme's colours — never a palette colour or an emoji.
+const STATUS_ICON = {
+  pending: DashedLineCircleIcon,
+  running: Loading03Icon,
+  done: CheckmarkCircle02Icon,
+  skipped: MinusSignCircleIcon,
+  failed: CancelCircleIcon
+} satisfies Record<StepStatus, unknown>
 
-const STATUS_COLOR: Record<StepStatus, string> = {
-  pending: 'var(--muted-foreground)',
-  running: '#f59e0b',
-  done: '#10b981',
-  skipped: 'var(--muted-foreground)',
-  failed: 'var(--destructive)'
+const STATUS_TONE: Record<StepStatus, string> = {
+  pending: 'text-muted-foreground/60',
+  running: 'text-foreground animate-spin [animation-duration:1.6s]',
+  done: 'text-muted-foreground',
+  skipped: 'text-muted-foreground/60',
+  failed: 'text-destructive'
 }
 
 function elapsedLabel(plan: PlanDto): string {
@@ -75,8 +84,8 @@ export function PlanCard({ plan, agentsById }: Props) {
   const [, force] = useState(0)
   useEffect(() => {
     if (plan.status !== 'active') return
-    const t = setInterval(() => force((n) => n + 1), 60_000)
-    return () => clearInterval(t)
+    const timer = setInterval(() => force((n) => n + 1), 60_000)
+    return () => clearInterval(timer)
   }, [plan.status])
 
   if (plan.steps.length === 0) return null
@@ -85,94 +94,76 @@ export function PlanCard({ plan, agentsById }: Props) {
   const total = plan.steps.length
 
   return (
-    <div className="bg-muted mb-4 overflow-hidden rounded-xl">
-      <button
-        type="button"
-        onClick={() => setCollapsed((c) => !c)}
-        className="hover:bg-background flex w-full items-center gap-2 px-4 py-2.5 text-left transition-colors"
-      >
-        {collapsed ? (
-          <HugeiconsIcon
-            icon={ArrowRight01Icon}
-
-            className="text-muted-foreground h-4 w-4"
-          />
-        ) : (
-          <HugeiconsIcon
-            icon={ArrowDown01Icon}
-
-            className="text-muted-foreground h-4 w-4"
-          />
-        )}
-        <span className="text-foreground text-ui flex-1 truncate font-semibold">
+    <Collapsible
+      open={!collapsed}
+      onOpenChange={(open) => setCollapsed(!open)}
+      className="bg-muted mb-4 overflow-hidden rounded-2xl"
+    >
+      <CollapsibleTrigger className="group/plan focus-visible:ring-ring/50 flex w-full items-center gap-2 px-4 py-3 text-left outline-none focus-visible:ring-3">
+        <HugeiconsIcon
+          icon={ArrowRight01Icon}
+          strokeWidth={2}
+          className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 ease-out group-aria-expanded/plan:rotate-90"
+        />
+        <span className="text-foreground text-ui flex-1 truncate font-medium">
           {plan.summary}
         </span>
-        <span className="text-muted-foreground text-2xs">
+        <span className="text-muted-foreground text-xs tabular-nums">
           {done}/{total} · {elapsedLabel(plan)}
         </span>
         <StatusPill status={plan.status} />
-      </button>
-      {!collapsed && (
-        <div className="border-border border-t">
+      </CollapsibleTrigger>
+      <CollapsibleContent className="h-(--collapsible-panel-height) overflow-hidden transition-[height] duration-200 ease-out data-ending-style:h-0 data-starting-style:h-0">
+        <ol className="flex flex-col gap-0.5 px-2 pb-2">
           {plan.steps.map((s) => {
             const agent = s.assignedAgentId
               ? agentsById[s.assignedAgentId]
               : undefined
             return (
-              <div
+              <li
                 key={s.id}
+                data-status={s.status}
                 className={cn(
-                  'flex items-start gap-3 px-4 py-2.5',
+                  'flex items-start gap-3 rounded-xl px-2 py-2',
                   s.status === 'running' && 'bg-background'
                 )}
               >
                 <span
-                  className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center text-xs"
-                  style={{ color: STATUS_COLOR[s.status] }}
+                  className="mt-px inline-flex size-4 shrink-0 items-center justify-center"
                   aria-label={stepStatusAria[s.status]}
                 >
-                  {s.status === 'done' ? (
-                    <HugeiconsIcon
-                      icon={Tick02Icon}
-
-                      className="h-3.5 w-3.5"
-                    />
-                  ) : s.status === 'failed' ? (
-                    <HugeiconsIcon
-                      icon={Cancel01Icon}
-
-                      className="h-3.5 w-3.5"
-                    />
-                  ) : (
-                    STATUS_GLYPH[s.status]
-                  )}
+                  <HugeiconsIcon
+                    icon={STATUS_ICON[s.status]}
+                    strokeWidth={2}
+                    className={cn('size-4', STATUS_TONE[s.status])}
+                  />
                 </span>
                 <div className="min-w-0 flex-1">
                   <div
                     className={cn(
-                      'text-ui font-medium',
+                      'text-ui',
                       s.status === 'done' &&
-                        'text-muted-foreground line-through',
+                        'text-muted-foreground line-through decoration-muted-foreground/40',
                       s.status === 'skipped' && 'text-muted-foreground',
-                      s.status !== 'done' &&
-                        s.status !== 'skipped' &&
+                      s.status === 'running' && 'text-foreground shimmer',
+                      (s.status === 'pending' || s.status === 'failed') &&
                         'text-foreground'
                     )}
                   >
-                    {s.ordinal + 1}. {s.title}
+                    {s.title}
                   </div>
                   {s.intent && (
-                    <div className="text-muted-foreground text-xs">
+                    <div className="text-muted-foreground mt-0.5 text-xs">
                       {s.intent}
                     </div>
                   )}
                   {s.output && s.status === 'done' && (
                     <div className="text-muted-foreground mt-1 line-clamp-2 text-xs">
-                      → {s.output}
+                      {s.output}
                     </div>
                   )}
                   {s.note && (
-                    <div className="mt-1 text-xs text-amber-500">{s.note}</div>
+                    <div className="text-warning mt-1 text-xs">{s.note}</div>
                   )}
                 </div>
                 {agent && (
@@ -182,12 +173,12 @@ export function PlanCard({ plan, agentsById }: Props) {
                     size={24}
                   />
                 )}
-              </div>
+              </li>
             )
           })}
-        </div>
-      )}
-    </div>
+        </ol>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
@@ -201,15 +192,12 @@ function StatusPill({ status }: { status: PlanDto['status'] }) {
         : status === 'aborted'
           ? t('chat.planCard.status.aborted')
           : t('chat.planCard.status.draft')
+  // A chip on a muted card: the page's colour under a hairline.
   return (
     <span
       className={cn(
-        'bg-muted rounded-full px-2 py-0.5 text-2xs font-medium',
-        status === 'completed'
-          ? 'text-emerald-500'
-          : status === 'aborted'
-            ? 'text-destructive'
-            : 'text-amber-500'
+        'bg-background ring-border rounded-full px-2 py-0.5 text-2xs font-medium ring-1',
+        status === 'aborted' ? 'text-destructive' : 'text-muted-foreground'
       )}
     >
       {label}

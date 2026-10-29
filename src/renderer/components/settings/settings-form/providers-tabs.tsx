@@ -84,7 +84,7 @@ export function ProvidersTabs({ form }: { form: UseFormReturnType }) {
                     <span
                       aria-hidden="true"
                       title={t('providers.keys.inUse')}
-                      className="bg-primary-ink size-1.5 shrink-0 rounded-full"
+                      className="bg-primary size-1.5 shrink-0 rounded-full"
                     />
                     <span className="sr-only">{t('providers.keys.inUse')}</span>
                   </>

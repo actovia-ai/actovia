@@ -19,7 +19,7 @@ const EXCLUDED_FILES = new Set([
   join(RENDERER_ROOT, 'sub-apps', 'artifacts', 'sandbox.tsx')
 ])
 
-// A JSX text node or sileo string must contain a run of 3+ ASCII letters to
+// A JSX text node or toast string must contain a run of 3+ ASCII letters to
 // count as "prose" — this excludes pure punctuation/emoji/CJK-only content
 // and short symbol fragments.
 const PROSE_RE = /[A-Za-z]{3,}/
@@ -36,7 +36,7 @@ interface Violation {
 }
 
 // Renderer source files worth scanning: `.tsx` for both the JSX-text check
-// and the `sileo` check, plus plain `.ts` for the `sileo` check only — a
+// and the `toast.add` check, plus plain `.ts` for the `toast.add` check only — a
 // hook/service file has no JSX but can still fire a hardcoded toast (e.g.
 // `lib/stream-manager.ts` — the React Query migration moved the toasting
 // out of the services and into the hooks that own the mutations). `.d.ts` files declare types, never runtime
@@ -83,7 +83,7 @@ function isInsideTransOrT(path: any): boolean {
   return false
 }
 
-// A sileo `title`/`description` value can be a plain string, a template
+// A `toast.add` `title`/`description` value can be a plain string, a template
 // literal (check its static quasis), or a ternary picking between two such
 // values (check both branches) — all three are just different syntaxes for
 // "a hardcoded string ends up in this field", so all three are in scope.
@@ -163,8 +163,9 @@ function scanRendererFile(filePath: string): Violation[] {
       if (
         callee.type === 'MemberExpression' &&
         callee.object.type === 'Identifier' &&
-        callee.object.name === 'sileo' &&
-        callee.property.type === 'Identifier'
+        callee.object.name === 'toast' &&
+        callee.property.type === 'Identifier' &&
+        callee.property.name === 'add'
       ) {
         const arg = path.node.arguments[0]
         if (arg && arg.type === 'ObjectExpression') {
@@ -182,7 +183,7 @@ function scanRendererFile(filePath: string): Violation[] {
                   file: relPath,
                   line: f.line,
                   text: f.text,
-                  kind: 'sileo'
+                  kind: 'toast'
                 })
               }
             }
@@ -243,7 +244,7 @@ describe('no-hardcoded-strings guard', () => {
     ...mainLabelFiles.flatMap(scanMainLabelFile)
   ].filter((v) => !isAllowlisted(v))
 
-  it("has no un-i18n'd JSX text, sileo title/description, or menu/tray label", () => {
+  it("has no un-i18n'd JSX text, toast.add title/description, or menu/tray label", () => {
     const report = violations
       .map((v) => `${v.file}:${v.line} [${v.kind}] ${JSON.stringify(v.text)}`)
       .join('\n')

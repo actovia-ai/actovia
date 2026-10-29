@@ -11,7 +11,7 @@ import { createRoot } from 'react-dom/client'
 import { vi } from 'vitest'
 
 // Shared by the three use-skills-registry test files. Each file keeps its own
-// `vi.mock`s (the service, i18n, report-error, sileo) and its own table of
+// `vi.mock`s (the service, i18n, report-error, the toast) and its own table of
 // reads: a mock registered here would not be the file's own.
 
 ;(
@@ -76,8 +76,9 @@ export async function mountHook<T>(hook: () => T) {
 }
 
 // The app's own client, so a failing read goes through the real
-// `queryCache.onError`. Needs `@/lib/i18n`, `@/lib/report-error` and `sileo`
-// mocked by the caller (imported late, so their mocks are in place).
+// `queryCache.onError`. Needs `@/lib/i18n`, `@/lib/report-error` and
+// `@/components/ui/toast` mocked by the caller (imported late, so their
+// mocks are in place).
 export async function appClient() {
   const { createAppQueryClient } = await import('@/lib/query-client')
   return createAppQueryClient()

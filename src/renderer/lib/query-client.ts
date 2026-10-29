@@ -9,8 +9,8 @@ import {
   QueryCache,
   QueryClient
 } from '@tanstack/react-query'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { i18n } from '@/lib/i18n'
 import { reportRendererError } from '@/lib/report-error'
 
@@ -57,7 +57,8 @@ export function createAppQueryClient(): QueryClient {
           meta?.inlineCodes?.includes(error.code)
         )
           return
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: meta?.errorTitle ?? i18n.t('errors:generic'),
           description:
             getHttpErrorMessage(error, toErrorI18n(i18n)) ??

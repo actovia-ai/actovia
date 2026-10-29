@@ -67,7 +67,6 @@
     "working": "作業中…",
     "thought": "思考",
     "worked": "作業",
-    "done": "完了",
     "thoughtFor": "{{duration}}{{verb}}",
     "durationSeconds_other": "{{count}}秒",
     "durationMinutes": "{{minutes}}分",
@@ -158,13 +157,16 @@
   },
   "genericToolCard": {
     "fallbackLabel": "ツール",
-    "badge": "ツール"
+    "called": "{{tool}} を呼び出しました"
   },
   "mapItineraryCard": {
     "missingApiKey": "旅程マップを表示するには、設定 → Google CloudでGoogle APIキーを追加してください。",
     "tabsAriaLabel": "旅程の日程",
     "openRouteTitle": "Googleマップでルートを開く",
-    "copyMarkdownTitle": "その日の予定をMarkdownとしてコピー"
+    "copyMarkdownTitle": "その日の予定をMarkdownとしてコピー",
+    "openFullscreen": "全画面で開く",
+    "closeFullscreen": "全画面を閉じる",
+    "placeCount_other": "{{count}}か所"
   },
   "placeDetail": {
     "goToPhotoAriaLabel": "写真{{index}}へ移動",
@@ -179,11 +181,14 @@
     "anonymousReviewer": "匿名",
     "previousAriaLabel": "前のスポット",
     "nextAriaLabel": "次のスポット",
-    "pagination": "{{total}}件中{{index}}件目"
+    "pagination": "{{total}}件中{{index}}件目",
+    "backToList": "すべての場所"
   },
   "terminalCard": {
     "exitCode": "終了コード {{code}}",
-    "noOutput": "出力なし"
+    "noOutput": "出力なし",
+    "ran": "{{command}} を実行しました",
+    "exited": "{{command}} はコード {{code}} で終了しました"
   },
   "weatherCard": {
     "today": "今日",

@@ -13,7 +13,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const t = (key: string) => key
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
-vi.mock('sileo', () => ({ sileo: { success: vi.fn(), error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: vi.fn(),
+    error: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 // Read-aloud is its own business, and asks the API.
 vi.mock('@/components/chat/audio-player', () => ({ default: () => null }))
 

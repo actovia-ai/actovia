@@ -58,7 +58,7 @@ function TitleGroup({ id }: { id: string }) {
       </h1>
       {replying && (
         <span
-          className="bg-primary-ink size-1.5 shrink-0 rounded-full"
+          className="bg-primary size-1.5 shrink-0 rounded-full"
           role="status"
           aria-label={t('header.streaming')}
           data-streaming=""
@@ -93,7 +93,7 @@ function PanelToggle() {
       />
       {hasItems && (
         <span
-          className="bg-primary-ink pointer-events-none absolute top-1 right-1 size-1.5 rounded-full"
+          className="bg-primary pointer-events-none absolute top-1 right-1 size-1.5 rounded-full"
           data-has-items=""
         />
       )}

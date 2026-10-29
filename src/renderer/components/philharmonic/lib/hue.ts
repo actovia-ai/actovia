@@ -27,10 +27,16 @@ export function pickHue(seed: string | null | undefined): HueName {
   return HUE_NAMES[hash(key) % HUE_NAMES.length]
 }
 
+/**
+ * A pastel disc behind an avatar: the hue's fill under a hairline of the
+ * foreground, not a ring of the hue (ISSUE-294: the coloured 1.5px ring read
+ * heavy beside the sidebar's quiet rows).
+ */
 export function hueStyle(hue: HueName): CSSProperties {
   return {
     background: `var(--ph-hue-${hue}-fill)`,
-    boxShadow: `inset 0 0 0 1.5px var(--ph-hue-${hue}-ring)`
+    boxShadow:
+      'inset 0 0 0 1px color-mix(in oklab, var(--foreground) 6%, transparent)'
   }
 }
 

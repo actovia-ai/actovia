@@ -43,14 +43,20 @@ const report = vi.fn()
 vi.mock('@/lib/report-error', () => ({
   reportRendererError: (...args: unknown[]) => report(...args)
 }))
-const sileoSuccess = vi.fn()
-const sileoError = vi.fn()
-vi.mock('sileo', () => ({
-  sileo: {
-    success: (...args: unknown[]) => sileoSuccess(...args),
-    error: (...args: unknown[]) => sileoError(...args)
+const toastSuccess = vi.fn()
+const toastError = vi.fn()
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args)
   }
-}))
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 
 const {
   memoryKeys,
@@ -171,8 +177,8 @@ afterEach(async () => {
   updateMemoryService.mockReset()
   deleteMemoryService.mockReset()
   report.mockClear()
-  sileoSuccess.mockClear()
-  sileoError.mockClear()
+  toastSuccess.mockClear()
+  toastError.mockClear()
 })
 
 const memoryItem = (overrides: Partial<MemoryItem> = {}): MemoryItem => ({
@@ -218,9 +224,9 @@ function expectSingleGlobalFailure(title: string, message: string) {
   expect(report).toHaveBeenCalledWith('mutation', expect.any(Error), {
     mutationKey: undefined
   })
-  expect(sileoError).toHaveBeenCalledTimes(1)
-  expect(sileoError).toHaveBeenCalledWith({ title, description: message })
-  expect(sileoSuccess).not.toHaveBeenCalled()
+  expect(toastError).toHaveBeenCalledTimes(1)
+  expect(toastError).toHaveBeenCalledWith({ title, description: message })
+  expect(toastSuccess).not.toHaveBeenCalled()
 }
 
 describe('memoryKeys', () => {
@@ -261,7 +267,7 @@ describe('useMemories', () => {
     expect(report).toHaveBeenCalledWith('query', expect.any(Error), {
       queryKey: memoryKeys.list
     })
-    expect(sileoError).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
   })
 

@@ -91,7 +91,6 @@ describe('chat namespace (en)', () => {
     expect(chat.thinkingTimeline.working).toBe('Working…')
     expect(chat.thinkingTimeline.thought).toBe('Thought')
     expect(chat.thinkingTimeline.worked).toBe('Worked')
-    expect(chat.thinkingTimeline.done).toBe('Done')
     expect(chat.thinkingTimeline.thoughtFor).toBe('{{verb}} for {{duration}}')
     expect(chat.thinkingTimeline.durationSeconds_one).toBe('{{count}} second')
     expect(chat.thinkingTimeline.durationSeconds_other).toBe(
@@ -291,7 +290,6 @@ describe('chat namespace (en) — tool-card additions', () => {
 
   it('has the genericToolCard keys', () => {
     expect(chat.genericToolCard.fallbackLabel).toBe('Tool')
-    expect(chat.genericToolCard.badge).toBe('tool')
   })
 
   it('has the mapItineraryCard keys', () => {

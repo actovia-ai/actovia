@@ -4,10 +4,10 @@ import {
   MoreHorizontalCircle01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { cn } from 'cn'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
@@ -28,7 +28,7 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn('flex items-center gap-1', className)}
+      className={cn('flex items-center gap-0.5', className)}
       {...props}
     />
   )
@@ -81,7 +81,7 @@ function PaginationPrevious({
     >
       <HugeiconsIcon
         icon={ArrowLeft01Icon}
-
+        strokeWidth={2}
         data-icon="inline-start"
       />
       <span className="hidden sm:block">{text}</span>
@@ -104,7 +104,7 @@ function PaginationNext({
       <span className="hidden sm:block">{text}</span>
       <HugeiconsIcon
         icon={ArrowRight01Icon}
-
+        strokeWidth={2}
         data-icon="inline-end"
       />
     </PaginationLink>
@@ -125,7 +125,7 @@ function PaginationEllipsis({
       )}
       {...props}
     >
-      <HugeiconsIcon icon={MoreHorizontalCircle01Icon} />
+      <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
       <span className="sr-only">More pages</span>
     </span>
   )

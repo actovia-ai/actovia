@@ -16,9 +16,19 @@ vi.mock('react-i18next', () => ({
     i18n: { language: 'en' }
   })
 }))
-vi.mock('sileo', () => ({
-  sileo: { error: vi.fn(), info: vi.fn(), success: vi.fn() }
-}))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = {
+    error: vi.fn(),
+    info: vi.fn(),
+    success: vi.fn()
+  }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 // The preview is its own module; the card only has to mount it.
 vi.mock(
   '@/components/calling-tools/workspace-file/workspace-file-preview',

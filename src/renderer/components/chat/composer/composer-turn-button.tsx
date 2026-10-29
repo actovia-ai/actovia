@@ -1,5 +1,5 @@
 import type { ChatStatus } from '@actovia/shared/types/chat'
-import { ArrowUpIcon, StopIcon } from '@hugeicons/core-free-icons'
+import { ArrowUp02Icon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -64,14 +64,12 @@ export function ComposerTurnButton({
   return (
     <Button
       size="icon"
-      // Light: the tone's ink with a white arrow (a white arrow on the soft
-      // fill is 1.6:1 in yellow). Dark: the fill and its glyph.
-      className="bg-primary-ink hover:bg-primary-ink/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 rounded-full text-white"
+      className="rounded-full"
       type="button"
       aria-label={t('composer.send')}
       onClick={submit}
     >
-      <HugeiconsIcon icon={ArrowUpIcon} />
+      <HugeiconsIcon icon={ArrowUp02Icon} />
     </Button>
   )
 }

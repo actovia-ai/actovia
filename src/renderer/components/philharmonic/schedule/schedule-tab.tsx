@@ -3,10 +3,10 @@ import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { toast } from '@/components/ui/toast'
 import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
 import {
   cancelScheduledTask,
@@ -34,7 +34,8 @@ export function ScheduleTab({
     getUpcomingTasks()
       .then(setUpcoming)
       .catch((err) =>
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('schedule.toast.loadUpcomingFailed'),
           description: err instanceof Error ? err.message : String(err)
         })
@@ -42,7 +43,8 @@ export function ScheduleTab({
     getRecurringTasks()
       .then(setRecurring)
       .catch((err) =>
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('schedule.toast.loadRecurringFailed'),
           description: err instanceof Error ? err.message : String(err)
         })
@@ -73,9 +75,10 @@ export function ScheduleTab({
         await cancelScheduledTask(id)
         setUpcoming((p) => p.filter((t) => t.id !== id))
         setRecurring((p) => p.filter((t) => t.id !== id))
-        sileo.success({ title: t('schedule.toast.taskCancelled') })
+        toast.add({ type: 'success', title: t('schedule.toast.taskCancelled') })
       } catch (err) {
-        sileo.error({
+        toast.add({
+          type: 'error',
           title: t('schedule.toast.cancelTaskFailed'),
           description: err instanceof Error ? err.message : String(err)
         })

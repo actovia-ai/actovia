@@ -6,7 +6,15 @@ import { describe, expect, it, vi } from 'vitest'
 
 const t = (key: string) => key
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t }) }))
-vi.mock('sileo', () => ({ sileo: { error: vi.fn() } }))
+vi.mock('@/components/ui/toast', () => {
+  // `toast.add({ type, ...options })` → the spy for that type.
+  const byType: Record<string, (options: unknown) => void> = { error: vi.fn() }
+  return {
+    toast: {
+      add: ({ type, ...options }: { type: string }) => byType[type]?.(options)
+    }
+  }
+})
 const card = (name: string) => () => createElement('div', { 'data-card': name })
 vi.mock('@/components/calling-tools/artifact/artifact-card', () => ({
   ArtifactCard: card('artifact')

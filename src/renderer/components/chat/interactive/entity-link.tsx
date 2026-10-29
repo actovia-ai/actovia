@@ -49,7 +49,7 @@ export function EntityLink({
       <PopoverTrigger
         data-testid={TEST_IDS.chat.richBlocks.entityLink}
         data-entity={title}
-        className="text-primary-ink cursor-pointer underline decoration-dotted underline-offset-4 hover:decoration-solid"
+        className="text-primary cursor-pointer underline decoration-dotted underline-offset-4 hover:decoration-solid"
       >
         {children}
       </PopoverTrigger>
@@ -119,7 +119,7 @@ export function EntityPanel({ title }: { title: string }) {
           </p>
           {data.url && (
             // A pill with an arrow, not tinted text: in the neutral tone the
-            // ink is the text's own colour, and plain text did not read as a
+            // primary is the text's own colour, and plain text did not read as a
             // way out to Wikipedia (owner, 2026-10-08).
             <a
               href={data.url}

@@ -1,9 +1,8 @@
 // The colour tones (Settings → General → Color tone). The accents are the
 // owner's reference — ChatGPT's accent colours, 2026-09-29 — and the same
-// ones actovia-ios draws; they are softer and lighter than a colour that can
-// carry text, so a tone has a fill (`--primary`) and an ink
-// (`--primary-ink`).
-import { readdirSync, readFileSync, statSync } from 'fs'
+// ones actovia-ios draws. A tone is shadcn's `--primary`, with
+// `--primary-foreground` on it.
+import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
 
 import { describe, expect, it } from 'vitest'
@@ -69,15 +68,30 @@ describe('colour tones', () => {
     expect(block('.dark')['--tone-neutral']).toBe(block('.dark')['--primary'])
   })
 
-  it('neutral is shadcn’s black and white', () => {
-    expect(block(':root')['--primary']).toBe('oklch(0.205 0 0)')
-    expect(block('.dark')['--primary']).toBe('oklch(0.922 0 0)')
-  })
-
-  it.each(palettes)('$name: the ink carries text on the page', ({ tokens }) => {
-    expect(
-      contrastOf(tokens['--primary-ink'], tokens['--background'])
-    ).toBeGreaterThanOrEqual(4.5)
+  it('neutral is shadcn’s own neutral, unchanged', () => {
+    const light = block(':root')
+    const dark = block('.dark')
+    for (const [name, value] of Object.entries({
+      '--background': 'oklch(1 0 0)',
+      '--card': 'oklch(1 0 0)',
+      '--popover': 'oklch(1 0 0)',
+      '--primary': 'oklch(0.205 0 0)',
+      '--muted': 'oklch(0.97 0 0)',
+      '--accent': 'oklch(0.97 0 0)',
+      '--sidebar': 'oklch(0.985 0 0)',
+      '--sidebar-accent': 'oklch(0.97 0 0)'
+    })) {
+      expect(light[name], name).toBe(value)
+    }
+    for (const [name, value] of Object.entries({
+      '--background': 'oklch(0.145 0 0)',
+      '--card': 'oklch(0.205 0 0)',
+      '--primary': 'oklch(0.922 0 0)',
+      '--accent': 'oklch(0.269 0 0)',
+      '--sidebar': 'oklch(0.205 0 0)'
+    })) {
+      expect(dark[name], name).toBe(value)
+    }
   })
 
   it.each(palettes)('$name: a glyph reads on the fill', ({ tokens }) => {
@@ -97,12 +111,13 @@ describe('colour tones', () => {
     if (!m) throw new Error(`not an opaque oklch: ${value}`)
     return Number(m[1])
   }
-  it.each(palettes)('$name: the accent is a step from muted', ({ tokens }) => {
+  const tones = palettes.filter((p) => !p.name.startsWith('neutral'))
+  it.each(tones)('$name: the accent is a step from muted', ({ tokens }) => {
     expect(
       Math.abs(lightnessOf(tokens['--accent']) - lightnessOf(tokens['--muted']))
     ).toBeGreaterThanOrEqual(0.03 - 1e-9)
   })
-  it.each(palettes.filter((p) => p.name.endsWith('light')))(
+  it.each(tones.filter((p) => p.name.endsWith('light')))(
     '$name: the active sidebar row shows on the sidebar',
     ({ tokens }) => {
       expect(
@@ -112,20 +127,8 @@ describe('colour tones', () => {
     }
   )
 
-  it.each(palettes.filter((p) => p.name.endsWith('light')))(
-    '$name: send is a white arrow on the ink',
-    ({ tokens }) => {
-      // In light mode the send button is the tone's ink with a white arrow:
-      // a white arrow on the soft fill is 1.6:1 in yellow.
-      expect(
-        contrastOf('oklch(1 0 0)', tokens['--primary-ink'])
-      ).toBeGreaterThanOrEqual(4.5)
-    }
-  )
-
   // The composer's button is one of three: voice while the field is empty,
-  // the arrow to send, a square to stop. In light mode each has a white
-  // glyph — voice and send on the tone's ink, stop on the neutral disc.
+  // the arrow to send, a square to stop.
   const classesBefore = (file: string, anchor: string) => {
     const source = readFileSync(join(ROOT, file), 'utf8')
     const at = source.indexOf(anchor)
@@ -133,32 +136,6 @@ describe('colour tones', () => {
       .slice(source.lastIndexOf('className=', at), at)
       .split(/[\s"]/u)
   }
-
-  it.each([
-    [
-      'voice',
-      'src/renderer/components/chat/composer/audio-recorder.tsx',
-      'aria-label={'
-    ],
-    [
-      'send',
-      'src/renderer/components/chat/composer/composer-turn-button.tsx',
-      "t('composer.send')"
-    ]
-  ])(
-    'draws the %s button on the ink with a white glyph',
-    (_name, file, anchor) => {
-      const classes = classesBefore(file, anchor)
-      for (const cls of [
-        'bg-primary-ink',
-        'text-white',
-        'dark:bg-primary',
-        'dark:text-primary-foreground'
-      ]) {
-        expect(classes, cls).toContain(cls)
-      }
-    }
-  )
 
   it('draws the stop button neutral, its square white in light', () => {
     const classes = classesBefore(
@@ -175,36 +152,11 @@ describe('colour tones', () => {
     ).toBeGreaterThanOrEqual(4.5)
   })
 
-  it('draws links in the ink', () => {
+  it('draws links in the tone', () => {
     const links = css.slice(css.indexOf(':scope :where(a) {'))
     expect(links.slice(0, links.indexOf('}'))).toContain(
-      'color: var(--primary-ink)'
+      'color: var(--primary)'
     )
-  })
-})
-
-function sources(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const path = join(dir, name)
-    if (statSync(path).isDirectory()) return sources(path)
-    return /\.(tsx?|css)$/u.test(name) ? [path] : []
-  })
-}
-
-describe('text in the tone’s colour', () => {
-  it('is written in the ink, never in the fill', () => {
-    // `text-primary` is the fill as a text colour: yellow on white is 1.6:1.
-    // A regenerated shadcn primitive brings it back — change it there too.
-    const offenders = sources(join(ROOT, 'src/renderer')).flatMap((path) =>
-      readFileSync(path, 'utf8')
-        .split('\n')
-        .flatMap((line, i) =>
-          /(?<![\w-])text-primary(?![\w-])/u.test(line)
-            ? [`${path.slice(ROOT.length + 1)}:${i + 1}`]
-            : []
-        )
-    )
-    expect(offenders).toEqual([])
   })
 })
 
@@ -258,12 +210,11 @@ describe('where the tone stops', () => {
   })
 
   it('resets every accent a tone sets, and brings each one back', () => {
-    // Each token a tone gives its fill, ink, bubble, accent or ring.
+    // Each token a tone gives its fill, bubble, accent or ring.
     const accents = Object.keys(neutralLight)
     for (const name of [
       '--primary',
       '--primary-foreground',
-      '--primary-ink',
       '--bubble',
       '--accent',
       '--ring',

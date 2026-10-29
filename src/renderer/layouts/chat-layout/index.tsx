@@ -1,6 +1,5 @@
 import { Outlet } from 'react-router'
 
-import { AppToaster } from '@/components/app/app-toaster'
 import { ChatHeader } from '@/components/chat/header/chat-header'
 import { HistoryArrows } from '@/components/chat/header/history-arrows'
 import { ChatPanel } from '@/components/chat/panel/chat-panel'
@@ -11,6 +10,7 @@ import {
   SidebarTrigger,
   useSidebar
 } from '@/components/ui/sidebar'
+import { Toaster } from '@/components/ui/toast'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useRouteHistoryRecorder } from '@/hooks/use-route-history'
@@ -49,7 +49,7 @@ function ContentHeader() {
           every control in it is `no-drag`. */}
       {!open && (
         <>
-          <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
+          <SidebarTrigger className="no-drag" />
           <HistoryArrows />
         </>
       )}
@@ -60,10 +60,10 @@ function ContentHeader() {
 
 function InsertedSidebar() {
   return (
-    <SidebarInset className="bg-card flex h-full min-w-0 flex-col overflow-hidden">
+    <SidebarInset className="flex h-full min-w-0 flex-col overflow-hidden">
       <ContentHeader />
       <Outlet />
-      <AppToaster />
+      <Toaster />
       <SearchDialog />
       <RenameChatDialog />
       <ChatDeletionConfirmationDialog />

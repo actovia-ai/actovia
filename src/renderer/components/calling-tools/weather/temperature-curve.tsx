@@ -113,7 +113,7 @@ export function TemperatureCurve({
           y1="0"
           x2="0"
           y2="1"
-          className="text-primary-ink"
+          className="text-primary"
         >
           <stop offset="0" stopColor="currentColor" stopOpacity="0.18" />
           <stop offset="1" stopColor="currentColor" stopOpacity="0" />
@@ -140,7 +140,7 @@ export function TemperatureCurve({
         ref={pathRef}
         d={d}
         fill="none"
-        className="stroke-primary-ink"
+        className="stroke-primary"
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeDasharray={length || undefined}
@@ -165,7 +165,7 @@ export function TemperatureCurve({
             cx={active.x}
             cy={active.y}
             r={3.5}
-            className="fill-card stroke-primary-ink"
+            className="fill-card stroke-primary"
             strokeWidth={1.5}
           />
         </>

@@ -29,7 +29,6 @@ import {
   useState
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
 import {
   AlertDialog,
@@ -55,6 +54,7 @@ import {
   InputGroupInput
 } from '@/components/ui/input-group'
 import { Kbd } from '@/components/ui/kbd'
+import { toast } from '@/components/ui/toast'
 import {
   useClearLogs,
   useLogDates,
@@ -323,9 +323,10 @@ export function Logger() {
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
-      sileo.success({ title: t('logger.toast.exported') })
+      toast.add({ type: 'success', title: t('logger.toast.exported') })
     } catch (err) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('logger.toast.exportFailed'),
         description: err instanceof Error ? err.message : undefined
       })

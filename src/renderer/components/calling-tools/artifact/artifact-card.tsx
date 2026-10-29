@@ -9,8 +9,8 @@ import { useAtom } from 'jotai'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import {
   checkFullScreen,
   revealArtifactFile,
@@ -85,7 +85,8 @@ function UrlPill({
       | { ok: false; reason: string }
       | undefined
     if (result && !result.ok) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('artifactCard.cannotOpenTitle'),
         description:
           result.reason === 'not-found'

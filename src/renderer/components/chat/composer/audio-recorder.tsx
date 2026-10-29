@@ -6,8 +6,8 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { sileo } from 'sileo'
 
+import { toast } from '@/components/ui/toast'
 import { useAudio } from '@/hooks/use-audio'
 
 import { Button } from '../../ui/button'
@@ -83,7 +83,8 @@ export function AudioRecorder({
       setIsRecording(true)
       onStream?.(stream)
     } catch (error) {
-      sileo.error({
+      toast.add({
+        type: 'error',
         title: t('recorder.toast.micErrorTitle'),
         description:
           error instanceof Error
@@ -137,9 +138,7 @@ export function AudioRecorder({
   return (
     <Button
       size="icon"
-      // As the send button whose place it takes while the field is empty:
-      // the tone's ink with a white icon in light, the fill in dark.
-      className="bg-primary-ink hover:bg-primary-ink/90 dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90 rounded-full text-white"
+      className="rounded-full"
       aria-label={
         isRecording ? t('recorder.stopRecording') : t('recorder.dictate')
       }

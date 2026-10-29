@@ -47,7 +47,6 @@ import {
 } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { NavFooter } from '@/layouts/chat-layout/nav-footer'
-import { SIDEBAR_ON_MATERIAL } from '@/layouts/shared/sidebar-material'
 import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
 import { plainText } from '@/lib/plain-text'
@@ -176,11 +175,8 @@ export function ConversationList({
   }, [conversations, query])
 
   return (
-    <Sidebar
-      collapsible="none"
-      className={cn('text-foreground h-full w-full', SIDEBAR_ON_MATERIAL)}
-    >
-      <SidebarHeader className="draggable gap-2 pt-2.25">
+    <Sidebar collapsible="none" className="h-full w-full">
+      <SidebarHeader className="draggable pt-2.25">
         {/* The title bar's row, as Chat's sidebar has it: the sidebar toggle
             to the right of the traffic lights and, where Chat has its history
             arrows, New group — the spot they take in the content header once
@@ -192,7 +188,7 @@ export function ConversationList({
             isFullscreen ? 'pl-2' : 'pl-21'
           )}
         >
-          <SidebarTrigger className="no-drag text-muted-foreground hover:text-foreground" />
+          <SidebarTrigger className="no-drag" />
           <NewGroupButton onCreate={onCreate} />
         </div>
         <div className="flex items-center px-1">
@@ -200,9 +196,7 @@ export function ConversationList({
         </div>
 
         <div className="no-drag px-1">
-          {/* The sidebar's accent fill, the selected row's grey: InputGroup's
-              own bg-input/50 all but vanishes on the window's material. */}
-          <InputGroup className="bg-sidebar-accent h-9 has-[[data-slot=input-group-control]:focus-visible]:border-transparent has-[[data-slot=input-group-control]:focus-visible]:ring-0">
+          <InputGroup>
             <InputGroupInput
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -217,7 +211,7 @@ export function ConversationList({
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="no-scrollbar px-1">
+      <SidebarContent>
         {conversations.length === 0 ? (
           <PhilharmonicEmptyState
             title={t('philharmonic:chat.conversationList.emptyState.title')}
@@ -238,7 +232,7 @@ export function ConversationList({
             })}
           </div>
         ) : (
-          <SidebarMenu className="gap-1">
+          <SidebarMenu>
             {filtered.map((c) => {
               const isActive = activePage === 'chat' && c.id === activeId
               const preview = previewLine(c.latestMessage, agentsById)
@@ -318,7 +312,7 @@ export function ConversationList({
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu className="gap-0.5">
+        <SidebarMenu>
           {configNav.map((item) => {
             const Icon = item.icon
             return (
