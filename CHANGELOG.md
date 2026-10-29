@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/actovia-ai/actovia/compare/v2.5.0...v2.5.1) (2026-10-29)
+
+
+### Bug Fixes
+
+* **philharmonic:** deleting a group ends the streams watching it (ISSUE-249) ([4ee16b4](https://github.com/actovia-ai/actovia/commit/4ee16b497267decc2138cafd37c60ad809ca1302))
+
 # [2.5.0](https://github.com/actovia-ai/actovia/compare/v2.4.0...v2.5.0) (2026-10-29)
 
 
