@@ -29,7 +29,9 @@ describe('pm-tools', () => {
     })
     expect(onDelegate).toHaveBeenCalledWith({
       employeeId: 'a1',
-      instructions: 'go'
+      instructions: 'go',
+      mode: 'await',
+      stepId: undefined
     })
     expect(JSON.stringify(res)).toContain('employee result')
   })
@@ -50,7 +52,9 @@ describe('pm-tools', () => {
     await tool.execute('id', { employeeId: 'a2', instructions: 'go' })
     expect(onDelegate).toHaveBeenCalledWith({
       employeeId: 'a2',
-      instructions: 'go'
+      instructions: 'go',
+      mode: 'await',
+      stepId: undefined
     })
   })
 

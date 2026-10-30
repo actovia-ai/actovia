@@ -58,6 +58,7 @@ import {
   createUpdatePlanStepTool
 } from './plan-tools'
 import { PM_SYSTEM_PROMPT } from './pm-prompt'
+import { pmRunRegistry } from './pm-run-registry'
 import {
   createDelegateTaskTool,
   createRecruitEmployeeTool,
@@ -142,7 +143,7 @@ export interface RunPmArgs {
   emit: SseEmitter
   signal?: AbortSignal
   /** What started the round, for its decision trail. */
-  trigger?: 'user' | 'scheduled'
+  trigger?: 'user' | 'scheduled' | 'report'
 }
 
 export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
@@ -403,7 +404,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     }),
     createDelegateTaskTool(
       roster,
-      async ({ employeeId, instructions, stepId }) => {
+      async ({ employeeId, instructions, stepId, mode = 'await' }) => {
         // A CLI that has rejected this employee's model starts no process.
         const blocked = quotaBlock(employeeId)
         if (blocked) return blocked
@@ -436,6 +437,56 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           maxRetries: 1,
           retryCount: 0
         })
+        if (mode === 'background') {
+          void runDelegatedTask({
+            taskId: childTask.id,
+            agentId: employeeId,
+            conversationId,
+            instructions,
+            emit,
+            signal
+          })
+            .then(async ({ output, messageId, liveMessageId }) => {
+              if (!messageId)
+                await createConversationMessage({
+                  id: liveMessageId,
+                  conversationId,
+                  role: 'employee',
+                  agentId: employeeId,
+                  content: output,
+                  taskId: childTask.id
+                })
+              if (stepId) {
+                await updateStep(stepId, { taskId: childTask.id, output })
+                await mirrorActivePlan()
+              }
+              await pmRunRegistry.run(conversationId, (reportSignal) =>
+                runPmCoordinator({
+                  conversationId,
+                  userText: `[Employee report] ${output}`,
+                  trigger: 'report',
+                  emit,
+                  signal: reportSignal
+                })
+              )
+            })
+            .catch(async (err) => {
+              if (stepId) {
+                const failed = await updateStep(stepId, { status: 'failed' })
+                emit({
+                  type: 'plan_step_updated',
+                  conversationId,
+                  stepId,
+                  patch: { status: failed.status }
+                })
+              }
+              logger.error('philharmonic', 'Background delegation failed', {
+                taskId: childTask.id,
+                error: err
+              })
+            })
+          return `Started task ${childTask.id} in the background. Its report will continue the plan when it completes.`
+        }
         try {
           const { output, messageId, liveMessageId } = await runDelegatedTask({
             taskId: childTask.id,

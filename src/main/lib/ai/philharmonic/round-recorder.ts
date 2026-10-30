@@ -20,7 +20,7 @@ export interface RoundRecorderDeps {
 
 export interface RoundRecorder {
   readonly roundId: string
-  input(trigger: 'user' | 'scheduled', text: string): void
+  input(trigger: 'user' | 'scheduled' | 'report', text: string): void
   reports(
     messages: Array<{ messageId: string; agentId: string | null; name: string }>
   ): void

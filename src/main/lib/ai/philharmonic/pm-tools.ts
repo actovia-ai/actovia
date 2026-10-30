@@ -13,6 +13,7 @@ export function createDelegateTaskTool(
     employeeId: string
     instructions: string
     stepId?: string
+    mode?: 'await' | 'background'
   }) => Promise<string>
 ): AgentTool {
   const list = roster
@@ -33,11 +34,21 @@ export function createDelegateTaskTool(
         description:
           'optional id of the plan step this delegation fulfills; updates step status to running/done',
         default: ''
+      }),
+      mode: Type.String({
+        description:
+          '"await" waits here; "background" wakes the PM with the employee report when finished',
+        default: 'await'
       })
     }),
     execute: async (
       _id: string,
-      p: { employeeId: string; instructions: string; stepId?: string }
+      p: {
+        employeeId: string
+        instructions: string
+        stepId?: string
+        mode?: string
+      }
     ) => {
       if (!roster.some((a) => a.id === p.employeeId)) {
         const error = `Unknown employee id ${p.employeeId} — choose one from the list`
@@ -49,7 +60,8 @@ export function createDelegateTaskTool(
       const result = await onDelegate({
         employeeId: p.employeeId,
         instructions: p.instructions,
-        stepId: p.stepId && p.stepId.length > 0 ? p.stepId : undefined
+        stepId: p.stepId && p.stepId.length > 0 ? p.stepId : undefined,
+        mode: p.mode === 'background' ? 'background' : 'await'
       })
       return {
         content: [{ type: 'text' as const, text: result }],
