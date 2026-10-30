@@ -1,15 +1,14 @@
 import { TEST_IDS } from '../../packages/shared/src/constants/test-ids'
 import { electronTest as test, expect } from '../fixtures/electron'
+import { openSettings } from '../helpers/open-settings'
 
 test.describe('Settings — Computer Use', () => {
   test('renders the enable toggle and adds an allowlist target', async ({
     mainWindow
   }) => {
-    const modKey = process.platform === 'darwin' ? 'Meta' : 'Control'
-    await mainWindow.keyboard.press(`${modKey}+,`)
-    await mainWindow
-      .getByRole('button', { name: 'Computer Use', exact: true })
-      .click()
+    // Its sidebar item reads "Computer Use Experimental" (the badge), so the
+    // helper finds it by its tab, not its name.
+    await openSettings(mainWindow, 'Computer Use')
 
     await expect(
       mainWindow.getByTestId(TEST_IDS.computerUse.enableToggle)

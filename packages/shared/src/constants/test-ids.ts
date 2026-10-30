@@ -133,7 +133,9 @@ export const TEST_IDS = {
   settings: {
     themeMode: 'settings.theme-mode',
     colorTone: 'settings.color-tone',
-    languageSelect: 'settings.language-select'
+    languageSelect: 'settings.language-select',
+    /** One per page in the Settings sidebar; `data-tab` is its `SettingsLabel`. */
+    navItem: 'settings.nav-item'
   },
   artifacts: {
     page: 'artifacts.page',
@@ -208,6 +210,8 @@ export const TEST_IDS = {
   chat: {
     /** One per assistant message (= one per run). */
     messageAction: 'chat.message-action',
+    /** The header of a run's thinking timeline: opens on its steps. */
+    timelineToggle: 'chat.timeline-toggle',
     /**
      * A file a turn wrote or edited in the chat's workspace: its card, the
      * card's actions, the Quick look dialog, and a path in an answer that

@@ -35,7 +35,12 @@ test.describe('chat on the faux provider', () => {
     await expect(mainWindow.getByText('It is sunny in Oslo.')).toBeVisible({
       timeout: 30_000
     })
-    // The timeline step for the tool call ("Weather: Oslo").
+    // The timeline step for the tool call ("Weather: Oslo"): a settled run's
+    // timeline is one closed line ("Worked"), and opens on its steps.
+    const timeline = mainWindow.getByTestId(TEST_IDS.chat.timelineToggle)
+    await expect(timeline).toHaveCount(1)
+    await timeline.click()
+    await expect(timeline).toHaveAttribute('aria-expanded', 'true')
     await expect(mainWindow.getByText('Weather: Oslo').first()).toBeVisible()
     // One action bar (copy / regenerate) for the whole run — the tool step and
     // the answer are one message, not two.

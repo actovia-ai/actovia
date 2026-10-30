@@ -1,3 +1,4 @@
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { ArrowLeft02Icon, SearchIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ComponentProps, useMemo, useState } from 'react'
@@ -79,6 +80,8 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
+                    data-testid={TEST_IDS.settings.navItem}
+                    data-tab={item.title}
                     isActive={item.title === active}
                     onClick={() => setActive(item.title)}
                   >

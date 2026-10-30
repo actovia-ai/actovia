@@ -1,4 +1,5 @@
 import { faviconUrl } from '@actovia/shared/constants/external-urls'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatToolResultMessage,
@@ -309,7 +310,7 @@ export function ThinkingTimeline({
   return (
     <Trace className="mb-3 max-w-full min-w-0">
       <TraceCollapsible open={isExpanded} onOpenChange={setIsExpanded}>
-        <TraceCollapsibleTrigger>
+        <TraceCollapsibleTrigger data-testid={TEST_IDS.chat.timelineToggle}>
           <TraceLine status={isStreaming ? 'running' : undefined}>
             {/* The orb draws at 20px only; the check sits in the same box. */}
             <TraceIcon className="size-5">
