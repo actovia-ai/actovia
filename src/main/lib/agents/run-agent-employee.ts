@@ -367,8 +367,13 @@ export async function runAgentEmployee(
           card = applyAgentEvent(card!, e)
           if (stepDone) {
             // An unprompted turn after the step (spec §2.1): keep the persisted card current.
-            if (e.type === 'turn_end' || e.type === 'exit') flush()
-            else throttled()
+            // It is still real work: don't let the first step's idle timer
+            // tear the process down while Claude is finishing its follow-up.
+            deps.registry.cancelIdleExit(key)
+            if (e.type === 'turn_end' || e.type === 'exit') {
+              flush()
+              if (e.type === 'turn_end') deps.registry.scheduleIdleExit(key)
+            } else throttled()
             if (e.type === 'exit') off()
             return
           }
