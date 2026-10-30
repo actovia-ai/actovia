@@ -142,6 +142,7 @@ export const TOOL_POLICIES = {
       return `${recallCall(o.toolCallId)}\n$ ${arg(o, 'command')}\n${cut}${all.slice(-10).join('\n')}`
     }
   },
+  [TOOL_NAMES.startBackground]: fullAlways,
   [TOOL_NAMES.grep]: listing,
   [TOOL_NAMES.findFiles]: listing,
   [TOOL_NAMES.listDirectory]: listing,

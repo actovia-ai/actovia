@@ -25,6 +25,7 @@ import {
   readFile,
   recall,
   searchKnowledgeBase,
+  startBackground,
   terminal,
   updateMemory,
   weather,
@@ -89,13 +90,19 @@ export function bindCallingTools({
     tools.push(imageGeneration(setting, imageTarget))
   }
   // The chat's workspace is where its shell and file tools work by default;
-  // Philharmonic binds without a chatId and keeps the user's home.
-  const workspaceDir = chatId ? getChatWorkspaceDir(chatId) : undefined
+  // A Group employee must never default its shell to the owner's home.
+  const workspaceDir = chatId
+    ? getChatWorkspaceDir(chatId)
+    : groupId
+      ? join(getGroupsDir(), groupId)
+      : undefined
   // A relative path to a file tool lands in the chat's workspace, or the
   // Group's (`~/.actovia/groups/<id>`, where its approval guard looks too).
   const fileBase =
     workspaceDir ?? (groupId ? join(getGroupsDir(), groupId) : undefined)
   if (enabled(TOOL_NAMES.terminal)) tools.push(terminal(workspaceDir))
+  if (groupId && enabled(TOOL_NAMES.startBackground))
+    tools.push(startBackground(workspaceDir!))
   if (enabled(TOOL_NAMES.readFile)) tools.push(readFile(fileBase))
   if (enabled(TOOL_NAMES.writeFile)) tools.push(writeFile(fileBase))
   if (enabled(TOOL_NAMES.editFile)) tools.push(editFile(fileBase))

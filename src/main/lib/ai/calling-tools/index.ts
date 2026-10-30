@@ -13,6 +13,7 @@ import { mapItinerary } from './map-itinerary'
 import { readFile } from './read-file'
 import { recall } from './recall'
 import { searchKnowledgeBase } from './search-knowledge-base'
+import { startBackground } from './start-background'
 import { terminal } from './terminal'
 import { updateMemory } from './update-memory'
 import { weather } from './weather'
@@ -37,6 +38,7 @@ export {
   recall,
   searchKnowledgeBase,
   terminal,
+  startBackground,
   updateMemory,
   weather,
   webFetch,

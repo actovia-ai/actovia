@@ -21,6 +21,7 @@ export const TOOL_NAMES = {
   weather: 'weather',
   listDirectory: 'list_directory',
   terminal: 'terminal',
+  startBackground: 'start_background',
   readFile: 'read_file',
   webFetch: 'web_fetch',
   writeFile: 'write_file',
