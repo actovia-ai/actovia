@@ -1,5 +1,5 @@
 import { pmRunRegistry } from '@main/lib/ai/philharmonic/pm-run-registry'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 afterEach(() => {
   // Make tests independent — nothing leaks between cases.
@@ -43,5 +43,38 @@ describe('pmRunRegistry', () => {
     pmRunRegistry.abort('c1')
     expect(a.signal.aborted).toBe(true)
     expect(b.signal.aborted).toBe(false)
+  })
+
+  it('serializes rounds for one conversation in FIFO order', async () => {
+    const order: string[] = []
+    let releaseFirst!: () => void
+    const first = pmRunRegistry.run('c1', async () => {
+      order.push('first:start')
+      await new Promise<void>((resolve) => {
+        releaseFirst = resolve
+      })
+      order.push('first:end')
+    })
+    const second = pmRunRegistry.run('c1', async () => {
+      order.push('second')
+    })
+
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(order).toEqual(['first:start'])
+    releaseFirst()
+    await Promise.all([first, second])
+    expect(order).toEqual(['first:start', 'first:end', 'second'])
+  })
+
+  it('lets a later round run after an earlier one fails', async () => {
+    const later = vi.fn(async () => {})
+    await expect(
+      pmRunRegistry.run('c1', async () => {
+        throw new Error('failed')
+      })
+    ).rejects.toThrow('failed')
+    await pmRunRegistry.run('c1', later)
+    expect(later).toHaveBeenCalledTimes(1)
   })
 })

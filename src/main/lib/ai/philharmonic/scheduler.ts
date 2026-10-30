@@ -13,6 +13,7 @@ import { logger } from '../../logger'
 import { withTrace } from '../../logger/trace-context'
 import type { SseEmitter } from './employee-loop'
 import { runPmCoordinator } from './pm-coordinator'
+import { pmRunRegistry } from './pm-run-registry'
 
 const scheduledJobs = new Map<string, ScheduledTask>()
 let globalEmit: SseEmitter = () => {}
@@ -51,12 +52,15 @@ export async function runScheduledRound(
     })
     await updateTask(taskId, { lastRunAt: new Date() })
 
-    await runPmCoordinator({
-      conversationId: template.conversationId,
-      userText: `${template.title}\n\n${template.description ?? ''}`.trim(),
-      trigger: 'scheduled',
-      emit
-    })
+    await pmRunRegistry.run(template.conversationId, (signal) =>
+      runPmCoordinator({
+        conversationId: template.conversationId!,
+        userText: `${template.title}\n\n${template.description ?? ''}`.trim(),
+        trigger: 'scheduled',
+        emit,
+        signal
+      })
+    )
     await updateTask(taskId, { lastRunStatus: 'completed' })
   })
 }

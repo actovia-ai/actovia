@@ -76,6 +76,8 @@ const runPmCoordinator = vi.fn(async (_input: unknown) => {})
 vi.mock('@main/lib/ai/philharmonic/pm-run-registry', () => ({
   pmRunRegistry: {
     abort: (id: string) => abort(id),
+    run: (_id: string, round: (signal: AbortSignal) => Promise<void>) =>
+      round(new AbortController().signal),
     set: vi.fn(),
     clear: vi.fn()
   }

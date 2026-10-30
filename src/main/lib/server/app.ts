@@ -43,7 +43,10 @@ import mcpRouter from './routes/mcp'
 import mediaRouter from './routes/media'
 import memoryRouter from './routes/memory'
 import pairRouter from './routes/pair'
-import philharmonicRouter, { emitToAll } from './routes/philharmonic'
+import philharmonicRouter, {
+  emitToAll,
+  emitToConversation
+} from './routes/philharmonic'
 import projectsRouter from './routes/projects'
 import s3UploaderRouter from './routes/s3-uploader'
 import settingsRouter from './routes/settings'
@@ -212,9 +215,13 @@ export async function connectHttpServer() {
       void syncLan()
 
       // Initialize cron scheduler after server is up
-      initScheduler(emitToAll).catch((err) =>
-        logger.error('scheduler', 'Init error', { error: err })
-      )
+      initScheduler((event) => {
+        if ('conversationId' in event) {
+          emitToConversation(event.conversationId, event)
+        } else {
+          emitToAll(event)
+        }
+      }).catch((err) => logger.error('scheduler', 'Init error', { error: err }))
       initJobQueue()
     }
   }

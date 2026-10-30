@@ -202,25 +202,22 @@ router.post('/conversations/:id/messages', async (c) => {
     messageId: userMsg.id
   })
 
-  // Per-conversation AbortController so the user can interrupt the run via
-  // POST /conversations/:id/interrupt. The registry slot is cleared in the
-  // finally below regardless of how the run ended.
-  const controller = new AbortController()
-  pmRunRegistry.set(id, controller)
-  runPmCoordinator({
-    conversationId: id,
-    userText: body.content,
-    attachments,
-    excludeMessageId: userMsg.id,
-    emit: (event) => emitToConversation(id, event),
-    signal: controller.signal
-  })
+  // One Group gets one PM round at a time. Owner messages are persisted above,
+  // then run in arrival order after the active round finishes.
+  void pmRunRegistry
+    .run(id, (signal) =>
+      runPmCoordinator({
+        conversationId: id,
+        userText: body.content,
+        attachments,
+        excludeMessageId: userMsg.id,
+        emit: (event) => emitToConversation(id, event),
+        signal
+      })
+    )
     .catch((err) =>
       logger.error('philharmonic', 'PM loop error', { error: err })
     )
-    .finally(() => {
-      pmRunRegistry.clear(id)
-    })
 
   return successResponse(c, userMsg, 201)
 })
