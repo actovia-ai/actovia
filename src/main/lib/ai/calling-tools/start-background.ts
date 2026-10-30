@@ -10,6 +10,18 @@ const schema = Type.Object({
     description: 'shell command to run in the background'
   })
 })
+const children = new Map<string, Set<number>>()
+
+export function stopBackgroundTasks(cwd: string): void {
+  for (const pid of children.get(cwd) ?? []) {
+    try {
+      process.kill(-pid, 'SIGTERM')
+    } catch {
+      /* already exited */
+    }
+  }
+  children.delete(cwd)
+}
 
 export function startBackground(cwd: string): AgentTool<typeof schema> {
   return {
@@ -33,6 +45,12 @@ export function startBackground(cwd: string): AgentTool<typeof schema> {
         ],
         { cwd, detached: true, stdio: ['ignore', log.fd, log.fd] }
       )
+      if (child.pid) {
+        const running = children.get(cwd) ?? new Set<number>()
+        running.add(child.pid)
+        children.set(cwd, running)
+        child.once('exit', () => running.delete(child.pid!))
+      }
       child.unref()
       await log.close()
       const details = { pid: child.pid, logPath, exitPath }

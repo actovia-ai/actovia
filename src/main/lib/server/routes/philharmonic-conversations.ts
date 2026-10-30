@@ -4,6 +4,7 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { agentRegistry } from '../../agents/registry'
+import { stopBackgroundTasks } from '../../ai/calling-tools/start-background'
 import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
 import { toPlanDto } from '../../ai/philharmonic/plan-dto'
 import { runPmCoordinator } from '../../ai/philharmonic/pm-coordinator'
@@ -23,6 +24,7 @@ import { getActivePlanByConversationId } from '../../db/plan-queries'
 import { listRoundEvents } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
+import { getGroupDir } from '../../paths'
 import type { Variables } from '../types'
 import {
   deletionSuccessResponse,
@@ -77,6 +79,7 @@ router.delete('/conversations/:id', async (c) => {
   // stopped, and every agent on one of its steps interrupted and exited.
   // The folders are left alone.
   pmRunRegistry.abort(id)
+  stopBackgroundTasks(getGroupDir(id))
   await agentRegistry.stopConversation(id)
   await handleDatabaseOperation(
     () => deleteConversation(id),
