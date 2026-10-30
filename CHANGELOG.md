@@ -1,3 +1,10 @@
+## [2.7.1](https://github.com/actovia-ai/actovia/compare/v2.7.0...v2.7.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **deps:** ship the Electron 45, DuckDB 2.0, x509 3 and pi 1.4 upgrade ([678d97e](https://github.com/actovia-ai/actovia/commit/678d97e0d637c84488d6eed3ced5603bb9abd127))
+
 # [2.7.0](https://github.com/actovia-ai/actovia/compare/v2.6.0...v2.7.0) (2026-10-29)
 
 

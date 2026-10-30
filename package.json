@@ -1,6 +1,6 @@
 {
   "name": "actovia",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "private": true,
   "description": "ChatBot featuring MCP, Immersive Editor, RAG, AI Agents, Deep Research, and other modern capabilities.",
   "keywords": [],
