@@ -1,3 +1,10 @@
+## [2.7.2](https://github.com/actovia-ai/actovia/compare/v2.7.1...v2.7.2) (2026-10-30)
+
+
+### Bug Fixes
+
+* **skills:** update relay domain ([22cd5b3](https://github.com/actovia-ai/actovia/commit/22cd5b35d642b0ff9d6a84a45351933be7258177))
+
 ## [2.7.1](https://github.com/actovia-ai/actovia/compare/v2.7.0...v2.7.1) (2026-10-30)
 
 
