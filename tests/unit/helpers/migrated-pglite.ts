@@ -24,6 +24,11 @@ export function migrationSql(file: string): string {
   )
 }
 
+/** PGlite's start parameters with the session zone a pre-0.5.13 initdb wrote. */
+export function legacyZoneParams(zone: string): string[] {
+  return [...PGlite.defaultStartParams, '-c', `TimeZone=${zone}`]
+}
+
 /**
  * A real, in-memory PGlite with the generated migrations applied in journal
  * order up to and including `upTo` (`'0006'`) — the pattern of
@@ -32,11 +37,20 @@ export function migrationSql(file: string): string {
  * migrates; 0000 needs the first for the message search index. The session
  * is pinned to UTC as `db/db.ts` pins the app's (`pinSessionUtc`), unless
  * `utc: false` asks for the zone of a database from before the pin — what
- * the 0020 test migrates from.
+ * the 0020 test migrates from. `zone` stands for the zone an older PGlite's
+ * initdb wrote into postgresql.conf (before 0.5.13 it wrote the process's
+ * own; since then it writes UTC whatever `TZ` says, so a test can no longer
+ * get one through `TZ`): it becomes TimeZone's `reset_val`, which is where
+ * 0020 reads the old zone, as on a data directory made by such a version.
  */
 export async function createMigratedPglite(
   upTo: string,
-  options: { dataDir?: string; pgmq?: boolean; utc?: boolean } = {}
+  options: {
+    dataDir?: string
+    pgmq?: boolean
+    utc?: boolean
+    zone?: string
+  } = {}
 ): Promise<PGlite> {
   const extensions: Record<string, unknown> = { pg_trgm, vector }
   if (options.pgmq) {
@@ -44,6 +58,7 @@ export async function createMigratedPglite(
   }
   const pglite = new PGlite({
     ...(options.dataDir ? { dataDir: options.dataDir } : {}),
+    ...(options.zone ? { startParams: legacyZoneParams(options.zone) } : {}),
     extensions: extensions as never
   })
   const pinned = options.utc === false ? null : pinSessionUtc(pglite)

@@ -543,7 +543,10 @@ There is no MCP middleware: the chat route itself fetches the active servers' to
   zone as a fixed offset, `Etc/GMT-8` in Shanghai), so every `DEFAULT now()`
   stamped local wall clock that read back shifted by the offset; migration
   0020 (`0020_utc_timestamps.sql`) moved those values onto UTC, reading the
-  old zone as TimeZone's `reset_val`. Read timestamps through drizzle, not
+  old zone as TimeZone's `reset_val`. PGlite 0.5.13's initdb writes UTC
+  whatever the OS zone, so only a data dir made by an earlier version holds
+  a local one (the tests stand for it with `createMigratedPglite(…, { zone
+  })`, a `-c TimeZone=` start parameter). Read timestamps through drizzle, not
   `db.execute` (which returns the zone-less text), and bucket by day with
   `localDateStr()` (`src/main/lib/local-date.ts`), never
   `toISOString().slice(0, 10)`

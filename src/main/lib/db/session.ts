@@ -7,7 +7,8 @@ import type { PGlite } from '@electric-sql/pglite'
  * postgresql.conf — the OS zone as a fixed offset (`Etc/GMT-8` in
  * Shanghai) — so a column's `DEFAULT now()` stamped local wall clock that
  * read back shifted by the offset. Migration 0020 moved those values onto
- * UTC.
+ * UTC. (PGlite 0.5.13's initdb writes UTC, so only a data directory made by
+ * an earlier version still holds a local zone; the pin is for those.)
  *
  * Call it right after `new PGlite(...)`, before anything else queries:
  * PGlite runs its queries one at a time in the order they were called, so

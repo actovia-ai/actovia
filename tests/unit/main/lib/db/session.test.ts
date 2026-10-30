@@ -2,24 +2,21 @@ import { PGlite } from '@electric-sql/pglite'
 import { chat } from '@main/lib/db/schema'
 import { pinSessionUtc } from '@main/lib/db/session'
 import { drizzle } from 'drizzle-orm/pglite'
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { createMigratedPglite } from '../../../helpers/migrated-pglite'
+import {
+  createMigratedPglite,
+  legacyZoneParams
+} from '../../../helpers/migrated-pglite'
 
-// initdb writes the process's zone into the data directory while the
-// database starts, so TZ has to hold until it is ready.
-const originalTz = process.env.TZ
-afterEach(() => {
-  process.env.TZ = originalTz
-})
+// A data directory an older PGlite initialised holds the OS zone in its
+// postgresql.conf; `zone` stands for it (PGlite 0.5.13 writes UTC).
 
 describe('pinSessionUtc', () => {
   it.each(['Asia/Shanghai', 'America/New_York'])(
     'runs a database initialised in %s in UTC',
     async (zone) => {
-      process.env.TZ = zone
-      const pg = await createMigratedPglite('9999')
-      process.env.TZ = originalTz
+      const pg = await createMigratedPglite('9999', { zone })
 
       const tz = await pg.query<{ TimeZone: string }>('SHOW timezone')
       expect(tz.rows[0].TimeZone).toBe('UTC')
@@ -40,12 +37,10 @@ describe('pinSessionUtc', () => {
   )
 
   it('is queued ahead of a query sent before the database is ready', async () => {
-    process.env.TZ = 'Asia/Shanghai'
-    const pg = new PGlite()
+    const pg = new PGlite({ startParams: legacyZoneParams('Asia/Shanghai') })
     const pinned = pinSessionUtc(pg)
     const shown = pg.query<{ TimeZone: string }>('SHOW timezone')
     await pg.waitReady
-    process.env.TZ = originalTz
     await pinned
     expect((await shown).rows[0].TimeZone).toBe('UTC')
     await pg.close()

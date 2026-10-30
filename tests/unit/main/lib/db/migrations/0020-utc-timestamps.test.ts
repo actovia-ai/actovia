@@ -3,7 +3,7 @@ import { chat, conversation, memory, message } from '@main/lib/db/schema'
 import { pinSessionUtc } from '@main/lib/db/session'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/pglite'
-import { afterEach, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   createMigratedPglite,
@@ -11,17 +11,9 @@ import {
   migrationSql
 } from '../../../../helpers/migrated-pglite'
 
-const originalTz = process.env.TZ
-afterEach(() => {
-  process.env.TZ = originalTz
-})
-
 /** A database from before the pin: initialised in `zone`, never SET to UTC. */
 async function legacyDatabase(zone: string): Promise<PGlite> {
-  process.env.TZ = zone
-  const pg = await createMigratedPglite('0019', { utc: false })
-  process.env.TZ = originalTz
-  return pg
+  return createMigratedPglite('0019', { utc: false, zone })
 }
 
 /** What the app writes before 0020: DB-defaulted rows, JS-stamped values. */
