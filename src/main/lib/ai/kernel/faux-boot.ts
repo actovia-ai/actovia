@@ -4,7 +4,6 @@ import {
   fauxText,
   fauxToolCall,
   type AssistantMessage,
-  type Context,
   type FauxProviderHandle,
   type FauxResponseFactory,
   type Message
@@ -64,8 +63,26 @@ function textOf(message: Message): string {
     .join('')
 }
 
-function fullText(ctx: Context): string {
-  return ctx.messages.map(textOf).join('\n')
+/** What a provider is handed: since pi 1.0 the prompt and the tools travel
+ *  as the transcript's system messages, never as `systemPrompt` / `tools`. */
+type Transcript = Parameters<FauxResponseFactory>[0]
+
+/** The conversation itself, without the system messages. */
+function fullText(ctx: Transcript): string {
+  return ctx.messages
+    .filter((m) => m.role !== 'system')
+    .map(textOf)
+    .join('\n')
+}
+
+/** The system prompt: the text of the transcript's system messages. Reading
+ *  `systemPrompt` instead (pi 0.85's shape) found nothing, so every engine
+ *  call went unrecognised and `update_memory` and the read filter failed. */
+function systemText(ctx: Transcript): string {
+  return ctx.messages
+    .filter((m) => m.role === 'system')
+    .map(textOf)
+    .join('\n')
 }
 
 /** Every memory id mentioned in a message — both the read filter's `id: […]`
@@ -81,8 +98,8 @@ function idsIn(text: string): string[] {
  * instruction engine. Classified by system prompt, not call order — the
  * three can race each other and the main chat call in flight at once.
  */
-function respondToEngineCall(ctx: Context): AssistantMessage {
-  const sys = ctx.systemPrompt ?? ''
+function respondToEngineCall(ctx: Transcript): AssistantMessage {
+  const sys = systemText(ctx)
 
   if (sys.includes(TITLE_SYSTEM_MARKER)) {
     return fauxAssistantMessage([fauxText('Memory correction')])
@@ -127,7 +144,7 @@ let compareTakes = 0
  * The default, outside the memory scenarios, is unchanged: a call to
  * `weather` for Oslo, then the answer.
  */
-function respondToChatCall(ctx: Context): AssistantMessage {
+function respondToChatCall(ctx: Transcript): AssistantMessage {
   const last = ctx.messages.at(-1)
 
   if (last?.role === 'toolResult') {
