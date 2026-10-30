@@ -1394,11 +1394,9 @@ describe('makeFormatters', () => {
   it('formats numbers per locale', () => {
     expect(makeFormatters('en').number(1234567.5)).toBe('1,234,567.5')
     expect(makeFormatters('de').number(1234567.5)).toBe('1.234.567,5')
-    expect(
-      makeFormatters('fr')
-        .number(1234567.5)
-        .replace(/ | /g, ' ')
-    ).toBe('1 234 567,5')
+    expect(makeFormatters('fr').number(1234567.5).replace(/ | /g, ' ')).toBe(
+      '1 234 567,5'
+    )
   })
 
   it('formats dates per locale', () => {

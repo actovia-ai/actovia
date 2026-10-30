@@ -605,8 +605,8 @@ The full chat/message tables and indexes are defined in `src/main/lib/db/schema.
 
 ### AI/LLM Integration
 
-**Multi-Provider Support** (built on `@earendil-works/pi-ai` + `@earendil-works/pi-agent-core` 0.85):
-pi 0.85 has no global registry: every request is routed by `model.provider`
+**Multi-Provider Support** (built on `@earendil-works/pi-ai` + `@earendil-works/pi-agent-core` 1.4):
+pi (since 0.85) has no global registry: every request is routed by `model.provider`
 to a provider registered on a `Models` collection, and the process's one
 collection is `getKernelModels()` in `src/main/lib/ai/kernel/models.ts` —
 the five built-in providers through pi's factories, plus Ollama as a dynamic
@@ -1488,7 +1488,7 @@ brave-search.
 - Model lists are now live-fetched per provider from Settings via `src/main/lib/ai/providers/list-models/`
 - Model names/API keys are retrieved from settings (never hardcode)
 - One-shot completions go through `completeSimple` from `src/main/lib/ai/utils/complete.ts` (see Shared Utilities) — pi-ai does not throw on a failed request
-- `@earendil-works/pi-ai` / `pi-agent-core` 0.85: there is no global `stream`/`complete`/`getModel` — everything goes through `getKernelModels()` (`src/main/lib/ai/kernel/models.ts`); `completeSimple` still comes from `src/main/lib/ai/utils/complete.ts`; the `/compat` entrypoint is not used. `ThinkingLevel` has `max` and no `off` (the app's `off` means no reasoning option). History: `docs/pi-ai-review.md`
+- `@earendil-works/pi-ai` / `pi-agent-core` 1.4 (the API since 0.85): there is no global `stream`/`complete`/`getModel` — everything goes through `getKernelModels()` (`src/main/lib/ai/kernel/models.ts`); `completeSimple` still comes from `src/main/lib/ai/utils/complete.ts`; the `/compat` entrypoint is not used. `ThinkingLevel` has `max` and no `off` (the app's `off` means no reasoning option). History: `docs/pi-ai-review.md`
 
 ### When Working with Database
 
@@ -1873,7 +1873,7 @@ audit that applied it is in the commit history (`style(motion): …`).
 
 ### Framework
 
-Vitest v4 with the following configuration (`vitest.config.ts`):
+Vitest v5 with the following configuration (`vitest.config.ts`):
 
 - Path aliases: `@main` → `src/main`, `@` → `src/renderer` (shared code is imported as `@actovia/shared/...` through the workspace package)
 - Test files: `tests/unit/**/*.test.ts`

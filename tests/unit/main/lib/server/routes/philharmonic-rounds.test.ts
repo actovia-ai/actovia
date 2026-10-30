@@ -25,30 +25,29 @@ vi.mock('@main/lib/server/routes/philharmonic-sse', () => ({
   emitToConversation: vi.fn()
 }))
 
-const listRoundEvents = vi.fn(
-  async (conversationId: string, roundId: string) =>
-    conversationId === 'c1' && roundId === 'r1'
-      ? [
-          {
-            id: 'e1',
-            conversationId: 'c1',
-            roundId: 'r1',
-            seq: 0,
-            kind: 'input',
-            payload: { trigger: 'user', text: 'hi' },
-            createdAt: new Date('2026-10-17T10:00:00.000Z')
-          },
-          {
-            id: 'e2',
-            conversationId: 'c1',
-            roundId: 'r1',
-            seq: 1,
-            kind: 'text',
-            payload: { text: 'Done.' },
-            createdAt: new Date('2026-10-17T10:00:01.000Z')
-          }
-        ]
-      : []
+const listRoundEvents = vi.fn(async (conversationId: string, roundId: string) =>
+  conversationId === 'c1' && roundId === 'r1'
+    ? [
+        {
+          id: 'e1',
+          conversationId: 'c1',
+          roundId: 'r1',
+          seq: 0,
+          kind: 'input',
+          payload: { trigger: 'user', text: 'hi' },
+          createdAt: new Date('2026-10-17T10:00:00.000Z')
+        },
+        {
+          id: 'e2',
+          conversationId: 'c1',
+          roundId: 'r1',
+          seq: 1,
+          kind: 'text',
+          payload: { text: 'Done.' },
+          createdAt: new Date('2026-10-17T10:00:01.000Z')
+        }
+      ]
+    : []
 )
 vi.mock('@main/lib/db/pm-round-queries', () => ({ listRoundEvents }))
 
