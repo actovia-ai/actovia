@@ -11,6 +11,7 @@ vi.mock('@earendil-works/pi-ai', () => ({
   Type: {
     Object: (o: unknown) => o,
     String: (o?: unknown) => o ?? {},
+    Number: (o?: unknown) => o ?? {},
     Array: (_t: unknown, o?: unknown) => o ?? {}
   }
 }))

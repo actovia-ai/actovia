@@ -62,6 +62,7 @@ import { pmRunRegistry } from './pm-run-registry'
 import {
   createDelegateTaskTool,
   createRecruitEmployeeTool,
+  createWatchForTool,
   createWaitForQuotaTool,
   quotaWaitRunAt
 } from './pm-tools'
@@ -596,6 +597,53 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       await mirrorActivePlan()
       return `Step parked. You will be woken at ${formatWhen(runAt)}. End your turn now with one line for the owner saying what waits and why.`
     }),
+    createWatchForTool(
+      async ({ stepId, path, intervalSec, deadline, reason }) => {
+        if (path.startsWith('/') || path.split('/').includes('..'))
+          return 'Refused: watch paths must stay inside the Group workspace.'
+        const until = new Date(deadline)
+        if (
+          !Number.isFinite(until.getTime()) ||
+          until.getTime() <= Date.now() ||
+          until.getTime() > Date.now() + 24 * 60 * 60_000
+        )
+          return 'Refused: deadline must be within the next 24 hours.'
+        const planned = activePlan?.steps.find((step) => step.id === stepId)
+        if (!planned)
+          return `Refused: no step ${stepId} in this group's active plan.`
+        await createTask({
+          conversationId,
+          title: `Watch — continue "${planned.title}"`,
+          description: reason,
+          status: 'pending',
+          priority: 'medium',
+          assignedAgentId: null,
+          input: {
+            kind: 'watch',
+            stepId,
+            path,
+            intervalSec: Math.max(60, intervalSec),
+            deadline: until.toISOString()
+          },
+          output: null,
+          runAt: new Date(Date.now() + Math.max(60, intervalSec) * 1000),
+          maxRetries: 1,
+          retryCount: 0
+        })
+        const step = await updateStep(stepId, {
+          status: 'pending',
+          note: `watching ${path} — ${reason}`
+        })
+        emit({
+          type: 'plan_step_updated',
+          conversationId,
+          stepId,
+          patch: { status: step.status, note: step.note }
+        })
+        await mirrorActivePlan()
+        return `Step parked. Watching ${path} until ${formatWhen(until)}.`
+      }
+    ),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {

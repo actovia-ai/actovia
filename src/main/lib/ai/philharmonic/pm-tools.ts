@@ -151,6 +151,50 @@ export function createWaitForQuotaTool(
   } as AgentTool
 }
 
+export function createWatchForTool(
+  onWatch: (p: {
+    stepId: string
+    path: string
+    intervalSec: number
+    deadline: string
+    reason: string
+  }) => Promise<string>
+): AgentTool {
+  return {
+    name: 'watchFor',
+    label: 'Watch for Completion',
+    description:
+      'Wait for a completion marker file written inside this Group workspace. The path must be relative; check at least every 60 seconds and set a deadline.',
+    parameters: Type.Object({
+      stepId: Type.String({ description: 'plan step to park' }),
+      path: Type.String({ description: 'relative completion-marker path' }),
+      intervalSec: Type.Number({
+        description: 'seconds between checks (minimum 60)',
+        default: 60
+      }),
+      deadline: Type.String({
+        description: 'ISO-8601 deadline, at most 24 hours away'
+      }),
+      reason: Type.String({
+        description: 'what is running and what the marker means'
+      })
+    }),
+    execute: async (
+      _id: string,
+      p: {
+        stepId: string
+        path: string
+        intervalSec: number
+        deadline: string
+        reason: string
+      }
+    ) => ({
+      content: [{ type: 'text' as const, text: await onWatch(p) }],
+      details: p
+    })
+  } as AgentTool
+}
+
 /** Two minutes after the reset (a past one counts as now); an unknown reset is checked again in an hour. */
 export const quotaWaitRunAt = (resetsAt: number | null, now: number) =>
   new Date(

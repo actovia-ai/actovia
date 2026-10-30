@@ -1,3 +1,6 @@
+import { existsSync } from 'fs'
+import { isAbsolute, resolve } from 'path'
+
 // src/main/lib/ai/philharmonic/scheduler.ts
 import cron, { type ScheduledTask } from 'node-cron'
 
@@ -11,6 +14,7 @@ import {
 } from '../../db/philharmonic-queries'
 import { logger } from '../../logger'
 import { withTrace } from '../../logger/trace-context'
+import { getGroupDir } from '../../paths'
 import type { SseEmitter } from './employee-loop'
 import { runPmCoordinator } from './pm-coordinator'
 import { pmRunRegistry } from './pm-run-registry'
@@ -125,6 +129,32 @@ export async function runDueOneOffTasks(emit: SseEmitter): Promise<void> {
     }
     if (!claimed) continue // already claimed by a concurrent sweep tick
     try {
+      const input = t.input as Record<string, unknown> | null
+      if (input?.kind === 'watch') {
+        const conversationId =
+          typeof t.conversationId === 'string' ? t.conversationId : null
+        const path = typeof input.path === 'string' ? input.path : null
+        const deadline =
+          typeof input.deadline === 'string' ? new Date(input.deadline) : null
+        const intervalSec =
+          typeof input.intervalSec === 'number' ? input.intervalSec : 60
+        const root = conversationId ? getGroupDir(conversationId) : null
+        const target =
+          root && path && !isAbsolute(path) ? resolve(root, path) : null
+        const timedOut = !!deadline && deadline.getTime() <= Date.now()
+        if (!target || (!existsSync(target) && !timedOut)) {
+          await updateTask(t.id, {
+            status: 'pending',
+            runAt: new Date(Date.now() + Math.max(60, intervalSec) * 1000)
+          })
+          continue
+        }
+        await updateTask(t.id, {
+          description: timedOut
+            ? `${t.description ?? ''}\nWatch deadline reached.`
+            : `${t.description ?? ''}\nWatch file appeared: ${path}.`
+        })
+      }
       await runScheduledRound(t.id, emit)
       await updateTask(t.id, { status: 'completed' })
     } catch (err) {
