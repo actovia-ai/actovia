@@ -22,7 +22,7 @@ export const ACTOVIA_RELEASES = `${ACTOVIA_REPO}/releases`
 // skills.sh (Agent Skills registry). The main process reaches it through the
 // same BFF relay the Actovia CLI uses; `ACTOVIA_SKILLS_BFF_URL` overrides the relay.
 export const SKILLS_SH_HOMEPAGE = 'https://www.skills.sh'
-export const SKILLS_SH_BFF_URL = 'https://skills-md.yancey.app'
+export const SKILLS_SH_BFF_URL = 'https://skills-sh.yancey.app'
 /** Public page of a skill; `id` is `owner/repo/slug`. */
 export function skillsShSkill(id: string): string {
   return `${SKILLS_SH_HOMEPAGE}/${id}`

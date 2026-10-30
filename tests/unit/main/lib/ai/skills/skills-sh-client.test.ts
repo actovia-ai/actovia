@@ -32,7 +32,7 @@ describe('skills-sh-client', () => {
     const res = await listSkills({ view: 'hot', page: 2, perPage: 10 })
     expect(res.pagination.page).toBe(2)
     const url = fetchMock.mock.calls[0][0] as URL
-    expect(url.origin).toBe('https://skills-md.yancey.app')
+    expect(url.origin).toBe('https://skills-sh.yancey.app')
     expect(url.pathname).toBe('/api/v1/skills')
     expect(url.searchParams.get('view')).toBe('hot')
     expect(url.searchParams.get('page')).toBe('2')

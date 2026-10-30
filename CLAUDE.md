@@ -285,7 +285,7 @@ Agent Skills come from **skills.sh** (the ClawHub marketplace was dropped for
 quality reasons). `src/main/lib/ai/skills/`:
 
 - `skills-sh-client.ts` — list / search / detail / audit against the BFF relay
-  `SKILLS_SH_BFF_URL` (`https://skills-md.yancey.app`, the same relay
+  `SKILLS_SH_BFF_URL` (`https://skills-sh.yancey.app`, the same relay
   the Actovia CLI uses; `ACTOVIA_SKILLS_BFF_URL` overrides it).
 - `skills-store.ts` — installs a skill's `files[]` under
   `~/.actovia/skills/<slug>/` and records it in `~/.actovia/skills/.lock.json`

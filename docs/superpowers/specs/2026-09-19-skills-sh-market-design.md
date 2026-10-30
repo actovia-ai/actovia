@@ -9,7 +9,7 @@ Actovia's Skills Market moves off ClawHub (dropped for quality reasons; the
 settings tab has been a placeholder since the Forge migration) onto
 **skills.sh**, the open Agent Skills registry. The integration was already
 proven in `@actovia-ai/cli` (`../cli`): a small BFF relay
-(`https://skills-md.yancey.app`, `/api/v1/skills…`) fronts skills.sh, skills
+(`https://skills-sh.yancey.app`, `/api/v1/skills…`) fronts skills.sh, skills
 install as plain files into `~/.actovia/skills/<slug>/` and are recorded in
 `~/.actovia/skills/.lock.json`. This design ports that client + store into the
 main process behind the existing `skills-manager.ts` seam, adds a
