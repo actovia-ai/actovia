@@ -74,7 +74,10 @@
         "custom": "사용자 지정"
       },
       "conversationLabel": "대화",
-      "chatTitle": "채팅 · {{title}}"
+      "chatTitle": "채팅 · {{title}}",
+      "chatLabel": "채팅",
+      "searchConversations": "대화 검색…",
+      "noConversations": "일치하는 대화가 없습니다."
     },
     "page": {
       "title": "예약된 작업",

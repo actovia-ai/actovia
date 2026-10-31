@@ -74,7 +74,10 @@
         "custom": "自定义"
       },
       "conversationLabel": "会话",
-      "chatTitle": "聊天 · {{title}}"
+      "chatTitle": "聊天 · {{title}}",
+      "chatLabel": "聊天",
+      "searchConversations": "搜索会话…",
+      "noConversations": "没有匹配的会话。"
     },
     "page": {
       "title": "定时任务",

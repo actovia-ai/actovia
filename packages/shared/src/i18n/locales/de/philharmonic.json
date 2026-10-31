@@ -74,7 +74,10 @@
         "custom": "Benutzerdefiniert"
       },
       "conversationLabel": "Unterhaltung",
-      "chatTitle": "Chat · {{title}}"
+      "chatTitle": "Chat · {{title}}",
+      "chatLabel": "Chat",
+      "searchConversations": "Unterhaltungen suchen…",
+      "noConversations": "Keine passenden Unterhaltungen."
     },
     "page": {
       "title": "Geplant",

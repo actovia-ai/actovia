@@ -48,6 +48,7 @@ export const TEST_IDS = {
     page: 'schedule.page',
     tab: 'schedule.tab',
     createButton: 'schedule.create-button',
+    conversationPicker: 'schedule.conversation-picker',
     taskCard: 'schedule.task-card',
     cancelButton: 'schedule.cancel-button'
   },

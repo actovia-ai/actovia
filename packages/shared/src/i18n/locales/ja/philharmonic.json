@@ -74,7 +74,10 @@
         "custom": "カスタム"
       },
       "conversationLabel": "会話",
-      "chatTitle": "チャット · {{title}}"
+      "chatTitle": "チャット · {{title}}",
+      "chatLabel": "チャット",
+      "searchConversations": "会話を検索…",
+      "noConversations": "一致する会話がありません。"
     },
     "page": {
       "title": "スケジュール",

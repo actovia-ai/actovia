@@ -74,7 +74,10 @@
         "custom": "Personalizzata"
       },
       "conversationLabel": "Conversazione",
-      "chatTitle": "Chat · {{title}}"
+      "chatTitle": "Chat · {{title}}",
+      "chatLabel": "Chat",
+      "searchConversations": "Cerca conversazioni…",
+      "noConversations": "Nessuna conversazione corrispondente."
     },
     "page": {
       "title": "Programmate",

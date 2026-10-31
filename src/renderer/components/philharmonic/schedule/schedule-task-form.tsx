@@ -31,6 +31,7 @@ import { useFormat } from '@/lib/format'
 import { createScheduledTask } from '@/services/philharmonic-tasks'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
+import { ConversationPicker } from './conversation-picker'
 import { CRON_PRESETS } from './cron-presets'
 
 export function ScheduleTaskForm({
@@ -160,48 +161,18 @@ export function ScheduleTaskForm({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>
+            <Label htmlFor="schedule-conversation">
               {chats.length
                 ? t('schedule.form.conversationLabel')
                 : t('schedule.form.groupLabel')}
             </Label>
-            {/* `items` lets the trigger show a group's title, not its id. */}
-            <Select
+            <ConversationPicker
+              id="schedule-conversation"
               value={conversationId}
-              onValueChange={(v) => v && setConversationId(v)}
-              items={[
-                ...conversations.map((c) => ({
-                  value: c.id,
-                  label: c.title
-                })),
-                ...chats.map((c) => ({
-                  value: `chat:${c.id}`,
-                  label: t('schedule.form.chatTitle', { title: c.title })
-                }))
-              ]}
-            >
-              <SelectTrigger>
-                <SelectValue
-                  placeholder={
-                    chats.length
-                      ? t('schedule.form.conversationLabel')
-                      : t('schedule.form.groupPlaceholder')
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {conversations.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.title}
-                  </SelectItem>
-                ))}
-                {chats.map((c) => (
-                  <SelectItem key={`chat:${c.id}`} value={`chat:${c.id}`}>
-                    {t('schedule.form.chatTitle', { title: c.title })}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={setConversationId}
+              conversations={conversations}
+              chats={chats}
+            />
           </div>
           <div className="flex gap-2">
             <Button

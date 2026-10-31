@@ -74,7 +74,10 @@
         "custom": "Personnalisé"
       },
       "conversationLabel": "Conversation",
-      "chatTitle": "Chat · {{title}}"
+      "chatTitle": "Chat · {{title}}",
+      "chatLabel": "Chat",
+      "searchConversations": "Rechercher une conversation…",
+      "noConversations": "Aucune conversation correspondante."
     },
     "page": {
       "title": "Tâches planifiées",

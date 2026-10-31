@@ -74,7 +74,10 @@
         "custom": "Custom"
       },
       "conversationLabel": "Conversation",
-      "chatTitle": "Chat · {{title}}"
+      "chatTitle": "Chat · {{title}}",
+      "chatLabel": "Chat",
+      "searchConversations": "Search conversations…",
+      "noConversations": "No matching conversations."
     },
     "page": {
       "title": "Scheduled",

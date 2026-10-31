@@ -1195,6 +1195,10 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   key; deleted target chats are not recreated. These schedules require the
   local app to remain open and use the computer's time zone. Task lists
   refresh on focus and every 30 seconds, with loading/error/retry states.
+  The scheduling form's `conversation-picker.tsx` uses a full-width searchable
+  Combobox with wrapping titles and Chat/Group + creation-date metadata.
+  Sheet popup, backdrop and close control explicitly use `no-drag` so native
+  title-bar drag regions behind a modal cannot swallow its clicks (ISSUE-329).
 - **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a

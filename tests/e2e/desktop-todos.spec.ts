@@ -212,7 +212,7 @@ test('Scheduled creates and cancels a recurring task for a normal chat', async (
   await dialog
     .locator('#schedule-description')
     .fill('Review recent developments and write a concise report.')
-  await dialog.getByRole('combobox').first().click()
+  await dialog.getByTestId(TEST_IDS.schedule.conversationPicker).click()
   await mainWindow.getByRole('option').first().click()
   await dialog.getByRole('button', { name: 'Recurring', exact: true }).click()
   await dialog
@@ -241,6 +241,100 @@ test('Scheduled creates and cancels a recurring task for a normal chat', async (
   await expect(mainWindow.getByTestId(TEST_IDS.schedule.taskCard)).toHaveCount(
     0
   )
+})
+
+test('the schedule sheet stays clickable over the title bar and searches readable conversation targets', async ({
+  mainWindow
+}) => {
+  const longTitle =
+    'Kyoto in April — a quiet neighbourhood, coffee stops and a long weekend itinerary for two'
+  const chats = [
+    {
+      id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      title: 'Kyoto research notes',
+      createdAt: time
+    }
+  ]
+  await mainWindow.route('**/api/v1/history', (route) =>
+    route.fulfill({ json: chats })
+  )
+  await mainWindow.route('**/api/v1/philharmonic/conversations', (route) =>
+    route.fulfill({
+      json: [
+        { ...group, title: longTitle },
+        ...Array.from({ length: 30 }, (_, i) => ({
+          ...group,
+          id: `group-${i}`,
+          title: `Portfolio planning ${i}`
+        }))
+      ]
+    })
+  )
+  await mainWindow.getByTestId(TEST_IDS.chatLayout.scheduled).click()
+  await mainWindow.getByTestId(TEST_IDS.schedule.createButton).click()
+  const dialog = mainWindow.getByRole('dialog', {
+    name: 'Schedule a task',
+    exact: true
+  })
+  const close = dialog.locator('[data-slot="sheet-close"]')
+  expect(
+    await close.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue('-webkit-app-region')
+    )
+  ).toBe('no-drag')
+  expect(
+    await dialog.evaluate((el) =>
+      getComputedStyle(el).getPropertyValue('-webkit-app-region')
+    )
+  ).toBe('no-drag')
+  const picker = dialog.getByTestId(TEST_IDS.schedule.conversationPicker)
+  await picker.fill('Kyoto')
+  const options = mainWindow.getByRole('option')
+  await expect(options).toHaveCount(2)
+  await expect(options.first()).toContainText(longTitle)
+  await expect(options.first()).toContainText('Group')
+  await expect(options.last()).toContainText('Chat')
+  const popup = mainWindow.locator('[data-slot="combobox-content"]')
+  expect(await popup.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
+    true
+  )
+  const width = await picker.evaluate(
+    (el) =>
+      el.closest('[data-slot="input-group"]')!.getBoundingClientRect().width
+  )
+  expect(width).toBeGreaterThan(300)
+  // Measure after the popup's scale entrance has settled.
+  await expect
+    .poll(async () => {
+      const popupWidth = await popup.evaluate(
+        (el) => el.getBoundingClientRect().width
+      )
+      return Math.abs(popupWidth - width)
+    })
+    .toBeLessThanOrEqual(2)
+  mkdirSync('/tmp/actovia329-review', { recursive: true })
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: '/tmp/actovia329-review/conversation-picker-light.png'
+  })
+  await mainWindow.evaluate(() =>
+    document.documentElement.classList.add('dark')
+  )
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: '/tmp/actovia329-review/conversation-picker-dark.png'
+  })
+  await picker.fill('no-such-conversation-329')
+  await expect(
+    mainWindow.getByText('No matching conversations.', { exact: true })
+  ).toBeVisible()
+  await picker.fill('quiet neighbourhood')
+  await expect(options).toHaveCount(1)
+  await picker.press('ArrowDown')
+  await picker.press('Enter')
+  await expect(picker).toHaveValue(longTitle)
+  await close.click()
+  await expect(dialog).not.toBeVisible()
 })
 
 test('a one-off normal-chat schedule runs and saves its answer', async ({

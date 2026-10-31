@@ -74,7 +74,10 @@
         "custom": "自訂"
       },
       "conversationLabel": "對話",
-      "chatTitle": "聊天 · {{title}}"
+      "chatTitle": "聊天 · {{title}}",
+      "chatLabel": "聊天",
+      "searchConversations": "搜尋對話…",
+      "noConversations": "沒有符合的對話。"
     },
     "page": {
       "title": "定時任務",

@@ -74,7 +74,10 @@
         "custom": "Personalizado"
       },
       "conversationLabel": "Conversa",
-      "chatTitle": "Conversa · {{title}}"
+      "chatTitle": "Conversa · {{title}}",
+      "chatLabel": "Conversa",
+      "searchConversations": "Buscar conversas…",
+      "noConversations": "Nenhuma conversa encontrada."
     },
     "page": {
       "title": "Agendadas",
