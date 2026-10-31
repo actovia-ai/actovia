@@ -52,7 +52,7 @@ export function RecurringList({
   onCancel
 }: {
   tasks: TaskData[]
-  conversationsById: Record<string, ConversationData>
+  conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
 }) {

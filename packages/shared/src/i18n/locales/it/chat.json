@@ -270,7 +270,8 @@
       "compactsAt": "Si compatta quando i messaggi arrivano al {{percent}}%.",
       "compactionOff": "La compattazione è disattivata.",
       "empty": "Invia un messaggio per vedere cosa riempie il contesto di questa chat."
-    }
+    },
+    "activity": "Attività"
   },
   "sidebar": {
     "newChat": "Nuova chat",
@@ -317,7 +318,8 @@
     "nav": {
       "new": "Nuovo",
       "search": "Cerca",
-      "artifacts": "Artefatti"
+      "artifacts": "Artefatti",
+      "scheduled": "Programmate"
     },
     "account": {
       "apps": "Scarica le app",

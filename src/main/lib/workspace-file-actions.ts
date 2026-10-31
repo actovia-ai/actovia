@@ -16,9 +16,11 @@ import {
 
 import { mainT } from './i18n'
 import { logger } from './logger'
-import { getWorkspacesDir } from './paths'
+import { getGroupsDir, getWorkspacesDir } from './paths'
 import {
   opensSafely,
+  expandWorkspacePath,
+  isInsideDir,
   readWorkspaceFile,
   statWorkspaceFile
 } from './workspace-files'
@@ -35,8 +37,15 @@ function roots(): WorkspaceRoots {
   return { root: getWorkspacesDir(), home: homedir() }
 }
 
-function options() {
-  return { root: getWorkspacesDir() }
+/** Select a known workspace root lexically; stat still resolves every symlink. */
+function rootForPath(input: unknown): string {
+  const absolute = expandWorkspacePath(input, {})
+  const groups = getGroupsDir()
+  return absolute && isInsideDir(absolute, groups) ? groups : getWorkspacesDir()
+}
+
+function options(input: unknown) {
+  return { root: rootForPath(input) }
 }
 
 export interface WorkspaceShell {
@@ -48,7 +57,7 @@ export interface WorkspaceShell {
 export async function openWorkspaceFile(
   input: unknown,
   deps: WorkspaceShell = shell,
-  root = getWorkspacesDir()
+  root = rootForPath(input)
 ): Promise<WorkspaceFileActionResult> {
   const found = await statWorkspaceFile(input, { root })
   if (!found.ok) return found
@@ -67,7 +76,7 @@ export async function openWorkspaceFile(
 export async function revealWorkspaceFile(
   input: unknown,
   deps: WorkspaceShell = shell,
-  root = getWorkspacesDir()
+  root = rootForPath(input)
 ): Promise<WorkspaceFileActionResult> {
   const found = await statWorkspaceFile(input, { root })
   if (!found.ok) return found
@@ -160,10 +169,10 @@ export function setupWorkspaceFileIPC(): void {
   const failed = { ok: false, reason: 'failed' } as const
   handle(WORKSPACE_FILE_CHANNELS.roots, null, () => roots())
   handle(WORKSPACE_FILE_CHANNELS.stat, failed, (path) =>
-    statWorkspaceFile(path, options())
+    statWorkspaceFile(path, options(path))
   )
   handle(WORKSPACE_FILE_CHANNELS.read, failed, (path) =>
-    readWorkspaceFile(path, options())
+    readWorkspaceFile(path, options(path))
   )
   handle(WORKSPACE_FILE_CHANNELS.open, failed, (path) =>
     openWorkspaceFile(path)

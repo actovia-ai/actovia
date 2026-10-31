@@ -270,7 +270,8 @@
       "compactsAt": "Compacté quand les messages atteignent {{percent}} %.",
       "compactionOff": "La compaction est désactivée.",
       "empty": "Envoyez un message pour voir ce qui remplit le contexte de cette conversation."
-    }
+    },
+    "activity": "Activité"
   },
   "sidebar": {
     "newChat": "Nouvelle conversation",
@@ -317,7 +318,8 @@
     "nav": {
       "new": "Nouveau",
       "search": "Rechercher",
-      "artifacts": "Artefacts"
+      "artifacts": "Artefacts",
+      "scheduled": "Tâches planifiées"
     },
     "account": {
       "apps": "Obtenir les apps",

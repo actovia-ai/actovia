@@ -1,5 +1,10 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { PlusIcon, SearchIcon, SparklesIcon } from '@hugeicons/core-free-icons'
+import {
+  PlusIcon,
+  SearchIcon,
+  SparklesIcon,
+  Clock01Icon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'
 import * as React from 'react'
@@ -83,6 +88,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <HugeiconsIcon icon={SparklesIcon} />
               <span>{t('sidebar.nav.artifacts')}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              data-testid={TEST_IDS.chatLayout.scheduled}
+              isActive={pathname === '/scheduled'}
+              onClick={() => navigate('/scheduled')}
+            >
+              <HugeiconsIcon icon={Clock01Icon} />
+              <span>{t('sidebar.nav.scheduled')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

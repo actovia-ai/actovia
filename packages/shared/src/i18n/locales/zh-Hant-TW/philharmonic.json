@@ -72,7 +72,14 @@
         "dailyNine": "每天上午 9:00",
         "mondayNine": "每週一上午 9:00",
         "custom": "自訂"
-      }
+      },
+      "conversationLabel": "對話",
+      "chatTitle": "聊天 · {{title}}"
+    },
+    "page": {
+      "title": "排程任務",
+      "description": "在聊天或 Philharmonic 群組中安排任務。",
+      "localOnly": "任務在 Actovia 開啟時於本機執行，時間使用本機時區。"
     }
   },
   "chat": {

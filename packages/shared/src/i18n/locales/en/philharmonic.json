@@ -72,7 +72,14 @@
         "dailyNine": "Every day at 9:00 AM",
         "mondayNine": "Every Monday at 9:00 AM",
         "custom": "Custom"
-      }
+      },
+      "conversationLabel": "Conversation",
+      "chatTitle": "Chat · {{title}}"
+    },
+    "page": {
+      "title": "Scheduled",
+      "description": "Schedule tasks in a chat or a Philharmonic group.",
+      "localOnly": "Runs on this computer while Actovia is open. Times use this computer’s time zone."
     }
   },
   "chat": {

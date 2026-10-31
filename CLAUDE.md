@@ -1181,8 +1181,20 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);
-  managed from the Schedule tab on the Dashboard page
-  (`components/philharmonic/schedule/`)
+  managed from the Schedule tab on the Dashboard page and the chat sidebar's
+  `/scheduled` page (`containers/scheduled.tsx`, shared
+  `components/philharmonic/schedule/`). The global page can target a normal
+  chat as well as a Group: `POST /api/v1/philharmonic/tasks` accepts exactly
+  one of `chatId` / `conversationId`; normal-chat tasks store
+  `input: { kind: 'chat-schedule', chatId }` without a schema migration.
+  `scheduled-chat.ts` feeds an internal request through the existing chat
+  route with fresh settings, drains SSE through persistence, and treats a
+  stream error as a failed run. The internal `scheduled` context flag makes
+  tool approvals expire immediately rather than silently authorizing them.
+  Scheduled sends to the same chat serialize via `pmRunRegistry`'s `chat:`
+  key; deleted target chats are not recreated. These schedules require the
+  local app to remain open and use the computer's time zone. Task lists
+  refresh on focus and every 30 seconds, with loading/error/retry states.
 - **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a
@@ -1300,10 +1312,18 @@ the surface on show (Chat / Philharmonic) and a chevron, a shadcn
 `DropdownMenu` listing both with a line on what each is for and a check on
 the one on show — ChatGPT's ChatGPT / Codex menu (owner, 2026-10-28, back
 from ISSUE-237/266's icon tabs). Under it: New, Search, and **Artifacts**
-(`/artifacts`, `containers/artifacts.tsx`): every `create_artifact` result of
-every chat, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
+(`/artifacts`, `containers/artifacts.tsx`): interactive artifacts, the latest
+successful Markdown write/edit per chat and path, and completed Deep Research
+reports, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
 in `db/queries.ts`, no code; `ArtifactListItem` in
-`@actovia/shared/types/artifact-list`); a card opens its chat at the card
+`@actovia/shared/types/artifact-list`; optional `kind` distinguishes file and
+research reports from older interactive items). Report cards use
+`components/artifacts/report-preview.tsx` and open the actual Markdown or
+research report directly; workspace reads retain main's file guard. An
+IPC file action accepts a path under either the chat workspace root or the
+Group workspace root, resolving symlinks against the selected root before
+reading, revealing or opening; other Actovia data stays outside the roots. An
+interactive card opens its chat at the card
 that drew it, through the same `SearchReveal` state Search chats uses (its
 `toolCallId`; the chat's card carries `data-artifact-call`, and
 `revealTarget()` lands on it — after a long answer the run's top is a window
@@ -1614,12 +1634,20 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   `components/chat/panel/chat-panel.tsx` — Context first (`panel/context-section.tsx`:
   the share used, one stacked bar with LCM's mark, a row per part and the
   free space, "as of" and where compaction starts; the stream manager
-  invalidates `['chat', id, 'context']` when a run ends), then files, tools
-  and sources derived from the open chat's messages (`chatMessagesAtom`, set by `<Chat>` when a
+  invalidates `['chat', id, 'context']` when a run ends), then Files and
+  Activity (Tools + Sources). The three tab labels have no growing counts;
+  counts live in the content. Resources derive from the open chat's messages (`chatMessagesAtom`, set by `<Chat>` when a
   message is added or the stream settles) by `lib/chat-panel-items.ts`, each
-  row scrolling to its run (`lib/scroll-to-run.ts`, the rail's rule) and an
+  workspace-file row opening its guarded preview directly, other rows
+  scrolling to their run (`lib/scroll-to-run.ts`, the rail's rule), and an
   artifact row opening its card (`revealArtifactAtom`). It replaced the
   Sources panel: a message's Sources button opens the panel on that run.
+  Philharmonic's `chat/group-resources-panel.tsx` provides Members / Files /
+  Activity in the same fixed-width panel. `lib/group-panel-items.ts` combines
+  live bubbles and persisted tool results from
+  `GET /api/v1/philharmonic/conversations/:id/tool-results` (the latest 2,000
+  employee tool-end events, joined to their message), so files and sources
+  remain accessible after reopening a Group.
 - **A regenerate group is one segment** (`type: 'compare'`, key
   `group:<firstRunId>`; spec
   `docs/superpowers/specs/2026-09-26-regenerate-compare-design.md`): the

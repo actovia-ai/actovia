@@ -74,6 +74,7 @@ export interface ConversationMessageData {
 export interface TaskData {
   id: string
   conversationId: string | null
+  input?: { kind?: string; chatId?: string; [key: string]: unknown } | null
   title: string
   description: string | null
   status:

@@ -14,11 +14,39 @@ import { db } from './db'
 import {
   agent,
   agentMemory,
+  conversationMessage,
   task,
   taskExecution,
   taskExecutionEvent,
   type Task
 } from './schema'
+
+/** Saved employee tool results for the Group's files/tools/sources panel. */
+export async function getConversationToolResults(conversationId: string) {
+  return db
+    .select({
+      id: taskExecutionEvent.id,
+      messageId: sql<
+        string | null
+      >`(select ${conversationMessage.id} from ${conversationMessage} where ${conversationMessage.taskId} = ${task.id} order by ${conversationMessage.createdAt} desc limit 1)`,
+      payload: taskExecutionEvent.payload,
+      createdAt: taskExecutionEvent.createdAt
+    })
+    .from(taskExecutionEvent)
+    .innerJoin(
+      taskExecution,
+      eq(taskExecution.id, taskExecutionEvent.executionId)
+    )
+    .innerJoin(task, eq(task.id, taskExecution.taskId))
+    .where(
+      and(
+        eq(task.conversationId, conversationId),
+        eq(taskExecutionEvent.eventType, 'tool_end')
+      )
+    )
+    .orderBy(desc(taskExecutionEvent.createdAt))
+    .limit(2000)
+}
 
 // ─── Agent CRUD ─────────────────────────────────────────────────────────────
 

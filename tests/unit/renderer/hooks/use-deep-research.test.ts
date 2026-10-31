@@ -195,11 +195,16 @@ describe('useDeepResearchResult', () => {
     expect(fetchDeepResearchMessagesService).not.toHaveBeenCalled()
   })
 
-  it('exposes only what the two components read', async () => {
-    fetchDeepResearchResultService.mockResolvedValue(research())
+  it('distinguishes a pending report from a failed read for the gallery preview', async () => {
+    const first = deferred<DeepResearch>()
+    fetchDeepResearchResultService.mockReturnValue(first.promise)
     const { api } = await mountOn(appClient(), () => useDeepResearchResult(ID))
-
-    expect(Object.keys(api()).toSorted()).toEqual(['data', 'refetch'])
+    expect(api().isPending).toBe(true)
+    await act(async () => {
+      first.resolve(research())
+      await vi.waitFor(() => expect(api().isPending).toBe(false))
+    })
+    expect(api().error).toBeNull()
   })
 
   it.each([
@@ -539,6 +544,10 @@ describe('useDeepResearchResult', () => {
     })
     expect(toastError).not.toHaveBeenCalled()
     expect(api().data).toBeUndefined()
+    // The retry's rejection precedes React Query's queued observer update.
+    await advance(1)
+    expect(api().isPending).toBe(false)
+    expect(api().error).toBeInstanceOf(Error)
     expect(
       queryClient.getQueryData(deepResearchKeys.result(ID))
     ).toBeUndefined()

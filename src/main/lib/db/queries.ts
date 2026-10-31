@@ -317,7 +317,64 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
         )
       )
       .orderBy(desc(message.createdAt))
-    return rows.map((r) => ({
+    const documents = await db
+      .select({
+        artifactId: message.id,
+        path: sql<string>`${message.details}->>'path'`,
+        chatId: message.chatId,
+        chatTitle: chat.title,
+        runId: message.runId,
+        toolCallId: message.toolCallId,
+        createdAt: message.createdAt
+      })
+      .from(message)
+      .innerJoin(chat, eq(chat.id, message.chatId))
+      .where(
+        and(
+          eq(message.role, 'toolResult'),
+          or(
+            eq(message.toolName, TOOL_NAMES.writeFile),
+            eq(message.toolName, TOOL_NAMES.editFile)
+          ),
+          sql`coalesce(${message.isError}, false) = false`,
+          sql`${message.details}->>'path' ~* '\\.(md|markdown|mdown)$'`
+        )
+      )
+      .orderBy(desc(message.createdAt))
+    const research = await db
+      .select({
+        artifactId: deepResearch.id,
+        title: deepResearch.title,
+        chatId: message.chatId,
+        chatTitle: chat.title,
+        runId: message.runId,
+        toolCallId: message.toolCallId,
+        createdAt:
+          sql<Date>`coalesce(${deepResearch.endTime}, ${deepResearch.startTime})`.mapWith(
+            deepResearch.startTime
+          ),
+        previewText: sql<string>`left(${deepResearch.finalReport}, 1000)`
+      })
+      .from(message)
+      .innerJoin(chat, eq(chat.id, message.chatId))
+      .innerJoin(deepResearch, eq(deepResearch.toolCallId, message.toolCallId))
+      .where(
+        and(
+          eq(message.role, 'toolResult'),
+          eq(message.toolName, TOOL_NAMES.deepResearch),
+          sql`coalesce(${message.isError}, false) = false`,
+          eq(deepResearch.jobStatus, 'archived'),
+          sql`length(${deepResearch.finalReport}) > 0`
+        )
+      )
+    const seen = new Set<string>()
+    const uniqueDocuments = documents.filter((r) => {
+      const key = `${r.chatId}:${r.path}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    const artifacts: ArtifactListItem[] = rows.map((r) => ({
       ...r,
       title: r.title ?? '',
       // Every tool result carries its call's id; the column is nullable only
@@ -325,6 +382,24 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
       toolCallId: r.toolCallId ?? '',
       createdAt: r.createdAt.toISOString()
     }))
+    return [
+      ...artifacts,
+      ...uniqueDocuments.map((r) => ({
+        ...r,
+        kind: 'workspace-file' as const,
+        title: r.path.split(/[\\/]/u).pop() || r.path,
+        toolCallId: r.toolCallId ?? '',
+        createdAt: r.createdAt.toISOString()
+      })),
+      ...research.map((r) => ({
+        ...r,
+        kind: 'research' as const,
+        researchId: r.artifactId,
+        title: r.title ?? '',
+        toolCallId: r.toolCallId ?? '',
+        createdAt: r.createdAt.toISOString()
+      }))
+    ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   } catch (error) {
     logDbError('Failed to list artifacts', error)
     throw new DatabaseError(

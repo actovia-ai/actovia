@@ -258,7 +258,8 @@
       "compactsAt": "메시지가 {{percent}}%에 도달하면 압축합니다.",
       "compactionOff": "압축이 꺼져 있습니다.",
       "empty": "메시지를 보내면 이 채팅의 컨텍스트가 무엇으로 채워지는지 볼 수 있습니다."
-    }
+    },
+    "activity": "활동"
   },
   "sidebar": {
     "newChat": "새 채팅",
@@ -305,7 +306,8 @@
     "nav": {
       "new": "새로 만들기",
       "search": "검색",
-      "artifacts": "아티팩트"
+      "artifacts": "아티팩트",
+      "scheduled": "예약된 작업"
     },
     "account": {
       "apps": "앱 받기",

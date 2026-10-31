@@ -68,6 +68,10 @@ test.describe('Settings — Logger', () => {
     await expect(
       mainWindow.getByTestId(TEST_IDS.logger.copyForAi)
     ).toBeVisible()
+    await mainWindow.getByTestId(TEST_IDS.logger.copyForAi).click()
+    await expect(
+      mainWindow.getByTestId(TEST_IDS.logger.copyForAi)
+    ).toContainText('Copied')
 
     // "Lines around" keeps the sheet on the line, inside a window.
     await mainWindow.getByTestId(TEST_IDS.logger.linesAround).click()

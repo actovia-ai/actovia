@@ -2,6 +2,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const runPmCoordinator = vi.fn(async () => {})
+const runScheduledChat = vi.fn(async () => {})
+const getChatById = vi.fn(async () => ({ id: 'chat-1' }))
+vi.mock('@main/lib/db/queries', () => ({ getChatById }))
+vi.mock('@main/lib/ai/philharmonic/scheduled-chat', () => ({
+  runScheduledChat
+}))
 const createConversationMessage = vi.fn(async () => ({ id: 'm' }))
 const updateTask = vi.fn()
 const claimOneOffTask = vi.fn(async (id: string) => ({
@@ -48,6 +54,39 @@ const { runScheduledRound, runDueOneOffTasks } =
 
 describe('runScheduledRound', () => {
   beforeEach(() => vi.clearAllMocks())
+
+  it('executes a normal chat schedule through the chat pipeline, without a PM round', async () => {
+    getTaskById.mockResolvedValueOnce({
+      id: 't',
+      title: 'Daily report',
+      status: 'pending',
+      conversationId: null,
+      input: { kind: 'chat-schedule', chatId: 'chat-1' }
+    } as never)
+    await runScheduledRound('t', vi.fn())
+    expect(runScheduledChat).toHaveBeenCalledWith(
+      'chat-1',
+      '[Scheduled] Daily report',
+      expect.any(AbortSignal)
+    )
+    expect(runPmCoordinator).not.toHaveBeenCalled()
+    expect(createConversationMessage).not.toHaveBeenCalled()
+    expect(updateTask).toHaveBeenCalledWith('t', { lastRunStatus: 'completed' })
+  })
+
+  it('cancels a schedule whose chat was deleted instead of recreating that chat', async () => {
+    getTaskById.mockResolvedValueOnce({
+      id: 't',
+      title: 'Daily report',
+      status: 'pending',
+      conversationId: null,
+      input: { kind: 'chat-schedule', chatId: 'chat-1' }
+    } as never)
+    getChatById.mockResolvedValueOnce(null as never)
+    await runScheduledRound('t', vi.fn())
+    expect(runScheduledChat).not.toHaveBeenCalled()
+    expect(updateTask).toHaveBeenCalledWith('t', { status: 'cancelled' })
+  })
 
   it('injects a round-start system message and runs the PM loop', async () => {
     const emit = vi.fn()

@@ -72,7 +72,14 @@
         "dailyNine": "Tous les jours à 9h00",
         "mondayNine": "Tous les lundis à 9h00",
         "custom": "Personnalisé"
-      }
+      },
+      "conversationLabel": "Conversation",
+      "chatTitle": "Chat · {{title}}"
+    },
+    "page": {
+      "title": "Tâches planifiées",
+      "description": "Planifiez des tâches dans un chat ou un groupe Philharmonic.",
+      "localOnly": "Les tâches s’exécutent sur cet ordinateur quand Actovia est ouvert, dans son fuseau horaire."
     }
   },
   "chat": {

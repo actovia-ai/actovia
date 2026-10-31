@@ -54,7 +54,7 @@ export function WorkspaceFilePreview({
         className="flex max-h-[85vh] flex-col gap-4 sm:max-w-3xl"
       >
         <DialogHeader className="pr-10">
-          <DialogTitle className="truncate">{name}</DialogTitle>
+          <DialogTitle className="truncate leading-tight">{name}</DialogTitle>
           <DialogDescription className="truncate text-xs">
             {data && 'file' in data && data.file
               ? t('workspaceFile.previewMeta', {

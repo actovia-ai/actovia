@@ -24,7 +24,7 @@ export const invalidateHistory = (queryClient: QueryClient) =>
   queryClient.invalidateQueries({ queryKey: historyKeys.all, exact: true })
 
 export function useChatHistory() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: historyKeys.all,
     queryFn: () => fetcher<Chat[]>('/api/v1/history'),
     // actovia-ios and the CLI edit chats through the API; coming back to the
@@ -32,7 +32,7 @@ export function useChatHistory() {
     // on for this list read.
     refetchOnWindowFocus: true
   })
-  return { data, isLoading }
+  return { data, isLoading, error, refetch }
 }
 
 /**

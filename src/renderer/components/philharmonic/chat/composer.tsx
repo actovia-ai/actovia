@@ -117,8 +117,10 @@ export function Composer({
   }
 
   return (
-    <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col gap-2">
-      <FolderChip key={conversationId} conversationId={conversationId} />
+    <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col">
+      <div className="bg-card mx-2 -mb-3 min-w-0 rounded-t-2xl px-3 pt-2 pb-5">
+        <FolderChip key={conversationId} conversationId={conversationId} />
+      </div>
       <div className="flex w-full flex-col rounded-[28px] shadow-[0_2px_6px_rgb(0_0_0/0.04),0_10px_28px_rgb(0_0_0/0.06)]">
         <div className="border-border focus-within:border-foreground/20 bg-card/90 flex flex-col gap-1.5 rounded-[28px] border px-2.5 py-2 backdrop-blur-md transition-colors">
           <AttachmentPreview />

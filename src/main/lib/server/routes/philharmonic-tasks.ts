@@ -6,12 +6,14 @@ import cron from 'node-cron'
 import { z } from 'zod'
 
 import { scheduleTask, unscheduleTask } from '../../ai/philharmonic/scheduler'
+import { getConversationById } from '../../db/conversation-queries'
 import {
   createTask,
   getActiveCronTasks,
   getUpcomingOneOffTasks,
   updateTask
 } from '../../db/philharmonic-queries'
+import { getChatById } from '../../db/queries'
 import type { Variables } from '../types'
 import {
   getRequiredParam,
@@ -27,10 +29,14 @@ export const scheduleTaskSchema = z
   .object({
     title: z.string().min(1),
     description: z.string().optional(),
-    conversationId: z.string().uuid(),
+    conversationId: z.string().uuid().optional(),
+    chatId: z.string().uuid().optional(),
     priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
     cronExpression: z.string().min(1).optional().nullable(),
     runAt: z.string().datetime().optional().nullable()
+  })
+  .refine((d) => Boolean(d.conversationId) !== Boolean(d.chatId), {
+    message: 'Choose exactly one chat or Group'
   })
   .refine((d) => Boolean(d.cronExpression) !== Boolean(d.runAt), {
     message: 'Exactly one of cronExpression or runAt must be set'
@@ -72,12 +78,28 @@ philharmonicTasks.post('/tasks', async (c) => {
       'Invalid cron expression'
     )
   }
+  if (data.runAt && new Date(data.runAt).getTime() <= Date.now())
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'Choose a future time'
+    )
+  const target = data.chatId
+    ? await getChatById({ id: data.chatId })
+    : await getConversationById(data.conversationId!)
+  if (!target)
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'The selected conversation no longer exists'
+    )
   const row = await handleDatabaseOperation(
     () =>
       createTask({
         title: data.title,
         description: data.description,
         conversationId: data.conversationId,
+        input: data.chatId
+          ? { kind: 'chat-schedule', chatId: data.chatId }
+          : null,
         priority: data.priority,
         cronExpression: data.cronExpression ?? null,
         runAt: data.runAt ? new Date(data.runAt) : null

@@ -72,7 +72,14 @@
         "dailyNine": "매일 오전 9시",
         "mondayNine": "매주 월요일 오전 9시",
         "custom": "사용자 지정"
-      }
+      },
+      "conversationLabel": "대화",
+      "chatTitle": "채팅 · {{title}}"
+    },
+    "page": {
+      "title": "예약된 작업",
+      "description": "채팅 또는 Philharmonic 그룹에서 작업을 예약하세요.",
+      "localOnly": "Actovia가 열려 있는 동안 이 컴퓨터에서 실행됩니다. 시간은 컴퓨터의 시간대를 따릅니다."
     }
   },
   "chat": {

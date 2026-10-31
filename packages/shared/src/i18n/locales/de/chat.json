@@ -270,7 +270,8 @@
       "compactsAt": "Wird verdichtet, sobald Nachrichten {{percent}} % erreichen.",
       "compactionOff": "Verdichtung ist aus.",
       "empty": "Sende eine Nachricht, um zu sehen, was den Kontext dieses Chats füllt."
-    }
+    },
+    "activity": "Aktivität"
   },
   "sidebar": {
     "newChat": "Neuer Chat",
@@ -317,7 +318,8 @@
     "nav": {
       "new": "Neu",
       "search": "Suchen",
-      "artifacts": "Artefakte"
+      "artifacts": "Artefakte",
+      "scheduled": "Geplant"
     },
     "account": {
       "apps": "Apps holen",

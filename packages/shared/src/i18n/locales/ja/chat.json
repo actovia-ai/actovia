@@ -258,7 +258,8 @@
       "compactsAt": "メッセージが {{percent}}% に達すると圧縮されます。",
       "compactionOff": "圧縮はオフです。",
       "empty": "メッセージを送ると、このチャットのコンテキストの内訳が表示されます。"
-    }
+    },
+    "activity": "アクティビティ"
   },
   "sidebar": {
     "newChat": "新しいチャット",
@@ -305,7 +306,8 @@
     "nav": {
       "new": "新規",
       "search": "検索",
-      "artifacts": "アーティファクト"
+      "artifacts": "アーティファクト",
+      "scheduled": "スケジュール"
     },
     "account": {
       "apps": "アプリを入手",

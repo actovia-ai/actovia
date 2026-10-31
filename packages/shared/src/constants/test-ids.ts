@@ -45,6 +45,7 @@ export const TEST_IDS = {
     placeRow: 'map-itinerary.place-row'
   },
   schedule: {
+    page: 'schedule.page',
     tab: 'schedule.tab',
     createButton: 'schedule.create-button',
     taskCard: 'schedule.task-card',
@@ -145,6 +146,7 @@ export const TEST_IDS = {
     search: 'artifacts.search'
   },
   chatLayout: {
+    scheduled: 'chat-layout.scheduled',
     workspaceSwitcher: 'chat-layout.workspace-switcher',
     workspaceChat: 'chat-layout.workspace-chat',
     workspacePhilharmonic: 'chat-layout.workspace-philharmonic',
@@ -174,6 +176,8 @@ export const TEST_IDS = {
   philharmonic: {
     newGroup: 'philharmonic.new-group',
     membersToggle: 'philharmonic.members-toggle',
+    resourcesPanel: 'philharmonic.resources-panel',
+    resourcesTab: 'philharmonic.resources-tab',
     /** Under a PM message: opens the round's decision process. */
     decisionToggle: 'philharmonic.decision-toggle'
   },

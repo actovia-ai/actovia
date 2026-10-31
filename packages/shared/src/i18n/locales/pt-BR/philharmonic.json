@@ -72,7 +72,14 @@
         "dailyNine": "Todos os dias às 9h",
         "mondayNine": "Toda segunda-feira às 9h",
         "custom": "Personalizado"
-      }
+      },
+      "conversationLabel": "Conversa",
+      "chatTitle": "Conversa · {{title}}"
+    },
+    "page": {
+      "title": "Agendadas",
+      "description": "Agende tarefas em uma conversa ou grupo Philharmonic.",
+      "localOnly": "As tarefas são executadas neste computador enquanto o Actovia está aberto, no fuso horário dele."
     }
   },
   "chat": {

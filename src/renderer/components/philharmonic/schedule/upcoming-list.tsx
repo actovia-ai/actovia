@@ -14,7 +14,7 @@ export function UpcomingList({
   onCancel
 }: {
   tasks: TaskData[]
-  conversationsById: Record<string, ConversationData>
+  conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
 }) {

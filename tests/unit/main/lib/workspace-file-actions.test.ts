@@ -1,7 +1,13 @@
 // Open / Reveal for a workspace file (workspace-file-actions.ts): checked
 // against the workspace before the shell is touched, and Open never runs a
 // file.
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  realpathSync,
+  writeFileSync,
+  symlinkSync
+} from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -22,6 +28,7 @@ vi.mock('@main/lib/logger', () => ({
 
 const { openWorkspaceFile, revealWorkspaceFile } =
   await import('@main/lib/workspace-file-actions')
+const { getGroupsDir } = await import('@main/lib/paths')
 
 const scratch = realpathSync(mkdtempSync(join(tmpdir(), 'actovia-ws-actions-')))
 const root = join(scratch, 'workspace')
@@ -36,6 +43,21 @@ const shellDeps = () => ({
 })
 
 describe('openWorkspaceFile', () => {
+  it('accepts Group files but refuses a Group symlink leading outside', async () => {
+    const group = join(getGroupsDir(), 'group1')
+    mkdirSync(group, { recursive: true })
+    writeFileSync(join(group, 'report.md'), '# Report')
+    symlinkSync(join(scratch, 'outside.md'), join(group, 'escape.md'))
+    const deps = shellDeps()
+    expect(await openWorkspaceFile(join(group, 'report.md'), deps)).toEqual({
+      ok: true
+    })
+    expect(await openWorkspaceFile(join(group, 'escape.md'), deps)).toEqual({
+      ok: false,
+      reason: 'outside-workspace'
+    })
+    expect(deps.openPath).toHaveBeenCalledTimes(1)
+  })
   it('opens a file inside the workspace by its real path', async () => {
     const deps = shellDeps()
     expect(

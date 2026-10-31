@@ -270,7 +270,8 @@
       "compactsAt": "Compacts when messages reach {{percent}}%.",
       "compactionOff": "Compaction is off.",
       "empty": "Send a message to see what fills this chat's context."
-    }
+    },
+    "activity": "Activity"
   },
   "sidebar": {
     "newChat": "New chat",
@@ -317,7 +318,8 @@
     "nav": {
       "new": "New",
       "search": "Search",
-      "artifacts": "Artifacts"
+      "artifacts": "Artifacts",
+      "scheduled": "Scheduled"
     },
     "account": {
       "apps": "Get the apps",

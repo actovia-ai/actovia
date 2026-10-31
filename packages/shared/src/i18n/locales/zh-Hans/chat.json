@@ -258,7 +258,8 @@
       "compactsAt": "消息达到 {{percent}}% 时压缩。",
       "compactionOff": "压缩已关闭。",
       "empty": "发送一条消息，看看这个对话的上下文由什么组成。"
-    }
+    },
+    "activity": "活动"
   },
   "sidebar": {
     "newChat": "新聊天",
@@ -305,7 +306,8 @@
     "nav": {
       "new": "新建",
       "search": "搜索",
-      "artifacts": "Artifacts"
+      "artifacts": "Artifacts",
+      "scheduled": "定时任务"
     },
     "account": {
       "apps": "获取应用",

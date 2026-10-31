@@ -16,7 +16,8 @@ export const getRecurringTasks = () =>
 export const createScheduledTask = async (data: {
   title: string
   description?: string
-  conversationId: string
+  conversationId?: string
+  chatId?: string
   priority?: TaskData['priority']
   cronExpression?: string | null
   runAt?: string | null

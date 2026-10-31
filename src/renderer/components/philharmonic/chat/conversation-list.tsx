@@ -232,7 +232,7 @@ export function ConversationList({
             })}
           </div>
         ) : (
-          <SidebarMenu>
+          <SidebarMenu className="px-2">
             {filtered.map((c) => {
               const isActive = activePage === 'chat' && c.id === activeId
               const preview = previewLine(c.latestMessage, agentsById)

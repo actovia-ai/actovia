@@ -12,12 +12,14 @@ import {
   getTaskById,
   updateTask
 } from '../../db/philharmonic-queries'
+import { getChatById } from '../../db/queries'
 import { logger } from '../../logger'
 import { withTrace } from '../../logger/trace-context'
 import { getGroupDir } from '../../paths'
 import type { SseEmitter } from './employee-loop'
 import { runPmCoordinator } from './pm-coordinator'
 import { pmRunRegistry } from './pm-run-registry'
+import { runScheduledChat } from './scheduled-chat'
 
 const scheduledJobs = new Map<string, ScheduledTask>()
 let globalEmit: SseEmitter = () => {}
@@ -30,18 +32,40 @@ export function setSchedulerEmitter(emit: SseEmitter) {
 export async function runScheduledRound(
   taskId: string,
   emit: SseEmitter
-): Promise<void> {
+): Promise<boolean> {
   // Each firing is its own unit of work — trace it so every logger.* call the
   // PM loop makes shares one traceId.
   return withTrace(async () => {
     const template = await getTaskById(taskId)
+    const chatId =
+      template?.input?.kind === 'chat-schedule' &&
+      typeof template.input.chatId === 'string'
+        ? template.input.chatId
+        : null
+    if (template && template.status !== 'cancelled' && chatId) {
+      if (!(await getChatById({ id: chatId }))) {
+        unscheduleTask(taskId)
+        await updateTask(taskId, { status: 'cancelled' })
+        return false
+      }
+      await updateTask(taskId, { lastRunAt: new Date() })
+      await pmRunRegistry.run(`chat:${chatId}`, (signal) =>
+        runScheduledChat(
+          chatId,
+          `[Scheduled] ${template.title}\n\n${template.description ?? ''}`.trim(),
+          signal
+        )
+      )
+      await updateTask(taskId, { lastRunStatus: 'completed' })
+      return true
+    }
     if (
       !template ||
       template.status === 'cancelled' ||
       !template.conversationId
     ) {
       unscheduleTask(taskId)
-      return
+      return false
     }
     const label = `[Scheduled] ${template.title}`
     await createConversationMessage({
@@ -66,6 +90,10 @@ export async function runScheduledRound(
       })
     )
     await updateTask(taskId, { lastRunStatus: 'completed' })
+    return true
+  }).catch(async (error) => {
+    await updateTask(taskId, { lastRunStatus: 'failed' })
+    throw error
   })
 }
 
@@ -155,8 +183,8 @@ export async function runDueOneOffTasks(emit: SseEmitter): Promise<void> {
             : `${t.description ?? ''}\nWatch file appeared: ${path}.`
         })
       }
-      await runScheduledRound(t.id, emit)
-      await updateTask(t.id, { status: 'completed' })
+      if (await runScheduledRound(t.id, emit))
+        await updateTask(t.id, { status: 'completed' })
     } catch (err) {
       logger.error('scheduler', 'One-off task failed', {
         taskId: t.id,

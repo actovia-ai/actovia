@@ -8,6 +8,11 @@ import { useNavigate } from 'react-router'
 
 import { ArtifactPreview } from '@/components/artifacts/artifact-preview'
 import {
+  ReportThumbnail,
+  ResearchReportPreview
+} from '@/components/artifacts/report-preview'
+import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
+import {
   Empty,
   EmptyDescription,
   EmptyHeader,
@@ -134,9 +139,14 @@ function ArtifactCard({
   const { t } = useTranslation('chat')
   const navigate = useNavigate()
   const format = useFormat()
+  const [previewing, setPreviewing] = useState(false)
   const title = artifact.title || t('artifacts.untitled')
 
   const open = () => {
+    if (artifact.kind) {
+      setPreviewing(true)
+      return
+    }
     const reveal: SearchReveal = {
       runId: artifact.runId,
       role: 'assistant',
@@ -156,11 +166,15 @@ function ArtifactCard({
       {/* The preview is a frame, which a button may not hold: the button is
           the title's, stretched over the whole card by its ::after. */}
       <div className="group bg-background ring-border/70 hover:ring-border has-[:focus-visible]:ring-ring relative flex flex-col overflow-hidden rounded-xl ring-1 transition-[box-shadow,transform] duration-150 ease-out hover:shadow-sm has-[:active]:scale-[0.99] has-[:focus-visible]:ring-2">
-        <ArtifactPreview
-          chatId={artifact.chatId}
-          artifactId={artifact.artifactId}
-          title={title}
-        />
+        {artifact.kind ? (
+          <ReportThumbnail item={artifact} />
+        ) : (
+          <ArtifactPreview
+            chatId={artifact.chatId}
+            artifactId={artifact.artifactId}
+            title={title}
+          />
+        )}
         <div className="flex min-w-0 flex-col gap-0.5 px-4 py-3">
           <button
             type="button"
@@ -177,6 +191,19 @@ function ArtifactCard({
           </span>
         </div>
       </div>
+      {previewing && artifact.kind === 'workspace-file' && artifact.path && (
+        <WorkspaceFilePreview
+          path={artifact.path}
+          open
+          onOpenChange={setPreviewing}
+        />
+      )}
+      {previewing && artifact.kind === 'research' && (
+        <ResearchReportPreview
+          item={artifact}
+          onClose={() => setPreviewing(false)}
+        />
+      )}
     </div>
   )
 }

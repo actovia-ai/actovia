@@ -43,6 +43,13 @@ export const router = createHashRouter([
       { path: '/', Component: Home },
       { path: '/artifacts', Component: Artifacts },
       {
+        path: '/scheduled',
+        lazy: () =>
+          import('@/containers/scheduled').then((m) => ({
+            Component: m.Scheduled
+          }))
+      },
+      {
         path: '/chat/:id',
         Component: ChatDetail,
         ErrorBoundary: RouteErrorBoundary

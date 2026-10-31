@@ -18,6 +18,10 @@ vi.mock('@main/lib/ai/philharmonic/scheduler', () => ({
   scheduleTask: vi.fn(),
   unscheduleTask: vi.fn()
 }))
+vi.mock('@main/lib/db/queries', () => ({ getChatById: vi.fn() }))
+vi.mock('@main/lib/db/conversation-queries', () => ({
+  getConversationById: vi.fn()
+}))
 
 const { scheduleTaskSchema } =
   await import('@main/lib/server/routes/philharmonic-tasks')
@@ -42,6 +46,29 @@ describe('scheduleTaskSchema', () => {
       cronExpression: '0 9 * * 1'
     })
     expect(result.success).toBe(true)
+  })
+  it('accepts a chat target but rejects two or no execution targets', () => {
+    const chatId = '22222222-2222-4222-8222-222222222222'
+    expect(
+      scheduleTaskSchema.safeParse({
+        title: 'Report',
+        chatId,
+        cronExpression: '0 9 * * *'
+      }).success
+    ).toBe(true)
+    expect(
+      scheduleTaskSchema.safeParse({
+        ...base,
+        chatId,
+        cronExpression: '0 9 * * *'
+      }).success
+    ).toBe(false)
+    expect(
+      scheduleTaskSchema.safeParse({
+        title: 'Report',
+        cronExpression: '0 9 * * *'
+      }).success
+    ).toBe(false)
   })
 
   it('rejects a task with both cronExpression and runAt', () => {

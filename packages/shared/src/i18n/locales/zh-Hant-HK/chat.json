@@ -258,7 +258,8 @@
       "compactsAt": "訊息達到 {{percent}}% 時壓縮。",
       "compactionOff": "壓縮已關閉。",
       "empty": "傳送一則訊息，看看這個對話的上下文由甚麼組成。"
-    }
+    },
+    "activity": "活動"
   },
   "sidebar": {
     "newChat": "開新聊天",
@@ -305,7 +306,8 @@
     "nav": {
       "new": "新增",
       "search": "搜尋",
-      "artifacts": "Artifacts"
+      "artifacts": "Artifacts",
+      "scheduled": "定時任務"
     },
     "account": {
       "apps": "取得應用程式",

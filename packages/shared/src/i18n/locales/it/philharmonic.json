@@ -72,7 +72,14 @@
         "dailyNine": "Ogni giorno alle 9:00",
         "mondayNine": "Ogni lunedì alle 9:00",
         "custom": "Personalizzata"
-      }
+      },
+      "conversationLabel": "Conversazione",
+      "chatTitle": "Chat · {{title}}"
+    },
+    "page": {
+      "title": "Programmate",
+      "description": "Programma attività in una chat o in un gruppo Philharmonic.",
+      "localOnly": "Le attività vengono eseguite su questo computer mentre Actovia è aperto, nel suo fuso orario."
     }
   },
   "chat": {

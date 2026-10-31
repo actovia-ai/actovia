@@ -72,7 +72,14 @@
         "dailyNine": "毎日午前9:00",
         "mondayNine": "毎週月曜午前9:00",
         "custom": "カスタム"
-      }
+      },
+      "conversationLabel": "会話",
+      "chatTitle": "チャット · {{title}}"
+    },
+    "page": {
+      "title": "スケジュール",
+      "description": "チャットや Philharmonic グループでタスクを予約します。",
+      "localOnly": "Actovia を開いている間、このコンピュータで実行します。時刻はこのコンピュータのタイムゾーンを使用します。"
     }
   },
   "chat": {

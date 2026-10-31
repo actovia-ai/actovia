@@ -227,6 +227,7 @@ export function GroupMessageBubble({
                 <ArtifactCard
                   key={a.artifactId}
                   chatId={bubble.conversationId!}
+                  toolCallId={a.artifactId}
                   toolResult={{
                     type: 'artifact',
                     title: a.title,

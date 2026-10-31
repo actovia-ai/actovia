@@ -72,7 +72,14 @@
         "dailyNine": "Täglich um 9:00 Uhr",
         "mondayNine": "Jeden Montag um 9:00 Uhr",
         "custom": "Benutzerdefiniert"
-      }
+      },
+      "conversationLabel": "Unterhaltung",
+      "chatTitle": "Chat · {{title}}"
+    },
+    "page": {
+      "title": "Geplant",
+      "description": "Aufgaben in einem Chat oder einer Philharmonic-Gruppe planen.",
+      "localOnly": "Läuft auf diesem Computer, solange Actovia geöffnet ist. Es gilt dessen Zeitzone."
     }
   },
   "chat": {

@@ -18,7 +18,7 @@ vi.mock('@main/lib/db/db', async () => {
 })
 
 const { pglite, db } = await import('@main/lib/db/db')
-const { chat, message } = await import('@main/lib/db/schema')
+const { chat, message, deepResearch } = await import('@main/lib/db/schema')
 const { getArtifactCode, listAllArtifacts } =
   await import('@main/lib/db/queries')
 
@@ -28,6 +28,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await db.delete(message)
+  await db.delete(deepResearch)
   await db.delete(chat)
 })
 
@@ -63,6 +64,59 @@ async function addResult(
 }
 
 describe('listAllArtifacts', () => {
+  it('includes the latest Markdown write per path, with completed research reports', async () => {
+    const a = await addChat('Research')
+    await addResult(
+      a,
+      1,
+      { path: '/ws/investment-rules.md' },
+      { toolName: 'write_file' }
+    )
+    const edited = await addResult(
+      a,
+      4,
+      { path: '/ws/investment-rules.md' },
+      { toolName: 'edit_file' }
+    )
+    await addResult(a, 2, { path: '/ws/app.ts' }, { toolName: 'write_file' })
+    await addResult(
+      a,
+      5,
+      { path: '/ws/failed.md' },
+      { toolName: 'write_file', isError: true }
+    )
+    const research = await addResult(
+      a,
+      3,
+      { id: 'job' },
+      { toolName: 'deep_research' }
+    )
+    const jobId = randomUUID()
+    await db.insert(deepResearch).values({
+      id: jobId,
+      toolCallId: research.toolCallId,
+      title: 'Market report',
+      jobStatus: 'archived',
+      finalReport: '# Results\n' + 'x'.repeat(2000),
+      startTime: at(3),
+      endTime: at(6)
+    })
+    const rows = await listAllArtifacts()
+    expect(rows).toHaveLength(2)
+    expect(rows[0]).toMatchObject({
+      kind: 'research',
+      researchId: jobId,
+      title: 'Market report',
+      runId: research.runId
+    })
+    expect(rows[0].previewText).toHaveLength(1000)
+    expect(rows[1]).toMatchObject({
+      kind: 'workspace-file',
+      title: 'investment-rules.md',
+      path: '/ws/investment-rules.md',
+      runId: edited.runId
+    })
+  })
   it('lists every chat’s artifacts, newest first, with the chat and run', async () => {
     const a = await addChat('Trip planning')
     const b = await addChat('Sales dashboard')

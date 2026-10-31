@@ -8,11 +8,12 @@ import {
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { type ReactNode, useEffect, useMemo, useRef } from 'react'
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { SheetPanel } from '@/components/app/sheet-panel'
+import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
 import { SourceFavicon } from '@/components/markdown/source-favicon'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -36,12 +37,11 @@ import {
 
 import { ContextSection } from './context-section'
 
-const SECTIONS: ChatPanelSection[] = ['context', 'files', 'tools', 'sources']
+const SECTIONS = ['context', 'files', 'activity'] as const
 const SECTION_LABELS = {
   context: 'panel.context.tab',
   files: 'panel.files',
-  tools: 'panel.tools',
-  sources: 'panel.sources'
+  activity: 'panel.activity'
 } as const
 
 /**
@@ -77,13 +77,6 @@ export function ChatPanel() {
     setPanel((state) => ({ ...state, runId: undefined }))
   }, [panel.open, panel.section, panel.runId, items, setPanel])
 
-  const counts = {
-    files: items.files.length,
-    tools: items.tools.length,
-    // Every source, not the runs they are grouped under.
-    sources: items.sources.reduce((n, group) => n + group.results.length, 0)
-  }
-
   return (
     <SheetPanel
       open={panel.open}
@@ -92,16 +85,24 @@ export function ChatPanel() {
     >
       <div className="bg-background sticky top-0 z-10 flex h-12 shrink-0 items-center border-b pr-12 pl-3">
         <Tabs
-          value={panel.section}
+          value={
+            panel.section === 'tools' || panel.section === 'sources'
+              ? 'activity'
+              : panel.section
+          }
+          className="min-w-0 flex-1"
           onValueChange={(section) =>
             setPanel({
               ...panel,
-              section: section as ChatPanelSection,
+              section:
+                section === 'activity'
+                  ? 'tools'
+                  : (section as ChatPanelSection),
               runId: undefined
             })
           }
         >
-          <TabsList>
+          <TabsList className="w-full">
             {SECTIONS.map((section) => (
               <TabsTrigger
                 key={section}
@@ -110,11 +111,6 @@ export function ChatPanel() {
                 data-section={section}
               >
                 {t(SECTION_LABELS[section])}
-                {section !== 'context' && (
-                  <span className="text-muted-foreground ml-1 tabular-nums">
-                    {counts[section]}
-                  </span>
-                )}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -128,10 +124,8 @@ export function ChatPanel() {
           ) : hasPanelItems(items) ? (
             panel.section === 'files' ? (
               <FilesSection items={items} />
-            ) : panel.section === 'tools' ? (
-              <ToolsSection tools={items.tools} />
             ) : (
-              <SourcesSection groups={items.sources} />
+              <ActivitySection items={items} />
             )
           ) : (
             <p
@@ -190,7 +184,13 @@ function Row({
   )
 }
 
-function FilesSection({ items }: { items: ChatPanelItems }) {
+export function FilesSection({
+  items,
+  onNavigate
+}: {
+  items: ChatPanelItems
+  onNavigate?: (id: string) => void
+}) {
   const { t } = useTranslation('chat')
   const yours = items.files.filter((file) => file.kind === 'user-image')
   const made = items.files.filter((file) => file.kind !== 'user-image')
@@ -199,6 +199,7 @@ function FilesSection({ items }: { items: ChatPanelItems }) {
       key={`${file.runId}-${file.kind}-${i}`}
       file={file}
       caption={items.questions.get(file.runId) ?? ''}
+      onNavigate={onNavigate}
     />
   )
   return (
@@ -213,8 +214,17 @@ function FilesSection({ items }: { items: ChatPanelItems }) {
   )
 }
 
-function FileRow({ file, caption }: { file: ChatFile; caption: string }) {
+function FileRow({
+  file,
+  caption,
+  onNavigate = scrollToRun
+}: {
+  file: ChatFile
+  caption: string
+  onNavigate?: (id: string) => void
+}) {
   const { t } = useTranslation('chat')
+  const [previewing, setPreviewing] = useState(false)
   const reveal = useSetAtom(revealArtifactAtom)
   const name =
     file.kind === 'user-image'
@@ -239,20 +249,39 @@ function FileRow({ file, caption }: { file: ChatFile; caption: string }) {
       </span>
     )
   return (
-    <Row
-      kind={file.kind}
-      icon={icon}
-      name={name}
-      caption={caption}
-      onClick={() => {
-        scrollToRun(file.runId)
-        if (file.kind === 'artifact') reveal(file.toolCallId)
-      }}
-    />
+    <>
+      <Row
+        kind={file.kind}
+        icon={icon}
+        name={name}
+        caption={caption}
+        onClick={() => {
+          if (file.kind === 'workspace-file') {
+            setPreviewing(true)
+            return
+          }
+          onNavigate(file.runId)
+          if (file.kind === 'artifact') reveal(file.toolCallId)
+        }}
+      />
+      {file.kind === 'workspace-file' && previewing && (
+        <WorkspaceFilePreview
+          path={file.path}
+          open={previewing}
+          onOpenChange={setPreviewing}
+        />
+      )}
+    </>
   )
 }
 
-function ToolsSection({ tools }: { tools: ChatToolUse[] }) {
+function ToolsSection({
+  tools,
+  onNavigate = scrollToRun
+}: {
+  tools: ChatToolUse[]
+  onNavigate?: (id: string) => void
+}) {
   const { t } = useTranslation('chat')
   return (
     <div className="flex flex-col gap-0.5">
@@ -267,9 +296,33 @@ function ToolsSection({ tools }: { tools: ChatToolUse[] }) {
           }
           name={toolLabel(tool.name)}
           caption={t('panel.calls', { count: tool.count })}
-          onClick={() => scrollToRun(tool.lastRunId)}
+          onClick={() => onNavigate(tool.lastRunId)}
         />
       ))}
+    </div>
+  )
+}
+
+export function ActivitySection({
+  items,
+  onNavigate
+}: {
+  items: ChatPanelItems
+  onNavigate?: (id: string) => void
+}) {
+  const { t } = useTranslation('chat')
+  const sourceCount = items.sources.reduce(
+    (n, group) => n + group.results.length,
+    0
+  )
+  return (
+    <div className="flex flex-col gap-6">
+      <Group title={`${t('panel.tools')} · ${items.tools.length}`}>
+        <ToolsSection tools={items.tools} onNavigate={onNavigate} />
+      </Group>
+      <Group title={`${t('panel.sources')} · ${sourceCount}`}>
+        <SourcesSection groups={items.sources} />
+      </Group>
     </div>
   )
 }

@@ -20,6 +20,7 @@ import {
   getMessagesByConversationId,
   updateConversation
 } from '../../db/conversation-queries'
+import { getConversationToolResults } from '../../db/philharmonic-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
 import { listRoundEvents } from '../../db/pm-round-queries'
 import { mainT } from '../../i18n'
@@ -37,6 +38,13 @@ import {
 import { emitToConversation, sseManager } from './philharmonic-sse'
 
 const router = new Hono<{ Variables: Variables }>()
+
+router.get('/conversations/:id/tool-results', async (c) =>
+  successResponse(
+    c,
+    await getConversationToolResults(getRequiredParam(c, 'id'))
+  )
+)
 
 // ─── Conversations ──────────────────────────────────────────────────────────
 

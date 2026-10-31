@@ -37,11 +37,13 @@ export function ScheduleTaskForm({
   open,
   onOpenChange,
   conversations,
+  chats = [],
   onCreated
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   conversations: ConversationData[]
+  chats?: Array<{ id: string; title: string }>
   onCreated: (task: TaskData) => void
 }) {
   const { t } = useTranslation('philharmonic')
@@ -102,7 +104,9 @@ export function ScheduleTaskForm({
       const task = await createScheduledTask({
         title: title.trim(),
         description: description.trim() || undefined,
-        conversationId,
+        ...(conversationId.startsWith('chat:')
+          ? { chatId: conversationId.slice(5) }
+          : { conversationId }),
         cronExpression,
         runAt: runAt?.toISOString() ?? null
       })
@@ -126,7 +130,11 @@ export function ScheduleTaskForm({
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{t('schedule.form.title')}</SheetTitle>
-          <SheetDescription>{t('schedule.form.description')}</SheetDescription>
+          <SheetDescription>
+            {chats.length
+              ? t('schedule.page.description')
+              : t('schedule.form.description')}
+          </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-4 px-4">
           <div className="flex flex-col gap-1.5">
@@ -152,25 +160,44 @@ export function ScheduleTaskForm({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>{t('schedule.form.groupLabel')}</Label>
+            <Label>
+              {chats.length
+                ? t('schedule.form.conversationLabel')
+                : t('schedule.form.groupLabel')}
+            </Label>
             {/* `items` lets the trigger show a group's title, not its id. */}
             <Select
               value={conversationId}
               onValueChange={(v) => v && setConversationId(v)}
-              items={conversations.map((c) => ({
-                value: c.id,
-                label: c.title
-              }))}
+              items={[
+                ...conversations.map((c) => ({
+                  value: c.id,
+                  label: c.title
+                })),
+                ...chats.map((c) => ({
+                  value: `chat:${c.id}`,
+                  label: t('schedule.form.chatTitle', { title: c.title })
+                }))
+              ]}
             >
               <SelectTrigger>
                 <SelectValue
-                  placeholder={t('schedule.form.groupPlaceholder')}
+                  placeholder={
+                    chats.length
+                      ? t('schedule.form.conversationLabel')
+                      : t('schedule.form.groupPlaceholder')
+                  }
                 />
               </SelectTrigger>
               <SelectContent>
                 {conversations.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.title}
+                  </SelectItem>
+                ))}
+                {chats.map((c) => (
+                  <SelectItem key={`chat:${c.id}`} value={`chat:${c.id}`}>
+                    {t('schedule.form.chatTitle', { title: c.title })}
                   </SelectItem>
                 ))}
               </SelectContent>

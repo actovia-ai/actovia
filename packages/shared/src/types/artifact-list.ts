@@ -4,6 +4,12 @@
  * run that made it, where the card draws it.
  */
 export interface ArtifactListItem {
+  /** Absent on older servers: an interactive artifact. */
+  kind?: 'workspace-file' | 'research'
+  path?: string
+  researchId?: string
+  /** Short plain-text/Markdown sample, never the whole report. */
+  previewText?: string
   artifactId: string
   title: string
   chatId: string

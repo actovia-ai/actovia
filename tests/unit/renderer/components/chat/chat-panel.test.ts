@@ -21,6 +21,13 @@ const scrollToRun = vi.fn(() => true)
 vi.mock('@/lib/scroll-to-run', () => ({
   scrollToRun: (id: string) => scrollToRun(id)
 }))
+vi.mock(
+  '@/components/calling-tools/workspace-file/workspace-file-preview',
+  () => ({
+    WorkspaceFilePreview: ({ path }: { path: string }) =>
+      createElement('div', { 'data-preview-path': path })
+  })
+)
 
 // The tabs' own behaviour is Base UI's; here each trigger is a plain button.
 const pass =
@@ -194,20 +201,23 @@ describe('<ChatPanel>', () => {
     ).toEqual([
       // What fills the context has no count (ISSUE-235).
       'context:panel.context.tab',
-      'files:panel.files3',
-      'tools:panel.tools3',
-      // Every source, not the one run they are grouped under.
-      'sources:panel.sources2'
+      'files:panel.files',
+      'activity:panel.activity'
     ])
   })
 
-  it('a file row scrolls to its run; an artifact row also opens its card', () => {
+  it('opens a file directly; an artifact row opens its card at its run', () => {
     const { host, store } = mount({ open: true, section: 'files' })
     act(() => rows(host)[0].click())
-    expect(scrollToRun).toHaveBeenLastCalledWith('r1')
+    expect(scrollToRun).not.toHaveBeenCalled()
+    expect(
+      host
+        .querySelector('[data-preview-path]')
+        ?.getAttribute('data-preview-path')
+    ).toBe('/ws/c/notes.md')
     expect(store.get(revealArtifactAtom)).toBeNull()
     act(() => rows(host)[1].click())
-    expect(scrollToRun).toHaveBeenCalledTimes(2)
+    expect(scrollToRun).toHaveBeenCalledTimes(1)
     expect(scrollToRun).toHaveBeenLastCalledWith('r1')
     expect(store.get(revealArtifactAtom)).toBe('r1-create_artifact-call')
   })

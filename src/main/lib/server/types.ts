@@ -12,6 +12,8 @@ export interface Bindings {
 
 export interface Variables {
   settings: Settings
+  /** Internally scheduled chat: nobody is present to approve a tool call. */
+  scheduled?: boolean
   /** Set by authGate for a request from a paired device. */
   deviceId?: string
 }

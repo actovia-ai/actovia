@@ -6,7 +6,8 @@ import {
   Cancel01Icon,
   FilterIcon,
   Menu01Icon,
-  SparklesIcon
+  SparklesIcon,
+  Tick02Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import type { KeyboardEvent } from 'react'
@@ -64,7 +65,7 @@ export function LogDetail({
 }: LogDetailProps) {
   const { t } = useTranslation('settings')
   const { number: formatNumber, dateTime } = useFormat()
-  const { handleCopy } = useClipboard()
+  const { copied, handleCopy } = useClipboard()
   const open = record !== null
 
   // Handled on the sheet in the capture phase, not as a global hotkey: the
@@ -100,6 +101,7 @@ export function LogDetail({
             onNext={onNext}
             onLinesAround={onLinesAround}
             onTrace={onTrace}
+            copied={copied !== '' && copied === formatLogForAi(record)}
             onCopy={async () => {
               if (await handleCopy(formatLogForAi(record))) {
                 toast.add({ type: 'success', title: t('logger.detail.copied') })
@@ -134,11 +136,13 @@ function RecordDetail({
   onLinesAround,
   onTrace,
   onCopy,
+  copied,
   formatNumber,
   formatDate
 }: Omit<LogDetailProps, 'record' | 'onClose'> & {
   record: LogRecord
   onCopy: () => void
+  copied: boolean
   formatNumber: (n: number) => string
   formatDate: (d: Date) => string
 }) {
@@ -231,8 +235,10 @@ function RecordDetail({
             onClick={onCopy}
             data-testid={TEST_IDS.logger.copyForAi}
           >
-            <HugeiconsIcon icon={SparklesIcon} />
-            {t('logger.detail.copyForAi')}
+            <HugeiconsIcon icon={copied ? Tick02Icon : SparklesIcon} />
+            <span role="status" aria-live="polite">
+              {t(copied ? 'logger.detail.copied' : 'logger.detail.copyForAi')}
+            </span>
           </Button>
           <Button
             variant="outline"

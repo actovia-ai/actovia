@@ -560,6 +560,7 @@ chat.post('/', async (c) => {
           apiKey,
           reasoning: effectiveReasoning,
           signal: c.req.raw.signal,
+          approvalTimeoutMs: c.get('scheduled') ? 0 : undefined,
           disabledTools,
           workspaceDir: getChatWorkspaceDir(id)
         })

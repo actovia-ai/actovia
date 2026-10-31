@@ -11,13 +11,11 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SheetPanel } from '@/components/app/sheet-panel'
 import {
   ConfigPage,
   ConversationList
 } from '@/components/philharmonic/chat/conversation-list'
 import { GroupChat } from '@/components/philharmonic/chat/group-chat'
-import { GroupMembersPanel } from '@/components/philharmonic/chat/group-members-panel'
 import { WorkforcePage } from '@/components/philharmonic/workforce/workforce-page'
 import { Button } from '@/components/ui/button'
 import { SidebarInset } from '@/components/ui/sidebar'
@@ -255,19 +253,6 @@ export function PhilharmonicContainer({
           )}
         </SidebarInset>
       </ResizableSidebarShell>
-
-      <SheetPanel
-        open={showMembers && membersOpen}
-        onClose={() => setMembersOpen(false)}
-      >
-        {showMembers && (
-          <GroupMembersPanel
-            members={members}
-            teamsById={teamsById}
-            busyAgents={stream.busyAgents}
-          />
-        )}
-      </SheetPanel>
     </>
   )
 }

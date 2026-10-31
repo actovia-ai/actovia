@@ -17,7 +17,7 @@ export const deepResearchKeys = {
  * Return it as-is — never wrap it in an inline function or spread the query.
  */
 export function useDeepResearchResult(id: string | undefined) {
-  const { data, refetch } = useQuery({
+  const { data, refetch, isPending, error } = useQuery({
     queryKey: deepResearchKeys.result(id ?? ''),
     // `refetch()` bypasses `enabled`, and a stream that outlived its id can
     // still call it: with no id there is nothing to read, so resolve `null`
@@ -26,5 +26,5 @@ export function useDeepResearchResult(id: string | undefined) {
       id ? fetchDeepResearchResult(id) : null,
     enabled: !!id
   })
-  return { data: data ?? undefined, refetch }
+  return { data: data ?? undefined, refetch, isPending, error }
 }

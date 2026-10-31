@@ -10,6 +10,17 @@ import type {
 
 const BASE = '/api/v1/philharmonic'
 
+export interface GroupToolResult {
+  id: string
+  messageId: string | null
+  payload: Record<string, unknown> | null
+  createdAt: string
+}
+export const getGroupToolResults = (id: string) =>
+  fetcher<GroupToolResult[]>(
+    `${BASE}/conversations/${encodeURIComponent(id)}/tool-results`
+  )
+
 export const getConversations = () =>
   fetcher<ConversationData[]>(`${BASE}/conversations`)
 export const createConversation = (data: { title: string; icon?: string }) =>
