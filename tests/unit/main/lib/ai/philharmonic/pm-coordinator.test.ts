@@ -286,6 +286,120 @@ describe('runPmCoordinator — the group’s members', () => {
   const joined = (emit: ReturnType<typeof vi.fn>) =>
     emit.mock.calls.filter(([e]) => e.type === 'member_joined')
 
+  it('registers a question before presenting it and passes the PM abort signal', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    agentLoopMock.mockReturnValueOnce(fakeStream([]))
+    const emit = vi.fn()
+    const signal = new AbortController().signal
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'work',
+      emit,
+      signal
+    })
+    const context = agentLoopMock.mock.calls.at(-1)![1]
+    const escalate = context.tools.find(
+      (tool: { name: string }) => tool.name === 'escalateToUser'
+    )
+    vi.mocked(askUserRegistry.wait).mockResolvedValueOnce('answer')
+    await escalate.execute('ask', { question: 'Which account?', options: [] })
+    expect(emit).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: 'ask_user' })
+    )
+    const waitOptions = vi.mocked(askUserRegistry.wait).mock.calls.at(-1)![2]!
+    expect(waitOptions.signal).toBe(signal)
+    waitOptions.onActive!({
+      question: 'Which account?',
+      options: [],
+      questionId: 'q'
+    })
+    expect(emit).toHaveBeenCalledWith({
+      type: 'ask_user',
+      conversationId: 'c1',
+      question: 'Which account?',
+      options: [],
+      questionId: 'q'
+    })
+  })
+
+  it('parks a blocked employee step as pending and returns its question to the PM', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    const plan = await import('@main/lib/db/plan-queries')
+    vi.mocked(plan.updateStep).mockResolvedValue({
+      id: 'step1',
+      status: 'running'
+    } as never)
+    vi.mocked(engine.runDelegatedTask).mockResolvedValueOnce({
+      output: '[Blocked — question for PM]\nWhich account?',
+      blockedQuestion: 'Which account?',
+      liveMessageId: 'blocked-message'
+    })
+    const { delegate, emit } = await delegateTool(['a1'])
+    const result = await delegate.execute('work', {
+      employeeId: 'a1',
+      instructions: 'work',
+      stepId: 'step1'
+    })
+    expect(JSON.stringify(result)).toContain('Which account?')
+    expect(plan.updateStep).toHaveBeenCalledWith(
+      'step1',
+      expect.objectContaining({
+        status: 'pending',
+        note: 'Needs PM: Which account?'
+      })
+    )
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'plan_step_updated',
+        stepId: 'step1',
+        patch: expect.objectContaining({ status: 'pending' })
+      })
+    )
+  })
+
+  it('parks a background employee question before waking a report round', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    const plan = await import('@main/lib/db/plan-queries')
+    vi.mocked(plan.updateStep).mockResolvedValue({
+      id: 'background-step',
+      status: 'running'
+    } as never)
+    vi.mocked(engine.runDelegatedTask).mockResolvedValueOnce({
+      output: '[Blocked — question for PM]\nWhich folder?',
+      blockedQuestion: 'Which folder?',
+      liveMessageId: 'blocked-background'
+    })
+    const { delegate, emit } = await delegateTool(['a1'])
+    recorder.input.mockClear()
+    await delegate.execute('work', {
+      employeeId: 'a1',
+      instructions: 'work',
+      stepId: 'background-step',
+      mode: 'background'
+    })
+    await vi.waitFor(() =>
+      expect(recorder.input).toHaveBeenCalledWith(
+        'report',
+        expect.stringContaining('Which folder?')
+      )
+    )
+    expect(plan.updateStep).toHaveBeenCalledWith(
+      'background-step',
+      expect.objectContaining({
+        status: 'pending',
+        note: 'Needs PM: Which folder?'
+      })
+    )
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'plan_step_updated',
+        stepId: 'background-step',
+        patch: expect.objectContaining({ status: 'pending' })
+      })
+    )
+  })
+
   it('queues a CLI follow-up behind the active PM and records a report round', async () => {
     const engine = await import('@main/lib/ai/philharmonic/execution-engine')
     const { pmRunRegistry } =

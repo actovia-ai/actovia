@@ -58,7 +58,19 @@ vi.mock('@main/lib/ai/philharmonic/pm-coordinator', () => ({
   runPmCoordinator: (input: unknown) => runPmCoordinator(input)
 }))
 vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
-  askUserRegistry: { resolve: vi.fn() }
+  askUserRegistry: {
+    answer: vi.fn(async (_id, _answer, _questionId, persist) => {
+      await persist()
+      return true
+    }),
+    resolve: vi.fn(() => true),
+    cancel: vi.fn(),
+    question: vi.fn(() => ({
+      questionId: 'q1',
+      question: 'Proceed?',
+      options: []
+    }))
+  }
 }))
 const closeTopic = vi.fn((_topic: string) => {
   order.push('close streams')
@@ -91,6 +103,66 @@ vi.mock('@main/lib/agents/registry', () => ({
 
 const { default: conversationsRouter } =
   await import('@main/lib/server/routes/philharmonic-conversations')
+
+describe('POST /conversations/:id/respond', () => {
+  it('persists the answer through the registry reservation with its question id', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    createConversationMessage.mockClear()
+    const response = await app.request('/conversations/id/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: 'Production', questionId: 'q1' })
+    })
+    expect(response.status).toBe(200)
+    expect(askUserRegistry.answer).toHaveBeenCalledWith(
+      'id',
+      'Production',
+      'q1',
+      expect.any(Function)
+    )
+    expect(createConversationMessage).toHaveBeenCalledWith({
+      conversationId: 'id',
+      role: 'user',
+      content: 'Production'
+    })
+  })
+
+  it('rejects a stale answer without writing a new owner message', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    const { Hono } = await import('hono')
+    vi.mocked(askUserRegistry.answer).mockResolvedValueOnce(false)
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    createConversationMessage.mockClear()
+    const response = await app.request('/conversations/id/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: 'Stale', questionId: 'old' })
+    })
+    expect(response.status).toBe(409)
+    expect(createConversationMessage).not.toHaveBeenCalled()
+  })
+
+  it('clears unanswered questions even when Stop finds no active PM', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    const { Hono } = await import('hono')
+    abort.mockReturnValueOnce(false)
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    vi.mocked(askUserRegistry.cancel).mockClear()
+    const response = await app.request('/conversations/id/interrupt', {
+      method: 'POST'
+    })
+    expect(response.status).toBe(200)
+    expect(askUserRegistry.cancel).toHaveBeenCalledWith('id')
+  })
+})
 
 describe('DELETE /conversations/:id', () => {
   it('removes the Group’s generated media with it', async () => {

@@ -69,6 +69,7 @@ export async function runDelegatedTask(args: {
 
   // Each attempt streams a bubble of its own; the last one's id is the report's.
   let liveMessageId: string | undefined
+  let blockedQuestion: string | undefined
   try {
     const outcome: DelegatedOutput =
       agent.runtime === 'actovia'
@@ -83,6 +84,9 @@ export async function runDelegatedTask(args: {
                   conversationId,
                   emit,
                   signal,
+                  onBlocked: (question) => {
+                    blockedQuestion = question
+                  },
                   messageId: liveMessageId
                 })
               },
@@ -113,7 +117,8 @@ export async function runDelegatedTask(args: {
                 }
               }
             ),
-            liveMessageId
+            liveMessageId,
+            ...(blockedQuestion ? { blockedQuestion } : {})
           }
         : await runAgentEmployee({
             agent,
@@ -143,10 +148,16 @@ export async function runDelegatedTask(args: {
 
     await updateTask(taskId, {
       status: 'completed',
-      output: { result: output },
+      output: {
+        result: output,
+        ...(outcome.blockedQuestion
+          ? { blockedQuestion: outcome.blockedQuestion }
+          : {})
+      },
       completedAt: new Date()
     })
-    await rememberTaskOutcome(agentId, conversationId, instructions, output)
+    if (!outcome.blockedQuestion)
+      await rememberTaskOutcome(agentId, conversationId, instructions, output)
     return outcome
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

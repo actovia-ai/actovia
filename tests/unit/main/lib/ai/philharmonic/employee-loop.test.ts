@@ -4,7 +4,12 @@ const agentLoopMock = vi.fn()
 vi.mock('@earendil-works/pi-agent-core', () => ({
   agentLoop: (...args: unknown[]) => agentLoopMock(...args)
 }))
-vi.mock('@earendil-works/pi-ai', () => ({}))
+vi.mock('@earendil-works/pi-ai', () => ({
+  Type: {
+    Object: (value: unknown) => value,
+    String: (value: unknown) => value
+  }
+}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({ id: 's' })
 }))
@@ -54,6 +59,49 @@ function fakeStream(events: unknown[]) {
 }
 
 describe('runEmployeeLoop', () => {
+  it('offers ask_pm even with a tool allowlist and stops the turn with a blocked report', async () => {
+    const onBlocked = vi.fn()
+    const safeTool = { name: 'read_file' }
+    bindCallingTools.mockReturnValueOnce([safeTool, { name: 'terminal' }])
+    let gate!: (context: never) => Promise<{ block?: boolean } | undefined>
+    let finish!: () => Promise<{ action: string } | undefined>
+    agentLoopMock.mockImplementationOnce((_messages, context, config) => {
+      gate = config.beforeToolCall
+      finish = config.finishTurn
+      return {
+        async *[Symbol.asyncIterator]() {
+          const ask = context.tools.find(
+            (tool: { name: string }) => tool.name === 'ask_pm'
+          )
+          expect(
+            context.tools.map((tool: { name: string }) => tool.name)
+          ).toEqual(['read_file', 'ask_pm'])
+          expect(ask.executionMode).toBe('sequential')
+          const result = await ask.execute('question', {
+            question: 'Which environment should I use?'
+          })
+          expect(result.terminate).toBe(true)
+          yield { type: 'tool_execution_end', toolName: 'ask_pm', result }
+        }
+      }
+    })
+    const output = await runEmployeeLoop({
+      agent: { id: 'a', name: 'Avery', toolAllowList: ['read_file'] } as never,
+      instructions: 'Deploy',
+      executionId: 'blocked-exec',
+      conversationId: 'c1',
+      emit: vi.fn(),
+      onBlocked
+    })
+    expect(output).toContain('[Blocked — question for PM]')
+    expect(output).toContain('Which environment should I use?')
+    expect(onBlocked).toHaveBeenCalledWith('Which environment should I use?')
+    await expect(finish()).resolves.toEqual({ action: 'end' })
+    await expect(gate({} as never)).resolves.toMatchObject({
+      block: true,
+      terminate: true
+    })
+  })
   const systemPromptFor = async (tools: string[]) => {
     bindCallingTools.mockReturnValueOnce(tools.map((name) => ({ name })))
     agentLoopMock.mockReturnValue(fakeStream([]))

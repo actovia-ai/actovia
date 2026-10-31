@@ -23,17 +23,19 @@ import {
 } from '../skills/skills-manager'
 import { bindCallingTools } from '../utils/chat-message-util'
 import { resolveEmployeeModel } from '../utils/employee-model'
+import { createAskPmTool } from './agent-tools'
 import { groupBeforeToolCall } from './sensitive-guard'
 
 export type SseEmitter = (event: PhilharmonicSseEvent) => void
 
 export interface RunEmployeeLoopArgs {
+  onBlocked?: (question: string) => void
   agent: Agent
   instructions: string
   executionId: string
   conversationId: string
   emit: SseEmitter
-  /** Extra tools (e.g. none for employees in v1). */
+  /** Additional tools besides the employee loadout and its built-in ask_pm. */
   extraTools?: AgentTool[]
   signal?: AbortSignal
   /** The id its live bubble streams under — the saved row takes the same one,
@@ -84,7 +86,8 @@ function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
   if (agent.systemPrompt) parts.push(agent.systemPrompt)
   parts.push(
     '\nYou were given a task by the team PM. Use your tools to complete it.',
-    'When finished, give a clear, self-contained summary of what you did and the result.'
+    'When finished, give a clear, self-contained summary of what you did and the result.',
+    'If you need a decision, missing information or approval from the PM, call ask_pm with your question. This pauses your task and returns control to the PM; do not guess the answer.'
   )
   return parts.join('\n\n')
 }
@@ -120,6 +123,14 @@ export async function runEmployeeLoop(
       ? allTools.filter((t) => allowList.includes(t.name))
       : allTools
   if (args.extraTools?.length) tools = [...tools, ...args.extraTools]
+  let blockedQuestion: string | undefined
+  tools = [
+    ...tools,
+    createAskPmTool((question) => {
+      blockedQuestion ??= question
+    })
+  ]
+  const guard = groupBeforeToolCall(conversationId)
 
   const skillSlugs = (agent.skillSlugs as string[] | null) ?? []
   const skillsContent =
@@ -203,7 +214,16 @@ export async function runEmployeeLoop(
             (m as Message).role === 'toolResult'
         ),
       // Secrets outside Actovia: refused in a Group run (sensitive-guard.ts).
-      beforeToolCall: groupBeforeToolCall(conversationId)
+      beforeToolCall: (context) =>
+        blockedQuestion
+          ? Promise.resolve({
+              block: true,
+              terminate: true,
+              reason: 'Task paused while waiting for the PM.'
+            })
+          : guard(context),
+      finishTurn: async () =>
+        blockedQuestion ? { action: 'end' as const } : undefined
     },
     signal,
     streamFn
@@ -292,6 +312,10 @@ export async function runEmployeeLoop(
       }
     })
 
+    if (blockedQuestion) {
+      args.onBlocked?.(blockedQuestion)
+      return `[Blocked — question for PM]\n${blockedQuestion}${finalOutput ? `\n\nProgress before pausing:\n${finalOutput}` : ''}`
+    }
     return finalOutput
   } finally {
     // Always close the live bubble — even on error — so the UI doesn't spin

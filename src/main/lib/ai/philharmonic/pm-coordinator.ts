@@ -466,30 +466,52 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             signal,
             onFollowUp
           })
-            .then(async ({ output, messageId, liveMessageId }) => {
-              if (!messageId)
-                await createConversationMessage({
-                  id: liveMessageId,
-                  conversationId,
-                  role: 'employee',
-                  agentId: employeeId,
-                  content: output,
-                  taskId: childTask.id
-                })
-              if (stepId) {
-                await updateStep(stepId, { taskId: childTask.id, output })
-                await mirrorActivePlan()
+            .then(
+              async ({ output, messageId, liveMessageId, blockedQuestion }) => {
+                if (!messageId)
+                  await createConversationMessage({
+                    id: liveMessageId,
+                    conversationId,
+                    role: 'employee',
+                    agentId: employeeId,
+                    content: output,
+                    taskId: childTask.id
+                  })
+                if (stepId) {
+                  await updateStep(stepId, {
+                    taskId: childTask.id,
+                    output,
+                    ...(blockedQuestion
+                      ? {
+                          status: 'pending',
+                          note: `Needs PM: ${blockedQuestion}`
+                        }
+                      : {})
+                  })
+                  if (blockedQuestion)
+                    emit({
+                      type: 'plan_step_updated',
+                      conversationId,
+                      stepId,
+                      patch: {
+                        status: 'pending',
+                        note: `Needs PM: ${blockedQuestion}`,
+                        output
+                      }
+                    })
+                  await mirrorActivePlan()
+                }
+                await pmRunRegistry.run(conversationId, (reportSignal) =>
+                  runPmCoordinator({
+                    conversationId,
+                    userText: `[Employee report] ${output}`,
+                    trigger: 'report',
+                    emit,
+                    signal: reportSignal
+                  })
+                )
               }
-              await pmRunRegistry.run(conversationId, (reportSignal) =>
-                runPmCoordinator({
-                  conversationId,
-                  userText: `[Employee report] ${output}`,
-                  trigger: 'report',
-                  emit,
-                  signal: reportSignal
-                })
-              )
-            })
+            )
             .catch(async (err) => {
               if (stepId) {
                 const failed = await updateStep(stepId, { status: 'failed' })
@@ -508,15 +530,16 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           return `Started task ${childTask.id} in the background. Its report will continue the plan when it completes.`
         }
         try {
-          const { output, messageId, liveMessageId } = await runDelegatedTask({
-            taskId: childTask.id,
-            agentId: employeeId,
-            conversationId,
-            instructions,
-            emit,
-            signal,
-            onFollowUp
-          })
+          const { output, messageId, liveMessageId, blockedQuestion } =
+            await runDelegatedTask({
+              taskId: childTask.id,
+              agentId: employeeId,
+              conversationId,
+              instructions,
+              emit,
+              signal,
+              onFollowUp
+            })
           // Persist the employee's final output as a chat bubble — a coding
           // agent's step saved its own as it began (its card lives there).
           if (!messageId)
@@ -534,8 +557,22 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             // "done"/"failed" based on its review. We just attach the taskId.
             await updateStep(stepId, {
               taskId: childTask.id,
-              output
+              output,
+              ...(blockedQuestion
+                ? { status: 'pending', note: `Needs PM: ${blockedQuestion}` }
+                : {})
             })
+            if (blockedQuestion)
+              emit({
+                type: 'plan_step_updated',
+                conversationId,
+                stepId,
+                patch: {
+                  status: 'pending',
+                  note: `Needs PM: ${blockedQuestion}`,
+                  output
+                }
+              })
             await mirrorActivePlan()
           }
           return output
@@ -667,8 +704,14 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {
-      emit({ type: 'ask_user', conversationId, question, options })
-      return askUserRegistry.wait(conversationId, { question, options })
+      return askUserRegistry.wait(
+        conversationId,
+        { question, options },
+        {
+          signal,
+          onActive: (ask) => emit({ type: 'ask_user', conversationId, ...ask })
+        }
+      )
     })
   ]
 

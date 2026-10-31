@@ -123,6 +123,7 @@ export type PhilharmonicSseEvent =
   | {
       type: 'ask_user'
       conversationId: string
+      questionId?: string
       question: string
       options: string[]
     }

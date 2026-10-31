@@ -256,7 +256,11 @@ export function GroupChat({
                 <Button
                   onClick={async () => {
                     if (!answer.trim()) return
-                    await respondToConversation(conversationId, answer)
+                    await respondToConversation(
+                      conversationId,
+                      answer,
+                      askUser.questionId
+                    )
                     setAnswer('')
                   }}
                 >

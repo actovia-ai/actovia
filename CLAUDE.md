@@ -1152,6 +1152,21 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   group search is on `bg-sidebar-accent` (`bg-input/50` vanishes on the
   material)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
+- **Questions and blocked employees** (ISSUE-309): `ask-user-registry.ts`
+  holds a FIFO per Group with a UUID for each question. Only the head emits
+  `ask_user`; reconnect replays that head including its optional `questionId`.
+  The desktop sends the id back to `POST /conversations/:id/respond`; older
+  phone clients may omit it. Answer persistence reserves the head so concurrent
+  replies cannot consume its successor; stale ids return 409. A visible question
+  times out after 30 minutes with an explicit non-approval result, and aborting
+  the round or stopping/deleting the Group cleans up pending waits and timers.
+  API employees always have `ask_pm`: a sequential tool that yields a blocked
+  report and ends the employee loop using pi's `finishTurn`, with subsequent
+  tools refused. Both awaited and background delegation park that plan step
+  in `pending` with the question; the PM answers or escalates, then redelegates
+  with the answer. The completed task execution records the handoff, while
+  `task.output.blockedQuestion` distinguishes it from a completed goal; blocked
+  reports are not stored as successful employee experience.
 - **CLI follow-ups** (ISSUE-308): after its delegated turn returns, a CLI's
   later turn updates the same employee message's card and text before calling
   the coordinator's `onFollowUp` callback. Reports enter `pmRunRegistry`'s

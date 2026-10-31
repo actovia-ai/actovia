@@ -53,10 +53,14 @@ export const sendConversationMessage = async (
     } as never,
     headers: await presenceHeaders()
   })
-export const respondToConversation = async (id: string, response: string) =>
+export const respondToConversation = async (
+  id: string,
+  response: string,
+  questionId?: string
+) =>
   fetcher<{ success: boolean }>(`${BASE}/conversations/${id}/respond`, {
     method: 'POST',
-    body: { response } as never,
+    body: { response, questionId } as never,
     headers: await presenceHeaders()
   })
 

@@ -40,6 +40,8 @@ import { type AgentRegistry, agentRegistry } from './registry'
 import { agentSettings } from './settings'
 
 export interface DelegatedOutput {
+  /** The employee yielded its task for a PM decision, rather than completing it. */
+  blockedQuestion?: string
   output: string
   /** A CLI step's own message, saved as the step began; the PM saves no other. */
   messageId?: string

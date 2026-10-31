@@ -1,6 +1,41 @@
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
 
+/** Yield a blocked employee back to its waiting PM, without starting a nested PM round. */
+export function createAskPmTool(
+  onQuestion: (question: string) => void
+): AgentTool {
+  return {
+    name: 'ask_pm',
+    label: 'Ask PM',
+    description:
+      'Ask the PM when blocked on missing instructions, a decision or approval. This ends your current task with a blocked report. The PM can answer or ask the owner, then delegate again with the answer. Do not invent an answer or continue the blocked work.',
+    parameters: Type.Object({
+      question: Type.String({
+        minLength: 1,
+        description:
+          'The decision or information needed from the PM, with relevant context.'
+      })
+    }),
+    executionMode: 'sequential',
+    execute: async (_id: string, { question }: { question: string }) => {
+      const text = question.trim()
+      if (!text) throw new Error('A question for the PM is required.')
+      onQuestion(text)
+      return {
+        content: [
+          {
+            type: 'text',
+            text: 'Task paused. The question is being returned to the PM.'
+          }
+        ],
+        details: { blockedQuestion: text },
+        terminate: true
+      }
+    }
+  } as AgentTool
+}
+
 /**
  * Creates the `delegateTask` tool that allows an agent to delegate work to another agent.
  * The actual execution is injected via the `onDelegate` callback.

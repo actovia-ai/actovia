@@ -61,6 +61,7 @@ describe('GET /conversations/:id/sse', () => {
       {
         type: 'ask_user',
         conversationId: ID,
+        questionId: expect.any(String),
         question: 'Link the sprout folder?',
         options: ['Linked', 'Answer here']
       }

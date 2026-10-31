@@ -13,7 +13,7 @@ vi.mock('@main/lib/ai/philharmonic/pm-coordinator', () => ({
   runPmCoordinator: vi.fn()
 }))
 vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
-  askUserRegistry: { resolve: vi.fn() }
+  askUserRegistry: { resolve: vi.fn(), cancel: vi.fn() }
 }))
 vi.mock('@main/lib/ai/philharmonic/pm-run-registry', () => ({
   pmRunRegistry: { abort: vi.fn() }

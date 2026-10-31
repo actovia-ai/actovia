@@ -22,6 +22,7 @@ import {
 } from '../../db/conversation-queries'
 import { getActivePlanByConversationId } from '../../db/plan-queries'
 import { listRoundEvents } from '../../db/pm-round-queries'
+import { mainT } from '../../i18n'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
 import { getGroupDir } from '../../paths'
@@ -79,6 +80,7 @@ router.delete('/conversations/:id', async (c) => {
   // stopped, and every agent on one of its steps interrupted and exited.
   // The folders are left alone.
   pmRunRegistry.abort(id)
+  askUserRegistry.cancel(id)
   stopBackgroundTasks(getGroupDir(id))
   await agentRegistry.stopConversation(id)
   await handleDatabaseOperation(
@@ -230,23 +232,45 @@ router.post('/conversations/:id/messages', async (c) => {
 router.post('/conversations/:id/interrupt', async (c) => {
   const id = getRequiredParam(c, 'id')
   const wasRunning = pmRunRegistry.abort(id)
+  askUserRegistry.cancel(id)
   return successResponse(c, { success: true, wasRunning })
 })
 
 // Resolve a pending askUser.
 router.post('/conversations/:id/respond', async (c) => {
   const id = getRequiredParam(c, 'id')
-  const { response } = validateSchema(
-    z.object({ response: z.string() }),
+  const { response, questionId } = validateSchema(
+    z.object({ response: z.string(), questionId: z.string().optional() }),
     await c.req.json(),
     'Invalid response'
   )
-  await createConversationMessage({
-    conversationId: id,
-    role: 'user',
-    content: response
-  })
-  askUserRegistry.resolve(id, response)
+  const accepted = await askUserRegistry.answer(
+    id,
+    response,
+    questionId,
+    async () => {
+      await createConversationMessage({
+        conversationId: id,
+        role: 'user',
+        content: response
+      })
+    }
+  )
+  if (!accepted)
+    return c.json(
+      {
+        type: 'error',
+        error: {
+          code: 'UNKNOWN_ERROR',
+          message: mainT(
+            'errors:questionNoLongerWaiting',
+            'This question is no longer waiting for an answer.'
+          ),
+          hasCustomMessage: true
+        }
+      },
+      409
+    )
   return successResponse(c, { success: true })
 })
 

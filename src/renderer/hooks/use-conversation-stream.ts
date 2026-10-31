@@ -41,7 +41,7 @@ export interface RetryNotice {
 
 export interface ConversationStream {
   bubbles: LiveBubble[]
-  askUser: { question: string; options: string[] } | null
+  askUser: { question: string; options: string[]; questionId?: string } | null
   error: string | null
   /** bumps whenever a message_end / member_joined arrives so the page can refetch */
   revision: number
@@ -160,7 +160,7 @@ export function useConversationStream(
             }
           ])
           // PM resuming after an askUser response → clear the panel.
-          setAskUser(null)
+          if (evt.role === 'pm') setAskUser(null)
           break
         case 'message_delta':
           setBubbles((prev) =>
@@ -210,7 +210,11 @@ export function useConversationStream(
           setRevision((r) => r + 1)
           break
         case 'ask_user':
-          setAskUser({ question: evt.question, options: evt.options })
+          setAskUser({
+            question: evt.question,
+            options: evt.options,
+            questionId: evt.questionId
+          })
           break
         case 'conversation_error':
           setError(evt.error)
@@ -228,6 +232,7 @@ export function useConversationStream(
           break
         case 'pm_ended':
           setPmRunning(false)
+          setAskUser(null)
           break
         case 'delegation_retry':
           retryCounter.current += 1

@@ -48,6 +48,27 @@ beforeEach(() => {
 })
 
 describe('runDelegatedTask', () => {
+  it('carries the employee question as a blocked outcome without treating it as successful experience', async () => {
+    const { rememberTaskOutcome } =
+      await import('@main/lib/ai/philharmonic/agent-memory')
+    vi.mocked(rememberTaskOutcome).mockClear()
+    agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }
+    runEmployeeLoop.mockImplementationOnce(async ({ onBlocked }) => {
+      onBlocked('Which account should I use?')
+      return '[Blocked — question for PM]\nWhich account should I use?'
+    })
+    const outcome = await call()
+    expect(outcome.blockedQuestion).toBe('Which account should I use?')
+    expect(updateTask).toHaveBeenCalledWith(
+      't1',
+      expect.objectContaining({
+        output: expect.objectContaining({
+          blockedQuestion: 'Which account should I use?'
+        })
+      })
+    )
+    expect(rememberTaskOutcome).not.toHaveBeenCalled()
+  })
   it('runs an Actovia employee in its own loop, retrying a transient failure', async () => {
     agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }
     runEmployeeLoop
