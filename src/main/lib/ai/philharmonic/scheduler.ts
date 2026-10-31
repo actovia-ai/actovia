@@ -10,6 +10,7 @@ import {
   getCronTasks,
   getDueOneOffTasks,
   getTaskById,
+  updateChatScheduledTask,
   updateTask
 } from '../../db/philharmonic-queries'
 import { getChatById } from '../../db/queries'
@@ -44,8 +45,13 @@ export async function runScheduledRound(
         : null
     if (template && template.status !== 'cancelled' && chatId) {
       if (!(await getChatById({ id: chatId }))) {
-        unscheduleTask(taskId)
-        await updateTask(taskId, { status: 'cancelled' })
+        const failed = await updateChatScheduledTask(
+          taskId,
+          chatId,
+          { status: 'failed', lastRunStatus: 'failed' },
+          true
+        )
+        if (failed) unscheduleTask(taskId)
         return false
       }
       await updateTask(taskId, { lastRunAt: new Date() })
@@ -200,7 +206,12 @@ export async function initScheduler(emit: SseEmitter): Promise<void> {
   const tasks = await getCronTasks()
   let count = 0
   for (const t of tasks) {
-    if (t.cronExpression && scheduleTask(t.id, t.cronExpression)) count++
+    if (
+      t.status === 'pending' &&
+      t.cronExpression &&
+      scheduleTask(t.id, t.cronExpression)
+    )
+      count++
   }
   cron.schedule('* * * * *', () => {
     runDueOneOffTasks(globalEmit).catch((err) =>

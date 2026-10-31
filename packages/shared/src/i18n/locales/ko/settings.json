@@ -422,6 +422,10 @@
       "mapItinerary": {
         "label": "지도 일정",
         "description": "장소, 경로, 여러 날에 걸친 여행을 하나의 인터랙티브 지도 카드에 표시합니다"
+      },
+      "manageSchedule": {
+        "label": "예약 관리",
+        "description": "Chat에서 예약 작업을 만들고 편집하고 삭제합니다."
       }
     },
     "googleMaps": {

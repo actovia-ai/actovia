@@ -57,16 +57,17 @@ describe('getMessagesAfter', () => {
 
   it('never returns the anchor itself for rows stamped by the database clock (microseconds)', async () => {
     const group = await createConversation({ title: 'E' })
-    const rows = []
     for (const content of ['one', 'two', 'three']) {
-      rows.push(
-        await createConversationMessage({
-          conversationId: group.id,
-          role: 'pm',
-          content
-        })
-      )
+      await createConversationMessage({
+        conversationId: group.id,
+        role: 'pm',
+        content
+      })
     }
+    // The database clock may tie; its UUID tiebreaker, not insertion order,
+    // defines the cursor order. Keep microseconds in SQL instead of sorting
+    // the returned JS Dates (which only preserve milliseconds).
+    const rows = await getMessagesByConversationId(group.id)
     for (let i = 0; i < rows.length; i++) {
       const after = await getMessagesAfter(group.id, rows[i].id)
       expect(after?.map((m) => m.content)).toEqual(

@@ -187,62 +187,6 @@ test('Artifacts includes a Markdown report and opens it directly', async ({
   })
 })
 
-test('Scheduled creates and cancels a recurring task for a normal chat', async ({
-  mainWindow
-}) => {
-  await new ApiClient().updateSettings({
-    providers: { openaiApiKey: 'faux' },
-    providerConfig: { provider: 'OpenAI GPT', model: 'faux-1' },
-    memory: { useInChat: false, autoCapture: false }
-  })
-  const composer = mainWindow.getByTestId(TEST_IDS.composer.textarea)
-  await composer.fill('What is the weather in Oslo?')
-  await composer.press('Enter')
-  await expect
-    .poll(() => mainWindow.evaluate(() => location.hash))
-    .toContain('/chat/')
-  await mainWindow.getByTestId(TEST_IDS.chatLayout.scheduled).click()
-  await expect(mainWindow.getByTestId(TEST_IDS.schedule.page)).toBeVisible()
-  await mainWindow.getByTestId(TEST_IDS.schedule.createButton).click()
-  const dialog = mainWindow.getByRole('dialog', {
-    name: 'Schedule a task',
-    exact: true
-  })
-  await dialog.locator('#schedule-title').fill('Morning research brief')
-  await dialog
-    .locator('#schedule-description')
-    .fill('Review recent developments and write a concise report.')
-  await dialog.getByTestId(TEST_IDS.schedule.conversationPicker).click()
-  await mainWindow.getByRole('option').first().click()
-  await dialog.getByRole('button', { name: 'Recurring', exact: true }).click()
-  await dialog
-    .getByRole('button', { name: 'Schedule task', exact: true })
-    .click()
-  await expect(dialog).not.toBeVisible()
-  await mainWindow.getByRole('tab', { name: 'Recurring', exact: true }).click()
-  await expect(
-    mainWindow.getByTestId(TEST_IDS.schedule.taskCard)
-  ).toContainText('Morning research brief')
-  await expect(
-    mainWindow.getByRole('tab', { name: 'Recurring', exact: true })
-  ).toHaveAttribute('aria-selected', 'true')
-  await mainWindow.screenshot({
-    animations: 'disabled',
-    path: join(captures, 'scheduled.png')
-  })
-  await mainWindow.evaluate(() =>
-    document.documentElement.classList.add('dark')
-  )
-  await mainWindow.screenshot({
-    animations: 'disabled',
-    path: join(captures, 'scheduled-dark.png')
-  })
-  await mainWindow.getByTestId(TEST_IDS.schedule.cancelButton).click()
-  await expect(mainWindow.getByTestId(TEST_IDS.schedule.taskCard)).toHaveCount(
-    0
-  )
-})
-
 test('the schedule sheet stays clickable over the title bar and searches readable conversation targets', async ({
   mainWindow
 }) => {
@@ -270,7 +214,9 @@ test('the schedule sheet stays clickable over the title bar and searches readabl
       ]
     })
   )
-  await mainWindow.getByTestId(TEST_IDS.chatLayout.scheduled).click()
+  await mainWindow.evaluate(() => {
+    location.hash = '/philharmonic/dashboard'
+  })
   await mainWindow.getByTestId(TEST_IDS.schedule.createButton).click()
   const dialog = mainWindow.getByRole('dialog', {
     name: 'Schedule a task',
@@ -290,10 +236,9 @@ test('the schedule sheet stays clickable over the title bar and searches readabl
   const picker = dialog.getByTestId(TEST_IDS.schedule.conversationPicker)
   await picker.fill('Kyoto')
   const options = mainWindow.getByRole('option')
-  await expect(options).toHaveCount(2)
+  await expect(options).toHaveCount(1)
   await expect(options.first()).toContainText(longTitle)
   await expect(options.first()).toContainText('Group')
-  await expect(options.last()).toContainText('Chat')
   const popup = mainWindow.locator('[data-slot="combobox-content"]')
   expect(await popup.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(
     true

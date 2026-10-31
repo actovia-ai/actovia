@@ -2,8 +2,10 @@ import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useSetAtom } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
@@ -15,6 +17,8 @@ import {
   getRecurringTasks,
   getUpcomingTasks
 } from '@/services/philharmonic-tasks'
+import { advancedToolsAtom, attachmentAtom } from '@/stores/chat'
+import { chatInputAtom, chatQuoteAtom } from '@/stores/input'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { RecurringList } from './recurring-list'
@@ -32,6 +36,11 @@ export function ScheduleTab({
 }) {
   const { t } = useTranslation(['philharmonic', 'common'])
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const setInput = useSetAtom(chatInputAtom)
+  const setTools = useSetAtom(advancedToolsAtom)
+  const setAttachments = useSetAtom(attachmentAtom)
+  const setQuote = useSetAtom(chatQuoteAtom)
   const upcomingQuery = useQuery({
     queryKey: ['scheduled-tasks', 'upcoming'],
     queryFn: getUpcomingTasks,
@@ -44,8 +53,10 @@ export function ScheduleTab({
     refetchInterval: 30_000,
     refetchOnWindowFocus: true
   })
-  const upcoming = upcomingQuery.data ?? []
-  const recurring = recurringQuery.data ?? []
+  const visibleHere = (task: TaskData) =>
+    standalone || task.input?.kind !== 'chat-schedule'
+  const upcoming = (upcomingQuery.data ?? []).filter(visibleHere)
+  const recurring = (recurringQuery.data ?? []).filter(visibleHere)
   const [formOpen, setFormOpen] = useState(false)
   const [cancellingId, setCancellingId] = useState<string | null>(null)
 
@@ -54,6 +65,29 @@ export function ScheduleTab({
       Object.fromEntries([...conversations, ...chats].map((c) => [c.id, c])),
     [conversations, chats]
   )
+
+  const startChat = (task?: TaskData) => {
+    const chatId =
+      typeof task?.input?.chatId === 'string' ? task.input.chatId : null
+    const originExists = chatId && chats.some((chat) => chat.id === chatId)
+    setTools([])
+    setAttachments(undefined)
+    setQuote(null)
+    setInput(
+      task
+        ? t('schedule.manage.editPrompt', {
+            task: JSON.stringify({
+              id: task.id,
+              title: task.title,
+              description: task.description,
+              cronExpression: task.cronExpression,
+              runAt: task.runAt
+            })
+          })
+        : t('schedule.manage.createPrompt')
+    )
+    void navigate(originExists ? `/chat/${chatId}` : '/')
+  }
 
   const handleCreated = useCallback(
     (_task: TaskData) => {
@@ -105,11 +139,10 @@ export function ScheduleTab({
             </p>
           </div>
           <Button
-            onClick={() => setFormOpen(true)}
+            onClick={() => startChat()}
             data-testid={TEST_IDS.schedule.createButton}
-            disabled={conversations.length + chats.length === 0}
           >
-            {t('schedule.scheduleTaskButton')}
+            {t('schedule.manage.newTask')}
           </Button>
         </div>
       )}
@@ -155,37 +188,33 @@ export function ScheduleTab({
           </TabsList>
           <TabsContent value="upcoming" className="min-h-0 flex-1">
             <UpcomingList
-              tasks={upcoming.map((task) => ({
-                ...task,
-                conversationId:
-                  task.conversationId ?? task.input?.chatId ?? null
-              }))}
+              tasks={upcoming}
               conversationsById={conversationsById}
               cancellingId={cancellingId}
               onCancel={handleCancel}
+              onEdit={standalone ? startChat : undefined}
             />
           </TabsContent>
           <TabsContent value="recurring" className="min-h-0 flex-1">
             <RecurringList
-              tasks={recurring.map((task) => ({
-                ...task,
-                conversationId:
-                  task.conversationId ?? task.input?.chatId ?? null
-              }))}
+              tasks={recurring}
               conversationsById={conversationsById}
               cancellingId={cancellingId}
               onCancel={handleCancel}
+              onEdit={standalone ? startChat : undefined}
             />
           </TabsContent>
         </Tabs>
       )}
-      <ScheduleTaskForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        conversations={conversations}
-        chats={chats}
-        onCreated={handleCreated}
-      />
+      {!standalone && (
+        <ScheduleTaskForm
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          conversations={conversations}
+          chats={chats}
+          onCreated={handleCreated}
+        />
+      )}
     </div>
   )
 }

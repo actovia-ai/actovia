@@ -8,6 +8,7 @@ import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { cronPresetKey } from './cron-presets'
 import { TaskCard } from './task-card'
+import { taskOriginId } from './task-origin'
 
 /**
  * A recurring task's line: when it last ran, its schedule — by name when it
@@ -17,7 +18,8 @@ import { TaskCard } from './task-card'
 export function describeSchedule(
   task: Pick<TaskData, 'cronExpression' | 'lastRunAt'>,
   t: TFunction<'philharmonic'>,
-  dateTime: (d: Date, o?: Intl.DateTimeFormatOptions) => string
+  dateTime: (d: Date, o?: Intl.DateTimeFormatOptions) => string,
+  paused = false
 ): string {
   if (!task.cronExpression) return ''
   const when = (d: Date) =>
@@ -38,7 +40,8 @@ export function describeSchedule(
   ]
   try {
     const next = CronExpressionParser.parse(task.cronExpression).next().toDate()
-    parts.push(t('schedule.recurringList.nextRun', { time: when(next) }))
+    if (!paused)
+      parts.push(t('schedule.recurringList.nextRun', { time: when(next) }))
   } catch {
     // an unparsable line still shows as written
   }
@@ -49,12 +52,14 @@ export function RecurringList({
   tasks,
   conversationsById,
   cancellingId,
-  onCancel
+  onCancel,
+  onEdit
 }: {
   tasks: TaskData[]
   conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
+  onEdit?: (task: TaskData) => void
 }) {
   const { t } = useTranslation('philharmonic')
   const { dateTime } = useFormat()
@@ -73,11 +78,18 @@ export function RecurringList({
           <TaskCard
             key={task.id}
             task={task}
+            originExists={Boolean(conversationsById[taskOriginId(task)])}
+            onEdit={onEdit}
             groupTitle={
-              conversationsById[task.conversationId ?? '']?.title ??
+              conversationsById[taskOriginId(task)]?.title ??
               t('schedule.unknownGroup')
             }
-            subtitle={describeSchedule(task, t, dateTime)}
+            subtitle={describeSchedule(
+              task,
+              t,
+              dateTime,
+              !conversationsById[taskOriginId(task)]
+            )}
             onCancel={onCancel}
             cancelling={cancellingId === task.id}
           />

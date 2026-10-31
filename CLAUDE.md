@@ -1183,8 +1183,8 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);
   managed from the Schedule tab on the Dashboard page and the chat sidebar's
   `/scheduled` page (`containers/scheduled.tsx`, shared
-  `components/philharmonic/schedule/`). The global page can target a normal
-  chat as well as a Group: `POST /api/v1/philharmonic/tasks` accepts exactly
+  `components/philharmonic/schedule/`). The global page aggregates normal
+  Chat and Group schedules: `POST /api/v1/philharmonic/tasks` accepts exactly
   one of `chatId` / `conversationId`; normal-chat tasks store
   `input: { kind: 'chat-schedule', chatId }` without a schema migration.
   `scheduled-chat.ts` feeds an internal request through the existing chat
@@ -1195,10 +1195,22 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   key; deleted target chats are not recreated. These schedules require the
   local app to remain open and use the computer's time zone. Task lists
   refresh on focus and every 30 seconds, with loading/error/retry states.
-  The scheduling form's `conversation-picker.tsx` uses a full-width searchable
-  Combobox with wrapping titles and Chat/Group + creation-date metadata.
-  Sheet popup, backdrop and close control explicitly use `no-drag` so native
-  title-bar drag regions behind a modal cannot swallow its clicks (ISSUE-329).
+  Standalone Scheduled is a management list: New task opens a fresh Chat
+  with a reviewable draft; editing opens the original Chat, or a new one if
+  the origin was deleted. Task cards link to their Chat/Group; deleted Chat
+  origins are marked explicitly. Philharmonic schedules are read-only in this
+  manager (including the cancellation API), while Chat schedules can be
+  deleted without the origin. The existing Group Dashboard creation form
+  lists Group tasks and retains its searchable Conversation picker and
+  no-drag Sheet controls.
+  Chat's `manage_schedule` tool supports list/get/create/update/delete via
+  `ai/chat-schedules.ts`. It binds only to interactive ordinary Chat (not a
+  Group, Deep Research or a scheduled firing), follows the built-in tool
+  toggle, and clarifies missing details before saving. Editing updates the
+  same task id; saving an orphan edit adopts it into the new Chat. A conditional
+  DB update refuses a concurrent execution/adoption. Missing Chat targets
+  become failed, visible tasks; they are never recreated or automatically
+  re-armed on restart. Failed one-off tasks remain visible for recovery.
 - **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a

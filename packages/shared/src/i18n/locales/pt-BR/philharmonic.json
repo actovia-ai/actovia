@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Agendadas",
-      "description": "Agende tarefas em uma conversa ou grupo Philharmonic.",
+      "description": "Tarefas do Chat e Philharmonic em um só lugar. Crie e edite tarefas do Chat por conversa.",
       "localOnly": "As tarefas são executadas neste computador enquanto o Actovia está aberto, no fuso horário dele."
+    },
+    "manage": {
+      "originDeleted": "Conversa original excluída",
+      "groupReadOnly": "Gerenciada pelo Philharmonic · somente leitura",
+      "edit": "Editar no Chat",
+      "delete": "Excluir tarefa",
+      "createPrompt": "Ajude-me a agendar uma tarefa. Pergunte o que fazer e quando, e esclareça os detalhes antes de salvar.",
+      "editPrompt": "Ajude-me a editar esta tarefa agendada: {{task}}\nLeia primeiro a tarefa atual, pergunte o que quero alterar e atualize a mesma tarefa após esclarecer os detalhes.",
+      "newTask": "Nova tarefa",
+      "resumeInChat": "Edite em um novo Chat para retomar."
     }
   },
   "chat": {

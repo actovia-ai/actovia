@@ -20,6 +20,7 @@ vi.mock('@main/lib/ai/calling-tools', () => ({
   searchKnowledgeBase: (_client: unknown, _cfg: unknown) =>
     stub('search_knowledge_base'),
   terminal: () => stub('terminal'),
+  startBackground: () => stub('start_background'),
   updateMemory: () => stub('update_memory'),
   weather: stub('weather'),
   webFetch: () => stub('web_fetch'),
@@ -115,5 +116,27 @@ describe('bindCallingTools — update_memory', () => {
       apiKey: 'k'
     } as never)
     expect(names(tools)).not.toContain('update_memory')
+  })
+})
+
+describe('bindCallingTools — manage_schedule scope', () => {
+  const base = {
+    advancedTools: [],
+    setting: { id: 'global' },
+    chatId: 'chat-1'
+  }
+  it('is available only in interactive ordinary Chat, respecting the tool toggle', () => {
+    expect(names(bindCallingTools(base as never))).toContain('manage_schedule')
+    for (const overrides of [
+      { interactive: false },
+      { chatId: undefined, groupId: 'group-1' },
+      { advancedTools: ['Deep Research'] },
+      {
+        setting: { id: 'global', tools: { disabledTools: ['manage_schedule'] } }
+      }
+    ])
+      expect(
+        names(bindCallingTools({ ...base, ...overrides } as never))
+      ).not.toContain('manage_schedule')
   })
 })

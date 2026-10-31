@@ -33,6 +33,7 @@ import {
   webSearch,
   writeFile
 } from '../calling-tools'
+import { manageSchedule } from '../calling-tools/manage-schedule'
 import { mcpToolbox } from '../calling-tools/mcp-toolbox'
 import { fauxHandle, fauxWeatherTool } from '../kernel/faux'
 
@@ -52,7 +53,8 @@ export function bindCallingTools({
   mcpTools = [],
   chatId,
   groupId,
-  sourceRankBase = 0
+  sourceRankBase = 0,
+  interactive = true
 }: {
   advancedTools: AdvancedTools[]
   setting: Settings
@@ -68,6 +70,8 @@ export function bindCallingTools({
   // The highest number a source of the chat carries so far
   // (`highestSourceRank`): this request's sources are numbered after it.
   sourceRankBase?: number
+  // Scheduled firings cannot create or mutate schedules recursively.
+  interactive?: boolean
 }): ErasedTool[] {
   if (advancedTools.includes(AdvancedTools.DeepResearch)) {
     return [deepResearch]
@@ -145,6 +149,9 @@ export function bindCallingTools({
   if (chatId && chatModel && apiKey && enabled(TOOL_NAMES.updateMemory)) {
     tools.push(updateMemory(chatModel, apiKey))
   }
+
+  if (chatId && !groupId && interactive && enabled(TOOL_NAMES.manageSchedule))
+    tools.push(manageSchedule(chatId))
 
   // MCP servers are reached through the two-tool toolbox, never bound one
   // by one: providers cap the tools array (OpenAI: 128) and a single server

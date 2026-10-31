@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Programmate",
-      "description": "Programma attività in una chat o in un gruppo Philharmonic.",
+      "description": "Attività di Chat e Philharmonic in un unico posto. Crea e modifica le attività di Chat tramite conversazione.",
       "localOnly": "Le attività vengono eseguite su questo computer mentre Actovia è aperto, nel suo fuso orario."
+    },
+    "manage": {
+      "originDeleted": "Conversazione originale eliminata",
+      "groupReadOnly": "Gestita da Philharmonic · sola lettura",
+      "edit": "Modifica in Chat",
+      "delete": "Elimina attività",
+      "createPrompt": "Aiutami a pianificare un’attività. Chiedimi cosa fare e quando, e chiarisci i dettagli prima di salvarla.",
+      "editPrompt": "Aiutami a modificare questa attività pianificata: {{task}}\nLeggi prima l’attività attuale, chiedimi cosa cambiare e aggiorna la stessa attività dopo i chiarimenti.",
+      "newTask": "Nuova attività",
+      "resumeInChat": "Modifica in una nuova Chat per riprendere."
     }
   },
   "chat": {

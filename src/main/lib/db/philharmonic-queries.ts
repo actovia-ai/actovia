@@ -142,28 +142,38 @@ export async function getChildTasksByParentId(parentTaskId: string) {
 
 /**
  * All cron (recurring) task rows, regardless of status. Used by
- * `initScheduler()` to re-register jobs on process restart — do not add a
- * status filter here, or cancelled/completed jobs won't get cleaned up and
- * pending ones may be missed depending on filter choice.
+ * `initScheduler()` to re-register pending jobs on process restart; the caller
+ * checks status so cancelled/completed/failed rows are never re-armed.
  */
 export async function getCronTasks() {
   return db.select().from(task).where(isNotNull(task.cronExpression))
 }
 
-/** Active (non-cancelled) recurring tasks, for the Recurring list UI. */
+/** Manageable recurring tasks, including failures awaiting recovery. */
 export async function getActiveCronTasks() {
   return db
     .select()
     .from(task)
-    .where(and(isNotNull(task.cronExpression), eq(task.status, 'pending')))
+    .where(
+      and(
+        isNotNull(task.cronExpression),
+        inArray(task.status, ['pending', 'running', 'failed'])
+      )
+    )
 }
 
-/** Pending one-off tasks with a runAt set, soonest first — for the Upcoming list. */
+/** Pending/running/failed one-off tasks, soonest first, for the manager. */
 export async function getUpcomingOneOffTasks() {
   return db
     .select()
     .from(task)
-    .where(and(eq(task.status, 'pending'), isNotNull(task.runAt)))
+    .where(
+      and(
+        inArray(task.status, ['pending', 'running', 'failed']),
+        isNotNull(task.runAt),
+        isNull(task.cronExpression)
+      )
+    )
     .orderBy(asc(task.runAt))
 }
 
@@ -210,6 +220,32 @@ export async function updateTask(
     .where(eq(task.id, id))
     .returning()
   return result
+}
+
+/** Do not overwrite a task claimed for execution or adopted by another Chat. */
+export async function updateChatScheduledTask(
+  id: string,
+  owner: string,
+  data: Partial<typeof task.$inferInsert>,
+  deleting = false
+) {
+  const [row] = await db
+    .update(task)
+    .set({ ...data, updatedAt: new Date() })
+    .where(
+      and(
+        eq(task.id, id),
+        isNull(task.conversationId),
+        sql`${task.input}->>'kind' = 'chat-schedule'`,
+        sql`${task.input}->>'chatId' = ${owner}`,
+        inArray(
+          task.status,
+          deleting ? ['pending', 'failed', 'running'] : ['pending', 'failed']
+        )
+      )
+    )
+    .returning()
+  return row
 }
 
 /**

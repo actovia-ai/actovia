@@ -51,6 +51,7 @@ export function keepsTextInAnswer(toolName: string): boolean {
   return (
     hasToolCard(toolName) ||
     toolName === TOOL_NAMES.imageGeneration ||
-    toolName === TOOL_NAMES.updateMemory
+    toolName === TOOL_NAMES.updateMemory ||
+    toolName === TOOL_NAMES.manageSchedule
   )
 }

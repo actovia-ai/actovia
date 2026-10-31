@@ -446,7 +446,8 @@ chat.post('/', async (c) => {
     apiKey,
     mcpTools,
     chatId: id,
-    sourceRankBase
+    sourceRankBase,
+    interactive: !c.get('scheduled')
   })
   // The runs before this one carry a digest of each tool's output instead
   // of all of it (`aging.ts`) — only while `recall`, which every digest

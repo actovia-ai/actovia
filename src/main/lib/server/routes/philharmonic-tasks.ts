@@ -5,13 +5,14 @@ import { Hono } from 'hono'
 import cron from 'node-cron'
 import { z } from 'zod'
 
-import { scheduleTask, unscheduleTask } from '../../ai/philharmonic/scheduler'
+import { deleteChatSchedule } from '../../ai/chat-schedules'
+import { scheduleTask } from '../../ai/philharmonic/scheduler'
 import { getConversationById } from '../../db/conversation-queries'
 import {
   createTask,
   getActiveCronTasks,
   getUpcomingOneOffTasks,
-  updateTask
+  getTaskById
 } from '../../db/philharmonic-queries'
 import { getChatById } from '../../db/queries'
 import type { Variables } from '../types'
@@ -113,11 +114,16 @@ philharmonicTasks.post('/tasks', async (c) => {
 philharmonicTasks.patch('/tasks/:id', async (c) => {
   const id = getRequiredParam(c, 'id')
   validateSchema(cancelTaskSchema, await c.req.json(), 'Invalid task update')
-  unscheduleTask(id)
+  const task = await getTaskById(id)
+  if (!task || task.input?.kind !== 'chat-schedule' || task.conversationId)
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'Philharmonic tasks are read-only here'
+    )
   return successResponse(
     c,
     await handleDatabaseOperation(
-      () => updateTask(id, { status: 'cancelled' }),
+      () => deleteChatSchedule(id),
       'Failed to cancel task'
     )
   )

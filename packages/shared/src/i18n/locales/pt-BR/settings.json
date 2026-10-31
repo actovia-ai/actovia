@@ -422,6 +422,10 @@
       "mapItinerary": {
         "label": "Itinerário no Mapa",
         "description": "Renderizar locais, rotas e viagens de vários dias em um único cartão de mapa interativo"
+      },
+      "manageSchedule": {
+        "label": "Gerenciar agendamentos",
+        "description": "Crie, edite e exclua tarefas agendadas pelo Chat."
       }
     },
     "googleMaps": {

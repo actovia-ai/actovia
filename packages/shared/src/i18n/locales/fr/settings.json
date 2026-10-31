@@ -422,6 +422,10 @@
       "mapItinerary": {
         "label": "Itinéraire cartographique",
         "description": "Afficher des lieux, itinéraires et voyages multi-jours sur une carte interactive unique"
+      },
+      "manageSchedule": {
+        "label": "Gérer les programmations",
+        "description": "Créez, modifiez et supprimez des tâches programmées dans Chat."
       }
     },
     "googleMaps": {

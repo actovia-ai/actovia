@@ -158,6 +158,7 @@ export const TOOL_POLICIES = {
   // Already small: a count and the revised prompts; a memory change list.
   [TOOL_NAMES.imageGeneration]: fullAlways,
   [TOOL_NAMES.updateMemory]: fullAlways,
+  [TOOL_NAMES.manageSchedule]: head,
   [TOOL_NAMES.deepResearch]: head,
   [TOOL_NAMES.computerUse]: head,
   [TOOL_NAMES.lcmExpand]: head,

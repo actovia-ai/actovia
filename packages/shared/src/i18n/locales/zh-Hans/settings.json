@@ -422,6 +422,10 @@
       "mapItinerary": {
         "label": "地图行程",
         "description": "在一张交互式地图卡片上展示地点、路线和多日行程"
+      },
+      "manageSchedule": {
+        "label": "管理定时任务",
+        "description": "通过 Chat 创建、修改和删除定时任务。"
       }
     },
     "googleMaps": {

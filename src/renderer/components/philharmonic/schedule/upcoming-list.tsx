@@ -6,17 +6,20 @@ import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { groupTasksByDay } from './group-tasks-by-day'
 import { TaskCard } from './task-card'
+import { taskOriginId } from './task-origin'
 
 export function UpcomingList({
   tasks,
   conversationsById,
   cancellingId,
-  onCancel
+  onCancel,
+  onEdit
 }: {
   tasks: TaskData[]
   conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
+  onEdit?: (task: TaskData) => void
 }) {
   const { t } = useTranslation('philharmonic')
   const groups = groupTasksByDay(tasks)
@@ -47,8 +50,10 @@ export function UpcomingList({
                 <TaskCard
                   key={task.id}
                   task={task}
+                  originExists={Boolean(conversationsById[taskOriginId(task)])}
+                  onEdit={onEdit}
                   groupTitle={
-                    conversationsById[task.conversationId ?? '']?.title ??
+                    conversationsById[taskOriginId(task)]?.title ??
                     t('schedule.unknownGroup')
                   }
                   subtitle={dateTime(new Date(task.runAt!), {

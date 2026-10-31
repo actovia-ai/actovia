@@ -147,6 +147,45 @@ let compareTakes = 0
 function respondToChatCall(ctx: Transcript): AssistantMessage {
   const last = ctx.messages.at(-1)
 
+  if (
+    last?.role === 'toolResult' &&
+    last.toolName === TOOL_NAMES.manageSchedule
+  ) {
+    return fauxAssistantMessage([
+      fauxText('Schedule saved. What would you like to change?')
+    ])
+  }
+
+  if (last?.role === 'user' && textOf(last).startsWith('Schedule test: ')) {
+    return fauxAssistantMessage(
+      [
+        fauxToolCall(
+          TOOL_NAMES.manageSchedule,
+          JSON.parse(textOf(last).slice('Schedule test: '.length))
+        )
+      ],
+      { stopReason: 'toolUse' }
+    )
+  }
+  if (
+    last?.role === 'user' &&
+    textOf(last).startsWith('Help me schedule a task.')
+  ) {
+    return fauxAssistantMessage([
+      fauxText('What should I do, and when should I run it?')
+    ])
+  }
+  if (
+    last?.role === 'user' &&
+    textOf(last).startsWith('Help me edit this scheduled task:')
+  ) {
+    const taskId = textOf(last).match(UUID_RE)?.[0] ?? ''
+    return fauxAssistantMessage(
+      [fauxToolCall(TOOL_NAMES.manageSchedule, { action: 'get', taskId })],
+      { stopReason: 'toolUse' }
+    )
+  }
+
   if (last?.role === 'toolResult') {
     return last.toolName === TOOL_NAMES.updateMemory
       ? fauxAssistantMessage([fauxText(FAUX_MEMORY_UPDATED_ANSWER)])

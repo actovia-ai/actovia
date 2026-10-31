@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Programadas",
-      "description": "Programa tareas en un chat o grupo de Philharmonic.",
+      "description": "Tareas de Chat y Philharmonic en un solo lugar. Crea y edita tareas de Chat mediante conversación.",
       "localOnly": "Se ejecuta en este equipo mientras Actovia está abierto. Se usa la zona horaria del equipo."
+    },
+    "manage": {
+      "originDeleted": "Conversación original eliminada",
+      "groupReadOnly": "Gestionada por Philharmonic · solo lectura",
+      "edit": "Editar en Chat",
+      "delete": "Eliminar tarea",
+      "createPrompt": "Ayúdame a programar una tarea. Pregúntame qué hacer y cuándo, y aclara lo necesario antes de guardarla.",
+      "editPrompt": "Ayúdame a editar esta tarea programada: {{task}}\nLee primero la tarea actual, pregunta qué quiero cambiar y actualiza la misma tarea tras aclararlo.",
+      "newTask": "Nueva tarea",
+      "resumeInChat": "Edita en un nuevo Chat para reanudar."
     }
   },
   "chat": {

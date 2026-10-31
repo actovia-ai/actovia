@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Tâches planifiées",
-      "description": "Planifiez des tâches dans un chat ou un groupe Philharmonic.",
+      "description": "Les tâches de Chat et Philharmonic réunies. Créez et modifiez les tâches de Chat par la conversation.",
       "localOnly": "Les tâches s’exécutent sur cet ordinateur quand Actovia est ouvert, dans son fuseau horaire."
+    },
+    "manage": {
+      "originDeleted": "Conversation d’origine supprimée",
+      "groupReadOnly": "Gérée par Philharmonic · lecture seule",
+      "edit": "Modifier dans Chat",
+      "delete": "Supprimer la tâche",
+      "createPrompt": "Aide-moi à programmer une tâche. Demande-moi quoi faire et quand, puis clarifie les détails avant de l’enregistrer.",
+      "editPrompt": "Aide-moi à modifier cette tâche programmée : {{task}}\nLis d’abord la tâche actuelle, demande ce que je veux changer, puis mets à jour cette même tâche après clarification.",
+      "newTask": "Nouvelle tâche",
+      "resumeInChat": "Modifiez dans un nouveau Chat pour reprendre."
     }
   },
   "chat": {

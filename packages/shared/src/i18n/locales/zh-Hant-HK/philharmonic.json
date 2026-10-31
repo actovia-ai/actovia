@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "定時任務",
-      "description": "在聊天或 Philharmonic 群組中安排任務。",
+      "description": "統一查看 Chat 和 Philharmonic 的定時任務，透過對話建立和修改 Chat 任務。",
       "localOnly": "任務在 Actovia 開啟時於本機執行，時間使用本機時區。"
+    },
+    "manage": {
+      "originDeleted": "原對話已刪除",
+      "groupReadOnly": "由 Philharmonic 管理 · 唯讀",
+      "edit": "在 Chat 中編輯",
+      "delete": "刪除任務",
+      "createPrompt": "幫我建立一個定時任務。請先問我要做甚麼、何時執行，確認必要資訊後再儲存。",
+      "editPrompt": "幫我修改這個定時任務：{{task}}\n請先讀取目前任務，再問我想修改甚麼；確認後更新同一個任務。",
+      "newTask": "新增任務",
+      "resumeInChat": "在新 Chat 中編輯後恢復執行。"
     }
   },
   "chat": {

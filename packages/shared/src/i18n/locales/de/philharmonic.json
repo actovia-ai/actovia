@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Geplant",
-      "description": "Aufgaben in einem Chat oder einer Philharmonic-Gruppe planen.",
+      "description": "Aufgaben aus Chat und Philharmonic an einem Ort. Chat-Aufgaben im Gespräch erstellen und bearbeiten.",
       "localOnly": "Läuft auf diesem Computer, solange Actovia geöffnet ist. Es gilt dessen Zeitzone."
+    },
+    "manage": {
+      "originDeleted": "Ursprüngliche Unterhaltung gelöscht",
+      "groupReadOnly": "Von Philharmonic verwaltet · schreibgeschützt",
+      "edit": "Im Chat bearbeiten",
+      "delete": "Aufgabe löschen",
+      "createPrompt": "Hilf mir, eine Aufgabe zu planen. Frage nach Inhalt und Zeitpunkt und kläre offene Fragen vor dem Speichern.",
+      "editPrompt": "Hilf mir, diese geplante Aufgabe zu bearbeiten: {{task}}\nLies zuerst die aktuelle Aufgabe, frage nach meinen Änderungen und aktualisiere nach der Klärung dieselbe Aufgabe.",
+      "newTask": "Neue Aufgabe",
+      "resumeInChat": "Zum Fortsetzen in einem neuen Chat bearbeiten."
     }
   },
   "chat": {

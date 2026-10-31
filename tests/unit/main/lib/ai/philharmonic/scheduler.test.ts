@@ -10,6 +10,10 @@ vi.mock('@main/lib/ai/philharmonic/scheduled-chat', () => ({
 }))
 const createConversationMessage = vi.fn(async () => ({ id: 'm' }))
 const updateTask = vi.fn()
+const updateChatScheduledTask = vi.fn(async (id, _owner, data) => {
+  await updateTask(id, data)
+  return { id, ...data }
+})
 const claimOneOffTask = vi.fn(async (id: string) => ({
   id,
   status: 'running'
@@ -32,6 +36,7 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getDueOneOffTasks,
   getTaskById,
   updateTask,
+  updateChatScheduledTask,
   claimOneOffTask
 }))
 vi.mock('node-cron', () => ({
@@ -74,7 +79,7 @@ describe('runScheduledRound', () => {
     expect(updateTask).toHaveBeenCalledWith('t', { lastRunStatus: 'completed' })
   })
 
-  it('cancels a schedule whose chat was deleted instead of recreating that chat', async () => {
+  it('keeps a failed orphan visible instead of cancelling it or recreating its chat', async () => {
     getTaskById.mockResolvedValueOnce({
       id: 't',
       title: 'Daily report',
@@ -85,7 +90,10 @@ describe('runScheduledRound', () => {
     getChatById.mockResolvedValueOnce(null as never)
     await runScheduledRound('t', vi.fn())
     expect(runScheduledChat).not.toHaveBeenCalled()
-    expect(updateTask).toHaveBeenCalledWith('t', { status: 'cancelled' })
+    expect(updateTask).toHaveBeenCalledWith('t', {
+      status: 'failed',
+      lastRunStatus: 'failed'
+    })
   })
 
   it('injects a round-start system message and runs the PM loop', async () => {

@@ -26,6 +26,7 @@ export const TOOL_NAMES = {
   webFetch: 'web_fetch',
   writeFile: 'write_file',
   updateMemory: 'update_memory',
+  manageSchedule: 'manage_schedule',
   // The full stored output of an earlier call, or a numbered source's text
   // (spec 2026-10-01 §B3): what an aged digest points back to.
   recall: 'recall',

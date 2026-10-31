@@ -102,6 +102,13 @@ export const TOOL_REGISTRY: ToolMeta[] = [
     group: 'AI & Data'
   },
 
+  {
+    key: TOOL_NAMES.manageSchedule,
+    labelKey: 'tools.registry.manageSchedule.label',
+    descriptionKey: 'tools.registry.manageSchedule.description',
+    group: 'AI & Data'
+  },
+
   // Maps
   {
     key: TOOL_NAMES.mapItinerary,

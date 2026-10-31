@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "Scheduled",
-      "description": "Schedule tasks in a chat or a Philharmonic group.",
+      "description": "Tasks from Chat and Philharmonic, together in one place. Create and edit Chat tasks through conversation.",
       "localOnly": "Runs on this computer while Actovia is open. Times use this computer’s time zone."
+    },
+    "manage": {
+      "originDeleted": "Original conversation deleted",
+      "groupReadOnly": "Managed by Philharmonic · read-only",
+      "edit": "Edit in Chat",
+      "delete": "Delete task",
+      "createPrompt": "Help me schedule a task. Ask me what to do and when, and clarify anything needed before saving.",
+      "editPrompt": "Help me edit this scheduled task: {{task}}\nRead the current task first, ask what I want to change, then update the same task after clarification.",
+      "newTask": "New task",
+      "resumeInChat": "Edit in a new Chat to resume."
     }
   },
   "chat": {

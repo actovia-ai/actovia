@@ -81,8 +81,18 @@
     },
     "page": {
       "title": "예약된 작업",
-      "description": "채팅 또는 Philharmonic 그룹에서 작업을 예약하세요.",
+      "description": "Chat과 Philharmonic의 예약 작업을 한곳에서 확인합니다. Chat 작업은 대화로 만들고 편집하세요.",
       "localOnly": "Actovia가 열려 있는 동안 이 컴퓨터에서 실행됩니다. 시간은 컴퓨터의 시간대를 따릅니다."
+    },
+    "manage": {
+      "originDeleted": "원래 대화가 삭제됨",
+      "groupReadOnly": "Philharmonic 관리 · 읽기 전용",
+      "edit": "Chat에서 편집",
+      "delete": "작업 삭제",
+      "createPrompt": "예약 작업을 만들고 싶어요. 수행할 내용과 시간을 물어보고 필요한 정보를 확인한 후 저장해 주세요.",
+      "editPrompt": "이 예약 작업을 수정해 주세요: {{task}}\n현재 작업을 먼저 읽고 무엇을 바꿀지 물어본 후 같은 작업을 업데이트해 주세요.",
+      "newTask": "새 작업",
+      "resumeInChat": "새 Chat에서 편집하면 다시 실행됩니다."
     }
   },
   "chat": {

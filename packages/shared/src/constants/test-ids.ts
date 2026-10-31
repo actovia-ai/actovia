@@ -50,7 +50,10 @@ export const TEST_IDS = {
     createButton: 'schedule.create-button',
     conversationPicker: 'schedule.conversation-picker',
     taskCard: 'schedule.task-card',
-    cancelButton: 'schedule.cancel-button'
+    cancelButton: 'schedule.cancel-button',
+    editButton: 'schedule.edit-button',
+    originLink: 'schedule.origin-link',
+    originDeleted: 'schedule.origin-deleted'
   },
   skillsMarket: {
     searchInput: 'skills-market.search-input',
