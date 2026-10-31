@@ -1,0 +1,7 @@
+{"type":"system","subtype":"init","session_id":"follow-up","model":"opus"}
+{"type":"system","subtype":"background_tasks_changed","tasks":[{"task_id":"bash-1"},{"task_id":"watcher","ambient":true}]}
+{"type":"result","subtype":"success","result":"Started in background."}
+{"type":"stream_event","event":{"type":"content_block_delta","delta":{"type":"text_delta","text":"Background finished."}}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Background finished."}]}}
+{"type":"result","subtype":"success","result":"Background finished."}
+{"type":"system","subtype":"background_tasks_changed","tasks":[]}

@@ -35,6 +35,7 @@ export function startClaudeCode(input: StartInput): AgentRun {
   const pending = new Map<string, Record<string, unknown>>()
   let cliSessionId: string | null = null
   let busy = false
+  let backgroundTasks = 0
   let interruptRequested = false
   let interrupts = 0
 
@@ -52,6 +53,9 @@ export function startClaudeCode(input: StartInput): AgentRun {
       const { events, control } = parseLine(line)
       if (control) pending.set(control.requestId, control.input)
       for (const e of events) {
+        if (e.type === 'background_tasks') backgroundTasks = e.taskIds.length
+        if (['text', 'text_delta', 'step_start', 'blocked'].includes(e.type))
+          busy = true
         if (e.type === 'init') {
           cliSessionId = e.cliSessionId
           busy = true
@@ -69,6 +73,7 @@ export function startClaudeCode(input: StartInput): AgentRun {
       }
     },
     onExit(info) {
+      backgroundTasks = 0
       pending.clear()
       busy = false
       emit({ type: 'exit', ...info })
@@ -85,6 +90,9 @@ export function startClaudeCode(input: StartInput): AgentRun {
     get busy() {
       // A gone child is not busy, though its last lines may still drain.
       return busy && proc.alive
+    },
+    get backgroundTasks() {
+      return backgroundTasks
     },
     on(listener) {
       listeners.add(listener)

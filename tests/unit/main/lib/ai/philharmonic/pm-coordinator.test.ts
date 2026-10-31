@@ -286,6 +286,60 @@ describe('runPmCoordinator — the group’s members', () => {
   const joined = (emit: ReturnType<typeof vi.fn>) =>
     emit.mock.calls.filter(([e]) => e.type === 'member_joined')
 
+  it('queues a CLI follow-up behind the active PM and records a report round', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    const { pmRunRegistry } =
+      await import('@main/lib/ai/philharmonic/pm-run-registry')
+    const { delegate } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'long job' })
+    const onFollowUp = vi
+      .mocked(engine.runDelegatedTask)
+      .mock.calls.at(-1)![0].onFollowUp!
+    let release!: () => void
+    const active = pmRunRegistry.run(
+      'c1',
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve
+        })
+    )
+    await vi.waitFor(() => expect(release).toBeTypeOf('function'))
+    agentLoopMock.mockClear()
+    recorder.input.mockClear()
+    const followUp = onFollowUp({
+      output: 'Background build finished.',
+      messageId: 'm1'
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(agentLoopMock).not.toHaveBeenCalled()
+    release()
+    await Promise.all([active, followUp])
+    expect(agentLoopMock).toHaveBeenCalledTimes(1)
+    expect(recorder.input).toHaveBeenCalledWith(
+      'report',
+      expect.stringContaining('Background build finished.')
+    )
+    expect(updateTask).toHaveBeenCalledWith('t1', {
+      output: { result: 'Background build finished.' }
+    })
+  })
+
+  it('does not wake a deleted group for a late CLI follow-up', async () => {
+    const engine = await import('@main/lib/ai/philharmonic/execution-engine')
+    const convs = await import('@main/lib/db/conversation-queries')
+    const { delegate } = await delegateTool(['a1'])
+    await delegate.execute('x', { employeeId: 'a1', instructions: 'long job' })
+    const onFollowUp = vi
+      .mocked(engine.runDelegatedTask)
+      .mock.calls.at(-1)![0].onFollowUp!
+    vi.mocked(convs.getConversationById).mockResolvedValueOnce(
+      undefined as never
+    )
+    agentLoopMock.mockClear()
+    await onFollowUp({ output: 'Late report.', messageId: 'm1' })
+    expect(agentLoopMock).not.toHaveBeenCalled()
+  })
+
   it('an employee handed a step joins the group, once', async () => {
     const { delegate, add, emit } = await delegateTool([])
     await delegate.execute('x', { employeeId: 'a1', instructions: 'one' })

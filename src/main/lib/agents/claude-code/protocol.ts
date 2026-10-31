@@ -166,6 +166,19 @@ export function parseLine(line: string): ParsedLine {
 
   switch (e.type) {
     case 'system':
+      if (e.subtype === 'background_tasks_changed' && Array.isArray(e.tasks)) {
+        return {
+          events: [
+            {
+              type: 'background_tasks',
+              taskIds: e.tasks
+                .filter(isObj)
+                .filter((task) => task.ambient !== true && str(task.task_id))
+                .map((task) => str(task.task_id)!)
+            }
+          ]
+        }
+      }
       if (e.subtype === 'init' && str(e.session_id)) {
         return {
           events: [

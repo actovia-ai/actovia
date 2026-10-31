@@ -18,6 +18,7 @@ function fakeRun(): AgentRun & {
     cliSessionId: 'x',
     alive: true,
     busyFlag: false,
+    backgroundTasks: 0,
     get busy() {
       return run.busyFlag
     },
@@ -39,6 +40,7 @@ function fakeRun(): AgentRun & {
       run.fire({ type: 'exit', code: 0, stderrTail: '', expected: true })
     },
     fire(e: AgentEvent) {
+      if (e.type === 'background_tasks') run.backgroundTasks = e.taskIds.length
       for (const l of listeners) l(e)
     }
   }
@@ -54,6 +56,23 @@ const registry = (max = 2, keepMs = 1000) =>
 afterEach(() => vi.useRealTimers())
 
 describe('agent registry', () => {
+  it('keeps a CLI alive beyond its idle limit until its background tasks drain', async () => {
+    vi.useFakeTimers()
+    const r = registry(2, 1000)
+    const run = fakeRun()
+    r.attach('k', 's', 'claude-code', 'p', 'c', run)
+    r.scheduleIdleExit('k')
+    await vi.advanceTimersByTimeAsync(1)
+    run.fire({ type: 'background_tasks', taskIds: ['job'] })
+    r.scheduleIdleExit('k') // first delegated turn's finally
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(run.stops).toBe(0)
+    run.fire({ type: 'background_tasks', taskIds: [] })
+    await vi.advanceTimersByTimeAsync(999)
+    expect(run.stops).toBe(0)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(run.stops).toBe(1)
+  })
   it('lets no more than the limit through, and the next in when one releases', async () => {
     const r = registry(2)
     const a = await r.acquireSlot()

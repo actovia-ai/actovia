@@ -43,6 +43,7 @@ export async function runDelegatedTask(args: {
   instructions: string
   emit: SseEmitter
   signal?: AbortSignal
+  onFollowUp?: (outcome: DelegatedOutput) => Promise<void>
 }): Promise<DelegatedOutput> {
   const { taskId, agentId, conversationId, instructions, emit, signal } = args
   const agent = await getAgentById(agentId)
@@ -120,7 +121,8 @@ export async function runDelegatedTask(args: {
             taskId,
             conversationId,
             emit,
-            signal
+            signal,
+            onFollowUp: args.onFollowUp
           })
     const output = outcome.output
     // Actovia's loop closes its own execution row; a CLI run leaves it to us,

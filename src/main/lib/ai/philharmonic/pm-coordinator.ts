@@ -41,6 +41,7 @@ import { mainT } from '../../i18n'
 import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-base'
 import { logger } from '../../logger'
 import { notifyIfBackground } from '../../philharmonic-notifications'
+import { emitToConversation } from '../../server/routes/philharmonic-sse'
 import { searchKnowledgeBase } from '../calling-tools/search-knowledge-base'
 import { streamFn } from '../kernel/models'
 import { getModelFromProvider } from '../utils/chat-message-util'
@@ -438,6 +439,23 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           maxRetries: 1,
           retryCount: 0
         })
+        const onFollowUp = async ({ output }: { output: string }) => {
+          if (signal?.aborted) return
+          await pmRunRegistry.run(conversationId, async (reportSignal) => {
+            // A report may have waited behind another round or group deletion.
+            if (signal?.aborted || !(await getConversationById(conversationId)))
+              return
+            await updateTask(childTask.id, { output: { result: output } })
+            if (stepId) await updateStep(stepId, { output })
+            await runPmCoordinator({
+              conversationId,
+              userText: `[Employee follow-up report · task ${childTask.id}] ${output}`,
+              trigger: 'report',
+              emit: (event) => emitToConversation(conversationId, event),
+              signal: reportSignal
+            })
+          })
+        }
         if (mode === 'background') {
           void runDelegatedTask({
             taskId: childTask.id,
@@ -445,7 +463,8 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             conversationId,
             instructions,
             emit,
-            signal
+            signal,
+            onFollowUp
           })
             .then(async ({ output, messageId, liveMessageId }) => {
               if (!messageId)
@@ -495,7 +514,8 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
             conversationId,
             instructions,
             emit,
-            signal
+            signal,
+            onFollowUp
           })
           // Persist the employee's final output as a chat bubble — a coding
           // agent's step saved its own as it began (its card lives there).

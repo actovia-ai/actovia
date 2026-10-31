@@ -68,6 +68,40 @@ function next(
 }
 
 describe('Claude Code run', () => {
+  it('tracks background work separately and marks unprompted activity busy without another init', async () => {
+    const { run } = start('background-follow-up.jsonl')
+    const states: Array<{
+      type: string
+      busy: boolean
+      background: number | undefined
+    }> = []
+    run.on((event) =>
+      states.push({
+        type: event.type,
+        busy: run.busy,
+        background: run.backgroundTasks
+      })
+    )
+    const drained = next(
+      run,
+      (e) => e.type === 'background_tasks' && e.taskIds.length === 0
+    )
+    try {
+      run.send('start work')
+      await drained
+      expect(states.filter((s) => s.type === 'turn_end')).toEqual([
+        { type: 'turn_end', busy: false, background: 1 },
+        { type: 'turn_end', busy: false, background: 1 }
+      ])
+      expect(states.find((s) => s.type === 'text_delta')).toMatchObject({
+        busy: true,
+        background: 1
+      })
+      expect(run.backgroundTasks).toBe(0)
+    } finally {
+      await run.stop()
+    }
+  })
   it('never passes a model that could be read as a flag', () => {
     const args = buildArgs({
       binPath: 'claude',

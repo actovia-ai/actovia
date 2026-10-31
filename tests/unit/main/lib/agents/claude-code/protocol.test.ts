@@ -20,6 +20,36 @@ const PROBE =
   '{"type":"rate_limit_event","rate_limit_info":{"status":"allowed_warning","resetsAt":1792450800,"rateLimitType":"seven_day","utilization":0.85,"overageStatus":"rejected","overageDisabledReason":"org_level_disabled","isUsingOverage":false,"surpassedThreshold":0.75,"unifiedWindows":{"five_hour":{"utilization":0.05,"resetsAt":1792159800},"seven_day":{"utilization":0.85,"resetsAt":1792450800}},"overageEnabled":false},"uuid":"u","session_id":"s"}'
 
 describe('Claude Code protocol', () => {
+  it('reads complete background task snapshots, excluding ambient watchers', () => {
+    expect(
+      parseLine(
+        JSON.stringify({
+          type: 'system',
+          subtype: 'background_tasks_changed',
+          tasks: [
+            { task_id: 'bash-1' },
+            { task_id: 'agent-1', ambient: false },
+            { task_id: 'watcher', ambient: true },
+            { task_id: 42 }
+          ]
+        })
+      ).events
+    ).toEqual([{ type: 'background_tasks', taskIds: ['bash-1', 'agent-1'] }])
+    expect(
+      parseLine(
+        JSON.stringify({
+          type: 'system',
+          subtype: 'background_tasks_changed',
+          tasks: []
+        })
+      ).events
+    ).toEqual([{ type: 'background_tasks', taskIds: [] }])
+    expect(
+      parseLine(
+        JSON.stringify({ type: 'system', subtype: 'background_tasks_changed' })
+      ).events
+    ).toEqual([])
+  })
   it('maps the allow / write / bash / question run in order', () => {
     const types = eventsOf('allow-write-bash-question.jsonl').map((e) => e.type)
     expect(types[0]).toBe('init')

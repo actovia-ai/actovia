@@ -51,6 +51,8 @@ export interface DelegatedOutput {
 }
 
 export interface RunAgentEmployeeArgs {
+  /** Persisted CLI follow-up reports, delivered after the delegated turn has returned. */
+  onFollowUp?: (outcome: DelegatedOutput) => Promise<void>
   agent: Agent
   instructions: string
   taskId: string
@@ -183,7 +185,15 @@ export async function runAgentEmployee(
   args: RunAgentEmployeeArgs,
   deps: RunAgentEmployeeDeps = defaultDeps
 ): Promise<DelegatedOutput> {
-  const { agent, instructions, taskId, conversationId, emit, signal } = args
+  const {
+    agent,
+    instructions,
+    taskId,
+    conversationId,
+    emit,
+    signal,
+    onFollowUp
+  } = args
   const cli = cliOf(agent.runtime)
   const name = CLI_NAMES[cli]
   const conversation = await getConversationById(conversationId)
@@ -227,6 +237,8 @@ export async function runAgentEmployee(
     let lastEmit = 0
     /** Set once the step resolved: later (unprompted) turns update the persisted message. */
     let stepDone = false
+    let followUpActive = false
+    let reports = Promise.resolve()
     let stepUsage: DelegatedOutput['usage']
     /** This step started the process, and its first turn began. */
     let startedHere = false
@@ -364,15 +376,44 @@ export async function runAgentEmployee(
             off()
             return
           }
+          if (stepDone && ['text', 'text_delta', 'step_start'].includes(e.type))
+            card = { ...card!, state: 'working', error: null }
           card = applyAgentEvent(card!, e)
           if (stepDone) {
+            // Quota/snapshot chatter is not a new employee report or a busy turn.
+            if (e.type === 'quota' || e.type === 'background_tasks') return
+            if (e.type !== 'turn_end' && e.type !== 'exit')
+              followUpActive = true
             // An unprompted turn after the step (spec §2.1): keep the persisted card current.
             // It is still real work: don't let the first step's idle timer
             // tear the process down while Claude is finishing its follow-up.
             deps.registry.cancelIdleExit(key)
             if (e.type === 'turn_end' || e.type === 'exit') {
               flush()
-              if (e.type === 'turn_end') deps.registry.scheduleIdleExit(key)
+              if (e.type === 'turn_end') {
+                deps.registry.scheduleIdleExit(key)
+                if (followUpActive) {
+                  followUpActive = false
+                  const output = formatAgentOutput(card!, session.id)
+                  writer.content(output)
+                  const persisted = writer.settled()
+                  const state = card!.state
+                  reports = reports
+                    .then(async () => {
+                      await persisted
+                      if (stepOwner.get(liveRun) === owner && !liveRun.busy)
+                        await setSession(project, session.id, { state })
+                      if (!e.interrupted && !signal?.aborted)
+                        await onFollowUp?.({ output, messageId })
+                    })
+                    .catch((error) =>
+                      logger.warn('agents', 'follow-up report failed', {
+                        taskId,
+                        error
+                      })
+                    )
+                }
+              }
             } else throttled()
             if (e.type === 'exit') off()
             return

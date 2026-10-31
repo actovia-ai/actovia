@@ -106,6 +106,7 @@ export function applyAgentEvent(card: AgentCard, e: AgentEvent): AgentCard {
       }
     }
     case 'quota':
+    case 'background_tasks':
       // Kept by the quota store; the card shows the CLI's notice line only.
       return card
     case 'exit':

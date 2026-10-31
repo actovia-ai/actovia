@@ -113,6 +113,10 @@ export class AgentRegistry {
   ): void {
     this.entries.set(key, { run, sessionId, cli, projectId, conversationId })
     const off = run.on((e) => {
+      if (e.type === 'background_tasks' && this.entries.get(key)?.run === run) {
+        if (e.taskIds.length) this.cancelIdleExit(key)
+        else this.scheduleIdleExit(key)
+      }
       if (e.type !== 'exit') return
       off()
       const entry = this.entries.get(key)
@@ -167,12 +171,18 @@ export class AgentRegistry {
   scheduleIdleExit(key: string): void {
     const entry = this.entries.get(key)
     if (!entry) return
+    if (entry.run.backgroundTasks) return
     clearTimeout(entry.idleTimer)
     entry.idleCancelled = false
     void this.deps.keepAliveMs().then((ms) => {
       if (this.entries.get(key) !== entry || entry.idleCancelled) return
       entry.idleTimer = setTimeout(() => {
-        if (!entry.idleCancelled && !entry.run.busy) void entry.run.stop()
+        if (
+          !entry.idleCancelled &&
+          !entry.run.busy &&
+          !entry.run.backgroundTasks
+        )
+          void entry.run.stop()
       }, ms)
     })
   }

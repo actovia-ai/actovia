@@ -95,6 +95,26 @@ describe('runDelegatedTask', () => {
     )
   })
 
+  it('passes the PM follow-up callback through to the CLI runner', async () => {
+    agentRow = { id: 'a1', runtime: 'claude-code', isActive: true }
+    runAgentEmployee.mockResolvedValueOnce({
+      output: 'started',
+      messageId: 'm1'
+    })
+    const onFollowUp = vi.fn()
+    await runDelegatedTask({
+      taskId: 't1',
+      agentId: 'a1',
+      conversationId: 'c1',
+      instructions: 'background job',
+      emit: vi.fn(),
+      onFollowUp
+    })
+    expect(runAgentEmployee).toHaveBeenCalledWith(
+      expect.objectContaining({ onFollowUp })
+    )
+  })
+
   // A CLI step is counted by its tokens (ISSUE-132); no money (ISSUE-235).
   it("records a CLI step's tokens and nothing else", async () => {
     agentRow = {

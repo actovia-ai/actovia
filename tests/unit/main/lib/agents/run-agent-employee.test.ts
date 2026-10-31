@@ -501,7 +501,14 @@ describe('runAgentEmployee', () => {
 
   it('keeps the persisted card current through an unprompted turn after the step', async () => {
     const run = makeRun(happy)
-    const out = await runAgentEmployee(args(), deps(run))
+    const onFollowUp = vi.fn(async () => {
+      expect(updateContent).toHaveBeenLastCalledWith(
+        out.messageId,
+        expect.stringContaining('The background job finished.')
+      )
+    })
+    const out = await runAgentEmployee(args({ onFollowUp }), deps(run))
+    expect(onFollowUp).not.toHaveBeenCalled()
     run.fire({ type: 'text', text: 'The background job finished.' })
     run.fire({
       type: 'turn_end',
@@ -529,6 +536,79 @@ describe('runAgentEmployee', () => {
         })
       ])
     )
+    await vi.waitFor(() =>
+      expect(onFollowUp).toHaveBeenCalledWith({
+        output: expect.stringContaining('The background job finished.'),
+        messageId: out.messageId
+      })
+    )
+    run.fire({
+      type: 'quota',
+      quota: {
+        cli: 'claude-code',
+        windows: [],
+        state: 'ok',
+        rejectedWindow: null,
+        overage: false,
+        asOf: 1
+      }
+    })
+    run.fire({
+      type: 'turn_end',
+      ok: true,
+      interrupted: false,
+      text: '',
+      denials: 0
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(onFollowUp).toHaveBeenCalledTimes(1)
+  })
+
+  it('persists interrupted follow-ups without waking the PM', async () => {
+    const run = makeRun(happy)
+    const onFollowUp = vi.fn()
+    const out = await runAgentEmployee(args({ onFollowUp }), deps(run))
+    run.fire({ type: 'text', text: 'Cancelled work.' })
+    run.fire({
+      type: 'turn_end',
+      ok: false,
+      interrupted: true,
+      text: '',
+      denials: 0
+    })
+    await vi.waitFor(() =>
+      expect(updateContent).toHaveBeenLastCalledWith(
+        out.messageId,
+        expect.stringContaining('Cancelled work.')
+      )
+    )
+    expect(onFollowUp).not.toHaveBeenCalled()
+  })
+
+  it('does not wake the PM when the originating round was aborted', async () => {
+    const run = makeRun(happy)
+    const onFollowUp = vi.fn()
+    const controller = new AbortController()
+    const out = await runAgentEmployee(
+      args({ onFollowUp, signal: controller.signal }),
+      deps(run)
+    )
+    controller.abort()
+    run.fire({ type: 'text', text: 'Late background result.' })
+    run.fire({
+      type: 'turn_end',
+      ok: true,
+      interrupted: false,
+      text: '',
+      denials: 0
+    })
+    await vi.waitFor(() =>
+      expect(updateContent).toHaveBeenLastCalledWith(
+        out.messageId,
+        expect.stringContaining('Late background result.')
+      )
+    )
+    expect(onFollowUp).not.toHaveBeenCalled()
   })
 
   it('hands every quota reading of the process to the store, the step’s or not', async () => {

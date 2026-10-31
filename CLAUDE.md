@@ -1152,6 +1152,17 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   group search is on `bg-sidebar-accent` (`bg-input/50` vanishes on the
   material)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
+- **CLI follow-ups** (ISSUE-308): after its delegated turn returns, a CLI's
+  later turn updates the same employee message's card and text before calling
+  the coordinator's `onFollowUp` callback. Reports enter `pmRunRegistry`'s
+  per-group FIFO as `report` rounds, use the group's live SSE emitter, and
+  skip aborted rounds and deleted groups. Claude Code's
+  `system/background_tasks_changed` snapshots (CLI 2.1.203+) keep non-ambient
+  background work alive outside a turn; the idle countdown resumes when the
+  set drains. Quota readings alone do not mark a new turn or cancel the idle
+  countdown. An unprompted text/tool/permission event marks the CLI busy so
+  the next delegation waits for its turn to settle. Codex's workspace sandbox
+  deliberately still disables network access (its existing permission contract).
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);

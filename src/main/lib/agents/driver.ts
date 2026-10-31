@@ -14,6 +14,8 @@ export const isCliModel = (model: string) =>
   /^[\w.:[\]-]+$/u.test(model) && !model.startsWith('-')
 
 export type AgentEvent =
+  /** Claude's complete live set, excluding ambient watchers. */
+  | { type: 'background_tasks'; taskIds: string[] }
   | { type: 'init'; cliSessionId: string; model: string | null }
   | { type: 'text_delta'; delta: string }
   | { type: 'text'; text: string }
@@ -46,6 +48,8 @@ export interface StartInput {
 }
 
 export interface AgentRun {
+  /** Work outside the current turn; does not make the CLI unavailable for another prompt. */
+  readonly backgroundTasks?: number
   readonly cliSessionId: string | null
   readonly alive: boolean
   /** True between a `send` and its `turn_end` (and during an unprompted turn). */
