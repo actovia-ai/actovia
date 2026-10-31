@@ -89,10 +89,19 @@
       "groupReadOnly": "Philharmonic 관리 · 읽기 전용",
       "edit": "Chat에서 편집",
       "delete": "작업 삭제",
-      "createPrompt": "예약 작업을 만들고 싶어요. 수행할 내용과 시간을 물어보고 필요한 정보를 확인한 후 저장해 주세요.",
       "editPrompt": "이 예약 작업을 수정해 주세요: {{task}}\n현재 작업을 먼저 읽고 무엇을 바꿀지 물어본 후 같은 작업을 업데이트해 주세요.",
-      "newTask": "새 작업",
       "resumeInChat": "새 Chat에서 편집하면 다시 실행됩니다."
+    },
+    "composer": {
+      "emptyTitle": "어떤 작업을 예약할까요?",
+      "emptyDescription": "예시를 선택하거나 아래에 작업을 입력하세요.",
+      "placeholder": "작업 내용과 실행 시간을 입력하세요…",
+      "requestPrompt": "이 작업을 예약해 주세요: {{request}}",
+      "examples": {
+        "briefing": "평일 오전 9시마다 AI 뉴스를 요약해 주세요.",
+        "language": "매일 저녁 8시에 스페인어 연습을 도와주세요.",
+        "review": "매주 금요일 오후 5시에 한 주를 돌아보도록 도와주세요."
+      }
     }
   },
   "chat": {

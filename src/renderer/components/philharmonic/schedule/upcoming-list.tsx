@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -13,19 +14,22 @@ export function UpcomingList({
   conversationsById,
   cancellingId,
   onCancel,
-  onEdit
+  onEdit,
+  emptyState
 }: {
   tasks: TaskData[]
   conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
   onEdit?: (task: TaskData) => void
+  emptyState?: ReactNode
 }) {
   const { t } = useTranslation('philharmonic')
   const groups = groupTasksByDay(tasks)
   const { dateTime } = useFormat()
 
   if (groups.length === 0) {
+    if (emptyState) return emptyState
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center px-6 text-center text-sm">
         {t('schedule.upcomingList.empty')}

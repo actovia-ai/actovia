@@ -111,7 +111,9 @@ function useAvailableEffortLevels(): typeof EFFORT_LEVELS {
 }
 
 /** The composer's `+` button: attachments, reasoning effort/deep-research, MCP tools. */
-export function ComposerToolsButton() {
+export function ComposerToolsButton({
+  allowDeepResearch = true
+}: { allowDeepResearch?: boolean } = {}) {
   const { t } = useTranslation(['common', 'chat'])
   const { uploadFile } = useUpload()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -134,7 +136,8 @@ export function ComposerToolsButton() {
     })
   }
 
-  const hasActiveTool = advancedTools.length > 0 || reasoningEffort !== 'off'
+  const hasActiveTool =
+    (allowDeepResearch && advancedTools.length > 0) || reasoningEffort !== 'off'
 
   return (
     <>
@@ -204,16 +207,18 @@ export function ComposerToolsButton() {
               </DropdownMenuSubContent>
             </DropdownMenuSub>
           )}
-          {TOGGLES.map(({ key, labelKey, icon: Icon }) => (
-            <DropdownMenuCheckboxItem
-              key={key}
-              checked={advancedTools.includes(key)}
-              onCheckedChange={() => toggle(key)}
-            >
-              <HugeiconsIcon icon={Icon} />
-              {t(labelKey)}
-            </DropdownMenuCheckboxItem>
-          ))}
+          {(allowDeepResearch ? TOGGLES : []).map(
+            ({ key, labelKey, icon: Icon }) => (
+              <DropdownMenuCheckboxItem
+                key={key}
+                checked={advancedTools.includes(key)}
+                onCheckedChange={() => toggle(key)}
+              >
+                <HugeiconsIcon icon={Icon} />
+                {t(labelKey)}
+              </DropdownMenuCheckboxItem>
+            )
+          )}
           {mcpCount > 0 && (
             <>
               <DropdownMenuSeparator />
@@ -271,7 +276,9 @@ export function ComposerToolsButton() {
 }
 
 /** Removable pills shown above the textarea for each active advanced tool. */
-export function ActiveToolPills() {
+export function ActiveToolPills({
+  allowDeepResearch = true
+}: { allowDeepResearch?: boolean } = {}) {
   const { t } = useTranslation(['common', 'chat'])
   const { advancedTools, toggle, reasoningEffort, setEffort } =
     useAdvancedToolToggle()
@@ -279,7 +286,9 @@ export function ActiveToolPills() {
   // translation function above, and a filter callback named `t` would
   // shadow it silently (see CLAUDE.md's i18n "Adding a User-Facing String"
   // step 8).
-  const active = TOGGLES.filter((tool) => advancedTools.includes(tool.key))
+  const active = TOGGLES.filter(
+    (tool) => allowDeepResearch && advancedTools.includes(tool.key)
+  )
   const effortLabelKey =
     reasoningEffort === 'off'
       ? null

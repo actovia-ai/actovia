@@ -1,6 +1,9 @@
 import { QUICK_CHAT_KEY } from '@actovia/shared/constants/misc'
 import { BASE_URL } from '@actovia/shared/constants/systems'
-import { ChatMessage } from '@actovia/shared/types/chat'
+import {
+  ChatMessage,
+  type SendMessageOptions
+} from '@actovia/shared/types/chat'
 import type { ChatPage } from '@actovia/shared/types/chat-page'
 import { useSetAtom } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
@@ -19,7 +22,12 @@ import {
   reasoningEffortAtom,
   revealArtifactAtom
 } from '@/stores/chat'
-import { chatInputAtom, chatStatusAtom, chatStopFnAtom } from '@/stores/input'
+import {
+  chatInputAtom,
+  chatStatusAtom,
+  chatStopFnAtom,
+  pendingChatSendAtom
+} from '@/stores/input'
 
 import MultimodalInput from './composer/composer'
 import { InteractiveProvider } from './interactive/interactive-context'
@@ -34,6 +42,7 @@ interface Props {
   history?: ChatPage
   chatTitle: string
   showDiscover?: boolean
+  initialSend?: SendMessageOptions
 }
 
 export function Chat({
@@ -41,7 +50,8 @@ export function Chat({
   initialMessages,
   history,
   chatTitle,
-  showDiscover
+  showDiscover,
+  initialSend
 }: Props) {
   const { t } = useTranslation('chat')
   const { id: routeId } = useParams()
@@ -54,6 +64,9 @@ export function Chat({
     window.localStorage.getItem(QUICK_CHAT_KEY)
   )
   const quickChatSentRef = useRef(false)
+  const initialSentRef = useRef(false)
+  const [initialSubmission] = useState(initialSend)
+  const clearPendingSend = useSetAtom(pendingChatSendAtom)
   // advancedTools is only read inside prepareBody (a callback fired on send),
   // so we don't need to subscribe — useAtomCallback gets the latest value
   // lazily without triggering a Chat re-render on every tool toggle, which
@@ -144,13 +157,24 @@ export function Chat({
     [setChatMessages, setRevealArtifact]
   )
 
+  // Scheduled hands off exactly one user submission, including attachments.
+  // Consume it before sending so navigating Back never replays a request.
+  useEffect(() => {
+    if (!initialSubmission || initialSentRef.current) return
+    initialSentRef.current = true
+    clearPendingSend(null)
+    window.history.replaceState({}, '', `#/chat/${id}`)
+    void sendMessage(initialSubmission)
+  }, [id, initialSubmission, sendMessage, clearPendingSend])
+
   // Quick-chat: if localStorage had a pending quick-chat message at mount, send it immediately
   useEffect(() => {
     // `sendMessage` has a new identity on every render, so this effect re-runs
     // constantly. The pending text outlives the send (it is mount-time state),
     // so without the flag every re-run sent it again — aborting the stream it
     // had just started.
-    if (!pendingQuickChat || quickChatSentRef.current) return
+    if (initialSubmission || !pendingQuickChat || quickChatSentRef.current)
+      return
     quickChatSentRef.current = true
     setChatInput(pendingQuickChat)
     // Use replaceState for immediate URL update; React Router navigate
@@ -159,7 +183,7 @@ export function Chat({
     sendMessage({ text: pendingQuickChat })
     setChatInput('')
     window.localStorage.removeItem(QUICK_CHAT_KEY)
-  }, [id, pendingQuickChat, sendMessage, setChatInput])
+  }, [id, initialSubmission, pendingQuickChat, sendMessage, setChatInput])
 
   // The floating dock's height, as `--composer-dock` on the chat: a quote or
   // a pill makes the composer taller, and the list's bottom room and the
@@ -195,7 +219,7 @@ export function Chat({
           messages={messages}
           regenerate={regenerate}
           chooseAttempt={chooseAttempt}
-          showDiscover={showDiscover}
+          showDiscover={showDiscover && !initialSubmission}
           runError={runError}
           hasOlder={older.hasOlder}
           loadingOlder={older.loadingOlder}

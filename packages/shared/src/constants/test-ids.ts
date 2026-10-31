@@ -46,6 +46,8 @@ export const TEST_IDS = {
   },
   schedule: {
     page: 'schedule.page',
+    composer: 'schedule.composer',
+    example: 'schedule.example',
     tab: 'schedule.tab',
     createButton: 'schedule.create-button',
     conversationPicker: 'schedule.conversation-picker',

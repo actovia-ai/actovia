@@ -89,10 +89,19 @@
       "groupReadOnly": "Managed by Philharmonic · read-only",
       "edit": "Edit in Chat",
       "delete": "Delete task",
-      "createPrompt": "Help me schedule a task. Ask me what to do and when, and clarify anything needed before saving.",
       "editPrompt": "Help me edit this scheduled task: {{task}}\nRead the current task first, ask what I want to change, then update the same task after clarification.",
-      "newTask": "New task",
       "resumeInChat": "Edit in a new Chat to resume."
+    },
+    "composer": {
+      "emptyTitle": "What would you like to schedule?",
+      "emptyDescription": "Try an example, or describe a task below.",
+      "placeholder": "Describe a task and when to run it…",
+      "requestPrompt": "Help me schedule this task: {{request}}",
+      "examples": {
+        "briefing": "Give me an AI news briefing every weekday at 9 AM.",
+        "language": "Help me practise Spanish every evening at 8 PM.",
+        "review": "Help me review my week every Friday at 5 PM."
+      }
     }
   },
   "chat": {

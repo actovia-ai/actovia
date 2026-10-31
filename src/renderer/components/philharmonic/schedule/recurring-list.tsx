@@ -1,5 +1,6 @@
 import { CronExpressionParser } from 'cron-parser'
 import { type TFunction } from 'i18next'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -53,17 +54,20 @@ export function RecurringList({
   conversationsById,
   cancellingId,
   onCancel,
-  onEdit
+  onEdit,
+  emptyState
 }: {
   tasks: TaskData[]
   conversationsById: Record<string, Pick<ConversationData, 'title'>>
   cancellingId: string | null
   onCancel: (id: string) => void
   onEdit?: (task: TaskData) => void
+  emptyState?: ReactNode
 }) {
   const { t } = useTranslation('philharmonic')
   const { dateTime } = useFormat()
   if (tasks.length === 0) {
+    if (emptyState) return emptyState
     return (
       <div className="text-muted-foreground flex h-full items-center justify-center px-6 text-center text-sm">
         {t('schedule.recurringList.empty')}

@@ -89,10 +89,19 @@
       "groupReadOnly": "Gérée par Philharmonic · lecture seule",
       "edit": "Modifier dans Chat",
       "delete": "Supprimer la tâche",
-      "createPrompt": "Aide-moi à programmer une tâche. Demande-moi quoi faire et quand, puis clarifie les détails avant de l’enregistrer.",
       "editPrompt": "Aide-moi à modifier cette tâche programmée : {{task}}\nLis d’abord la tâche actuelle, demande ce que je veux changer, puis mets à jour cette même tâche après clarification.",
-      "newTask": "Nouvelle tâche",
       "resumeInChat": "Modifiez dans un nouveau Chat pour reprendre."
+    },
+    "composer": {
+      "emptyTitle": "Que souhaitez-vous programmer ?",
+      "emptyDescription": "Essayez un exemple ou décrivez une tâche ci-dessous.",
+      "placeholder": "Décrivez une tâche et quand l’exécuter…",
+      "requestPrompt": "Aide-moi à programmer cette tâche : {{request}}",
+      "examples": {
+        "briefing": "Résume les actualités de l’IA chaque jour ouvré à 9 h.",
+        "language": "Aide-moi à pratiquer l’espagnol chaque soir à 20 h.",
+        "review": "Aide-moi à faire le bilan de ma semaine chaque vendredi à 17 h."
+      }
     }
   },
   "chat": {

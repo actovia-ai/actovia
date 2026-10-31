@@ -89,10 +89,19 @@
       "groupReadOnly": "Philharmonic が管理 · 読み取り専用",
       "edit": "Chat で編集",
       "delete": "タスクを削除",
-      "createPrompt": "定期タスクを作成したいです。内容と実行日時を質問し、必要な情報を確認してから保存してください。",
       "editPrompt": "この定期タスクを編集したいです：{{task}}\nまず現在のタスクを読み、変更したい内容を質問してください。確認後、同じタスクを更新してください。",
-      "newTask": "新しいタスク",
       "resumeInChat": "新しい Chat で編集すると再開します。"
+    },
+    "composer": {
+      "emptyTitle": "どんなタスクを予定しますか？",
+      "emptyDescription": "例を試すか、下の欄にタスクを入力してください。",
+      "placeholder": "タスクの内容と実行日時を入力…",
+      "requestPrompt": "このタスクを予定したいです：{{request}}",
+      "examples": {
+        "briefing": "平日の午前9時に、AIニュースの概要をまとめてください。",
+        "language": "毎晩午後8時に、スペイン語の練習を手伝ってください。",
+        "review": "毎週金曜日の午後5時に、1週間の振り返りを手伝ってください。"
+      }
     }
   },
   "chat": {

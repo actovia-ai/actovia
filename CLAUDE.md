@@ -1195,8 +1195,12 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   key; deleted target chats are not recreated. These schedules require the
   local app to remain open and use the computer's time zone. Task lists
   refresh on focus and every 30 seconds, with loading/error/retry states.
-  Standalone Scheduled is a management list: New task opens a fresh Chat
-  with a reviewable draft; editing opens the original Chat, or a new one if
+  Standalone Scheduled is a management list with the shared Chat composer
+  fixed below its scrollable content (no New task button). Enter hands a
+  request to a fresh Home Chat through the one-shot `pendingChatSendAtom`,
+  sending it exactly once with attachments and scheduling context. Its draft
+  has a separate atom; empty lists offer three examples that fill and focus
+  the composer without sending. Editing opens the original Chat, or a new one if
   the origin was deleted. Task cards link to their Chat/Group; deleted Chat
   origins are marked explicitly. Philharmonic schedules are read-only in this
   manager (including the cancellation API), while Chat schedules can be

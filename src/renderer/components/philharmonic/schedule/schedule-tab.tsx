@@ -1,4 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { SendMessageOptions } from '@actovia/shared/types/chat'
 import { Add01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -7,6 +8,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
+import MultimodalInput from '@/components/chat/composer/composer'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -18,10 +20,15 @@ import {
   getUpcomingTasks
 } from '@/services/philharmonic-tasks'
 import { advancedToolsAtom, attachmentAtom } from '@/stores/chat'
-import { chatInputAtom, chatQuoteAtom } from '@/stores/input'
+import {
+  chatInputAtom,
+  chatQuoteAtom,
+  pendingChatSendAtom
+} from '@/stores/input'
 import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { RecurringList } from './recurring-list'
+import { ScheduleEmptyState } from './schedule-empty-state'
 import { ScheduleTaskForm } from './schedule-task-form'
 import { UpcomingList } from './upcoming-list'
 
@@ -38,6 +45,7 @@ export function ScheduleTab({
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const setInput = useSetAtom(chatInputAtom)
+  const setPendingSend = useSetAtom(pendingChatSendAtom)
   const setTools = useSetAtom(advancedToolsAtom)
   const setAttachments = useSetAtom(attachmentAtom)
   const setQuote = useSetAtom(chatQuoteAtom)
@@ -66,7 +74,7 @@ export function ScheduleTab({
     [conversations, chats]
   )
 
-  const startChat = (task?: TaskData) => {
+  const startChat = (task: TaskData) => {
     const chatId =
       typeof task?.input?.chatId === 'string' ? task.input.chatId : null
     const originExists = chatId && chats.some((chat) => chat.id === chatId)
@@ -74,17 +82,15 @@ export function ScheduleTab({
     setAttachments(undefined)
     setQuote(null)
     setInput(
-      task
-        ? t('schedule.manage.editPrompt', {
-            task: JSON.stringify({
-              id: task.id,
-              title: task.title,
-              description: task.description,
-              cronExpression: task.cronExpression,
-              runAt: task.runAt
-            })
-          })
-        : t('schedule.manage.createPrompt')
+      t('schedule.manage.editPrompt', {
+        task: JSON.stringify({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          cronExpression: task.cronExpression,
+          runAt: task.runAt
+        })
+      })
     )
     void navigate(originExists ? `/chat/${chatId}` : '/')
   }
@@ -138,12 +144,6 @@ export function ScheduleTab({
               {t('schedule.page.localOnly')}
             </p>
           </div>
-          <Button
-            onClick={() => startChat()}
-            data-testid={TEST_IDS.schedule.createButton}
-          >
-            {t('schedule.manage.newTask')}
-          </Button>
         </div>
       )}
       {!standalone && (
@@ -193,6 +193,7 @@ export function ScheduleTab({
               cancellingId={cancellingId}
               onCancel={handleCancel}
               onEdit={standalone ? startChat : undefined}
+              emptyState={standalone ? <ScheduleEmptyState /> : undefined}
             />
           </TabsContent>
           <TabsContent value="recurring" className="min-h-0 flex-1">
@@ -202,9 +203,33 @@ export function ScheduleTab({
               cancellingId={cancellingId}
               onCancel={handleCancel}
               onEdit={standalone ? startChat : undefined}
+              emptyState={standalone ? <ScheduleEmptyState /> : undefined}
             />
           </TabsContent>
         </Tabs>
+      )}
+      {standalone && (
+        <div
+          data-testid={TEST_IDS.schedule.composer}
+          className="shrink-0 pt-3 pb-8"
+        >
+          <MultimodalInput
+            chatId="scheduled-draft"
+            mode="draft"
+            placeholder={t('schedule.composer.placeholder')}
+            sendMessage={async (message: SendMessageOptions) => {
+              setTools([])
+              setQuote(null)
+              setPendingSend({
+                ...message,
+                text: t('schedule.composer.requestPrompt', {
+                  request: message.text?.trim() ?? ''
+                })
+              })
+              await navigate('/')
+            }}
+          />
+        </div>
       )}
       {!standalone && (
         <ScheduleTaskForm

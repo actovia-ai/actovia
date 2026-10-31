@@ -34,7 +34,8 @@ import {
   chatInputFocusAtom,
   chatQuoteAtom,
   chatStatusAtom,
-  chatStopFnAtom
+  chatStopFnAtom,
+  scheduleInputAtom
 } from '@/stores/input'
 
 import { Button } from '../../ui/button'
@@ -60,13 +61,19 @@ const PILL_RADIUS = 28
 // changed per frame, so the whole composer re-rendered along with the stream.
 function InputBox({
   chatId,
-  sendMessage
+  sendMessage,
+  mode = 'chat',
+  placeholder
 }: {
   chatId: string
   sendMessage: UseChatHelpers['sendMessage']
+  mode?: 'chat' | 'draft'
+  placeholder?: string
 }) {
   const { t } = useTranslation('chat')
-  const [input, setInput] = useAtom(chatInputAtom)
+  const [input, setInput] = useAtom(
+    mode === 'draft' ? scheduleInputAtom : chatInputAtom
+  )
   // Staged attachments live in `attachmentAtom` — the single source of truth
   // shared with `<FilePreview>` and `useUpload`. (This component used to take
   // its own `attachments` prop from `<Chat>`, which was never wired to the
@@ -76,8 +83,10 @@ function InputBox({
   // "Ask about this": text selected in a message of this chat (see
   // `SelectionAsk`), sent with the next message as a quote.
   const [anyQuote, setQuote] = useAtom(chatQuoteAtom)
-  const quote = anyQuote?.chatId === chatId ? anyQuote.text : null
-  const status = useAtomValue(chatStatusAtom)
+  const quote =
+    mode === 'chat' && anyQuote?.chatId === chatId ? anyQuote.text : null
+  const chatStatus = useAtomValue(chatStatusAtom)
+  const status = mode === 'draft' ? 'idle' : chatStatus
   const stop = useAtomValue(chatStopFnAtom)
   const { id } = useParams()
   const { uploadFile } = useUpload()
@@ -147,7 +156,8 @@ function InputBox({
     // The hash, not the path: the router is a hash router, and in the packaged
     // app a path rewrite pointed `file://` at a file that does not exist, so a
     // reload after a new chat's first message was ERR_FILE_NOT_FOUND.
-    if (!id) {
+    if (!input.trim() && !attachments?.length) return
+    if (mode === 'chat' && !id) {
       window.history.replaceState({}, '', `#/chat/${chatId}`)
     }
 
@@ -164,6 +174,7 @@ function InputBox({
     if (quote !== null) setQuote(null)
   }, [
     attachments,
+    mode,
     chatId,
     input,
     quote,
@@ -202,7 +213,7 @@ function InputBox({
       active={voiceStream === null}
       className={cn(
         'mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',
-        !id && 'mb-4'
+        mode === 'chat' && !id && 'mb-4'
       )}
     >
       {/*
@@ -255,7 +266,7 @@ function InputBox({
             </div>
           )}
           <FilePreview />
-          <ActiveToolPills />
+          <ActiveToolPills allowDeepResearch={mode !== 'draft'} />
           {/*
           Two named rows: the field alone on the first, `+`, the middle and
           the round button on the second. Compact, the field takes the middle
@@ -269,7 +280,7 @@ function InputBox({
             className="grid grid-cols-[auto_1fr_auto] items-end gap-x-1 [grid-template-areas:'field_field_field'_'leading_middle_trailing']"
           >
             <div ref={leadingRef} className="flex [grid-area:leading]">
-              <ComposerToolsButton />
+              <ComposerToolsButton allowDeepResearch={mode !== 'draft'} />
             </div>
             {/*
             Pin to 14px (matching the message body) on a 24px line, so one
@@ -282,7 +293,7 @@ function InputBox({
               data-testid={TEST_IDS.composer.textarea}
               placeholder={
                 voiceStream === null
-                  ? t('composer.placeholder')
+                  ? (placeholder ?? t('composer.placeholder'))
                   : t('composer.listening')
               }
               value={input}

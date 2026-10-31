@@ -89,10 +89,19 @@
       "groupReadOnly": "由 Philharmonic 管理 · 只读",
       "edit": "在 Chat 中编辑",
       "delete": "删除任务",
-      "createPrompt": "帮我创建一个定时任务。请先问我要做什么、何时执行，确认必要信息后再保存。",
       "editPrompt": "帮我修改这个定时任务：{{task}}\n请先读取当前任务，再问我想修改什么；确认后更新同一个任务。",
-      "newTask": "新建任务",
       "resumeInChat": "在新 Chat 中编辑后恢复执行。"
+    },
+    "composer": {
+      "emptyTitle": "想安排什么任务？",
+      "emptyDescription": "试试这些示例，或在下方描述你的任务。",
+      "placeholder": "描述任务，以及何时执行…",
+      "requestPrompt": "帮我创建这个定时任务：{{request}}",
+      "examples": {
+        "briefing": "每个工作日早上 9 点，为我整理一份 AI 新闻简报。",
+        "language": "每天晚上 8 点，带我练习西班牙语。",
+        "review": "每周五下午 5 点，帮我回顾这一周。"
+      }
     }
   },
   "chat": {

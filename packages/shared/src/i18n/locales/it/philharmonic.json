@@ -89,10 +89,19 @@
       "groupReadOnly": "Gestita da Philharmonic · sola lettura",
       "edit": "Modifica in Chat",
       "delete": "Elimina attività",
-      "createPrompt": "Aiutami a pianificare un’attività. Chiedimi cosa fare e quando, e chiarisci i dettagli prima di salvarla.",
       "editPrompt": "Aiutami a modificare questa attività pianificata: {{task}}\nLeggi prima l’attività attuale, chiedimi cosa cambiare e aggiorna la stessa attività dopo i chiarimenti.",
-      "newTask": "Nuova attività",
       "resumeInChat": "Modifica in una nuova Chat per riprendere."
+    },
+    "composer": {
+      "emptyTitle": "Cosa vorresti pianificare?",
+      "emptyDescription": "Prova un esempio o descrivi un’attività qui sotto.",
+      "placeholder": "Descrivi un’attività e quando eseguirla…",
+      "requestPrompt": "Aiutami a pianificare questa attività: {{request}}",
+      "examples": {
+        "briefing": "Riassumi le notizie sull’IA ogni giorno feriale alle 9.",
+        "language": "Aiutami a esercitarmi in spagnolo ogni sera alle 20.",
+        "review": "Aiutami a ripercorrere la settimana ogni venerdì alle 17."
+      }
     }
   },
   "chat": {

@@ -30,16 +30,57 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   }
   await scheduled.click()
   await expect(mainWindow.getByTestId(TEST_IDS.schedule.page)).toBeVisible()
-  await mainWindow.getByTestId(TEST_IDS.schedule.createButton).click()
-  await expect(composer).toHaveValue(/Help me schedule a task/)
-  await expect(mainWindow.getByRole('dialog')).toHaveCount(0)
+  await expect(
+    mainWindow.getByTestId(TEST_IDS.schedule.createButton)
+  ).toHaveCount(0)
+  const scheduleComposer = mainWindow.getByTestId(TEST_IDS.schedule.composer)
+  await expect(
+    scheduleComposer.getByTestId(TEST_IDS.composer.textarea)
+  ).toBeVisible()
+  await expect(mainWindow.getByTestId(TEST_IDS.schedule.example)).toHaveCount(3)
   await composer.press('Enter')
+  await expect
+    .poll(() => mainWindow.evaluate(() => location.hash))
+    .toBe('#/scheduled')
+  await mainWindow.getByTestId(TEST_IDS.schedule.example).first().click()
+  await expect(composer).toHaveValue(
+    'Give me an AI news briefing every weekday at 9 AM.'
+  )
+  await expect(composer).toBeFocused()
+  // Example selection is only a draft. The user sends it explicitly.
+  await expect
+    .poll(() => mainWindow.evaluate(() => location.hash))
+    .toBe('#/scheduled')
+  mkdirSync(captureDir, { recursive: true })
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: `${captureDir}/scheduled-empty-light.png`
+  })
+  await composer.fill('Help me schedule a task.')
+  await composer.dispatchEvent('compositionstart')
+  await composer.press('Enter')
+  await expect
+    .poll(() => mainWindow.evaluate(() => location.hash))
+    .toBe('#/scheduled')
+  await composer.dispatchEvent('compositionend')
+  await composer.press('Enter')
+  await expect(mainWindow.getByRole('dialog')).toHaveCount(0)
   await expect(
     mainWindow.getByText('What should I do, and when should I run it?', {
       exact: true
     })
   ).toBeVisible()
   expect((await tasks()).data).toHaveLength(0)
+  const firstChat = await mainWindow.evaluate(
+    () => location.hash.split('/chat/')[1]
+  )
+  const messages = await api.get<Array<{ role: string; content: unknown }>>(
+    `/api/v1/chat/${firstChat}`
+  )
+  expect(messages.data.filter((m) => m.role === 'user')).toHaveLength(1)
+  expect(JSON.stringify(messages.data)).toContain(
+    'Help me schedule this task: Help me schedule a task.'
+  )
   const fields = {
     title: 'Morning research brief',
     description: 'Review recent developments and write a concise report.',
@@ -115,9 +156,26 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
     animations: 'disabled',
     path: `${captureDir}/scheduled-orphan-dark.png`
   })
+  const dock = mainWindow.getByTestId(TEST_IDS.schedule.composer)
+  expect(
+    await dock.evaluate((el) => el.getBoundingClientRect().bottom)
+  ).toBeLessThanOrEqual(800)
   await card.getByTestId(TEST_IDS.schedule.cancelButton).click()
   await expect(card).toHaveCount(0)
   expect((await tasks()).data).toHaveLength(0)
+  await expect(mainWindow.getByTestId(TEST_IDS.schedule.example)).toHaveCount(3)
+  await expect(
+    mainWindow.getByText('Task cancelled', { exact: true })
+  ).not.toBeVisible({ timeout: 10_000 })
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: `${captureDir}/scheduled-empty-dark.png`
+  })
+  await mainWindow.setViewportSize({ width: 1000, height: 600 })
+  const bounds = await mainWindow
+    .getByTestId(TEST_IDS.schedule.composer)
+    .boundingBox()
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(600)
 })
 
 test('Philharmonic schedules link to their Group and expose no edit or delete actions', async ({

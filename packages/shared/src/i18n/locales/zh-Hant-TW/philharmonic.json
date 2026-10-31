@@ -89,10 +89,19 @@
       "groupReadOnly": "由 Philharmonic 管理 · 唯讀",
       "edit": "在 Chat 中編輯",
       "delete": "刪除任務",
-      "createPrompt": "幫我建立一個排程任務。請先問我要做什麼、何時執行，確認必要資訊後再儲存。",
       "editPrompt": "幫我修改這個排程任務：{{task}}\n請先讀取目前任務，再問我想修改什麼；確認後更新同一個任務。",
-      "newTask": "新增任務",
       "resumeInChat": "在新 Chat 中編輯後恢復執行。"
+    },
+    "composer": {
+      "emptyTitle": "想安排什麼任務？",
+      "emptyDescription": "試試這些範例，或在下方描述你的任務。",
+      "placeholder": "描述任務，以及何時執行…",
+      "requestPrompt": "幫我建立這個排程任務：{{request}}",
+      "examples": {
+        "briefing": "每個工作日早上 9 點，為我整理一份 AI 新聞簡報。",
+        "language": "每天晚上 8 點，帶我練習西班牙語。",
+        "review": "每週五下午 5 點，幫我回顧這一週。"
+      }
     }
   },
   "chat": {

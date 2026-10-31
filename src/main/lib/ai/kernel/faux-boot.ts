@@ -169,7 +169,8 @@ function respondToChatCall(ctx: Transcript): AssistantMessage {
   }
   if (
     last?.role === 'user' &&
-    textOf(last).startsWith('Help me schedule a task.')
+    (textOf(last).startsWith('Help me schedule a task.') ||
+      textOf(last).startsWith('Help me schedule this task:'))
   ) {
     return fauxAssistantMessage([
       fauxText('What should I do, and when should I run it?')

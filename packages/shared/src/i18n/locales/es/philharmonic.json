@@ -89,10 +89,19 @@
       "groupReadOnly": "Gestionada por Philharmonic · solo lectura",
       "edit": "Editar en Chat",
       "delete": "Eliminar tarea",
-      "createPrompt": "Ayúdame a programar una tarea. Pregúntame qué hacer y cuándo, y aclara lo necesario antes de guardarla.",
       "editPrompt": "Ayúdame a editar esta tarea programada: {{task}}\nLee primero la tarea actual, pregunta qué quiero cambiar y actualiza la misma tarea tras aclararlo.",
-      "newTask": "Nueva tarea",
       "resumeInChat": "Edita en un nuevo Chat para reanudar."
+    },
+    "composer": {
+      "emptyTitle": "¿Qué te gustaría programar?",
+      "emptyDescription": "Prueba un ejemplo o describe una tarea abajo.",
+      "placeholder": "Describe una tarea y cuándo ejecutarla…",
+      "requestPrompt": "Ayúdame a programar esta tarea: {{request}}",
+      "examples": {
+        "briefing": "Dame un resumen de noticias de IA cada día laborable a las 9.",
+        "language": "Ayúdame a practicar español cada noche a las 20.",
+        "review": "Ayúdame a repasar mi semana cada viernes a las 17."
+      }
     }
   },
   "chat": {

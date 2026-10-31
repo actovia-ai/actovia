@@ -89,10 +89,19 @@
       "groupReadOnly": "Von Philharmonic verwaltet · schreibgeschützt",
       "edit": "Im Chat bearbeiten",
       "delete": "Aufgabe löschen",
-      "createPrompt": "Hilf mir, eine Aufgabe zu planen. Frage nach Inhalt und Zeitpunkt und kläre offene Fragen vor dem Speichern.",
       "editPrompt": "Hilf mir, diese geplante Aufgabe zu bearbeiten: {{task}}\nLies zuerst die aktuelle Aufgabe, frage nach meinen Änderungen und aktualisiere nach der Klärung dieselbe Aufgabe.",
-      "newTask": "Neue Aufgabe",
       "resumeInChat": "Zum Fortsetzen in einem neuen Chat bearbeiten."
+    },
+    "composer": {
+      "emptyTitle": "Was möchtest du planen?",
+      "emptyDescription": "Probiere ein Beispiel oder beschreibe unten eine Aufgabe.",
+      "placeholder": "Aufgabe und Ausführungszeit beschreiben…",
+      "requestPrompt": "Hilf mir, diese Aufgabe zu planen: {{request}}",
+      "examples": {
+        "briefing": "Fasse mir werktags um 9 Uhr die KI-Nachrichten zusammen.",
+        "language": "Hilf mir jeden Abend um 20 Uhr beim Spanischlernen.",
+        "review": "Hilf mir jeden Freitag um 17 Uhr bei meinem Wochenrückblick."
+      }
     }
   },
   "chat": {
