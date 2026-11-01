@@ -1,6 +1,7 @@
 # Actovia
 
 <img width="3840" height="2560" alt="search-3840x2560" src="https://github.com/user-attachments/assets/465fd071-87f6-46e2-83dd-d4106002d01a" />
+
 [![CodeQL](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql/badge.svg?branch=master)](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql)
 [![Release](https://github.com/actovia-ai/actovia/actions/workflows/release.yml/badge.svg)](https://github.com/actovia-ai/actovia/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
