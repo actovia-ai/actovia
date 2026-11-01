@@ -3,6 +3,8 @@ import {
   SearchIcon,
   Delete02Icon,
   EditIcon,
+  SmileIcon,
+  Copy01Icon,
   DashboardSquare01Icon,
   UserGroupIcon
 } from '@hugeicons/core-free-icons'
@@ -52,6 +54,8 @@ import {
   SidebarMenuItem,
   SidebarTrigger
 } from '@/components/ui/sidebar'
+import { toast } from '@/components/ui/toast'
+import { useClipboard } from '@/hooks/use-clipboard'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { NavFooter } from '@/layouts/chat-layout/nav-footer'
 import { makeFormatters } from '@/lib/format'
@@ -143,7 +147,13 @@ export function ConversationList({
   const [editingIcon, setEditingIcon] = useState<ConversationData | null>(null)
   const [savingIcon, setSavingIcon] = useState(false)
   const [iconError, setIconError] = useState(false)
-  const { t } = useTranslation(['common', 'philharmonic'])
+  const { t } = useTranslation(['common', 'philharmonic', 'chat'])
+  const { handleCopy } = useClipboard()
+  const copyId = async (id: string) => {
+    if (await handleCopy(id)) {
+      toast.add({ type: 'success', title: t('chat:sidebar.history.idCopied') })
+    }
+  }
   const configNav = useMemo(
     () => [
       {
@@ -299,6 +309,10 @@ export function ConversationList({
                           setEditingIcon(c)
                         }}
                       >
+                        <HugeiconsIcon
+                          icon={SmileIcon}
+                          className="mr-1.5 h-3.5 w-3.5"
+                        />
                         {t('philharmonic:emoji.change')}
                       </ContextMenuItem>
                       <ContextMenuItem
@@ -311,6 +325,16 @@ export function ConversationList({
                           className="mr-1.5 h-3.5 w-3.5"
                         />
                         {t('philharmonic:chat.conversationList.rename')}
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        data-testid={TEST_IDS.philharmonic.copyConversationId}
+                        onClick={() => copyId(c.id)}
+                      >
+                        <HugeiconsIcon
+                          icon={Copy01Icon}
+                          className="mr-1.5 h-3.5 w-3.5"
+                        />
+                        {t('chat:sidebar.history.copyId')}
                       </ContextMenuItem>
                       <ContextMenuSeparator />
                       <ContextMenuItem

@@ -182,6 +182,7 @@ export const TEST_IDS = {
   },
   philharmonic: {
     changeIcon: 'philharmonic.change-icon',
+    copyConversationId: 'philharmonic.copy-conversation-id',
     emojiPicker: 'philharmonic.emoji-picker',
     emojiOption: 'philharmonic.emoji-option',
     newGroup: 'philharmonic.new-group',

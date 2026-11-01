@@ -1871,6 +1871,7 @@ pairing actions, and documentation/CLI links. App Store URLs use `ACTOVIA_APP_ST
 
 Group sidebar context menu → Change icon opens `GroupEmojiPicker`: a bundled Emojibase catalogue with bilingual
 search and local recents. Save uses the existing conversation PUT; local state changes only after success.
+The same menu offers Copy conversation ID, reusing Chat's clipboard hook, translated labels and success/error feedback.
 The shared catalogue is at `renderer/lib/emoji-catalog.json`; upstream notices are in `resources/licenses/`.
 
 Background Philharmonic notifications cover watch ready/deadline, blocked employees, PM round completion and

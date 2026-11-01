@@ -1,4 +1,5 @@
 import { TEST_IDS } from '../../packages/shared/src/constants/test-ids'
+import { ApiClient } from '../fixtures/api-client'
 import { electronTest as test, expect } from '../fixtures/electron'
 
 test('a group icon can be searched, saved and reloaded', async ({
@@ -38,4 +39,56 @@ test('a group icon can be searched, saved and reloaded', async ({
         ?.icon
     }, group.id)
   ).toBe('🚀')
+})
+
+test('the group menu copies its own ID while another group is active', async ({
+  electronApp,
+  mainWindow
+}) => {
+  const api = new ApiClient()
+  const { data: target } = await api.post<{ id: string }>(
+    '/api/v1/philharmonic/conversations',
+    { title: 'Copy target' }
+  )
+  await api.post('/api/v1/philharmonic/conversations', {
+    title: 'Active group'
+  })
+  await mainWindow.evaluate(() => {
+    location.hash = '#/philharmonic'
+  })
+  const active = mainWindow.getByRole('button', { name: /Active group/u })
+  await active.click()
+  await expect(active).toHaveClass(/(?:^|\s)bg-sidebar-accent(?:\s|$)/u)
+  const row = mainWindow.getByRole('button', { name: /Copy target/u })
+  await row.click({ button: 'right' })
+  await expect(
+    mainWindow.getByTestId(TEST_IDS.philharmonic.changeIcon).locator('svg')
+  ).toHaveCount(1)
+  await expect(
+    mainWindow
+      .getByTestId(TEST_IDS.philharmonic.copyConversationId)
+      .locator('svg')
+  ).toHaveCount(1)
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: '/tmp/actovia-group-menu-light.png'
+  })
+  await mainWindow.evaluate(() =>
+    document.documentElement.classList.add('dark')
+  )
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: '/tmp/actovia-group-menu-dark.png'
+  })
+  await electronApp.evaluate(({ clipboard }) =>
+    clipboard.writeText('before-copy')
+  )
+  await mainWindow.getByTestId(TEST_IDS.philharmonic.copyConversationId).click()
+  await expect
+    .poll(() => electronApp.evaluate(({ clipboard }) => clipboard.readText()))
+    .toBe(target.id)
+  await expect(
+    mainWindow.getByText('Conversation ID copied', { exact: true })
+  ).toBeVisible()
+  await expect(active).toHaveClass(/(?:^|\s)bg-sidebar-accent(?:\s|$)/u)
 })
