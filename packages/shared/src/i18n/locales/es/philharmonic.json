@@ -101,6 +101,11 @@
         "briefing": "Dame un resumen de noticias de IA cada día laborable a las 9.",
         "language": "Ayúdame a practicar español cada noche a las 20.",
         "review": "Ayúdame a repasar mi semana cada viernes a las 17."
+      },
+      "exampleTitles": {
+        "briefing": "Resumen diario",
+        "language": "Práctica de idiomas",
+        "review": "Repaso semanal"
       }
     }
   },

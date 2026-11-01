@@ -38,11 +38,36 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
     scheduleComposer.getByTestId(TEST_IDS.composer.textarea)
   ).toBeVisible()
   await expect(mainWindow.getByTestId(TEST_IDS.schedule.example)).toHaveCount(3)
+  await expect(
+    mainWindow.getByRole('tab', { name: 'Upcoming', exact: true })
+  ).toHaveCount(0)
+  await expect(
+    mainWindow.getByRole('tab', { name: 'Recurring', exact: true })
+  ).toHaveCount(0)
+  mkdirSync(captureDir, { recursive: true })
+  await mainWindow.setViewportSize({ width: 1280, height: 900 })
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: `${captureDir}/scheduled-empty-light.png`
+  })
+  await mainWindow.setViewportSize({ width: 1000, height: 600 })
+  const lastExample = mainWindow.getByTestId(TEST_IDS.schedule.example).last()
+  expect(
+    await lastExample.evaluate((el) => el.getBoundingClientRect().bottom)
+  ).toBeLessThanOrEqual(
+    await scheduleComposer.evaluate((el) => el.getBoundingClientRect().top)
+  )
+  await mainWindow.screenshot({
+    animations: 'disabled',
+    path: `${captureDir}/scheduled-empty-compact.png`
+  })
+  await mainWindow.setViewportSize({ width: 1280, height: 900 })
   await composer.press('Enter')
   await expect
     .poll(() => mainWindow.evaluate(() => location.hash))
     .toBe('#/scheduled')
-  await mainWindow.getByTestId(TEST_IDS.schedule.example).first().click()
+  await mainWindow.getByTestId(TEST_IDS.schedule.example).first().focus()
+  await mainWindow.getByTestId(TEST_IDS.schedule.example).first().press('Enter')
   await expect(composer).toHaveValue(
     'Give me an AI news briefing every weekday at 9 AM.'
   )
@@ -51,11 +76,6 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   await expect
     .poll(() => mainWindow.evaluate(() => location.hash))
     .toBe('#/scheduled')
-  mkdirSync(captureDir, { recursive: true })
-  await mainWindow.screenshot({
-    animations: 'disabled',
-    path: `${captureDir}/scheduled-empty-light.png`
-  })
   await composer.fill('Help me schedule a task.')
   await composer.dispatchEvent('compositionstart')
   await composer.press('Enter')
@@ -92,6 +112,9 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   await expect.poll(async () => (await tasks()).data.length).toBe(1)
   const original = (await tasks()).data[0]
   await scheduled.click()
+  await expect(
+    mainWindow.getByRole('tab', { name: 'Recurring', exact: true })
+  ).toHaveAttribute('aria-selected', 'true')
   await recurring()
   const card = mainWindow.getByTestId(TEST_IDS.schedule.taskCard)
   await expect(card).toContainText(fields.title)
@@ -164,6 +187,12 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   await expect(card).toHaveCount(0)
   expect((await tasks()).data).toHaveLength(0)
   await expect(mainWindow.getByTestId(TEST_IDS.schedule.example)).toHaveCount(3)
+  await expect(
+    mainWindow.getByRole('tab', { name: 'Upcoming', exact: true })
+  ).toHaveCount(0)
+  await expect(
+    mainWindow.getByRole('tab', { name: 'Recurring', exact: true })
+  ).toHaveCount(0)
   await expect(
     mainWindow.getByText('Task cancelled', { exact: true })
   ).not.toBeVisible({ timeout: 10_000 })

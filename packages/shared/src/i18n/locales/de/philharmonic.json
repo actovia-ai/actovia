@@ -101,6 +101,11 @@
         "briefing": "Fasse mir werktags um 9 Uhr die KI-Nachrichten zusammen.",
         "language": "Hilf mir jeden Abend um 20 Uhr beim Spanischlernen.",
         "review": "Hilf mir jeden Freitag um 17 Uhr bei meinem Wochenrückblick."
+      },
+      "exampleTitles": {
+        "briefing": "Tägliches Briefing",
+        "language": "Sprachübungen",
+        "review": "Wochenrückblick"
       }
     }
   },

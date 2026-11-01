@@ -101,6 +101,11 @@
         "briefing": "Resuma as notícias de IA nos dias úteis às 9h.",
         "language": "Ajude-me a praticar espanhol todas as noites às 20h.",
         "review": "Ajude-me a revisar minha semana toda sexta-feira às 17h."
+      },
+      "exampleTitles": {
+        "briefing": "Resumo diário",
+        "language": "Prática de idiomas",
+        "review": "Revisão semanal"
       }
     }
   },

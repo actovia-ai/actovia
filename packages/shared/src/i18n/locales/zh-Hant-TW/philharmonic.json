@@ -101,6 +101,11 @@
         "briefing": "每個工作日早上 9 點，為我整理一份 AI 新聞簡報。",
         "language": "每天晚上 8 點，帶我練習西班牙語。",
         "review": "每週五下午 5 點，幫我回顧這一週。"
+      },
+      "exampleTitles": {
+        "briefing": "每日簡報",
+        "language": "語言練習",
+        "review": "每週回顧"
       }
     }
   },

@@ -101,6 +101,11 @@
         "briefing": "Give me an AI news briefing every weekday at 9 AM.",
         "language": "Help me practise Spanish every evening at 8 PM.",
         "review": "Help me review my week every Friday at 5 PM."
+      },
+      "exampleTitles": {
+        "briefing": "Daily briefing",
+        "language": "Language practice",
+        "review": "Weekly review"
       }
     }
   },

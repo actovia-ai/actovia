@@ -101,6 +101,11 @@
         "briefing": "Résume les actualités de l’IA chaque jour ouvré à 9 h.",
         "language": "Aide-moi à pratiquer l’espagnol chaque soir à 20 h.",
         "review": "Aide-moi à faire le bilan de ma semaine chaque vendredi à 17 h."
+      },
+      "exampleTitles": {
+        "briefing": "Briefing quotidien",
+        "language": "Pratique des langues",
+        "review": "Bilan hebdomadaire"
       }
     }
   },

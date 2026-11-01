@@ -1199,8 +1199,10 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   fixed below its scrollable content (no New task button). Enter hands a
   request to a fresh Home Chat through the one-shot `pendingChatSendAtom`,
   sending it exactly once with attachments and scheduling context. Its draft
-  has a separate atom; empty lists offer three examples that fill and focus
-  the composer without sending. Editing opens the original Chat, or a new one if
+  has a separate atom; when both lists are empty, hide the Upcoming/Recurring
+  tabs and show three titled example rows that fill and focus the composer
+  without sending. With existing tasks, the tabs remain available; on initial
+  display prefer Recurring when only that list has tasks. Editing opens the original Chat, or a new one if
   the origin was deleted. Task cards link to their Chat/Group; deleted Chat
   origins are marked explicitly. Philharmonic schedules are read-only in this
   manager (including the cancellation API), while Chat schedules can be

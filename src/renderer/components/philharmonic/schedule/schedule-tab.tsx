@@ -130,7 +130,6 @@ export function ScheduleTab({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {/* "Schedule task" at the content bar's right end; the bar's tab names the page. */}
       {standalone && (
         <div className="mx-auto flex w-full max-w-3xl items-start justify-between gap-4 px-6 pt-6 pb-3">
           <div>
@@ -176,8 +175,15 @@ export function ScheduleTab({
             {t('common:action.retry')}
           </Button>
         </div>
+      ) : standalone && upcoming.length === 0 && recurring.length === 0 ? (
+        <ScheduleEmptyState />
       ) : (
-        <Tabs defaultValue="upcoming" className="flex min-h-0 flex-1 flex-col">
+        <Tabs
+          defaultValue={
+            standalone && upcoming.length === 0 ? 'recurring' : 'upcoming'
+          }
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <TabsList className="mx-auto mt-3 w-fit shrink-0">
             <TabsTrigger value="upcoming">
               {t('schedule.tab.upcomingTrigger')}

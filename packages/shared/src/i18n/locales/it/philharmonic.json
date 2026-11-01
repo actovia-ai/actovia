@@ -101,6 +101,11 @@
         "briefing": "Riassumi le notizie sull’IA ogni giorno feriale alle 9.",
         "language": "Aiutami a esercitarmi in spagnolo ogni sera alle 20.",
         "review": "Aiutami a ripercorrere la settimana ogni venerdì alle 17."
+      },
+      "exampleTitles": {
+        "briefing": "Riepilogo quotidiano",
+        "language": "Pratica delle lingue",
+        "review": "Riepilogo settimanale"
       }
     }
   },
