@@ -1,8 +1,6 @@
 # Actovia
 
-![Actovia](./screenshots/screenshots.jpg)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Factovia-ai%2Factovia.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Factovia-ai%2Factovia?ref=badge_shield)
-
+<img width="3840" height="2560" alt="search-3840x2560" src="https://github.com/user-attachments/assets/465fd071-87f6-46e2-83dd-d4106002d01a" />
 [![CodeQL](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql/badge.svg?branch=master)](https://github.com/actovia-ai/actovia/actions/workflows/github-code-scanning/codeql)
 [![Release](https://github.com/actovia-ai/actovia/actions/workflows/release.yml/badge.svg)](https://github.com/actovia-ai/actovia/actions/workflows/release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -173,7 +171,5 @@ If you have any questions or feedback about Actovia, please visit our [official 
 ## License
 
 Actovia is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Factovia-ai%2Factovia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Factovia-ai%2Factovia?ref=badge_large)
 
 Brand sources, demo captures, App Store media and production scripts are maintained in [actovia-ai/assets](https://github.com/actovia-ai/assets). App builds use the generated images committed here; only icon regeneration needs the assets checkout.
