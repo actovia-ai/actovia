@@ -40,11 +40,14 @@ test.describe('Settings — Chat Audit', () => {
       timeout: 30_000
     })
 
-    // A hand-written query (typed into the Monaco editor) renders a results
-    // table and enables CSV export.
-    await editor.locator('.view-lines').click()
+    // Focus Monaco's real input and insert the query in one input event. A
+    // zero-delay key flood can race controlled model updates on CI runners.
+    await editor.getByRole('textbox', { name: 'Editor content' }).focus()
     await mainWindow.keyboard.press(`${modKey}+a`)
-    await mainWindow.keyboard.type("SELECT 42 AS answer, 'ok' AS status")
+    await mainWindow.keyboard.insertText("SELECT 42 AS answer, 'ok' AS status")
+    await expect(editor.locator('.view-lines')).toContainText(
+      /SELECT\s+42\s+AS\s+answer,\s+'ok'\s+AS\s+status/
+    )
     await mainWindow.getByTestId(TEST_IDS.chatAudit.runButton).click()
     const table = mainWindow.getByTestId(TEST_IDS.chatAudit.resultsTable)
     await expect(table).toBeVisible({ timeout: 30_000 })
