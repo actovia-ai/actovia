@@ -106,7 +106,8 @@
         "briefing": "每日簡報",
         "language": "語言練習",
         "review": "每週回顧"
-      }
+      },
+      "recommended": "推薦"
     }
   },
   "chat": {

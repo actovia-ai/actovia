@@ -46,6 +46,26 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   ).toHaveCount(0)
   mkdirSync(captureDir, { recursive: true })
   await mainWindow.setViewportSize({ width: 1280, height: 900 })
+  const recommendations = mainWindow.getByRole('group', {
+    name: 'Recommended',
+    exact: true
+  })
+  await expect(
+    recommendations.getByRole('heading', { name: 'Recommended', exact: true })
+  ).toBeVisible()
+  await expect(
+    mainWindow.getByTestId(TEST_IDS.schedule.example).first()
+  ).toContainText('☀️')
+  const centered = await recommendations.evaluate((el) => {
+    const block = el.getBoundingClientRect()
+    const area = el.parentElement!.parentElement!.getBoundingClientRect()
+    return {
+      dx: Math.abs(block.x + block.width / 2 - (area.x + area.width / 2)),
+      dy: Math.abs(block.y + block.height / 2 - (area.y + area.height / 2))
+    }
+  })
+  expect(centered.dx).toBeLessThanOrEqual(2)
+  expect(centered.dy).toBeLessThanOrEqual(2)
   await mainWindow.screenshot({
     animations: 'disabled',
     path: `${captureDir}/scheduled-empty-light.png`

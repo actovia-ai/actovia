@@ -106,7 +106,8 @@
         "briefing": "일일 브리핑",
         "language": "언어 연습",
         "review": "주간 회고"
-      }
+      },
+      "recommended": "추천"
     }
   },
   "chat": {

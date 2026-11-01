@@ -1,7 +1,6 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import { AddCircleIcon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useSetAtom } from 'jotai'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -12,15 +11,28 @@ export function ScheduleEmptyState() {
   const { t } = useTranslation('philharmonic')
   const setInput = useSetAtom(scheduleInputAtom)
   const focus = useSetAtom(chatInputFocusAtom)
+  const labelId = useId()
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="mx-auto w-full max-w-3xl px-6 py-3">
+      <div className="flex min-h-full px-6 py-6">
         <div
           role="group"
-          aria-label={t('schedule.composer.emptyTitle')}
-          className="divide-border divide-y"
+          aria-labelledby={labelId}
+          className="m-auto w-full max-w-xl"
         >
-          {(['briefing', 'language', 'review'] as const).map((example) => (
+          <h2
+            id={labelId}
+            className="text-muted-foreground mb-2 px-3 text-sm font-medium"
+          >
+            {t('schedule.composer.recommended')}
+          </h2>
+          {(
+            [
+              { key: 'briefing', emoji: '☀️' },
+              { key: 'language', emoji: '🗣️' },
+              { key: 'review', emoji: '📝' }
+            ] as const
+          ).map(({ key: example, emoji }) => (
             <Button
               key={example}
               data-testid={TEST_IDS.schedule.example}
@@ -32,11 +44,12 @@ export function ScheduleEmptyState() {
                 focus((n) => n + 1)
               }}
             >
-              <HugeiconsIcon
-                icon={AddCircleIcon}
-                className="text-muted-foreground mt-0.5 size-5 shrink-0"
+              <span
                 aria-hidden="true"
-              />
+                className="mt-0.5 w-5 shrink-0 text-lg leading-5"
+              >
+                {emoji}
+              </span>
               <span className="min-w-0">
                 <span className="block font-medium">
                   {t(`schedule.composer.exampleTitles.${example}`)}

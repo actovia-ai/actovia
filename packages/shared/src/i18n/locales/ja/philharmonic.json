@@ -106,7 +106,8 @@
         "briefing": "毎日のニュース",
         "language": "語学の練習",
         "review": "1週間の振り返り"
-      }
+      },
+      "recommended": "おすすめ"
     }
   },
   "chat": {

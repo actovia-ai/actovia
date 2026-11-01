@@ -106,7 +106,8 @@
         "briefing": "Riepilogo quotidiano",
         "language": "Pratica delle lingue",
         "review": "Riepilogo settimanale"
-      }
+      },
+      "recommended": "Consigliati"
     }
   },
   "chat": {

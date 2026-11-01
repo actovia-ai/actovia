@@ -106,7 +106,8 @@
         "briefing": "Briefing quotidien",
         "language": "Pratique des langues",
         "review": "Bilan hebdomadaire"
-      }
+      },
+      "recommended": "Suggestions"
     }
   },
   "chat": {

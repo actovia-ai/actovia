@@ -106,7 +106,8 @@
         "briefing": "Daily briefing",
         "language": "Language practice",
         "review": "Weekly review"
-      }
+      },
+      "recommended": "Recommended"
     }
   },
   "chat": {
