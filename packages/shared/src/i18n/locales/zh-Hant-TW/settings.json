@@ -205,7 +205,8 @@
       "readyDescription": "重新啟動以套用更新",
       "restartAndInstall": "重新啟動並安裝",
       "failed": "更新失敗"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

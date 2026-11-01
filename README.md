@@ -175,3 +175,5 @@ If you have any questions or feedback about Actovia, please visit our [official 
 Actovia is licensed under the terms of the [MIT License](https://opensource.org/licenses/MIT).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Factovia-ai%2Factovia.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Factovia-ai%2Factovia?ref=badge_large)
+
+Brand sources, demo captures, App Store media and production scripts are maintained in [actovia-ai/assets](https://github.com/actovia-ai/assets). App builds use the generated images committed here; only icon regeneration needs the assets checkout.

@@ -6,6 +6,32 @@ import { electronTest as test, expect } from '../fixtures/electron'
 import { openSettings } from '../helpers/open-settings'
 
 test.describe('Settings E2E', () => {
+  test('About header shows a Dev badge only in development builds', async ({
+    mainWindow
+  }) => {
+    await mainWindow.evaluate(() => {
+      location.hash = '#/settings'
+    })
+    await mainWindow.getByRole('button', { name: 'About', exact: true }).click()
+    await expect(
+      mainWindow.getByRole('heading', { name: 'Actovia', exact: true })
+    ).toBeVisible()
+    const developmentBuild = process.env.ACTOVIA_EXPECT_DEV_BADGE === '1'
+    await expect(mainWindow.getByText('Dev', { exact: true })).toHaveCount(
+      developmentBuild ? 1 : 0
+    )
+    await mainWindow.screenshot({
+      animations: 'disabled',
+      path: `/tmp/actovia-about-${developmentBuild ? 'dev' : 'production'}.png`
+    })
+    await mainWindow.evaluate(() =>
+      document.documentElement.classList.add('dark')
+    )
+    await mainWindow.screenshot({
+      animations: 'disabled',
+      path: `/tmp/actovia-about-${developmentBuild ? 'dev' : 'production'}-dark.png`
+    })
+  })
   test('settings page renders and shows provider options', async ({
     mainWindow
   }) => {

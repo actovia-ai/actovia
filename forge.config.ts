@@ -16,7 +16,7 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses'
 import { appBuilderPath } from 'app-builder-bin'
 
 // Relative: Forge loads this file itself, without the Vite aliases.
-import DMG from './brand/dmg.json'
+import DMG from './build/dmg.json'
 import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
 import { writeMacUpdateFeed } from './scripts/mac-update-feed'
 
@@ -199,7 +199,7 @@ const config: ForgeConfig = {
     // what people download.
     new MakerZIP({}, ['darwin']),
     // The installer window: background and icon positions come from
-    // brand/art.mjs (`bun run icons` renders build/dmg-background{,@2x}.png),
+    // actovia-ai/assets brand/art.mjs (`bun run icons` renders build/dmg-background{,@2x}.png),
     // and the mounted volume shows the app icon instead of Electron's.
     new MakerDMG(
       {

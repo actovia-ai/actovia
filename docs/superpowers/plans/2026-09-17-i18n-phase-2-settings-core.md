@@ -1427,7 +1427,7 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
         <ExternalLink href={ACTOVIA_REPO}>actovia-ai/actovia</ExternalLink>
       </SettingsRow>
       <SettingsRow label={t('about.twitter')}>
-        <ExternalLink href={ACTOVIA_TWITTER}>@YanceyOfficial</ExternalLink>
+        <ExternalLink href={ACTOVIA_TWITTER}>@actovia_ai</ExternalLink>
       </SettingsRow>
       <SettingsRow label={t('about.website')}>
         <ExternalLink href={ACTOVIA_WEBSITE}>actovia.yancey.app</ExternalLink>
@@ -1452,7 +1452,7 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
 }
 ```
 
-`actovia-ai/actovia`, `@YanceyOfficial`, `actovia.yancey.app`, and `MIT`
+`actovia-ai/actovia`, `@actovia_ai`, `actovia.yancey.app`, and `MIT`
 stay hardcoded — they're identifiers/proper nouns (a repo path, a handle,
 a hostname, an SPDX license id), not language-dependent text.
 

@@ -205,7 +205,8 @@
       "readyDescription": "Riavvia per applicare l'aggiornamento",
       "restartAndInstall": "Riavvia e installa",
       "failed": "Aggiornamento non riuscito"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><defs><filter id="bnb4" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter><filter id="bnb8" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/></filter><filter id="bnb14" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter><filter id="bnb24" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="24"/></filter><filter id="bnb44" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="44"/></filter>
-    <radialGradient id="bnbun" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#FF9A88" stop-opacity="1"/><stop offset="1" stop-color="#D8322A" stop-opacity="1"/></radialGradient>
-    <linearGradient id="bnstk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A6634" stop-opacity="1"/><stop offset="1" stop-color="#6A3E18" stop-opacity="1"/></linearGradient></defs>
-  <line x1="350" y1="592" x2="205" y2="340" stroke="url(#bnstk)" stroke-width="26" stroke-linecap="round"/>
-  <circle cx="190" cy="300" r="98" fill="url(#bnbun)"/>
-  <g fill="#fff" opacity=".9"><circle cx="150" cy="262" r="15"/><circle cx="214" cy="236" r="11"/><circle cx="232" cy="318" r="14"/><circle cx="158" cy="345" r="10"/><circle cx="190" cy="292" r="9"/><circle cx="118" cy="306" r="8"/></g>
-  <ellipse cx="220" cy="392" rx="32" ry="17" transform="rotate(-40 220 392)" fill="#C42A23"/>
-  <ellipse cx="258" cy="376" rx="32" ry="17" transform="rotate(28 258 376)" fill="#C42A23"/>
-  <ellipse cx="156" cy="244" rx="34" ry="18" transform="rotate(-30 156 244)" fill="#fff" opacity=".45" filter="url(#bnb4)"/></svg>

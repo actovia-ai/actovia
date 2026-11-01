@@ -205,7 +205,8 @@
       "readyDescription": "重启以应用更新",
       "restartAndInstall": "重启并安装",
       "failed": "更新失败"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

@@ -205,7 +205,8 @@
       "readyDescription": "Neu starten, um das Update anzuwenden",
       "restartAndInstall": "Neu starten & installieren",
       "failed": "Update fehlgeschlagen"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

@@ -18,7 +18,7 @@ subject `CN=Actovia` (devices pin its fingerprint), the `actovia://` and
 `actovia-artifact://` schemes, the `actovia-*` fences and `x-actovia-presence`,
 the DB enum value `'actovia'`, the `actovia-color-tone` localStorage key,
 `~/Actovia Projects`, the `actovia-input` helper, `@actovia/shared`,
-`ACTOVIA_REPO` and `brand/Actovia.icon`. `productName` derives the Keychain
+`ACTOVIA_REPO` and the assets repository’s `brand/Actovia.icon`. `productName` derives the Keychain
 item "Actovia Safe Storage", Electron `userData` and the single-instance lock,
 so **never call `app.setName` or change `productName`** without migrating that
 data; a unit test guards it.
@@ -419,9 +419,10 @@ mirrors it to localStorage (`actovia-color-tone`) so every entry (`main.tsx`
 The mascot is **Ody the Traveller**, a marshmallow gumdrop with a polka-dot
 bindle over its shoulder, on sunflower yellow; the menu bar glyph is Ody's
 head alone, leaning in from the corner (a head reads better than the full
-figure at 22 pt). The art is SVG-building functions in `brand/art.mjs`
+figure at 22 pt). The art is SVG-building functions in `actovia-ai/assets` under `brand/art.mjs`
 (shared helpers in `brand/lib.mjs`), and `bun run icons`
-(`scripts/render-icons.mjs`: Playwright's Chromium or an installed Chrome,
+(`scripts/render-icons.mjs` delegates to the sibling assets checkout; set
+`ACTOVIA_ASSETS_DIR` for another location: Playwright's Chromium or an installed Chrome,
 plus `iconutil`) renders everything from it:
 
 - `build/icon.icns` and `build/icon-dock.png` — from the Icon Composer export
@@ -443,7 +444,8 @@ plus `iconutil`) renders everything from it:
   Liquid Glass exports at 256 px for the header of Settings → About (the
   app theme picks one)
 - `build/dmg-background{,@2x}.png` — the installer window (`dmgBackground()`;
-  window size and icon centres in `brand/dmg.json`, which `forge.config.ts`'s
+  window size and icon centres sourced from the assets repository’s `brand/dmg.json`
+  and copied to `build/dmg.json`, which `forge.config.ts`'s
   `MakerDMG` reads too). Its paper runs left to right only: Finder on macOS 26
   makes the window taller than the image and tiles it. Build it with the plain
   `make` — `electron-forge make --targets …` builds a fresh maker without this
@@ -451,7 +453,7 @@ plus `iconutil`) renders everything from it:
 - `resources/icon.png` (Linux window icon) and
   `resources/trayTemplate{,@2x,@3x}.png` (22 pt, black + alpha: the
   `Template` suffix lets macOS tint it; `tray.ts` loads the 1x name)
-- `brand/svg/` masters, `brand/icon-composer/` layers (Ody without its
+- In `actovia-ai/assets`: `brand/svg/` masters, `brand/icon-composer/` layers (Ody without its
   contact shadow — Icon Composer adds its own), `brand/ios/AppIcon.appiconset`
   (light, dark, tinted; no alpha), `brand/web/` (favicons, touch icon, PWA
   icons + manifest, `og-image.png` set in Fredoka from `brand/fonts/`)
@@ -475,8 +477,12 @@ it is that bundle's `CFBundleName` and cannot change at runtime; patching
 its `Info.plist` would also invalidate the signature the Accessibility /
 Screen Recording grants are tied to, so it is deliberately left alone.
 
-Never edit a generated file by hand. `brand/` is deliberately outside
-`resources/`, which is copied into the app bundle whole (`extraResource`).
+Never edit a generated file by hand. Brand sources are in the separate
+`actovia-ai/assets` repository; this checkout retains only generated build and
+runtime images. A fresh clone can build without the assets repository.
+`resources/` is copied into the app bundle whole (`extraResource`).
+The About name shows a Dev badge only when Vite’s `import.meta.env.DEV` is true;
+production bundles omit it.
 
 ### Migration status
 
@@ -2538,8 +2544,8 @@ Shared:
 
 Brand:
 
-- `brand/art.mjs` — the icon art (see Icons, tray and boot splash), `brand/lib.mjs` — shared drawing helpers; `scripts/render-icons.mjs` renders them (`bun run icons`)
-- `brand/svg/`, `brand/icon-composer/`, `brand/ios/`, `brand/web/` — generated outputs; `brand/liquid-glass/` — the Icon Composer exports (light, dark); `brand/fonts/` — Fredoka (OFL) for the wordmark
+- `scripts/render-icons.mjs` — delegates icon generation to `actovia-ai/assets`; `ACTOVIA_ASSETS_DIR` selects that checkout (`bun run icons`)
+- `build/dmg.json` — generated installer geometry; brand masters, Icon Composer exports, fonts and web/iOS exports live in `actovia-ai/assets`
 
 Tests & config:
 

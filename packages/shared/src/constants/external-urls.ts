@@ -12,7 +12,7 @@
 // Actovia brand
 export const ACTOVIA_WEBSITE = 'https://actovia.yancey.app'
 export const ACTOVIA_REPO = 'https://github.com/actovia-ai/actovia'
-export const ACTOVIA_TWITTER = 'https://x.com/YanceyOfficial'
+export const ACTOVIA_TWITTER = 'https://x.com/actovia_ai'
 export const ACTOVIA_DOCS = `${ACTOVIA_WEBSITE}/docs`
 export const ACTOVIA_APP_STORE =
   'https://apps.apple.com/app/actovia/id6824829679'

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 import logoDark from '@/assets/images/logo-dark.png'
 import logoLight from '@/assets/images/logo-light.png'
+import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { useUpdater } from '@/hooks/use-updater'
 import { updaterSetAutoDownload } from '@/lib/ipc'
@@ -46,6 +47,7 @@ function ExternalLink({
  * Rendered by `bun run icons`.
  */
 function AboutHeader() {
+  const { t } = useTranslation('settings')
   return (
     <div className="flex items-center gap-4">
       <img
@@ -61,9 +63,14 @@ function AboutHeader() {
         draggable={false}
       />
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-xl font-semibold tracking-tight">
-          {APP_DISPLAY_NAME}
-        </h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold tracking-tight">
+            {APP_DISPLAY_NAME}
+          </h2>
+          {import.meta.env.DEV && (
+            <Badge variant="secondary">{t('about.dev')}</Badge>
+          )}
+        </div>
         <Value>v{version}</Value>
       </div>
     </div>
@@ -134,7 +141,7 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
           <ExternalLink href={ACTOVIA_REPO}>actovia-ai/actovia</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.twitter')}>
-          <ExternalLink href={ACTOVIA_TWITTER}>@YanceyOfficial</ExternalLink>
+          <ExternalLink href={ACTOVIA_TWITTER}>@actovia_ai</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.website')}>
           <ExternalLink href={ACTOVIA_WEBSITE}>actovia.yancey.app</ExternalLink>

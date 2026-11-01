@@ -205,7 +205,8 @@
       "readyDescription": "업데이트를 적용하려면 재시작하세요",
       "restartAndInstall": "재시작 및 설치",
       "failed": "업데이트 실패"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

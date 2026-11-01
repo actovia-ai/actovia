@@ -205,7 +205,8 @@
       "readyDescription": "Reinicie para aplicar la actualización",
       "restartAndInstall": "Reiniciar e instalar",
       "failed": "Error al actualizar"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

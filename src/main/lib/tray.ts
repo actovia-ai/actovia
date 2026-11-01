@@ -69,7 +69,7 @@ export function setTray() {
     // Tray needs a raster image — nativeImage.createFromPath rejects SVGs
     // on macOS. Electron picks up @2x/@3x by filename next to the 1x base,
     // and the `Template` suffix lets macOS tint it for the menu bar. The
-    // PNGs come from `bun run icons` (brand/peekaboo.mjs).
+    // PNGs come from `bun run icons` (actovia-ai/assets brand/art.mjs).
     tray = new Tray(getResourcePath('trayTemplate.png'))
     tray.addListener('click', toggleQuickChat)
     // Rebuild on each right-click so the Show/Hide label tracks current

@@ -205,7 +205,8 @@
       "readyDescription": "Redémarrez pour appliquer la mise à jour",
       "restartAndInstall": "Redémarrer et installer",
       "failed": "Échec de la mise à jour"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {

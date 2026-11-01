@@ -34,25 +34,25 @@ export const ALLOWLIST: AllowlistEntry[] = [
   {
     file: 'src/renderer/components/settings/settings-form/system-info.tsx',
     text: 'actovia-ai/actovia',
-    line: 134,
+    line: 141,
     reason: 'GitHub org/repo slug, a proper noun.'
   },
   {
     file: 'src/renderer/components/settings/settings-form/system-info.tsx',
-    text: '@YanceyOfficial',
-    line: 137,
+    text: '@actovia_ai',
+    line: 144,
     reason: 'Social handle, a proper noun.'
   },
   {
     file: 'src/renderer/components/settings/settings-form/system-info.tsx',
     text: 'actovia.yancey.app',
-    line: 140,
+    line: 147,
     reason: 'Website domain, a proper noun.'
   },
   {
     file: 'src/renderer/components/settings/settings-form/system-info.tsx',
     text: 'MIT',
-    line: 143,
+    line: 150,
     reason: 'Software license name — never translated.'
   },
   {

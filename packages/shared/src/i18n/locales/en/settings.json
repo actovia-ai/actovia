@@ -205,7 +205,8 @@
       "readyDescription": "Restart to apply the update",
       "restartAndInstall": "Restart & Install",
       "failed": "Update failed"
-    }
+    },
+    "dev": "Dev"
   },
   "personality": {
     "sections": {
