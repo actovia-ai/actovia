@@ -1,3 +1,29 @@
+# [2.8.0](https://github.com/actovia-ai/actovia/compare/v2.7.2...v2.8.0) (2026-11-01)
+
+
+### Bug Fixes
+
+* **desktop:** organize resources, reports and scheduled tasks ([2503413](https://github.com/actovia-ai/actovia/commit/2503413ca2a6fabc03ec94d8aba77e2dabce6ebb))
+* **philharmonic:** keep CLI follow-up turns alive (ISSUE-308) ([cce16dd](https://github.com/actovia-ai/actovia/commit/cce16ddcd5891a48ebc692b8193051e21816d328))
+* **philharmonic:** name the escalation tool in the PM prompt (ISSUE-303) ([5c172cf](https://github.com/actovia-ai/actovia/commit/5c172cf0eb3d93e572cf0bda75194ee1b66bbf27))
+* **philharmonic:** queue owner questions and let employees ask the PM (ISSUE-309) ([797dde9](https://github.com/actovia-ai/actovia/commit/797dde99a8f87945f80f0b0671ee27be2bbad55d))
+* **philharmonic:** report CLI follow-up turns to the PM (ISSUE-308) ([82af3a0](https://github.com/actovia-ai/actovia/commit/82af3a095a358dbd734c4fc5c248b86878a24a6d))
+* **philharmonic:** serialize PM rounds per group (ISSUE-304) ([e79c48d](https://github.com/actovia-ai/actovia/commit/e79c48df696d10855c79bed99cd2dbbf016e9291))
+* **philharmonic:** stop background tasks with their group (ISSUE-307) ([b878f17](https://github.com/actovia-ai/actovia/commit/b878f178f4d4e1e47909875f68f1fdae7c9afd59))
+* **schedule:** make conversation picker searchable and sheet controls clickable ([19532d6](https://github.com/actovia-ai/actovia/commit/19532d6a2820bb897b2d5d5885ca12e1637fa0a9))
+* **schedule:** place the chat composer directly in Scheduled ([ae4590c](https://github.com/actovia-ai/actovia/commit/ae4590c17f6a02fd9f943dd4dc85f81861f84341))
+* simplify Scheduled empty state (ISSUE-326) ([a851d8f](https://github.com/actovia-ai/actovia/commit/a851d8ffce3ab00afb045c7c638734e0bf9698cc))
+
+
+### Features
+
+* add Group ID copy action and menu icon ([a60ba20](https://github.com/actovia-ai/actovia/commit/a60ba20f9ee67bdeaf541d0faefd3869661ecb74))
+* improve app discovery, group icons and reduced motion ([13b2603](https://github.com/actovia-ai/actovia/commit/13b2603b326bb9b64eb8a7896f9d2737646debf9))
+* **philharmonic:** resume the PM after background delegation (ISSUE-305) ([55eb81d](https://github.com/actovia-ai/actovia/commit/55eb81dead761e297d21f23d0255612986fe8ad3))
+* **philharmonic:** start watched background commands (ISSUE-307) ([52a2dfb](https://github.com/actovia-ai/actovia/commit/52a2dfb2b399f2deddc6404b25c095e64a0b0036))
+* **philharmonic:** watch completion markers (ISSUE-306) ([8f03ae1](https://github.com/actovia-ai/actovia/commit/8f03ae1233c090126fe82e602bf0684d4960c64c))
+* **schedule:** manage Chat tasks through conversation ([78a6339](https://github.com/actovia-ai/actovia/commit/78a63396c25e79164c95a1dd41de38a4f713642c))
+
 ## [2.7.2](https://github.com/actovia-ai/actovia/compare/v2.7.1...v2.7.2) (2026-10-30)
 
 
