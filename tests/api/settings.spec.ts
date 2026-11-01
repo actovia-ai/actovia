@@ -32,19 +32,44 @@ test.describe('Settings API', () => {
     expect(config.model).toBe('gpt-4.1-mini')
   })
 
-  test('POST /api/v1/settings writes API keys', async ({ api }) => {
-    const { status } = await api.updateSettings({
-      providers: {
-        openaiApiKey: process.env.OPENAI_API_KEY,
-        anthropicApiKey: process.env.CLAUDE_API_KEY
-      }
-    })
-    expect(status).toBe(200)
+  test('POST /api/v1/settings writes, masks and clears API keys', async ({
+    api
+  }) => {
+    const openaiKey = 'ci-openai-provider-key-1234'
+    const anthropicKey = 'ci-anthropic-provider-key-5678'
+    try {
+      const { status } = await api.updateSettings({
+        providers: {
+          openaiApiKey: openaiKey,
+          anthropicApiKey: anthropicKey
+        }
+      })
+      expect(status).toBe(200)
 
-    const { data } = await api.getSettings()
-    const providers = data.providers as Record<string, string>
-    expect(providers.openaiApiKey).toBe(process.env.OPENAI_API_KEY)
-    expect(providers.anthropicApiKey).toBe(process.env.CLAUDE_API_KEY)
+      const { data } = await api.getSettings()
+      expect(data.providers).toMatchObject({
+        openaiApiKey: '•••• 1234',
+        anthropicApiKey: '•••• 5678'
+      })
+      expect(JSON.stringify(data)).not.toContain(openaiKey)
+      expect(JSON.stringify(data)).not.toContain(anthropicKey)
+
+      const cleared = await api.updateSettings({
+        providers: { openaiApiKey: null, anthropicApiKey: '' }
+      })
+      expect(cleared.status).toBe(200)
+      expect((await api.getSettings()).data.providers).toMatchObject({
+        openaiApiKey: null,
+        anthropicApiKey: null
+      })
+    } finally {
+      await api.updateSettings({
+        providers: {
+          openaiApiKey: process.env.OPENAI_API_KEY || null,
+          anthropicApiKey: process.env.CLAUDE_API_KEY || null
+        }
+      })
+    }
   })
 
   test('POST /api/v1/settings updates personality', async ({ api }) => {
@@ -102,17 +127,28 @@ test.describe('Settings API', () => {
   })
 
   test('POST /api/v1/settings updates web search config', async ({ api }) => {
-    await api.updateSettings({
-      webSearch: {
-        braveApiKey: process.env.BRAVE_API_KEY,
+    const braveKey = 'ci-brave-search-key-9012'
+    try {
+      const { status } = await api.updateSettings({
+        webSearch: {
+          braveApiKey: braveKey,
+          maxResults: 10,
+          recencyFilter: 'week'
+        }
+      })
+      expect(status).toBe(200)
+
+      const { data } = await api.getSettings()
+      expect(data.webSearch).toMatchObject({
+        braveApiKey: '•••• 9012',
         maxResults: 10,
         recencyFilter: 'week'
-      }
-    })
-
-    const { data } = await api.getSettings()
-    const ws = data.webSearch as Record<string, unknown>
-    expect(ws.braveApiKey).toBe(process.env.BRAVE_API_KEY)
-    expect(ws.maxResults).toBe(10)
+      })
+      expect(JSON.stringify(data)).not.toContain(braveKey)
+    } finally {
+      await api.updateSettings({
+        webSearch: { braveApiKey: process.env.BRAVE_API_KEY || null }
+      })
+    }
   })
 })
