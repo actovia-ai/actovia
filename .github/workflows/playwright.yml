@@ -38,7 +38,7 @@ jobs:
           # Poll until the Hono server is reachable instead of `sleep 10` —
           # surfaces "electron didn't start" as a real failure with logs.
           for i in $(seq 1 60); do
-            if curl -sf http://localhost:60223/api/settings > /dev/null; then
+            if curl -sf http://localhost:60223/api/v1/settings > /dev/null; then
               echo "App is up after ${i}s"
               exit 0
             fi
