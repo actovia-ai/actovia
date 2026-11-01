@@ -1,3 +1,4 @@
+import { isMotionReduced } from '@/lib/reduced-motion'
 /** Where a jumped-to question lands, measured from the transcript's top. */
 export const SCROLL_OFFSET = 88
 
@@ -24,7 +25,10 @@ export function scrollRunIntoView(
     node.getBoundingClientRect().top -
     container.getBoundingClientRect().top -
     SCROLL_OFFSET
-  container.scrollBy({ top: delta, behavior: 'smooth' })
+  container.scrollBy({
+    top: delta,
+    behavior: isMotionReduced() ? 'instant' : 'smooth'
+  })
   return true
 }
 

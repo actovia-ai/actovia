@@ -212,6 +212,7 @@ export const settings = pgTable('settings', {
     jsonb('keyboardShortcuts').$type<z.infer<typeof KeyboardShortcutsSchema>>(),
   // Settings → General → Color tone (`ColorToneSchema` in settings-schema.ts).
   colorTone: text('colorTone').default('neutral'),
+  reduceMotion: boolean('reduceMotion').default(false),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   updatedAt: timestamp('updatedAt').defaultNow().notNull()
 })

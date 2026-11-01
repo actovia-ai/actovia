@@ -155,6 +155,13 @@
       "when": 1793094394014,
       "tag": "0021_chat_context_snapshot",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1793474984726,
+      "tag": "0022_reduced_motion",
+      "breakpoints": true
     }
   ]
 }

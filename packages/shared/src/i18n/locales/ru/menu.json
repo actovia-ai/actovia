@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "В группе «{{title}}» произошла ошибка",
     "philharmonicGroupFinished": "Группа «{{title}}» завершила работу",
-    "agentWaiting": "{{name}} ждёт вас"
+    "agentWaiting": "{{name}} ждёт вас",
+    "watchReady": "Условие наблюдения группы выполнено",
+    "watchTimedOut": "Срок наблюдения группы истёк",
+    "philharmonicRoundFinished": "Группа «{{title}}» завершила раунд"
   },
   "attachment": {
     "saveImageAs": "Сохранить изображение как…",

@@ -27,6 +27,7 @@ import {
   pasteKeepsText,
   pasteUploadsImages
 } from '@/lib/clipboard-paste'
+import { useReducedMotion } from '@/lib/reduced-motion'
 import { cn } from '@/lib/utils'
 import { attachmentAtom } from '@/stores/chat'
 import {
@@ -98,6 +99,7 @@ function InputBox({
   // avoids the unnecessary re-render that useState would cause on each keystroke.
   const isTypingRef = useRef(false)
   const { resolvedTheme } = useTheme()
+  const reduce = useReducedMotion()
   // As ChatGPT's: one line and the field sits between `+` and the round
   // button; more and it takes the top on its own, the buttons a row under it
   // (see composer-layout.ts).
@@ -210,7 +212,7 @@ function InputBox({
       // Steps aside while recording: the voice glow wears the same colours,
       // and only the change from the idle beam to one that moves with the
       // voice says Actovia is listening.
-      active={voiceStream === null}
+      active={voiceStream === null && !reduce}
       className={cn(
         'mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',
         mode === 'chat' && !id && 'mb-4'

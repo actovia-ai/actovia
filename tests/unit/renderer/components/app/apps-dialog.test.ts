@@ -3,6 +3,7 @@
 // with its docs; Pair an iPhone goes to Settings → Devices and closes.
 import {
   ACTOVIA_CLI_DOCS,
+  ACTOVIA_APP_STORE,
   ACTOVIA_HEALTH_DOCS,
   ACTOVIA_IPHONE_DOCS
 } from '@actovia/shared/constants/external-urls'
@@ -71,6 +72,7 @@ describe('AppsDialog', () => {
       a.getAttribute('href')
     )
     expect(hrefs).toEqual([
+      ACTOVIA_APP_STORE,
       ACTOVIA_IPHONE_DOCS,
       ACTOVIA_HEALTH_DOCS,
       ACTOVIA_CLI_DOCS

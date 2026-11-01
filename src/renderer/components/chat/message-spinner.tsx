@@ -1,5 +1,12 @@
 import type { Segment } from '@actovia/shared/types/chat'
-import { ThinkingOrb } from 'thinking-orbs'
+import {
+  MODE_FRAMES,
+  resolvePreset,
+  ThinkingOrb,
+  type ModeFrame
+} from 'thinking-orbs'
+
+import { useReducedMotion } from '@/lib/reduced-motion'
 
 /**
  * Whether to show the "waiting for the assistant" spinner.
@@ -35,14 +42,25 @@ export function shouldShowMessageSpinner(
  * figure that stays put rather than dots that give way to something else.
  * Same box as the timeline's header (`mb-3`, a 20px row).
  */
+const RESTING_MODE = resolvePreset('solving', 20).mode
+const RESTING_FRAME: ModeFrame = (size, _time, options) =>
+  MODE_FRAMES[RESTING_MODE](size, 0.6, options)
+
 export function MessageSpinner() {
+  const reduce = useReducedMotion()
   return (
     <div
       className="mb-3 flex h-5 items-center"
       role="status"
       aria-live="polite"
     >
-      <ThinkingOrb state="working" size={20} className="shrink-0" />
+      <ThinkingOrb
+        state="working"
+        size={20}
+        className="shrink-0"
+        paused={reduce}
+        frame={reduce ? RESTING_FRAME : undefined}
+      />
     </div>
   )
 }

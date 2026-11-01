@@ -440,5 +440,11 @@
       "folderFailed": "Ordner konnte nicht geöffnet werden",
       "inTerminal": "Im Terminal fortgesetzt — Actovia übernimmt beim nächsten Schritt wieder."
     }
+  },
+  "emoji": {
+    "change": "Symbol ändern",
+    "search": "Emoji suchen",
+    "empty": "Keine Emojis gefunden",
+    "failed": "Speichern fehlgeschlagen. Erneut versuchen."
   }
 }

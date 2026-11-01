@@ -1,5 +1,5 @@
 import type { Attachment } from '@actovia/shared/types/chat'
-import { ArrowUpIcon, StopIcon } from '@hugeicons/core-free-icons'
+import { ArrowUp02Icon, StopIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useAtom } from 'jotai'
 import {
@@ -187,7 +187,7 @@ export function Composer({
                   disabled={!canSend}
                   aria-label={t('chat.composer.sendAria')}
                 >
-                  <HugeiconsIcon icon={ArrowUpIcon} />
+                  <HugeiconsIcon icon={ArrowUp02Icon} />
                 </Button>
               )}
             </div>

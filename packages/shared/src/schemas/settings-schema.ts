@@ -311,6 +311,7 @@ export const SettingsSchema = z.object({
   // Settings → General → Color tone: which `[data-tone]` palette globals.css
   // paints. null (older rows) = neutral.
   colorTone: ColorToneSchema.nullish(),
+  reduceMotion: z.boolean().nullish(),
   createdAt: z.any(),
   updatedAt: z.any()
 })

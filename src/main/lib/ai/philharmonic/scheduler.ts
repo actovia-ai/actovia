@@ -14,9 +14,11 @@ import {
   updateTask
 } from '../../db/philharmonic-queries'
 import { getChatById } from '../../db/queries'
+import { mainT } from '../../i18n'
 import { logger } from '../../logger'
 import { withTrace } from '../../logger/trace-context'
 import { getGroupDir } from '../../paths'
+import { notifyIfBackground } from '../../philharmonic-notifications'
 import type { SseEmitter } from './employee-loop'
 import { runPmCoordinator } from './pm-coordinator'
 import { pmRunRegistry } from './pm-run-registry'
@@ -183,6 +185,17 @@ export async function runDueOneOffTasks(emit: SseEmitter): Promise<void> {
           })
           continue
         }
+        notifyIfBackground({
+          title: mainT(
+            timedOut
+              ? 'menu:notification.watchTimedOut'
+              : 'menu:notification.watchReady',
+            timedOut
+              ? 'A Group watch reached its deadline'
+              : 'A Group watch is ready'
+          ),
+          body: t.title
+        })
         await updateTask(t.id, {
           description: timedOut
             ? `${t.description ?? ''}\nWatch deadline reached.`

@@ -436,5 +436,11 @@
       "folderFailed": "無法開啟資料夾",
       "inTerminal": "已在終端機繼續 — Actovia 會在下一步重新接手。"
     }
+  },
+  "emoji": {
+    "change": "更換圖示",
+    "search": "搜尋表情符號",
+    "empty": "找不到表情符號",
+    "failed": "圖示儲存失敗，請重試。"
   }
 }

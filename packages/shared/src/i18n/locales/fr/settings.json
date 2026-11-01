@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "Barre de menu",
       "description": "Afficher Actovia dans la barre de menu"
+    },
+    "reduceMotion": {
+      "label": "Réduire les animations",
+      "description": "Limite les mouvements et les effets animés. Sinon, suit le réglage système."
     }
   },
   "nav": {

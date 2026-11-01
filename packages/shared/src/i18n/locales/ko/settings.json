@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "메뉴 바",
       "description": "메뉴 바에 Actovia를 표시합니다"
+    },
+    "reduceMotion": {
+      "label": "동작 줄이기",
+      "description": "움직임과 애니메이션 효과를 줄입니다. 끄면 시스템 설정을 따릅니다."
     }
   },
   "nav": {

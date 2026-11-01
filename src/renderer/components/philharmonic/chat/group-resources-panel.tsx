@@ -10,6 +10,7 @@ import {
 } from '@/components/chat/panel/chat-panel'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { groupPanelItems } from '@/lib/group-panel-items'
+import { isMotionReduced } from '@/lib/reduced-motion'
 import { getGroupToolResults } from '@/services/philharmonic-chat'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
@@ -52,7 +53,10 @@ export function GroupResourcesPanel({
       .querySelector<HTMLElement>(
         `[data-message-id="${CSS.escape(messageId)}"]`
       )
-      ?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      ?.scrollIntoView({
+        block: 'center',
+        behavior: isMotionReduced() ? 'instant' : 'smooth'
+      })
   return (
     <SheetPanel
       open={open}

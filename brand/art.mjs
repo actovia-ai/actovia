@@ -276,6 +276,7 @@ export function bootSplash() {
       @media (prefers-color-scheme: dark) {
         #boot-splash .bs-dots i { background: oklch(0.708 0 0); }
       }
+      html[data-reduce-motion="true"] #boot-splash * { animation: none !important; transform: none !important; }
       @media (prefers-reduced-motion: reduce) {
         #boot-splash .bs-icon,
         #boot-splash .bs-enter,

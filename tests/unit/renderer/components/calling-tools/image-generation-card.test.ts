@@ -20,8 +20,7 @@ vi.mock('react-medium-image-zoom', () => ({
 }))
 // Whether motion/react reports `prefers-reduced-motion: reduce`.
 const motionPrefs = { reduce: false }
-vi.mock('motion/react', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('motion/react')>()),
+vi.mock('@/lib/reduced-motion', () => ({
   useReducedMotion: () => motionPrefs.reduce
 }))
 

@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "In der Gruppe „{{title}}“ ist ein Fehler aufgetreten",
     "philharmonicGroupFinished": "Gruppe „{{title}}“ abgeschlossen",
-    "agentWaiting": "{{name}} wartet auf dich"
+    "agentWaiting": "{{name}} wartet auf dich",
+    "watchReady": "Eine Gruppenüberwachung ist bereit",
+    "watchTimedOut": "Eine Gruppenüberwachung hat ihre Frist erreicht",
+    "philharmonicRoundFinished": "Gruppe „{{title}}“ hat eine Runde beendet"
   },
   "attachment": {
     "saveImageAs": "Bild speichern unter …",

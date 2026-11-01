@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "メニューバー",
       "description": "メニューバーにActoviaを表示します"
+    },
+    "reduceMotion": {
+      "label": "視差効果を減らす",
+      "description": "動きやアニメーションを抑えます。オフの場合はシステム設定に従います。"
     }
   },
   "nav": {

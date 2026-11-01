@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "El grupo \"{{title}}\" encontró un error",
     "philharmonicGroupFinished": "El grupo \"{{title}}\" terminó",
-    "agentWaiting": "{{name}} te está esperando"
+    "agentWaiting": "{{name}} te está esperando",
+    "watchReady": "Una vigilancia de grupo está lista",
+    "watchTimedOut": "Una vigilancia de grupo llegó a su fecha límite",
+    "philharmonicRoundFinished": "El grupo «{{title}}» terminó una ronda"
   },
   "attachment": {
     "saveImageAs": "Guardar imagen como…",

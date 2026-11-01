@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "群組「{{title}}」發生錯誤",
     "philharmonicGroupFinished": "群組「{{title}}」已完成",
-    "agentWaiting": "{{name}} 正在等你"
+    "agentWaiting": "{{name}} 正在等你",
+    "watchReady": "群組監視條件已滿足",
+    "watchTimedOut": "群組監視已到截止時間",
+    "philharmonicRoundFinished": "群組「{{title}}」已完成一輪"
   },
   "attachment": {
     "saveImageAs": "將圖片另存為…",

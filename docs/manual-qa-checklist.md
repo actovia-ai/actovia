@@ -286,3 +286,10 @@ Needs codex-cli ≥ 0.162.1, logged in (`codex login status`).
 
 - [ ] P1 Quota-aware dealing: two Claude Code employees (opus, sonnet) and a plan with a hard and an easy step — the easy one goes to sonnet; each CLI member shows its quota line; with a weekly window over 90 % (or a limit reached) the PM downgrades or waits, says why with the numbers, and a waiting step shows in the Schedule tab and resumes after the reset
 - [ ] P1 Decision trail: after a PM round that delegated, opening 'Decision process' under its message shows the trigger, the reports read (each scrolls to its message), every delegation as a sentence with its instructions one click further, any quota refusal or wait, and the round's tokens; Settings → Developer → Chat Audit → 'PM decisions by group' lists the round.
+
+## November Todo review
+
+- General → Reduce motion: persist across restart, follow OS when off, keep subwindows in sync; thinking orb/beam/smooth scroll stop moving while loading status stays readable.
+- Philharmonic sidebar → Change icon: search (English/Chinese), select, reload; failed save keeps previous icon with retry hint.
+- Get the apps: all three illustrated cards fit a narrow window; iOS download and Pair an iPhone work with keyboard.
+- Background Philharmonic: watch ready/deadline and normal round completion notify; still-waiting watches and foreground work stay quiet; plan completion does not duplicate the round notification.

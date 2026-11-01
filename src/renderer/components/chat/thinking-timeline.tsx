@@ -32,6 +32,7 @@ import {
 import { FAVICON_BACKING } from '@/components/markdown/source-favicon'
 import { i18n } from '@/lib/i18n'
 import { ROW_ENTER } from '@/lib/motion'
+import { useReducedMotion } from '@/lib/reduced-motion'
 import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
 
@@ -274,6 +275,7 @@ export function ThinkingTimeline({
   durationMs,
   isStreaming
 }: ThinkingTimelineProps) {
+  const reduceMotion = useReducedMotion()
   const { t } = useTranslation('chat')
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -315,7 +317,12 @@ export function ThinkingTimeline({
             {/* The orb draws at 20px only; the check sits in the same box. */}
             <TraceIcon className="size-5">
               {icon === 'live' ? (
-                <ThinkingOrb state="working" size={20} />
+                <ThinkingOrb
+                  state="working"
+                  size={20}
+                  paused={reduceMotion}
+                  frame={reduceMotion ? RESTING_FRAME : undefined}
+                />
               ) : icon === 'resting' ? (
                 <ThinkingOrb
                   state="solving"

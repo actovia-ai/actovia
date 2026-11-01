@@ -1,3 +1,4 @@
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   SearchIcon,
   Delete02Icon,
@@ -29,6 +30,12 @@ import {
   ContextMenuSeparator,
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   InputGroup,
@@ -54,6 +61,7 @@ import { cn } from '@/lib/utils'
 import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
 import { hueStyle, pickHue } from '../lib/hue'
+import { GroupEmojiPicker } from './group-emoji-picker'
 import { NewGroupButton } from './new-group-button'
 
 export type ConfigPage = 'workforce' | 'dashboard'
@@ -118,7 +126,8 @@ export function ConversationList({
   onCreate,
   onDelete,
   onRename,
-  onNavigateConfig
+  onNavigateConfig,
+  onChangeIcon
 }: {
   conversations: ConversationData[]
   agentsById: Record<string, AgentData>
@@ -128,8 +137,12 @@ export function ConversationList({
   onCreate: () => void
   onDelete: (id: string) => void | Promise<void>
   onRename: (id: string, title: string) => void | Promise<void>
+  onChangeIcon: (id: string, icon: string) => Promise<void>
   onNavigateConfig: (page: ConfigPage) => void
 }) {
+  const [editingIcon, setEditingIcon] = useState<ConversationData | null>(null)
+  const [savingIcon, setSavingIcon] = useState(false)
+  const [iconError, setIconError] = useState(false)
   const { t } = useTranslation(['common', 'philharmonic'])
   const configNav = useMemo(
     () => [
@@ -280,6 +293,15 @@ export function ConversationList({
                     </ContextMenuTrigger>
                     <ContextMenuContent>
                       <ContextMenuItem
+                        data-testid={TEST_IDS.philharmonic.changeIcon}
+                        onClick={() => {
+                          setIconError(false)
+                          setEditingIcon(c)
+                        }}
+                      >
+                        {t('philharmonic:emoji.change')}
+                      </ContextMenuItem>
+                      <ContextMenuItem
                         onClick={() =>
                           setRenaming({ id: c.id, title: c.title })
                         }
@@ -401,6 +423,35 @@ export function ConversationList({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog
+        open={editingIcon !== null}
+        onOpenChange={(open) => {
+          if (!open && !savingIcon) setEditingIcon(null)
+        }}
+      >
+        <DialogContent className="sm:max-w-sm" showCloseButton={!savingIcon}>
+          <DialogHeader>
+            <DialogTitle>{t('philharmonic:emoji.change')}</DialogTitle>
+          </DialogHeader>
+          <GroupEmojiPicker
+            saving={savingIcon}
+            onSelect={(icon) => {
+              if (!editingIcon || savingIcon) return
+              setSavingIcon(true)
+              setIconError(false)
+              void onChangeIcon(editingIcon.id, icon)
+                .then(() => setEditingIcon(null))
+                .catch(() => setIconError(true))
+                .finally(() => setSavingIcon(false))
+            }}
+          />
+          {iconError && (
+            <p role="alert" className="text-destructive text-sm">
+              {t('philharmonic:emoji.failed')}
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </Sidebar>
   )
 }

@@ -440,5 +440,11 @@
       "folderFailed": "No se pudo abrir la carpeta",
       "inTerminal": "Continuado en Terminal — Actovia lo retoma en su siguiente paso."
     }
+  },
+  "emoji": {
+    "change": "Cambiar icono",
+    "search": "Buscar emoji",
+    "empty": "No se encontraron emojis",
+    "failed": "No se pudo guardar. Inténtalo de nuevo."
   }
 }

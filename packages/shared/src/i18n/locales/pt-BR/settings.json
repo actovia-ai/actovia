@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "Barra de menus",
       "description": "Mostrar o Actovia na barra de menus"
+    },
+    "reduceMotion": {
+      "label": "Reduzir movimento",
+      "description": "Limita movimentos e animações. Desativado, segue a configuração do sistema."
     }
   },
   "nav": {

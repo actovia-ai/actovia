@@ -7,6 +7,7 @@ import useEmblaCarousel, {
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
+import { useReducedMotion } from '@/lib/reduced-motion'
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -50,10 +51,12 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<'div'> & CarouselProps) {
+  const reduce = useReducedMotion()
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
-      axis: orientation === 'horizontal' ? 'x' : 'y'
+      axis: orientation === 'horizontal' ? 'x' : 'y',
+      duration: reduce ? 0 : opts?.duration
     },
     plugins
   )

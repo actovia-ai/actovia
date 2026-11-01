@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "Group \"{{title}}\" hit an error",
     "philharmonicGroupFinished": "Group \"{{title}}\" finished",
-    "agentWaiting": "{{name}} is waiting for you"
+    "agentWaiting": "{{name}} is waiting for you",
+    "watchReady": "A Group watch is ready",
+    "watchTimedOut": "A Group watch reached its deadline",
+    "philharmonicRoundFinished": "Group \"{{title}}\" finished a round"
   },
   "attachment": {
     "saveImageAs": "Save Image As…",

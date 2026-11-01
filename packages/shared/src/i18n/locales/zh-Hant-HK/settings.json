@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "選單列",
       "description": "在選單列中顯示 Actovia"
+    },
+    "reduceMotion": {
+      "label": "減少動態效果",
+      "description": "減少位移與動態效果。關閉時跟隨系統設定。"
     }
   },
   "nav": {

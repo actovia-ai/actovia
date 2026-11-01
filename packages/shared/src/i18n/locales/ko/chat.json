@@ -530,7 +530,8 @@
     "iphone": {
       "title": "iPhone용 Actovia",
       "body": "집에서든 밖에서든 휴대폰으로 채팅하고 그룹을 운영하세요. QR 코드로 이 Mac과 페어링합니다.",
-      "pair": "iPhone 페어링"
+      "pair": "iPhone 페어링",
+      "download": "iOS 앱 받기"
     },
     "health": {
       "title": "건강",

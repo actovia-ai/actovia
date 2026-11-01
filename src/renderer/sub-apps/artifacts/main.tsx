@@ -2,6 +2,7 @@ import '@/assets/stylesheets/globals.css'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
+import { bootReducedMotion } from '@/lib/reduced-motion'
 import { bootTone, subscribeToneCache } from '@/lib/tone'
 
 import { ArtifactSandbox } from './sandbox'
@@ -25,6 +26,8 @@ function applyTheme() {
 }
 
 applyTheme()
+bootReducedMotion()
+window.addEventListener('storage', bootReducedMotion)
 
 // The colour tone, from the same shared localStorage cache the main window
 // writes (see lib/tone.ts); kept live via the `storage` event.

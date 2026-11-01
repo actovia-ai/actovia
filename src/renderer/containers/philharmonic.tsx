@@ -119,6 +119,17 @@ export function PhilharmonicContainer({
     [activeId, onOpenGroup, t]
   )
 
+  const handleChangeIcon = useCallback(async (id: string, icon: string) => {
+    const updated = await updateConversation(id, { icon })
+    setConversations((previous) =>
+      previous.map((conversation) =>
+        conversation.id === id
+          ? { ...conversation, icon: updated.icon }
+          : conversation
+      )
+    )
+  }, [])
+
   const handleRename = useCallback(async (id: string, title: string) => {
     setConversations((p) => p.map((c) => (c.id === id ? { ...c, title } : c)))
     await updateConversation(id, { title })
@@ -237,6 +248,7 @@ export function PhilharmonicContainer({
             onCreate={handleCreate}
             onDelete={handleDelete}
             onRename={handleRename}
+            onChangeIcon={handleChangeIcon}
             onNavigateConfig={handleNavigateConfig}
           />
         }

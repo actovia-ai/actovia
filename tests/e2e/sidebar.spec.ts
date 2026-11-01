@@ -110,6 +110,13 @@ test.describe('Sidebar', () => {
     const dialog = mainWindow.getByTestId(TEST_IDS.chatLayout.appsDialog)
     await expect(dialog).toBeVisible({ timeout: 5_000 })
     await expect(dialog).toContainText('npm i -g @actovia-ai/cli')
+    await expect(
+      dialog.getByRole('link', { name: 'Get the iOS app' })
+    ).toHaveAttribute('href', 'https://apps.apple.com/app/actovia/id6824829679')
+    await mainWindow.screenshot({ path: '/tmp/actovia-apps-light.png' })
+    await mainWindow.emulateMedia({ colorScheme: 'dark' })
+    await mainWindow.screenshot({ path: '/tmp/actovia-apps-dark.png' })
+    await mainWindow.emulateMedia({ colorScheme: 'light' })
 
     await mainWindow.getByTestId(TEST_IDS.chatLayout.appsPairIphone).click()
     await expect(dialog).toBeHidden()

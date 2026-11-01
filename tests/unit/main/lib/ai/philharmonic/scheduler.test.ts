@@ -1,6 +1,18 @@
+const watchState = { exists: false }
+vi.mock('fs', () => ({ existsSync: () => watchState.exists }))
+vi.mock('@main/lib/paths', () => ({
+  getGroupDir: () => '/tmp/actovia-watch-test'
+}))
 // src/main/lib/ai/philharmonic/scheduler.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const notify = vi.fn()
+vi.mock('@main/lib/philharmonic-notifications', () => ({
+  notifyIfBackground: notify
+}))
+vi.mock('@main/lib/i18n', () => ({
+  mainT: (_key: string, fallback: string) => fallback
+}))
 const runPmCoordinator = vi.fn(async () => {})
 const runScheduledChat = vi.fn(async () => {})
 const getChatById = vi.fn(async () => ({ id: 'chat-1' }))
@@ -232,5 +244,53 @@ describe('runDueOneOffTasks', () => {
     // sweep that actually claimed it recorded is left alone, not overwritten.
     expect(updateTask).not.toHaveBeenCalledWith('t2', { status: 'completed' })
     expect(updateTask).not.toHaveBeenCalledWith('t2', { status: 'failed' })
+  })
+})
+
+describe('watch notifications', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    watchState.exists = false
+  })
+  const due = (deadline: string) => ({
+    id: 'watch',
+    title: 'File watch',
+    description: 'Wait for report',
+    conversationId: 'c1',
+    input: { kind: 'watch', path: 'report.md', deadline, intervalSec: 60 }
+  })
+  it('stays quiet while waiting, and re-arms the claimed task', async () => {
+    getDueOneOffTasks.mockResolvedValueOnce([
+      due('2099-01-01T00:00:00Z')
+    ] as never)
+    await runDueOneOffTasks(vi.fn())
+    expect(notify).not.toHaveBeenCalled()
+    expect(runPmCoordinator).not.toHaveBeenCalled()
+    expect(updateTask).toHaveBeenCalledWith(
+      'watch',
+      expect.objectContaining({ status: 'pending' })
+    )
+  })
+  it('notifies once when the watched file appears, then wakes the PM', async () => {
+    watchState.exists = true
+    getDueOneOffTasks.mockResolvedValueOnce([
+      due('2099-01-01T00:00:00Z')
+    ] as never)
+    await runDueOneOffTasks(vi.fn())
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      title: 'A Group watch is ready',
+      body: 'File watch'
+    })
+    expect(runPmCoordinator).toHaveBeenCalledTimes(1)
+  })
+  it('explains a deadline separately from the file becoming ready', async () => {
+    getDueOneOffTasks.mockResolvedValueOnce([
+      due('2000-01-01T00:00:00Z')
+    ] as never)
+    await runDueOneOffTasks(vi.fn())
+    expect(notify).toHaveBeenCalledExactlyOnceWith({
+      title: 'A Group watch reached its deadline',
+      body: 'File watch'
+    })
   })
 })

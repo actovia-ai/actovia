@@ -548,7 +548,8 @@
     "iphone": {
       "title": "Actovia for iPhone",
       "body": "Chat and run your Groups from your phone, at home or away. It pairs with this Mac by QR code.",
-      "pair": "Pair an iPhone"
+      "pair": "Pair an iPhone",
+      "download": "Get the iOS app"
     },
     "health": {
       "title": "Health",

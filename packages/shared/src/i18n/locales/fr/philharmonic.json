@@ -440,5 +440,11 @@
       "folderFailed": "Impossible d’ouvrir le dossier",
       "inTerminal": "Poursuivi dans le Terminal — Actovia reprend à sa prochaine étape."
     }
+  },
+  "emoji": {
+    "change": "Changer l’icône",
+    "search": "Rechercher un emoji",
+    "empty": "Aucun emoji trouvé",
+    "failed": "Échec de l’enregistrement. Réessayez."
   }
 }

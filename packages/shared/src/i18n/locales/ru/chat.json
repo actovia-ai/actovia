@@ -584,7 +584,8 @@
     "iphone": {
       "title": "Actovia для iPhone",
       "body": "Общайтесь и управляйте группами с телефона — дома или в пути. Связывается с этим Mac по QR-коду.",
-      "pair": "Связать iPhone"
+      "pair": "Связать iPhone",
+      "download": "Скачать для iOS"
     },
     "health": {
       "title": "Здоровье",

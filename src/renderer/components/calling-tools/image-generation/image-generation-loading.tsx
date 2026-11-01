@@ -4,13 +4,14 @@ import {
   RotateLeft01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import type { CSSProperties, ReactNode } from 'react'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useHoverCapable } from '@/hooks/use-hover-capable'
 import { EASE_IN_OUT_CURVE, EASE_OUT_CURVE } from '@/lib/motion'
+import { useReducedMotion } from '@/lib/reduced-motion'
 import { cn } from '@/lib/utils'
 
 export type ImageGenerationStatus =

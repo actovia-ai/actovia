@@ -548,7 +548,8 @@
     "iphone": {
       "title": "Actovia per iPhone",
       "body": "Chatta e gestisci i tuoi Gruppi dal telefono, a casa o fuori. Si abbina a questo Mac con un codice QR.",
-      "pair": "Abbina un iPhone"
+      "pair": "Abbina un iPhone",
+      "download": "Scarica per iOS"
     },
     "health": {
       "title": "Salute",

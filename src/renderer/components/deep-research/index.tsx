@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { SheetPanel } from '@/components/app/sheet-panel'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDeepResearchResult } from '@/hooks/use-deep-research'
+import { isMotionReduced } from '@/lib/reduced-motion'
 import { reportRendererError } from '@/lib/report-error'
 import { fetchDeepResearchMessages } from '@/services/deep-research'
 import {
@@ -158,7 +159,7 @@ export function DeepResearchProcess() {
       $el.scrollTo({
         top: $el.scrollHeight,
         left: 0,
-        behavior: 'smooth'
+        behavior: isMotionReduced() ? 'instant' : 'smooth'
       })
     }
   }, [deepResearchMessages])

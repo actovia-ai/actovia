@@ -530,7 +530,8 @@
     "iphone": {
       "title": "Actovia iPhone 版",
       "body": "在家或在外，都能用手機聊天、調度你的群組。掃 QR 碼即可與這部 Mac 配對。",
-      "pair": "配對 iPhone"
+      "pair": "配對 iPhone",
+      "download": "下載 iOS App"
     },
     "health": {
       "title": "健康",

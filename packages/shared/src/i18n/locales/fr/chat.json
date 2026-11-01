@@ -548,7 +548,8 @@
     "iphone": {
       "title": "Actovia pour iPhone",
       "body": "Discutez et pilotez vos Groupes depuis votre téléphone, chez vous ou ailleurs. Il s'associe à ce Mac par QR code.",
-      "pair": "Associer un iPhone"
+      "pair": "Associer un iPhone",
+      "download": "Obtenir l’app iOS"
     },
     "health": {
       "title": "Santé",

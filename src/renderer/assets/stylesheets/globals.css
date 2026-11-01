@@ -3,6 +3,14 @@
 @import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @slot;
+  }
+  &:where([data-reduce-motion='true'], [data-reduce-motion='true'] *) {
+    @slot;
+  }
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -1027,6 +1035,42 @@
  * as a hang. Setting every duration to 0 made fades pop and the "thinking"
  * dots freeze. */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* Transitions: only the properties that do not move anything still run
+     * (a @starting-style rise becomes a plain fade; a hover tint still
+     * tints); translate / scale / width / grid rows snap. */
+    transition-property:
+      opacity, color, background-color, border-color, box-shadow, filter !important;
+    @apply [transition-duration:150ms]!;
+    /* tw-animate's animate-in / animate-out keyframes read these: with the
+     * movement zeroed they are pure fades. */
+    --tw-enter-translate-x: 0;
+    --tw-enter-translate-y: 0;
+    --tw-enter-scale: 1;
+    --tw-enter-rotate: 0;
+    --tw-exit-translate-x: 0;
+    --tw-exit-translate-y: 0;
+    --tw-exit-scale: 1;
+    --tw-exit-rotate: 0;
+  }
+
+  /* Keyframe entrances keep a short fixed length; the spinners and the
+   * caret keep their loops — a frozen spinner reads as a hang. */
+  *:not(.animate-spin):not(.animate-pulse):not(.animate-caret-blink) {
+    @apply [animation-duration:150ms]! [animation-iteration-count:1]!;
+  }
+
+  .animate-fade-in-up {
+    @apply [animation-name:fade-in]!;
+  }
+
+  .animate-shake {
+    @apply animate-none!;
+  }
+}
+html[data-reduce-motion='true'] {
   *,
   *::before,
   *::after {

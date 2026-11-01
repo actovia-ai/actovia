@@ -79,6 +79,46 @@ test.describe('Settings E2E', () => {
       .toBe('neutral')
   })
 
+  test('reduced motion persists, stops movement, and follows the OS when off', async ({
+    mainWindow
+  }) => {
+    await openSettings(mainWindow)
+    const toggle = mainWindow.getByTestId(TEST_IDS.settings.reduceMotion)
+    await expect(toggle).toHaveAccessibleName('Reduce motion')
+    await toggle.click()
+    await expect
+      .poll(() =>
+        mainWindow.evaluate(() => document.documentElement.dataset.reduceMotion)
+      )
+      .toBe('true')
+    await expect
+      .poll(() =>
+        mainWindow.evaluate(
+          async () =>
+            (
+              await (
+                await fetch('http://localhost:60223/api/v1/settings')
+              ).json()
+            ).reduceMotion
+        )
+      )
+      .toBe(true)
+    await mainWindow.reload()
+    await expect(toggle).toBeChecked()
+    await mainWindow.emulateMedia({ reducedMotion: 'reduce' })
+    await toggle.click()
+    await expect
+      .poll(() =>
+        mainWindow.evaluate(() => document.documentElement.dataset.reduceMotion)
+      )
+      .toBe('false')
+    expect(
+      await mainWindow.evaluate(
+        () => matchMedia('(prefers-reduced-motion: reduce)').matches
+      )
+    ).toBe(true)
+  })
+
   test('language selector switches the app language live', async ({
     mainWindow
   }) => {

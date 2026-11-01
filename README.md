@@ -16,19 +16,22 @@
 
 Actovia is a high-performance, cross-platform AI chat application for desktop that is compatible with a variety of model providers. It runs a full local backend — an embedded Postgres database (PGlite + pgvector), a Hono HTTP server, and a durable job queue — so features like retrieval, memory consolidation, and multi-agent runs happen on your machine.
 
+[Website & docs](https://actovia.yancey.app) · [Desktop downloads](https://github.com/actovia-ai/actovia/releases/latest) · [iPhone & iPad app](https://apps.apple.com/app/actovia/id6824829679) · [CLI](https://github.com/actovia-ai/cli)
+
+Your chats stay on the computer running Actovia. Bring your own model keys; messages and tool requests are sent to the providers and services you choose. The iOS app pairs with that computer over a certificate-pinned connection; it is a companion, so the computer must be awake and Actovia must be running.
+
 ## LLM Providers
 
 > [!NOTE]
 > Actovia tracks provider model lists as they change; the table below reflects the current defaults. Any provider's model list can also be extended in settings.
 
-| Provider         | Chat Models                                                                   | Reasoning Models                   |
-| ---------------- | ----------------------------------------------------------------------------- | ---------------------------------- |
-| OpenAI GPT       | gpt-5.5, gpt-5.5-pro, gpt-5.4, gpt-5.4-pro/mini/nano                          | gpt-5.5-pro, gpt-5.5, gpt-5.4-pro  |
-| Azure OpenAI     | gpt-5.5, gpt-5.5-pro, gpt-5.4, gpt-5.4-pro/mini/nano                          | gpt-5.5-pro, gpt-5.5, gpt-5.4-pro  |
-| Google Gemini    | gemini-3.1-pro, gemini-3-flash, gemini-3.1-flash-lite, gemini-2.5-flash/-lite | gemini-3.1-pro, gemini-2.5-pro     |
-| xAI Grok         | grok-4.3, grok-4.1-fast, grok-4, grok-code-fast-1                             | grok-4.3, grok-4                   |
-| Anthropic Claude | claude-opus-4-8, claude-opus-4-7, claude-sonnet-4-6, claude-haiku-4-5         | claude-opus-4-8, claude-sonnet-4-6 |
-| Ollama           | Based on your own Ollama service                                              | Based on your own Ollama service   |
+| Provider                              | Configuration                                                               |
+| ------------------------------------- | --------------------------------------------------------------------------- |
+| OpenAI, Anthropic, Google Gemini, xAI | Add your API key in Settings → Providers; refresh the model list there.     |
+| Azure OpenAI                          | Configure your endpoint, deployment/model and API version.                  |
+| Ollama                                | Point Actovia at your Ollama service; its installed models are listed live. |
+
+Model availability follows each provider and your account. Custom model IDs and compatible base URLs can be configured in Settings.
 
 ## Core Features
 
@@ -46,7 +49,19 @@ An optional retrieval layer backed by a self-hosted [LightRAG](https://github.co
 
 ### Philharmonic — multi-agent Groups
 
-Teams of agents that collaborate on a task. Each Group runs in an isolated workspace, has per-agent memory and tools, and supports scheduled (recurring or one-off) runs managed from the dashboard.
+A PM coordinates employees, teams and plans in isolated Group workspaces. Follow progress, answer an employee that is waiting for permission, and inspect sources, files and decisions. Claude Code and Codex employees can use their own CLI sessions and quota reporting. Group icons are editable from the sidebar's context menu.
+
+### Scheduled tasks
+
+The global **Scheduled** page shows Chat and Philharmonic tasks together. Use the bottom composer to describe a task and continue in Chat; examples help you get started. Create, edit, pause and delete Chat schedules through conversation. Group schedules remain managed by the PM. Actovia must be running on the computer for schedules to fire, using that computer's time zone.
+
+### iPhone, iPad and Health
+
+Get the [native companion](https://apps.apple.com/app/actovia/id6824829679), then pair it from Settings → Devices. Continue the same chats, control Philharmonic and read reports. The Health workspace uses Apple Health on the phone, with permission, and attaches selected summaries when you ask the assistant; those summaries go to your computer and configured model provider. Wide windows keep the sidebar beside a readable chat column, including the iPhone Duo layout.
+
+### Accessibility and appearance
+
+Twelve interface languages, light/dark/system appearance, colour tones, and Settings → General → Reduce motion. With the switch off, motion still follows the system's accessibility setting.
 
 ### Memory & Personalization
 
@@ -58,7 +73,7 @@ The AI operates a single application window with a virtual mouse and keyboard �
 
 ### App Lock
 
-A local PIN lock that gates the whole app and every API call. The encrypted secret uses scrypt + Electron `safeStorage`; unlock happens only on the lock screen, never over HTTP.
+A local PIN lock that gates the whole app and every API call. The encrypted secret uses scrypt + Electron `safeStorage`; the desktop lock screen unlocks locally, paired devices can request an unlock using their authenticated connection, and the CLI uses a short-lived PIN-authenticated pass.
 
 ### Lossless Context Management
 
@@ -101,12 +116,7 @@ We always keep the developer tools (e.g., <kbd>Command</kbd> + <kbd>Option</kbd>
 
 ### macOS
 
-Since Actovia is not available on the App Store, you may encounter the following issue when you open it for the first time. Please follow the steps below to resolve it:
-
-![cant-be-open-in-macos](./screenshots/cannot-be-open-in-macos.png)
-
-1. Move `Actovia.app` to the `/Applications` directory.
-2. Open your terminal app and execute the command `chmod +x /Applications/Actovia.app/Contents/MacOS/Actovia`.
+Download the current Developer ID signed and notarized release, open the disk image and move `Actovia.app` to `/Applications`. Developer builds without signing credentials remain ad-hoc; they are intended for development and do not have the release's trust or automatic-update behavior. See the [installation guide](https://actovia.yancey.app/docs/installation).
 
 ## Developing Actovia
 

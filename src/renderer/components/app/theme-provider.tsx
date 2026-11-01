@@ -5,6 +5,11 @@ import type { ComponentProps } from 'react'
 import { useEffect } from 'react'
 
 import { setNativeTheme } from '@/lib/ipc'
+import { bootReducedMotion } from '@/lib/reduced-motion'
+
+import { MotionProvider } from './motion-provider'
+
+bootReducedMotion()
 
 export type Theme = 'light' | 'dark' | 'system'
 
@@ -45,7 +50,7 @@ export function ThemeProvider({
       {...props}
     >
       <NativeThemeBridge />
-      {children}
+      <MotionProvider>{children}</MotionProvider>
     </NextThemesProvider>
   )
 }

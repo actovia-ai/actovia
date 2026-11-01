@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
 import { useFormat } from '@/lib/format'
+import { isMotionReduced } from '@/lib/reduced-motion'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
@@ -57,7 +58,10 @@ export interface BubbleModel {
 const jumpToMessage = (messageId: string) =>
   document
     .querySelector(`[data-message-id="${CSS.escape(messageId)}"]`)
-    ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    ?.scrollIntoView({
+      behavior: isMotionReduced() ? 'instant' : 'smooth',
+      block: 'center'
+    })
 
 export function GroupMessageBubble({
   bubble,

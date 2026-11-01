@@ -548,7 +548,8 @@
     "iphone": {
       "title": "Actovia für iPhone",
       "body": "Chatte und steuere deine Gruppen vom Handy aus, zu Hause oder unterwegs. Gekoppelt wird per QR-Code mit diesem Mac.",
-      "pair": "iPhone koppeln"
+      "pair": "iPhone koppeln",
+      "download": "iOS-App laden"
     },
     "health": {
       "title": "Health",

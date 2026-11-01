@@ -436,5 +436,11 @@
       "folderFailed": "无法打开文件夹",
       "inTerminal": "已在终端中继续——Actovia 会在下一步重新接手。"
     }
+  },
+  "emoji": {
+    "change": "更换图标",
+    "search": "搜索表情",
+    "empty": "未找到表情",
+    "failed": "图标保存失败，请重试。"
   }
 }

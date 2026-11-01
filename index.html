@@ -7,6 +7,7 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; script-src-elem 'self' https://maps.googleapis.com https://*.tradingview.com; font-src 'self' data: https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com; img-src * data: ;connect-src 'self' http://localhost:60223/ https://*.googleapis.com; media-src 'self' blob:; frame-src 'self' actovia-artifact: https://*.codesandbox.io https://*.tradingview.com https://*.tradingview-widget.com https://embed.diagrams.net https://app.diagrams.net https://viewer.diagrams.net;"
     />
+    <script src="./boot-motion.js"></script>
     <style>
       /*
         Cold-boot splash: pure CSS/HTML, no JS dependency, so it paints
@@ -180,6 +181,10 @@
         #boot-splash .bs-dots i {
           transform: none;
         }
+      }
+      html[data-reduce-motion='true'] #boot-splash * {
+        animation: none !important;
+        transform: none !important;
       }
       /* boot-splash:end */
     </style>

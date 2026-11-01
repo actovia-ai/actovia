@@ -30,6 +30,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { setLoginItem, setMenuBar } from '@/lib/ipc'
+import { applyReducedMotion } from '@/lib/reduced-motion'
 import { applyTone } from '@/lib/tone'
 import { cn } from '@/lib/utils'
 
@@ -209,6 +210,22 @@ export function General({ form }: { form: UseFormReturnType }) {
               // Paint now; the autosave persists it and ToneBridge re-applies.
               applyTone(next)
               form.setValue('colorTone', next)
+            }}
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          label={t('general.reduceMotion.label')}
+          description={t('general.reduceMotion.description')}
+        >
+          <Switch
+            data-testid={TEST_IDS.settings.reduceMotion}
+            aria-label={t('general.reduceMotion.label')}
+            aria-description={t('general.reduceMotion.description')}
+            checked={form.watch('reduceMotion') ?? false}
+            onCheckedChange={(checked) => {
+              applyReducedMotion(checked)
+              form.setValue('reduceMotion', checked)
             }}
           />
         </SettingsRow>

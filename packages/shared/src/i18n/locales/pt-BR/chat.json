@@ -548,7 +548,8 @@
     "iphone": {
       "title": "Actovia para iPhone",
       "body": "Converse e comande seus Grupos pelo celular, em casa ou fora. Ele se emparelha com este Mac por QR code.",
-      "pair": "Emparelhar um iPhone"
+      "pair": "Emparelhar um iPhone",
+      "download": "Baixar para iOS"
     },
     "health": {
       "title": "Saúde",

@@ -138,6 +138,7 @@ export const TEST_IDS = {
     entry: 'chat-toc.entry'
   },
   settings: {
+    reduceMotion: 'settings.reduce-motion',
     themeMode: 'settings.theme-mode',
     colorTone: 'settings.color-tone',
     languageSelect: 'settings.language-select',
@@ -180,6 +181,9 @@ export const TEST_IDS = {
     copyChatId: 'chat-layout.copy-chat-id'
   },
   philharmonic: {
+    changeIcon: 'philharmonic.change-icon',
+    emojiPicker: 'philharmonic.emoji-picker',
+    emojiOption: 'philharmonic.emoji-option',
     newGroup: 'philharmonic.new-group',
     membersToggle: 'philharmonic.members-toggle',
     resourcesPanel: 'philharmonic.resources-panel',

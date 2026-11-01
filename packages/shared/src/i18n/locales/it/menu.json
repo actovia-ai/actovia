@@ -22,7 +22,10 @@
   "notification": {
     "philharmonicGroupError": "Il gruppo \"{{title}}\" ha riscontrato un errore",
     "philharmonicGroupFinished": "Il gruppo \"{{title}}\" ha terminato",
-    "agentWaiting": "{{name}} ti sta aspettando"
+    "agentWaiting": "{{name}} ti sta aspettando",
+    "watchReady": "Un monitoraggio del gruppo è pronto",
+    "watchTimedOut": "Un monitoraggio del gruppo ha raggiunto la scadenza",
+    "philharmonicRoundFinished": "Il gruppo “{{title}}” ha concluso un turno"
   },
   "attachment": {
     "saveImageAs": "Salva immagine come…",

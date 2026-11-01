@@ -32,6 +32,10 @@
     "menuBar": {
       "label": "Menüleiste",
       "description": "Actovia in der Menüleiste anzeigen"
+    },
+    "reduceMotion": {
+      "label": "Bewegung reduzieren",
+      "description": "Begrenzt Bewegungen und Animationen. Aus folgt der Systemeinstellung."
     }
   },
   "nav": {

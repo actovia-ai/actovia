@@ -972,6 +972,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // Auto-close the plan when every step has reached a terminal state. The PM
   // doesn't need to ceremoniously declare the plan done — finishing the turn
   // without follow-up tools implies it.
+  let notifiedCompletion = false
   const final = await getActivePlanByConversationId(conversationId)
   if (final && final.plan.status === 'active' && final.steps.length > 0) {
     const allTerminal = final.steps.every(
@@ -986,6 +987,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         status: 'completed'
       })
       await mirrorActivePlan()
+      notifiedCompletion = true
       const summary = final.plan.summary
       notifyIfBackground({
         title: mainT(
@@ -996,6 +998,17 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         body: summary.length > 140 ? `${summary.slice(0, 137)}…` : summary
       })
     }
+  }
+
+  if (!notifiedCompletion) {
+    notifyIfBackground({
+      title: mainT(
+        'menu:notification.philharmonicRoundFinished',
+        'Group "{{title}}" finished a round',
+        { title: conversationTitle }
+      ),
+      body: conversationTitle
+    })
   }
 
   // Fire-and-forget LCM compaction. Errors are caught inside trackAndCompact

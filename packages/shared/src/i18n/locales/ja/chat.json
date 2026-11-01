@@ -530,7 +530,8 @@
     "iphone": {
       "title": "iPhone 版 Actovia",
       "body": "自宅でも外出先でも、スマートフォンからチャットやグループの操作ができます。QR コードでこの Mac とペアリングします。",
-      "pair": "iPhone をペアリング"
+      "pair": "iPhone をペアリング",
+      "download": "iOS アプリを入手"
     },
     "health": {
       "title": "ヘルスケア",

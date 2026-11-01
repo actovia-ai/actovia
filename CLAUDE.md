@@ -1853,6 +1853,28 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   'warning', title, description, actionProps? })`, mounted once as
   `<Toaster />` per layout — chat/settings/philharmonic
 
+### Motion preference and app discovery
+
+Settings → General → Reduce motion stores `settings.reduceMotion` (migration `0022_reduced_motion.sql`).
+Off follows the OS; on always reduces motion. `renderer/lib/reduced-motion.ts` combines both, mirrors the app
+preference in localStorage / `data-reduce-motion`, and publishes live changes across windows. `MotionProvider`
+wraps the main, quick-chat and searchbar trees through ThemeProvider; the artifact frame uses only the cache,
+without querying the API. `public/boot-motion.js` applies the preference before the cold boot splash. CSS
+`motion-reduce:` and the global reduced-motion rules honor either source; JS canvases, the composer beam,
+carousel and smooth scrolling use the same preference. Loading spinners remain meaningful.
+
+The account menu's Get the apps dialog has original device/Health/terminal vector previews, iOS download and
+pairing actions, and documentation/CLI links. App Store URLs use `ACTOVIA_APP_STORE`, without a country prefix.
+
+Group sidebar context menu → Change icon opens `GroupEmojiPicker`: a bundled Emojibase catalogue with bilingual
+search and local recents. Save uses the existing conversation PUT; local state changes only after success.
+The shared catalogue is at `renderer/lib/emoji-catalog.json`; upstream notices are in `resources/licenses/`.
+
+Background Philharmonic notifications cover watch ready/deadline, blocked employees, PM round completion and
+plan completion; completion sends once per round. Mobile push is still a proposal in
+`docs/philharmonic-phone-notifications.md`. Remote Web access is research only in
+`docs/remote-web-client-proposal.md`; no listener is enabled by that document.
+
 ### Motion (read before animating anything)
 
 The bar is Emil Kowalski's design-engineering philosophy (the
