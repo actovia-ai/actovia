@@ -1,6 +1,7 @@
 import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // src/main/lib/ai/philharmonic/pm-coordinator.ts
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
+import type { McpTools } from '@actovia/shared/types/ai'
 import type { Attachment } from '@actovia/shared/types/chat'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
@@ -42,8 +43,10 @@ import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-bas
 import { logger } from '../../logger'
 import { notifyIfBackground } from '../../philharmonic-notifications'
 import { emitToConversation } from '../../server/routes/philharmonic-sse'
+import { mcpDirectory, mcpToolbox } from '../calling-tools/mcp-toolbox'
 import { searchKnowledgeBase } from '../calling-tools/search-knowledge-base'
 import { streamFn } from '../kernel/models'
+import { getMcpTools } from '../mcp'
 import { getModelFromProvider } from '../utils/chat-message-util'
 import { bareImageData } from '../utils/image-data'
 import { createEscalateToUserTool } from './agent-tools'
@@ -58,7 +61,7 @@ import {
   createCreatePlanTool,
   createUpdatePlanStepTool
 } from './plan-tools'
-import { PM_SYSTEM_PROMPT } from './pm-prompt'
+import { PM_SYSTEM_PROMPT, pmMcpSection } from './pm-prompt'
 import { pmRunRegistry } from './pm-run-registry'
 import {
   createDelegateTaskTool,
@@ -220,6 +223,19 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   })
   const history = await lcm.assembleContext(excludeMessageId)
   const kb = resolveKnowledgeBase(setting)
+  // The owner's MCP servers (Settings → MCP) are the PM's too: it files and
+  // moves issues, reads trackers and accepts work there itself, not only
+  // through an employee. A server that will not connect is logged by
+  // getMcpTools and left out; nothing here fails the round.
+  let mcpServers: McpTools[] = []
+  try {
+    mcpServers = await getMcpTools()
+  } catch (error) {
+    logger.warn('philharmonic', 'PM MCP tools unavailable', {
+      conversationId,
+      error
+    })
+  }
 
   // Pick up an existing active plan if one is still in flight; PM mutates it
   // instead of creating a new one. The createPlan tool starts a fresh plan
@@ -702,6 +718,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       }
     ),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
+    ...(mcpServers.length > 0 ? mcpToolbox(mcpServers) : []),
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
     createEscalateToUserTool(async ({ question, options }) => {
       return askUserRegistry.wait(
@@ -791,7 +808,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
               PM_SYSTEM_PROMPT +
               `\n\nEmployees:\n${rosterText(employees, teamNameById)}` +
               (quotaText ? `\n\nQuota:\n${quotaText}` : '') +
-              (planText ? `\n\n${planText}` : ''),
+              (planText ? `\n\n${planText}` : '') +
+              (mcpServers.length > 0
+                ? pmMcpSection(mcpDirectory(mcpServers))
+                : ''),
             toolsAdded: tools,
             timestamp: Date.now()
           },

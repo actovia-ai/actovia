@@ -24,6 +24,10 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getAllAgents
 }))
 
+vi.mock('@main/lib/ai/skills/skills-manager', () => ({
+  listInstalledSkills: async () => [{ slug: 'python' }, { slug: 'sql' }]
+}))
+
 const { autoCreateEmployee } = await import('@main/lib/ai/philharmonic/recruit')
 
 describe('autoCreateEmployee', () => {
@@ -45,5 +49,12 @@ describe('autoCreateEmployee', () => {
     await autoCreateEmployee({ role: 'Writer', name: 'Pat' })
     const arg = createAgent.mock.calls.at(-1)![0]
     expect(arg.name).toBe('Pat')
+  })
+
+  it('keeps only installed skill slugs, so an invented one does not empty the picks', async () => {
+    await autoCreateEmployee({ role: 'Analyst', skills: ['python', 'excel'] })
+    expect(createAgent.mock.calls.at(-1)![0].skillSlugs).toEqual(['python'])
+    await autoCreateEmployee({ role: 'Analyst', skills: ['excel'] })
+    expect(createAgent.mock.calls.at(-1)![0].skillSlugs).toEqual([])
   })
 })

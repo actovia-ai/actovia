@@ -15,6 +15,7 @@ import {
 import { getSettings } from '../../db/queries'
 import type { Agent, Team } from '../../db/schema'
 import { getTeamById } from '../../db/team-queries'
+import { mcpDirectory } from '../calling-tools/mcp-toolbox'
 import { streamFn } from '../kernel/models'
 import { getMcpTools, getMcpToolsByNames } from '../mcp'
 import {
@@ -75,6 +76,11 @@ export function earlierReportsBlock(
     })
     .join('\n')
   return `\n\nYour earlier reports in this group (oldest first). Build on them instead of redoing the work; where the PM's new instructions differ, follow the instructions.\n${items}`
+}
+
+/** The MCP servers this employee can reach, as the chat's prompt lists them. */
+function mcpServersBlock(directory: string): string {
+  return `\n\n<mcp_servers>\nThese MCP servers are connected. Use list_mcp_tools to see a server's tools and their arguments, then call_mcp_tool to run one — look first, then call; never guess a tool name.\n${directory}\n</mcp_servers>`
 }
 
 function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
@@ -160,7 +166,10 @@ export async function runEmployeeLoop(
     (searches ? WEB_CITATIONS : '') +
     memoryBlock +
     reportsBlock +
-    skillsContent
+    skillsContent +
+    (tools.some((t) => t.name === TOOL_NAMES.callMcpTool)
+      ? mcpServersBlock(mcpDirectory(mcpTools))
+      : '')
 
   const userMessage: Message = {
     role: 'user',

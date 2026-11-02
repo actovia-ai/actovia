@@ -1158,6 +1158,14 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   group search is on `bg-sidebar-accent` (`bg-input/50` vanishes on the
   material)
 - Each Group gets an isolated workspace under `~/.actovia/groups`
+- **MCP and skills**: the PM holds the MCP toolbox (`list_mcp_tools` /
+  `call_mcp_tool`) over every active server, with an `<mcp_servers>` block
+  (`pmMcpSection()` in `pm-prompt.ts`), so it files, reads and moves issues
+  itself — a lookup or one change needs no plan. An Actovia-runtime employee
+  gets its picked servers (all active when none picked) and the same block;
+  coding-agent employees use their CLI's own configuration. A recruit keeps
+  only installed skill slugs (`recruit.ts`), so an invented one never empties
+  its picks
 - **Questions and blocked employees** (ISSUE-309): `ask-user-registry.ts`
   holds a FIFO per Group with a UUID for each question. Only the head emits
   `ask_user`; reconnect replays that head including its optional `questionId`.

@@ -6,6 +6,7 @@ import {
 
 import { createAgent, getAllAgents } from '../../db/philharmonic-queries'
 import { getSettings } from '../../db/queries'
+import { listInstalledSkills } from '../skills/skills-manager'
 import { getModelFromProvider } from '../utils/chat-message-util'
 import { completeSimple } from '../utils/complete'
 import { pickName } from './names'
@@ -67,6 +68,13 @@ export async function autoCreateEmployee(params: RecruitParams) {
     // fall back to defaults
   }
 
+  // The PM names skills freely; only installed slugs are kept. An unknown
+  // slug used to be saved as a pick, and a pick list of nothing installed
+  // gave the employee no skills at all — where an empty list gives it every
+  // active one.
+  const installed = new Set((await listInstalledSkills()).map((s) => s.slug))
+  const skillSlugs = (params.skills ?? []).filter((s) => installed.has(s))
+
   const existing = await getAllAgents()
   const name = params.name ?? pickName(existing.map((a) => a.name))
 
@@ -77,7 +85,7 @@ export async function autoCreateEmployee(params: RecruitParams) {
     teamId: params.teamId ?? null,
     avatarSeed: randomAvatarSeed(),
     avatarStyle: DEFAULT_AVATAR_STYLE,
-    skillSlugs: params.skills ?? [],
+    skillSlugs,
     mcpServerNames: [],
     toolAllowList: [],
     isActive: true

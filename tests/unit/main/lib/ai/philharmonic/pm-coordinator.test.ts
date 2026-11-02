@@ -12,7 +12,10 @@ vi.mock('@earendil-works/pi-ai', () => ({
     Object: (o: unknown) => o,
     String: (o?: unknown) => o ?? {},
     Number: (o?: unknown) => o ?? {},
-    Array: (_t: unknown, o?: unknown) => o ?? {}
+    Array: (_t: unknown, o?: unknown) => o ?? {},
+    Optional: (o: unknown) => o,
+    Record: () => ({}),
+    Unknown: () => ({})
   }
 }))
 vi.mock('@main/lib/db/queries', () => ({
@@ -29,6 +32,9 @@ vi.mock('@main/lib/ai/philharmonic/execution-engine', () => ({
 vi.mock('@main/lib/ai/philharmonic/recruit', () => ({
   autoCreateEmployee: vi.fn(async () => ({ id: 'a2', name: 'Quinn' }))
 }))
+// The owner's MCP servers: none by default; a test hands some in.
+const getMcpTools = vi.fn(async (): Promise<unknown[]> => [])
+vi.mock('@main/lib/ai/mcp', () => ({ getMcpTools }))
 // No knowledge base configured in tests → the PM tool list stays KB-free.
 vi.mock('@main/lib/knowledge-base/resolve-knowledge-base', () => ({
   resolveKnowledgeBase: vi.fn(() => null)
@@ -1192,5 +1198,56 @@ describe('PM_SYSTEM_PROMPT', () => {
   it('names the escalation tool the PM actually receives', () => {
     expect(PM_SYSTEM_PROMPT).toContain('escalateToUser')
     expect(PM_SYSTEM_PROMPT).not.toContain('askUser')
+  })
+})
+
+describe("runPmCoordinator — the owner's MCP servers", () => {
+  type Tool = {
+    name: string
+    execute: (id: string, p: unknown) => Promise<unknown>
+  }
+  const run = async () => {
+    agentLoopMock.mockReset()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'move ISSUE-1 to Done',
+      emit: vi.fn()
+    }).catch(() => {})
+    const system = agentLoopMock.mock.calls[0][1].messages[0] as {
+      content: string
+      toolsAdded: Tool[]
+    }
+    return { prompt: system.content, tools: system.toolsAdded }
+  }
+
+  it('binds the MCP toolbox and lists the servers in the PM prompt', async () => {
+    getMcpTools.mockResolvedValueOnce([
+      {
+        mcpServerName: 'linear',
+        description: 'Issue tracker',
+        tools: [
+          {
+            name: 'save_issue',
+            description: 'Create or update an issue',
+            parameters: {},
+            execute: vi.fn()
+          }
+        ]
+      }
+    ])
+    const { prompt, tools } = await run()
+    const names = tools.map((t) => t.name)
+    expect(names).toContain('list_mcp_tools')
+    expect(names).toContain('call_mcp_tool')
+    expect(prompt).toContain('<mcp_servers>')
+    expect(prompt).toContain('- linear (1 tools): Issue tracker')
+  })
+
+  it('leaves both out when no server connects, and a failing lookup does not fail the round', async () => {
+    getMcpTools.mockRejectedValueOnce(new Error('db down'))
+    const { prompt, tools } = await run()
+    expect(tools.map((t) => t.name)).not.toContain('call_mcp_tool')
+    expect(prompt).not.toContain('<mcp_servers>')
   })
 })

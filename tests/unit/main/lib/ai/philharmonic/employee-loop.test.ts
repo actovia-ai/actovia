@@ -7,7 +7,10 @@ vi.mock('@earendil-works/pi-agent-core', () => ({
 vi.mock('@earendil-works/pi-ai', () => ({
   Type: {
     Object: (value: unknown) => value,
-    String: (value: unknown) => value
+    String: (value: unknown) => value,
+    Optional: (value: unknown) => value,
+    Record: () => ({}),
+    Unknown: () => ({})
   }
 }))
 vi.mock('@main/lib/db/queries', () => ({
@@ -24,8 +27,9 @@ vi.mock('@main/lib/ai/utils/employee-model', () => ({
     apiKey: 'k'
   })
 }))
+const getMcpTools = vi.fn(async (): Promise<unknown[]> => [])
 vi.mock('@main/lib/ai/mcp', () => ({
-  getMcpTools: async () => [],
+  getMcpTools: () => getMcpTools(),
   getMcpToolsByNames: async () => []
 }))
 vi.mock('@main/lib/db/team-queries', () => ({ getTeamById: async () => null }))
@@ -193,6 +197,37 @@ describe('runEmployeeLoop', () => {
     ])
     expect(kept).toHaveLength(2)
     expect((kept[0] as { role: string }).role).toBe('system')
+  })
+
+  it('lists its MCP servers in the prompt only while the toolbox is bound', async () => {
+    const server = { mcpServerName: 'linear', tools: [{ name: 'x' }] }
+    const agent = {
+      id: 'a',
+      name: 'Avery',
+      skillSlugs: [],
+      mcpServerNames: [],
+      toolAllowList: []
+    }
+    const promptOf = async (allow: string[]) => {
+      agentLoopMock.mockReset()
+      agentLoopMock.mockReturnValue(fakeStream([]))
+      getMcpTools.mockResolvedValueOnce([server])
+      bindCallingTools.mockReturnValueOnce([
+        { name: 'list_mcp_tools' },
+        { name: 'call_mcp_tool' },
+        { name: 'terminal' }
+      ])
+      await runEmployeeLoop({
+        agent: { ...agent, toolAllowList: allow } as never,
+        instructions: 'do it',
+        executionId: 'e1',
+        conversationId: 'c1',
+        emit: vi.fn()
+      }).catch(() => {})
+      return agentLoopMock.mock.calls[0][1].messages[0].content as string
+    }
+    expect(await promptOf([])).toContain('- linear (1 tools)')
+    expect(await promptOf(['terminal'])).not.toContain('<mcp_servers>')
   })
 
   it('uses the agent skills (not a department) and captures usage', async () => {
