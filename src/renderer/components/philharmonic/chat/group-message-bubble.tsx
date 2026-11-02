@@ -213,9 +213,12 @@ export function GroupMessageBubble({
                 'rounded-[20px] px-4 py-2.5 text-sm leading-relaxed wrap-break-word',
                 // Grok's (ISSUE-272): the group's voices on grey, your own
                 // message on the tone's fill — black in the neutral tone, as
-                // Grok draws it — its links in the bubble's own ink.
+                // Grok draws it — its links in the bubble's own ink. The
+                // `--primary` override goes to the children only: on the
+                // bubble itself it turned `bg-primary` into the text colour,
+                // and your message drew white on white.
                 isUser
-                  ? 'bg-primary text-primary-foreground [--primary:currentColor] [&_a]:underline'
+                  ? 'bg-primary text-primary-foreground *:[--primary:currentColor] [&_a]:underline'
                   : 'bg-muted text-foreground'
               )}
             >

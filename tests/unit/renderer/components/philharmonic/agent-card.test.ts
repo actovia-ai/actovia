@@ -293,3 +293,16 @@ describe('cards of one session', () => {
     expect(html2).toContain('Claude Code wants to use Bash')
   })
 })
+
+describe('your own message', () => {
+  it('keeps the tone’s fill: --primary is re-pointed on its children, never on the bubble', () => {
+    const html = render(GroupMessageBubble, {
+      bubble: { messageId: 'u1', role: 'user', text: 'hello PM' },
+      agentsById: {},
+      teamsById: {}
+    })
+    const bubbleClass = html.match(/class="([^"]*\bbg-primary\b[^"]*)"/)![1]
+    expect(bubbleClass.split(' ')).not.toContain('[--primary:currentColor]')
+    expect(decode(html)).toContain('hello PM')
+  })
+})
