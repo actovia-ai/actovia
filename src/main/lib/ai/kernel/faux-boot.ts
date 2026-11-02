@@ -17,6 +17,8 @@ import {
   ARTIFACT_QUESTION,
   COMPARE_QUESTION,
   compareAnswer,
+  FAUX_GROUP_QUESTION,
+  FAUX_GROUP_QUESTION_ASKED,
   MEMORY_CORRECTION_MESSAGE,
   MEMORY_CORRECTION_RESULT,
   MEMORY_CORRECTION_SEED,
@@ -146,6 +148,23 @@ let compareTakes = 0
  */
 function respondToChatCall(ctx: Transcript): AssistantMessage {
   const last = ctx.messages.at(-1)
+
+  // The Group question e2e (`group-question.spec.ts`): the PM asks the
+  // owner, then answers with what it was told.
+  if (last?.role === 'user' && textOf(last).includes(FAUX_GROUP_QUESTION)) {
+    return fauxAssistantMessage(
+      [
+        fauxToolCall('escalateToUser', {
+          question: FAUX_GROUP_QUESTION_ASKED,
+          options: ['main', 'dev']
+        })
+      ],
+      { stopReason: 'toolUse' }
+    )
+  }
+  if (last?.role === 'toolResult' && last.toolName === 'escalateToUser') {
+    return fauxAssistantMessage([fauxText(`Going ahead — ${textOf(last)}.`)])
+  }
 
   if (
     last?.role === 'toolResult' &&

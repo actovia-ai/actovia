@@ -219,6 +219,12 @@
       "askUser": {
         "replyPlaceholder": "Responder ao PM…",
         "sendButton": "Enviar"
+      },
+      "question": {
+        "answered": "Respondida",
+        "cancelled": "Sem resposta — a rodada foi interrompida",
+        "expired": "Sem resposta em 30 minutos — o PM seguiu em frente",
+        "sendFailed": "Sua resposta não foi enviada"
       }
     },
     "decision": {

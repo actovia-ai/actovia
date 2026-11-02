@@ -219,6 +219,12 @@
       "askUser": {
         "replyPlaceholder": "An PM antworten…",
         "sendButton": "Senden"
+      },
+      "question": {
+        "answered": "Beantwortet",
+        "cancelled": "Nicht beantwortet – die Runde wurde gestoppt",
+        "expired": "Nicht innerhalb von 30 Minuten beantwortet – der PM hat weitergemacht",
+        "sendFailed": "Deine Antwort wurde nicht gesendet"
       }
     },
     "decision": {

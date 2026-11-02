@@ -124,8 +124,18 @@ export type PhilharmonicSseEvent =
       type: 'ask_user'
       conversationId: string
       questionId?: string
+      /** The saved question's row (`GroupQuestionPart`); absent when it could not be saved. */
+      messageId?: string
       question: string
       options: string[]
+    }
+  | {
+      /** A saved question's status changed (answered, cancelled, expired). */
+      type: 'question_settled'
+      conversationId: string
+      messageId: string
+      questionId: string
+      status: GroupQuestionStatus
     }
   | { type: 'conversation_error'; conversationId: string; error: string }
   | { type: 'pm_started'; conversationId: string }
@@ -220,4 +230,33 @@ export interface AutoFillResult {
   agentId: string | null
   departmentId: string | null
   priority: 'low' | 'medium' | 'high' | 'urgent'
+}
+
+/**
+ * A question the PM asked the owner (`escalateToUser`), saved as the `pm`
+ * row's part: `pending` until answered, `cancelled` when its round was
+ * stopped, `expired` after 30 minutes unanswered. A `pending` question whose
+ * round is gone (the app restarted) can still be answered: the answer starts
+ * a new PM round.
+ */
+export type GroupQuestionStatus =
+  | 'pending'
+  | 'answered'
+  | 'cancelled'
+  | 'expired'
+
+// Type aliases, not interfaces: a part is read out of a
+// `Record<string, unknown>[]`, which `Array.find`'s narrowing only allows
+// for a type without an interface's closed shape.
+export type GroupQuestionPart = {
+  kind: 'question'
+  questionId: string
+  options: string[]
+  status: GroupQuestionStatus
+}
+
+/** The owner's answer row names the question it answers. */
+export type GroupAnswerPart = {
+  kind: 'answer'
+  questionId: string
 }

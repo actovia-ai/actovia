@@ -219,6 +219,12 @@
       "askUser": {
         "replyPlaceholder": "Répondre au PM…",
         "sendButton": "Envoyer"
+      },
+      "question": {
+        "answered": "Répondu",
+        "cancelled": "Sans réponse — le tour a été arrêté",
+        "expired": "Sans réponse en 30 minutes — le PM a continué",
+        "sendFailed": "Votre réponse n’a pas été envoyée"
       }
     },
     "decision": {

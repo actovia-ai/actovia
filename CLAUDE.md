@@ -1170,7 +1170,21 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   holds a FIFO per Group with a UUID for each question. Only the head emits
   `ask_user`; reconnect replays that head including its optional `questionId`.
   The desktop sends the id back to `POST /conversations/:id/respond`; older
-  phone clients may omit it. Answer persistence reserves the head so concurrent
+  phone clients may omit it. The question is part of the group's record
+  (`ai/philharmonic/group-questions.ts`, `askOwner()`): saved before it is
+  shown as a `pm` row with a `{ kind: 'question', questionId, options,
+  status }` part (`GroupQuestionPart`), announced by `message_start` /
+  `message_end` and then `ask_user` (with `messageId`); the answer is a
+  `user` row with `{ kind: 'answer', questionId }`. The registry's
+  `onSettled` moves it `pending` → `answered` | `cancelled` (Stop) |
+  `expired` (30 min) through `settleQuestionMessage()` — one conditional
+  UPDATE, so of two answers one wins — and emits `question_settled`. A
+  question still `pending` with no round waiting on it (the app restarted)
+  stays answerable: `/respond` settles it, saves the answer and starts a new
+  PM round from it; anything not pending is `409 QUESTION_NOT_WAITING`. The
+  desktop draws a saved question as `chat/question-card.tsx` (options, reply,
+  then how it ended); the floating panel remains only for a question that
+  could not be saved. Answer persistence reserves the head so concurrent
   replies cannot consume its successor; stale ids return 409. A visible question
   times out after 30 minutes with an explicit non-approval result, and aborting
   the round or stopping/deleting the Group cleans up pending waits and timers.

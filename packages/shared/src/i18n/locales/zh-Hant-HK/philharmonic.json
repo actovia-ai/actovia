@@ -218,6 +218,12 @@
       "askUser": {
         "replyPlaceholder": "回覆項目經理…",
         "sendButton": "傳送"
+      },
+      "question": {
+        "answered": "已回答",
+        "cancelled": "未回答 — 這一輪已停止",
+        "expired": "30 分鐘內未回答 — PM 已繼續",
+        "sendFailed": "回答未能發送"
       }
     },
     "decision": {

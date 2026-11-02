@@ -175,4 +175,40 @@ describe('askUserRegistry', () => {
     await expect(pending).resolves.toContain('cancelled')
     expect(askUserRegistry.has('emit-error')).toBe(false)
   })
+
+  it('keeps the caller’s question id, knows queued questions, and reports how each ended', async () => {
+    vi.useFakeTimers()
+    const outcomes: string[] = []
+    const onSettled = (o: string) => outcomes.push(o)
+    const answered = askUserRegistry.wait(
+      'settled',
+      { ...ASK, questionId: 'q-a', messageId: 'm-a' },
+      { onSettled }
+    )
+    const expiring = askUserRegistry.wait(
+      'settled',
+      { ...ASK, questionId: 'q-b' },
+      { onSettled, timeoutMs: 1_000 }
+    )
+    expect(askUserRegistry.question('settled')).toMatchObject({
+      questionId: 'q-a',
+      messageId: 'm-a'
+    })
+    expect(askUserRegistry.holds('settled', 'q-b')).toBe(true)
+    expect(askUserRegistry.holds('settled', 'q-c')).toBe(false)
+    askUserRegistry.resolve('settled', 'yes', 'q-a')
+    await answered
+    vi.advanceTimersByTime(1_000)
+    await expiring
+    const aborted = new AbortController()
+    aborted.abort()
+    await askUserRegistry.wait('settled', ASK, {
+      signal: aborted.signal,
+      onSettled
+    })
+    const cancelled = askUserRegistry.wait('settled', ASK, { onSettled })
+    askUserRegistry.cancel('settled')
+    await cancelled
+    expect(outcomes).toEqual(['answered', 'expired', 'cancelled', 'cancelled'])
+  })
 })

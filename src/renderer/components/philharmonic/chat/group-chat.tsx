@@ -88,16 +88,31 @@ export function GroupChat({
   const conversationId = conversation.id
   const { open: sidebarOpen } = useSidebar()
   const isFullscreen = useIsFullscreen()
-  const { bubbles, askUser, error, revision, plan, pmRunning, agentCards } =
-    stream
+  const {
+    bubbles,
+    askUser,
+    error,
+    revision,
+    plan,
+    pmRunning,
+    agentCards,
+    questionStatus
+  } = stream
   const [answer, setAnswer] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const history = useGroupHistory(conversationId, revision)
 
   const merged: BubbleWithDate[] = useMemo(
-    () => mergeGroupMessages({ conversationId, history, bubbles, agentCards }),
-    [history, bubbles, conversationId, agentCards]
+    () =>
+      mergeGroupMessages({
+        conversationId,
+        history,
+        bubbles,
+        agentCards,
+        questionStatus
+      }),
+    [history, bubbles, conversationId, agentCards, questionStatus]
   )
 
   useEffect(() => {
@@ -240,6 +255,8 @@ export function GroupChat({
                 <span>{error}</span>
               </div>
             )}
+            {/* Only a question the server could not save: a saved one is a
+              card in the transcript (question-card.tsx). */}
             {askUser && (
               <div className="border-border bg-muted mx-auto my-3 max-w-2xl rounded-xl border p-3">
                 <div className="text-foreground mb-2 flex items-start gap-2 text-sm">

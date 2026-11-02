@@ -218,6 +218,12 @@
       "askUser": {
         "replyPlaceholder": "PMに返信…",
         "sendButton": "送信"
+      },
+      "question": {
+        "answered": "回答済み",
+        "cancelled": "未回答 — ラウンドが停止されました",
+        "expired": "30 分以内に回答がありませんでした — PM は先に進みました",
+        "sendFailed": "回答を送信できませんでした"
       }
     },
     "decision": {

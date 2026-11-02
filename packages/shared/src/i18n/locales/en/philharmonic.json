@@ -219,6 +219,12 @@
       "askUser": {
         "replyPlaceholder": "Reply to PM…",
         "sendButton": "Send"
+      },
+      "question": {
+        "answered": "Answered",
+        "cancelled": "Not answered — the round was stopped",
+        "expired": "Not answered within 30 minutes — the PM moved on",
+        "sendFailed": "Your answer was not sent"
       }
     },
     "decision": {

@@ -218,6 +218,12 @@
       "askUser": {
         "replyPlaceholder": "PM에게 답장…",
         "sendButton": "전송"
+      },
+      "question": {
+        "answered": "답변함",
+        "cancelled": "답변 없음 — 라운드가 중지되었습니다",
+        "expired": "30분 안에 답변이 없어 PM이 다음으로 넘어갔습니다",
+        "sendFailed": "답변을 보내지 못했습니다"
       }
     },
     "decision": {

@@ -221,6 +221,12 @@
       "askUser": {
         "replyPlaceholder": "Ответить PM…",
         "sendButton": "Отправить"
+      },
+      "question": {
+        "answered": "Отвечено",
+        "cancelled": "Без ответа — раунд был остановлен",
+        "expired": "Нет ответа в течение 30 минут — PM продолжил работу",
+        "sendFailed": "Ваш ответ не отправлен"
       }
     },
     "decision": {

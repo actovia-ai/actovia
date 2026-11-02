@@ -64,6 +64,7 @@ vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
       return true
     }),
     resolve: vi.fn(() => true),
+    holds: vi.fn(() => true),
     cancel: vi.fn(),
     question: vi.fn(() => ({
       questionId: 'q1',
@@ -71,6 +72,23 @@ vi.mock('@main/lib/ai/philharmonic/ask-user-registry', () => ({
       options: []
     }))
   }
+}))
+const settleQuestion = vi.fn(
+  async (
+    _id: string,
+    _questionId: string,
+    _status: string,
+    _emit: unknown
+  ): Promise<{ id: string; content: string } | null> => ({
+    id: 'qrow',
+    content: 'Which branch?'
+  })
+)
+vi.mock('@main/lib/ai/philharmonic/group-questions', () => ({
+  settleQuestion: (id: string, q: string, s: string, e: unknown) =>
+    settleQuestion(id, q, s, e),
+  answerParts: (questionId?: string) =>
+    questionId ? [{ kind: 'answer', questionId }] : null
 }))
 const closeTopic = vi.fn((_topic: string) => {
   order.push('close streams')
@@ -127,8 +145,73 @@ describe('POST /conversations/:id/respond', () => {
     expect(createConversationMessage).toHaveBeenCalledWith({
       conversationId: 'id',
       role: 'user',
-      content: 'Production'
+      content: 'Production',
+      parts: [{ kind: 'answer', questionId: 'q1' }]
     })
+    // A live answer goes back to the round that asked: no new round.
+    expect(settleQuestion).not.toHaveBeenCalled()
+  })
+
+  it('answers a saved question no round waits on (after a restart) and starts a round from it', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    const { Hono } = await import('hono')
+    vi.mocked(askUserRegistry.holds).mockReturnValueOnce(false)
+    vi.mocked(askUserRegistry.answer).mockClear()
+    createConversationMessage.mockClear()
+    runPmCoordinator.mockClear()
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    const response = await app.request('/conversations/id/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: 'dev', questionId: 'q-old' })
+    })
+    expect(response.status).toBe(200)
+    expect(askUserRegistry.answer).not.toHaveBeenCalled()
+    expect(settleQuestion).toHaveBeenCalledWith(
+      'id',
+      'q-old',
+      'answered',
+      expect.any(Function)
+    )
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        role: 'user',
+        content: 'dev',
+        parts: [{ kind: 'answer', questionId: 'q-old' }]
+      })
+    )
+    const round = runPmCoordinator.mock.calls[0][0] as {
+      userText: string
+      excludeMessageId: string
+    }
+    expect(round.userText).toContain('Question: Which branch?')
+    expect(round.userText).toContain('Answer: dev')
+    expect(round.excludeMessageId).toBe('new')
+  })
+
+  it('refuses a saved question that is no longer pending', async () => {
+    const { askUserRegistry } =
+      await import('@main/lib/ai/philharmonic/ask-user-registry')
+    const { Hono } = await import('hono')
+    vi.mocked(askUserRegistry.holds).mockReturnValueOnce(false)
+    settleQuestion.mockResolvedValueOnce(null)
+    createConversationMessage.mockClear()
+    runPmCoordinator.mockClear()
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+    const response = await app.request('/conversations/id/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: 'late', questionId: 'q-cancelled' })
+    })
+    expect(response.status).toBe(409)
+    expect(
+      ((await response.json()) as { error: { code: string } }).error.code
+    ).toBe('QUESTION_NOT_WAITING')
+    expect(createConversationMessage).not.toHaveBeenCalled()
+    expect(runPmCoordinator).not.toHaveBeenCalled()
   })
 
   it('rejects a stale answer without writing a new owner message', async () => {

@@ -190,7 +190,14 @@ export const TEST_IDS = {
     resourcesPanel: 'philharmonic.resources-panel',
     resourcesTab: 'philharmonic.resources-tab',
     /** Under a PM message: opens the round's decision process. */
-    decisionToggle: 'philharmonic.decision-toggle'
+    decisionToggle: 'philharmonic.decision-toggle',
+    /** The PM's question to the owner, saved in the transcript (`data-status`). */
+    questionCard: 'philharmonic.question-card',
+    /** A pending question's suggested answer. */
+    questionOption: 'philharmonic.question-option',
+    /** A pending question's free-text answer and its Send. */
+    questionInput: 'philharmonic.question-input',
+    questionSend: 'philharmonic.question-send'
   },
   providerModels: {
     refreshButton: 'provider-models.refresh-button',

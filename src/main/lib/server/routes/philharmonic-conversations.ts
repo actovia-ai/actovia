@@ -1,11 +1,16 @@
 // src/main/lib/server/routes/philharmonic-conversations.ts
 import { NotFoundError } from '@actovia/shared/errors/app-error'
+import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { agentRegistry } from '../../agents/registry'
 import { stopBackgroundTasks } from '../../ai/calling-tools/start-background'
 import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
+import {
+  answerParts,
+  settleQuestion
+} from '../../ai/philharmonic/group-questions'
 import { toPlanDto } from '../../ai/philharmonic/plan-dto'
 import { runPmCoordinator } from '../../ai/philharmonic/pm-coordinator'
 import { pmRunRegistry } from '../../ai/philharmonic/pm-run-registry'
@@ -244,7 +249,12 @@ router.post('/conversations/:id/interrupt', async (c) => {
   return successResponse(c, { success: true, wasRunning })
 })
 
-// Resolve a pending askUser.
+// Answer the PM's question. A question its round is still waiting on is
+// answered through the registry, which hands the answer back to that round.
+// A saved question still `pending` with no round waiting (the app restarted
+// while it was asked) is answered too: the answer is saved, the question
+// settled, and a new PM round starts from it — the question is part of the
+// group's work, not of one process's memory.
 router.post('/conversations/:id/respond', async (c) => {
   const id = getRequiredParam(c, 'id')
   const { response, questionId } = validateSchema(
@@ -252,24 +262,29 @@ router.post('/conversations/:id/respond', async (c) => {
     await c.req.json(),
     'Invalid response'
   )
-  const accepted = await askUserRegistry.answer(
-    id,
-    response,
-    questionId,
-    async () => {
-      await createConversationMessage({
-        conversationId: id,
-        role: 'user',
-        content: response
-      })
-    }
-  )
-  if (!accepted)
-    return c.json(
+  const emit = (event: PhilharmonicSseEvent) => emitToConversation(id, event)
+  const saveAnswer = async (forQuestion: string | undefined) => {
+    const row = await createConversationMessage({
+      conversationId: id,
+      role: 'user',
+      content: response,
+      parts: answerParts(forQuestion)
+    })
+    emit({
+      type: 'message_start',
+      conversationId: id,
+      messageId: row.id,
+      role: 'user'
+    })
+    emit({ type: 'message_end', conversationId: id, messageId: row.id })
+    return row
+  }
+  const notWaiting = () =>
+    c.json(
       {
         type: 'error',
         error: {
-          code: 'UNKNOWN_ERROR',
+          code: 'QUESTION_NOT_WAITING',
           message: mainT(
             'errors:questionNoLongerWaiting',
             'This question is no longer waiting for an answer.'
@@ -278,6 +293,41 @@ router.post('/conversations/:id/respond', async (c) => {
         }
       },
       409
+    )
+
+  const live = !questionId || askUserRegistry.holds(id, questionId)
+  if (live) {
+    const shown = questionId ?? askUserRegistry.question(id)?.questionId
+    const accepted = await askUserRegistry.answer(
+      id,
+      response,
+      questionId,
+      async () => {
+        await saveAnswer(shown)
+      }
+    )
+    return accepted ? successResponse(c, { success: true }) : notWaiting()
+  }
+
+  // No round waits on it: answerable only while its saved row is pending.
+  const question = await settleQuestion(id, questionId, 'answered', emit)
+  if (!question) return notWaiting()
+  const answerRow = await saveAnswer(questionId)
+  void pmRunRegistry
+    .run(id, (signal) =>
+      runPmCoordinator({
+        conversationId: id,
+        userText:
+          `The owner answered the question you asked earlier, whose round ended before the answer came.\n` +
+          `Question: ${question.content}\nAnswer: ${response}\n` +
+          `Continue the work from here.`,
+        excludeMessageId: answerRow.id,
+        emit,
+        signal
+      })
+    )
+    .catch((err) =>
+      logger.error('philharmonic', 'PM loop error', { error: err })
     )
   return successResponse(c, { success: true })
 })

@@ -220,3 +220,60 @@ export async function getConversationMessageById(id: string) {
     .where(eq(conversationMessage.id, id))
   return row
 }
+
+/** The row holding the PM's question `questionId` (a `question` part), if any. */
+export async function getQuestionMessage(
+  conversationId: string,
+  questionId: string
+) {
+  const probe = JSON.stringify([{ kind: 'question', questionId }])
+  const [row] = await db
+    .select()
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        sql`${conversationMessage.parts} @> ${probe}::jsonb`
+      )
+    )
+    .limit(1)
+  return row
+}
+
+/**
+ * Move a saved question from `pending` to `status`, in one statement: only a
+ * question still pending changes, so of two answers (two clients, or an
+ * answer racing the timeout) one wins and the other gets null.
+ */
+export async function settleQuestionMessage(
+  conversationId: string,
+  questionId: string,
+  status: 'answered' | 'cancelled' | 'expired'
+) {
+  const pending = JSON.stringify([
+    { kind: 'question', questionId, status: 'pending' }
+  ])
+  const [row] = await db
+    .update(conversationMessage)
+    .set({
+      parts: sql`(
+        select jsonb_agg(
+          case
+            when p->>'kind' = 'question' and p->>'questionId' = ${questionId}::text
+              then jsonb_set(p, '{status}', to_jsonb(${status}::text))
+            else p
+          end
+          order by ord
+        )
+        from jsonb_array_elements(${conversationMessage.parts}) with ordinality as e(p, ord)
+      )`
+    })
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        sql`${conversationMessage.parts} @> ${pending}::jsonb`
+      )
+    )
+    .returning()
+  return row ?? null
+}

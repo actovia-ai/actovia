@@ -1,6 +1,7 @@
 import { BASE_URL } from '@actovia/shared/constants/systems'
 import type { AgentCard } from '@actovia/shared/types/agents'
 import type {
+  GroupQuestionStatus,
   PhilharmonicSseEvent,
   PlanDto,
   StepDto,
@@ -41,7 +42,12 @@ export interface RetryNotice {
 
 export interface ConversationStream {
   bubbles: LiveBubble[]
+  /** A question the server could not save (no row to draw it from); a saved
+   * one is drawn from the transcript. */
   askUser: { question: string; options: string[]; questionId?: string } | null
+  /** questionId → its status, as settled since the group was opened; wins
+   * over the saved row's, which the page read before it changed. */
+  questionStatus: Readonly<Record<string, GroupQuestionStatus>>
   error: string | null
   /** bumps whenever a message_end / member_joined arrives so the page can refetch */
   revision: number
@@ -86,6 +92,9 @@ export function useConversationStream(
   const [pmRunning, setPmRunning] = useState(false)
   const [busy, setBusy] = useState<BusyState>(emptyBusyState)
   const [agentCards, setAgentCards] = useState<Record<string, AgentCard>>({})
+  const [questionStatus, setQuestionStatus] = useState<
+    Record<string, GroupQuestionStatus>
+  >({})
 
   // Pull the current plan on mount / conversation switch so users coming back
   // to a Group after closing the panel see the latest state. SSE events
@@ -128,6 +137,7 @@ export function useConversationStream(
     setPmRunning(false)
     setBusy(emptyBusyState())
     setAgentCards({})
+    setQuestionStatus({})
 
     const source = new EventSource(
       `${BASE_URL}/api/v1/philharmonic/conversations/${conversationId}/sse`
@@ -210,11 +220,19 @@ export function useConversationStream(
           setRevision((r) => r + 1)
           break
         case 'ask_user':
+          // A saved question arrives as a row (its message_end re-reads it).
+          if (evt.messageId) break
           setAskUser({
             question: evt.question,
             options: evt.options,
             questionId: evt.questionId
           })
+          break
+        case 'question_settled':
+          setQuestionStatus((prev) => ({
+            ...prev,
+            [evt.questionId]: evt.status
+          }))
           break
         case 'conversation_error':
           setError(evt.error)
@@ -281,6 +299,7 @@ export function useConversationStream(
     lastRetry,
     pmRunning,
     busyAgents: busy.busyAgents,
-    agentCards
+    agentCards,
+    questionStatus
   }
 }

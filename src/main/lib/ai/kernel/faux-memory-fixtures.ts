@@ -75,3 +75,8 @@ module.exports = function Hello() {
   return React.createElement('div', { className: 'p-10 text-4xl' }, '${ARTIFACT_GREETING}')
 }`
 }
+
+/** A Group message that makes the faux PM ask the owner a question
+ * (`tests/e2e/group-question.spec.ts`). */
+export const FAUX_GROUP_QUESTION = 'Ask me which branch to use.'
+export const FAUX_GROUP_QUESTION_ASKED = 'Which branch should I use?'

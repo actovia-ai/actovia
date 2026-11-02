@@ -50,9 +50,9 @@ import { getMcpTools } from '../mcp'
 import { getModelFromProvider } from '../utils/chat-message-util'
 import { bareImageData } from '../utils/image-data'
 import { createEscalateToUserTool } from './agent-tools'
-import { askUserRegistry } from './ask-user-registry'
 import type { SseEmitter } from './employee-loop'
 import { runDelegatedTask } from './execution-engine'
+import { askOwner } from './group-questions'
 import { PhilharmonicLcm } from './lcm'
 import { toPlanDto, toStepDto } from './plan-dto'
 import { writePlanMirror } from './plan-mirror'
@@ -720,16 +720,11 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
     ...(mcpServers.length > 0 ? mcpToolbox(mcpServers) : []),
     createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
-    createEscalateToUserTool(async ({ question, options }) => {
-      return askUserRegistry.wait(
-        conversationId,
-        { question, options },
-        {
-          signal,
-          onActive: (ask) => emit({ type: 'ask_user', conversationId, ...ask })
-        }
-      )
-    })
+    // The question is saved in the group (group-questions.ts): it stays in
+    // the transcript, and survives a restart as one the owner can still answer.
+    createEscalateToUserTool(({ question, options }) =>
+      askOwner({ conversationId, question, options, signal, emit })
+    )
   ]
 
   const userMessage: Message = {

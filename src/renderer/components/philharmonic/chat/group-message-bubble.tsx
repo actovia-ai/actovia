@@ -1,4 +1,5 @@
 import type { AgentCard } from '@actovia/shared/types/agents'
+import type { GroupQuestionStatus } from '@actovia/shared/types/philharmonic'
 import {
   Tick02Icon,
   Loading03Icon,
@@ -17,6 +18,7 @@ import { EmployeeAvatar } from '../employees/employee-avatar'
 import { AgentCardView } from './agent-card'
 import { BubbleMarkdown } from './bubble-markdown'
 import { DecisionProcess } from './decision-process'
+import { QuestionCard } from './question-card'
 
 interface ArtifactPart {
   artifactId: string
@@ -52,6 +54,12 @@ export interface BubbleModel {
   roundId?: string | null
   /** The round's counts, from the message's `{ kind: 'decision' }` part. */
   decision?: { delegations: number; waits: number }
+  /** The PM's question to the owner (`{ kind: 'question' }`): drawn as a card. */
+  question?: {
+    questionId: string
+    options: string[]
+    status: GroupQuestionStatus
+  }
 }
 
 /** Scroll the transcript to a message (an employee's report the PM read). */
@@ -200,7 +208,13 @@ export function GroupMessageBubble({
             )}
           </div>
         )}
-        {bubble.role === 'employee' && bubble.agentCard ? (
+        {isPm && bubble.question && bubble.conversationId ? (
+          <QuestionCard
+            conversationId={bubble.conversationId}
+            text={bubble.text}
+            question={bubble.question}
+          />
+        ) : bubble.role === 'employee' && bubble.agentCard ? (
           <AgentCardView
             card={bubble.agentCard}
             messageId={bubble.messageId}

@@ -150,3 +150,64 @@ describe('mergeGroupMessages', () => {
     ])
   })
 })
+
+describe('the PM’s saved question', () => {
+  const row = (status: string): ConversationMessageData => ({
+    id: 'q-row',
+    conversationId: 'g',
+    role: 'pm',
+    agentId: null,
+    content: 'Which **branch**?',
+    parts: [
+      { kind: 'question', questionId: 'q1', options: ['main', 'dev'], status }
+    ],
+    taskId: null,
+    roundId: null,
+    createdAt: '2026-11-02T06:00:00.000Z'
+  })
+  const html = (status: string, live: Record<string, string> = {}) => {
+    const [bubble] = mergeGroupMessages({
+      conversationId: 'g',
+      history: [row(status)],
+      bubbles: [],
+      agentCards: {},
+      questionStatus: live as never
+    })
+    return {
+      bubble,
+      markup: renderToStaticMarkup(
+        createElement(
+          I18nextProvider,
+          { i18n: instance },
+          createElement(GroupMessageBubble, {
+            bubble,
+            agentsById: {},
+            teamsById: {}
+          })
+        )
+      )
+    }
+  }
+
+  it('is drawn as a card with its options and a reply while pending', () => {
+    const { bubble, markup } = html('pending')
+    expect(bubble.question).toEqual({
+      questionId: 'q1',
+      options: ['main', 'dev'],
+      status: 'pending'
+    })
+    expect(markup).toContain('data-status="pending"')
+    expect(markup).toContain('<strong>branch</strong>')
+    expect(markup).toContain('>main<')
+    expect(markup).toContain('Reply to PM…')
+  })
+
+  it('says how it ended once settled, the live status winning over the row read earlier', () => {
+    const { markup } = html('pending', { q1: 'answered' })
+    expect(markup).toContain('data-status="answered"')
+    expect(markup).toContain('Answered')
+    expect(markup).not.toContain('Reply to PM…')
+    expect(html('cancelled').markup).toContain('the round was stopped')
+    expect(html('expired').markup).toContain('within 30 minutes')
+  })
+})

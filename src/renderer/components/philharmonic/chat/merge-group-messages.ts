@@ -1,4 +1,8 @@
 import type { AgentCard } from '@actovia/shared/types/agents'
+import type {
+  GroupQuestionPart,
+  GroupQuestionStatus
+} from '@actovia/shared/types/philharmonic'
 
 import type { LiveBubble } from '@/hooks/use-conversation-stream'
 import { agentCardFromParts, messageCard } from '@/lib/agent-card'
@@ -40,12 +44,15 @@ export function mergeGroupMessages({
   conversationId,
   history,
   bubbles,
-  agentCards
+  agentCards,
+  questionStatus = {}
 }: {
   conversationId: string
   history: ConversationMessageData[]
   bubbles: LiveBubble[]
   agentCards: Readonly<Record<string, AgentCard>>
+  /** Statuses settled live since the rows were read. */
+  questionStatus?: Readonly<Record<string, GroupQuestionStatus>>
 }): BubbleWithDate[] {
   const persistedIds = new Set(history.map((h) => h.id))
   const fromHistory: BubbleWithDate[] = history.map((h) => {
@@ -60,6 +67,7 @@ export function mergeGroupMessages({
       .filter(isPart<ArtifactPart>('artifact'))
       .map((p) => ({ artifactId: p.artifactId, title: p.title, code: p.code }))
     const decision = parts.find(isPart<DecisionPart>('decision'))
+    const question = parts.find(isPart<GroupQuestionPart>('question'))
     return {
       conversationId,
       messageId: h.id,
@@ -75,6 +83,13 @@ export function mergeGroupMessages({
       roundId: h.roundId,
       decision: decision
         ? { delegations: decision.delegations, waits: decision.waits }
+        : undefined,
+      question: question
+        ? {
+            questionId: question.questionId,
+            options: Array.isArray(question.options) ? question.options : [],
+            status: questionStatus[question.questionId] ?? question.status
+          }
         : undefined
     }
   })

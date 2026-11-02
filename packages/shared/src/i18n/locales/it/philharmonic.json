@@ -219,6 +219,12 @@
       "askUser": {
         "replyPlaceholder": "Rispondi al PM…",
         "sendButton": "Invia"
+      },
+      "question": {
+        "answered": "Risposta inviata",
+        "cancelled": "Senza risposta: il turno è stato interrotto",
+        "expired": "Senza risposta entro 30 minuti: il PM è andato avanti",
+        "sendFailed": "La tua risposta non è stata inviata"
       }
     },
     "decision": {
