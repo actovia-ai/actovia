@@ -17,12 +17,14 @@ export function CommandLine({
   commandTestId,
   copyTestId,
   bare,
+  wrap = false,
   className
 }: {
   command: string
   commandTestId?: string
   copyTestId?: string
   /** No box of its own — a line inside a terminal block that already has one. */
+  wrap?: boolean
   bare?: boolean
   className?: string
 }) {
@@ -41,7 +43,13 @@ export function CommandLine({
       <span aria-hidden className="text-muted-foreground select-none">
         {'$'}
       </span>
-      <code data-testid={commandTestId} className="min-w-0 flex-1 truncate">
+      <code
+        data-testid={commandTestId}
+        className={cn(
+          'min-w-0 flex-1',
+          wrap ? 'whitespace-pre-wrap break-all' : 'truncate'
+        )}
+      >
         {command}
       </code>
       <Button
@@ -52,7 +60,7 @@ export function CommandLine({
         aria-label={t('action.copy')}
         onClick={() => handleCopy(command)}
       >
-        <span className="grid *:col-start-1 *:row-start-1 *:transition-[opacity,scale,filter] *:duration-200">
+        <span className="grid *:col-start-1 *:row-start-1 *:transition-[opacity,scale,filter] *:duration-200 *:ease-out">
           <HugeiconsIcon
             icon={Copy01Icon}
 

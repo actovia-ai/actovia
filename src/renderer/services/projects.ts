@@ -38,6 +38,14 @@ export const getConversationProject = (conversationId: string) =>
     missing: boolean
     branch: string | null
   }>(`${BASE}/conversations/${conversationId}`)
+export const revealConversationProjectFolder = async (conversationId: string) =>
+  fetcher<{ success: boolean }>(
+    `${BASE}/conversations/${conversationId}/reveal-folder`,
+    {
+      method: 'POST',
+      headers: await presenceHeaders()
+    }
+  )
 export const setConversationProject = (
   conversationId: string,
   projectId: string | null

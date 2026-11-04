@@ -1,5 +1,9 @@
 import { ErrorCode } from '@actovia/shared/constants/error-codes'
 import { ValidationError } from '@actovia/shared/errors/app-error'
+import {
+  BrowserUseSchema,
+  PhilharmonicSettingsSchema
+} from '@actovia/shared/schemas/settings-schema'
 import { AiProviders } from '@actovia/shared/types/ai'
 import { Hono } from 'hono'
 
@@ -76,8 +80,32 @@ settingsRouter.post('/', async (c) => {
     const stored = (await getSettings()).agents
     payload.agents = {
       ...payload.agents,
+      philharmonic:
+        payload.agents.philharmonic === undefined
+          ? stored?.philharmonic
+          : validateSchema(
+              PhilharmonicSettingsSchema.nullish(),
+              payload.agents.philharmonic,
+              'Invalid Philharmonic settings'
+            ),
       defaultEmployeesCreated: stored?.defaultEmployeesCreated
     } as never
+  }
+
+  // Older clients do not know these nested controls; unrelated saves retain them.
+  if (payload.computerUse && typeof payload.computerUse === 'object') {
+    const stored = (await getSettings()).computerUse
+    payload.computerUse = {
+      ...payload.computerUse,
+      browser:
+        payload.computerUse.browser === undefined
+          ? stored?.browser
+          : validateSchema(
+              BrowserUseSchema.nullish(),
+              payload.computerUse.browser,
+              'Invalid browser settings'
+            )
+    }
   }
 
   // A posted mask means "unchanged" — `updateSettings` swaps it back for the

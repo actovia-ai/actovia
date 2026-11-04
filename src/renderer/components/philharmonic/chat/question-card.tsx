@@ -1,13 +1,20 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
+import type { Attachment } from '@actovia/shared/types/chat'
 import type { GroupQuestionStatus } from '@actovia/shared/types/philharmonic'
-import { HelpCircleIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import {
+  HelpCircleIcon,
+  Tick02Icon,
+  Add01Icon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
+import { prepareGroupAttachments } from '@/hooks/use-philharmonic-upload'
 import { respondToConversation } from '@/services/philharmonic-chat'
 
 import { BubbleMarkdown } from './bubble-markdown'
@@ -33,6 +40,8 @@ export function QuestionCard({
 }) {
   const { t } = useTranslation('philharmonic')
   const [answer, setAnswer] = useState('')
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const fileInput = useRef<HTMLInputElement>(null)
   const [sending, setSending] = useState(false)
   // Answered here: the card settles at once, before the server's word.
   const [sent, setSent] = useState(false)
@@ -41,12 +50,18 @@ export function QuestionCard({
 
   const send = async (reply: string) => {
     const words = reply.trim()
-    if (!words || sending) return
+    if ((!words && !attachments.length) || sending) return
     setSending(true)
     try {
-      await respondToConversation(conversationId, words, question.questionId)
+      await respondToConversation(
+        conversationId,
+        words,
+        question.questionId,
+        attachments
+      )
       setSent(true)
       setAnswer('')
+      setAttachments([])
     } catch (error) {
       toast.add({
         type: 'error',
@@ -92,6 +107,33 @@ export function QuestionCard({
               ))}
             </div>
           )}
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {attachments.map((image, i) => (
+                <div key={i} className="relative">
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    className="size-14 rounded-lg object-cover"
+                  />
+                  <button
+                    type="button"
+                    className="bg-background absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full"
+                    aria-label={t('chat.attachmentPreview.removeAria', {
+                      name: image.name
+                    })}
+                    onClick={() =>
+                      setAttachments((all) =>
+                        all.filter((_, index) => index !== i)
+                      )
+                    }
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <form
             className="flex gap-2"
             onSubmit={(e) => {
@@ -99,9 +141,64 @@ export function QuestionCard({
               void send(answer)
             }}
           >
+            <Button
+              variant="ghost"
+              size="icon"
+              type="button"
+              disabled={sending}
+              aria-label={t('chat.uploader.attachAria')}
+              onClick={() => fileInput.current?.click()}
+              data-testid={TEST_IDS.philharmonic.questionAttach}
+            >
+              <HugeiconsIcon icon={Add01Icon} />
+            </Button>
+            <input
+              ref={fileInput}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={async (event) => {
+                const files = Array.from(event.target.files ?? [])
+                event.target.value = ''
+                setSending(true)
+                try {
+                  const images = await prepareGroupAttachments(files)
+                  setAttachments((all) => [...all, ...images])
+                } catch (error) {
+                  toast.add({
+                    type: 'error',
+                    title: t('chat.uploader.attachFailedTitle'),
+                    description: String(error)
+                  })
+                } finally {
+                  setSending(false)
+                }
+              }}
+            />
             <Input
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
+              onPaste={async (event) => {
+                const files = Array.from(event.clipboardData.files).filter(
+                  (file) => file.type.startsWith('image/')
+                )
+                if (!files.length) return
+                event.preventDefault()
+                setSending(true)
+                try {
+                  const images = await prepareGroupAttachments(files)
+                  setAttachments((all) => [...all, ...images])
+                } catch (error) {
+                  toast.add({
+                    type: 'error',
+                    title: t('chat.uploader.attachFailedTitle'),
+                    description: String(error)
+                  })
+                } finally {
+                  setSending(false)
+                }
+              }}
               placeholder={t('chat.groupChat.askUser.replyPlaceholder')}
               disabled={sending}
               data-testid={TEST_IDS.philharmonic.questionInput}
@@ -109,7 +206,7 @@ export function QuestionCard({
             />
             <Button
               type="submit"
-              disabled={sending || !answer.trim()}
+              disabled={sending || (!answer.trim() && !attachments.length)}
               data-testid={TEST_IDS.philharmonic.questionSend}
               className="rounded-full"
             >

@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use est expérimental. Il est lent, peut mal lire l’écran ou cliquer au mauvais endroit, et n’agit que tant que l’app est devant toutes les autres fenêtres. Surveillez-le pendant qu’il travaille et arrêtez-le avec ⌥⇧⎋.",
-  "alert": "Utilisation de l'ordinateur permet à l'IA de piloter une fenêtre sur votre Mac avec une souris et un clavier virtuels — elle voit une capture d'écran à chaque étape et agit comme le ferait une personne. Un modèle d'IA capable de traiter des images est nécessaire. Elle ne touche que les applications ajoutées à la liste d'autorisation ci-dessous (et ouvrira celles qui ne sont pas déjà en cours d'exécution) ; vous pouvez l'arrêter à tout moment avec ⌥⇧⎋, et chaque session est journalisée. Désactivé par défaut.",
+  "experimental": "Le bureau utilise agent-desktop via l’accessibilité, sans changer le focus. Le navigateur utilise une session agent-browser distincte. Alt+Maj+Échap arrête les actions.",
+  "alert": "Actovia utilise les moteurs libres agent-desktop et agent-browser. Le contrôle du bureau est désactivé par défaut et limité aux applications en cours autorisées ci-dessous. Les tâches du navigateur utilisent leur propre session. L’IA observe, agit et vérifie avec le modèle choisi.",
   "enable": {
     "label": "Activer l'utilisation de l'ordinateur",
     "description": "Laisser l'IA piloter une fenêtre autorisée."
   },
   "allowlist": {
     "label": "Applications autorisées",
-    "description": "L'utilisation de l'ordinateur ne touche que ces applications. Choisissez parmi celles installées sur ce Mac.",
-    "searchPlaceholder": "Rechercher des applications installées…",
+    "description": "Seules ces applications peuvent être contrôlées. Choisissez parmi les applications en cours sur cet ordinateur.",
+    "searchPlaceholder": "Rechercher une application en cours…",
     "loading": "Chargement des applications…",
     "noAppFound": "Aucune application trouvée."
   },
   "maxSteps": {
     "label": "Étapes maximales",
-    "description": "Arrêter une session après ce nombre d'actions. Par défaut 25."
+    "description": "Nombre maximal d’observations et d’actions sur le bureau par exécution. Par défaut : 25."
   },
   "settleDelay": {
     "label": "Délai de stabilisation (ms)",
     "description": "Attendre ce délai après chaque action avant la capture d'écran suivante. Par défaut 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

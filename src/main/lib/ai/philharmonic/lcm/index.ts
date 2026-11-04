@@ -168,9 +168,18 @@ export class PhilharmonicLcm {
    * the old buildHistory: every persisted message converted in order.
    * Otherwise we splice the rolling summary in front of the fresh tail.
    */
-  async assembleContext(excludeMessageId?: string): Promise<Message[]> {
+  async assembleContext(
+    excludeMessageId?: string,
+    pendingIds?: () => ReadonlySet<string>
+  ): Promise<Message[]> {
     const rows = await getMessagesByConversationId(this.conversationId)
-    const filtered = rows.filter((r) => r.id !== excludeMessageId)
+    const anchor = excludeMessageId
+      ? rows.findIndex((r) => r.id === excludeMessageId)
+      : -1
+    const excluded = pendingIds?.()
+    const filtered = (anchor < 0 ? rows : rows.slice(0, anchor)).filter(
+      (row) => !excluded?.has(row.id)
+    )
     const agents = await loadAgents()
     const toLlm = (r: ConversationMessage) => rowToLlmMessage(r, agents)
 
@@ -197,6 +206,25 @@ export class PhilharmonicLcm {
       summaryAsMessage(summary.content, summary.updatedAt),
       ...tail.map(toLlm)
     ]
+  }
+
+  async contextUsage(excludeMessageId?: string): Promise<number> {
+    if (!this.enabled) return 0
+    const rows = (
+      await getMessagesByConversationId(this.conversationId)
+    ).filter((row) => row.id !== excludeMessageId)
+    const summary = await getSessionSummary(this.conversationId)
+    const coveredIndex = summary
+      ? rows.findIndex((r) => r.id === summary.coversThroughMessageId)
+      : -1
+    const uncovered = coveredIndex >= 0 ? rows.slice(coveredIndex + 1) : rows
+    return (
+      (summary?.tokenCount ?? 0) +
+      uncovered.reduce(
+        (sum, message) => sum + estimateMessageTokens(message.content),
+        0
+      )
+    )
   }
 
   /**

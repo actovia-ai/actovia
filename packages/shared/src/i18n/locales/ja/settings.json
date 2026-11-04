@@ -79,7 +79,7 @@
       "title": "ディープリサーチ"
     },
     "computerUse": {
-      "title": "Computer Use"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "エージェント"
@@ -109,7 +109,10 @@
       "storage": "ストレージ",
       "developer": "開発者向け"
     },
-    "experimental": "試験運用"
+    "experimental": "試験運用",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "設定を検索…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "スケジュール管理",
         "description": "Chat で定期タスクを作成、編集、削除します。"
+      },
+      "browserUse": {
+        "label": "ブラウザ操作",
+        "description": "独立した agent-browser セッションでウェブページを閲覧・操作します。"
       }
     },
     "googleMaps": {
@@ -694,7 +701,13 @@
       "deleteAria": "サーバーを削除",
       "showTools": "ツールを表示",
       "hideTools": "ツールを非表示",
-      "reenter": "再入力が必要: {{fields}}"
+      "reenter": "再入力が必要: {{fields}}",
+      "authorized": "認証済み",
+      "needsAuth": "認証が必要",
+      "authorize": "認証",
+      "authorizing": "認証中…",
+      "authorizingHint": "ブラウザでアクセスを承認してから、ここに戻ってください。",
+      "signOut": "サインアウト"
     },
     "intro": "<2>MCP</2>サーバー(ローカルまたはリモート)を登録し、スイッチを切り替えてチャットでそのツールを有効にします。",
     "activeSummary": "現在<strong>{{activeCount}}個のサーバー</strong>から<strong>{{totalToolCount}}個のツール</strong>が有効です。",
@@ -785,7 +798,11 @@
       "registerFailed": "登録に失敗しました",
       "removeFailed": "サーバーの削除に失敗しました",
       "toggleFailed": "サーバーの切り替えに失敗しました",
-      "invalidEnv": "環境変数の JSON が無効です"
+      "invalidEnv": "環境変数の JSON が無効です",
+      "authorizeFailed": "認証に失敗しました",
+      "authorized": "「{{name}}」を認証しました",
+      "signOutFailed": "サインアウトに失敗しました",
+      "signedOut": "「{{name}}」からサインアウトしました"
     }
   },
   "memory": {

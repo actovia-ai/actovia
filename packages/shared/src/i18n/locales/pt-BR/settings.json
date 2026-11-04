@@ -79,7 +79,7 @@
       "title": "Pesquisa Aprofundada"
     },
     "computerUse": {
-      "title": "Uso do Computador"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agentes"
@@ -109,7 +109,10 @@
       "storage": "Armazenamento",
       "developer": "Desenvolvedor"
     },
-    "experimental": "Experimental"
+    "experimental": "Experimental",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Pesquisar configurações…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Gerenciar agendamentos",
         "description": "Crie, edite e exclua tarefas agendadas pelo Chat."
+      },
+      "browserUse": {
+        "label": "Automação do navegador",
+        "description": "Navegue e interaja com páginas em uma sessão separada do agent-browser."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Excluir servidor",
       "showTools": "Mostrar ferramentas",
       "hideTools": "Ocultar ferramentas",
-      "reenter": "Precisa ser digitado novamente: {{fields}}"
+      "reenter": "Precisa ser digitado novamente: {{fields}}",
+      "authorized": "Autorizado",
+      "needsAuth": "Requer autorização",
+      "authorize": "Autorizar",
+      "authorizing": "Autorizando…",
+      "authorizingHint": "Aprove o acesso no seu navegador e volte aqui.",
+      "signOut": "Sair"
     },
     "intro": "Registre servidores <2>MCP</2> (locais ou remotos) e, em seguida, ative o botão para habilitar suas ferramentas no chat.",
     "activeSummary": "Atualmente <strong>{{totalToolCount}} ferramentas</strong> de <strong>{{activeCount}} servidores</strong> ativas.",
@@ -788,7 +801,11 @@
       "registerFailed": "Falha ao registrar",
       "removeFailed": "Falha ao remover servidor",
       "toggleFailed": "Falha ao alternar servidor",
-      "invalidEnv": "JSON de variáveis de ambiente inválido"
+      "invalidEnv": "JSON de variáveis de ambiente inválido",
+      "authorizeFailed": "Falha na autorização",
+      "authorized": "\"{{name}}\" autorizado",
+      "signOutFailed": "Falha ao sair",
+      "signedOut": "\"{{name}}\" desconectado"
     }
   },
   "memory": {

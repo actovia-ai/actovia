@@ -19,9 +19,7 @@ const listApps = vi.fn(async () => [
     path: '/Applications/Wallet.app'
   }
 ])
-vi.mock('@main/lib/computer/helper', () => ({
-  getHelper: () => ({ listApps })
-}))
+vi.mock('@main/lib/automation/runtime', () => ({ listDesktopApps: listApps }))
 vi.mock('@main/lib/computer/liveness', () => ({ liveness: {} }))
 vi.mock('@main/lib/computer/ask-registry', () => ({ computerAskRegistry: {} }))
 

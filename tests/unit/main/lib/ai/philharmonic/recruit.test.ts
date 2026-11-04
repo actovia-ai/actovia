@@ -1,8 +1,12 @@
+import { AiProviders } from '@actovia/shared/types/ai'
 // src/main/lib/ai/philharmonic/recruit.test.ts
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@earendil-works/pi-ai', () => ({
-  completeSimple: vi.fn(async () => ({
+const settingsMock = vi.hoisted(() => ({
+  getSettings: vi.fn(async () => ({ id: 's' }))
+}))
+const completeMock = vi.hoisted(() =>
+  vi.fn(async () => ({
     content: [
       {
         type: 'text',
@@ -10,9 +14,12 @@ vi.mock('@earendil-works/pi-ai', () => ({
       }
     ]
   }))
+)
+vi.mock('@main/lib/ai/utils/complete', () => ({
+  completeSimple: completeMock
 }))
 vi.mock('@main/lib/db/queries', () => ({
-  getSettings: async () => ({ id: 's' })
+  getSettings: settingsMock.getSettings
 }))
 vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
   getModelFromProvider: () => ({ chatModel: {}, apiKey: 'k' })
@@ -56,5 +63,54 @@ describe('autoCreateEmployee', () => {
     expect(createAgent.mock.calls.at(-1)![0].skillSlugs).toEqual(['python'])
     await autoCreateEmployee({ role: 'Analyst', skills: ['excel'] })
     expect(createAgent.mock.calls.at(-1)![0].skillSlugs).toEqual([])
+  })
+
+  it('persists the selected configured provider and model', async () => {
+    settingsMock.getSettings.mockResolvedValueOnce({
+      id: 's',
+      providerConfig: {
+        provider: AiProviders.OpenAiGpt,
+        model: 'gpt-test'
+      },
+      providers: { openaiApiKey: 'key' },
+      modelCatalog: {
+        [AiProviders.OpenAiGpt]: [
+          {
+            id: 'gpt-test',
+            displayName: 'GPT Test',
+            snapshot: {
+              contextWindow: 128_000,
+              maxOutputTokens: 16_000,
+              reasoningLevels: ['high'],
+              adaptiveThinking: null,
+              budgetThinking: null
+            }
+          }
+        ]
+      }
+    } as never)
+
+    await autoCreateEmployee({
+      role: 'Research analyst',
+      provider: AiProviders.OpenAiGpt,
+      model: 'gpt-test'
+    })
+
+    expect(createAgent.mock.calls.at(-1)![0]).toMatchObject({
+      provider: AiProviders.OpenAiGpt,
+      model: 'gpt-test'
+    })
+  })
+
+  it('refuses a model that is not in the configured provider catalog', async () => {
+    createAgent.mockClear()
+    await expect(
+      autoCreateEmployee({
+        role: 'Writer',
+        provider: AiProviders.OpenAiGpt,
+        model: 'unknown'
+      })
+    ).rejects.toThrow('The selected employee model is not configured.')
+    expect(createAgent).not.toHaveBeenCalled()
   })
 })

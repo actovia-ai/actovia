@@ -100,3 +100,38 @@ export async function deleteMcpServer(id: string) {
   forgetMcpServerMoves(id)
   return db.delete(mcpServer).where(eq(mcpServer.id, id))
 }
+
+/**
+ * Store (or clear) a server's OAuth state under `extraConfig.oauth`. Written
+ * by the MCP OAuth flow as it registers a client and persists tokens — not by
+ * the user-facing create/update, so it bypasses the "a moved destination
+ * clears secrets" rule (`planMcpUpdate`): a token save must never wipe the very
+ * tokens it is saving. The `oauth` object's `tokens` and any `client_secret`
+ * are secret-named, so `encryptMcpSecrets` seals them at rest like every other
+ * `extraConfig` secret; `getMcpServerById` hands them back decrypted.
+ *
+ * `oauth === undefined` removes the key, leaving the rest of `extraConfig`
+ * untouched.
+ */
+export async function setMcpOAuthConfig(
+  id: string,
+  oauth: Record<string, unknown> | undefined
+) {
+  const current = await getMcpServerById(id)
+  if (!current) return
+  const extraConfig: Record<string, unknown> = { ...current.extraConfig }
+  if (oauth === undefined) delete extraConfig.oauth
+  else extraConfig.oauth = oauth
+  const next = Object.keys(extraConfig).length > 0 ? extraConfig : null
+  const { sealed } = encryptMcpSecrets({ extraConfig: next })
+  try {
+    const [result] = await db
+      .update(mcpServer)
+      .set({ extraConfig: sealed.extraConfig, updatedAt: new Date() })
+      .where(eq(mcpServer.id, id))
+      .returning()
+    return decrypted(result)
+  } catch (error) {
+    throw secretSafeWriteError('Failed to persist MCP OAuth state', error)
+  }
+}

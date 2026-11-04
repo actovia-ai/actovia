@@ -10,7 +10,8 @@ vi.mock('@main/lib/db/db', () => ({ db, pglite }))
 const {
   createConversation,
   createConversationMessage,
-  getLatestMessagePerConversation
+  getLatestMessagePerConversation,
+  updateConversationTitleIfUnchanged
 } = await import('@main/lib/db/conversation-queries')
 
 describe('getLatestMessagePerConversation', () => {
@@ -39,5 +40,39 @@ describe('getLatestMessagePerConversation', () => {
     expect(Math.abs(latest[0].createdAt.getTime() - Date.now())).toBeLessThan(
       2000
     )
+  })
+})
+
+describe('updateConversationTitleIfUnchanged', () => {
+  it('updates only while the Group still has the expected default title', async () => {
+    const group = await createConversation({ title: 'New group' })
+    const updated = await updateConversationTitleIfUnchanged(
+      group.id,
+      'New group',
+      'Build a report'
+    )
+    expect(updated?.title).toBe('Build a report')
+    expect(
+      await updateConversationTitleIfUnchanged(
+        group.id,
+        'New group',
+        'A stale generated title'
+      )
+    ).toBeUndefined()
+  })
+
+  it('does not overwrite a title changed by the user during generation', async () => {
+    const group = await createConversation({ title: 'New group' })
+    const { updateConversation } =
+      await import('@main/lib/db/conversation-queries')
+    await updateConversation(group.id, { title: 'User title' })
+
+    expect(
+      await updateConversationTitleIfUnchanged(
+        group.id,
+        'New group',
+        'Generated title'
+      )
+    ).toBeUndefined()
   })
 })

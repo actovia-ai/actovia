@@ -1,23 +1,39 @@
 {
-  "experimental": "O Computer Use é experimental. Ele é lento, pode interpretar mal a tela ou clicar no lugar errado e só age enquanto o app está na frente de todas as outras janelas. Acompanhe enquanto ele trabalha e pare com ⌥⇧⎋.",
-  "alert": "O Uso do Computador permite que a IA opere uma janela no seu Mac com um mouse e teclado virtuais — ela vê uma captura de tela a cada etapa e age como uma pessoa. Requer um modelo de IA com capacidade de visão. Ele só interage com os apps que você adicionar à lista de permissões abaixo (e abrirá um que ainda não estiver em execução); você pode pará-lo a qualquer momento com ⌥⇧⎋, e cada sessão é registrada. Desativado por padrão.",
+  "experimental": "O desktop usa agent-desktop por acessibilidade sem mudar o foco. O navegador usa uma sessão separada do agent-browser. Alt+Shift+Escape interrompe as ações.",
+  "alert": "O Actovia usa os motores de código aberto agent-desktop e agent-browser. O controle do desktop vem desativado e é limitado aos aplicativos em execução permitidos abaixo. As tarefas do navegador usam uma sessão própria. A IA observa, age e verifica com o modelo selecionado.",
   "enable": {
     "label": "Ativar Uso do Computador",
     "description": "Permitir que a IA controle uma janela da lista de permissões."
   },
   "allowlist": {
     "label": "Apps permitidos",
-    "description": "O Uso do Computador só interage com esses apps. Escolha entre os instalados neste Mac.",
-    "searchPlaceholder": "Pesquisar apps instalados…",
+    "description": "Somente estes aplicativos podem ser controlados. Escolha entre os aplicativos em execução neste computador.",
+    "searchPlaceholder": "Buscar aplicativos em execução…",
     "loading": "Carregando apps…",
     "noAppFound": "Nenhum app encontrado."
   },
   "maxSteps": {
     "label": "Máximo de etapas",
-    "description": "Parar uma sessão após esse número de ações. Padrão: 25."
+    "description": "Máximo de observações e ações no desktop por execução do agente. Padrão: 25."
   },
   "settleDelay": {
     "label": "Atraso de estabilização (ms)",
     "description": "Aguardar esse tempo após cada ação antes da próxima captura de tela. Padrão: 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

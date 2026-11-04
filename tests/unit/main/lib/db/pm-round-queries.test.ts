@@ -9,8 +9,12 @@ vi.mock('@main/lib/db/db', async () => {
 })
 
 const { pglite } = await import('@main/lib/db/db')
-const { appendRoundEvent, listRoundEvents, lastRoundStartedAt } =
-  await import('@main/lib/db/pm-round-queries')
+const {
+  appendRoundEvent,
+  getLatestPmContextSnapshot,
+  listRoundEvents,
+  lastRoundStartedAt
+} = await import('@main/lib/db/pm-round-queries')
 
 const G1 = '00000000-0000-0000-0000-000000000001'
 const G2 = '00000000-0000-0000-0000-000000000002'
@@ -63,5 +67,47 @@ describe('pm round queries', () => {
     })
     const [second] = await listRoundEvents(G1, R2)
     expect(await lastRoundStartedAt(G1)).toEqual(second.createdAt)
+  })
+
+  it('reads the newest validated PM context snapshot for its conversation', async () => {
+    const snapshot = {
+      takenAt: '2026-11-02T10:00:00.000Z',
+      roundId: R1,
+      model: 'gpt-test',
+      contextWindow: 128_000,
+      compactAt: 96_000,
+      lcmTokens: 42,
+      total: 100,
+      estimated: true,
+      parts: [
+        { key: 'system', tokens: 10 },
+        { key: 'skills', tokens: 0 },
+        { key: 'mcp', tokens: 0 },
+        { key: 'tools', tokens: 10 },
+        { key: 'memory', tokens: 0 },
+        { key: 'summaries', tokens: 20 },
+        { key: 'messages', tokens: 60 }
+      ]
+    }
+    await appendRoundEvent({
+      conversationId: G1,
+      roundId: R1,
+      seq: 10,
+      kind: 'context',
+      payload: snapshot
+    })
+    expect(await getLatestPmContextSnapshot(G1)).toEqual(snapshot)
+    expect(await getLatestPmContextSnapshot(G2)).toBeNull()
+  })
+
+  it('does not expose malformed context event payloads', async () => {
+    await appendRoundEvent({
+      conversationId: G1,
+      roundId: R2,
+      seq: 0,
+      kind: 'context',
+      payload: { model: 'gpt-test' }
+    })
+    expect(await getLatestPmContextSnapshot(G1)).toBeNull()
   })
 })

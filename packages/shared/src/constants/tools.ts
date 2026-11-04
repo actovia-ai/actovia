@@ -32,6 +32,13 @@ export const TOOL_REGISTRY: ToolMeta[] = [
     group: 'Web'
   },
 
+  {
+    key: TOOL_NAMES.browserUse,
+    labelKey: 'tools.registry.browserUse.label',
+    descriptionKey: 'tools.registry.browserUse.description',
+    group: 'Web'
+  },
+
   // File System
   {
     key: TOOL_NAMES.terminal,

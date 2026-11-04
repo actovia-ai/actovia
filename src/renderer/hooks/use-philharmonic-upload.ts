@@ -17,6 +17,14 @@ async function toAttachment(file: File): Promise<Attachment> {
   }
 }
 
+export async function prepareGroupAttachments(
+  files: File[]
+): Promise<Attachment[]> {
+  return Promise.all(
+    files.map(async (file) => toAttachment(await prepareImageFile(file)))
+  )
+}
+
 /**
  * Photos for the Philharmonic composer, as Chat attaches them: each one
  * prepared (`prepareImageFile`) and embedded as a data URL. The server fits
@@ -33,9 +41,7 @@ export function usePhilharmonicUpload() {
     if (files.length === 0) return
     setUploading(true)
     try {
-      const results = await Promise.all(
-        files.map(async (file) => toAttachment(await prepareImageFile(file)))
-      )
+      const results = await prepareGroupAttachments(files)
       setAttachments((prev) => [...prev, ...results])
     } catch (err) {
       toast.add({

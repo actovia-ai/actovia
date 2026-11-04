@@ -105,3 +105,6 @@ dist
 
 # Isolated workspaces for subagent-driven-development
 .worktrees/
+
+# Local self-improvement logs (self-improving-agent skill) — not committed
+.learnings/

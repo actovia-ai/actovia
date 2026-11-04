@@ -5,7 +5,6 @@ import { ComponentProps, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Sidebar,
@@ -22,7 +21,7 @@ import { useSettingsTab } from '@/hooks/use-settings-tab'
 import { cn } from '@/lib/utils'
 
 import { InputGroup, InputGroupInput, InputGroupAddon } from '../ui/input-group'
-import { menus, NAV_TITLE_KEYS } from './settings-menu'
+import { menus, NAV_TITLE_KEYS, SettingsLabel } from './settings-menu'
 
 export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   const { t } = useTranslation('settings')
@@ -39,7 +38,12 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
       .map((group) => ({
         label: group.label,
         items: group.items.filter((item) =>
-          t(NAV_TITLE_KEYS[item.title]).toLowerCase().includes(q)
+          [
+            t(NAV_TITLE_KEYS[item.title]),
+            item.title === SettingsLabel.Philharmonic
+              ? t('nav.agents.title')
+              : ''
+          ].some((label) => label.toLowerCase().includes(q))
         )
       }))
       .filter((group) => group.items.length > 0)
@@ -82,16 +86,14 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
                   <SidebarMenuButton
                     data-testid={TEST_IDS.settings.navItem}
                     data-tab={item.title}
+                    title={t(NAV_TITLE_KEYS[item.title])}
                     isActive={item.title === active}
                     onClick={() => setActive(item.title)}
                   >
                     {item.icon && <HugeiconsIcon icon={item.icon} />}
-                    {t(NAV_TITLE_KEYS[item.title])}
-                    {'experimental' in item && item.experimental && (
-                      <Badge variant="outline" className="ml-auto">
-                        {t('nav.experimental')}
-                      </Badge>
-                    )}
+                    <span className="min-w-0 flex-1 truncate">
+                      {t(NAV_TITLE_KEYS[item.title])}
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

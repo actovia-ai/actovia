@@ -93,31 +93,81 @@ export async function getActiveAgents() {
 /**
  * Read an agent's memories.
  *
- * - When `conversationId` is provided, returns ONLY rows from that Group.
- *   This is the runtime path the employee loop uses, so memories from a
- *   different Group never bleed into the current LLM call.
- * - When omitted, returns every row across every Group — the inspection
- *   path used by the Workforce → Employee editor.
+ * - When `conversationId` is provided, returns rows from that Group plus
+ *   PM-reviewed employee experience (`conversationId IS NULL`).
+ * - When omitted, returns every row for the Workforce inspection view.
  */
 export async function getAgentMemories(
   agentId: string,
   conversationId?: string
 ) {
-  const filter = conversationId
-    ? and(
-        eq(agentMemory.agentId, agentId),
-        eq(agentMemory.conversationId, conversationId)
-      )
-    : eq(agentMemory.agentId, agentId)
+  if (conversationId) {
+    const [groupMemories, employeeExperience] = await Promise.all([
+      db
+        .select()
+        .from(agentMemory)
+        .where(
+          and(
+            eq(agentMemory.agentId, agentId),
+            eq(agentMemory.conversationId, conversationId),
+            eq(agentMemory.isActive, true)
+          )
+        )
+        .orderBy(desc(agentMemory.createdAt))
+        .limit(12),
+      db
+        .select()
+        .from(agentMemory)
+        .where(
+          and(
+            eq(agentMemory.agentId, agentId),
+            isNull(agentMemory.conversationId),
+            eq(agentMemory.isActive, true)
+          )
+        )
+        .orderBy(desc(agentMemory.createdAt))
+        .limit(12)
+    ])
+    return [...groupMemories, ...employeeExperience].sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
+  }
+
   return db
     .select()
     .from(agentMemory)
-    .where(filter)
+    .where(eq(agentMemory.agentId, agentId))
     .orderBy(desc(agentMemory.createdAt))
 }
 
 export async function createAgentMemory(data: typeof agentMemory.$inferInsert) {
   const [result] = await db.insert(agentMemory).values(data).returning()
+  return result
+}
+
+export async function getEmployeeExperience(agentId: string, taskId: string) {
+  const [result] = await db
+    .select({ id: agentMemory.id })
+    .from(agentMemory)
+    .where(
+      and(
+        eq(agentMemory.agentId, agentId),
+        eq(agentMemory.key, `reviewed-task:${taskId}`),
+        isNull(agentMemory.conversationId)
+      )
+    )
+    .limit(1)
+  return result
+}
+
+export async function createEmployeeExperience(
+  data: typeof agentMemory.$inferInsert
+) {
+  const [result] = await db
+    .insert(agentMemory)
+    .values(data)
+    .onConflictDoNothing()
+    .returning()
   return result
 }
 

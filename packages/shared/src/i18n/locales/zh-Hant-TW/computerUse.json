@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use 仍屬實驗性功能。它速度較慢，可能看錯畫面或點錯位置，而且只會在該 App 位於所有其他視窗前面時才操作。運作期間請留意，可隨時按 ⌥⇧⎋ 停止。",
-  "alert": "電腦操作讓 AI 能透過虛擬滑鼠與鍵盤操作你 Mac 上的一個視窗——它每一步都會查看螢幕截圖，並像人一樣執行動作。此功能需要支援視覺辨識的 AI 模型。它僅會操作你在下方允許清單中新增的應用程式（若該程式尚未執行，會自動開啟），你可以隨時按下 ⌥⇧⎋ 停止操作，且每個工作階段都會被記錄。預設為關閉。",
+  "experimental": "桌面操作使用 agent-desktop 的無焦點輔助使用功能，瀏覽器操作使用獨立的 agent-browser 工作階段。按 Alt+Shift+Escape 可停止操作。",
+  "alert": "Actovia 使用開源引擎 agent-desktop 和 agent-browser。桌面控制預設關閉，僅限下方允許的執行中應用程式。瀏覽器任務使用獨立工作階段。AI 使用所選模型觀察、操作並檢查結果。",
   "enable": {
     "label": "啟用電腦操作",
     "description": "讓 AI 操作允許清單中的視窗。"
   },
   "allowlist": {
     "label": "允許清單中的應用程式",
-    "description": "電腦操作僅會觸及這些應用程式。可從此 Mac 已安裝的程式中挑選。",
-    "searchPlaceholder": "搜尋已安裝的應用程式…",
+    "description": "桌面控制僅限這些應用程式。請從本機執行中的應用程式選擇。",
+    "searchPlaceholder": "搜尋執行中的應用程式…",
     "loading": "正在載入應用程式…",
     "noAppFound": "找不到應用程式。"
   },
   "maxSteps": {
     "label": "最大步驟數",
-    "description": "執行此數量的動作後停止工作階段。預設為 25。"
+    "description": "每次員工執行的桌面觀察與操作上限，預設 25 次。"
   },
   "settleDelay": {
     "label": "穩定延遲（毫秒）",
     "description": "每個動作後等待此時間再擷取下一張螢幕截圖。預設為 800。"
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

@@ -66,8 +66,9 @@ const codeBlockStyle = {
   lineHeight: '1.6',
   margin: 0,
   background: 'transparent',
-  // The outer `.markdown pre` already scrolls/caps height; keep this inner
-  // element from establishing its own competing scroll or clipping.
+  // The code viewport owns scrolling; the pre keeps the title in place.
+  width: 'max-content',
+  minWidth: '100%',
   maxHeight: 'none',
   overflow: 'visible'
 }
@@ -148,10 +149,14 @@ function Pre({ className, children, node, ...rest }: any) {
 
 export function Markdown({
   src,
-  webSearchResults
+  webSearchResults,
+  interactive = true,
+  className
 }: {
   src: string
   webSearchResults?: WebSearchResult[]
+  interactive?: boolean
+  className?: string
 }) {
   const { t } = useTranslation('common')
   const { copied, handleCopy } = useClipboard()
@@ -201,10 +206,7 @@ export function Markdown({
           (String(children).endsWith('\n') ? 'text' : null)
         return language ? (
           <>
-            {/* The strip stays put while the code under it scrolls — the
-                panel (`.markdown pre`) is the scroll container — on the
-                panel's own fill, as ChatGPT's. */}
-            <section className="bg-code text-muted-foreground sticky top-0 z-10 flex items-center justify-between px-4 py-2.5 text-xs">
+            <section className="bg-code text-muted-foreground flex h-10 items-center justify-between px-4 text-xs">
               <span className="flex items-center gap-2 font-medium">
                 <HugeiconsIcon
                   icon={SourceCodeIcon}
@@ -244,18 +246,20 @@ export function Markdown({
               </div>
             </section>
 
-            <SyntaxHighlighter
-              {...rest}
-              PreTag="div"
-              className="font-mono"
-              language={language}
-              style={codeTheme}
-              customStyle={codeBlockStyle}
-              codeTagProps={codeTagProps}
-              showLineNumbers={false}
-            >
-              {String(children).replace(/\n$/, '')}
-            </SyntaxHighlighter>
+            <div className="max-h-[calc(32rem-2.5rem)] overflow-auto">
+              <SyntaxHighlighter
+                {...rest}
+                PreTag="div"
+                className="font-mono"
+                language={language}
+                style={codeTheme}
+                customStyle={codeBlockStyle}
+                codeTagProps={codeTagProps}
+                showLineNumbers={false}
+              >
+                {String(children).replace(/\n$/, '')}
+              </SyntaxHighlighter>
+            </div>
           </>
         ) : (
           // A path to a file the chat wrote becomes a link that opens it.
@@ -264,7 +268,11 @@ export function Markdown({
           </WorkspacePathCode>
         )
       },
-      pre: Pre,
+      pre: interactive
+        ? Pre
+        : ({ children }: { children: React.ReactNode }) => (
+            <pre>{children}</pre>
+          ),
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
       li({ className, node, children, ...rest }: any) {
         return (
@@ -388,14 +396,14 @@ export function Markdown({
       //   return null
       // }
     }),
-    [copied, handleCopy, codeTheme, t]
+    [copied, handleCopy, codeTheme, t, interactive]
   )
 
   return (
     <WebSearchRankMapContext.Provider value={rankMap}>
       <AllowedImageUrlsContext.Provider value={allowedUrls}>
         <SearchThumbnailUrlsContext.Provider value={thumbnailUrls}>
-          <section className="markdown max-w-none">
+          <section className={cn('markdown max-w-none', className)}>
             {/* Blocks are only ever appended or grown in place — never reordered
               — so the index is their identity. They render as fragments: the DOM
               under .markdown is the same flat run of elements as before. */}
@@ -419,5 +427,7 @@ export default memo(
   Markdown,
   (prevProps, nextProps) =>
     prevProps.src === nextProps.src &&
-    prevProps.webSearchResults === nextProps.webSearchResults
+    prevProps.webSearchResults === nextProps.webSearchResults &&
+    prevProps.interactive === nextProps.interactive &&
+    prevProps.className === nextProps.className
 )

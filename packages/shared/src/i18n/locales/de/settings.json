@@ -79,7 +79,7 @@
       "title": "Deep Research"
     },
     "computerUse": {
-      "title": "Computer Use"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agenten"
@@ -109,7 +109,10 @@
       "storage": "Speicher",
       "developer": "Entwickler"
     },
-    "experimental": "Experimentell"
+    "experimental": "Experimentell",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Einstellungen durchsuchen…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Zeitpläne verwalten",
         "description": "Geplante Aufgaben im Chat erstellen, bearbeiten und löschen."
+      },
+      "browserUse": {
+        "label": "Browser-Automatisierung",
+        "description": "Webseiten in einer eigenen agent-browser-Sitzung öffnen und bedienen."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Server löschen",
       "showTools": "Tools anzeigen",
       "hideTools": "Tools ausblenden",
-      "reenter": "Muss erneut eingegeben werden: {{fields}}"
+      "reenter": "Muss erneut eingegeben werden: {{fields}}",
+      "authorized": "Autorisiert",
+      "needsAuth": "Autorisierung erforderlich",
+      "authorize": "Autorisieren",
+      "authorizing": "Autorisierung…",
+      "authorizingHint": "Bestätige den Zugriff im Browser und komm dann hierher zurück.",
+      "signOut": "Abmelden"
     },
     "intro": "Registrieren Sie <2>MCP</2>-Server (lokal oder remote) und aktivieren Sie anschließend den Schalter, um deren Tools im Chat zu nutzen.",
     "activeSummary": "Derzeit sind <strong>{{totalToolCount}} Tools</strong> von <strong>{{activeCount}} Servern</strong> aktiv.",
@@ -788,7 +801,11 @@
       "registerFailed": "Registrierung fehlgeschlagen",
       "removeFailed": "Server konnte nicht entfernt werden",
       "toggleFailed": "Server konnte nicht umgeschaltet werden",
-      "invalidEnv": "Ungültiges JSON für Umgebungsvariablen"
+      "invalidEnv": "Ungültiges JSON für Umgebungsvariablen",
+      "authorizeFailed": "Autorisierung fehlgeschlagen",
+      "authorized": "„{{name}}“ autorisiert",
+      "signOutFailed": "Abmelden fehlgeschlagen",
+      "signedOut": "„{{name}}“ abgemeldet"
     }
   },
   "memory": {

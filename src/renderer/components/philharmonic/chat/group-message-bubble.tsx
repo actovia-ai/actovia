@@ -1,23 +1,19 @@
 import type { AgentCard } from '@actovia/shared/types/agents'
 import type { GroupQuestionStatus } from '@actovia/shared/types/philharmonic'
-import {
-  Tick02Icon,
-  Loading03Icon,
-  Wrench01Icon
-} from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
+import { memo, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
+import { MusicConductor } from '@/components/icons/music-conductor'
 import { useFormat } from '@/lib/format'
 import { isMotionReduced } from '@/lib/reduced-motion'
 import { cn } from '@/lib/utils'
 import type { AgentData, TeamData } from '@/stores/philharmonic'
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
-import { AgentCardView } from './agent-card'
 import { BubbleMarkdown } from './bubble-markdown'
 import { DecisionProcess } from './decision-process'
+import { GroupActivity } from './group-activity'
 import { QuestionCard } from './question-card'
 
 interface ArtifactPart {
@@ -29,12 +25,17 @@ interface ArtifactPart {
 export interface BubbleModel {
   conversationId?: string
   messageId: string
-  role: string // 'user' | 'pm' | 'employee' | 'system'
+  // 'user' | 'pm' | 'employee' | 'system'
+  role: string
   agentId?: string | null
   text: string
+  thinking?: string
+  streaming?: boolean
   createdAt?: string
   toolCards?: Array<{
     toolName: string
+    toolCallId?: string
+    args?: Record<string, unknown>
     phase: 'start' | 'end'
     result?: unknown
   }>
@@ -46,6 +47,9 @@ export interface BubbleModel {
   }>
   /** P1-7: rendered ArtifactCard(s) for the PM's final deliverable. */
   artifacts?: ArtifactPart[]
+  /** The PM explicitly closed this round as a final response. */
+  finalOutput?: boolean
+  archives?: Array<{ title: string; path: string; directory: boolean }>
   /** A coding agent's run; shown in place of the text for employee messages. */
   agentCard?: AgentCard
   /** A newer step of the card's session follows it in the group. */
@@ -62,16 +66,15 @@ export interface BubbleModel {
   }
 }
 
-/** Scroll the transcript to a message (an employee's report the PM read). */
-const jumpToMessage = (messageId: string) =>
+const jumpToMessage = (id: string) =>
   document
-    .querySelector(`[data-message-id="${CSS.escape(messageId)}"]`)
+    .querySelector(`[data-message-id="${CSS.escape(id)}"]`)
     ?.scrollIntoView({
       behavior: isMotionReduced() ? 'instant' : 'smooth',
       block: 'center'
     })
 
-export function GroupMessageBubble({
+function GroupMessageBubbleView({
   bubble,
   agentsById,
   teamsById,
@@ -80,221 +83,178 @@ export function GroupMessageBubble({
   bubble: BubbleModel
   agentsById: Record<string, AgentData>
   teamsById: Record<string, TeamData>
-  /** The message before it is the same voice's: no avatar or name again. */
   continued?: boolean
 }) {
   const { t } = useTranslation(['common', 'philharmonic'])
   const { dateTime } = useFormat()
-  const isUser = bubble.role === 'user'
-  const isSystem = bubble.role === 'system'
-  const isPm = bubble.role === 'pm'
+  const user = bubble.role === 'user'
+  const pm = bubble.role === 'pm'
   const agent = bubble.agentId ? agentsById[bubble.agentId] : undefined
   const team = agent?.teamId ? teamsById[agent.teamId] : undefined
-  const name = isUser
-    ? t('state.you')
-    : isPm
-      ? t('philharmonic:chat.roles.pm')
-      : (agent?.name ?? t('philharmonic:chat.roles.employeeFallback'))
-
-  const decisionProcess = bubble.roundId && bubble.conversationId && (
-    <DecisionProcess
-      conversationId={bubble.conversationId}
-      roundId={bubble.roundId}
-      bubbleText={bubble.text}
-      counts={bubble.decision}
-      agentOf={(id) => agentsById[id]}
-      onJumpTo={jumpToMessage}
-    />
-  )
-
-  if (isSystem) {
-    // Grok's: a line of muted text across the middle, no pill.
+  const name = pm
+    ? t('philharmonic:chat.roles.pm')
+    : (agent?.name ?? t('philharmonic:chat.roles.employeeFallback'))
+  if (bubble.role === 'system')
     return (
       <div
         data-message-id={bubble.messageId}
-        className="text-muted-foreground flex flex-col items-center gap-1 px-6 py-2 text-center text-xs"
+        className="text-muted-foreground py-3 text-center text-xs"
       >
-        <span>{bubble.text}</span>
-        {decisionProcess}
+        {bubble.text}
       </div>
     )
-  }
-
   const time = bubble.createdAt
-    ? (() => {
-        try {
-          return dateTime(new Date(bubble.createdAt), {
-            hour: 'numeric',
-            minute: '2-digit'
-          })
-        } catch {
-          return ''
-        }
-      })()
+    ? dateTime(new Date(bubble.createdAt), {
+        hour: 'numeric',
+        minute: '2-digit'
+      })
     : ''
-
-  const headerLine = (
-    <span className="text-muted-foreground flex items-baseline gap-1.5 px-1 text-xs">
-      <span className="text-foreground font-medium">{name}</span>
-      {team && (
-        <span>
-          {team.icon ? `${team.icon} ` : ''}
-          {team.name}
-        </span>
-      )}
-      {time && <span className="tabular-nums">{time}</span>}
-    </span>
-  )
-
-  // The avatar's column stays when a message continues its voice, so the
-  // bubbles line up under the first one.
-  const avatar = isUser ? null : continued ? (
-    <span className="w-8 shrink-0" />
-  ) : isPm ? (
-    <div className="bg-primary text-primary-foreground text-2xs flex size-8 shrink-0 items-center justify-center rounded-full font-semibold">
-      {t('philharmonic:chat.roles.pm')}
-    </div>
-  ) : (
-    <EmployeeAvatar
-      seed={agent?.avatarSeed ?? null}
-      style={agent?.avatarStyle ?? null}
-      size={32}
-    />
-  )
-
   return (
-    <div
+    <article
       data-message-id={bubble.messageId}
       className={cn(
-        'flex gap-2.5 px-1',
-        continued ? 'pt-0.5 pb-0.5' : 'pt-3 pb-0.5',
-        isUser && 'flex-row-reverse'
+        'flex min-w-0 flex-col',
+        continued ? 'pt-2 pb-1' : 'pt-6 pb-2',
+        user && 'items-end'
       )}
     >
-      {avatar}
-      <div
-        className={cn(
-          'flex min-w-0 max-w-[78%] flex-col gap-1',
-          isUser && 'items-end'
-        )}
-      >
-        {/* Your own message is the bubble alone, as in Chat. */}
-        {!isUser && !continued && headerLine}
-        {bubble.attachments && bubble.attachments.length > 0 && (
-          <div
-            className={cn(
-              'flex flex-wrap gap-2',
-              isUser ? 'justify-end' : 'justify-start'
-            )}
-          >
-            {bubble.attachments.flatMap((a, i) =>
-              a.contentType.startsWith('image/')
-                ? [
-                    <a
-                      key={`${a.url}-${i}`}
-                      href={a.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block"
-                    >
-                      <img
-                        src={a.url}
-                        alt={a.name}
-                        className="bg-muted max-h-48 max-w-[12rem] rounded-lg object-cover"
-                      />
-                    </a>
-                  ]
-                : []
-            )}
-          </div>
-        )}
-        {isPm && bubble.question && bubble.conversationId ? (
-          <QuestionCard
-            conversationId={bubble.conversationId}
-            text={bubble.text}
-            question={bubble.question}
-          />
-        ) : bubble.role === 'employee' && bubble.agentCard ? (
-          <AgentCardView
-            card={bubble.agentCard}
-            messageId={bubble.messageId}
-            superseded={bubble.agentCardSuperseded ?? false}
-          />
-        ) : (
-          bubble.text.length > 0 && (
+      {!user && !continued && (
+        <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
+          {pm ? (
+            <span className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full">
+              <HugeiconsIcon icon={MusicConductor} className="size-4" />
+            </span>
+          ) : (
+            <EmployeeAvatar
+              seed={agent?.avatarSeed ?? null}
+              style={agent?.avatarStyle ?? null}
+              size={28}
+            />
+          )}
+          <span className="text-foreground font-medium">{name}</span>
+          {!pm && <span>{t('philharmonic:chat.activity.toPm')}</span>}
+          {team && <span className="truncate">{team.name}</span>}
+          {time && (
+            <time className="ml-auto shrink-0 tabular-nums">{time}</time>
+          )}
+        </div>
+      )}
+      {bubble.attachments?.length ? (
+        <div className="mb-2 flex max-w-full flex-wrap justify-end gap-2">
+          {bubble.attachments
+            .filter((a) => a.contentType.startsWith('image/'))
+            .map((a, i) => (
+              <a key={i} href={a.url} target="_blank" rel="noreferrer">
+                <img
+                  src={a.url}
+                  alt={a.name}
+                  className="max-h-56 max-w-full rounded-xl object-contain"
+                />
+              </a>
+            ))}
+        </div>
+      ) : null}
+      {bubble.streaming ? (
+        <GroupActivity bubble={bubble} agentsById={agentsById} />
+      ) : pm && bubble.question && bubble.conversationId ? (
+        <QuestionCard
+          conversationId={bubble.conversationId}
+          text={bubble.text}
+          question={bubble.question}
+        />
+      ) : (
+        <>
+          {bubble.text && (
             <div
               className={cn(
-                'rounded-[20px] px-4 py-2.5 text-sm leading-relaxed wrap-break-word',
-                // Grok's (ISSUE-272): the group's voices on grey, your own
-                // message on the tone's fill — black in the neutral tone, as
-                // Grok draws it — its links in the bubble's own ink. The
-                // `--primary` override goes to the children only: on the
-                // bubble itself it turned `bg-primary` into the text colour,
-                // and your message drew white on white.
-                isUser
-                  ? 'bg-primary text-primary-foreground *:[--primary:currentColor] [&_a]:underline'
-                  : 'bg-muted text-foreground'
+                'min-w-0 max-w-full wrap-break-word',
+                user
+                  ? 'bg-bubble text-foreground w-fit max-w-[85%] rounded-[20px] px-4 py-2.5'
+                  : 'w-full text-foreground'
               )}
             >
               <BubbleMarkdown text={bubble.text} />
             </div>
-          )
-        )}
-        {bubble.artifacts &&
-          bubble.artifacts.length > 0 &&
-          bubble.conversationId && (
-            <div className="flex flex-col gap-2">
-              {bubble.artifacts.map((a) => (
-                <ArtifactCard
-                  key={a.artifactId}
-                  chatId={bubble.conversationId!}
-                  toolCallId={a.artifactId}
-                  toolResult={{
-                    type: 'artifact',
-                    title: a.title,
-                    code: a.code,
-                    artifactId: a.artifactId
-                  }}
-                />
-              ))}
-            </div>
           )}
-        {isPm && decisionProcess}
-        {bubble.toolCards && bubble.toolCards.length > 0 && (
-          <div className="flex flex-col gap-1.5">
-            {bubble.toolCards.map((card) => (
-              <div
-                key={`${card.toolName}-${card.phase}`}
-                className="border-border bg-card flex items-center gap-2.5 rounded-2xl border px-3 py-2"
-              >
-                <div className="bg-accent text-accent-foreground flex h-6 w-6 items-center justify-center rounded-md">
-                  <HugeiconsIcon
-                    icon={Wrench01Icon}
-
-                    className="h-3.5 w-3.5"
-                  />
-                </div>
-                <div className="text-foreground min-w-0 flex-1 text-xs font-semibold">
-                  {card.toolName}
-                </div>
-                {card.phase === 'start' ? (
-                  <HugeiconsIcon
-                    icon={Loading03Icon}
-
-                    className="text-muted-foreground h-3.5 w-3.5 animate-spin"
-                  />
-                ) : (
-                  <HugeiconsIcon
-                    icon={Tick02Icon}
-
-                    className="text-muted-foreground h-3.5 w-3.5"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+          {pm && bubble.roundId && bubble.conversationId ? (
+            <DecisionProcess
+              conversationId={bubble.conversationId}
+              roundId={bubble.roundId}
+              bubbleText={bubble.text}
+              counts={bubble.decision}
+              agentOf={(id) => agentsById[id]}
+              onJumpTo={jumpToMessage}
+            />
+          ) : (
+            !user && <GroupActivity bubble={bubble} agentsById={agentsById} />
+          )}
+        </>
+      )}
+    </article>
   )
 }
+
+function sameArray<T>(
+  left: T[] | undefined,
+  right: T[] | undefined,
+  equal: (a: T, b: T) => boolean
+): boolean {
+  return (
+    left === right ||
+    (left !== undefined &&
+      right !== undefined &&
+      left.length === right.length &&
+      left.every((item, index) => equal(item, right[index])))
+  )
+}
+
+function sameBubble(a: BubbleModel, b: BubbleModel): boolean {
+  return (
+    a.conversationId === b.conversationId &&
+    a.messageId === b.messageId &&
+    a.role === b.role &&
+    a.agentId === b.agentId &&
+    a.text === b.text &&
+    a.thinking === b.thinking &&
+    a.streaming === b.streaming &&
+    a.createdAt === b.createdAt &&
+    a.agentCard === b.agentCard &&
+    a.agentCardSuperseded === b.agentCardSuperseded &&
+    a.roundId === b.roundId &&
+    a.archives === b.archives &&
+    a.decision?.delegations === b.decision?.delegations &&
+    a.decision?.waits === b.decision?.waits &&
+    a.question?.questionId === b.question?.questionId &&
+    a.question?.status === b.question?.status &&
+    sameArray(a.question?.options, b.question?.options, (x, y) => x === y) &&
+    sameArray(
+      a.attachments,
+      b.attachments,
+      (x, y) =>
+        x.name === y.name && x.url === y.url && x.contentType === y.contentType
+    ) &&
+    sameArray(
+      a.artifacts,
+      b.artifacts,
+      (x, y) =>
+        x.artifactId === y.artifactId &&
+        x.title === y.title &&
+        x.code === y.code
+    ) &&
+    sameArray(a.toolCards, b.toolCards, (x, y) => x === y)
+  )
+}
+
+function sameProps(
+  a: ComponentProps<typeof GroupMessageBubbleView>,
+  b: ComponentProps<typeof GroupMessageBubbleView>
+): boolean {
+  return (
+    sameBubble(a.bubble, b.bubble) &&
+    a.agentsById === b.agentsById &&
+    a.teamsById === b.teamsById &&
+    a.continued === b.continued
+  )
+}
+
+export const GroupMessageBubble = memo(GroupMessageBubbleView, sameProps)

@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "New group",
     "dashboardTitle": "Dashboard"
   },
+  "monitor": {
+    "pageTitle": "Execution plans",
+    "pageDescription": "Track active work and recent outcomes across your Groups.",
+    "refreshHint": "Refreshes every 15 seconds",
+    "loadError": "Could not load Group plans",
+    "activePlans": "Active plans",
+    "recentPlans": "Recent plans",
+    "emptyTitle": "No Group plans to monitor yet",
+    "emptyDescription": "Plans show here when a Group starts multi-step work.",
+    "charts": {
+      "activity": "Plan activity",
+      "activityHint": "Plans last updated in the past 7 days",
+      "completed": "Completed",
+      "active": "In progress",
+      "stopped": "Stopped",
+      "steps": "Step distribution",
+      "stepsHint": "{{count}} steps across the plans shown"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "Upcoming",
@@ -160,6 +179,10 @@
       "pm": "PM",
       "employeeFallback": "Employee"
     },
+    "resourcesPanel": {
+      "monitor": "Monitor",
+      "finalOutput": "Archive"
+    },
     "membersPanel": {
       "heading": "Members",
       "coordinatorsLabel": "Coordinators",
@@ -264,6 +287,16 @@
         "skipped": "skipped",
         "failed": "failed"
       }
+    },
+    "activity": {
+      "running": "Working",
+      "retry": "Retry activity",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "No completed deliverables yet",
+      "emptyDescription": "Final files and folders appear here after the PM verifies and archives them.",
+      "reveal": "Reveal in folder"
     }
   },
   "employees": {
@@ -386,7 +419,7 @@
     "settings": {
       "intro": "Coding agents are Philharmonic employees run by a CLI you installed and logged into. Actovia starts it in a group's folder, shows what it does, and stops for you whenever it asks.",
       "clisTitle": "On this Mac",
-      "runTitle": "How they run",
+      "runTitle": "Coding agent runs",
       "projectsDir": {
         "label": "Projects folder",
         "description": "New projects are created here, and every project keeps its notes and logs here — even when the work happens in a folder you opened.",
@@ -458,5 +491,30 @@
     "search": "Search emoji",
     "empty": "No emoji found",
     "failed": "Couldn’t save the icon. Try again."
+  },
+  "runtimeSettings": {
+    "intro": "Control how Groups work across this computer. Limits and model preferences apply to new PM rounds and staff tasks; work already running keeps its limits.",
+    "limits": "Execution limits",
+    "models": "Model selection",
+    "maxRunning": {
+      "label": "Maximum concurrent staff",
+      "description": "Across all Groups, including API and coding employees. Extra tasks wait for a slot. Coding agents also respect the coding agent limit below. Default 2."
+    },
+    "pmMaxToolCalls": {
+      "label": "PM tool calls per round",
+      "description": "Pause the PM when a round reaches this limit and wait for your next message. Default 100."
+    },
+    "staffMaxToolCalls": {
+      "label": "Staff tool calls per task",
+      "description": "Limit calls in each API employee run. Coding employees use their own CLI runtime limits. Default 80."
+    },
+    "failureLimit": {
+      "label": "Repeated failure limit",
+      "description": "Stop identical failing tool calls and repeated delegation of the same plan step in a PM round at this limit. Default 3."
+    },
+    "autoModelRouting": {
+      "label": "Allow automatic model selection",
+      "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
+    }
   }
 }

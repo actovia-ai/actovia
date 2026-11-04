@@ -79,7 +79,7 @@
       "title": "Recherche approfondie"
     },
     "computerUse": {
-      "title": "Utilisation de l'ordinateur"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agents"
@@ -109,7 +109,10 @@
       "storage": "Stockage",
       "developer": "Développeur"
     },
-    "experimental": "Expérimental"
+    "experimental": "Expérimental",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Rechercher dans les paramètres…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Gérer les programmations",
         "description": "Créez, modifiez et supprimez des tâches programmées dans Chat."
+      },
+      "browserUse": {
+        "label": "Automatisation du navigateur",
+        "description": "Consultez et utilisez des pages dans une session agent-browser distincte."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Supprimer le serveur",
       "showTools": "Afficher les outils",
       "hideTools": "Masquer les outils",
-      "reenter": "À saisir à nouveau : {{fields}}"
+      "reenter": "À saisir à nouveau : {{fields}}",
+      "authorized": "Autorisé",
+      "needsAuth": "Autorisation requise",
+      "authorize": "Autoriser",
+      "authorizing": "Autorisation…",
+      "authorizingHint": "Approuvez l’accès dans votre navigateur, puis revenez ici.",
+      "signOut": "Se déconnecter"
     },
     "intro": "Enregistrez des serveurs <2>MCP</2> (locaux ou distants), puis activez l'interrupteur pour utiliser leurs outils dans la conversation.",
     "activeSummary": "Actuellement <strong>{{totalToolCount}} outils</strong> actifs provenant de <strong>{{activeCount}} serveurs</strong>.",
@@ -788,7 +801,11 @@
       "registerFailed": "Échec de l'enregistrement",
       "removeFailed": "Échec de la suppression du serveur",
       "toggleFailed": "Échec du basculement du serveur",
-      "invalidEnv": "JSON des variables d’environnement invalide"
+      "invalidEnv": "JSON des variables d’environnement invalide",
+      "authorizeFailed": "Échec de l’autorisation",
+      "authorized": "« {{name}} » autorisé",
+      "signOutFailed": "Échec de la déconnexion",
+      "signedOut": "« {{name}} » déconnecté"
     }
   },
   "memory": {

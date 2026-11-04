@@ -288,7 +288,7 @@ describe('cards of one session', () => {
     const html1 = bubble('m1', first)
     const html2 = bubble('m2', second)
     expect(html1).not.toContain('Allow')
-    expect(html1).toContain('Done')
+    expect(html1).toContain('Thinking')
     expect(html2).toContain('Allow')
     expect(html2).toContain('Claude Code wants to use Bash')
   })
@@ -301,7 +301,7 @@ describe('your own message', () => {
       agentsById: {},
       teamsById: {}
     })
-    const bubbleClass = html.match(/class="([^"]*\bbg-primary\b[^"]*)"/)![1]
+    const bubbleClass = html.match(/class="([^"]*\bbg-bubble\b[^"]*)"/)![1]
     expect(bubbleClass.split(' ')).not.toContain('[--primary:currentColor]')
     expect(decode(html)).toContain('hello PM')
   })

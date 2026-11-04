@@ -11,8 +11,12 @@ vi.mock('@main/lib/ai/kernel/models', () => ({
   getKernelModels: () => ({ completeSimple })
 }))
 
-const { cleanTitle, generateTitleFromUserMessage, getTextFromMessage } =
-  await import('@main/lib/ai/utils/chat-message-util')
+const {
+  cleanTitle,
+  generateTitleFromText,
+  generateTitleFromUserMessage,
+  getTextFromMessage
+} = await import('@main/lib/ai/utils/chat-message-util')
 
 // What a title request got back for 74c41c76 (2026-10-01): the answer
 const ANSWER =
@@ -106,5 +110,20 @@ describe('generateTitleFromUserMessage', () => {
       apiKey: 'k'
     })
     expect(title).toBe('日经大涨，为什么我的账户跌了1个多点？')
+  })
+
+  it('generates a title directly from text for non-chat conversations', async () => {
+    completeSimple.mockResolvedValueOnce(reply('Group title'))
+    await expect(
+      generateTitleFromText({
+        text: 'Build a landing page',
+        model: {} as never,
+        apiKey: 'k'
+      })
+    ).resolves.toBe('Group title')
+    const sent = completeSimple.mock.calls.at(-1)?.[1].messages[0].content[0]
+    expect(sent).toMatchObject({
+      text: '<message>\nBuild a landing page\n</message>'
+    })
   })
 })

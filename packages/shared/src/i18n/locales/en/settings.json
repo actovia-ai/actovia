@@ -79,7 +79,7 @@
       "title": "Deep Research"
     },
     "computerUse": {
-      "title": "Computer Use"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agents"
@@ -109,7 +109,10 @@
       "storage": "Storage",
       "developer": "Developer"
     },
-    "experimental": "Experimental"
+    "experimental": "Experimental",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Search settings…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Manage schedules",
         "description": "Create, edit and delete scheduled tasks through Chat."
+      },
+      "browserUse": {
+        "label": "Browser automation",
+        "description": "Browse and interact with pages in a separate agent-browser session."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Delete server",
       "showTools": "Show tools",
       "hideTools": "Hide tools",
-      "reenter": "Needs entering again: {{fields}}"
+      "reenter": "Needs entering again: {{fields}}",
+      "authorized": "Authorized",
+      "needsAuth": "Needs authorization",
+      "authorize": "Authorize",
+      "authorizing": "Authorizing…",
+      "authorizingHint": "Approve access in your browser, then come back here.",
+      "signOut": "Sign out"
     },
     "intro": "Register <2>MCP</2> servers (local or remote), then toggle the switch to enable their tools in chat.",
     "activeSummary": "Currently <strong>{{totalToolCount}} tools</strong> from <strong>{{activeCount}} servers</strong> active.",
@@ -788,7 +801,11 @@
       "registerFailed": "Failed to register",
       "removeFailed": "Failed to remove server",
       "toggleFailed": "Failed to toggle server",
-      "invalidEnv": "Invalid environment variables JSON"
+      "invalidEnv": "Invalid environment variables JSON",
+      "authorizeFailed": "Authorization failed",
+      "authorized": "\"{{name}}\" authorized",
+      "signOutFailed": "Failed to sign out",
+      "signedOut": "\"{{name}}\" signed out"
     }
   },
   "memory": {

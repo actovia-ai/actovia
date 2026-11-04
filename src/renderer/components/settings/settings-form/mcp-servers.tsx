@@ -24,7 +24,10 @@ import {
   Delete02Icon,
   Cancel01Icon,
   ViewIcon,
-  PlugIcon
+  PlugIcon,
+  LockKeyIcon,
+  CheckmarkCircle02Icon,
+  Logout03Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 
@@ -44,10 +47,12 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
+  useAuthorizeMcpServer,
   useCreateMcpServer,
   useDeleteMcpServer,
   useMcpServers,
   useMcpTools,
+  useSignOutMcpServer,
   useToggleMcpServer,
   useUpdateMcpServer
 } from '@/hooks/use-mcp'
@@ -140,6 +145,9 @@ function ServerCard({
   onToggle,
   onEdit,
   onDelete,
+  onAuthorize,
+  onSignOut,
+  authorizing,
   reenter
 }: {
   server: McpServerItem
@@ -147,6 +155,12 @@ function ServerCard({
   onToggle: () => void
   onEdit: () => void
   onDelete: () => void
+  /** Start the browser OAuth flow for this (remote, OAuth-capable) server. */
+  onAuthorize: () => void
+  /** Clear this server's stored OAuth tokens. */
+  onSignOut: () => void
+  /** Whether its OAuth flow is in progress (button spins, stays disabled). */
+  authorizing: boolean
   /** Its secrets to enter again (`pendingSecrets`). */
   reenter: string[]
 }) {
@@ -154,6 +168,9 @@ function ServerCard({
   const [expanded, setExpanded] = useState(false)
   const isActive = server.isActive ?? false
   const isRemote = server.transportType !== 'stdio'
+  // A remote, OAuth-capable server: the flow has run (authorized) or has not.
+  const needsAuth = server.authStatus === 'unauthorized'
+  const isAuthorized = server.authStatus === 'authorized'
 
   return (
     <SettingsItem
@@ -171,6 +188,18 @@ function ServerCard({
           {tools.length > 0 && (
             <Badge variant="secondary" className="tabular-nums">
               {t('mcpServers.serverCard.toolCount', { count: tools.length })}
+            </Badge>
+          )}
+          {isAuthorized && (
+            <Badge variant="secondary" className="gap-1">
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} className="h-3 w-3" />
+              {t('mcpServers.serverCard.authorized')}
+            </Badge>
+          )}
+          {needsAuth && (
+            <Badge variant="outline" className="text-muted-foreground gap-1">
+              <HugeiconsIcon icon={LockKeyIcon} className="h-3 w-3" />
+              {t('mcpServers.serverCard.needsAuth')}
             </Badge>
           )}
         </>
@@ -213,6 +242,45 @@ function ServerCard({
         >
           {t('mcpServers.serverCard.reenter', { fields: reenter.join(', ') })}
         </p>
+      )}
+      {(needsAuth || isAuthorized) && (
+        // Browser OAuth for a remote server: authorize when it has no tokens,
+        // sign out when it does. The flow runs in the system browser.
+        <div className="flex flex-col items-start gap-1.5 pl-[54px]">
+          {needsAuth ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAuthorize}
+                disabled={authorizing}
+              >
+                <HugeiconsIcon
+                  icon={authorizing ? Loading03Icon : LockKeyIcon}
+                  className={cn('h-3.5 w-3.5', authorizing && 'animate-spin')}
+                />
+                {authorizing
+                  ? t('mcpServers.serverCard.authorizing')
+                  : t('mcpServers.serverCard.authorize')}
+              </Button>
+              {authorizing && (
+                <p className="text-muted-foreground text-xs">
+                  {t('mcpServers.serverCard.authorizingHint')}
+                </p>
+              )}
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={onSignOut}
+            >
+              <HugeiconsIcon icon={Logout03Icon} className="h-3.5 w-3.5" />
+              {t('mcpServers.serverCard.signOut')}
+            </Button>
+          )}
+        </div>
       )}
       {(server.description || tools.length > 0) && (
         // Lined up under the name, past the icon tile.
@@ -284,6 +352,9 @@ export function McpServers() {
   // `mutate`, not `mutateAsync`: nothing follows a toggle, so there is no
   // rejection to catch.
   const { mutate: toggleServer } = useToggleMcpServer()
+  const { mutate: authorizeServer, variables: authorizingServer } =
+    useAuthorizeMcpServer()
+  const { mutate: signOutServer } = useSignOutMcpServer()
 
   const toolsByServer = new Map<string, McpToolInfo[]>()
   for (const group of toolsData?.tools ?? []) {
@@ -610,11 +681,23 @@ export function McpServers() {
                   list.map((server) => (
                     <ServerCard
                       key={server.id}
-                      server={server}
+                      server={{
+                        ...server,
+                        authStatus:
+                          toolsData?.authStatusById?.[server.id] ??
+                          server.authStatus
+                      }}
                       tools={toolsByServer.get(server.name) ?? []}
                       onToggle={() => toggleServer(server)}
                       onEdit={() => startEdit(server)}
                       onDelete={() => setDeleting(server)}
+                      onAuthorize={() => authorizeServer(server)}
+                      onSignOut={() => signOutServer(server)}
+                      authorizing={
+                        (toolsData?.authStatusById?.[server.id] ??
+                          server.authStatus) === 'authorizing' ||
+                        authorizingServer?.id === server.id
+                      }
                       reenter={pendingSecrets(
                         secretsStatus?.needsReentry,
                         server.name
@@ -850,15 +933,41 @@ export function McpServers() {
                       )}
                       layout="vertical"
                     >
-                      <Input
-                        value={headersStr}
-                        onChange={(e) => {
-                          setHeadersStr(e.target.value)
-                          edited('headers')
-                        }}
-                        placeholder='{"Authorization": "Bearer token"}'
-                        className="font-mono text-xs"
-                      />
+                      {/* A Monaco JSON editor, like `extraConfig` above: syntax
+                          highlighting and inline validation for the headers
+                          object, themed with the app. The value is still the
+                          headers JSON string wired to the same state, so the
+                          mask ("••••" for a saved value, posted back unchanged)
+                          and the save handler are untouched. */}
+                      <div className="border-border overflow-hidden rounded-md border">
+                        <Suspense
+                          fallback={
+                            <div className="flex h-32 items-center justify-center">
+                              <HugeiconsIcon
+                                icon={Loading03Icon}
+
+                                className="text-muted-foreground h-4 w-4 animate-spin"
+                              />
+                            </div>
+                          }
+                        >
+                          <CodeEditor
+                            className="h-32"
+                            value={headersStr}
+                            onChange={(value: string) => {
+                              setHeadersStr(value)
+                              edited('headers')
+                            }}
+                            monacoEditorOption={{
+                              language: 'json',
+                              lineNumbers: 'off',
+                              minimap: { enabled: false },
+                              scrollBeyondLastLine: false,
+                              folding: false
+                            }}
+                          />
+                        </Suspense>
+                      </div>
                       {holdsMask(headersStr) && maskedHint}
                       {reenterFields('headers')}
                       {refusal('headers')}

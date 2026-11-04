@@ -1,5 +1,8 @@
 // src/main/lib/server/routes/philharmonic-conversations.test.ts
 import { describe, expect, it, vi } from 'vitest'
+vi.mock('@main/lib/ai/philharmonic/execution-engine', () => ({
+  stopStaffTasks: vi.fn()
+}))
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
 vi.mock('@main/lib/server/utils', () => ({
   getRequiredParam: (_c: unknown, _k: string) => 'id',
@@ -29,6 +32,11 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   getPhilharmonicCostRows: getPhilharmonicCostRows
 }))
 const getPhilharmonicCostRows = vi.fn()
+const getPlansForDashboard = vi.fn(async () => [])
+vi.mock('@main/lib/db/plan-queries', () => ({
+  getActivePlanByConversationId: vi.fn(async () => null),
+  getPlansForDashboard: () => getPlansForDashboard()
+}))
 const getPmCostRows = vi.fn(async (_since?: Date) => [])
 vi.mock('@main/lib/db/pm-round-queries', () => ({
   getPmCostRows: (since?: Date) => getPmCostRows(since),
@@ -47,6 +55,7 @@ const createConversationMessage = vi.fn(async (_row: unknown) => ({
   id: 'new'
 }))
 vi.mock('@main/lib/db/conversation-queries', () => ({
+  getConversationById: vi.fn(async () => null),
   deleteConversation,
   createConversationMessage: (row: unknown) => createConversationMessage(row),
   getMessagesByConversationId: (id: string) => getMessagesByConversationId(id),
@@ -108,6 +117,7 @@ vi.mock('@main/lib/ai/philharmonic/pm-run-registry', () => ({
     abort: (id: string) => abort(id),
     run: (_id: string, round: (signal: AbortSignal) => Promise<void>) =>
       round(new AbortController().signal),
+    steer: vi.fn(() => false),
     set: vi.fn(),
     clear: vi.fn()
   }
@@ -121,6 +131,75 @@ vi.mock('@main/lib/agents/registry', () => ({
 
 const { default: conversationsRouter } =
   await import('@main/lib/server/routes/philharmonic-conversations')
+
+describe('GET /plans/monitor', () => {
+  it('returns plans and steps as dashboard DTOs', async () => {
+    const now = new Date('2026-11-02T10:00:00.000Z')
+    getPlansForDashboard.mockResolvedValue([
+      {
+        plan: {
+          id: 'plan1',
+          conversationId: 'group1',
+          summary: 'Review the portfolio',
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+          archivedAt: null
+        },
+        steps: [
+          {
+            id: 'step1',
+            planId: 'plan1',
+            ordinal: 0,
+            title: 'Review concentration',
+            intent: null,
+            assignedAgentId: null,
+            status: 'running',
+            output: null,
+            note: null,
+            taskId: null,
+            startedAt: now,
+            completedAt: null,
+            updatedAt: now
+          }
+        ]
+      }
+    ])
+    const { Hono } = await import('hono')
+    const app = new Hono()
+    app.route('/', conversationsRouter)
+
+    const response = await app.request('/plans/monitor')
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual([
+      {
+        id: 'plan1',
+        conversationId: 'group1',
+        summary: 'Review the portfolio',
+        status: 'active',
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+        steps: [
+          {
+            id: 'step1',
+            planId: 'plan1',
+            ordinal: 0,
+            title: 'Review concentration',
+            intent: null,
+            assignedAgentId: null,
+            status: 'running',
+            output: null,
+            note: null,
+            taskId: null,
+            startedAt: now.toISOString(),
+            completedAt: null
+          }
+        ]
+      }
+    ])
+  })
+})
 
 describe('POST /conversations/:id/respond', () => {
   it('persists the answer through the registry reservation with its question id', async () => {

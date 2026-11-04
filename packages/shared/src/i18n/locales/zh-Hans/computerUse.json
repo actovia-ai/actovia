@@ -1,23 +1,39 @@
 {
-  "experimental": "电脑操控仍是实验功能：速度慢，可能看错屏幕或点错地方，而且只在目标应用位于所有窗口最前面时才会操作。它工作时请在旁看着，按 ⌥⇧⎋ 可随时停止。",
-  "alert": "电脑操控让 AI 通过虚拟鼠标和键盘操作你 Mac 上的一个窗口——它每一步都会查看屏幕截图，像人一样执行操作。此功能需要支持视觉的 AI 模型。它只会操作你在下方允许列表中添加的应用（如果应用尚未运行，会自动打开），你可以随时按 ⌥⇧⎋ 停止，每次会话都会记录在案。默认关闭。",
+  "experimental": "桌面操作使用 agent-desktop 的无焦点辅助功能，浏览器操作使用独立的 agent-browser 会话。按 Alt+Shift+Escape 可停止操作。",
+  "alert": "Actovia 使用开源引擎 agent-desktop 和 agent-browser。桌面控制默认关闭，仅限下方允许的运行中应用。浏览器任务使用独立会话。AI 使用所选模型观察、操作并检查结果。",
   "enable": {
     "label": "启用电脑操控",
     "description": "让 AI 操作允许列表中的窗口。"
   },
   "allowlist": {
     "label": "允许的应用",
-    "description": "电脑操控只会操作这些应用。可从这台 Mac 上已安装的应用中选择。",
-    "searchPlaceholder": "搜索已安装的应用…",
+    "description": "桌面控制仅限这些应用。请从本机正在运行的应用中选择。",
+    "searchPlaceholder": "搜索运行中的应用…",
     "loading": "正在加载应用…",
     "noAppFound": "未找到应用。"
   },
   "maxSteps": {
     "label": "最大步数",
-    "description": "执行这么多次操作后停止会话。默认 25。"
+    "description": "每次员工运行的桌面观察和操作上限，默认 25 次。"
   },
   "settleDelay": {
     "label": "稳定延迟（毫秒）",
     "description": "每次操作后等待这么久再截取下一张屏幕截图。默认 800。"
-  }
+  },
+  "browser": {
+    "title": "浏览器自动化",
+    "enabled": {
+      "label": "启用 Browser Use",
+      "description": "允许在独立会话中执行浏览器任务，不使用你的个人浏览器会话。关闭后阻止下一次操作，仍可关闭已有会话。"
+    },
+    "headed": {
+      "label": "显示浏览器窗口",
+      "description": "显示自动化浏览器，方便观察操作过程。从新会话生效；关闭时在后台运行。"
+    },
+    "maxSteps": {
+      "label": "每次运行的浏览器操作上限",
+      "description": "限制每次 Agent 运行中的浏览器调用次数。达到上限后仍可关闭会话。默认 100 次。"
+    }
+  },
+  "desktopTitle": "桌面自动化"
 }

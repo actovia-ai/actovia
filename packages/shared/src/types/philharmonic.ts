@@ -1,4 +1,10 @@
 import type { AgentCard } from './agents'
+import type { ContextSnapshotData } from './chat-context'
+
+/** What filled the PM coordinator's latest request to its model. */
+export interface PmContextSnapshot extends ContextSnapshotData {
+  roundId: string
+}
 
 export enum TaskStatus {
   Pending = 'pending',
@@ -98,14 +104,18 @@ export type PhilharmonicSseEvent =
       conversationId: string
       messageId: string
       delta: string
+      thinking?: string
     }
   | {
       type: 'message_end'
       conversationId: string
       messageId: string
+      conversationTitle?: string
     }
   | {
       type: 'tool_card'
+      toolCallId?: string
+      args?: Record<string, unknown>
       conversationId: string
       messageId: string
       toolName: string

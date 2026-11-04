@@ -47,6 +47,29 @@ describe('resolveEmployeeModel', () => {
     })
   })
 
+  it("uses the selected model's catalog snapshot when available", () => {
+    const snapshot = {
+      contextWindow: 256_000,
+      maxOutputTokens: 32_000,
+      reasoningLevels: ['high'],
+      adaptiveThinking: null,
+      budgetThinking: null
+    }
+    resolveEmployeeModel({ provider: 'openai', model: 'gpt-x' }, {
+      ...setting,
+      modelCatalog: {
+        openai: [{ id: 'gpt-x', displayName: 'GPT X', snapshot }]
+      }
+    } as never)
+    expect(getModelFromProvider.mock.calls.at(-1)![0]).toMatchObject({
+      providerConfig: {
+        provider: 'openai',
+        model: 'gpt-x',
+        modelSnapshot: snapshot
+      }
+    })
+  })
+
   it("fails with the employee's provider named, never falling back", () => {
     expect(() =>
       resolveEmployeeModel({ provider: 'nokey', model: 'm' }, setting)

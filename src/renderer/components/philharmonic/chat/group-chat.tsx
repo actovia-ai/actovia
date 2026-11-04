@@ -1,14 +1,16 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { isSameDay, isToday, isYesterday } from 'date-fns'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { HeaderSidebarTrigger } from '@/components/app/update-ready'
+import { MessageSpinner } from '@/components/chat/message-spinner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { i18n } from '@/lib/i18n'
+import { ROW_ENTER } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import {
   interruptConversation,
@@ -25,8 +27,10 @@ import { EmployeeAvatar } from '../employees/employee-avatar'
 import { PhilharmonicEmptyState } from '../empty-state'
 import { hueStyle, pickHue } from '../lib/hue'
 import { Composer } from './composer'
+import { GroupContextRing } from './group-context-ring'
 import { useGroupHistory } from './group-history'
 import { GroupMessageBubble } from './group-message-bubble'
+import type { GroupPanelSection } from './group-resources-panel'
 import { GroupResourcesPanel } from './group-resources-panel'
 import { mergeGroupMessages, type BubbleWithDate } from './merge-group-messages'
 import { NewGroupButton } from './new-group-button'
@@ -69,19 +73,21 @@ export function GroupChat({
   teamsById,
   members,
   stream,
-  membersOpen,
-  onToggleMembers,
+  panelOpen,
+  onOpenPanel,
+  onClosePanel,
   onCreateGroup
 }: {
   conversation: ConversationData
   agentsById: Record<string, AgentData>
   teamsById: Record<string, TeamData>
   members: AgentData[]
-  /** Aggregated SSE stream, hoisted from the container so the Members panel
-   * sees the same busy state. */
+  /** Aggregated SSE stream, hoisted from the container so the Monitor sees
+   * the same busy state. */
   stream: ConversationStream
-  membersOpen: boolean
-  onToggleMembers: () => void
+  panelOpen: boolean
+  onOpenPanel: () => void
+  onClosePanel: () => void
   onCreateGroup: () => void
 }) {
   const { t } = useTranslation('philharmonic')
@@ -99,7 +105,10 @@ export function GroupChat({
     questionStatus
   } = stream
   const [answer, setAnswer] = useState('')
+  const [sending, setSending] = useState(false)
+  const [panelSection, setPanelSection] = useState<GroupPanelSection>('monitor')
   const scrollRef = useRef<HTMLDivElement>(null)
+  const followTranscriptRef = useRef(true)
 
   const history = useGroupHistory(conversationId, revision)
 
@@ -115,9 +124,25 @@ export function GroupChat({
     [history, bubbles, conversationId, agentCards, questionStatus]
   )
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
-  }, [merged.length, bubbles])
+  useLayoutEffect(() => {
+    followTranscriptRef.current = true
+    setPanelSection('monitor')
+  }, [conversationId])
+
+  const openPanel = (section: GroupPanelSection) => {
+    if (panelOpen && panelSection === section) {
+      onClosePanel()
+      return
+    }
+    setPanelSection(section)
+    onOpenPanel()
+  }
+
+  useLayoutEffect(() => {
+    const element = scrollRef.current
+    if (element && followTranscriptRef.current)
+      element.scrollTop = element.scrollHeight
+  }, [merged])
 
   const memberCount = conversation.memberAgentIds?.length ?? members.length
   const visibleMembers = members.slice(0, 3)
@@ -133,7 +158,7 @@ export function GroupChat({
           toggle with New group only once the sidebar is away. */}
         <header
           className={cn(
-            'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 rounded-tl-xl pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
+            'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
             'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
             sidebarOpen ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
           )}
@@ -146,7 +171,7 @@ export function GroupChat({
           )}
           {/* Grok's bar (ISSUE-272): the group's avatar and its name, nothing
             under it; who is in it is the button at the right end. */}
-          <div className="no-drag flex min-w-0 flex-1 items-center gap-2 pl-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2 pl-2">
             <span
               className="flex size-6 shrink-0 items-center justify-center rounded-full text-xs"
               style={hueStyle(pickHue(conversation.id))}
@@ -158,6 +183,11 @@ export function GroupChat({
               {conversation.title}
             </h1>
           </div>
+          <GroupContextRing
+            conversationId={conversationId}
+            revision={revision}
+            onOpenPanel={openPanel}
+          />
           <Button
             variant="ghost"
             size="sm"
@@ -167,10 +197,12 @@ export function GroupChat({
               (primaryTeam ? ` · ${primaryTeam}` : '')
             }
             data-testid={TEST_IDS.philharmonic.membersToggle}
-            onClick={onToggleMembers}
+            onClick={() => openPanel('monitor')}
             className={cn(
               'no-drag text-muted-foreground hover:text-foreground h-8 shrink-0 gap-1.5 rounded-full px-1.5',
-              membersOpen && 'bg-accent text-foreground'
+              panelOpen &&
+                panelSection === 'monitor' &&
+                'bg-accent text-foreground'
             )}
           >
             {visibleMembers.length > 0 ? (
@@ -200,22 +232,35 @@ export function GroupChat({
           data-tone-scope="tone"
           className="relative flex min-h-0 flex-1 flex-col"
         >
-          <div
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto px-4 pt-3 pb-36"
-          >
-            {plan && plan.steps.length > 0 && (
-              <div className="mx-auto max-w-2xl">
+          {plan && plan.steps.length > 0 && (
+            <div className="absolute inset-x-0 top-0 z-20 px-4 pt-2">
+              <div className="mx-auto w-full max-w-3xl">
                 <PlanCard plan={plan} agentsById={agentsById} />
               </div>
+            </div>
+          )}
+          <div
+            ref={scrollRef}
+            onScroll={(event) => {
+              const element = event.currentTarget
+              followTranscriptRef.current =
+                element.scrollHeight -
+                  element.clientHeight -
+                  element.scrollTop <
+                96
+            }}
+            className={cn(
+              'flex-1 overflow-y-auto px-4 pb-40 [overflow-anchor:none]',
+              plan?.steps.length ? 'pt-16' : 'pt-3'
             )}
+          >
             {merged.length === 0 ? (
               <PhilharmonicEmptyState
                 title={t('chat.groupChat.emptyState.title')}
                 description={t('chat.groupChat.emptyState.description')}
               />
             ) : (
-              <div className="mx-auto flex max-w-2xl flex-col">
+              <div className="mx-auto flex max-w-3xl flex-col">
                 {merged.map((b, i) => {
                   const prev = i > 0 ? merged[i - 1] : null
                   // Use null when createdAt is absent (e.g. live streaming bubble) so
@@ -228,7 +273,10 @@ export function GroupChat({
                     curDate !== null &&
                     (!prevDate || !isSameDay(curDate, prevDate))
                   return (
-                    <div key={b.messageId}>
+                    <div
+                      key={b.messageId}
+                      className={b.streaming ? ROW_ENTER : undefined}
+                    >
                       {showDay && curDate && (
                         <div className="text-muted-foreground my-4 text-center text-xs font-medium">
                           {formatDayLabel(curDate)}
@@ -245,8 +293,20 @@ export function GroupChat({
                 })}
               </div>
             )}
+            {(sending || pmRunning) &&
+              !merged.some(
+                (bubble) => bubble.role === 'pm' && bubble.streaming
+              ) && (
+                <div
+                  className="mx-auto mt-5 max-w-3xl"
+                  role="status"
+                  aria-label={t('chat.decision.thinking')}
+                >
+                  <MessageSpinner />
+                </div>
+              )}
             {error && (
-              <div className="text-destructive bg-destructive/10 mx-auto mt-2 flex max-w-2xl items-center gap-2 rounded-lg px-3 py-2 text-xs">
+              <div className="text-destructive bg-destructive/10 mx-auto mt-2 flex max-w-3xl items-center gap-2 rounded-lg px-3 py-2 text-xs">
                 <HugeiconsIcon
                   icon={Alert02Icon}
 
@@ -258,7 +318,7 @@ export function GroupChat({
             {/* Only a question the server could not save: a saved one is a
               card in the transcript (question-card.tsx). */}
             {askUser && (
-              <div className="border-border bg-muted mx-auto my-3 max-w-2xl rounded-xl border p-3">
+              <div className="border-border bg-muted mx-auto my-3 max-w-3xl rounded-xl border p-3">
                 <div className="text-foreground mb-2 flex items-start gap-2 text-sm">
                   <HugeiconsIcon
                     icon={HelpCircleIcon}
@@ -296,9 +356,18 @@ export function GroupChat({
             <Composer
               conversationId={conversationId}
               groupTitle={conversation.title}
-              onSend={(text, attachments) =>
-                sendConversationMessage(conversationId, text, attachments)
-              }
+              onSend={async (text, attachments) => {
+                setSending(true)
+                try {
+                  await sendConversationMessage(
+                    conversationId,
+                    text,
+                    attachments
+                  )
+                } finally {
+                  setSending(false)
+                }
+              }}
               busy={pmRunning}
               onStop={() => {
                 interruptConversation(conversationId).catch(() => {})
@@ -310,8 +379,10 @@ export function GroupChat({
       <GroupResourcesPanel
         key={conversationId}
         conversationId={conversationId}
-        open={membersOpen}
-        onClose={onToggleMembers}
+        open={panelOpen}
+        section={panelSection}
+        onSectionChange={setPanelSection}
+        onClose={onClosePanel}
         bubbles={merged}
         revision={revision}
         members={members}

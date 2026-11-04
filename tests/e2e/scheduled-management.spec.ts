@@ -30,9 +30,6 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   }
   await scheduled.click()
   await expect(mainWindow.getByTestId(TEST_IDS.schedule.page)).toBeVisible()
-  await expect(
-    mainWindow.getByTestId(TEST_IDS.schedule.createButton)
-  ).toHaveCount(0)
   const scheduleComposer = mainWindow.getByTestId(TEST_IDS.schedule.composer)
   await expect(
     scheduleComposer.getByTestId(TEST_IDS.composer.textarea)
@@ -138,6 +135,7 @@ test('Scheduled uses multi-turn Chat, edits the original task and recovers delet
   await recurring()
   const card = mainWindow.getByTestId(TEST_IDS.schedule.taskCard)
   await expect(card).toContainText(fields.title)
+  await expect(mainWindow.getByTestId(TEST_IDS.schedule.tab)).toBeVisible()
   await expect(card.getByTestId(TEST_IDS.schedule.originLink)).toHaveAttribute(
     'href',
     `#/chat/${original.input.chatId}`

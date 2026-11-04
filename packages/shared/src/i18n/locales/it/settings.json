@@ -79,7 +79,7 @@
       "title": "Ricerca approfondita"
     },
     "computerUse": {
-      "title": "Computer Use"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agenti"
@@ -109,7 +109,10 @@
       "storage": "Archiviazione",
       "developer": "Sviluppatore"
     },
-    "experimental": "Sperimentale"
+    "experimental": "Sperimentale",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Cerca nelle impostazioni…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Gestisci pianificazioni",
         "description": "Crea, modifica ed elimina attività pianificate tramite Chat."
+      },
+      "browserUse": {
+        "label": "Automazione del browser",
+        "description": "Naviga e interagisci con le pagine in una sessione separata di agent-browser."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Elimina server",
       "showTools": "Mostra strumenti",
       "hideTools": "Nascondi strumenti",
-      "reenter": "Da inserire di nuovo: {{fields}}"
+      "reenter": "Da inserire di nuovo: {{fields}}",
+      "authorized": "Autorizzato",
+      "needsAuth": "Autorizzazione necessaria",
+      "authorize": "Autorizza",
+      "authorizing": "Autorizzazione…",
+      "authorizingHint": "Approva l’accesso nel browser, poi torna qui.",
+      "signOut": "Esci"
     },
     "intro": "Registra server <2>MCP</2> (locali o remoti), poi attiva l'interruttore per abilitare i loro strumenti nella chat.",
     "activeSummary": "Attualmente <strong>{{totalToolCount}} strumenti</strong> attivi da <strong>{{activeCount}} server</strong>.",
@@ -788,7 +801,11 @@
       "registerFailed": "Registrazione non riuscita",
       "removeFailed": "Rimozione del server non riuscita",
       "toggleFailed": "Impossibile attivare/disattivare il server",
-      "invalidEnv": "JSON delle variabili d’ambiente non valido"
+      "invalidEnv": "JSON delle variabili d’ambiente non valido",
+      "authorizeFailed": "Autorizzazione non riuscita",
+      "authorized": "«{{name}}» autorizzato",
+      "signOutFailed": "Disconnessione non riuscita",
+      "signedOut": "«{{name}}» disconnesso"
     }
   },
   "memory": {

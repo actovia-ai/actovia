@@ -155,7 +155,7 @@ function CallingTools({
       {toolName === TOOL_NAMES.deepResearch && (
         <DeepResearchCard toolResult={output} />
       )}
-      {toolName === TOOL_NAMES.computerUse && (
+      {toolName === TOOL_NAMES.computerUse && !output?.engine && (
         <ComputerUseCard toolResult={output} isStreaming={isStreaming} />
       )}
       {toolName === 'terminal' && <TerminalCard toolResult={output} />}

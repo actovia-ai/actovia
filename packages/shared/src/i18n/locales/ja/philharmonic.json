@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "新しいグループ",
     "dashboardTitle": "ダッシュボード"
   },
+  "monitor": {
+    "pageTitle": "実行計画",
+    "pageDescription": "各グループの進行中の作業と最近の結果を確認できます。",
+    "refreshHint": "15秒ごとに更新",
+    "loadError": "グループの計画を読み込めませんでした",
+    "activePlans": "進行中の計画",
+    "recentPlans": "最近の計画",
+    "emptyTitle": "監視するグループ計画はまだありません",
+    "emptyDescription": "グループが複数ステップの作業を開始すると、ここに計画が表示されます。",
+    "charts": {
+      "activity": "プランの活動",
+      "activityHint": "過去7日間に更新されたプラン",
+      "completed": "完了",
+      "active": "進行中",
+      "stopped": "停止",
+      "steps": "ステップの内訳",
+      "stepsHint": "表示中のプランの合計 {{count}} ステップ"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "予定",
@@ -160,6 +179,10 @@
       "pm": "PM",
       "employeeFallback": "従業員"
     },
+    "resourcesPanel": {
+      "monitor": "モニター",
+      "finalOutput": "アーカイブ"
+    },
     "membersPanel": {
       "heading": "メンバー",
       "coordinatorsLabel": "コーディネーター",
@@ -263,6 +286,16 @@
         "skipped": "スキップ",
         "failed": "失敗"
       }
+    },
+    "activity": {
+      "running": "作業中",
+      "retry": "アクティビティを再読み込み",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "完成した成果物はまだありません",
+      "emptyDescription": "PM が確認して保存した最終ファイルやフォルダがここに表示されます。",
+      "reveal": "フォルダに表示"
     }
   },
   "employees": {
@@ -454,5 +487,30 @@
     "search": "絵文字を検索",
     "empty": "絵文字が見つかりません",
     "failed": "保存できませんでした。もう一度お試しください。"
+  },
+  "runtimeSettings": {
+    "intro": "Control how Groups work across this computer. Limits and model preferences apply to new PM rounds and staff tasks; work already running keeps its limits.",
+    "limits": "Execution limits",
+    "models": "Model selection",
+    "maxRunning": {
+      "label": "Maximum concurrent staff",
+      "description": "Across all Groups, including API and coding employees. Extra tasks wait for a slot. Coding agents also respect the coding agent limit below. Default 2."
+    },
+    "pmMaxToolCalls": {
+      "label": "PM tool calls per round",
+      "description": "Pause the PM when a round reaches this limit and wait for your next message. Default 100."
+    },
+    "staffMaxToolCalls": {
+      "label": "Staff tool calls per task",
+      "description": "Limit calls in each API employee run. Coding employees use their own CLI runtime limits. Default 80."
+    },
+    "failureLimit": {
+      "label": "Repeated failure limit",
+      "description": "Stop identical failing tool calls and repeated delegation of the same plan step in a PM round at this limit. Default 3."
+    },
+    "autoModelRouting": {
+      "label": "Allow automatic model selection",
+      "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
+    }
   }
 }

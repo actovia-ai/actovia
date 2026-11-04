@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
 
 import { db } from './db'
 import {
@@ -173,6 +173,43 @@ export async function getActivePlanByConversationId(
   return { plan, steps }
 }
 
+/** Active plans and plans updated in the last week for the plan monitor. */
+export async function getPlansForDashboard(): Promise<PlanWithSteps[]> {
+  const recentSince = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  const plans = await db
+    .select()
+    .from(conversationPlan)
+    .where(
+      and(
+        isNull(conversationPlan.archivedAt),
+        or(
+          inArray(conversationPlan.status, ['active', 'drafting']),
+          gte(conversationPlan.updatedAt, recentSince)
+        )
+      )
+    )
+    .orderBy(desc(conversationPlan.updatedAt))
+    .limit(100)
+  if (plans.length === 0) return []
+
+  const planIds = plans.map((plan) => plan.id)
+  const steps = await db
+    .select()
+    .from(planStep)
+    .where(inArray(planStep.planId, planIds))
+    .orderBy(asc(planStep.ordinal))
+  const stepsByPlan = new Map<string, PlanStep[]>()
+  for (const step of steps) {
+    const list = stepsByPlan.get(step.planId) ?? []
+    list.push(step)
+    stepsByPlan.set(step.planId, list)
+  }
+  return plans.map((plan) => ({
+    plan,
+    steps: stepsByPlan.get(plan.id) ?? []
+  }))
+}
+
 export async function updatePlanStatus(
   planId: string,
   status: ConversationPlan['status']
@@ -183,4 +220,14 @@ export async function updatePlanStatus(
     .where(eq(conversationPlan.id, planId))
     .returning()
   return row
+}
+
+export async function updatePlanSummary(
+  planId: string,
+  summary: string
+): Promise<void> {
+  await db
+    .update(conversationPlan)
+    .set({ summary, updatedAt: new Date() })
+    .where(eq(conversationPlan.id, planId))
 }

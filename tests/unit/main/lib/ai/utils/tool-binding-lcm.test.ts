@@ -9,6 +9,7 @@ const lcmExpand = vi.fn((_model: unknown, _apiKey: string, _chatId?: string) =>
   stub('lcm_expand')
 )
 vi.mock('@main/lib/ai/calling-tools', () => ({
+  browserUse: () => stub('browser_use'),
   createArtifact: () => stub('create_artifact'),
   deepResearch: stub('deep_research'),
   editFile: () => stub('edit_file'),

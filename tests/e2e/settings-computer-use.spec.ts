@@ -8,14 +8,28 @@ test.describe('Settings — Computer Use', () => {
   }) => {
     // Its sidebar item reads "Computer Use Experimental" (the badge), so the
     // helper finds it by its tab, not its name.
+    await mainWindow.route('**/api/v1/computer-use/apps', (route) =>
+      route.fulfill({
+        json: {
+          apps: [
+            {
+              name: 'Chess',
+              bundleId: 'com.apple.Chess',
+              path: '/System/Applications/Chess.app',
+              pid: 123
+            }
+          ]
+        }
+      })
+    )
     await openSettings(mainWindow, 'Computer Use')
 
     await expect(
       mainWindow.getByTestId(TEST_IDS.computerUse.enableToggle)
     ).toBeVisible()
 
-    // The allowlist is a combobox of installed apps — type to filter, then
-    // pick "Chess" from the dropdown (it's a stock macOS app, always present).
+    // The allowlist is a combobox of running apps — type to filter, then
+    // pick "Chess" from the dropdown (the upstream inventory is mocked for reproducibility).
     const input = mainWindow.getByTestId(TEST_IDS.computerUse.allowlistInput)
     await input.click()
     await input.fill('Chess')

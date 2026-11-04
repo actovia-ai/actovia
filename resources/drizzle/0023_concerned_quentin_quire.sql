@@ -1,0 +1,2 @@
+ALTER TABLE "agent_memory" ALTER COLUMN "conversationId" DROP NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "agent_memory_employee_experience_idx" ON "agent_memory" USING btree ("agentId","key") WHERE "agent_memory"."conversationId" IS NULL;

@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use ist experimentell. Es ist langsam, kann den Bildschirm falsch lesen oder danebenklicken und handelt nur, solange die App vor allen anderen Fenstern liegt. Behalte es im Blick, während es arbeitet, und stoppe es mit ⌥⇧⎋.",
-  "alert": "Computer Use ermöglicht es der KI, ein Fenster auf Ihrem Mac mit einer virtuellen Maus und Tastatur zu bedienen — sie sieht bei jedem Schritt einen Screenshot und handelt wie ein Mensch. Dafür ist ein KI-Modell mit Bildverständnis erforderlich. Sie greift nur auf Apps zu, die Sie unten zur Zulassungsliste hinzufügen (und öffnet eine App, die noch nicht läuft). Sie können sie jederzeit mit ⌥⇧⎋ stoppen, und jede Sitzung wird protokolliert. Standardmäßig deaktiviert.",
+  "experimental": "Die Desktop-Steuerung nutzt agent-desktop über Bedienungshilfen ohne Fensterfokus. Die Browser-Steuerung nutzt eine eigene agent-browser-Sitzung. Alt+Umschalt+Escape stoppt aktive Aktionen.",
+  "alert": "Actovia verwendet die Open-Source-Engines agent-desktop und agent-browser. Die Desktop-Steuerung ist standardmäßig aus und auf die unten erlaubten laufenden Apps begrenzt. Browser-Aufgaben erhalten eine eigene Sitzung. Die KI beobachtet, handelt und prüft mit dem ausgewählten Modell.",
   "enable": {
     "label": "Computer Use aktivieren",
     "description": "Lässt die KI ein zugelassenes Fenster bedienen."
   },
   "allowlist": {
     "label": "Zugelassene Apps",
-    "description": "Computer Use greift nur auf diese Apps zu. Wählen Sie aus den auf diesem Mac installierten Apps.",
-    "searchPlaceholder": "Installierte Apps durchsuchen…",
+    "description": "Nur diese Apps können gesteuert werden. Wähle aus den auf diesem Computer laufenden Apps.",
+    "searchPlaceholder": "Laufende Apps suchen…",
     "loading": "Apps werden geladen…",
     "noAppFound": "Keine App gefunden."
   },
   "maxSteps": {
     "label": "Max. Schritte",
-    "description": "Eine Sitzung nach dieser Anzahl von Aktionen beenden. Standard: 25."
+    "description": "Maximale Anzahl von Desktop-Beobachtungen und Aktionen pro Agentenlauf. Standard: 25."
   },
   "settleDelay": {
     "label": "Beruhigungspause (ms)",
     "description": "So lange nach jeder Aktion warten, bevor der nächste Screenshot gemacht wird. Standard: 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

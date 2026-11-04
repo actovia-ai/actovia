@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 
 import { NotFoundError } from '@actovia/shared'
-import { dialog } from 'electron'
+import { dialog, shell } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
@@ -71,6 +71,15 @@ router.get('/conversations/:id', async (c) => {
     missing,
     branch: project && !missing ? await gitBranch(project.workDir) : null
   })
+})
+
+router.post('/conversations/:id/reveal-folder', desktopOnly, async (c) => {
+  const conversation = await getConversationById(getRequiredParam(c, 'id'))
+  if (!conversation?.projectId) throw new NotFoundError()
+  const project = await getProjectById(conversation.projectId)
+  if (!project || !existsSync(project.workDir)) throw new NotFoundError()
+  shell.showItemInFolder(project.workDir)
+  return successResponse(c, { success: true })
 })
 
 router.put('/conversations/:id', desktopOnly, async (c) => {

@@ -9,5 +9,13 @@ export const SETTING_DEFAULTS = {
   memory: { contextWindowPercent: 75, freshTailSize: 6 },
   computerUse: { maxSteps: 25, settleMs: 800 },
   agents: { maxRunning: 2, keepAliveMinutes: 10 },
+  browserUse: { enabled: true, headed: false, maxSteps: 100 },
+  philharmonic: {
+    maxRunning: 2,
+    pmMaxToolCalls: 100,
+    staffMaxToolCalls: 80,
+    failureLimit: 3,
+    autoModelRouting: true
+  },
   knowledgeBase: { topK: 60, chunkTopK: 10 }
 } as const

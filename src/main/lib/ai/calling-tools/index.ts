@@ -1,3 +1,4 @@
+import { browserUse } from './browser-use'
 import { computerUse } from './computer-use'
 import { createArtifact } from './create-artifact'
 import { deepResearch } from './deep-research'
@@ -23,6 +24,7 @@ import { writeFile } from './write-file'
 
 export {
   computerUse,
+  browserUse,
   createArtifact,
   deepResearch,
   editFile,

@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "新群组",
     "dashboardTitle": "仪表盘"
   },
+  "monitor": {
+    "pageTitle": "执行计划",
+    "pageDescription": "查看各个 Group 正在进行的工作和近期结果。",
+    "refreshHint": "每 15 秒刷新",
+    "loadError": "无法加载 Group 计划",
+    "activePlans": "进行中的计划",
+    "recentPlans": "近期计划",
+    "emptyTitle": "暂无可监控的群组计划",
+    "emptyDescription": "群组开始多步骤任务后，计划会显示在这里。",
+    "charts": {
+      "activity": "计划活动",
+      "activityHint": "过去 7 天更新的计划",
+      "completed": "已完成",
+      "active": "进行中",
+      "stopped": "已停止",
+      "steps": "步骤分布",
+      "stepsHint": "当前计划共 {{count}} 个步骤"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "即将执行",
@@ -160,6 +179,10 @@
       "pm": "项目经理",
       "employeeFallback": "员工"
     },
+    "resourcesPanel": {
+      "monitor": "监控",
+      "finalOutput": "归档"
+    },
     "membersPanel": {
       "heading": "成员",
       "coordinatorsLabel": "协调人",
@@ -263,6 +286,16 @@
         "skipped": "跳过",
         "failed": "失败"
       }
+    },
+    "activity": {
+      "running": "处理中",
+      "retry": "重新加载活动",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "暂无已完成的交付物",
+      "emptyDescription": "PM 验证并归档后，最终文件和文件夹会显示在这里。",
+      "reveal": "在文件夹中显示"
     }
   },
   "employees": {
@@ -383,7 +416,7 @@
     "settings": {
       "intro": "编程代理是由你安装并已登录的 CLI 运行的 Philharmonic 员工。Actovia 会在群组的文件夹中启动它、显示它在做什么，并在它每次提问时停下来等你回应。",
       "clisTitle": "在这台 Mac 上",
-      "runTitle": "运行方式",
+      "runTitle": "编码 Agent 运行设置",
       "projectsDir": {
         "label": "项目文件夹",
         "description": "新项目会创建在这里，每个项目的笔记和日志也都保存在这里——即使工作是在你打开的文件夹中进行的。",
@@ -454,5 +487,30 @@
     "search": "搜索表情",
     "empty": "未找到表情",
     "failed": "图标保存失败，请重试。"
+  },
+  "runtimeSettings": {
+    "intro": "管理这台电脑上的群组执行方式。限制和模型偏好从新的 PM 轮次及员工任务开始生效，正在运行的工作保留原有设置。",
+    "limits": "执行限制",
+    "models": "模型选择",
+    "maxRunning": {
+      "label": "员工最大并发人数",
+      "description": "所有群组共享此上限，包含 API 员工和编码员工；超出后排队等待。编码员工还受 下方编码 Agent 的并发限制约束。默认 2 人。"
+    },
+    "pmMaxToolCalls": {
+      "label": "PM 每轮工具调用上限",
+      "description": "达到上限后暂停本轮，等待你的下一条消息。默认 100 次。"
+    },
+    "staffMaxToolCalls": {
+      "label": "员工每次任务工具调用上限",
+      "description": "限制 API 员工每次运行的工具调用次数。编码员工使用各自 CLI 的运行限制。默认 80 次。"
+    },
+    "failureLimit": {
+      "label": "重复失败上限",
+      "description": "同一操作连续失败，或 PM 在一轮中重复委派同一计划步骤达到上限时，停止并等待你的反馈。默认 3 次。"
+    },
+    "autoModelRouting": {
+      "label": "允许自动选择模型",
+      "description": "允许 PM 和 API 员工在请求之间选择已配置的模型（包括 Ollama）。关闭后保持使用指定模型。"
+    }
   }
 }

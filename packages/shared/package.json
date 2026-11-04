@@ -33,6 +33,7 @@
     "./types/computer-use": "./src/types/computer-use.ts",
     "./constants/systems": "./src/constants/systems.ts",
     "./constants/setting-defaults": "./src/constants/setting-defaults.ts",
+    "./constants/philharmonic-settings": "./src/constants/philharmonic-settings.ts",
     "./utils/http": "./src/utils/http.ts",
     "./utils/chat-models": "./src/utils/chat-models.ts",
     "./utils/base-url": "./src/utils/base-url.ts",

@@ -34,6 +34,13 @@ test('the PM’s question is saved in the group, answered from its card', async 
   await composer.fill(FAUX_GROUP_QUESTION)
   await composer.press('Enter')
 
+  const liveThinking = mainWindow.getByTestId(
+    TEST_IDS.philharmonic.liveThinkingToggle
+  )
+  await expect(liveThinking).toBeVisible()
+  await liveThinking.click()
+  await expect(liveThinking).toHaveAttribute('aria-expanded', 'true')
+
   const card = mainWindow.getByTestId(TEST_IDS.philharmonic.questionCard)
   await expect(card).toHaveAttribute('data-status', 'pending')
   await expect(card).toContainText(FAUX_GROUP_QUESTION_ASKED)
@@ -43,6 +50,19 @@ test('the PM’s question is saved in the group, answered from its card', async 
   await expect(
     card.getByTestId(TEST_IDS.philharmonic.questionSend)
   ).toBeDisabled()
+  const chooser = mainWindow.waitForEvent('filechooser')
+  await card.getByTestId(TEST_IDS.philharmonic.questionAttach).click()
+  await (
+    await chooser
+  ).setFiles({
+    name: 'branch.png',
+    mimeType: 'image/png',
+    buffer: Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aG7kAAAAASUVORK5CYII=',
+      'base64'
+    )
+  })
+  await expect(card.getByRole('img', { name: 'branch.png' })).toBeVisible()
   await card.getByTestId(TEST_IDS.philharmonic.questionInput).fill('dev')
   await card.getByTestId(TEST_IDS.philharmonic.questionSend).click()
 
@@ -52,7 +72,9 @@ test('the PM’s question is saved in the group, answered from its card', async 
   ).toHaveCount(0)
   // The PM carried on with the answer it was given.
   await expect(
-    mainWindow.getByText(/Going ahead — User responded: dev/)
+    mainWindow
+      .locator('[data-message-id]')
+      .getByText(/Going ahead — User responded: dev/)
   ).toBeVisible()
 
   // The question and the answer are the group's: a reload draws them again.

@@ -9,7 +9,9 @@ vi.mock('@main/lib/paths', () => ({ getActoviaHome: () => '/data/actovia' }))
 const updateSettings = vi.fn(async () => ({}))
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({
+    computerUse: { browser: { enabled: false, headed: true, maxSteps: 20 } },
     agents: {
+      philharmonic: { maxRunning: 4 },
       cliPaths: { 'claude-code': '/good/claude' },
       projectsDir: '/good',
       maxRunning: 3,
@@ -62,6 +64,39 @@ const written = () =>
 describe('settings write keeps the CLI path and projects folder', () => {
   beforeEach(() => updateSettings.mockClear())
 
+  it('retains nested controls when an older client saves other settings', async () => {
+    const res = await save(
+      {},
+      undefined,
+      JSON.stringify({
+        id: 1,
+        agents: { maxRunning: 5 },
+        computerUse: { enabled: true }
+      })
+    )
+    expect(res.status).toBe(200)
+    expect(written().philharmonic).toEqual({ maxRunning: 4 })
+    expect(updateSettings.mock.calls.at(-1)?.[0]).toMatchObject({
+      computerUse: { browser: { enabled: false, headed: true, maxSteps: 20 } }
+    })
+  })
+
+  it('rejects invalid runtime limits before storing them', async () => {
+    for (const section of [
+      { agents: { philharmonic: { maxRunning: 0 } } },
+      { agents: { philharmonic: { failureLimit: 1.5 } } },
+      { computerUse: { browser: { maxSteps: 501 } } }
+    ]) {
+      const res = await save(
+        {},
+        undefined,
+        JSON.stringify({ id: 1, ...section })
+      )
+      expect(res.status).toBe(400)
+    }
+    expect(updateSettings).not.toHaveBeenCalled()
+  })
+
   it('from a process on loopback without the token', async () => {
     await save({})
     expect(written()).toMatchObject({
@@ -74,6 +109,7 @@ describe('settings write keeps the CLI path and projects folder', () => {
   it('agents: null keeps the stored block as it is', async () => {
     await save({}, undefined, JSON.stringify({ id: 1, agents: null }))
     expect(written()).toEqual({
+      philharmonic: { maxRunning: 4 },
       cliPaths: { 'claude-code': '/good/claude' },
       projectsDir: '/good',
       maxRunning: 3,

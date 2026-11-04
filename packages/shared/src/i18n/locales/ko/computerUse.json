@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use는 실험적인 기능입니다. 느리고, 화면을 잘못 읽거나 엉뚱한 곳을 클릭할 수 있으며, 앱이 다른 모든 창보다 앞에 있을 때만 동작합니다. 작업하는 동안 지켜보다가 ⌥⇧⎋로 멈출 수 있습니다.",
-  "alert": "Computer Use는 AI가 가상 마우스와 키보드로 Mac의 창 하나를 조작하게 합니다 — 매 단계마다 스크린샷을 보고 사람처럼 동작합니다. 비전 기능을 지원하는 AI 모델이 필요합니다. 아래 허용 목록에 추가한 앱만 조작하며(실행 중이 아니면 직접 실행합니다), 언제든지 ⌥⇧⎋로 중지할 수 있고, 모든 세션은 기록됩니다. 기본적으로 꺼져 있습니다.",
+  "experimental": "데스크톱은 agent-desktop의 접근성 기능으로 조작합니다. 브라우저는 별도의 agent-browser 세션을 사용합니다. Alt+Shift+Escape로 동작을 중지할 수 있습니다.",
+  "alert": "Actovia는 오픈 소스 엔진 agent-desktop과 agent-browser를 사용합니다. 데스크톱 제어는 기본적으로 꺼져 있으며 아래에서 허용한 실행 중인 앱으로 제한됩니다. 브라우저 작업은 전용 세션에서 실행됩니다. AI가 선택한 모델로 관찰하고 조작한 뒤 결과를 확인합니다.",
   "enable": {
     "label": "Computer Use 사용",
     "description": "허용 목록에 있는 창을 AI가 조작하도록 합니다."
   },
   "allowlist": {
     "label": "허용된 앱",
-    "description": "Computer Use는 이 앱들만 조작합니다. 이 Mac에 설치된 앱 중에서 선택하세요.",
-    "searchPlaceholder": "설치된 앱 검색…",
+    "description": "이 앱만 제어할 수 있습니다. 이 컴퓨터에서 실행 중인 앱을 선택하세요.",
+    "searchPlaceholder": "실행 중인 앱 검색…",
     "loading": "앱 불러오는 중…",
     "noAppFound": "앱을 찾을 수 없습니다."
   },
   "maxSteps": {
     "label": "최대 단계 수",
-    "description": "이 횟수만큼 동작한 후 세션을 중지합니다. 기본값 25."
+    "description": "에이전트 실행당 데스크톱 관찰 및 동작의 최대 횟수입니다. 기본값은 25입니다."
   },
   "settleDelay": {
     "label": "안정화 지연 시간 (ms)",
     "description": "각 동작 후 다음 스크린샷을 찍기 전까지 대기하는 시간입니다. 기본값 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

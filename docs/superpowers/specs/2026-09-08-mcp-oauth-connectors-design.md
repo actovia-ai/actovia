@@ -3,6 +3,15 @@
 **Date:** 2026-09-08
 **Status:** approved (brainstorming 2026-09-08)
 
+> Current implementation note: OAuth is optional and determined by the server's
+> actual challenge, not by probing or assuming every remote URL requires it.
+> Until a remote connection returns an MCP OAuth `UnauthorizedError`, its UI
+> state is `unknown` and Settings does not show an authorization prompt. This
+> supersedes the older "detected by probing the URL on Add" decision below.
+> Callback denial, timeout, cancellation, and token-exchange failures reject
+> the authorization request so the renderer's mutation error toast can report
+> failure instead of leaving the action pending.
+
 ---
 
 ## Context

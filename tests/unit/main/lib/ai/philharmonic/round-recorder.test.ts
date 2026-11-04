@@ -32,6 +32,21 @@ describe('round recorder', () => {
   it('records a round in order: input, reports, thinking, text, call, result, usage', async () => {
     const { r, rows } = rec()
     r.input('user', 'build it')
+    r.context({
+      model: 'gpt-test',
+      contextWindow: 128_000,
+      compactAt: 96_000,
+      lcmTokens: 120,
+      parts: {
+        system: 100,
+        skills: 0,
+        mcp: 0,
+        tools: 0,
+        memory: 0,
+        summaries: 0,
+        messages: 100
+      }
+    })
     r.reports([{ messageId: 'm1', agentId: 'a1', name: 'Claude Code' }])
     r.onEvent(
       assistant(
@@ -73,9 +88,10 @@ describe('round recorder', () => {
       'tool_call',
       'tool_result',
       'text',
-      'usage'
+      'usage',
+      'context'
     ])
-    expect(rows.map((x) => x.seq)).toEqual([0, 1, 2, 3, 4, 5, 6, 7])
+    expect(rows.map((x) => x.seq)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8])
     expect(rows[4].payload).toEqual({
       toolCallId: 't1',
       name: 'delegateTask',
@@ -92,6 +108,15 @@ describe('round recorder', () => {
       outputTokens: 30,
       cacheReadTokens: 5,
       cacheWriteTokens: 0
+    })
+    expect(rows[8].payload).toMatchObject({
+      model: 'gpt-test',
+      roundId: 'r1',
+      contextWindow: 128_000,
+      compactAt: 96_000,
+      lcmTokens: 120,
+      total: 50,
+      estimated: false
     })
   })
 

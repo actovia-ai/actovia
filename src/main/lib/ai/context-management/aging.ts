@@ -161,6 +161,7 @@ export const TOOL_POLICIES = {
   [TOOL_NAMES.manageSchedule]: head,
   [TOOL_NAMES.deepResearch]: head,
   [TOOL_NAMES.computerUse]: head,
+  [TOOL_NAMES.browserUse]: head,
   [TOOL_NAMES.lcmExpand]: head,
   [TOOL_NAMES.lcmGrep]: head,
   [TOOL_NAMES.lcmDescribe]: head,

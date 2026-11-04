@@ -113,10 +113,31 @@ test.describe('Sidebar', () => {
     await expect(
       dialog.getByRole('link', { name: 'Get the iOS app' })
     ).toHaveAttribute('href', 'https://apps.apple.com/app/actovia/id6824829679')
-    await mainWindow.screenshot({ path: '/tmp/actovia-apps-light.png' })
-    await mainWindow.emulateMedia({ colorScheme: 'dark' })
-    await mainWindow.screenshot({ path: '/tmp/actovia-apps-dark.png' })
-    await mainWindow.emulateMedia({ colorScheme: 'light' })
+    await expect
+      .poll(() => dialog.evaluate((el) => getComputedStyle(el).opacity))
+      .toBe('1')
+    await mainWindow.screenshot({
+      path: '/tmp/actovia-apps-light.png',
+      animations: 'disabled'
+    })
+    await mainWindow.evaluate(() =>
+      document.documentElement.classList.add('dark')
+    )
+    await mainWindow.screenshot({
+      path: '/tmp/actovia-apps-dark.png',
+      animations: 'disabled'
+    })
+    await mainWindow.evaluate(() =>
+      document.documentElement.classList.remove('dark')
+    )
+    await mainWindow.setViewportSize({ width: 1000, height: 800 })
+    await expect(
+      dialog.getByText('npm i -g @actovia-ai/cli', { exact: false })
+    ).toBeVisible()
+    await mainWindow.screenshot({
+      path: '/tmp/actovia-apps-narrow.png',
+      animations: 'disabled'
+    })
 
     await mainWindow.getByTestId(TEST_IDS.chatLayout.appsPairIphone).click()
     await expect(dialog).toBeHidden()

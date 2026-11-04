@@ -37,7 +37,7 @@ function ContentHeader() {
         // it (app-sidebar.tsx: the header's `p-2` with `pt-2.25`, the row's
         // `pl-21` and `h-7`): 92 px in, centred 23 px down — level with the
         // traffic lights (window.ts, y 16) and 20 px clear of them.
-        'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 rounded-tl-xl pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
+        'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
         'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
         open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
       )}

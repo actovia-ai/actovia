@@ -179,10 +179,8 @@ describe('a code block’s panel', () => {
       join(ROOT, 'src/renderer/components/markdown/markdown.tsx'),
       'utf8'
     )
-    expect(markdown).toContain(
-      'className="bg-code text-muted-foreground sticky'
-    )
-    expect(markdown).not.toContain('bg-muted text-muted-foreground sticky')
+    expect(markdown).toContain('className="bg-code text-muted-foreground ')
+    expect(markdown).not.toContain('className="bg-muted text-muted-foreground ')
   })
 })
 

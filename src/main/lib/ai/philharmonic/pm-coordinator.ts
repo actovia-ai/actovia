@@ -1,11 +1,13 @@
+import { resolvePhilharmonicSettings } from '@actovia/shared/constants/philharmonic-settings'
 import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
+import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 // src/main/lib/ai/philharmonic/pm-coordinator.ts
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import type { McpTools } from '@actovia/shared/types/ai'
 import type { Attachment } from '@actovia/shared/types/chat'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
-import type { Message } from '@earendil-works/pi-ai'
+import { Type, type Message } from '@earendil-works/pi-ai'
 import { v4 as uuidV4 } from 'uuid'
 
 import { cliOf, isCliId } from '../../agents/drivers'
@@ -16,11 +18,13 @@ import {
   quotaWindowLabel
 } from '../../agents/quota'
 import { refreshQuotas } from '../../agents/quota-refresh'
+import { measureContext } from '../../chat/context-snapshot'
 import {
   addMemberToConversation,
   createConversationMessage,
   getConversationById,
-  getMessagesByConversationId
+  getMessagesByConversationId,
+  updateConversationTitleIfUnchanged
 } from '../../db/conversation-queries'
 import {
   createTask,
@@ -33,6 +37,7 @@ import {
   createPlanWithSteps,
   getActivePlanByConversationId,
   updatePlanStatus,
+  updatePlanSummary,
   updateStep
 } from '../../db/plan-queries'
 import { lastRoundStartedAt } from '../../db/pm-round-queries'
@@ -43,17 +48,29 @@ import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-bas
 import { logger } from '../../logger'
 import { notifyIfBackground } from '../../philharmonic-notifications'
 import { emitToConversation } from '../../server/routes/philharmonic-sse'
+import { closeAutomationTools } from '../calling-tools/automation-lifecycle'
 import { mcpDirectory, mcpToolbox } from '../calling-tools/mcp-toolbox'
 import { searchKnowledgeBase } from '../calling-tools/search-knowledge-base'
+import type { ContextMessageKind } from '../context-management/context-assembler'
+import { estimateMessageTokens } from '../context-management/token-counter'
 import { streamFn } from '../kernel/models'
 import { getMcpTools } from '../mcp'
-import { getModelFromProvider } from '../utils/chat-message-util'
+import { trustedContextWindow } from '../providers/resolve-model'
+import {
+  bindCallingTools,
+  generateTitleFromText,
+  getModelFromProvider
+} from '../utils/chat-message-util'
 import { bareImageData } from '../utils/image-data'
+import { reflectOnReviewedTask } from './agent-memory'
 import { createEscalateToUserTool } from './agent-tools'
+import { archiveOutput, type ArchiveEntry } from './archive'
 import type { SseEmitter } from './employee-loop'
 import { runDelegatedTask } from './execution-engine'
 import { askOwner } from './group-questions'
 import { PhilharmonicLcm } from './lcm'
+import { loopBudget } from './loop-budget'
+import { modelRouter } from './model-router'
 import { toPlanDto, toStepDto } from './plan-dto'
 import { writePlanMirror } from './plan-mirror'
 import {
@@ -70,10 +87,10 @@ import {
   createWaitForQuotaTool,
   quotaWaitRunAt
 } from './pm-tools'
-import { autoCreateEmployee } from './recruit'
-import { createReportTool, type PendingArtifact } from './report-tools'
+import { autoCreateEmployee, recruitmentModelOptions } from './recruit'
 import { createRoundRecorder } from './round-recorder'
 import { groupBeforeToolCall } from './sensitive-guard'
+import { groupWorkspace } from './workspace'
 
 function rosterText(
   agents: {
@@ -81,6 +98,7 @@ function rosterText(
     teamId: string | null
     description: string | null
     runtime: string
+    provider: string | null
     model: string | null
   }[],
   teamNameById: Map<string, string>
@@ -89,11 +107,13 @@ function rosterText(
   return agents
     .map((a) => {
       const teamName = a.teamId ? teamNameById.get(a.teamId) : null
-      const cli =
+      const model =
         a.runtime === 'actovia'
-          ? ''
+          ? a.provider && a.model
+            ? ` (${a.provider} · ${a.model})`
+            : ''
           : ` (${CLI_NAMES[cliOf(a.runtime)]}, model: ${a.model || 'CLI default'})`
-      return `- ${a.name}${cli}${teamName ? ` [${teamName}]` : ''}: ${a.description ?? 'no description'}`
+      return `- ${a.name}${model}${teamName ? ` [${teamName}]` : ''}: ${a.description ?? 'no description'}`
     })
     .join('\n')
 }
@@ -152,6 +172,26 @@ export interface RunPmArgs {
 }
 
 export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
+  try {
+    await coordinate(args)
+  } catch (error) {
+    args.emit({
+      type: 'conversation_error',
+      conversationId: args.conversationId,
+      error: error instanceof Error ? error.message : String(error)
+    })
+    args.emit({
+      type: 'pm_ended',
+      conversationId: args.conversationId,
+      reason: args.signal?.aborted ? 'aborted' : 'error'
+    })
+    throw error
+  } finally {
+    pmRunRegistry.closeSteering(args.conversationId)
+  }
+}
+
+async function coordinate(args: RunPmArgs): Promise<void> {
   const {
     conversationId,
     userText,
@@ -164,6 +204,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // up front (before any DB work) so even fast-failing turns still close the
   // busy state via pm_ended below.
   emit({ type: 'pm_started', conversationId })
+  pmRunRegistry.openSteering(conversationId)
 
   const setting = await getSettings()
   const { model, apiKey } = getModelFromProvider(setting)
@@ -173,11 +214,23 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     getAllTeams(),
     getConversationById(conversationId)
   ])
-  const conversationTitle = conversationRow?.title ?? 'Group'
+  let conversationTitle = conversationRow?.title ?? 'Group'
+  const defaultGroupTitle = mainT(
+    'philharmonic:container.newGroupDefaultTitle',
+    'New group'
+  )
+  const titlePromise =
+    (args.trigger ?? 'user') === 'user' &&
+    conversationRow?.title === defaultGroupTitle &&
+    userText.trim().length > 0
+      ? generateTitleFromText({ text: userText, model, apiKey })
+      : null
   // Who the PM may delegate to; a recruit joins it (see createDelegateTaskTool).
   const roster = employees.map((e) => ({
     id: e.id,
     name: e.name,
+    provider: e.provider,
+    model: e.model,
     description:
       e.runtime === 'actovia'
         ? e.description
@@ -214,14 +267,20 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // and the threshold mirror Chat's LCM; the tail is its own — Chat's
   // `freshTailSize` counts runs since the kernel rewrite, this one counts
   // messages, and 16 is what it always kept.
+  const lcmEnabled = setting.memory?.lcmEnabled ?? true
+  const contextWindowPercent =
+    setting.memory?.contextWindowPercent ??
+    SETTING_DEFAULTS.memory.contextWindowPercent
+  const contextWindow = trustedContextWindow(model) || 128_000
   const lcm = new PhilharmonicLcm(conversationId, model, apiKey, {
-    enabled: setting.memory?.lcmEnabled ?? true,
-    contextWindowPercent:
-      setting.memory?.contextWindowPercent ??
-      SETTING_DEFAULTS.memory.contextWindowPercent,
+    enabled: lcmEnabled,
+    contextWindowPercent,
+    contextWindow,
     freshTailSize: 16
   })
-  const history = await lcm.assembleContext(excludeMessageId)
+  const history = await lcm.assembleContext(excludeMessageId, () =>
+    pmRunRegistry.pendingMessageIds(conversationId)
+  )
   const kb = resolveKnowledgeBase(setting)
   // The owner's MCP servers (Settings → MCP) are the PM's too: it files and
   // moves issues, reads trackers and accepts work there itself, not only
@@ -309,7 +368,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
 
   // P1-7: createReport pushes here; attached as message parts at turn end so
   // ArtifactCard can render on history reload, not just from the live stream.
-  const pendingArtifacts: PendingArtifact[] = []
+  const pendingArchives: ArchiveEntry[] = []
 
   // The window that stops an employee's CLI from running it now, as the
   // delegateTask refusal the PM reads; null when nothing blocks it.
@@ -337,7 +396,57 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     for (const t of waiting) await updateTask(t.id, { status: 'cancelled' })
   }
 
+  const workspace = await groupWorkspace(conversationId)
+  const operationalNames = new Set<string>([
+    TOOL_NAMES.terminal,
+    TOOL_NAMES.readFile,
+    TOOL_NAMES.writeFile,
+    TOOL_NAMES.editFile,
+    TOOL_NAMES.listDirectory,
+    TOOL_NAMES.findFiles,
+    TOOL_NAMES.grep,
+    TOOL_NAMES.webSearch,
+    TOOL_NAMES.webFetch,
+    TOOL_NAMES.computerUse,
+    TOOL_NAMES.browserUse
+  ])
+  const operationalTools = bindCallingTools({
+    advancedTools: [],
+    setting,
+    groupId: conversationId,
+    workspaceDir: workspace.dir
+  }).filter((tool) => operationalNames.has(tool.name))
+  const delegationAttempts = new Map<string, number>()
+  const router = modelRouter(setting, { model, apiKey })
+  const controls = resolvePhilharmonicSettings(setting.agents)
+  const budget = loopBudget(controls.pmMaxToolCalls, controls.failureLimit)
   const tools: AgentTool[] = [
+    ...operationalTools,
+    ...router.tools,
+    {
+      name: 'revisePlan',
+      label: 'Revise Plan',
+      description:
+        'Update the active plan summary when the owner changes the goal. Keep its completed work; skip obsolete steps and append missing steps separately. The pinned plan bar updates immediately.',
+      parameters: Type.Object({ summary: Type.String() }),
+      execute: async (_id: string, { summary }: { summary: string }) => {
+        const current = await getActivePlanByConversationId(conversationId)
+        if (!current || current.plan.status !== 'active')
+          throw new Error('No active plan to revise.')
+        await updatePlanSummary(current.plan.id, summary)
+        current.plan.summary = summary
+        emit({
+          type: 'plan_created',
+          conversationId,
+          plan: toPlanDto(current.plan, current.steps)
+        })
+        await mirrorActivePlan()
+        return {
+          content: [{ type: 'text' as const, text: 'Plan revised.' }],
+          details: { planId: current.plan.id }
+        }
+      }
+    } as AgentTool,
     createCreatePlanTool(async ({ summary, steps }) => {
       // If the LLM tries to create a plan while one is still active (shouldn't
       // happen per prompt, but defend), close the old one first.
@@ -398,6 +507,13 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       })
       await mirrorActivePlan()
       if (status && updated.status !== 'pending') await cancelQuotaWait(stepId)
+      if (status === 'done' && updated.status === 'done' && updated.taskId) {
+        await reflectOnReviewedTask({
+          taskId: updated.taskId,
+          conversationId,
+          pmReview: output ?? ''
+        })
+      }
       return { stepId: updated.id }
     }),
     createAppendPlanStepTool(async ({ title, intent, assignedAgentId }) => {
@@ -423,6 +539,11 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     createDelegateTaskTool(
       roster,
       async ({ employeeId, instructions, stepId, mode = 'await' }) => {
+        const attemptKey = stepId || instructions.trim()
+        const attempts = delegationAttempts.get(attemptKey) ?? 0
+        if (attempts >= controls.failureLimit)
+          return `Not started: this step has already been attempted ${controls.failureLimit} times. Stop and ask the owner for the missing decision or evidence; do not delegate it again.`
+        delegationAttempts.set(attemptKey, attempts + 1)
         // A CLI that has rejected this employee's model starts no process.
         const blocked = quotaBlock(employeeId)
         if (blocked) return blocked
@@ -612,12 +733,32 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         }
       }
     ),
-    createRecruitEmployeeTool(async ({ role, skills, name }) => {
-      const emp = await autoCreateEmployee({ role, skills, name })
-      await joinGroup(emp.id)
-      roster.push({ id: emp.id, name: emp.name, description: null })
-      return { id: emp.id, name: emp.name }
-    }),
+    createRecruitEmployeeTool(
+      recruitmentModelOptions(setting),
+      async ({ role, skills, name, provider, model: employeeModel }) => {
+        const emp = await autoCreateEmployee({
+          role,
+          skills,
+          name,
+          provider,
+          model: employeeModel
+        })
+        await joinGroup(emp.id)
+        roster.push({
+          id: emp.id,
+          name: emp.name,
+          description: emp.description,
+          provider: emp.provider,
+          model: emp.model
+        })
+        return {
+          id: emp.id,
+          name: emp.name,
+          provider: emp.provider,
+          model: emp.model
+        }
+      }
+    ),
     createWaitForQuotaTool(async ({ stepId, employeeId, reason }) => {
       const emp = employees.find((e) => e.id === employeeId)
       const w =
@@ -719,7 +860,10 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     ),
     ...(kb ? [searchKnowledgeBase(kb, setting.knowledgeBase)] : []),
     ...(mcpServers.length > 0 ? mcpToolbox(mcpServers) : []),
-    createReportTool(conversationId, (a) => pendingArtifacts.push(a)),
+    archiveOutput(workspace.dir, (entry) => {
+      if (!pendingArchives.some((item) => item.path === entry.path))
+        pendingArchives.push(entry)
+    }),
     // The question is saved in the group (group-questions.ts): it stays in
     // the transcript, and survives a restart as one the owner can still answer.
     createEscalateToUserTool(({ question, options }) =>
@@ -733,6 +877,27 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     timestamp: Date.now()
   }
 
+  const mcpDirectoryText = mcpServers.length > 0 ? mcpDirectory(mcpServers) : ''
+  const pmSystemPrompt =
+    PM_SYSTEM_PROMPT +
+    workspace.prompt +
+    `\n\nEmployees:\n${rosterText(employees, teamNameById)}` +
+    (quotaText ? `\n\nQuota:\n${quotaText}` : '') +
+    (planText ? `\n\n${planText}` : '') +
+    (mcpServers.length > 0 ? pmMcpSection(mcpDirectoryText) : '')
+  const contextMessages: Message[] = [
+    ...(history as Message[]).filter((m) => m.role !== 'system'),
+    userMessage
+  ]
+  const contextKinds: ContextMessageKind[] = contextMessages.map((message) =>
+    Array.isArray(message.content) &&
+    message.content.some(
+      (part) => part.type === 'text' && part.text.startsWith('<ph_summary ')
+    )
+      ? 'summary'
+      : 'message'
+  )
+
   const messageId = uuidV4()
   emit({ type: 'message_start', conversationId, messageId, role: 'pm' })
 
@@ -740,6 +905,27 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   // the round's way — the recorder logs its own failures, and `safe` is a
   // second net around every call into it.
   const recorder = createRoundRecorder(conversationId, uuidV4())
+  const lcmTokens = lcmEnabled
+    ? (await lcm.contextUsage(excludeMessageId)) +
+      estimateMessageTokens(userMessage.content)
+    : null
+  recorder.context({
+    model: model.id,
+    contextWindow,
+    compactAt: lcmEnabled
+      ? Math.floor((contextWindow * contextWindowPercent) / 100)
+      : null,
+    lcmTokens,
+    parts: measureContext({
+      systemPrompt: pmSystemPrompt,
+      skillsIndex: '',
+      mcpDirectory: mcpDirectoryText,
+      tools,
+      memoryTexts: [],
+      messages: contextMessages,
+      kinds: contextKinds
+    })
+  })
   const safe = (f: () => void) => {
     try {
       f()
@@ -790,6 +976,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
   }
 
   let finalText = ''
+  let lastTurnHadTools = true
   try {
     const stream = agentLoop(
       [userMessage as AgentMessage],
@@ -799,14 +986,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         messages: [
           {
             role: 'system',
-            content:
-              PM_SYSTEM_PROMPT +
-              `\n\nEmployees:\n${rosterText(employees, teamNameById)}` +
-              (quotaText ? `\n\nQuota:\n${quotaText}` : '') +
-              (planText ? `\n\n${planText}` : '') +
-              (mcpServers.length > 0
-                ? pmMcpSection(mcpDirectory(mcpServers))
-                : ''),
+            content: pmSystemPrompt,
             toolsAdded: tools,
             timestamp: Date.now()
           },
@@ -822,6 +1002,35 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       {
         model,
         apiKey,
+        getApiKey: () => router.current.apiKey,
+        prepareRequest: ({ context }) => {
+          const currentModel = router.current.model
+          const messages = context.messages.filter(
+            (m): m is Message => m.role !== 'system'
+          )
+          router.observe(
+            messages.reduce((n, m) => n + estimateMessageTokens(m.content), 0)
+          )
+          const window = trustedContextWindow(currentModel) || 128_000
+          recorder.context({
+            model: currentModel.id,
+            contextWindow: window,
+            compactAt: lcmEnabled
+              ? Math.floor((window * contextWindowPercent) / 100)
+              : null,
+            lcmTokens: null,
+            parts: measureContext({
+              systemPrompt: pmSystemPrompt,
+              skillsIndex: '',
+              mcpDirectory: mcpDirectoryText,
+              tools,
+              memoryTexts: [],
+              messages,
+              kinds: messages.map(() => 'message')
+            })
+          })
+          return { model: currentModel }
+        },
         convertToLlm: (msgs: AgentMessage[]): Message[] =>
           // `system` too: since pi 1.0 the leading system message carries the
           // prompt and the tool declarations — dropping it would send the
@@ -834,7 +1043,24 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
               (m as Message).role === 'toolResult'
           ),
         // Secrets outside Actovia: refused in a Group run (sensitive-guard.ts).
-        beforeToolCall: groupBeforeToolCall(conversationId)
+        beforeToolCall: async (context) =>
+          Promise.resolve(
+            budget.before(context) ??
+              groupBeforeToolCall(conversationId, workspace.dir)(context)
+          ),
+        afterToolCall: async (context) => budget.after(context),
+        finishTurn: async () =>
+          budget.reason ? { action: 'end' as const } : undefined,
+        getSteeringMessages: async () => {
+          const pending = pmRunRegistry.takeSteering(conversationId)
+          if (!pending.length && !lastTurnHadTools)
+            pmRunRegistry.closeSteering(conversationId)
+          return pending.map((input) => ({
+            role: 'user' as const,
+            content: buildUserContent(input.text, input.attachments),
+            timestamp: Date.now()
+          }))
+        }
       },
       signal,
       streamFn
@@ -849,14 +1075,26 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
           .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
           .map((c) => c.text)
           .join('')
+        const thinking = msg.content
+          .filter(
+            (c): c is { type: 'thinking'; thinking: string } =>
+              c.type === 'thinking' && 'thinking' in c
+          )
+          .map((c) => c.thinking)
+          .join('')
         emit({
           type: 'message_delta',
           conversationId,
           messageId,
-          delta: finalText
+          delta: finalText,
+          ...(thinking ? { thinking } : {})
         })
       } else if (event.type === 'message_end') {
         const msg = event.message as Message & { role: 'assistant' }
+        if (msg.role === 'assistant')
+          lastTurnHadTools = msg.content.some(
+            (part) => part.type === 'toolCall'
+          )
         if (msg.role === 'assistant') {
           if (msg.stopReason === 'error') {
             throw new Error(
@@ -876,6 +1114,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
       }
     }
   } catch (err) {
+    pmRunRegistry.closeSteering(conversationId)
     const isAbort =
       (err instanceof Error && err.name === 'AbortError') ||
       signal?.aborted === true
@@ -919,6 +1158,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
         error: 'PM run was interrupted by the user.'
       })
       await createConversationMessage({
+        id: messageId,
         conversationId,
         role: 'system',
         content: '⚠️ PM run was interrupted by the user.',
@@ -937,6 +1177,7 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     })
     emit({ type: 'conversation_error', conversationId, error: message })
     await createConversationMessage({
+      id: messageId,
       conversationId,
       role: 'system',
       content: `⚠️ PM error: ${message}`,
@@ -954,21 +1195,21 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     })
     emit({ type: 'pm_ended', conversationId, reason: 'error' })
     return
+  } finally {
+    await closeAutomationTools(operationalTools)
   }
 
-  // Attach every artifact createReport produced this turn so the PM's final
-  // bubble can render the ArtifactCard on history reload as well as the live
-  // stream. Stored as { kind: 'artifact', artifactId, title, code }; bubble
-  // renderer reads the same shape attachments use.
-  const artifactParts =
-    pendingArtifacts.length > 0
-      ? pendingArtifacts.map((a) => ({
-          kind: 'artifact' as const,
-          artifactId: a.artifactId,
-          title: a.title,
-          code: a.code
-        }))
-      : null
+  if (budget.reason) finalText = budget.reason
+  pmRunRegistry.closeSteering(conversationId)
+  const final = await getActivePlanByConversationId(conversationId)
+  const finalOutput =
+    !budget.reason &&
+    (!final ||
+      final.plan.status !== 'active' ||
+      (final.steps.length > 0 &&
+        final.steps.every(
+          (step) => step.status === 'done' || step.status === 'skipped'
+        )))
   // The collapsed decision disclosure reads its counts from this part, so a
   // closed one fetches nothing.
   const counts = await recorder.finish()
@@ -980,19 +1221,44 @@ export async function runPmCoordinator(args: RunPmArgs): Promise<void> {
     role: 'pm',
     content: finalText,
     roundId: recorder.roundId,
-    parts: [...(artifactParts ?? []), { kind: 'decision', ...counts }]
+    parts: [
+      ...pendingArchives,
+      ...(finalOutput ? [{ kind: 'final_output' as const }] : []),
+      { kind: 'decision', ...counts }
+    ]
   })
-  emit({ type: 'message_end', conversationId, messageId })
+  if (titlePromise) {
+    try {
+      const title = await titlePromise
+      const updated = await updateConversationTitleIfUnchanged(
+        conversationId,
+        defaultGroupTitle,
+        title
+      )
+      if (updated) {
+        conversationTitle = updated.title
+      }
+    } catch (error) {
+      logger.warn('philharmonic', 'Failed to generate the Group title', {
+        conversationId,
+        error
+      })
+    }
+  }
+  emit({
+    type: 'message_end',
+    conversationId,
+    messageId,
+    ...(conversationTitle !== defaultGroupTitle ? { conversationTitle } : {})
+  })
 
   // Auto-close the plan when every step has reached a terminal state. The PM
   // doesn't need to ceremoniously declare the plan done — finishing the turn
   // without follow-up tools implies it.
   let notifiedCompletion = false
-  const final = await getActivePlanByConversationId(conversationId)
   if (final && final.plan.status === 'active' && final.steps.length > 0) {
     const allTerminal = final.steps.every(
-      (s) =>
-        s.status === 'done' || s.status === 'skipped' || s.status === 'failed'
+      (s) => s.status === 'done' || s.status === 'skipped'
     )
     if (allTerminal) {
       await updatePlanStatus(final.plan.id, 'completed')

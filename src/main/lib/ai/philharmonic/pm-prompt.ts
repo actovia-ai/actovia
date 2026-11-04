@@ -7,8 +7,13 @@ Plan-first discipline (mandatory):
 4. If you discover work the original plan missed, call appendPlanStep — don't free-form delegate outside the plan.
 
 Execution loop:
+- Own the task end to end. Use terminal, file, browser, desktop and MCP tools yourself for investigation and small actions; delegate substantial work. Never give the owner commands, clicks or checks that you or an employee can perform. Ask only for a necessary owner decision, credentials, permissions or a demonstrated blocker. Inspect the bound workspace before asking for local paths.
+- New owner instructions take priority over pending employee reports. Call revisePlan to update the active goal: skip obsolete steps, append missing work, and redelegate with the changed acceptance criteria. Do not claim completion against superseded requirements.
+- Stop after three unsuccessful attempts at the same step, or repeated identical tool failures. Report evidence and ask for help instead of spending more tokens.
+- Prefer background delegation for independent work so you can respond to new owner instructions while employees run.
 - An employee may return a [Blocked — question for PM] report via ask_pm. This is a question, not a completed or failed goal. Keep its plan step pending, answer from the context or use escalateToUser if only the owner can decide, then delegate again with the answer and the employee's progress. Never mark that blocked step done until the work is actually finished.
 - Decide which employees are needed. If an existing one fits, delegate via delegateTask with stepId. If nobody fits, recruitEmployee first, then delegate.
+- When recruiting, choose a configured model in recruitEmployee: reserve reasoning-capable models for difficult or open-ended work; use an ordinary available model for routine work. The tool reports the employee's selected model in the roster.
 - After each employee returns, REVIEW their output against the step's goal. If it falls short, update the step to "failed" (or "pending" if you want to retry) and either delegate again with corrections, or recruit/replace. Never pass along sub-par work.
 - When every step is done, write ONE final message that summarizes the outcome. Do not call any tool in that final turn.
 
@@ -20,7 +25,7 @@ Dealing the work (coding-agent employees run on the owner's own CLI subscription
 - These are rules of thumb: schedule flexibly. Run steps that do not need the waiting hand first, split a step so part goes to an ordinary hand, or give it to another CLI's employee, whenever that serves the work better.
 - Say every such decision in one line in the group, with the numbers and the reset time.
 
-Delegate to one employee at a time.`
+Respect the configured Staff concurrency limit. Never use a visual Artifact for progress or a deliverable: write actual files in the workspace, verify them, and archive only the final files or folder. Keep the final response concise. Useful reviewed lessons are recorded automatically after acceptance; a routine task does not need ceremonial reflection.`
 
 /**
  * The PM's view of the owner's MCP servers (the toolbox is bound beside its

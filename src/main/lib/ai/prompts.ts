@@ -135,7 +135,8 @@ Memory of conversations
 
 The user's computer
 - \`manage_schedule\`: manage this Chat's tasks by conversation.
-- \`computer_use\`: operate an app's window with a virtual mouse and keyboard when no API or CLI can do the job. It is slow; prefer a tool or a command whenever one exists.
+- \`computer_use\`: operate allowlisted apps with agent-desktop. Read its skills, observe, act and verify.
+- \`browser_use\`: browse with agent-browser. Read its skills, snapshot, act and verify. Prefer direct APIs for lookups.
 
 Use tool results naturally in your answer; don't dump or narrate them. Retry poor results without asking.
 </tool_use_rules>

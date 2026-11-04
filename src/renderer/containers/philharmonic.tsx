@@ -1,14 +1,6 @@
-import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { MessageAdd01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  lazy,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState
-} from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -16,17 +8,14 @@ import {
   ConversationList
 } from '@/components/philharmonic/chat/conversation-list'
 import { GroupChat } from '@/components/philharmonic/chat/group-chat'
+import { PlanMonitorTab } from '@/components/philharmonic/dashboard/plan-monitor-tab'
 import { WorkforcePage } from '@/components/philharmonic/workforce/workforce-page'
 import { Button } from '@/components/ui/button'
 import { SidebarInset } from '@/components/ui/sidebar'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/components/ui/toast'
 import { useConversationStream } from '@/hooks/use-conversation-stream'
 import type { PhilharmonicPage } from '@/layouts/philharmonic-layout'
-import {
-  PhilharmonicHeaderSlot,
-  PhilharmonicSlottedHeader
-} from '@/layouts/philharmonic-layout/philharmonic-content-header'
+import { PhilharmonicSlottedHeader } from '@/layouts/philharmonic-layout/philharmonic-content-header'
 import { ResizableSidebarShell } from '@/layouts/shared/resizable-sidebar'
 import { getAgents, getTeams } from '@/services/philharmonic'
 import {
@@ -40,12 +29,6 @@ import type {
   ConversationData,
   TeamData
 } from '@/stores/philharmonic'
-
-const ScheduleTab = lazy(() =>
-  import('@/components/philharmonic/schedule/schedule-tab').then((m) => ({
-    default: m.ScheduleTab
-  }))
-)
 
 export function PhilharmonicContainer({
   activePage,
@@ -63,7 +46,7 @@ export function PhilharmonicContainer({
   const [conversations, setConversations] = useState<ConversationData[]>([])
   const [employees, setEmployees] = useState<AgentData[]>([])
   const [teams, setTeams] = useState<TeamData[]>([])
-  const [membersOpen, setMembersOpen] = useState(false)
+  const [panelOpen, setPanelOpen] = useState(false)
 
   useEffect(() => {
     getConversations().then((cs) => {
@@ -78,7 +61,7 @@ export function PhilharmonicContainer({
     [employees]
   )
   const teamsById = useMemo(
-    () => Object.fromEntries(teams.map((t) => [t.id, t])),
+    () => Object.fromEntries(teams.map((team) => [team.id, team])),
     [teams]
   )
 
@@ -149,6 +132,17 @@ export function PhilharmonicContainer({
   // Single SSE subscription per Group, hoisted here so the Members panel and
   // the chat both read from the same aggregated state.
   const stream = useConversationStream(activeId)
+  useEffect(() => {
+    const update = stream.titleUpdate
+    if (!update || update.conversationId !== activeId) return
+    setConversations((current) =>
+      current.map((conversation) =>
+        conversation.id === update.conversationId
+          ? { ...conversation, title: update.title }
+          : conversation
+      )
+    )
+  }, [activeId, stream.titleUpdate])
 
   // A member joins mid-round (`member_joined` bumps the revision): read the
   // groups again so the header and the Members panel list them.
@@ -162,36 +156,7 @@ export function PhilharmonicContainer({
   const mainContent = (() => {
     if (activePage === 'workforce') return <WorkforcePage />
     if (activePage === 'dashboard')
-      return (
-        <Tabs
-          defaultValue="schedule"
-          className="flex h-full min-h-0 flex-col gap-0"
-        >
-          {/* The page's title and its tabs in the content bar, as Workforce's;
-              each tab adds its own controls at the bar's right end. */}
-          <PhilharmonicHeaderSlot>
-            <div className="no-drag flex min-w-0 items-center gap-3 pl-2">
-              <h1 className="truncate text-sm font-medium">
-                {t('container.dashboardTitle')}
-              </h1>
-              <TabsList className="w-fit shrink-0">
-                <TabsTrigger
-                  value="schedule"
-                  data-testid={TEST_IDS.schedule.tab}
-                >
-                  {t('container.tabs.schedule')}
-                </TabsTrigger>
-              </TabsList>
-            </div>
-            <div className="min-w-0 flex-1" />
-          </PhilharmonicHeaderSlot>
-          <TabsContent value="schedule" className="min-h-0 flex-1">
-            <Suspense fallback={null}>
-              <ScheduleTab conversations={conversations} />
-            </Suspense>
-          </TabsContent>
-        </Tabs>
-      )
+      return <PlanMonitorTab conversations={conversations} />
     // chat
     if (activeConv) {
       return (
@@ -201,8 +166,9 @@ export function PhilharmonicContainer({
           teamsById={teamsById}
           members={members}
           stream={stream}
-          membersOpen={membersOpen}
-          onToggleMembers={() => setMembersOpen((v) => !v)}
+          panelOpen={panelOpen}
+          onOpenPanel={() => setPanelOpen(true)}
+          onClosePanel={() => setPanelOpen(false)}
           onCreateGroup={handleCreate}
         />
       )
@@ -228,7 +194,7 @@ export function PhilharmonicContainer({
   })()
 
   // Members panel only appears alongside an active chat conversation.
-  const showMembers = activePage === 'chat' && activeConv != null
+  const showMembers = activePage === 'chat' && Boolean(activeConv)
   // On a group chat GroupChat renders its own chrome header (sidebar toggle +
   // conversation info + members toggle); everywhere else the layout supplies a
   // plain header bar.
@@ -257,7 +223,10 @@ export function PhilharmonicContainer({
           {groupChatOwnsHeader ? (
             <div className="min-h-0 flex-1 overflow-hidden">{mainContent}</div>
           ) : (
-            <PhilharmonicSlottedHeader onCreateGroup={handleCreate}>
+            <PhilharmonicSlottedHeader
+              onCreateGroup={handleCreate}
+              compactWhenSidebarOpen={activePage === 'dashboard'}
+            >
               <div className="min-h-0 flex-1 overflow-hidden">
                 {mainContent}
               </div>

@@ -1,12 +1,17 @@
+import { extname } from 'node:path'
+
 // src/main/lib/server/routes/philharmonic-conversations.ts
 import { NotFoundError } from '@actovia/shared/errors/app-error'
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
+import { shell } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { agentRegistry } from '../../agents/registry'
 import { stopBackgroundTasks } from '../../ai/calling-tools/start-background'
+import { archivePath, downloadArchive } from '../../ai/philharmonic/archive'
 import { askUserRegistry } from '../../ai/philharmonic/ask-user-registry'
+import { stopStaffTasks } from '../../ai/philharmonic/execution-engine'
 import {
   answerParts,
   settleQuestion
@@ -14,6 +19,7 @@ import {
 import { toPlanDto } from '../../ai/philharmonic/plan-dto'
 import { runPmCoordinator } from '../../ai/philharmonic/pm-coordinator'
 import { pmRunRegistry } from '../../ai/philharmonic/pm-run-registry'
+import { groupWorkspace } from '../../ai/philharmonic/workspace'
 import { fitImageDataUrl } from '../../ai/utils/image-fit'
 import {
   createConversation,
@@ -26,12 +32,17 @@ import {
   updateConversation
 } from '../../db/conversation-queries'
 import { getConversationToolResults } from '../../db/philharmonic-queries'
-import { getActivePlanByConversationId } from '../../db/plan-queries'
-import { listRoundEvents } from '../../db/pm-round-queries'
+import {
+  getActivePlanByConversationId,
+  getPlansForDashboard
+} from '../../db/plan-queries'
+import {
+  getLatestPmContextSnapshot,
+  listRoundEvents
+} from '../../db/pm-round-queries'
 import { mainT } from '../../i18n'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
-import { getGroupDir } from '../../paths'
 import type { Variables } from '../types'
 import {
   deletionSuccessResponse,
@@ -42,12 +53,93 @@ import {
 } from '../utils'
 import { emitToConversation, sseManager } from './philharmonic-sse'
 
+const attachmentSchema = z
+  .object({
+    name: z.string(),
+    url: z.string(),
+    contentType: z.string()
+  })
+  .refine(
+    (a) =>
+      !a.contentType.startsWith('image/') || a.url.startsWith('data:image/'),
+    { message: 'An image attachment must be a data URL' }
+  )
+
 const router = new Hono<{ Variables: Variables }>()
+
+async function registeredArchive(conversationId: string, path: string) {
+  const messages = await getMessagesByConversationId(conversationId)
+  if (
+    !messages.some((message) =>
+      (message.parts ?? []).some(
+        (part) => part.kind === 'archive' && part.path === path
+      )
+    )
+  )
+    throw new NotFoundError()
+  const workspace = await groupWorkspace(conversationId)
+  return archivePath(workspace.dir, path)
+}
+
+router.get('/conversations/:id/archive/file', async (c) => {
+  const item = await registeredArchive(
+    getRequiredParam(c, 'id'),
+    c.req.query('path') ?? ''
+  )
+  const file = await downloadArchive(item)
+  const types: Record<string, string> = {
+    '.md': 'text/markdown',
+    '.txt': 'text/plain',
+    '.pdf': 'application/pdf',
+    '.docx':
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.zip': 'application/zip'
+  }
+  c.header(
+    'Content-Type',
+    types[extname(file.name).toLowerCase()] ?? 'application/octet-stream'
+  )
+  c.header(
+    'Content-Disposition',
+    `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`
+  )
+  c.header('Cache-Control', 'no-store')
+  return c.body(new Uint8Array(file.data))
+})
+
+router.post('/conversations/:id/archive/reveal', async (c) => {
+  const body = validateSchema(
+    z.object({ path: z.string() }),
+    await c.req.json(),
+    'Invalid archive'
+  )
+  const item = await registeredArchive(getRequiredParam(c, 'id'), body.path)
+  shell.showItemInFolder(item.path)
+  return successResponse(c, { success: true })
+})
+
+router.get('/plans/monitor', async (c) =>
+  successResponse(
+    c,
+    (await getPlansForDashboard()).map(({ plan, steps }) =>
+      toPlanDto(plan, steps)
+    )
+  )
+)
 
 router.get('/conversations/:id/tool-results', async (c) =>
   successResponse(
     c,
     await getConversationToolResults(getRequiredParam(c, 'id'))
+  )
+)
+
+router.get('/conversations/:id/context', async (c) =>
+  successResponse(
+    c,
+    await getLatestPmContextSnapshot(getRequiredParam(c, 'id'))
   )
 )
 
@@ -93,8 +185,9 @@ router.delete('/conversations/:id', async (c) => {
   // stopped, and every agent on one of its steps interrupted and exited.
   // The folders are left alone.
   pmRunRegistry.abort(id)
+  stopStaffTasks(id)
   askUserRegistry.cancel(id)
-  stopBackgroundTasks(getGroupDir(id))
+  stopBackgroundTasks((await groupWorkspace(id)).dir)
   await agentRegistry.stopConversation(id)
   await handleDatabaseOperation(
     () => deleteConversation(id),
@@ -161,17 +254,6 @@ router.post('/conversations/:id/messages', async (c) => {
   const id = getRequiredParam(c, 'id')
   // A picture is a data URL, as in Chat: a link would reach the model as if it
   // were image data (`bareImageData` in the PM's user content).
-  const attachmentSchema = z
-    .object({
-      name: z.string(),
-      url: z.string(),
-      contentType: z.string()
-    })
-    .refine(
-      (a) =>
-        !a.contentType.startsWith('image/') || a.url.startsWith('data:image/'),
-      { message: 'An image attachment must be a data URL' }
-    )
   const body = validateSchema(
     z
       .object({
@@ -222,16 +304,27 @@ router.post('/conversations/:id/messages', async (c) => {
 
   // One Group gets one PM round at a time. Owner messages are persisted above,
   // then run in arrival order after the active round finishes.
+  if (
+    pmRunRegistry.steer(id, {
+      text: body.content,
+      attachments,
+      messageId: userMsg.id
+    })
+  )
+    return successResponse(c, userMsg, 201)
   void pmRunRegistry
-    .run(id, (signal) =>
-      runPmCoordinator({
-        conversationId: id,
-        userText: body.content,
-        attachments,
-        excludeMessageId: userMsg.id,
-        emit: (event) => emitToConversation(id, event),
-        signal
-      })
+    .run(
+      id,
+      (signal) =>
+        runPmCoordinator({
+          conversationId: id,
+          userText: body.content,
+          attachments,
+          excludeMessageId: userMsg.id,
+          emit: (event) => emitToConversation(id, event),
+          signal
+        }),
+      true
     )
     .catch((err) =>
       logger.error('philharmonic', 'PM loop error', { error: err })
@@ -245,6 +338,8 @@ router.post('/conversations/:id/messages', async (c) => {
 router.post('/conversations/:id/interrupt', async (c) => {
   const id = getRequiredParam(c, 'id')
   const wasRunning = pmRunRegistry.abort(id)
+  stopStaffTasks(id)
+  await agentRegistry.stopConversation(id)
   askUserRegistry.cancel(id)
   return successResponse(c, { success: true, wasRunning })
 })
@@ -257,18 +352,39 @@ router.post('/conversations/:id/interrupt', async (c) => {
 // group's work, not of one process's memory.
 router.post('/conversations/:id/respond', async (c) => {
   const id = getRequiredParam(c, 'id')
-  const { response, questionId } = validateSchema(
-    z.object({ response: z.string(), questionId: z.string().optional() }),
+  const {
+    response,
+    questionId,
+    attachments: rawAttachments
+  } = validateSchema(
+    z
+      .object({
+        response: z.string(),
+        questionId: z.string().optional(),
+        attachments: z.array(attachmentSchema).max(10).optional()
+      })
+      .refine(
+        (value) =>
+          value.response.trim().length > 0 || !!value.attachments?.length
+      ),
     await c.req.json(),
     'Invalid response'
   )
   const emit = (event: PhilharmonicSseEvent) => emitToConversation(id, event)
+  const attachments = rawAttachments?.map((a) =>
+    a.contentType.startsWith('image/')
+      ? { ...a, ...fitImageDataUrl(a.url, a.contentType) }
+      : a
+  )
   const saveAnswer = async (forQuestion: string | undefined) => {
     const row = await createConversationMessage({
       conversationId: id,
       role: 'user',
       content: response,
-      parts: answerParts(forQuestion)
+      parts: [
+        ...(answerParts(forQuestion) ?? []),
+        ...(attachments ?? []).map((a) => ({ kind: 'attachment', ...a }))
+      ]
     })
     emit({
       type: 'message_start',
@@ -304,6 +420,11 @@ router.post('/conversations/:id/respond', async (c) => {
       questionId,
       async () => {
         await saveAnswer(shown)
+        if (attachments?.length)
+          pmRunRegistry.steer(id, {
+            text: 'Images accompanying the owner answer above.',
+            attachments
+          })
       }
     )
     return accepted ? successResponse(c, { success: true }) : notWaiting()
@@ -321,6 +442,7 @@ router.post('/conversations/:id/respond', async (c) => {
           `The owner answered the question you asked earlier, whose round ended before the answer came.\n` +
           `Question: ${question.content}\nAnswer: ${response}\n` +
           `Continue the work from here.`,
+        attachments,
         excludeMessageId: answerRow.id,
         emit,
         signal

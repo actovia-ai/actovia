@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use is experimental. It is slow, it can misread the screen or click the wrong thing, and it only acts while the app is in front of every other window. Watch it while it works, and stop it with ⌥⇧⎋.",
-  "alert": "Computer Use lets the AI operate one window on your Mac with a virtual mouse and keyboard — it sees a screenshot each step and acts like a person. It needs a vision-capable AI model. It only touches apps you add to the allowlist below (and will open one that isn't already running), you can stop it any time with ⌥⇧⎋, and every session is logged. Off by default.",
+  "experimental": "Desktop automation uses agent-desktop with headless accessibility actions. Browser automation uses agent-browser in a separate browser session. Stop active actions with Alt+Shift+Escape.",
+  "alert": "Actovia uses the open-source agent-desktop and agent-browser engines. Desktop control is off by default and limited to the running apps you allow below. Browser tasks use their own private session. The AI observes, acts and checks the result with your selected model.",
   "enable": {
     "label": "Enable Computer Use",
     "description": "Let the AI drive an allowlisted window."
   },
   "allowlist": {
     "label": "Allowlisted apps",
-    "description": "Computer Use only touches these apps. Pick from the ones installed on this Mac.",
-    "searchPlaceholder": "Search installed apps…",
+    "description": "Desktop control only touches these apps. Choose from the running apps on this computer.",
+    "searchPlaceholder": "Search running apps…",
     "loading": "Loading apps…",
     "noAppFound": "No app found."
   },
   "maxSteps": {
     "label": "Max steps",
-    "description": "Stop a session after this many actions. Default 25."
+    "description": "Maximum desktop observations and actions per agent run. Default 25."
   },
   "settleDelay": {
     "label": "Settle delay (ms)",
     "description": "Wait this long after each action before the next screenshot. Default 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

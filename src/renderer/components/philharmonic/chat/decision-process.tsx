@@ -24,6 +24,8 @@ import {
 } from '@/lib/pm-round'
 import { cn } from '@/lib/utils'
 
+import { BubbleMarkdown } from './bubble-markdown'
+
 /** What the round recorder stores for a report whose employee it could not name. */
 const STORED_PLACEHOLDER = 'former employee'
 
@@ -224,11 +226,11 @@ function Line({
     case 'thinking':
       return (
         <Folded label={t('chat.decision.thinking')}>
-          <Pre>{line.text}</Pre>
+          <BubbleMarkdown text={line.text} />
         </Folded>
       )
     case 'text':
-      return <p className="text-foreground whitespace-pre-wrap">{line.text}</p>
+      return <BubbleMarkdown text={line.text} />
     case 'call':
       return (
         <div
@@ -317,7 +319,7 @@ export function DecisionProcess({
             <TraceTitle>{label}</TraceTitle>
           </TraceLine>
         </TraceCollapsibleTrigger>
-        <TraceCollapsibleContent className="mt-1.5 flex flex-col gap-1.5 pl-3 text-xs">
+        <TraceCollapsibleContent className="mt-3 flex flex-col gap-3 pl-3 text-xs">
           {isError ? (
             <span>{t('chat.decision.unavailable')}</span>
           ) : isPending ? (

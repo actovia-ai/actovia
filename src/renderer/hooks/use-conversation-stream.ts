@@ -21,9 +21,12 @@ export interface LiveBubble {
   role: string
   agentId?: string
   text: string
+  thinking?: string
   done: boolean
   toolCards: Array<{
     toolName: string
+    toolCallId?: string
+    args?: Record<string, unknown>
     phase: 'start' | 'end'
     result?: unknown
   }>
@@ -51,6 +54,8 @@ export interface ConversationStream {
   error: string | null
   /** bumps whenever a message_end / member_joined arrives so the page can refetch */
   revision: number
+  /** Latest generated or renamed title event, scoped to its conversation. */
+  titleUpdate: { conversationId: string; title: string } | null
   /** Current execution plan, or null if none yet. Live-updated from SSE. */
   plan: PlanDto | null
   /** Most recent retry notification (used for inline UI hints / logs). */
@@ -86,6 +91,8 @@ export function useConversationStream(
   const [askUser, setAskUser] = useState<ConversationStream['askUser']>(null)
   const [error, setError] = useState<string | null>(null)
   const [revision, setRevision] = useState(0)
+  const [titleUpdate, setTitleUpdate] =
+    useState<ConversationStream['titleUpdate']>(null)
   const [plan, setPlan] = useState<PlanDto | null>(null)
   const [lastRetry, setLastRetry] = useState<RetryNotice | null>(null)
   const retryCounter = useRef(0)
@@ -158,6 +165,7 @@ export function useConversationStream(
 
       switch (evt.type) {
         case 'message_start':
+          if (evt.role === 'user') setAskUser(null)
           setBubbles((prev) => [
             ...prev,
             {
@@ -175,7 +183,15 @@ export function useConversationStream(
         case 'message_delta':
           setBubbles((prev) =>
             prev.map((b) =>
-              b.messageId === evt.messageId ? { ...b, text: evt.delta } : b
+              b.messageId === evt.messageId
+                ? {
+                    ...b,
+                    text: evt.delta,
+                    ...(evt.thinking === undefined
+                      ? {}
+                      : { thinking: evt.thinking })
+                  }
+                : b
             )
           )
           break
@@ -185,6 +201,12 @@ export function useConversationStream(
               b.messageId === evt.messageId ? { ...b, done: true } : b
             )
           )
+          if (evt.conversationTitle) {
+            setTitleUpdate({
+              conversationId: evt.conversationId,
+              title: evt.conversationTitle
+            })
+          }
           setRevision((r) => r + 1)
           break
         case 'tool_card':
@@ -193,14 +215,26 @@ export function useConversationStream(
               b.messageId === evt.messageId
                 ? {
                     ...b,
-                    toolCards: [
-                      ...b.toolCards,
-                      {
+                    toolCards: (() => {
+                      const cards = [...b.toolCards]
+                      const index = cards.findLastIndex((card) =>
+                        evt.toolCallId
+                          ? card.toolCallId === evt.toolCallId
+                          : card.toolName === evt.toolName &&
+                            card.phase === 'start'
+                      )
+                      const card = {
+                        ...cards[index],
                         toolName: evt.toolName,
+                        toolCallId: evt.toolCallId,
                         phase: evt.phase,
-                        result: evt.result
+                        result: evt.result,
+                        ...(evt.args ? { args: evt.args } : {})
                       }
-                    ]
+                      if (index < 0) cards.push(card)
+                      else cards[index] = card
+                      return cards
+                    })()
                   }
                 : b
             )
@@ -295,6 +329,7 @@ export function useConversationStream(
     askUser,
     error,
     revision,
+    titleUpdate,
     plan,
     lastRetry,
     pmRunning,

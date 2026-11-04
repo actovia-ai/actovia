@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use è sperimentale. È lento, può leggere male lo schermo o fare clic nel punto sbagliato e agisce solo finché l’app è davanti a tutte le altre finestre. Tienilo d’occhio mentre lavora e fermalo con ⌥⇧⎋.",
-  "alert": "Computer Use consente all'AI di operare una finestra sul tuo Mac con un mouse e una tastiera virtuali: vede uno screenshot a ogni passaggio e agisce come farebbe una persona. Richiede un modello AI con capacità di visione. Interagisce solo con le app aggiunte all'elenco consentiti qui sotto (e ne aprirà una se non è già in esecuzione); puoi interromperla in qualsiasi momento con ⌥⇧⎋, e ogni sessione viene registrata. Disattivato per impostazione predefinita.",
+  "experimental": "Il desktop usa agent-desktop tramite accessibilità senza cambiare il focus. Il browser usa una sessione separata di agent-browser. Alt+Maiusc+Esc interrompe le azioni.",
+  "alert": "Actovia usa i motori open source agent-desktop e agent-browser. Il controllo del desktop è disattivato per impostazione predefinita e limitato alle app in esecuzione autorizzate sotto. Le attività del browser usano una propria sessione. L’IA osserva, agisce e verifica con il modello scelto.",
   "enable": {
     "label": "Attiva Computer Use",
     "description": "Consenti all'AI di controllare una finestra nell'elenco consentiti."
   },
   "allowlist": {
     "label": "App consentite",
-    "description": "Computer Use interagisce solo con queste app. Scegli tra quelle installate su questo Mac.",
-    "searchPlaceholder": "Cerca app installate…",
+    "description": "È possibile controllare solo queste app. Scegli tra le app in esecuzione su questo computer.",
+    "searchPlaceholder": "Cerca app in esecuzione…",
     "loading": "Caricamento app…",
     "noAppFound": "Nessuna app trovata."
   },
   "maxSteps": {
     "label": "Passaggi massimi",
-    "description": "Interrompi una sessione dopo questo numero di azioni. Predefinito 25."
+    "description": "Numero massimo di osservazioni e azioni sul desktop per esecuzione dell’agente. Predefinito: 25."
   },
   "settleDelay": {
     "label": "Ritardo di stabilizzazione (ms)",
     "description": "Attendi questo tempo dopo ogni azione prima dello screenshot successivo. Predefinito 800."
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

@@ -38,7 +38,6 @@ export function Scheduled() {
         </div>
       ) : (
         <ScheduleTab
-          standalone
           conversations={groups.data ?? []}
           chats={chats.data ?? []}
         />

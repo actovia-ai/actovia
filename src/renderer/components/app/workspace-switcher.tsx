@@ -66,7 +66,7 @@ export function WorkspaceSwitcher({ className }: { className?: string }) {
             key={w.id}
             data-testid={w.testId}
             aria-current={w.id === active.id ? 'page' : undefined}
-            className="items-center gap-3 rounded-xl px-3 py-2"
+            className="items-center gap-3 px-3 py-2"
             onClick={() => {
               if (w.id !== active.id) navigate(w.path)
             }}

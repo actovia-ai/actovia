@@ -99,11 +99,9 @@ export function createReportTool(
       { title, code }: { title: string; code: string }
     ) => {
       const artifactId = uuidV4()
-      // Fire-and-forget disk persistence — same pattern as Chat's
-      // createArtifact. The card renders from the inline `code` field
-      // returned in `details`; the .tsx on disk is for the reveal IPC and
-      // out-of-app inspection.
-      saveArtifact(conversationId, artifactId, title, code).catch(() => {})
+      // Persist before publishing the card so a failed save cannot look like a
+      // completed deliverable that is missing from Artifacts.
+      await saveArtifact(conversationId, artifactId, title, code)
       onCreate({ artifactId, title, code })
       return {
         content: [{ type: 'text' as const, text: `Created report: ${title}` }],

@@ -1,8 +1,10 @@
+import type { PmContextSnapshot } from '@actovia/shared/types/philharmonic'
 // The PM's decision trail (spec 2026-10-17 §2): every agentLoop event of a
 // round that tells why it did what it did, in order, masked, written as it
 // happens. Best-effort: a failed write is logged and never fails the round.
 import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 
+import { scaleSnapshot, type ContextParts } from '../../chat/context-snapshot'
 import { appendRoundEvent } from '../../db/pm-round-queries'
 import { logger } from '../../logger'
 import { maskLogText } from '../../logger/secret-mask'
@@ -21,6 +23,14 @@ export interface RoundRecorderDeps {
 export interface RoundRecorder {
   readonly roundId: string
   input(trigger: 'user' | 'scheduled' | 'report', text: string): void
+  context(
+    context: Omit<
+      PmContextSnapshot,
+      'roundId' | 'takenAt' | 'total' | 'estimated' | 'parts'
+    > & {
+      parts: ContextParts
+    }
+  ): void
   reports(
     messages: Array<{ messageId: string; agentId: string | null; name: string }>
   ): void
@@ -96,6 +106,13 @@ export function createRoundRecorder(
     cacheWriteTokens: 0,
     seen: false
   }
+  let firstInput: number | null = null
+  let contextSnapshot:
+    | (Omit<
+        PmContextSnapshot,
+        'roundId' | 'takenAt' | 'total' | 'estimated' | 'parts'
+      > & { parts: ContextParts })
+    | null = null
   const counts = { delegations: 0, waits: 0 }
 
   const captureFailed = (error: unknown) => {
@@ -134,6 +151,10 @@ export function createRoundRecorder(
   return {
     roundId,
     input: (trigger, text) => write('input', { trigger, text }),
+    context: (context) => {
+      contextSnapshot = context
+      firstInput = null
+    },
     reports: (messages) => {
       if (messages.length > 0) write('reports', { messages })
     },
@@ -150,6 +171,15 @@ export function createRoundRecorder(
         if (usage.seen) {
           const { seen: _seen, ...rest } = usage
           write('usage', rest)
+        }
+        if (contextSnapshot) {
+          const { parts, ...snapshot } = contextSnapshot
+          write('context', {
+            ...snapshot,
+            roundId,
+            takenAt: new Date().toISOString(),
+            ...scaleSnapshot(parts, firstInput)
+          })
         }
       } catch (error) {
         captureFailed(error)
@@ -184,6 +214,12 @@ export function createRoundRecorder(
       }
       const u = isObj(msg.usage) ? msg.usage : null
       if (u) {
+        {
+          firstInput =
+            (typeof u.input === 'number' ? u.input : 0) +
+            (typeof u.cacheRead === 'number' ? u.cacheRead : 0) +
+            (typeof u.cacheWrite === 'number' ? u.cacheWrite : 0)
+        }
         usage.seen = true
         usage.inputTokens += typeof u.input === 'number' ? u.input : 0
         usage.outputTokens += typeof u.output === 'number' ? u.output : 0

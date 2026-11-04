@@ -24,8 +24,8 @@ const computerUse = JSON.parse(
 
 describe('computerUse namespace (en)', () => {
   it('has the alert text', () => {
-    expect(computerUse.alert).toContain('Computer Use lets the AI operate')
-    expect(computerUse.alert).toContain('⌥⇧⎋')
+    expect(computerUse.alert).toContain('agent-desktop')
+    expect(computerUse.alert).toContain('agent-browser')
   })
 
   it('has the enable toggle keys', () => {
@@ -38,7 +38,7 @@ describe('computerUse namespace (en)', () => {
   it('has the allowlist keys', () => {
     expect(computerUse.allowlist).toMatchObject({
       label: 'Allowlisted apps',
-      searchPlaceholder: 'Search installed apps…',
+      searchPlaceholder: 'Search running apps…',
       loading: 'Loading apps…',
       noAppFound: 'No app found.'
     })
@@ -47,7 +47,8 @@ describe('computerUse namespace (en)', () => {
   it('has the maxSteps and settleDelay keys', () => {
     expect(computerUse.maxSteps).toMatchObject({
       label: 'Max steps',
-      description: 'Stop a session after this many actions. Default 25.'
+      description:
+        'Maximum desktop observations and actions per agent run. Default 25.'
     })
     expect(computerUse.settleDelay).toMatchObject({
       label: 'Settle delay (ms)',

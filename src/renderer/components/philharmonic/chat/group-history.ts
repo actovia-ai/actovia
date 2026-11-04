@@ -1,29 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { reportRendererError } from '@/lib/report-error'
 import { getConversationMessages } from '@/services/philharmonic-chat'
 import type { ConversationMessageData } from '@/stores/philharmonic'
 
 /**
- * A group's saved rows with the ones read `?after=` its last row added at
- * the end. Two re-reads can ask after the same row when two messages end
- * close together, so a row already held is not added twice.
- */
-export function appendRows(
-  history: ConversationMessageData[],
-  rows: ConversationMessageData[]
-): ConversationMessageData[] {
-  const held = new Set(history.map((m) => m.id))
-  const fresh = rows.filter((m) => !held.has(m.id))
-  return fresh.length > 0 ? [...history, ...fresh] : history
-}
-
-/**
- * The saved rows of the group on show: the whole group when it opens; after
- * each message_end (`revision`) only the rows saved since the last one held,
- * or the whole group again if that read fails. Rows can change after they
- * are saved (an agent card's parts), but those changes reach a page that is
- * open through the stream's agent_card events; a page that opens reads them
- * all. An answer for a group that is no longer on show is dropped.
+ * The database order is authoritative. Re-read the transcript after each
+ * settled stream event rather than appending a cursor page: concurrent writes
+ * can share a timestamp or commit out of order, and rows can be edited after
+ * they are first saved.
  */
 export function useGroupHistory(
   conversationId: string,
@@ -35,40 +20,27 @@ export function useGroupHistory(
   }>({ of: conversationId, rows: [] })
   const shown = useRef(conversationId)
   shown.current = conversationId
-  const heldRef = useRef(held)
-  heldRef.current = held
-
-  const readAll = (id: string) =>
-    getConversationMessages(id).then((rows) => {
-      if (shown.current === id) setHeld({ of: id, rows })
-    })
+  const requestId = useRef(0)
 
   useEffect(() => {
-    readAll(conversationId)
-  }, [conversationId])
-
-  useEffect(() => {
-    if (revision === 0) return
     const id = conversationId
-    // Not read yet for this group: the read on opening it brings the row.
-    if (heldRef.current.of !== id) return
-    const last = heldRef.current.rows.at(-1)?.id
-    if (!last) {
-      readAll(id)
-      return
-    }
-    getConversationMessages(id, last)
+    const request = ++requestId.current
+    let active = true
+    getConversationMessages(id)
       .then((rows) => {
-        if (shown.current !== id) return
-        setHeld((h) =>
-          h.of === id ? { of: id, rows: appendRows(h.rows, rows) } : h
-        )
+        if (active && shown.current === id && requestId.current === request)
+          setHeld({ of: id, rows })
       })
-      .catch(() => {
-        if (shown.current === id) return readAll(id)
+      .catch((error: unknown) => {
+        if (active && shown.current === id)
+          reportRendererError('philharmonic-history', error, {
+            conversationId: id
+          })
       })
-    // A switch of group alone is not a message_end.
-  }, [revision])
+    return () => {
+      active = false
+    }
+  }, [conversationId, revision])
 
   return held.of === conversationId ? held.rows : []
 }

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // pulling in pi-ai's Type builder or the real tool implementations.
 const stub = (name: string) => ({ name })
 vi.mock('@main/lib/ai/calling-tools', () => ({
+  browserUse: () => stub('browser_use'),
   createArtifact: () => stub('create_artifact'),
   deepResearch: stub('deep_research'),
   editFile: () => stub('edit_file'),

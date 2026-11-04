@@ -21,8 +21,11 @@ import {
  * are refused as everywhere. The Group's workspace is
  * `~/.actovia/groups/<conversationId>`.
  */
-export function groupBeforeToolCall(conversationId: string) {
-  const workspaceDir = join(getGroupsDir(), conversationId)
+export function groupBeforeToolCall(
+  conversationId: string,
+  boundWorkspace?: string
+) {
+  const workspaceDir = boundWorkspace ?? join(getGroupsDir(), conversationId)
   return async ({
     toolCall,
     args

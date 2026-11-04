@@ -1,5 +1,8 @@
 import type { Attachment } from '@actovia/shared/types/chat'
-import type { PlanDto } from '@actovia/shared/types/philharmonic'
+import type {
+  PlanDto,
+  PmContextSnapshot
+} from '@actovia/shared/types/philharmonic'
 import { fetcher } from '@actovia/shared/utils/http'
 
 import { presenceHeaders } from '@/lib/presence'
@@ -67,11 +70,12 @@ export const sendConversationMessage = async (
 export const respondToConversation = async (
   id: string,
   response: string,
-  questionId?: string
+  questionId?: string,
+  attachments?: Attachment[]
 ) =>
   fetcher<{ success: boolean }>(`${BASE}/conversations/${id}/respond`, {
     method: 'POST',
-    body: { response, questionId } as never,
+    body: { response, questionId, attachments } as never,
     headers: await presenceHeaders()
   })
 
@@ -93,3 +97,19 @@ export const interruptConversation = (id: string) =>
  */
 export const getActivePlan = (conversationId: string) =>
   fetcher<PlanDto | null>(`${BASE}/conversations/${conversationId}/plan`)
+
+export const getPlanMonitor = () => fetcher<PlanDto[]>(`${BASE}/plans/monitor`)
+
+export const getPmContext = (conversationId: string) =>
+  fetcher<PmContextSnapshot | null>(
+    `${BASE}/conversations/${encodeURIComponent(conversationId)}/context`
+  )
+
+export const revealGroupArchive = async (id: string, path: string) =>
+  fetcher(`${BASE}/conversations/${id}/archive/reveal`, {
+    method: 'POST',
+    body: { path } as never,
+    headers: await presenceHeaders()
+  })
+export const groupArchiveFileUrl = (id: string, path: string) =>
+  `${BASE}/conversations/${id}/archive/file?path=${encodeURIComponent(path)}`

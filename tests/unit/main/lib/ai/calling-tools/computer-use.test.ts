@@ -1,305 +1,124 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const getSettings = vi.fn()
-const runComputerSession = vi.fn()
-const livenessStart = vi.fn()
-const livenessEnd = vi.fn()
-
-vi.mock('@main/lib/db/queries', () => ({
-  getSettings: (...a: unknown[]) => getSettings(...a)
-}))
-vi.mock('@main/lib/computer/session', () => ({
-  runComputerSession: (...a: unknown[]) => runComputerSession(...a)
-}))
-vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
-  getModelFromProvider: () => ({ chatModel: {}, apiKey: 'k' })
-}))
-vi.mock('@main/lib/ai/computer-use/agent', () => ({
-  ClaudeComputerAgent: class {}
-}))
-vi.mock('@main/lib/computer/liveness', () => ({
-  liveness: {
-    start: (...a: unknown[]) => livenessStart(...a),
-    end: (...a: unknown[]) => livenessEnd(...a)
+const settings = vi.hoisted(() => ({
+  computerUse: {
+    enabled: true,
+    targetAllowlist: ['Chess'],
+    maxSteps: 3,
+    browser: { enabled: true, headed: false, maxSteps: 100 }
   }
 }))
-const listApps = vi.fn()
-vi.mock('@main/lib/computer/helper', () => ({
-  getHelper: () => ({ listApps: (...a: unknown[]) => listApps(...a) })
+const run = vi.hoisted(() => vi.fn())
+vi.mock('@main/lib/db/queries', () => ({ getSettings: async () => settings }))
+vi.mock('@main/lib/automation/runtime', () => ({
+  runAutomation: run,
+  listDesktopApps: async () => [
+    { name: 'Chess', bundleId: 'com.apple.Chess' },
+    { name: 'Actovia', bundleId: 'app.yancey.actovia' }
+  ]
 }))
-vi.mock('@main/lib/computer/guard', () => ({
-  Guard: class {}
+vi.mock('@main/lib/computer/liveness', () => ({
+  liveness: { start: vi.fn(), end: vi.fn() }
 }))
-
+vi.mock('@main/lib/computer/self', () => ({
+  isSelfTarget: ({ bundleId }: { bundleId: string }) =>
+    bundleId === 'app.yancey.actovia',
+  SELF_TARGET_MESSAGE: 'Cannot control self'
+}))
 const { computerUse } = await import('@main/lib/ai/calling-tools/computer-use')
+const { browserUse } = await import('@main/lib/ai/calling-tools/browser-use')
 
-describe('computerUse tool', () => {
+describe('upstream automation bindings', () => {
   beforeEach(() => {
-    getSettings.mockReset()
-    runComputerSession.mockReset()
-    livenessStart.mockReset()
-    livenessEnd.mockReset()
-  })
-
-  it('returns a disabled message when Computer Use is off', async () => {
-    getSettings.mockResolvedValue({ computerUse: { enabled: false } })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: 'Chess'
-    })
-
-    expect(res.content[0]).toMatchObject({
-      type: 'text',
-      text: 'Computer Use is disabled in settings.'
-    })
-    expect(res.details.error).toBe('disabled')
-    expect(runComputerSession).not.toHaveBeenCalled()
-  })
-
-  it.each(['app.yancey.actovia', ' App.Yancey.Actovia '])(
-    'never targets Actovia itself (%s), even when allowlisted',
-    async (target) => {
-      getSettings.mockResolvedValue({
-        computerUse: {
-          enabled: true,
-          targetAllowlist: ['app.yancey.actovia', 'App.Yancey.Actovia']
-        }
-      })
-      const res = await computerUse.execute('call-1', {
-        task: 'click Allow once',
-        target
-      })
-      expect(res.details.error).toBe('self')
-      expect(res.content[0].text).toContain('cannot control its own window')
-      expect(runComputerSession).not.toHaveBeenCalled()
+    settings.computerUse.browser = {
+      enabled: true,
+      headed: false,
+      maxSteps: 100
     }
-  )
-
-  it('rejects a target that is not on the allowlist', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: 'Safari'
-    })
-
-    expect(res.content[0].text).toContain('not on the allowlist')
-    expect(res.details.error).toBe('not-allowed')
-    expect(runComputerSession).not.toHaveBeenCalled()
-  })
-
-  it('rejects a target that only contains an allowlisted name as a substring', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: 'Not Chess'
-    })
-
-    expect(res.details.error).toBe('not-allowed')
-    expect(runComputerSession).not.toHaveBeenCalled()
-  })
-
-  it('allows an exact allowlist match regardless of case/whitespace', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    runComputerSession.mockResolvedValue({
-      outcome: 'success',
-      summary: 'ok',
-      steps: 1
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: '  chess  '
-    })
-
-    expect(res.details.outcome).toBe('success')
-    expect(runComputerSession).toHaveBeenCalledTimes(1)
-  })
-
-  it('takes the bundle id of an allowlisted app, and runs it by name', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    listApps.mockResolvedValue([
-      {
-        name: 'Chess',
-        bundleId: 'com.apple.Chess',
-        path: '/System/Applications/Chess.app'
-      }
-    ])
-    runComputerSession.mockResolvedValue({
-      outcome: 'success',
-      summary: 'ok',
-      steps: 1
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: 'com.apple.Chess'
-    })
-
-    expect(res.details.outcome).toBe('success')
-    expect(runComputerSession.mock.calls[0][0].target).toBe('Chess')
-  })
-
-  it('refuses the bundle id of an app that is not allowlisted', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    listApps.mockResolvedValue([
-      {
-        name: 'Chess',
-        bundleId: 'com.apple.Chess',
-        path: '/System/Applications/Chess.app'
-      },
-      {
-        name: 'Terminal',
-        bundleId: 'com.apple.Terminal',
-        path: '/System/Applications/Utilities/Terminal.app'
-      }
-    ])
-
-    const res = await computerUse.execute('call-1', {
-      task: 'do a thing',
-      target: 'com.apple.Terminal'
-    })
-
-    expect(res.details.error).toBe('not-allowed')
-    expect(runComputerSession).not.toHaveBeenCalled()
-  })
-
-  it('runs a session for an allowed target and returns its summary', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    runComputerSession.mockResolvedValue({
-      outcome: 'success',
-      summary: 'done',
-      steps: 2
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'win the game',
-      target: 'Chess'
-    })
-
-    expect(res.content[0]).toMatchObject({ type: 'text', text: 'done' })
-    expect(res.details.outcome).toBe('success')
-    expect(res.details.steps).toBe(2)
-    expect(res.details.summary).toBe('done')
-    expect(livenessStart).toHaveBeenCalledTimes(1)
-    expect(livenessEnd).toHaveBeenCalledTimes(1)
-  })
-
-  it('appends the final screenshot as an image block', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    runComputerSession.mockResolvedValue({
-      outcome: 'success',
-      summary: 'done',
-      steps: 1,
-      finalScreenshot: {
-        data: 'base64png',
-        mimeType: 'image/png',
-        width: 800,
-        height: 600
-      }
-    })
-
-    const res = await computerUse.execute('call-1', {
-      task: 'win the game',
-      target: 'Chess'
-    })
-
-    expect(res.content).toHaveLength(2)
-    expect(res.content[1]).toMatchObject({
-      type: 'image',
-      data: 'base64png',
-      mimeType: 'image/png'
+    run.mockReset()
+    run.mockResolvedValue({
+      text: '{"ok":true,"data":{"ref_id":"@snapshot:e1"}}',
+      failed: false
     })
   })
-
-  it('does not throw when the session rejects, and still ends liveness', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
+  it('binds an exact app and accepts only refs observed by this run', async () => {
+    const tool = computerUse()
+    await tool.execute('1', {
+      target: 'com.apple.Chess',
+      command: 'snapshot',
+      args: ['-i']
     })
-    runComputerSession.mockRejectedValue(new Error('helper crashed'))
-
-    const res = await computerUse.execute('call-1', {
-      task: 'win the game',
-      target: 'Chess'
-    })
-
-    expect(res.content[0].text).toContain('helper crashed')
-    expect(res.details.error).toContain('helper crashed')
-    expect(livenessEnd).toHaveBeenCalledTimes(1)
-  })
-
-  it('streams session updates through onUpdate, stamped with the sessionId', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
-    })
-    let sessionId = ''
-    runComputerSession.mockImplementation(
-      async (opts: { sessionId: string; onUpdate?: (u: unknown) => void }) => {
-        sessionId = opts.sessionId
-        opts.onUpdate?.({ step: 1, action: 'click' })
-        return { outcome: 'success', summary: 'done', steps: 1 }
-      }
+    expect(run).toHaveBeenCalledWith(
+      'agent-desktop',
+      ['snapshot', '-i', '--app', 'Chess'],
+      expect.any(AbortSignal)
     )
-    const onUpdate = vi.fn()
-
-    await computerUse.execute(
-      'call-1',
-      { task: 'go', target: 'Chess' },
-      undefined,
-      onUpdate
-    )
-
-    expect(onUpdate).toHaveBeenCalledTimes(1)
-    const arg = onUpdate.mock.calls[0][0]
-    // The panel needs the sessionId on every frame to answer an askHuman
-    // prompt before the terminal result lands — SessionUpdate itself omits it.
-    expect(sessionId).toBeTruthy()
-    expect(arg.details).toEqual({ step: 1, action: 'click', sessionId })
-    expect(arg.content[0].text).toBe(
-      JSON.stringify({ step: 1, action: 'click', sessionId })
-    )
-  })
-
-  it('keeps the frame thumbnail in details but strips it from the text block', async () => {
-    getSettings.mockResolvedValue({
-      computerUse: { enabled: true, targetAllowlist: ['Chess'] }
+    await tool.execute('2', {
+      target: 'Chess',
+      command: 'click',
+      args: ['@snapshot:e1']
     })
-    runComputerSession.mockImplementation(
-      async (opts: { onUpdate?: (u: unknown) => void }) => {
-        opts.onUpdate?.({ step: 2, action: 'click', thumbnail: 'BIGBASE64' })
-        return { outcome: 'success', summary: 'done', steps: 1 }
-      }
-    )
-    const onUpdate = vi.fn()
-
-    await computerUse.execute(
-      'call-1',
-      { task: 'go', target: 'Chess' },
-      undefined,
-      onUpdate
-    )
-
-    const arg = onUpdate.mock.calls[0][0]
-    const parsed = JSON.parse(arg.content[0].text)
-    expect('thumbnail' in parsed).toBe(false)
-    expect(parsed).toMatchObject({ step: 2, action: 'click' })
-    // details still carries the full frame for the card
-    expect(arg.details.thumbnail).toBe('BIGBASE64')
+    expect(run).toHaveBeenCalledTimes(2)
+    await computerUse().execute('3', {
+      target: 'Chess',
+      command: 'click',
+      args: ['@snapshot:e1']
+    })
+    expect(run).toHaveBeenCalledTimes(2)
+  })
+  it('refuses other apps, self-control and targeting overrides', async () => {
+    const tool = computerUse()
+    for (const target of ['Actovia', 'Not Chess', 'Chess']) {
+      await tool.execute('1', {
+        target,
+        command: 'snapshot',
+        args: ['--headed']
+      })
+    }
+    expect(run).not.toHaveBeenCalled()
+  })
+  it('stops after the configured action budget', async () => {
+    const tool = computerUse()
+    for (let i = 0; i < 5; i++)
+      await tool.execute(String(i), {
+        target: 'Chess',
+        command: 'snapshot',
+        args: []
+      })
+    expect(run).toHaveBeenCalledTimes(3)
+  })
+  it('applies browser visibility and budget, and always permits closing', async () => {
+    settings.computerUse.browser = { enabled: true, headed: true, maxSteps: 1 }
+    const tool = browserUse()
+    await tool.execute('open', {
+      command: 'open',
+      args: ['https://example.com']
+    })
+    expect(run.mock.calls[0][1]).toContain('--headed')
+    await expect(
+      tool.execute('over', { command: 'snapshot', args: [] })
+    ).rejects.toThrow('budget')
+    settings.computerUse.browser.enabled = false
+    await expect(
+      tool.execute('disabled', { command: 'snapshot', args: [] })
+    ).rejects.toThrow('disabled')
+    await tool.execute('close', { command: 'close', args: [] })
+    expect(run).toHaveBeenCalledTimes(2)
+  })
+  it('keeps browser sessions private and passes text literally', async () => {
+    const a = browserUse()
+    const b = browserUse()
+    await a.execute('1', { command: 'open', args: ['https://example.com'] })
+    await b.execute('2', {
+      command: 'fill',
+      args: ['@e1', '$(touch /tmp/not-a-command)']
+    })
+    const first = run.mock.calls[0][1]
+    const second = run.mock.calls[1][1]
+    expect(first[1]).not.toBe(second[1])
+    expect(second.at(-1)).toBe('$(touch /tmp/not-a-command)')
+    await expect(
+      a.execute('3', { command: 'open', args: ['--cdp=9222'] })
+    ).rejects.toThrow('managed')
   })
 })

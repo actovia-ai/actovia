@@ -1,25 +1,24 @@
+import type { InstalledApp } from '@actovia/shared/types/computer-use'
 import { Hono } from 'hono'
 
+import { listDesktopApps } from '../../automation/runtime'
 import { computerAskRegistry } from '../../computer/ask-registry'
-import { getHelper } from '../../computer/helper'
 import { liveness } from '../../computer/liveness'
 import { isSelfTarget } from '../../computer/self'
-import type { InstalledApp } from '../../computer/types'
 import { Variables } from '../types'
 import { successResponse } from '../utils'
 
 const router = new Hono<{ Variables: Variables }>()
 
-// `list-apps` scans the app directories and renders every icon — cache it so
-// re-opening the Settings picker doesn't re-run the scan each time.
-const APPS_TTL_MS = 60_000
+// Briefly cache the upstream running-app inventory for the Settings picker.
+const APPS_TTL_MS = 5_000
 let appsCache: { at: number; apps: InstalledApp[] } | null = null
 
-// GET /api/v1/computer-use/apps — installed applications for the allowlist picker.
+// GET /api/v1/computer-use/apps — running applications for the allowlist picker.
 router.get('/apps', async (c) => {
   if (!appsCache || Date.now() - appsCache.at > APPS_TTL_MS) {
     // Actovia itself is never a Computer Use target (computer/self.ts).
-    const apps = await getHelper().listApps()
+    const apps = await listDesktopApps()
     appsCache = {
       at: Date.now(),
       apps: apps.filter((a) => !isSelfTarget({ bundleId: a.bundleId }))

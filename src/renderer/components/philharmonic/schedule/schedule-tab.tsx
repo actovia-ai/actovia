@@ -1,7 +1,5 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { SendMessageOptions } from '@actovia/shared/types/chat'
-import { Add01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSetAtom } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from '@/components/ui/toast'
-import { PhilharmonicHeaderSlot } from '@/layouts/philharmonic-layout/philharmonic-content-header'
 import {
   cancelScheduledTask,
   getRecurringTasks,
@@ -29,17 +26,14 @@ import type { ConversationData, TaskData } from '@/stores/philharmonic'
 
 import { RecurringList } from './recurring-list'
 import { ScheduleEmptyState } from './schedule-empty-state'
-import { ScheduleTaskForm } from './schedule-task-form'
 import { UpcomingList } from './upcoming-list'
 
 export function ScheduleTab({
   conversations,
-  chats = [],
-  standalone = false
+  chats
 }: {
   conversations: ConversationData[]
-  chats?: Array<{ id: string; title: string }>
-  standalone?: boolean
+  chats: Array<{ id: string; title: string }>
 }) {
   const { t } = useTranslation(['philharmonic', 'common'])
   const queryClient = useQueryClient()
@@ -61,11 +55,8 @@ export function ScheduleTab({
     refetchInterval: 30_000,
     refetchOnWindowFocus: true
   })
-  const visibleHere = (task: TaskData) =>
-    standalone || task.input?.kind !== 'chat-schedule'
-  const upcoming = (upcomingQuery.data ?? []).filter(visibleHere)
-  const recurring = (recurringQuery.data ?? []).filter(visibleHere)
-  const [formOpen, setFormOpen] = useState(false)
+  const upcoming = upcomingQuery.data ?? []
+  const recurring = recurringQuery.data ?? []
   const [cancellingId, setCancellingId] = useState<string | null>(null)
 
   const conversationsById = useMemo(
@@ -95,13 +86,6 @@ export function ScheduleTab({
     void navigate(originExists ? `/chat/${chatId}` : '/')
   }
 
-  const handleCreated = useCallback(
-    (_task: TaskData) => {
-      void queryClient.invalidateQueries({ queryKey: ['scheduled-tasks'] })
-    },
-    [queryClient]
-  )
-
   const handleCancel = useCallback(
     async (id: string) => {
       setCancellingId(id)
@@ -130,35 +114,19 @@ export function ScheduleTab({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {standalone && (
-        <div className="mx-auto flex w-full max-w-3xl items-start justify-between gap-4 px-6 pt-6 pb-3">
-          <div>
-            <h1 className="text-2xl font-medium tracking-tight">
-              {t('schedule.page.title')}
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {t('schedule.page.description')}
-            </p>
-            <p className="text-muted-foreground mt-3 text-xs">
-              {t('schedule.page.localOnly')}
-            </p>
-          </div>
+      <div className="mx-auto flex w-full max-w-3xl items-start justify-between gap-4 px-6 pt-6 pb-3">
+        <div>
+          <h1 className="text-2xl font-medium tracking-tight">
+            {t('schedule.page.title')}
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            {t('schedule.page.description')}
+          </p>
+          <p className="text-muted-foreground mt-3 text-xs">
+            {t('schedule.page.localOnly')}
+          </p>
         </div>
-      )}
-      {!standalone && (
-        <PhilharmonicHeaderSlot>
-          <Button
-            className="no-drag rounded-full"
-            data-testid={TEST_IDS.schedule.createButton}
-            type="button"
-            size="sm"
-            onClick={() => setFormOpen(true)}
-          >
-            <HugeiconsIcon icon={Add01Icon} className="h-4 w-4" />
-            {t('schedule.scheduleTaskButton')}
-          </Button>
-        </PhilharmonicHeaderSlot>
-      )}
+      </div>
       {upcomingQuery.isPending || recurringQuery.isPending ? (
         <div className="flex flex-1 items-center justify-center">
           <Spinner />
@@ -175,16 +143,17 @@ export function ScheduleTab({
             {t('common:action.retry')}
           </Button>
         </div>
-      ) : standalone && upcoming.length === 0 && recurring.length === 0 ? (
+      ) : upcoming.length === 0 && recurring.length === 0 ? (
         <ScheduleEmptyState />
       ) : (
         <Tabs
-          defaultValue={
-            standalone && upcoming.length === 0 ? 'recurring' : 'upcoming'
-          }
+          defaultValue={upcoming.length === 0 ? 'recurring' : 'upcoming'}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <TabsList className="mx-auto mt-3 w-fit shrink-0">
+          <TabsList
+            data-testid={TEST_IDS.schedule.tab}
+            className="mx-auto mt-3 w-fit shrink-0"
+          >
             <TabsTrigger value="upcoming">
               {t('schedule.tab.upcomingTrigger')}
             </TabsTrigger>
@@ -198,8 +167,8 @@ export function ScheduleTab({
               conversationsById={conversationsById}
               cancellingId={cancellingId}
               onCancel={handleCancel}
-              onEdit={standalone ? startChat : undefined}
-              emptyState={standalone ? <ScheduleEmptyState /> : undefined}
+              onEdit={startChat}
+              emptyState={<ScheduleEmptyState />}
             />
           </TabsContent>
           <TabsContent value="recurring" className="min-h-0 flex-1">
@@ -208,44 +177,33 @@ export function ScheduleTab({
               conversationsById={conversationsById}
               cancellingId={cancellingId}
               onCancel={handleCancel}
-              onEdit={standalone ? startChat : undefined}
-              emptyState={standalone ? <ScheduleEmptyState /> : undefined}
+              onEdit={startChat}
+              emptyState={<ScheduleEmptyState />}
             />
           </TabsContent>
         </Tabs>
       )}
-      {standalone && (
-        <div
-          data-testid={TEST_IDS.schedule.composer}
-          className="shrink-0 pt-3 pb-8"
-        >
-          <MultimodalInput
-            chatId="scheduled-draft"
-            mode="draft"
-            placeholder={t('schedule.composer.placeholder')}
-            sendMessage={async (message: SendMessageOptions) => {
-              setTools([])
-              setQuote(null)
-              setPendingSend({
-                ...message,
-                text: t('schedule.composer.requestPrompt', {
-                  request: message.text?.trim() ?? ''
-                })
+      <div
+        data-testid={TEST_IDS.schedule.composer}
+        className="shrink-0 pt-3 pb-8"
+      >
+        <MultimodalInput
+          chatId="scheduled-draft"
+          mode="draft"
+          placeholder={t('schedule.composer.placeholder')}
+          sendMessage={async (message: SendMessageOptions) => {
+            setTools([])
+            setQuote(null)
+            setPendingSend({
+              ...message,
+              text: t('schedule.composer.requestPrompt', {
+                request: message.text?.trim() ?? ''
               })
-              await navigate('/')
-            }}
-          />
-        </div>
-      )}
-      {!standalone && (
-        <ScheduleTaskForm
-          open={formOpen}
-          onOpenChange={setFormOpen}
-          conversations={conversations}
-          chats={chats}
-          onCreated={handleCreated}
+            })
+            await navigate('/')
+          }}
         />
-      )}
+      </div>
     </div>
   )
 }

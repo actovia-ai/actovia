@@ -79,7 +79,7 @@
       "title": "심층 조사"
     },
     "computerUse": {
-      "title": "Computer Use"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "에이전트"
@@ -109,7 +109,10 @@
       "storage": "저장소",
       "developer": "개발자"
     },
-    "experimental": "실험적"
+    "experimental": "실험적",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "설정 검색…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "예약 관리",
         "description": "Chat에서 예약 작업을 만들고 편집하고 삭제합니다."
+      },
+      "browserUse": {
+        "label": "브라우저 자동화",
+        "description": "별도의 agent-browser 세션에서 웹 페이지를 탐색하고 조작합니다."
       }
     },
     "googleMaps": {
@@ -694,7 +701,13 @@
       "deleteAria": "서버 삭제",
       "showTools": "도구 표시",
       "hideTools": "도구 숨기기",
-      "reenter": "다시 입력 필요: {{fields}}"
+      "reenter": "다시 입력 필요: {{fields}}",
+      "authorized": "인증됨",
+      "needsAuth": "인증 필요",
+      "authorize": "인증",
+      "authorizing": "인증 중…",
+      "authorizingHint": "브라우저에서 접근을 승인한 다음 여기로 돌아오세요.",
+      "signOut": "로그아웃"
     },
     "intro": "<2>MCP</2> 서버(로컬 또는 원격)를 등록한 다음, 스위치를 켜서 채팅에서 해당 도구를 사용하도록 설정하세요.",
     "activeSummary": "현재 <strong>서버 {{activeCount}}개</strong>에서 제공하는 <strong>도구 {{totalToolCount}}개</strong>가 활성화되어 있습니다.",
@@ -785,7 +798,11 @@
       "registerFailed": "등록에 실패했습니다",
       "removeFailed": "서버 제거에 실패했습니다",
       "toggleFailed": "서버 전환에 실패했습니다",
-      "invalidEnv": "환경 변수 JSON이 올바르지 않습니다"
+      "invalidEnv": "환경 변수 JSON이 올바르지 않습니다",
+      "authorizeFailed": "인증 실패",
+      "authorized": "\"{{name}}\" 인증됨",
+      "signOutFailed": "로그아웃 실패",
+      "signedOut": "\"{{name}}\" 로그아웃됨"
     }
   },
   "memory": {

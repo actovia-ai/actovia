@@ -79,7 +79,7 @@
       "title": "深度研究"
     },
     "computerUse": {
-      "title": "电脑操控"
+      "title": "电脑与浏览器控制"
     },
     "agents": {
       "title": "智能体"
@@ -109,7 +109,10 @@
       "storage": "存储",
       "developer": "开发者"
     },
-    "experimental": "实验功能"
+    "experimental": "实验功能",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "搜索设置…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "管理定时任务",
         "description": "通过 Chat 创建、修改和删除定时任务。"
+      },
+      "browserUse": {
+        "label": "浏览器自动化",
+        "description": "使用独立的 agent-browser 会话浏览网页并进行交互。"
       }
     },
     "googleMaps": {
@@ -694,7 +701,13 @@
       "deleteAria": "删除服务器",
       "showTools": "显示工具",
       "hideTools": "隐藏工具",
-      "reenter": "需要重新输入：{{fields}}"
+      "reenter": "需要重新输入：{{fields}}",
+      "authorized": "已授权",
+      "needsAuth": "需要授权",
+      "authorize": "授权",
+      "authorizing": "授权中…",
+      "authorizingHint": "请在浏览器中确认授权，然后返回这里。",
+      "signOut": "退出登录"
     },
     "intro": "注册 <2>MCP</2> 服务器（本地或远程），然后打开开关，即可在聊天中启用其工具。",
     "activeSummary": "当前有来自 <strong>{{activeCount}} 个服务器</strong>的 <strong>{{totalToolCount}} 个工具</strong>已启用。",
@@ -785,7 +798,11 @@
       "registerFailed": "注册失败",
       "removeFailed": "移除服务器失败",
       "toggleFailed": "切换服务器状态失败",
-      "invalidEnv": "环境变量 JSON 无效"
+      "invalidEnv": "环境变量 JSON 无效",
+      "authorizeFailed": "授权失败",
+      "authorized": "“{{name}}”已授权",
+      "signOutFailed": "退出登录失败",
+      "signedOut": "“{{name}}”已退出登录"
     }
   },
   "memory": {

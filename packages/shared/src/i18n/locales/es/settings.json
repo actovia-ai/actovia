@@ -79,7 +79,7 @@
       "title": "Investigación profunda"
     },
     "computerUse": {
-      "title": "Uso del equipo"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Agentes"
@@ -109,7 +109,10 @@
       "storage": "Almacenamiento",
       "developer": "Desarrollador"
     },
-    "experimental": "Experimental"
+    "experimental": "Experimental",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Buscar en la configuración…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Gestionar horarios",
         "description": "Crea, edita y elimina tareas programadas mediante Chat."
+      },
+      "browserUse": {
+        "label": "Automatización del navegador",
+        "description": "Navega e interactúa con páginas en una sesión independiente de agent-browser."
       }
     },
     "googleMaps": {
@@ -697,7 +704,13 @@
       "deleteAria": "Eliminar servidor",
       "showTools": "Mostrar herramientas",
       "hideTools": "Ocultar herramientas",
-      "reenter": "Hay que volver a introducir: {{fields}}"
+      "reenter": "Hay que volver a introducir: {{fields}}",
+      "authorized": "Autorizado",
+      "needsAuth": "Requiere autorización",
+      "authorize": "Autorizar",
+      "authorizing": "Autorizando…",
+      "authorizingHint": "Aprueba el acceso en tu navegador y vuelve aquí.",
+      "signOut": "Cerrar sesión"
     },
     "intro": "Registre servidores <2>MCP</2> (locales o remotos) y luego active el interruptor para habilitar sus herramientas en el chat.",
     "activeSummary": "Actualmente hay <strong>{{totalToolCount}} herramientas</strong> activas de <strong>{{activeCount}} servidores</strong>.",
@@ -788,7 +801,11 @@
       "registerFailed": "No se pudo registrar",
       "removeFailed": "No se pudo eliminar el servidor",
       "toggleFailed": "No se pudo alternar el servidor",
-      "invalidEnv": "JSON de variables de entorno no válido"
+      "invalidEnv": "JSON de variables de entorno no válido",
+      "authorizeFailed": "Error de autorización",
+      "authorized": "«{{name}}» autorizado",
+      "signOutFailed": "Error al cerrar sesión",
+      "signedOut": "Sesión cerrada en «{{name}}»"
     }
   },
   "memory": {

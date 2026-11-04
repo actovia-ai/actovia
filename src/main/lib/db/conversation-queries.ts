@@ -71,6 +71,19 @@ export async function updateConversation(
   return row
 }
 
+export async function updateConversationTitleIfUnchanged(
+  id: string,
+  expectedTitle: string,
+  title: string
+) {
+  const [row] = await db
+    .update(conversation)
+    .set({ title, updatedAt: new Date() })
+    .where(and(eq(conversation.id, id), eq(conversation.title, expectedTitle)))
+    .returning()
+  return row
+}
+
 export async function touchConversation(id: string) {
   const now = new Date()
   const [row] = await db

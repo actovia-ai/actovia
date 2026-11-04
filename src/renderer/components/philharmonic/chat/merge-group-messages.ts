@@ -19,6 +19,13 @@ type AttachmentPart = {
   contentType: string
 }
 type DecisionPart = { kind: 'decision'; delegations: number; waits: number }
+type ArchivePart = {
+  kind: 'archive'
+  title: string
+  path: string
+  directory: boolean
+}
+type FinalOutputPart = { kind: 'final_output' }
 type ArtifactPart = {
   kind: 'artifact'
   artifactId: string
@@ -67,6 +74,7 @@ export function mergeGroupMessages({
       .filter(isPart<ArtifactPart>('artifact'))
       .map((p) => ({ artifactId: p.artifactId, title: p.title, code: p.code }))
     const decision = parts.find(isPart<DecisionPart>('decision'))
+    const finalOutput = parts.some(isPart<FinalOutputPart>('final_output'))
     const question = parts.find(isPart<GroupQuestionPart>('question'))
     return {
       conversationId,
@@ -77,6 +85,8 @@ export function mergeGroupMessages({
       createdAt: h.createdAt,
       attachments: attachments.length > 0 ? attachments : undefined,
       artifacts: artifacts.length > 0 ? artifacts : undefined,
+      finalOutput,
+      archives: parts.filter(isPart<ArchivePart>('archive')),
       // The live map carries a card's updates after its message was saved
       // (a step under way, an unprompted turn), so it wins over the row.
       agentCard: messageCard(agentCards, h.id, agentCardFromParts(parts)),
@@ -118,6 +128,8 @@ export function mergeGroupMessages({
         role: b.role,
         agentId: b.agentId,
         text: b.text,
+        thinking: b.thinking,
+        streaming: !b.done,
         toolCards: b.toolCards,
         artifacts: liveArtifacts.length > 0 ? liveArtifacts : undefined,
         agentCard: messageCard(agentCards, b.messageId, b.agentCard)
@@ -125,7 +137,15 @@ export function mergeGroupMessages({
       }
     ]
   })
-  const merged = [...fromHistory, ...live]
+  // The PM bubble is the turn's eventual answer, while employee bubbles are
+  // reports produced during that turn. Keep live reports before the PM's
+  // streaming bubble so saving a report cannot move it across the transcript.
+  const livePm = live.filter((bubble) => bubble.role === 'pm')
+  const merged = [
+    ...fromHistory,
+    ...live.filter((bubble) => bubble.role !== 'pm'),
+    ...livePm
+  ]
   // Only a session's latest card may hand the session to Terminal.
   const latest = new Map<string, string>()
   for (const b of merged)

@@ -10,11 +10,13 @@ import { toast } from '@/components/ui/toast'
 import { refreshSecretsStatus } from '@/hooks/use-secrets-status'
 import { i18n } from '@/lib/i18n'
 import {
+  authorizeMcpServerApi,
   createMcpServerApi,
   deleteMcpServerApi,
   getMcpServers,
   getMcpTools,
   type McpServerItem,
+  signOutMcpServerApi,
   updateMcpServerApi
 } from '@/services/mcp-service'
 
@@ -115,6 +117,46 @@ export function useDeleteMcpServer() {
       toast.add({
         type: 'success',
         title: i18n.t('settings:mcpServers.toast.removed', {
+          name: server.name
+        })
+      })
+      return refreshMcp(queryClient)
+    }
+  })
+}
+
+// Runs the browser OAuth flow for a remote server. The mutation stays pending
+// while the user is in the browser; on success the server list re-reads (its
+// `authStatus` flips to `authorized`) and its tools can load.
+export function useAuthorizeMcpServer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (server: Pick<McpServerItem, 'id' | 'name'>) =>
+      authorizeMcpServerApi(server.id),
+    meta: { errorTitle: i18n.t('settings:mcpServers.toast.authorizeFailed') },
+    onSuccess: (_void, server) => {
+      toast.add({
+        type: 'success',
+        title: i18n.t('settings:mcpServers.toast.authorized', {
+          name: server.name
+        })
+      })
+      return refreshMcp(queryClient)
+    }
+  })
+}
+
+// Clears a remote server's stored OAuth tokens.
+export function useSignOutMcpServer() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (server: Pick<McpServerItem, 'id' | 'name'>) =>
+      signOutMcpServerApi(server.id),
+    meta: { errorTitle: i18n.t('settings:mcpServers.toast.signOutFailed') },
+    onSuccess: (_void, server) => {
+      toast.add({
+        type: 'success',
+        title: i18n.t('settings:mcpServers.toast.signedOut', {
           name: server.name
         })
       })

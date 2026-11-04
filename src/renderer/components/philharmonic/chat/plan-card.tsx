@@ -1,3 +1,4 @@
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { PlanDto, StepStatus } from '@actovia/shared/types/philharmonic'
 import {
   ArrowRight01Icon,
@@ -25,6 +26,8 @@ import { EmployeeAvatar } from '../employees/employee-avatar'
 interface Props {
   plan: PlanDto
   agentsById: Record<string, AgentData>
+  defaultCollapsed?: boolean
+  className?: string
 }
 
 // A step's state as AI Elements' Queue draws one (ISSUE-293): an outlined
@@ -61,7 +64,12 @@ function elapsedLabel(plan: PlanDto): string {
   })
 }
 
-export function PlanCard({ plan, agentsById }: Props) {
+export function PlanCard({
+  plan,
+  agentsById,
+  defaultCollapsed,
+  className
+}: Props) {
   const { t } = useTranslation('philharmonic')
   const stepStatusAria: Record<StepStatus, string> = useMemo(
     () => ({
@@ -74,11 +82,13 @@ export function PlanCard({ plan, agentsById }: Props) {
     [t]
   )
   // Auto-collapse completed plans and busy plans with > 4 steps.
-  const initialCollapsed =
-    plan.status === 'completed' ||
-    plan.status === 'aborted' ||
-    plan.steps.length > 4
+  const initialCollapsed = defaultCollapsed ?? true
   const [collapsed, setCollapsed] = useState(initialCollapsed)
+
+  useEffect(() => {
+    if (plan.status === 'completed' || plan.status === 'aborted')
+      setCollapsed(true)
+  }, [plan.status])
 
   // Tick once a minute so elapsed labels stay fresh without an animation loop.
   const [, force] = useState(0)
@@ -97,24 +107,33 @@ export function PlanCard({ plan, agentsById }: Props) {
     <Collapsible
       open={!collapsed}
       onOpenChange={(open) => setCollapsed(!open)}
-      className="bg-muted mb-4 overflow-hidden rounded-2xl"
+      className={cn(
+        'bg-card border-border/70 overflow-hidden rounded-xl border shadow-sm',
+        className
+      )}
     >
-      <CollapsibleTrigger className="group/plan focus-visible:ring-ring/50 flex w-full items-center gap-2 px-4 py-3 text-left outline-none focus-visible:ring-3">
+      <CollapsibleTrigger
+        data-testid={TEST_IDS.philharmonic.planToggle}
+        aria-label={plan.summary}
+        className="group/plan focus-visible:ring-ring/50 flex w-full items-center gap-2.5 px-3 py-2 text-left outline-none focus-visible:ring-3"
+      >
         <HugeiconsIcon
           icon={ArrowRight01Icon}
           strokeWidth={2}
           className="text-muted-foreground size-4 shrink-0 transition-transform duration-200 ease-out group-aria-expanded/plan:rotate-90"
         />
-        <span className="text-foreground text-ui flex-1 truncate font-medium">
-          {plan.summary}
-        </span>
-        <span className="text-muted-foreground text-xs tabular-nums">
-          {done}/{total} · {elapsedLabel(plan)}
+        <span className="flex min-w-0 flex-1 items-baseline gap-3">
+          <span className="text-foreground text-ui min-w-0 flex-1 truncate font-medium">
+            {plan.summary}
+          </span>
+          <span className="text-muted-foreground shrink-0 text-xs tabular-nums">
+            {done}/{total} · {elapsedLabel(plan)}
+          </span>
         </span>
         <StatusPill status={plan.status} />
       </CollapsibleTrigger>
       <CollapsibleContent className="h-(--collapsible-panel-height) overflow-hidden transition-[height] duration-200 ease-out data-ending-style:h-0 data-starting-style:h-0">
-        <ol className="flex flex-col gap-0.5 px-2 pb-2">
+        <ol className="border-border/70 mx-5 mb-3 ml-[27px] flex flex-col border-l pl-4">
           {plan.steps.map((s) => {
             const agent = s.assignedAgentId
               ? agentsById[s.assignedAgentId]
@@ -124,12 +143,12 @@ export function PlanCard({ plan, agentsById }: Props) {
                 key={s.id}
                 data-status={s.status}
                 className={cn(
-                  'flex items-start gap-3 rounded-xl px-2 py-2',
-                  s.status === 'running' && 'bg-background'
+                  'relative flex items-start gap-3 rounded-xl px-2 py-2',
+                  s.status === 'running' && 'bg-background/70'
                 )}
               >
                 <span
-                  className="mt-px inline-flex size-4 shrink-0 items-center justify-center"
+                  className="bg-muted absolute top-2.5 -left-[25px] inline-flex size-4 shrink-0 items-center justify-center"
                   aria-label={stepStatusAria[s.status]}
                 >
                   <HugeiconsIcon
@@ -165,14 +184,17 @@ export function PlanCard({ plan, agentsById }: Props) {
                   {s.note && (
                     <div className="text-warning mt-1 text-xs">{s.note}</div>
                   )}
+                  {agent && (
+                    <div className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
+                      <EmployeeAvatar
+                        seed={agent.avatarSeed}
+                        style={agent.avatarStyle}
+                        size={18}
+                      />
+                      <span>{agent.name}</span>
+                    </div>
+                  )}
                 </div>
-                {agent && (
-                  <EmployeeAvatar
-                    seed={agent.avatarSeed}
-                    style={agent.avatarStyle}
-                    size={24}
-                  />
-                )}
               </li>
             )
           })}

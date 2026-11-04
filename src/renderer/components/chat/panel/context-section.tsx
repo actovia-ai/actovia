@@ -1,6 +1,6 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type {
-  ChatContextSnapshot,
+  ContextSnapshotData,
   ContextPartKey
 } from '@actovia/shared/types/chat-context'
 import { useTranslation } from 'react-i18next'
@@ -16,13 +16,13 @@ import { cn } from '@/lib/utils'
  * tone's accent, what the app adds in the chart greys.
  */
 export const PART_FILL: Record<ContextPartKey, string> = {
-  system: 'bg-chart-5',
-  skills: 'bg-chart-4',
-  mcp: 'bg-chart-3',
-  tools: 'bg-chart-2',
-  memory: 'bg-primary/40',
-  summaries: 'bg-primary/65',
-  messages: 'bg-primary'
+  system: 'bg-context-system',
+  skills: 'bg-context-skills',
+  mcp: 'bg-context-mcp',
+  tools: 'bg-context-tools',
+  memory: 'bg-context-memory',
+  summaries: 'bg-context-summaries',
+  messages: 'bg-context-messages'
 }
 
 /** The chat panel's Context section (ISSUE-235), for the chat on screen. */
@@ -47,21 +47,23 @@ export function ContextSection({ chatId }: { chatId: string }) {
  * The share used, one stacked bar with LCM's mark on it, a row per part and
  * the free space, then how fresh it is and where compaction starts.
  */
-export function ContextView({ snapshot }: { snapshot: ChatContextSnapshot }) {
+export function ContextView({
+  snapshot,
+  testId = TEST_IDS.chat.panel.contextSection
+}: {
+  snapshot: ContextSnapshotData
+  testId?: string
+}) {
   const { t } = useTranslation('chat')
   const format = useFormat()
   const meter = contextMeter(snapshot)
   const tokens = format.compactNumber
   const pct = (n: number) => format.number(n, { maximumFractionDigits: 1 })
   // Without a window the bar is the parts' own proportions.
-  const scale =
-    snapshot.contextWindow > 0 ? snapshot.contextWindow : snapshot.total
+  const scale = Math.max(snapshot.contextWindow, snapshot.total)
 
   return (
-    <div
-      className="flex flex-col gap-4 px-3 py-2"
-      data-testid={TEST_IDS.chat.panel.contextSection}
-    >
+    <div className="flex flex-col gap-4 px-3 py-2" data-testid={testId}>
       <p className="text-sm font-medium tabular-nums">
         {meter.percent === null
           ? t('panel.context.usedNoWindow', { used: tokens(snapshot.total) })
@@ -72,8 +74,8 @@ export function ContextView({ snapshot }: { snapshot: ChatContextSnapshot }) {
             })}
       </p>
 
-      <div className="bg-muted relative h-2 overflow-hidden rounded-full">
-        <div className="flex h-full">
+      <div className="bg-muted relative h-3 overflow-hidden rounded-md">
+        <div className="flex h-full gap-px">
           {meter.rows.map((row) =>
             row.tokens > 0 && scale > 0 ? (
               <span
@@ -110,7 +112,7 @@ export function ContextView({ snapshot }: { snapshot: ChatContextSnapshot }) {
             swatch="bg-muted ring-1 ring-border"
             name={t('panel.context.free')}
             tokens={tokens(meter.free)}
-            share={`${pct(100 - (meter.percent ?? 0))}%`}
+            share={`${pct(Math.max(0, 100 - (meter.percent ?? 0)))}%`}
           />
         )}
       </ul>
@@ -149,7 +151,7 @@ function PartRow({
 }) {
   return (
     <li className="flex items-center gap-3 py-1.5 text-sm" data-part={part}>
-      <span className={cn('size-2.5 shrink-0 rounded-sm', swatch)} />
+      <span className={cn('size-2.5 shrink-0 rounded-full', swatch)} />
       <span className="min-w-0 flex-1 truncate">{name}</span>
       <span className="text-muted-foreground tabular-nums">{tokens}</span>
       {share !== null && (

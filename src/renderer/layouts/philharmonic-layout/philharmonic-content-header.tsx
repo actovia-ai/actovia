@@ -19,10 +19,12 @@ import { cn } from '@/lib/utils'
 export function PhilharmonicContentHeader({
   children,
   className,
-  onCreateGroup
+  onCreateGroup,
+  compactWhenSidebarOpen = false
 }: {
   children?: ReactNode
   className?: string
+  compactWhenSidebarOpen?: boolean
   /** New group, beside the toggle while the sidebar is away (as its top row has it). */
   onCreateGroup: () => void
 }) {
@@ -32,7 +34,8 @@ export function PhilharmonicContentHeader({
   return (
     <header
       className={cn(
-        'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 rounded-tl-xl pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
+        'draggable bg-card/80 relative z-10 flex shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[height,padding] duration-200 ease-out',
+        compactWhenSidebarOpen && open ? 'h-6' : 'h-11',
         'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
         open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23',
         className
@@ -59,15 +62,20 @@ const HeaderSlotContext = createContext<HTMLElement | null>(null)
  */
 export function PhilharmonicSlottedHeader({
   children,
-  onCreateGroup
+  onCreateGroup,
+  compactWhenSidebarOpen = false
 }: {
   children: ReactNode
   onCreateGroup: () => void
+  compactWhenSidebarOpen?: boolean
 }) {
   const [slot, setSlot] = useState<HTMLElement | null>(null)
   return (
     <HeaderSlotContext.Provider value={slot}>
-      <PhilharmonicContentHeader onCreateGroup={onCreateGroup}>
+      <PhilharmonicContentHeader
+        onCreateGroup={onCreateGroup}
+        compactWhenSidebarOpen={compactWhenSidebarOpen}
+      >
         <div
           ref={setSlot}
           className="flex min-w-0 flex-1 items-center gap-2 self-stretch"

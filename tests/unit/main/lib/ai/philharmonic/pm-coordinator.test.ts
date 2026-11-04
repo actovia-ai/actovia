@@ -1,6 +1,12 @@
 import { PM_SYSTEM_PROMPT } from '@main/lib/ai/philharmonic/pm-prompt'
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('@main/lib/ai/philharmonic/workspace', () => ({
+  groupWorkspace: async () => ({
+    dir: (await import('@main/lib/paths')).getGroupsDir() + '/c1',
+    prompt: '\nBound workspace'
+  })
+}))
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
 
 const agentLoopMock = vi.fn()
@@ -21,8 +27,24 @@ vi.mock('@earendil-works/pi-ai', () => ({
 vi.mock('@main/lib/db/queries', () => ({
   getSettings: async () => ({ id: 's' })
 }))
+const titleMocks = vi.hoisted(() => ({
+  generateTitleFromText: vi.fn(async ({ text }: { text: string }) => text),
+  getConversationById: vi.fn(async () => ({ id: 'c1', title: 'Group X' })),
+  updateConversationTitleIfUnchanged: vi.fn(
+    async (_id: string, _expected: string, title: string) => ({
+      id: 'c1',
+      title
+    })
+  ),
+  eventOrder: [] as string[]
+}))
 vi.mock('@main/lib/ai/utils/chat-message-util', () => ({
-  getModelFromProvider: () => ({ chatModel: {}, apiKey: 'k' })
+  getModelFromProvider: () => ({
+    model: { id: 'test-model', contextWindow: 128_000 },
+    apiKey: 'k'
+  }),
+  bindCallingTools: () => [],
+  generateTitleFromText: titleMocks.generateTitleFromText
 }))
 // Mock execution-engine to avoid transitive mcp/electron imports
 vi.mock('@main/lib/ai/philharmonic/execution-engine', () => ({
@@ -30,8 +52,13 @@ vi.mock('@main/lib/ai/philharmonic/execution-engine', () => ({
 }))
 // Mock recruit to avoid transitive pi-ai/queries imports
 vi.mock('@main/lib/ai/philharmonic/recruit', () => ({
-  autoCreateEmployee: vi.fn(async () => ({ id: 'a2', name: 'Quinn' }))
+  autoCreateEmployee: vi.fn(async () => ({ id: 'a2', name: 'Quinn' })),
+  recruitmentModelOptions: vi.fn(() => [])
 }))
+const memoryMocks = vi.hoisted(() => ({
+  reflectOnReviewedTask: vi.fn(async () => {})
+}))
+vi.mock('@main/lib/ai/philharmonic/agent-memory', () => memoryMocks)
 // The owner's MCP servers: none by default; a test hands some in.
 const getMcpTools = vi.fn(async (): Promise<unknown[]> => [])
 vi.mock('@main/lib/ai/mcp', () => ({ getMcpTools }))
@@ -49,6 +76,9 @@ vi.mock('@main/lib/ai/philharmonic/lcm', () => ({
   PhilharmonicLcm: class {
     async assembleContext() {
       return []
+    }
+    async contextUsage() {
+      return 0
     }
     async trackAndCompact() {
       // unit test stub
@@ -104,7 +134,9 @@ vi.mock('@main/lib/db/conversation-queries', () => ({
   createConversationMessage,
   getMessagesByConversationId,
   addMemberToConversation: vi.fn(async () => ({ memberAgentIds: ['a1'] })),
-  getConversationById: vi.fn(async () => ({ id: 'c1', title: 'Group X' }))
+  getConversationById: titleMocks.getConversationById,
+  updateConversationTitleIfUnchanged:
+    titleMocks.updateConversationTitleIfUnchanged
 }))
 // Plan tables aren't touched by the smoke test (the LLM stream we feed in
 // doesn't call any plan tool); these stubs short-circuit DB access.
@@ -123,6 +155,7 @@ vi.mock('@main/lib/ai/philharmonic/plan-mirror', () => ({
 const recorder = {
   roundId: 'r1',
   input: vi.fn(),
+  context: vi.fn(),
   reports: vi.fn(),
   onEvent: vi.fn(),
   error: vi.fn(),
@@ -184,6 +217,62 @@ describe('runPmCoordinator', () => {
     expect(createConversationMessage).toHaveBeenCalledWith(
       expect.objectContaining({ role: 'pm', id: started.messageId })
     )
+  })
+
+  it('names a default-titled Group from its first user instruction', async () => {
+    titleMocks.eventOrder = []
+    titleMocks.getConversationById.mockResolvedValueOnce({
+      id: 'c1',
+      title: 'New group'
+    })
+    titleMocks.generateTitleFromText.mockResolvedValueOnce('Report')
+    titleMocks.updateConversationTitleIfUnchanged.mockImplementationOnce(
+      async (_id, _expected, title) => {
+        titleMocks.eventOrder.push('title')
+        return { id: 'c1', title }
+      }
+    )
+    agentLoopMock.mockReturnValue(
+      fakeStream([
+        {
+          type: 'message_end',
+          message: {
+            role: 'assistant',
+            content: [{ type: 'text', text: 'I will build the report.' }],
+            usage: { input: 10, output: 5 }
+          }
+        }
+      ])
+    )
+    const emit = vi.fn(
+      (event: { type: string; conversationTitle?: string }) => {
+        if (event.type === 'message_end')
+          titleMocks.eventOrder.push('message_end')
+      }
+    )
+
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'Build a report',
+      emit
+    })
+
+    expect(titleMocks.generateTitleFromText).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'Build a report' })
+    )
+    expect(titleMocks.updateConversationTitleIfUnchanged).toHaveBeenCalledWith(
+      'c1',
+      'New group',
+      'Report'
+    )
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'message_end',
+        conversationId: 'c1',
+        conversationTitle: 'Report'
+      })
+    )
+    expect(titleMocks.eventOrder).toEqual(['title', 'message_end'])
   })
 })
 
@@ -591,6 +680,47 @@ describe('runPmCoordinator — the plan mirror', () => {
     expect(most).toBe(1)
     vi.mocked(plans.getActivePlanByConversationId).mockResolvedValue(null)
   })
+
+  it('reflects only after the PM marks a task-backed plan step done', async () => {
+    const plans = await import('@main/lib/db/plan-queries')
+    vi.mocked(plans.getActivePlanByConversationId).mockResolvedValueOnce({
+      plan: { id: 'p1', summary: 'Review', status: 'active' },
+      steps: [{ id: 's1', taskId: 't1', status: 'running' }]
+    } as never)
+    vi.mocked(plans.updateStep).mockResolvedValueOnce({
+      id: 's1',
+      taskId: 't1',
+      status: 'done',
+      output: null,
+      note: null
+    } as never)
+    memoryMocks.reflectOnReviewedTask.mockClear()
+    agentLoopMock.mockReturnValue(fakeStream([]))
+
+    await runPmCoordinator({
+      conversationId: 'c1',
+      userText: 'Review the work',
+      emit: vi.fn()
+    })
+    const tools = agentLoopMock.mock.calls.at(-1)![1].messages[0]
+      .toolsAdded as Array<{
+      name: string
+      execute: (id: string, params: unknown) => Promise<unknown>
+    }>
+    await tools
+      .find((tool) => tool.name === 'updatePlanStep')!
+      .execute('done', {
+        stepId: 's1',
+        status: 'done',
+        output: 'Accepted after checking the results.'
+      })
+
+    expect(memoryMocks.reflectOnReviewedTask).toHaveBeenCalledWith({
+      taskId: 't1',
+      conversationId: 'c1',
+      pmReview: 'Accepted after checking the results.'
+    })
+  })
 })
 
 describe('runPmCoordinator — the quota in view', () => {
@@ -947,11 +1077,18 @@ describe('runPmCoordinator — the decision trail', () => {
 
   it('records the input, every loop event in order, and the PM row carries the round id and its counts', async () => {
     reset()
+    const emit = vi.fn()
     const events = [
       { type: 'agent_start' },
       {
         type: 'message_update',
-        message: { role: 'assistant', content: [{ type: 'text', text: 'Al' }] }
+        message: {
+          role: 'assistant',
+          content: [
+            { type: 'thinking', thinking: 'Check the plan' },
+            { type: 'text', text: 'Al' }
+          ]
+        }
       },
       endEvent
     ]
@@ -959,8 +1096,15 @@ describe('runPmCoordinator — the decision trail', () => {
     await runPmCoordinator({
       conversationId: 'c1',
       userText: 'build a report',
-      emit: vi.fn()
+      emit
     })
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'message_delta',
+        delta: 'Al',
+        thinking: 'Check the plan'
+      })
+    )
     expect(createRoundRecorder).toHaveBeenCalledWith('c1', expect.any(String))
     expect(recorder.input).toHaveBeenCalledWith('user', 'build a report')
     expect(recorder.onEvent.mock.calls.map((c) => c[0])).toEqual(events)
@@ -1103,6 +1247,7 @@ describe('runPmCoordinator — the decision trail', () => {
 
   it('a provider error is recorded, the round finished, and the error row carries the round id', async () => {
     reset()
+    const emit = vi.fn()
     agentLoopMock.mockReturnValue(
       fakeStream([
         {
@@ -1119,7 +1264,7 @@ describe('runPmCoordinator — the decision trail', () => {
     await runPmCoordinator({
       conversationId: 'c1',
       userText: 'x',
-      emit: vi.fn()
+      emit
     })
     expect(recorder.error).toHaveBeenCalledWith('rate limited', false)
     expect(recorder.finish).toHaveBeenCalledTimes(1)
@@ -1133,6 +1278,12 @@ describe('runPmCoordinator — the decision trail', () => {
         roundId: 'r1',
         parts: [{ kind: 'decision', delegations: 2, waits: 1 }]
       })
+    )
+    const messageId = emit.mock.calls.find(
+      ([event]) => event.type === 'message_start' && event.role === 'pm'
+    )?.[0].messageId
+    expect(createConversationMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ id: messageId })
     )
     const { logger } = await import('@main/lib/logger')
     expect(logger.error).toHaveBeenCalledWith(

@@ -1,6 +1,13 @@
 // tests/unit/main/lib/ai/philharmonic/execution-engine.test.ts
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const runtimeSettings = vi.hoisted(() => ({
+  maxRunning: 8,
+  philharmonic: { maxRunning: 2 }
+}))
+vi.mock('@main/lib/agents/settings', () => ({
+  agentSettings: async () => runtimeSettings
+}))
 let agentRow: Record<string, unknown>
 const updateTask = vi.fn()
 const updateTaskExecution = vi.fn()
@@ -14,9 +21,6 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
 }))
 vi.mock('@main/lib/logger', () => ({
   logger: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() }
-}))
-vi.mock('@main/lib/ai/philharmonic/agent-memory', () => ({
-  rememberTaskOutcome: vi.fn(async () => {})
 }))
 const runEmployeeLoop = vi.fn()
 vi.mock('@main/lib/ai/philharmonic/employee-loop', () => ({ runEmployeeLoop }))
@@ -41,6 +45,7 @@ const call = () =>
   })
 
 beforeEach(() => {
+  runtimeSettings.philharmonic.maxRunning = 2
   runEmployeeLoop.mockReset()
   runAgentEmployee.mockReset()
   updateTask.mockClear()
@@ -48,10 +53,28 @@ beforeEach(() => {
 })
 
 describe('runDelegatedTask', () => {
-  it('carries the employee question as a blocked outcome without treating it as successful experience', async () => {
-    const { rememberTaskOutcome } =
-      await import('@main/lib/ai/philharmonic/agent-memory')
-    vi.mocked(rememberTaskOutcome).mockClear()
+  it('uses the Philharmonic staff limit independently of the coding CLI limit', async () => {
+    runtimeSettings.philharmonic.maxRunning = 1
+    agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }
+    let finish!: (value: string) => void
+    runEmployeeLoop
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            finish = resolve
+          })
+      )
+      .mockResolvedValue('done')
+    const first = call()
+    await vi.waitFor(() => expect(runEmployeeLoop).toHaveBeenCalledTimes(1))
+    const second = call()
+    await new Promise((resolve) => setTimeout(resolve, 10))
+    expect(runEmployeeLoop).toHaveBeenCalledTimes(1)
+    finish('done')
+    await Promise.all([first, second])
+    expect(runEmployeeLoop).toHaveBeenCalledTimes(2)
+  })
+  it('carries the employee question as a blocked outcome', async () => {
     agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }
     runEmployeeLoop.mockImplementationOnce(async ({ onBlocked }) => {
       onBlocked('Which account should I use?')
@@ -67,7 +90,6 @@ describe('runDelegatedTask', () => {
         })
       })
     )
-    expect(rememberTaskOutcome).not.toHaveBeenCalled()
   })
   it('runs an Actovia employee in its own loop, retrying a transient failure', async () => {
     agentRow = { id: 'a1', name: 'Avery', runtime: 'actovia', isActive: true }

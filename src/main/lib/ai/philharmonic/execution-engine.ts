@@ -1,10 +1,12 @@
 // src/main/lib/ai/philharmonic/execution-engine.ts
+import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 import { v4 as uuidV4 } from 'uuid'
 
 import {
   runAgentEmployee,
   type DelegatedOutput
 } from '../../agents/run-agent-employee'
+import { agentSettings } from '../../agents/settings'
 import {
   createTaskExecution,
   getAgentById,
@@ -14,9 +16,9 @@ import {
   updateTaskExecution
 } from '../../db/philharmonic-queries'
 import { logger } from '../../logger'
-import { rememberTaskOutcome } from './agent-memory'
 import { runEmployeeLoop, type SseEmitter } from './employee-loop'
 import { DEFAULT_POLICY, withRetry } from './retry'
+import { acquireStaffSlot } from './staff-slots'
 
 export type { DelegatedOutput }
 
@@ -36,7 +38,13 @@ export type { DelegatedOutput }
  * - Each retry increments `task.retryCount` and emits a `delegation_retry`
  *   SSE event so the UI can show a small note instead of looking frozen.
  */
-export async function runDelegatedTask(args: {
+const staffControllers = new Map<string, Set<AbortController>>()
+export function stopStaffTasks(conversationId: string) {
+  for (const controller of staffControllers.get(conversationId) ?? [])
+    controller.abort()
+}
+
+type DelegationArgs = {
   taskId: string
   agentId: string
   conversationId: string
@@ -44,7 +52,37 @@ export async function runDelegatedTask(args: {
   emit: SseEmitter
   signal?: AbortSignal
   onFollowUp?: (outcome: DelegatedOutput) => Promise<void>
-}): Promise<DelegatedOutput> {
+}
+
+export async function runDelegatedTask(
+  args: DelegationArgs
+): Promise<DelegatedOutput> {
+  const controller = new AbortController()
+  const controllers =
+    staffControllers.get(args.conversationId) ?? new Set<AbortController>()
+  controllers.add(controller)
+  staffControllers.set(args.conversationId, controllers)
+  const signal = args.signal
+    ? AbortSignal.any([args.signal, controller.signal])
+    : controller.signal
+  let release: (() => void) | undefined
+  try {
+    const { philharmonic } = await agentSettings()
+    release = await acquireStaffSlot(
+      philharmonic?.maxRunning ?? SETTING_DEFAULTS.philharmonic.maxRunning,
+      signal
+    )
+    return await executeDelegatedTask({ ...args, signal })
+  } finally {
+    release?.()
+    controllers.delete(controller)
+    if (!controllers.size) staffControllers.delete(args.conversationId)
+  }
+}
+
+async function executeDelegatedTask(
+  args: DelegationArgs
+): Promise<DelegatedOutput> {
   const { taskId, agentId, conversationId, instructions, emit, signal } = args
   const agent = await getAgentById(agentId)
   // Only an active employee runs — never one the PM model named on its own say-so.
@@ -156,8 +194,6 @@ export async function runDelegatedTask(args: {
       },
       completedAt: new Date()
     })
-    if (!outcome.blockedQuestion)
-      await rememberTaskOutcome(agentId, conversationId, instructions, output)
     return outcome
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)

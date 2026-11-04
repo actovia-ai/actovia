@@ -13,6 +13,14 @@
 }
 
 @theme inline {
+  --color-context-system: oklch(0.65 0.16 285);
+  --color-context-skills: oklch(0.68 0.16 325);
+  --color-context-mcp: oklch(0.68 0.14 200);
+  --color-context-tools: oklch(0.68 0.16 65);
+  --color-context-memory: oklch(0.68 0.16 145);
+  --color-context-summaries: oklch(0.68 0.14 245);
+  --color-context-messages: oklch(0.65 0.18 265);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

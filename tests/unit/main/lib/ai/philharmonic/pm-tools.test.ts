@@ -1,6 +1,9 @@
+import { AiProviders } from '@actovia/shared/types/ai'
 // src/main/lib/ai/philharmonic/pm-tools.test.ts
 import { describe, expect, it, vi } from 'vitest'
+
 vi.mock('@earendil-works/pi-ai', () => ({
+  StringEnum: (values: string[], options?: unknown) => ({ values, options }),
   Type: {
     Object: (o: unknown) => o,
     String: (o?: unknown) => o ?? {},
@@ -59,12 +62,74 @@ describe('pm-tools', () => {
     })
   })
 
-  it('recruit tool calls the callback and returns the new employee id', async () => {
-    const onRecruit = vi.fn(async () => ({ id: 'a2', name: 'Quinn' }))
-    const tool = createRecruitEmployeeTool(onRecruit)
-    const res = await tool.execute('id', { role: 'Writer', skills: [] })
-    expect(onRecruit).toHaveBeenCalled()
+  it('recruit tool assigns the selected configured model', async () => {
+    const onRecruit = vi.fn(async () => ({
+      id: 'a2',
+      name: 'Quinn',
+      provider: 'openai',
+      model: 'gpt-test'
+    }))
+    const options = [
+      {
+        value: `${AiProviders.OpenAiGpt}::gpt-test`,
+        provider: AiProviders.OpenAiGpt,
+        model: 'gpt-test',
+        displayName: 'GPT Test',
+        snapshot: {
+          contextWindow: 128_000,
+          maxOutputTokens: 16_000,
+          reasoningLevels: ['high'],
+          adaptiveThinking: null,
+          budgetThinking: null
+        },
+        isDefault: false
+      }
+    ]
+    const tool = createRecruitEmployeeTool(options, onRecruit)
+    const res = await tool.execute('id', {
+      role: 'Writer',
+      skills: [],
+      model: `${AiProviders.OpenAiGpt}::gpt-test`
+    })
+    expect(onRecruit).toHaveBeenCalledWith({
+      role: 'Writer',
+      skills: [],
+      name: undefined,
+      provider: AiProviders.OpenAiGpt,
+      model: 'gpt-test'
+    })
     expect(JSON.stringify(res)).toContain('a2')
+  })
+
+  it('rejects a model outside the configured recruitment options', async () => {
+    const onRecruit = vi.fn()
+    const tool = createRecruitEmployeeTool(
+      [
+        {
+          value: `${AiProviders.OpenAiGpt}::gpt-test`,
+          provider: AiProviders.OpenAiGpt,
+          model: 'gpt-test',
+          displayName: 'GPT Test',
+          snapshot: {
+            contextWindow: 128_000,
+            maxOutputTokens: 16_000,
+            reasoningLevels: [],
+            adaptiveThinking: null,
+            budgetThinking: null
+          },
+          isDefault: false
+        }
+      ],
+      onRecruit
+    )
+    await expect(
+      tool.execute('id', {
+        role: 'Writer',
+        skills: [],
+        model: 'unconfigured::model'
+      })
+    ).rejects.toThrow('Choose an employee model from the configured list.')
+    expect(onRecruit).not.toHaveBeenCalled()
   })
 
   it('wait tool passes step, employee and reason through', async () => {

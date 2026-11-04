@@ -1,5 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
+vi.mock('@main/lib/ai/philharmonic/workspace', () => ({
+  groupWorkspace: async () => ({
+    dir: '/tmp/group',
+    prompt: '\nBound workspace: /tmp/group'
+  })
+}))
+vi.mock('@main/lib/ai/philharmonic/model-router', () => ({
+  modelRouter: (_setting: unknown, current: unknown) => ({
+    current,
+    tools: [],
+    observe: vi.fn()
+  })
+}))
 const agentLoopMock = vi.fn()
 vi.mock('@earendil-works/pi-agent-core', () => ({
   agentLoop: (...args: unknown[]) => agentLoopMock(...args)
@@ -38,10 +51,15 @@ vi.mock('@main/lib/ai/skills/skills-manager', () => ({
   getSkillsContentBySlugs: async () => 'SKILL-X'
 }))
 const updateTaskExecution = vi.fn()
+const getAgentMemories = vi.fn(
+  async (): Promise<
+    Array<{ conversationId: string | null; value: unknown }>
+  > => []
+)
 vi.mock('@main/lib/db/philharmonic-queries', () => ({
   updateTaskExecution,
   createTaskExecutionEvent: vi.fn(),
-  getAgentMemories: async () => []
+  getAgentMemories
 }))
 
 const getEmployeeReports = vi.fn(
@@ -149,6 +167,40 @@ describe('runEmployeeLoop', () => {
       prompt.indexOf('second report')
     )
     expect(await systemPromptFor([])).not.toContain('earlier reports')
+  })
+
+  it('combines the current Group notes with only PM-reviewed employee lessons', async () => {
+    getAgentMemories.mockResolvedValueOnce([
+      {
+        conversationId: null,
+        value: {
+          lessons: [
+            {
+              title: 'Validate inputs',
+              lesson: 'Check the source data before deriving totals.'
+            }
+          ]
+        }
+      },
+      {
+        conversationId: 'other-group',
+        value: { lesson: 'Do not leak this Group-specific note.' }
+      },
+      {
+        conversationId: 'c1',
+        value: { outcome: 'Current Group research note.' }
+      }
+    ])
+
+    const prompt = await systemPromptFor([])
+
+    expect(prompt).toContain(
+      'Reviewed employee experience (reusable across Groups)'
+    )
+    expect(prompt).toContain('Validate inputs: Check the source data')
+    expect(prompt).toContain('Earlier work in this Group')
+    expect(prompt).toContain('Current Group research note')
+    expect(prompt).not.toContain('Do not leak this Group-specific note')
   })
 
   it('cuts a long earlier report and says how much', async () => {

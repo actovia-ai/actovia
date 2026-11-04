@@ -6,6 +6,7 @@ const stub = (name: string) => ({ name })
 const webSearch = vi.fn((..._args: unknown[]) => stub('web_search'))
 const webFetch = vi.fn((..._args: unknown[]) => stub('web_fetch'))
 vi.mock('@main/lib/ai/calling-tools', () => ({
+  browserUse: () => stub('browser_use'),
   createArtifact: () => stub('create_artifact'),
   deepResearch: stub('deep_research'),
   editFile: () => stub('edit_file'),

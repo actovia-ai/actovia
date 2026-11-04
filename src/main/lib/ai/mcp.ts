@@ -1,6 +1,7 @@
 import { McpTools } from '@actovia/shared/types/ai'
 import type { AgentTool, AgentToolResult } from '@earendil-works/pi-agent-core'
 import { Type } from '@earendil-works/pi-ai'
+import { UnauthorizedError } from '@modelcontextprotocol/sdk/client/auth.js'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
@@ -13,6 +14,11 @@ import {
 import type { McpServer } from '../db/schema'
 import { logger } from '../logger'
 import { mcpDecryptFailures } from '../secrets/at-rest'
+import { normalizeMcpServer } from './mcp-normalize'
+import { connectionAuthProvider, isRemoteMcpServer } from './mcp-oauth/flow'
+import type { McpOAuthProvider } from './mcp-oauth/provider'
+import { hasMcpOAuthTokens, markMcpOAuthRequired } from './mcp-oauth/store'
+import { prepareStdioSpawn } from './mcp-stdio-env'
 import { validateToolArgs } from './utils/tool-validation'
 
 // Cache stores tools, client, and a timestamp for TTL-based expiration.
@@ -56,33 +62,65 @@ export async function invalidateAllMcpCache() {
  * server without a url is an error, never a stdio fallback (a stale
  * `command` left from an earlier stdio setup would be spawned); a stdio
  * server needs a command (re-review S2 N1).
+ *
+ * `authProvider`, when given, drives the remote server's OAuth session (it
+ * reuses saved tokens and refreshes them silently). It does not open a browser
+ * during a connection; the interactive flow runs from the MCP Servers screen.
+ *
+ * The server is `normalizeMcpServer`'d first, so a legacy `npx mcp-remote <url>`
+ * stdio row is built as a native Streamable-HTTP transport — never spawned.
+ * For a genuine stdio server, `prepareStdioSpawn` resolves the command on the
+ * login-shell PATH on a packaged macOS/Linux run so it does not ENOENT.
  */
-export function createTransport(server: McpServer) {
-  const type = server.transportType ?? 'stdio'
-  const requestInit = server.headers
-    ? { headers: server.headers as Record<string, string> }
+export async function createTransport(
+  server: McpServer,
+  authProvider?: McpOAuthProvider
+) {
+  const normalized = normalizeMcpServer(server)
+  const type = normalized.transportType ?? 'stdio'
+  const requestInit = normalized.headers
+    ? { headers: normalized.headers as Record<string, string> }
     : undefined
 
   if (type === 'streamable-http' || type === 'sse') {
-    if (!server.url?.trim()) {
-      throw new Error(`MCP server "${server.name}" has no url`)
+    if (!normalized.url?.trim()) {
+      throw new Error(`MCP server "${normalized.name}" has no url`)
     }
     return type === 'sse'
-      ? new SSEClientTransport(new URL(server.url), { requestInit })
-      : new StreamableHTTPClientTransport(new URL(server.url), { requestInit })
+      ? new SSEClientTransport(new URL(normalized.url), {
+          authProvider,
+          requestInit
+        })
+      : new StreamableHTTPClientTransport(new URL(normalized.url), {
+          authProvider,
+          requestInit
+        })
   }
 
   if (type !== 'stdio') {
-    throw new Error(`MCP server "${server.name}" has an unknown transport`)
+    throw new Error(`MCP server "${normalized.name}" has an unknown transport`)
   }
-  if (!server.command?.trim()) {
-    throw new Error(`MCP server "${server.name}" has no command`)
+  if (!normalized.command?.trim()) {
+    throw new Error(`MCP server "${normalized.name}" has no command`)
   }
+  const plan = await prepareStdioSpawn(
+    normalized.command,
+    normalized.env as Record<string, string> | null
+  )
   return new StdioClientTransport({
-    command: server.command,
-    args: (server.args as string[]) ?? [],
-    env: (server.env as Record<string, string>) ?? undefined
+    command: plan.command,
+    args: (normalized.args as string[]) ?? [],
+    env: plan.env
   })
+}
+
+/** Whether a remote server's headers already carry an `Authorization` value. */
+function hasAuthorizationHeader(server: McpServer): boolean {
+  const headers = server.headers as Record<string, string> | null | undefined
+  if (!headers) return false
+  return Object.entries(headers).some(
+    ([key, value]) => key.toLowerCase() === 'authorization' && !!value?.trim()
+  )
 }
 
 /**
@@ -119,15 +157,38 @@ async function connectMcpServer(server: McpServer): Promise<McpTools> {
     mcpCache.delete(server.name)
   }
 
-  const transport = createTransport(server)
+  // A remote server (including a legacy `npx mcp-remote <url>` row, which
+  // `normalizeMcpServer` presents as Streamable-HTTP) connects through the
+  // native transport. The OAuth provider is attached — WITHOUT needing
+  // pre-existing tokens — unless the row carries its own Authorization header
+  // (a plain Bearer-token remote server, which must keep working untouched).
+  // The provider reuses saved tokens and refreshes them silently. A server is
+  // marked as requiring OAuth only after its own 401 challenge; open remote
+  // servers do not get a misleading authorization prompt.
+  const normalized = normalizeMcpServer(server)
+  const authProvider =
+    isRemoteMcpServer(normalized) &&
+    (!hasAuthorizationHeader(normalized) ||
+      (await hasMcpOAuthTokens(normalized.id)))
+      ? connectionAuthProvider(normalized)
+      : undefined
+  const transport = await createTransport(server, authProvider)
   const client = new Client({ name: 'actovia', version: '1.0.0' })
-  await client.connect(transport)
-  logger.info('mcp', 'MCP server registered', {
-    name: server.name,
-    transport: server.transportType ?? 'stdio'
-  })
-
-  const toolsResult = await client.listTools()
+  const toolsResult = await (async () => {
+    try {
+      await client.connect(transport)
+      logger.info('mcp', 'MCP server registered', {
+        name: server.name,
+        transport: server.transportType ?? 'stdio'
+      })
+      return await client.listTools()
+    } catch (error) {
+      if (authProvider && error instanceof UnauthorizedError) {
+        await markMcpOAuthRequired(normalized.id)
+      }
+      throw error
+    }
+  })()
 
   const agentTools: AgentTool[] = toolsResult.tools.map((mcpTool) => {
     const schema = Type.Unsafe<Record<string, unknown>>(
@@ -148,10 +209,17 @@ async function connectMcpServer(server: McpServer): Promise<McpTools> {
           params as Record<string, unknown>,
           mcpTool.inputSchema as Record<string, unknown> | undefined
         )
-        const result = await client.callTool({
-          name: mcpTool.name,
-          arguments: validatedParams
-        })
+        const result = await client
+          .callTool({
+            name: mcpTool.name,
+            arguments: validatedParams
+          })
+          .catch(async (error: unknown) => {
+            if (authProvider && error instanceof UnauthorizedError) {
+              await markMcpOAuthRequired(normalized.id)
+            }
+            throw error
+          })
 
         const content = result.content as Array<{
           type: string

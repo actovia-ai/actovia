@@ -1,3 +1,4 @@
+import { resolvePhilharmonicSettings } from '@actovia/shared/constants/philharmonic-settings'
 // src/main/lib/ai/philharmonic/employee-loop.ts
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
@@ -15,6 +16,7 @@ import {
 import { getSettings } from '../../db/queries'
 import type { Agent, Team } from '../../db/schema'
 import { getTeamById } from '../../db/team-queries'
+import { closeAutomationTools } from '../calling-tools/automation-lifecycle'
 import { mcpDirectory } from '../calling-tools/mcp-toolbox'
 import { streamFn } from '../kernel/models'
 import { getMcpTools, getMcpToolsByNames } from '../mcp'
@@ -25,9 +27,25 @@ import {
 import { bindCallingTools } from '../utils/chat-message-util'
 import { resolveEmployeeModel } from '../utils/employee-model'
 import { createAskPmTool } from './agent-tools'
+import { loopBudget } from './loop-budget'
+import { modelRouter } from './model-router'
 import { groupBeforeToolCall } from './sensitive-guard'
+import { groupWorkspace } from './workspace'
 
 export type SseEmitter = (event: PhilharmonicSseEvent) => void
+
+function reviewedLessons(value: unknown): string[] {
+  if (typeof value !== 'object' || value === null) return []
+  const lessons = (value as Record<string, unknown>).lessons
+  if (!Array.isArray(lessons)) return []
+  return lessons.flatMap((item) => {
+    if (typeof item !== 'object' || item === null) return []
+    const lesson = item as Record<string, unknown>
+    return typeof lesson.title === 'string' && typeof lesson.lesson === 'string'
+      ? [`${lesson.title}: ${lesson.lesson}`]
+      : []
+  })
+}
 
 export interface RunEmployeeLoopArgs {
   onBlocked?: (question: string) => void
@@ -92,7 +110,8 @@ function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
   if (agent.systemPrompt) parts.push(agent.systemPrompt)
   parts.push(
     '\nYou were given a task by the team PM. Use your tools to complete it.',
-    'When finished, give a clear, self-contained summary of what you did and the result.',
+    'Execute, inspect and verify the work yourself. Never hand the owner a list of commands or clicks you can perform. When finished, report verified outcomes, deliverable paths and any remaining blocker.',
+    'After three unsuccessful attempts at the same goal, stop and call ask_pm with the evidence and what is needed. Do not repeat an unchanged approach.',
     'If you need a decision, missing information or approval from the PM, call ask_pm with your question. This pauses your task and returns control to the PM; do not guess the answer.'
   )
   return parts.join('\n\n')
@@ -116,11 +135,13 @@ export async function runEmployeeLoop(
     mcpNames.length > 0
       ? await getMcpToolsByNames(mcpNames)
       : await getMcpTools()
+  const workspace = await groupWorkspace(conversationId)
   const allTools = bindCallingTools({
     advancedTools: [],
     setting,
     mcpTools,
-    groupId: conversationId
+    groupId: conversationId,
+    workspaceDir: workspace.dir
   })
 
   const allowList = (agent.toolAllowList as string[] | null) ?? []
@@ -136,24 +157,33 @@ export async function runEmployeeLoop(
       blockedQuestion ??= question
     })
   ]
-  const guard = groupBeforeToolCall(conversationId)
+  const guard = groupBeforeToolCall(conversationId, workspace.dir)
+  const router = modelRouter(setting, { model, apiKey })
+  tools.push(...router.tools)
+  const controls = resolvePhilharmonicSettings(setting.agents)
+  const budget = loopBudget(controls.staffMaxToolCalls, controls.failureLimit)
 
   const skillSlugs = (agent.skillSlugs as string[] | null) ?? []
   const skillsContent =
     skillSlugs.length > 0
       ? await getSkillsContentBySlugs(skillSlugs)
       : await getActiveSkillsContent()
-  // Memories are scoped per Group (P1-4): an employee's experience in one
-  // conversation never bleeds into another's prompt.
   const memories = await getAgentMemories(agent.id, conversationId)
-  const memoryBlock =
-    memories.length > 0
-      ? '\n\nPast experience:\n' +
-        memories
-          .slice(0, 5)
-          .map((m) => `- ${JSON.stringify(m.value)}`)
-          .join('\n')
+  const employeeLessons = memories
+    .filter((memory) => memory.conversationId === null)
+    .flatMap((memory) => reviewedLessons(memory.value))
+    .slice(0, 8)
+  const groupNotes = memories
+    .filter((memory) => memory.conversationId === conversationId)
+    .slice(0, 5)
+  const memoryBlock = [
+    employeeLessons.length > 0
+      ? `\n\nReviewed employee experience (reusable across Groups):\n${employeeLessons.map((lesson) => `- ${lesson}`).join('\n')}`
+      : '',
+    groupNotes.length > 0
+      ? `\n\nEarlier work in this Group:\n${groupNotes.map((memory) => `- ${JSON.stringify(memory.value).slice(0, 700)}`).join('\n')}`
       : ''
+  ].join('')
   const reportsBlock = earlierReportsBlock(
     await getEmployeeReports(conversationId, agent.id, EARLIER_REPORTS.count)
   )
@@ -163,6 +193,7 @@ export async function runEmployeeLoop(
   )
   const systemPrompt =
     buildEmployeeSystemPrompt(agent, team) +
+    workspace.prompt +
     (searches ? WEB_CITATIONS : '') +
     memoryBlock +
     reportsBlock +
@@ -211,6 +242,11 @@ export async function runEmployeeLoop(
     {
       model,
       apiKey,
+      getApiKey: () => router.current.apiKey,
+      prepareRequest: ({ context }) => {
+        router.observe(Math.ceil(JSON.stringify(context.messages).length / 3))
+        return { model: router.current.model }
+      },
       convertToLlm: (msgs: AgentMessage[]): Message[] =>
         // `system` too: since pi 1.0 the leading system message carries the
         // prompt and the tool declarations — dropping it would send the
@@ -223,16 +259,19 @@ export async function runEmployeeLoop(
             (m as Message).role === 'toolResult'
         ),
       // Secrets outside Actovia: refused in a Group run (sensitive-guard.ts).
-      beforeToolCall: (context) =>
+      beforeToolCall: async (context) =>
         blockedQuestion
           ? Promise.resolve({
               block: true,
               terminate: true,
               reason: 'Task paused while waiting for the PM.'
             })
-          : guard(context),
+          : (budget.before(context) ?? guard(context)),
+      afterToolCall: async (context) => budget.after(context),
       finishTurn: async () =>
-        blockedQuestion ? { action: 'end' as const } : undefined
+        blockedQuestion || budget.reason
+          ? { action: 'end' as const }
+          : undefined
     },
     signal,
     streamFn
@@ -276,6 +315,8 @@ export async function runEmployeeLoop(
       } else if (event.type === 'tool_execution_start') {
         emit({
           type: 'tool_card',
+          toolCallId: event.toolCallId,
+          args: event.args as Record<string, unknown>,
           conversationId,
           messageId,
           toolName: event.toolName,
@@ -295,6 +336,7 @@ export async function runEmployeeLoop(
             : event.result
         emit({
           type: 'tool_card',
+          toolCallId: event.toolCallId,
           conversationId,
           messageId,
           toolName: event.toolName,
@@ -312,6 +354,10 @@ export async function runEmployeeLoop(
       }
     }
 
+    if (budget.reason) {
+      blockedQuestion = budget.reason
+      finalOutput = budget.reason
+    }
     await updateTaskExecution(executionId, {
       status: 'completed',
       completedAt: new Date(),
@@ -327,6 +373,7 @@ export async function runEmployeeLoop(
     }
     return finalOutput
   } finally {
+    await closeAutomationTools(tools)
     // Always close the live bubble — even on error — so the UI doesn't spin
     // forever. execution-engine.ts marks the execution `failed` separately.
     emit({ type: 'message_end', conversationId, messageId })

@@ -29,6 +29,11 @@ const transports = vi.hoisted(() => ({
   http: vi.fn(),
   sse: vi.fn()
 }))
+const client = vi.hoisted(() => ({
+  connect: vi.fn(async () => {}),
+  listTools: vi.fn(async () => ({ tools: [] })),
+  close: vi.fn(async () => {})
+}))
 vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => ({
   StdioClientTransport: transports.stdio
 }))
@@ -38,12 +43,15 @@ vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js', () => ({
 vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => ({
   SSEClientTransport: transports.sse
 }))
+vi.mock('@modelcontextprotocol/sdk/client/auth.js', () => ({
+  UnauthorizedError: class UnauthorizedError extends Error {}
+}))
 vi.mock('@modelcontextprotocol/sdk/client/index.js', () => ({
   Client: vi.fn().mockImplementation(function () {
     return {
-      connect: vi.fn(async () => {}),
-      listTools: vi.fn(async () => ({ tools: [] })),
-      close: vi.fn(async () => {})
+      connect: (...args: unknown[]) => client.connect(...args),
+      listTools: (...args: unknown[]) => client.listTools(...args),
+      close: (...args: unknown[]) => client.close(...args)
     }
   })
 }))
@@ -56,8 +64,18 @@ vi.mock('@main/lib/db/philharmonic-queries', () => ({
   )
 }))
 
+// The OAuth store reads the DB, which isn't wired here. A remote server has no
+// stored tokens in these tests.
+const oauthStore = vi.hoisted(() => ({
+  hasMcpOAuthTokens: vi.fn(async () => false),
+  markMcpOAuthRequired: vi.fn(async () => {})
+}))
+vi.mock('@main/lib/ai/mcp-oauth/store', () => oauthStore)
+
 const { decryptMcpRow, encryptMcpSecrets } =
   await import('@main/lib/secrets/at-rest')
+const { UnauthorizedError } =
+  await import('@modelcontextprotocol/sdk/client/auth.js')
 const mcp = await import('@main/lib/ai/mcp')
 
 let n = 0
@@ -85,6 +103,11 @@ const read = (sealed: Record<string, unknown>) =>
 beforeEach(async () => {
   resetFakeSafeStorage()
   for (const t of Object.values(transports)) t.mockClear()
+  client.connect.mockReset().mockResolvedValue(undefined)
+  client.listTools.mockReset().mockResolvedValue({ tools: [] })
+  client.close.mockReset().mockResolvedValue(undefined)
+  oauthStore.hasMcpOAuthTokens.mockReset().mockResolvedValue(false)
+  oauthStore.markMcpOAuthRequired.mockReset().mockResolvedValue(undefined)
   for (const f of Object.values(logged)) f.mockClear()
   await mcp.invalidateAllMcpCache()
 })
@@ -157,33 +180,142 @@ describe('createTransport refuses what it cannot run as configured', () => {
 
   it.each(['streamable-http', 'sse'])(
     'never falls back to stdio for a %s server without a url',
-    (transportType) => {
-      expect(() =>
+    async (transportType) => {
+      await expect(
         mcp.createTransport({ ...base, transportType } as never)
-      ).toThrow(/url/iu)
+      ).rejects.toThrow(/url/iu)
       expect(transports.stdio).not.toHaveBeenCalled()
     }
   )
 
-  it('refuses an empty stdio command', () => {
-    expect(() =>
+  it('refuses an empty stdio command', async () => {
+    await expect(
       mcp.createTransport({
         ...base,
         transportType: 'stdio',
         command: '  '
       } as never)
-    ).toThrow(/command/iu)
+    ).rejects.toThrow(/command/iu)
     expect(transports.stdio).not.toHaveBeenCalled()
   })
 
-  it('refuses an unknown transport', () => {
-    expect(() =>
+  it('refuses an unknown transport', async () => {
+    await expect(
       mcp.createTransport({ ...base, transportType: 'ws' } as never)
-    ).toThrow(/transport/iu)
+    ).rejects.toThrow(/transport/iu)
   })
 
-  it('builds stdio from a real command', () => {
-    mcp.createTransport({ ...base, transportType: 'stdio' } as never)
+  it('builds stdio from a real command', async () => {
+    await mcp.createTransport({ ...base, transportType: 'stdio' } as never)
     expect(transports.stdio).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the native HTTP transport for an `npx mcp-remote <url>` row, never stdio', async () => {
+    await mcp.createTransport({
+      ...base,
+      transportType: 'stdio',
+      command: 'npx',
+      args: ['-y', 'mcp-remote', 'https://mcp.linear.app/mcp']
+    } as never)
+    expect(transports.http).toHaveBeenCalledTimes(1)
+    expect(transports.stdio).not.toHaveBeenCalled()
+    const url = transports.http.mock.calls[0][0] as URL
+    expect(url.toString()).toBe('https://mcp.linear.app/mcp')
+  })
+})
+
+describe('getMcpTools picks the native transport and never spawns npx', () => {
+  it('connects a legacy `npx mcp-remote <url>` row over HTTP with an auth provider', async () => {
+    rows.list = [
+      read(
+        stored({
+          name: 'linear',
+          transportType: 'stdio',
+          command: 'npx',
+          args: ['-y', 'mcp-remote', 'https://mcp.linear.app/mcp']
+        })
+      )
+    ]
+    await mcp.getMcpTools()
+    expect(transports.stdio).not.toHaveBeenCalled()
+    expect(transports.http).toHaveBeenCalledTimes(1)
+    const [url, opts] = transports.http.mock.calls[0] as [
+      URL,
+      { authProvider?: unknown }
+    ]
+    expect(url.toString()).toBe('https://mcp.linear.app/mcp')
+    // Attached WITHOUT pre-existing tokens — this is what runs the native
+    // OAuth flow instead of spawning the mcp-remote bridge.
+    expect(opts.authProvider).toBeDefined()
+  })
+
+  it('attaches the OAuth provider to an unauthenticated streamable-http server', async () => {
+    rows.list = [
+      read(
+        stored({
+          transportType: 'streamable-http',
+          url: 'https://mcp.example.com/mcp'
+        })
+      )
+    ]
+    await mcp.getMcpTools()
+    expect(transports.http).toHaveBeenCalledTimes(1)
+    const opts = transports.http.mock.calls[0][1] as { authProvider?: unknown }
+    expect(opts.authProvider).toBeDefined()
+  })
+
+  it('records an OAuth requirement only after the remote server challenges the connection', async () => {
+    const remote = read(
+      stored({
+        id: 'mcp-auth-required',
+        transportType: 'streamable-http',
+        url: 'https://mcp.example.com/mcp'
+      })
+    )
+    rows.list = [remote]
+    client.connect.mockRejectedValueOnce(new UnauthorizedError('unauthorized'))
+
+    await expect(mcp.getMcpTools()).resolves.toEqual([])
+    expect(oauthStore.markMcpOAuthRequired).toHaveBeenCalledWith(
+      'mcp-auth-required'
+    )
+  })
+
+  it('does not classify a non-authentication connection failure as an OAuth challenge', async () => {
+    const remote = read(
+      stored({
+        id: 'mcp-open-server',
+        transportType: 'streamable-http',
+        url: 'https://mcp.example.com/mcp'
+      })
+    )
+    rows.list = [remote]
+    client.connect.mockRejectedValueOnce(new Error('connection refused'))
+
+    await expect(mcp.getMcpTools()).resolves.toEqual([])
+    expect(oauthStore.markMcpOAuthRequired).not.toHaveBeenCalled()
+  })
+
+  it('leaves a Bearer-header remote server untouched (no OAuth provider)', async () => {
+    rows.list = [
+      read(
+        stored({
+          transportType: 'streamable-http',
+          url: 'https://mcp.example.com/mcp',
+          headers: { Authorization: 'Bearer static-token-00000000' }
+        })
+      )
+    ]
+    await mcp.getMcpTools()
+    expect(transports.http).toHaveBeenCalledTimes(1)
+    const opts = transports.http.mock.calls[0][1] as { authProvider?: unknown }
+    expect(opts.authProvider).toBeUndefined()
+  })
+
+  it('a genuine stdio server still spawns stdio', async () => {
+    rows.list = [read(stored({ command: 'uvx', args: ['mcp-server-time'] }))]
+    await mcp.getMcpTools()
+    expect(transports.stdio).toHaveBeenCalledTimes(1)
+    expect(transports.http).not.toHaveBeenCalled()
   })
 })

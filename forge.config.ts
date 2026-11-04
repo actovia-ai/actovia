@@ -62,7 +62,9 @@ const config: ForgeConfig = {
     // `*.node`, but `duckdb.node` dlopens `libduckdb.<dylib|so|dll>` next to
     // itself, and a dlopen cannot read inside the archive. (The plugin merges
     // this pattern with its own rather than replacing it.)
-    asar: { unpack: '**/node_modules/@duckdb/**' },
+    asar: {
+      unpack: '**/node_modules/{@duckdb,agent-desktop,agent-browser}/**'
+    },
     icon: './build/icon',
     // app-update.yml: electron-updater reads it from Contents/Resources before
     // every macOS download, for its cache directory (ISSUE-290).
@@ -130,7 +132,9 @@ const config: ForgeConfig = {
         '/node_modules/@electric-sql',
         '/node_modules/@duckdb',
         '/node_modules/detect-libc',
-        '/node_modules/@resvg'
+        '/node_modules/@resvg',
+        '/node_modules/agent-desktop',
+        '/node_modules/agent-browser'
       ]
       for (const target of kept) {
         if (

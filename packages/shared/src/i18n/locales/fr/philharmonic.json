@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "Nouveau groupe",
     "dashboardTitle": "Tableau de bord"
   },
+  "monitor": {
+    "pageTitle": "Plans d’exécution",
+    "pageDescription": "Suivez le travail en cours et les résultats récents de vos groupes.",
+    "refreshHint": "Actualisation toutes les 15 secondes",
+    "loadError": "Impossible de charger les plans des groupes",
+    "activePlans": "Plans actifs",
+    "recentPlans": "Plans récents",
+    "emptyTitle": "Aucun plan de groupe à suivre pour le moment",
+    "emptyDescription": "Les plans apparaîtront ici lorsqu’un groupe commencera un travail en plusieurs étapes.",
+    "charts": {
+      "activity": "Activité des plans",
+      "activityHint": "Plans mis à jour au cours des 7 derniers jours",
+      "completed": "Terminés",
+      "active": "En cours",
+      "stopped": "Arrêtés",
+      "steps": "Répartition des étapes",
+      "stepsHint": "{{count}} étapes dans les plans affichés"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "À venir",
@@ -160,6 +179,10 @@
       "pm": "PM",
       "employeeFallback": "Employé"
     },
+    "resourcesPanel": {
+      "monitor": "Suivi",
+      "finalOutput": "Archives"
+    },
     "membersPanel": {
       "heading": "Membres",
       "coordinatorsLabel": "Coordinateurs",
@@ -264,6 +287,16 @@
         "skipped": "ignorée",
         "failed": "en échec"
       }
+    },
+    "activity": {
+      "running": "En cours",
+      "retry": "Recharger l’activité",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "Aucun livrable terminé",
+      "emptyDescription": "Les fichiers et dossiers finaux apparaissent ici après vérification et archivage par le PM.",
+      "reveal": "Afficher dans le dossier"
     }
   },
   "employees": {
@@ -458,5 +491,30 @@
     "search": "Rechercher un emoji",
     "empty": "Aucun emoji trouvé",
     "failed": "Échec de l’enregistrement. Réessayez."
+  },
+  "runtimeSettings": {
+    "intro": "Control how Groups work across this computer. Limits and model preferences apply to new PM rounds and staff tasks; work already running keeps its limits.",
+    "limits": "Execution limits",
+    "models": "Model selection",
+    "maxRunning": {
+      "label": "Maximum concurrent staff",
+      "description": "Across all Groups, including API and coding employees. Extra tasks wait for a slot. Coding agents also respect the coding agent limit below. Default 2."
+    },
+    "pmMaxToolCalls": {
+      "label": "PM tool calls per round",
+      "description": "Pause the PM when a round reaches this limit and wait for your next message. Default 100."
+    },
+    "staffMaxToolCalls": {
+      "label": "Staff tool calls per task",
+      "description": "Limit calls in each API employee run. Coding employees use their own CLI runtime limits. Default 80."
+    },
+    "failureLimit": {
+      "label": "Repeated failure limit",
+      "description": "Stop identical failing tool calls and repeated delegation of the same plan step in a PM round at this limit. Default 3."
+    },
+    "autoModelRouting": {
+      "label": "Allow automatic model selection",
+      "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
+    }
   }
 }

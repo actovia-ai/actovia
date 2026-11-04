@@ -1,23 +1,39 @@
 {
-  "experimental": "Computer Use は試験運用中の機能です。動作が遅く、画面を読み違えたり違う場所をクリックしたりすることがあり、対象のアプリが他のすべてのウインドウより前面にあるときだけ操作します。動いている間は様子を見て、⌥⇧⎋ で止めてください。",
-  "alert": "Computer Useは、AIが仮想マウスとキーボードを使ってMac上の1つのウィンドウを操作できるようにする機能です — 各ステップでスクリーンショットを見て、人間のように操作します。視覚認識に対応したAIモデルが必要です。操作対象は下の許可リストに追加したアプリのみです(起動していないアプリは自動的に開きます)。いつでも⌥⇧⎋で停止でき、すべてのセッションが記録されます。デフォルトではオフです。",
+  "experimental": "デスクトップ操作には agent-desktop のアクセシビリティ操作を使用します。ブラウザ操作には独立した agent-browser セッションを使用します。Alt+Shift+Escape で操作を停止できます。",
+  "alert": "Actovia はオープンソースの agent-desktop と agent-browser を使用します。デスクトップ操作は初期状態では無効で、以下で許可した実行中のアプリに限定されます。ブラウザのタスクには専用セッションを使用します。AI は選択したモデルで観察、操作、結果確認を行います。",
   "enable": {
     "label": "Computer Useを有効にする",
     "description": "許可リストに登録したウィンドウをAIに操作させます。"
   },
   "allowlist": {
     "label": "許可リストのアプリ",
-    "description": "Computer Useはこれらのアプリのみを操作します。このMacにインストールされているアプリから選択してください。",
-    "searchPlaceholder": "インストール済みのアプリを検索…",
+    "description": "操作できるのはこれらのアプリのみです。このコンピュータで実行中のアプリから選択してください。",
+    "searchPlaceholder": "実行中のアプリを検索…",
     "loading": "アプリを読み込み中…",
     "noAppFound": "アプリが見つかりません。"
   },
   "maxSteps": {
     "label": "最大ステップ数",
-    "description": "この回数の操作を実行したらセッションを停止します。デフォルト25。"
+    "description": "エージェントの1回の実行で行うデスクトップの観察と操作の上限。既定値は25です。"
   },
   "settleDelay": {
     "label": "待機時間 (ms)",
     "description": "各操作の後、次のスクリーンショットまでこの時間だけ待機します。デフォルト800。"
-  }
+  },
+  "browser": {
+    "title": "Browser automation",
+    "enabled": {
+      "label": "Enable Browser Use",
+      "description": "Allow browser tasks in a private session, separate from your personal browser. Turning this off blocks the next action; sessions can still close."
+    },
+    "headed": {
+      "label": "Show browser window",
+      "description": "Show the automated browser so you can follow its actions. Applies to new sessions; off runs without a visible window."
+    },
+    "maxSteps": {
+      "label": "Browser actions per run",
+      "description": "Maximum browser calls in one agent run. Closing remains available after the limit. Default 100."
+    }
+  },
+  "desktopTitle": "Desktop automation"
 }

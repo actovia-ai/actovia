@@ -49,8 +49,6 @@ export const TEST_IDS = {
     composer: 'schedule.composer',
     example: 'schedule.example',
     tab: 'schedule.tab',
-    createButton: 'schedule.create-button',
-    conversationPicker: 'schedule.conversation-picker',
     taskCard: 'schedule.task-card',
     cancelButton: 'schedule.cancel-button',
     editButton: 'schedule.edit-button',
@@ -111,10 +109,20 @@ export const TEST_IDS = {
     section: 'discover.section'
   },
   computerUse: {
+    browserEnabled: 'computer-use.browser-enabled',
+    browserHeaded: 'computer-use.browser-headed',
+    browserMaxSteps: 'computer-use.browser-max-steps',
     enableToggle: 'computer-use.enable-toggle',
     allowlistInput: 'computer-use.allowlist-input',
     stopButton: 'computer-use.stop-button',
     continueButton: 'computer-use.continue-button'
+  },
+  philharmonicSettings: {
+    maxRunning: 'philharmonic-settings.max-running',
+    pmMaxToolCalls: 'philharmonic-settings.pm-max-tool-calls',
+    staffMaxToolCalls: 'philharmonic-settings.staff-max-tool-calls',
+    failureLimit: 'philharmonic-settings.failure-limit',
+    autoModelRouting: 'philharmonic-settings.auto-model-routing'
   },
   logger: {
     scopeSelect: 'logger.scope-select',
@@ -183,14 +191,26 @@ export const TEST_IDS = {
   philharmonic: {
     changeIcon: 'philharmonic.change-icon',
     copyConversationId: 'philharmonic.copy-conversation-id',
+    monitorCharts: 'philharmonic.monitor-charts',
+    monitorPlan: 'philharmonic.monitor-plan',
     emojiPicker: 'philharmonic.emoji-picker',
     emojiOption: 'philharmonic.emoji-option',
     newGroup: 'philharmonic.new-group',
     membersToggle: 'philharmonic.members-toggle',
+    contextToggle: 'philharmonic.context-toggle',
+    planToggle: 'philharmonic.plan-toggle',
     resourcesPanel: 'philharmonic.resources-panel',
     resourcesTab: 'philharmonic.resources-tab',
+    resourcesMenu: 'philharmonic.resources-menu',
+    finalOutputItem: 'philharmonic.final-output-item',
+    finalOutputFolder: 'philharmonic.final-output-folder',
+    contextSection: 'philharmonic.context-section',
     /** Under a PM message: opens the round's decision process. */
     decisionToggle: 'philharmonic.decision-toggle',
+    /** A PM's live thought stream, folded while the round is running. */
+    questionAttach: 'philharmonic.question-attach',
+    activityToggle: 'philharmonic.activity-toggle',
+    liveThinkingToggle: 'philharmonic.live-thinking-toggle',
     /** The PM's question to the owner, saved in the transcript (`data-status`). */
     questionCard: 'philharmonic.question-card',
     /** A pending question's suggested answer. */

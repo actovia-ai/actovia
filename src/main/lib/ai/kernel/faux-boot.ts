@@ -162,8 +162,13 @@ function respondToChatCall(ctx: Transcript): AssistantMessage {
       { stopReason: 'toolUse' }
     )
   }
-  if (last?.role === 'toolResult' && last.toolName === 'escalateToUser') {
-    return fauxAssistantMessage([fauxText(`Going ahead — ${textOf(last)}.`)])
+  const answer =
+    last?.role === 'user' &&
+    textOf(last).includes('Images accompanying the owner answer above.')
+      ? ctx.messages.at(-2)
+      : last
+  if (answer?.role === 'toolResult' && answer.toolName === 'escalateToUser') {
+    return fauxAssistantMessage([fauxText(`Going ahead — ${textOf(answer)}.`)])
   }
 
   if (

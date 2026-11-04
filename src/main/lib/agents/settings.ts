@@ -2,6 +2,7 @@
 import { homedir } from 'os'
 import { join } from 'path'
 
+import { resolvePhilharmonicSettings } from '@actovia/shared/constants/philharmonic-settings'
 import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 
 import { getSettings } from '../db/queries'
@@ -10,6 +11,7 @@ import { getSettings } from '../db/queries'
 export async function agentSettings() {
   const a = (await getSettings()).agents
   return {
+    philharmonic: resolvePhilharmonicSettings(a),
     projectsDir: a?.projectsDir || join(homedir(), 'Actovia Projects'),
     maxRunning: a?.maxRunning ?? SETTING_DEFAULTS.agents.maxRunning,
     keepAliveMinutes:

@@ -37,6 +37,7 @@ function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
   )
 }
 
+// Base UI supplies percentage width; only its fill changes as progress arrives.
 function ProgressIndicator({
   className,
   ...props
@@ -44,7 +45,10 @@ function ProgressIndicator({
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
-      className={cn('h-full bg-primary transition-all', className)}
+      className={cn(
+        'h-full bg-primary transition-[width] duration-200 ease-out',
+        className
+      )}
       {...props}
     />
   )

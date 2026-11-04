@@ -24,6 +24,7 @@ import { useInstalledApps } from '@/hooks/use-installed-apps'
 import { SettingsIntro, SettingsNotice } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { ShownDefault } from '../shown-default'
+import { BrowserUseSettings } from './browser-use'
 
 function AppIcon({
   app,
@@ -61,7 +62,7 @@ export function ComputerUse({ form }: { form: UseFormReturnType }) {
       <SettingsIntro>{t('alert')}</SettingsIntro>
       <SettingsNotice icon={TestTube01Icon}>{t('experimental')}</SettingsNotice>
 
-      <SettingsSection>
+      <SettingsSection title={t('desktopTitle')}>
         <SettingsRow
           label={t('enable.label')}
           description={t('enable.description')}
@@ -160,41 +161,8 @@ export function ComputerUse({ form }: { form: UseFormReturnType }) {
             </SettingsRow>
           )}
         />
-
-        <Controller
-          control={form.control}
-          name="computerUse.settleMs"
-          render={({ field, fieldState }) => (
-            <SettingsRow
-              label={t('settleDelay.label')}
-              description={t('settleDelay.description')}
-              error={fieldState.error}
-            >
-              <ShownDefault
-                value={field.value}
-                fallback={SETTING_DEFAULTS.computerUse.settleMs}
-                onBlur={field.onBlur}
-              >
-                {(shown) => (
-                  <Input
-                    type="number"
-                    min={100}
-                    max={5000}
-                    className="w-24"
-                    {...field}
-                    {...shown}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === '' ? null : Number(e.target.value)
-                      )
-                    }
-                  />
-                )}
-              </ShownDefault>
-            </SettingsRow>
-          )}
-        />
       </SettingsSection>
+      <BrowserUseSettings form={form} />
     </>
   )
 }

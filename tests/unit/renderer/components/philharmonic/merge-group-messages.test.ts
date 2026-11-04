@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { AgentCard } from '@actovia/shared/types/agents'
 import i18n from 'i18next'
 import { createElement } from 'react'
@@ -93,6 +94,52 @@ const prompt = {
 }
 
 describe('mergeGroupMessages', () => {
+  it('marks PM-selected final outputs and keeps their reports available', () => {
+    const merged = mergeGroupMessages({
+      conversationId: 'c',
+      history: [
+        {
+          id: 'm1',
+          conversationId: 'c',
+          role: 'pm',
+          agentId: null,
+          content: 'Progress update',
+          parts: null,
+          taskId: null,
+          roundId: 'r1',
+          createdAt: '2026-10-09T10:00:00.000Z'
+        },
+        {
+          id: 'm2',
+          conversationId: 'c',
+          role: 'pm',
+          agentId: null,
+          content: 'Final report is ready.',
+          parts: [
+            { kind: 'final_output' },
+            {
+              kind: 'artifact',
+              artifactId: 'report',
+              title: 'Portfolio report',
+              code: 'export default function App() { return null }'
+            }
+          ],
+          taskId: null,
+          roundId: 'r2',
+          createdAt: '2026-10-09T11:00:00.000Z'
+        }
+      ],
+      bubbles: [],
+      agentCards: {}
+    })
+
+    expect(merged[0].finalOutput).toBe(false)
+    expect(merged[1]).toMatchObject({
+      finalOutput: true,
+      artifacts: [{ artifactId: 'report', title: 'Portfolio report' }]
+    })
+  })
+
   it('shows a step once: its saved row and its live bubble share an id, and the live card wins', () => {
     const saved = card({ queued: true })
     const latest = card({ state: 'blocked', prompts: [prompt] })
@@ -148,6 +195,127 @@ describe('mergeGroupMessages', () => {
       ['m3', false],
       ['m4', false]
     ])
+  })
+
+  it('keeps live employee reports before the PM answer while it streams', () => {
+    const pm: LiveBubble = {
+      messageId: 'pm',
+      role: 'pm',
+      text: 'Final answer in progress',
+      thinking: 'Checking the reports',
+      done: false,
+      toolCards: []
+    }
+    const employee: LiveBubble = {
+      messageId: 'employee',
+      role: 'employee',
+      agentId: 'a1',
+      text: 'Report in progress',
+      done: false,
+      toolCards: []
+    }
+    const merged = mergeGroupMessages({
+      conversationId: 'c',
+      history: [
+        {
+          ...row('old', card({ state: 'done' })),
+          role: 'user',
+          agentId: null,
+          content: 'Question',
+          parts: null
+        }
+      ],
+      bubbles: [pm, employee],
+      agentCards: {}
+    })
+
+    expect(merged.map((bubble) => bubble.messageId)).toEqual([
+      'old',
+      'employee',
+      'pm'
+    ])
+    expect(merged.at(-1)).toMatchObject({
+      thinking: 'Checking the reports',
+      streaming: true
+    })
+  })
+
+  it('renders the live PM thought stream as a collapsed trace', () => {
+    const [bubble] = mergeGroupMessages({
+      conversationId: 'c',
+      history: [],
+      bubbles: [
+        {
+          messageId: 'pm',
+          role: 'pm',
+          text: 'I will check the reports.',
+          thinking: 'Check the plan first.',
+          done: false,
+          toolCards: []
+        }
+      ],
+      agentCards: {}
+    })
+    expect(bubble).toMatchObject({
+      thinking: 'Check the plan first.',
+      text: 'I will check the reports.',
+      streaming: true
+    })
+    const markup = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n: instance },
+        createElement(GroupMessageBubble, {
+          bubble,
+          agentsById: {},
+          teamsById: {}
+        })
+      )
+    )
+
+    expect(markup).toContain(
+      `data-testid="${TEST_IDS.philharmonic.liveThinkingToggle}"`
+    )
+    expect(markup).toContain('aria-expanded="false"')
+    expect(markup).toContain('Thinking')
+    expect(markup).not.toContain('Check the plan first.')
+    expect(markup).not.toContain('I will check the reports.')
+  })
+
+  it('uses the chat bubble surface for user Markdown', () => {
+    const [bubble] = mergeGroupMessages({
+      conversationId: 'c',
+      history: [
+        {
+          id: 'user-message',
+          conversationId: 'c',
+          role: 'user',
+          agentId: null,
+          content: '```text\nFailed to connect MCP server\n```',
+          parts: null,
+          taskId: null,
+          roundId: null,
+          createdAt: '2026-10-09T10:00:00.000Z'
+        }
+      ],
+      bubbles: [],
+      agentCards: {}
+    })
+    const markup = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n: instance },
+        createElement(GroupMessageBubble, {
+          bubble,
+          agentsById: {},
+          teamsById: {}
+        })
+      )
+    )
+
+    expect(markup).toContain('bg-bubble text-foreground')
+    expect(markup).not.toContain('bg-primary text-primary-foreground')
+    expect(markup).toContain('Failed to connect MCP server')
   })
 })
 

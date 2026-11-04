@@ -20,6 +20,12 @@ export interface AllowlistEntry {
 
 export const ALLOWLIST: AllowlistEntry[] = [
   {
+    file: 'src/renderer/components/app/apps-dialog.tsx',
+    text: 'actovia',
+    line: 185,
+    reason: 'The CLI executable name, shown as the terminal title.'
+  },
+  {
     file: 'src/renderer/components/calling-tools/artifact/artifact-card.tsx',
     text: 'artifact://',
     line: 112,
@@ -58,19 +64,17 @@ export const ALLOWLIST: AllowlistEntry[] = [
   {
     file: 'src/renderer/components/settings/settings-form/agents.tsx',
     text: '~/Actovia Projects',
-    line: 128,
+    line: 134,
     reason: 'The default projects folder — a path on disk, never translated.'
   },
   {
     file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
     text: '{"GITHUB_TOKEN": "ghp_..."}',
-    line: 804,
+    line: 887,
     reason: 'A JSON example of the env field — its syntax, not prose.'
-  },
-  {
-    file: 'src/renderer/components/settings/settings-form/mcp-servers.tsx',
-    text: '{"Authorization": "Bearer token"}',
-    line: 859,
-    reason: 'A JSON example of the headers field — its syntax, not prose.'
   }
+  // The headers field moved from a plain Input placeholder to a Monaco JSON
+  // editor (no `placeholder` attribute), so the old `{"Authorization":
+  // "Bearer token"}` allowlist entry no longer matches any violation and was
+  // removed — the staleness test enforces that.
 ]

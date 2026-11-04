@@ -12,6 +12,10 @@ import type { McpServerItem } from '@/services/mcp-service'
 
 const state = vi.hoisted(() => ({
   servers: [] as unknown[],
+  tools: {
+    tools: [] as unknown[],
+    authStatusById: {} as Record<string, string>
+  },
   needsReentry: [] as string[]
 }))
 vi.mock('@/hooks/use-secrets-status', () => ({
@@ -23,11 +27,13 @@ const updateServer = vi.fn()
 const createServer = vi.fn()
 vi.mock('@/hooks/use-mcp', () => ({
   useMcpServers: () => ({ data: state.servers, isLoading: false }),
-  useMcpTools: () => ({ data: { tools: [] }, isLoading: false }),
+  useMcpTools: () => ({ data: state.tools, isLoading: false }),
   useCreateMcpServer: () => ({ mutateAsync: createServer, isPending: false }),
   useUpdateMcpServer: () => ({ mutateAsync: updateServer, isPending: false }),
   useDeleteMcpServer: () => ({ mutateAsync: vi.fn() }),
-  useToggleMcpServer: () => ({ mutate: vi.fn() })
+  useToggleMcpServer: () => ({ mutate: vi.fn() }),
+  useAuthorizeMcpServer: () => ({ mutate: vi.fn(), variables: undefined }),
+  useSignOutMcpServer: () => ({ mutate: vi.fn() })
 }))
 vi.mock('@/components/markdown/code-editor.js', () => ({
   StandaloneCodeEditor: ({ value }: { value: string }) =>
@@ -80,6 +86,7 @@ const stdioServer = (over: Partial<McpServerItem> = {}): McpServerItem => ({
   headers: null,
   extraConfig: null,
   isActive: true,
+  authStatus: 'not-applicable',
   createdAt: '2026-09-25T00:00:00.000Z',
   updatedAt: '2026-09-25T00:00:00.000Z',
   ...over
@@ -133,6 +140,7 @@ afterEach(() => {
   updateServer.mockReset()
   createServer.mockReset()
   toastError.mockClear()
+  state.tools = { tools: [], authStatusById: {} }
   state.needsReentry = []
 })
 
@@ -158,6 +166,40 @@ const remoteServer = () =>
     url: 'https://h.example/sse',
     headers: { Authorization: '•••• BBBB' }
   })
+
+describe('MCP OAuth status display', () => {
+  it('does not present an OAuth action before the remote server challenges', async () => {
+    const server = remoteServer()
+    state.servers = [server]
+    state.tools = {
+      tools: [],
+      authStatusById: { [server.id]: 'unknown' }
+    }
+
+    await act(async () => {
+      root.render(createElement(McpServers))
+    })
+
+    expect(host.textContent).not.toContain('mcpServers.serverCard.needsAuth')
+    expect(host.textContent).not.toContain('mcpServers.serverCard.authorize')
+  })
+
+  it('shows authorization only after a challenge was observed', async () => {
+    const server = remoteServer()
+    state.servers = [server]
+    state.tools = {
+      tools: [],
+      authStatusById: { [server.id]: 'unauthorized' }
+    }
+
+    await act(async () => {
+      root.render(createElement(McpServers))
+    })
+
+    expect(host.textContent).toContain('mcpServers.serverCard.needsAuth')
+    expect(host.textContent).toContain('mcpServers.serverCard.authorize')
+  })
+})
 const inputByPlaceholder = (placeholder: string) =>
   host.querySelector<HTMLInputElement>(`input[placeholder="${placeholder}"]`)!
 

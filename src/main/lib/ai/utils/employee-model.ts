@@ -15,9 +15,16 @@ export function resolveEmployeeModel(
 ): { model: Model<string>; apiKey: string } {
   if (!agent.provider || !agent.model) return getModelFromProvider(setting)
   try {
+    const modelSnapshot = setting.modelCatalog?.[agent.provider]?.find(
+      (entry) => entry.id === agent.model
+    )?.snapshot
     return getModelFromProvider({
       ...setting,
-      providerConfig: { provider: agent.provider, model: agent.model }
+      providerConfig: {
+        provider: agent.provider,
+        model: agent.model,
+        ...(modelSnapshot ? { modelSnapshot } : {})
+      }
     } as Settings)
   } catch (err) {
     const reason = err instanceof Error ? err.message : String(err)

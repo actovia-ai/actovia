@@ -21,6 +21,7 @@ export const SETTINGS_TAB_SLUGS: Record<SettingsLabel, string> = {
   [SettingsLabel.KnowledgeBase]: 'knowledge-base',
   [SettingsLabel.ComputerUse]: 'computer-use',
   [SettingsLabel.Agents]: 'agents',
+  [SettingsLabel.Philharmonic]: 'philharmonic',
   [SettingsLabel.McpServers]: 'mcp-servers',
   [SettingsLabel.SkillsMarket]: 'skills-market',
   [SettingsLabel.DataControls]: 'data-controls',
@@ -39,6 +40,8 @@ const SLUG_TO_LABEL = Object.fromEntries(
 export function settingsTabFromSlug(
   slug: string | null | undefined
 ): SettingsLabel {
+  // Keep previously shared Agents links working after consolidating the page.
+  if (slug === 'agents') return SettingsLabel.Philharmonic
   return (slug && SLUG_TO_LABEL[slug]) || SettingsLabel.General
 }
 

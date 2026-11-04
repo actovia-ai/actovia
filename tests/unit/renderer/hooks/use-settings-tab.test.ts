@@ -39,7 +39,9 @@ describe('settingsTabFromSlug', () => {
 
   it('round-trips with SETTINGS_TAB_SLUGS', () => {
     for (const label of Object.values(SettingsLabel)) {
-      expect(settingsTabFromSlug(SETTINGS_TAB_SLUGS[label])).toBe(label)
+      expect(settingsTabFromSlug(SETTINGS_TAB_SLUGS[label])).toBe(
+        label === SettingsLabel.Agents ? SettingsLabel.Philharmonic : label
+      )
     }
   })
 })

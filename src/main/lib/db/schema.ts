@@ -36,6 +36,7 @@ import {
   real,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar
 } from 'drizzle-orm/pg-core'
@@ -340,25 +341,32 @@ export const agentMemorySourceEnum = pgEnum('agent_memory_source', [
   'system'
 ])
 
-export const agentMemory = pgTable('agent_memory', {
-  id: uuid('id').primaryKey().notNull().defaultRandom(),
-  agentId: uuid('agentId')
-    .notNull()
-    .references(() => agent.id, { onDelete: 'cascade' }),
-  // P1-4: memory rows are scoped to the Group they were learned in. The
-  // employee LLM at runtime only sees rows for the current conversation;
-  // the Workforce admin view continues to read all rows (no filter).
-  conversationId: uuid('conversationId')
-    .notNull()
-    .references(() => conversation.id, { onDelete: 'cascade' }),
-  key: text('key').notNull(),
-  value: jsonb('value').notNull(),
-  source: agentMemorySourceEnum('source').notNull().default('task'),
-  confidence: real('confidence').default(0.8),
-  isActive: boolean('isActive').default(true),
-  createdAt: timestamp('createdAt').defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt').defaultNow().notNull()
-})
+export const agentMemory = pgTable(
+  'agent_memory',
+  {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    agentId: uuid('agentId')
+      .notNull()
+      .references(() => agent.id, { onDelete: 'cascade' }),
+    // Group memories are scoped to their conversation. A null conversation is
+    // reserved for compact, PM-reviewed employee experience shared across Groups.
+    conversationId: uuid('conversationId').references(() => conversation.id, {
+      onDelete: 'cascade'
+    }),
+    key: text('key').notNull(),
+    value: jsonb('value').notNull(),
+    source: agentMemorySourceEnum('source').notNull().default('task'),
+    confidence: real('confidence').default(0.8),
+    isActive: boolean('isActive').default(true),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull()
+  },
+  (table) => [
+    uniqueIndex('agent_memory_employee_experience_idx')
+      .on(table.agentId, table.key)
+      .where(sql`${table.conversationId} IS NULL`)
+  ]
+)
 
 export type AgentMemory = InferSelectModel<typeof agentMemory>
 

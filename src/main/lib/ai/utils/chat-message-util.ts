@@ -34,7 +34,7 @@ export function getTextFromMessage(message: ChatMessage): string {
   return extractText(message.content)
 }
 
-export async function generateTitleFromUserMessage({
+export function generateTitleFromUserMessage({
   message,
   model,
   apiKey
@@ -43,7 +43,22 @@ export async function generateTitleFromUserMessage({
   model: Model<string>
   apiKey: string
 }) {
-  const userText = getTextFromMessage(message)
+  return generateTitleFromText({
+    text: getTextFromMessage(message),
+    model,
+    apiKey
+  })
+}
+
+export async function generateTitleFromText({
+  text: userText,
+  model,
+  apiKey
+}: {
+  text: string
+  model: Model<string>
+  apiKey: string
+}): Promise<string> {
   // Never rejects: the chat route awaits this inside the turn's `try`, where a
   // throw would report an error for a turn that in fact succeeded. A failed
   // (or empty) title request falls back to the opening of the message — a

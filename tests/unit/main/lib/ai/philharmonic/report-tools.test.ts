@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 // saveArtifact writes to disk via fs/path — short-circuit it before importing
 // the module under test.
-const saveArtifact = vi.fn(async () => '/tmp/fake.tsx')
+const saveArtifact = vi.fn(() => Promise.resolve('/tmp/fake.tsx'))
 vi.mock('@main/lib/ai/artifacts', () => ({ saveArtifact }))
 
 // Type.Object/String are noops in unit context; the real pi-ai schema builder
@@ -32,7 +32,7 @@ describe('createReportTool', () => {
 
     expect(captured).toHaveLength(1)
     expect(captured[0].title).toBe('Q2 Findings')
-    expect(captured[0].artifactId).toMatch(/[0-9a-f-]{36}/)
+    expect(captured[0].artifactId).toMatch(/[0-9a-f-]{36}/u)
 
     expect(saveArtifact).toHaveBeenCalledWith(
       'conv-1',
@@ -54,18 +54,14 @@ describe('createReportTool', () => {
     })
   })
 
-  it('does not call onCreate when the tool throws', async () => {
+  it('does not publish an artifact when persistence fails', async () => {
     saveArtifact.mockClear()
+    saveArtifact.mockRejectedValueOnce(new Error('disk unavailable'))
     const captured: Array<{ artifactId: string }> = []
     const tool = createReportTool('conv-2', (a) => captured.push(a))
-    // The saveArtifact call is fire-and-forget so we can't easily induce a
-    // throw without rewriting; this test just guards the happy path stays
-    // pure when invoked with an empty body.
-    const result = await tool.execute('toolcall-2', {
-      title: 'Empty',
-      code: ''
-    })
-    expect(captured).toHaveLength(1)
-    expect(result.details).toMatchObject({ title: 'Empty', code: '' })
+    await expect(
+      tool.execute('toolcall-2', { title: 'Empty', code: '' })
+    ).rejects.toThrow('disk unavailable')
+    expect(captured).toHaveLength(0)
   })
 })

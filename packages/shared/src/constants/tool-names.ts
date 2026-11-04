@@ -6,6 +6,7 @@
  */
 export const TOOL_NAMES = {
   computerUse: 'computer_use',
+  browserUse: 'browser_use',
   deepResearch: 'deep_research',
   createArtifact: 'create_artifact',
   imageGeneration: 'image_generation',

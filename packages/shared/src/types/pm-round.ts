@@ -5,6 +5,7 @@ export const PM_ROUND_EVENT_KINDS = [
   'text',
   'tool_call',
   'tool_result',
+  'context',
   'usage',
   'error'
 ] as const

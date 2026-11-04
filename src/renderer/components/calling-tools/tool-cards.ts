@@ -14,7 +14,6 @@ export const CARD_TOOL_NAMES = new Set<string>([
   TOOL_NAMES.mapItinerary,
   TOOL_NAMES.weather,
   TOOL_NAMES.deepResearch,
-  TOOL_NAMES.computerUse,
   TOOL_NAMES.terminal,
   TOOL_NAMES.createArtifact,
   // The file card: Open / Reveal / Quick look for what the turn wrote.

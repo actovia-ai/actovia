@@ -64,7 +64,6 @@ import { plainText } from '@/lib/plain-text'
 import { cn } from '@/lib/utils'
 import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
-import { hueStyle, pickHue } from '../lib/hue'
 import { GroupEmojiPicker } from './group-emoji-picker'
 import { NewGroupButton } from './new-group-button'
 
@@ -271,16 +270,13 @@ export function ConversationList({
                         // own active fill — no outline (owner: the outlined
                         // card looked heavy).
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-left transition-colors duration-150 ease-out',
+                          'flex w-full items-center gap-2 rounded-lg p-1 text-left transition-colors duration-150 ease-out',
                           isActive
                             ? 'bg-sidebar-accent'
                             : 'hover:bg-sidebar-accent/60'
                         )}
                       >
-                        <span
-                          className="flex size-10 shrink-0 items-center justify-center rounded-full text-lg"
-                          style={hueStyle(pickHue(c.id))}
-                        >
+                        <span className="flex size-12 shrink-0 items-center justify-center text-3xl">
                           {c.icon ?? '💬'}
                         </span>
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">

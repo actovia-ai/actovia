@@ -49,7 +49,32 @@ const listRoundEvents = vi.fn(async (conversationId: string, roundId: string) =>
       ]
     : []
 )
-vi.mock('@main/lib/db/pm-round-queries', () => ({ listRoundEvents }))
+const pmContext = {
+  takenAt: '2026-11-02T10:00:00.000Z',
+  roundId: 'r1',
+  model: 'gpt-test',
+  contextWindow: 128000,
+  compactAt: 96000,
+  lcmTokens: 700,
+  total: 1000,
+  estimated: false,
+  parts: [
+    { key: 'system', tokens: 200 },
+    { key: 'skills', tokens: 0 },
+    { key: 'mcp', tokens: 100 },
+    { key: 'tools', tokens: 200 },
+    { key: 'memory', tokens: 0 },
+    { key: 'summaries', tokens: 100 },
+    { key: 'messages', tokens: 400 }
+  ]
+}
+const getLatestPmContextSnapshot = vi.fn(async (conversationId: string) =>
+  conversationId === 'c1' ? pmContext : null
+)
+vi.mock('@main/lib/db/pm-round-queries', () => ({
+  listRoundEvents,
+  getLatestPmContextSnapshot
+}))
 
 const { Hono } = await import('hono')
 const { errorHandler } = await import('@main/lib/server/middlewares')
@@ -78,6 +103,21 @@ describe('GET /conversations/:id/rounds/:roundId', () => {
       }
     ])
     expect(listRoundEvents).toHaveBeenCalledWith('c1', 'r1')
+  })
+
+  describe('GET /conversations/:id/context', () => {
+    it('returns the last measured PM context snapshot', async () => {
+      const res = await app.request('/conversations/c1/context')
+      expect(res.status).toBe(200)
+      expect(await res.json()).toEqual(pmContext)
+      expect(getLatestPmContextSnapshot).toHaveBeenCalledWith('c1')
+    })
+
+    it('returns null before a round has measured context', async () => {
+      const res = await app.request('/conversations/c2/context')
+      expect(res.status).toBe(200)
+      expect(await res.json()).toBeNull()
+    })
   })
 
   it('is a 404 for a round with no record', async () => {

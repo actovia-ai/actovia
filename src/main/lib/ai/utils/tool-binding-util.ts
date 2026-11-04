@@ -11,6 +11,7 @@ import { resolveKnowledgeBase } from '../../knowledge-base/resolve-knowledge-bas
 import { getChatWorkspaceDir, getGroupsDir } from '../../paths'
 import {
   computerUse,
+  browserUse,
   createArtifact,
   deepResearch,
   editFile,
@@ -54,7 +55,8 @@ export function bindCallingTools({
   chatId,
   groupId,
   sourceRankBase = 0,
-  interactive = true
+  interactive = true,
+  workspaceDir: boundWorkspace
 }: {
   advancedTools: AdvancedTools[]
   setting: Settings
@@ -72,6 +74,7 @@ export function bindCallingTools({
   sourceRankBase?: number
   // Scheduled firings cannot create or mutate schedules recursively.
   interactive?: boolean
+  workspaceDir?: string
 }): ErasedTool[] {
   if (advancedTools.includes(AdvancedTools.DeepResearch)) {
     return [deepResearch]
@@ -95,11 +98,13 @@ export function bindCallingTools({
   }
   // The chat's workspace is where its shell and file tools work by default;
   // A Group employee must never default its shell to the owner's home.
-  const workspaceDir = chatId
-    ? getChatWorkspaceDir(chatId)
-    : groupId
-      ? join(getGroupsDir(), groupId)
-      : undefined
+  const workspaceDir =
+    boundWorkspace ??
+    (chatId
+      ? getChatWorkspaceDir(chatId)
+      : groupId
+        ? join(getGroupsDir(), groupId)
+        : undefined)
   // A relative path to a file tool lands in the chat's workspace, or the
   // Group's (`~/.actovia/groups/<id>`, where its approval guard looks too).
   const fileBase =
@@ -123,7 +128,12 @@ export function bindCallingTools({
   if (enabled(TOOL_NAMES.webSearch))
     tools.push(webSearch(setting, webSources, sourceRankBase))
   if (setting.computerUse?.enabled && enabled(TOOL_NAMES.computerUse))
-    tools.push(computerUse)
+    tools.push(computerUse())
+  if (
+    setting.computerUse?.browser?.enabled !== false &&
+    enabled(TOOL_NAMES.browserUse)
+  )
+    tools.push(browserUse())
 
   const kb = resolveKnowledgeBase(setting)
   if (kb && enabled(TOOL_NAMES.searchKnowledgeBase)) {

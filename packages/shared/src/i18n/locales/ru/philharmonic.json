@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "Новая группа",
     "dashboardTitle": "Панель"
   },
+  "monitor": {
+    "pageTitle": "Планы выполнения",
+    "pageDescription": "Следите за текущей работой и недавними результатами ваших групп.",
+    "refreshHint": "Обновление каждые 15 секунд",
+    "loadError": "Не удалось загрузить планы групп",
+    "activePlans": "Активные планы",
+    "recentPlans": "Недавние планы",
+    "emptyTitle": "Пока нет планов групп для мониторинга",
+    "emptyDescription": "Планы появятся здесь, когда группа начнёт многоэтапную работу.",
+    "charts": {
+      "activity": "Активность планов",
+      "activityHint": "Планы, обновлённые за последние 7 дней",
+      "completed": "Завершены",
+      "active": "В работе",
+      "stopped": "Остановлены",
+      "steps": "Распределение шагов",
+      "stepsHint": "{{count}} шагов в показанных планах"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "Предстоящие",
@@ -160,6 +179,10 @@
       "pm": "PM",
       "employeeFallback": "Сотрудник"
     },
+    "resourcesPanel": {
+      "monitor": "Мониторинг",
+      "finalOutput": "Архив"
+    },
     "membersPanel": {
       "heading": "Участники",
       "coordinatorsLabel": "Координаторы",
@@ -266,6 +289,16 @@
         "skipped": "пропущен",
         "failed": "ошибка"
       }
+    },
+    "activity": {
+      "running": "В работе",
+      "retry": "Загрузить действия заново",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "Готовых результатов пока нет",
+      "emptyDescription": "Итоговые файлы и папки появятся здесь после проверки и сохранения PM.",
+      "reveal": "Показать в папке"
     }
   },
   "employees": {
@@ -466,5 +499,30 @@
     "search": "Поиск эмодзи",
     "empty": "Эмодзи не найдены",
     "failed": "Не удалось сохранить. Повторите попытку."
+  },
+  "runtimeSettings": {
+    "intro": "Control how Groups work across this computer. Limits and model preferences apply to new PM rounds and staff tasks; work already running keeps its limits.",
+    "limits": "Execution limits",
+    "models": "Model selection",
+    "maxRunning": {
+      "label": "Maximum concurrent staff",
+      "description": "Across all Groups, including API and coding employees. Extra tasks wait for a slot. Coding agents also respect the coding agent limit below. Default 2."
+    },
+    "pmMaxToolCalls": {
+      "label": "PM tool calls per round",
+      "description": "Pause the PM when a round reaches this limit and wait for your next message. Default 100."
+    },
+    "staffMaxToolCalls": {
+      "label": "Staff tool calls per task",
+      "description": "Limit calls in each API employee run. Coding employees use their own CLI runtime limits. Default 80."
+    },
+    "failureLimit": {
+      "label": "Repeated failure limit",
+      "description": "Stop identical failing tool calls and repeated delegation of the same plan step in a PM round at this limit. Default 3."
+    },
+    "autoModelRouting": {
+      "label": "Allow automatic model selection",
+      "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
+    }
   }
 }

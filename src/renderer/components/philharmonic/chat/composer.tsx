@@ -17,6 +17,7 @@ import {
 } from '@/components/chat/composer/composer-layout'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from '@/components/ui/toast'
 import { usePhilharmonicUpload } from '@/hooks/use-philharmonic-upload'
 import { cn } from '@/lib/utils'
 import { philharmonicAttachmentAtom } from '@/stores/philharmonic'
@@ -49,7 +50,7 @@ export function Composer({
   conversationId: string
   /** The group's name, for "Message <group>". */
   groupTitle?: string
-  onSend: (text: string, attachments: Attachment[]) => void
+  onSend: (text: string, attachments: Attachment[]) => void | Promise<unknown>
   disabled?: boolean
   /** PM is currently running — the Send button becomes a Stop button. */
   busy?: boolean
@@ -57,6 +58,7 @@ export function Composer({
 }) {
   const { t } = useTranslation('philharmonic')
   const [text, setText] = useState('')
+  const [sending, setSending] = useState(false)
   const [attachments, setAttachments] = useAtom(philharmonicAttachmentAtom)
   const { upload } = usePhilharmonicUpload()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -92,15 +94,26 @@ export function Composer({
 
   useLayoutEffect(() => fitField(), [text, expanded, fitField])
 
-  const submit = () => {
+  const submit = async () => {
     const trimmed = text.trim()
-    if (!trimmed && attachments.length === 0) return
-    onSend(trimmed, attachments)
-    setText('')
-    setAttachments([])
+    if ((!trimmed && attachments.length === 0) || sending || disabled) return
+    setSending(true)
+    try {
+      await onSend(trimmed, attachments)
+      setText('')
+      setAttachments([])
+    } catch (error) {
+      toast.add({
+        type: 'error',
+        title: t('chat.groupChat.question.sendFailed'),
+        description: error instanceof Error ? error.message : String(error)
+      })
+    } finally {
+      setSending(false)
+    }
   }
-  const canSend =
-    !disabled && (text.trim().length > 0 || attachments.length > 0)
+  const hasDraft = text.trim().length > 0 || attachments.length > 0
+  const canSend = !disabled && !sending && hasDraft
 
   const onPaste = async (e: ClipboardEvent<HTMLTextAreaElement>) => {
     const files: File[] = []
@@ -117,7 +130,7 @@ export function Composer({
   }
 
   return (
-    <div className="mx-auto flex w-[calc(100%-2rem)] max-w-2xl flex-col">
+    <div className="mx-auto flex w-[calc(100%-2rem)] max-w-3xl flex-col">
       <div className="bg-card mx-2 -mb-3 min-w-0 rounded-t-2xl px-3 pt-2 pb-5">
         <FolderChip key={conversationId} conversationId={conversationId} />
       </div>
@@ -139,8 +152,9 @@ export function Composer({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  if (isComposingRef.current || busy) return
-                  submit()
+                  if (isComposingRef.current || e.nativeEvent.isComposing)
+                    return
+                  void submit()
                 }
               }}
               onCompositionStart={() => {
@@ -163,9 +177,9 @@ export function Composer({
             />
             <div
               ref={trailingRef}
-              className="flex justify-end [grid-area:trailing]"
+              className="flex justify-end gap-1 [grid-area:trailing]"
             >
-              {busy ? (
+              {busy && (
                 <Button
                   size="icon"
                   // Neutral, as Chat's: a stop that differs from send says the
@@ -179,11 +193,12 @@ export function Composer({
                     className="size-3 fill-current"
                   />
                 </Button>
-              ) : (
+              )}
+              {(!busy || hasDraft) && (
                 <Button
                   size="icon"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full"
-                  onClick={submit}
+                  onClick={() => void submit()}
                   disabled={!canSend}
                   aria-label={t('chat.composer.sendAria')}
                 >

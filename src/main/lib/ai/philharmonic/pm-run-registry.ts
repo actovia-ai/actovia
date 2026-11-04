@@ -1,67 +1,101 @@
-// src/main/lib/ai/philharmonic/pm-run-registry.ts
-//
-// Per-conversation PM runner. A Group has one active PM round; later triggers
-// wait in FIFO order instead of concurrently changing the same plan. The
-// active round alone owns an AbortController, so Stop remains precise.
-
-const controllers = new Map<string, AbortController>()
-const queues = new Map<string, Promise<void>>()
+import type { Attachment } from '@actovia/shared/types/chat'
 
 type Round = (signal: AbortSignal) => Promise<void>
+type Job = {
+  round: Round
+  owner: boolean
+  resolve(): void
+  reject(error: unknown): void
+}
+export interface OwnerInput {
+  text: string
+  attachments?: Attachment[]
+  messageId?: string
+}
+const controllers = new Map<string, AbortController>()
+const queues = new Map<string, Job[]>()
+const steering = new Map<string, OwnerInput[]>()
+const accepting = new Set<string>()
+const running = new Set<string>()
 
-function clearIfCurrent(conversationId: string, controller: AbortController) {
-  if (controllers.get(conversationId) === controller) {
-    controllers.delete(conversationId)
+async function drain(id: string) {
+  if (running.has(id)) return
+  running.add(id)
+  try {
+    while (queues.get(id)?.length) {
+      const queue = queues.get(id)!
+      const index = queue.findIndex((job) => job.owner)
+      const [job] = queue.splice(index < 0 ? 0 : index, 1)
+      const controller = new AbortController()
+      controllers.set(id, controller)
+      try {
+        await job.round(controller.signal)
+        job.resolve()
+      } catch (error) {
+        job.reject(error)
+      } finally {
+        accepting.delete(id)
+        steering.delete(id)
+        if (controllers.get(id) === controller) controllers.delete(id)
+      }
+    }
+  } finally {
+    running.delete(id)
+    queues.delete(id)
   }
 }
 
 export const pmRunRegistry = {
-  set(conversationId: string, controller: AbortController): void {
-    controllers.set(conversationId, controller)
+  set(id: string, controller: AbortController) {
+    controllers.set(id, controller)
   },
-
-  /** Run one PM round after any earlier round for this Group completes. */
-  run(conversationId: string, round: Round): Promise<void> {
-    const previous = queues.get(conversationId) ?? Promise.resolve()
-    const next = previous
-      .catch(() => {
-        // A failed predecessor must not strand later owner messages.
-      })
-      .then(async () => {
-        const controller = new AbortController()
-        controllers.set(conversationId, controller)
-        try {
-          await round(controller.signal)
-        } finally {
-          clearIfCurrent(conversationId, controller)
-        }
-      })
-    queues.set(conversationId, next)
-    void next.then(
-      () => {
-        if (queues.get(conversationId) === next) queues.delete(conversationId)
-      },
-      () => {
-        if (queues.get(conversationId) === next) queues.delete(conversationId)
-      }
-    )
-    return next
+  run(id: string, round: Round, owner = false): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const queue = queues.get(id) ?? []
+      queue.push({ round, owner, resolve, reject })
+      queues.set(id, queue)
+      void Promise.resolve().then(() => drain(id))
+    })
   },
-
-  /** Remove the controller for this conversation, if any. Safe to call twice. */
-  clear(conversationId: string): void {
-    controllers.delete(conversationId)
+  openSteering(id: string) {
+    accepting.add(id)
   },
-
-  has(conversationId: string): boolean {
-    return controllers.has(conversationId)
+  closeSteering(id: string) {
+    accepting.delete(id)
   },
-
-  /** Returns true if a controller was found and aborted, false otherwise. */
-  abort(conversationId: string): boolean {
-    const c = controllers.get(conversationId)
-    if (!c) return false
-    c.abort()
+  steer(id: string, input: OwnerInput): boolean {
+    if (!accepting.has(id) || controllers.get(id)?.signal.aborted) return false
+    const pending = steering.get(id) ?? []
+    pending.push(input)
+    steering.set(id, pending)
     return true
+  },
+  pendingMessageIds(id: string): Set<string> {
+    return new Set(
+      (steering.get(id) ?? []).flatMap((input) =>
+        input.messageId ? [input.messageId] : []
+      )
+    )
+  },
+  takeSteering(id: string): OwnerInput[] {
+    const pending = steering.get(id) ?? []
+    steering.delete(id)
+    return pending
+  },
+  clear(id: string) {
+    controllers.delete(id)
+    accepting.delete(id)
+    steering.delete(id)
+  },
+  has(id: string) {
+    return controllers.has(id)
+  },
+  abort(id: string): boolean {
+    const c = controllers.get(id)
+    accepting.delete(id)
+    steering.delete(id)
+    for (const job of queues.get(id)?.splice(0) ?? []) job.resolve()
+    c?.abort()
+    return !!c
   }
 }

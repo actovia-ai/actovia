@@ -1,6 +1,9 @@
+import type { AiProviders } from '@actovia/shared/types/ai'
 // src/main/lib/ai/philharmonic/pm-tools.ts
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { StringEnum, Type } from '@earendil-works/pi-ai'
+
+import type { RecruitmentModelOption } from './recruit'
 
 /**
  * `roster` is read again on every call: an employee recruited later in the
@@ -8,7 +11,13 @@ import { Type } from '@earendil-works/pi-ai'
  * alone never starts an employee (a CLI one runs on the owner's machine).
  */
 export function createDelegateTaskTool(
-  roster: Array<{ id: string; name: string; description: string | null }>,
+  roster: Array<{
+    id: string
+    name: string
+    description: string | null
+    provider?: string | null
+    model?: string | null
+  }>,
   onDelegate: (p: {
     employeeId: string
     instructions: string
@@ -18,7 +27,8 @@ export function createDelegateTaskTool(
 ): AgentTool {
   const list = roster
     .map(
-      (a) => `- ${a.name} (id: ${a.id}): ${a.description ?? 'no description'}`
+      (a) =>
+        `- ${a.name} (id: ${a.id})${a.provider && a.model ? ` [${a.provider} · ${a.model}]` : ''}: ${a.description ?? 'no description'}`
     )
     .join('\n')
   return {
@@ -72,16 +82,46 @@ export function createDelegateTaskTool(
 }
 
 export function createRecruitEmployeeTool(
-  onRecruit: (p: { role: string; skills: string[]; name?: string }) => Promise<{
+  modelOptions: RecruitmentModelOption[],
+  onRecruit: (p: {
+    role: string
+    skills: string[]
+    name?: string
+    provider?: AiProviders
+    model?: string
+  }) => Promise<{
     id: string
     name: string
+    provider?: string | null
+    model?: string | null
   }>
 ): AgentTool {
+  const modelDescription =
+    modelOptions.length > 0
+      ? `Select exactly one configured provider::model value. Match task complexity to the model: use a capable reasoning model for difficult or open-ended work and an ordinary model for routine work.\n${modelOptions
+          .map((option) => {
+            const reasoning = option.snapshot.reasoningLevels.filter(
+              (level) => level !== 'off'
+            )
+            const capability = [
+              reasoning.length > 0
+                ? `reasoning ${reasoning.join('/')}`
+                : 'no listed reasoning modes',
+              option.snapshot.maxOutputTokens
+                ? `${option.snapshot.maxOutputTokens} max output tokens`
+                : null,
+              option.isDefault ? 'current default' : null
+            ]
+              .filter(Boolean)
+              .join(', ')
+            return `- ${option.value} (${option.displayName}; ${capability})`
+          })
+          .join('\n')}`
+      : 'No configured model catalog is available; leave this empty to use the app default.'
   return {
     name: 'recruitEmployee',
     label: 'Recruit Employee',
-    description:
-      'Create a new virtual employee when no current employee fits the work. They join the group immediately.',
+    description: `Create a new virtual employee when no current employee fits the work. They join the group immediately. Choose the employee model for this role and task.\n${modelDescription}`,
     parameters: Type.Object({
       role: Type.String({ description: 'what this employee specializes in' }),
       skills: Type.Array(Type.String(), {
@@ -91,25 +131,50 @@ export function createRecruitEmployeeTool(
       name: Type.String({
         description: 'optional name; auto-assigned if omitted',
         default: ''
-      })
+      }),
+      model:
+        modelOptions.length > 0
+          ? StringEnum(
+              modelOptions.map((option) => option.value) as [
+                string,
+                ...string[]
+              ],
+              { description: 'configured provider::model choice' }
+            )
+          : Type.String({
+              description: 'configured provider::model choice',
+              default: ''
+            })
     }),
     execute: async (
       _id: string,
-      p: { role: string; skills: string[]; name?: string }
+      p: { role: string; skills: string[]; name?: string; model?: string }
     ) => {
+      const selectedModel = modelOptions.find(
+        (option) => option.value === p.model
+      )
+      if (modelOptions.length > 0 && !selectedModel) {
+        throw new Error('Choose an employee model from the configured list.')
+      }
       const emp = await onRecruit({
         role: p.role,
         skills: p.skills ?? [],
-        name: p.name || undefined
+        name: p.name || undefined,
+        provider: selectedModel?.provider,
+        model: selectedModel?.model
       })
       return {
         content: [
           {
             type: 'text' as const,
-            text: `Recruited ${emp.name} (id: ${emp.id}).`
+            text: `Recruited ${emp.name} (id: ${emp.id})${emp.provider && emp.model ? ` with ${emp.provider} · ${emp.model}` : ' on the app default model'}.`
           }
         ],
-        details: emp
+        details: {
+          ...emp,
+          provider: emp.provider ?? null,
+          model: emp.model ?? null
+        }
       }
     }
   } as AgentTool
@@ -198,5 +263,5 @@ export function createWatchForTool(
 /** Two minutes after the reset (a past one counts as now); an unknown reset is checked again in an hour. */
 export const quotaWaitRunAt = (resetsAt: number | null, now: number) =>
   new Date(
-    resetsAt !== null ? Math.max(resetsAt, now) + 2 * 60_000 : now + 60 * 60_000
+    resetsAt === null ? now + 60 * 60_000 : Math.max(resetsAt, now) + 2 * 60_000
   )

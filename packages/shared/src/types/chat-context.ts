@@ -23,10 +23,9 @@ export const CONTEXT_PART_KEYS: readonly ContextPartKey[] = [
   'messages'
 ]
 
-export interface ChatContextSnapshot {
+export interface ContextSnapshotData {
   /** ISO time the run that measured it ended. */
   takenAt: string
-  runId: string
   /** The model id the run went to. */
   model: string
   /** The model's window in tokens; 0 when unknown. */
@@ -43,4 +42,8 @@ export interface ChatContextSnapshot {
   estimated: boolean
   /** Always all seven, in `CONTEXT_PART_KEYS` order. */
   parts: { key: ContextPartKey; tokens: number }[]
+}
+
+export interface ChatContextSnapshot extends ContextSnapshotData {
+  runId: string
 }

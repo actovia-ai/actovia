@@ -70,8 +70,14 @@ function CliRow({
   )
 }
 
-/** Settings › Agents: the CLIs on this Mac, and how coding agents run. */
-export function Agents({ form }: { form: UseFormReturnType }) {
+/** Coding CLI configuration, embedded in Settings › Philharmonic. */
+export function Agents({
+  form,
+  embedded = false
+}: {
+  form: UseFormReturnType
+  embedded?: boolean
+}) {
   const { t } = useTranslation('philharmonic')
   const [clis, setClis] = useState<CliStatus[]>([])
   const [checking, setChecking] = useState<string | null>(null)
@@ -100,7 +106,7 @@ export function Agents({ form }: { form: UseFormReturnType }) {
 
   return (
     <>
-      <SettingsIntro>{t('agents.settings.intro')}</SettingsIntro>
+      {!embedded && <SettingsIntro>{t('agents.settings.intro')}</SettingsIntro>}
 
       <SettingsSection title={t('agents.settings.clisTitle')}>
         {clis.map((s) => (

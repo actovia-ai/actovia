@@ -15,6 +15,25 @@
     "newGroupDefaultTitle": "新群組",
     "dashboardTitle": "儀表板"
   },
+  "monitor": {
+    "pageTitle": "執行計畫",
+    "pageDescription": "查看各個 Group 正在進行的工作和近期成果。",
+    "refreshHint": "每 15 秒更新",
+    "loadError": "無法載入 Group 計畫",
+    "activePlans": "進行中的計畫",
+    "recentPlans": "近期計畫",
+    "emptyTitle": "目前沒有可監控的群組計畫",
+    "emptyDescription": "群組開始多步驟工作後，計畫會顯示在這裡。",
+    "charts": {
+      "activity": "計畫活動",
+      "activityHint": "過去 7 天更新的計畫",
+      "completed": "已完成",
+      "active": "進行中",
+      "stopped": "已停止",
+      "steps": "步驟分布",
+      "stepsHint": "目前計畫共 {{count}} 個步驟"
+    }
+  },
   "schedule": {
     "tab": {
       "upcomingTrigger": "即將執行",
@@ -160,6 +179,10 @@
       "pm": "專案經理",
       "employeeFallback": "員工"
     },
+    "resourcesPanel": {
+      "monitor": "監控",
+      "finalOutput": "封存"
+    },
     "membersPanel": {
       "heading": "成員",
       "coordinatorsLabel": "協調人員",
@@ -263,6 +286,16 @@
         "skipped": "略過",
         "failed": "失敗"
       }
+    },
+    "activity": {
+      "running": "處理中",
+      "retry": "重新載入活動",
+      "toPm": "→ PM"
+    },
+    "archive": {
+      "emptyTitle": "尚無已完成的交付成果",
+      "emptyDescription": "PM 驗證並封存後，最終檔案與資料夾會顯示在這裡。",
+      "reveal": "在資料夾中顯示"
     }
   },
   "employees": {
@@ -454,5 +487,30 @@
     "search": "搜尋表情符號",
     "empty": "找不到表情符號",
     "failed": "圖示儲存失敗，請重試。"
+  },
+  "runtimeSettings": {
+    "intro": "Control how Groups work across this computer. Limits and model preferences apply to new PM rounds and staff tasks; work already running keeps its limits.",
+    "limits": "Execution limits",
+    "models": "Model selection",
+    "maxRunning": {
+      "label": "Maximum concurrent staff",
+      "description": "Across all Groups, including API and coding employees. Extra tasks wait for a slot. Coding agents also respect the coding agent limit below. Default 2."
+    },
+    "pmMaxToolCalls": {
+      "label": "PM tool calls per round",
+      "description": "Pause the PM when a round reaches this limit and wait for your next message. Default 100."
+    },
+    "staffMaxToolCalls": {
+      "label": "Staff tool calls per task",
+      "description": "Limit calls in each API employee run. Coding employees use their own CLI runtime limits. Default 80."
+    },
+    "failureLimit": {
+      "label": "Repeated failure limit",
+      "description": "Stop identical failing tool calls and repeated delegation of the same plan step in a PM round at this limit. Default 3."
+    },
+    "autoModelRouting": {
+      "label": "Allow automatic model selection",
+      "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
+    }
   }
 }

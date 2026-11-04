@@ -8,7 +8,6 @@ import { useSettingsAutosave } from '@/hooks/use-settings-autosave'
 import { useSettingsTab } from '@/hooks/use-settings-tab'
 import { cn } from '@/lib/utils'
 
-import { Agents } from './settings-form/agents'
 import { ChatAudit } from './settings-form/chat-audit'
 import { ComputerUse } from './settings-form/computer-use'
 import { DataControls } from './settings-form/data-controls'
@@ -22,6 +21,7 @@ import { Logger } from './settings-form/logger'
 import { McpServers } from './settings-form/mcp-servers'
 import { MemorySettings } from './settings-form/memory'
 import { Personality } from './settings-form/personality'
+import { PhilharmonicSettings } from './settings-form/philharmonic'
 import { Profile } from './settings-form/profile'
 import { ProvidersTabs } from './settings-form/providers-tabs'
 import { S3 } from './settings-form/s3'
@@ -105,7 +105,9 @@ export function SettingsForm() {
           <KnowledgeBase form={form} />
         )}
 
-        {activeTitle === SettingsLabel.Agents && <Agents form={form} />}
+        {activeTitle === SettingsLabel.Philharmonic && (
+          <PhilharmonicSettings form={form} />
+        )}
 
         {activeTitle === SettingsLabel.ComputerUse && (
           <ComputerUse form={form} />

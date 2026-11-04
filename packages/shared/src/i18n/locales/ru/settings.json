@@ -79,7 +79,7 @@
       "title": "Глубокое исследование"
     },
     "computerUse": {
-      "title": "Управление компьютером"
+      "title": "Computer & Browser Use"
     },
     "agents": {
       "title": "Агенты"
@@ -109,7 +109,10 @@
       "storage": "Хранилище",
       "developer": "Для разработчиков"
     },
-    "experimental": "Экспериментальное"
+    "experimental": "Экспериментальное",
+    "philharmonic": {
+      "title": "Philharmonic"
+    }
   },
   "common": {
     "searchPlaceholder": "Поиск в настройках…",
@@ -431,6 +434,10 @@
       "manageSchedule": {
         "label": "Управление расписанием",
         "description": "Создавайте, изменяйте и удаляйте запланированные задачи через Chat."
+      },
+      "browserUse": {
+        "label": "Автоматизация браузера",
+        "description": "Просматривайте страницы и взаимодействуйте с ними в отдельном сеансе agent-browser."
       }
     },
     "googleMaps": {
@@ -703,7 +710,13 @@
       "deleteAria": "Удалить сервер",
       "showTools": "Показать инструменты",
       "hideTools": "Скрыть инструменты",
-      "reenter": "Нужно ввести заново: {{fields}}"
+      "reenter": "Нужно ввести заново: {{fields}}",
+      "authorized": "Авторизовано",
+      "needsAuth": "Требуется авторизация",
+      "authorize": "Авторизовать",
+      "authorizing": "Авторизация…",
+      "authorizingHint": "Подтвердите доступ в браузере и вернитесь сюда.",
+      "signOut": "Выйти"
     },
     "intro": "Зарегистрируйте серверы <2>MCP</2> (локальные или удалённые), затем включите переключатель, чтобы их инструменты стали доступны в чате.",
     "activeSummary": "Сейчас активно <strong>{{totalToolCount}} инстр.</strong> с <strong>{{activeCount}} серв.</strong>",
@@ -794,7 +807,11 @@
       "registerFailed": "Не удалось зарегистрировать",
       "removeFailed": "Не удалось удалить сервер",
       "toggleFailed": "Не удалось переключить сервер",
-      "invalidEnv": "Некорректный JSON переменных окружения"
+      "invalidEnv": "Некорректный JSON переменных окружения",
+      "authorizeFailed": "Не удалось авторизоваться",
+      "authorized": "«{{name}}» авторизован",
+      "signOutFailed": "Не удалось выйти",
+      "signedOut": "Выполнен выход из «{{name}}»"
     }
   },
   "memory": {

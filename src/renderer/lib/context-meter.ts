@@ -1,5 +1,5 @@
 import type {
-  ChatContextSnapshot,
+  ContextSnapshotData,
   ContextPartKey
 } from '@actovia/shared/types/chat-context'
 
@@ -15,7 +15,7 @@ export interface ContextMeter {
 }
 
 /** What the ring and the Context section draw from a snapshot. */
-export function contextMeter(s: ChatContextSnapshot): ContextMeter {
+export function contextMeter(s: ContextSnapshotData): ContextMeter {
   const window = s.contextWindow > 0 ? s.contextWindow : null
   const share = (tokens: number) => (window ? (tokens / window) * 100 : null)
   const conversation = s.parts

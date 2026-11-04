@@ -66,7 +66,7 @@ const trigger = (el: HTMLElement) =>
   el.querySelector<HTMLElement>('[data-slot="collapsible-trigger"]')!
 
 describe('PlanCard', () => {
-  it('draws each step with a glyph and no palette colour or emoji', () => {
+  it('draws each step with a glyph and no palette colour or emoji', async () => {
     const el = render(
       plan('active', [
         step('a', 'done'),
@@ -74,7 +74,10 @@ describe('PlanCard', () => {
         step('c', 'failed', 'quota reached')
       ])
     )
-    expect(trigger(el).getAttribute('aria-expanded')).toBe('true')
+    expect(trigger(el).getAttribute('aria-expanded')).toBe('false')
+    await act(async () => {
+      trigger(el).click()
+    })
     expect(el.querySelectorAll('li svg')).toHaveLength(3)
     expect(el.textContent).not.toMatch(/[⏳✓✗●○]/u)
     expect(el.innerHTML).not.toMatch(/emerald|amber|#[0-9a-f]{6}/i)

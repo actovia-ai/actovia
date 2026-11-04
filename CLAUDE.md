@@ -81,7 +81,6 @@ bun run dev              # Start the dev build via electron-forge (Vite dev serv
 bun run package          # Package the app for the current platform into out/ (keeps data-testid markers — e2e needs them)
 bun run make             # Build installers/archives (Squirrel, ZIP, DMG, deb, rpm); strips data-testid (STRIP_TEST_IDS=1)
 bun run publish          # Publish a release to GitHub (needs GITHUB_TOKEN)
-bun run build:helper     # Rebuild the macOS Swift computer-use helper into resources/bin/actovia-input
 ```
 
 Every build (dev, `package`, `make`) writes hidden source maps beside the
@@ -499,7 +498,9 @@ The main process runs a **Hono HTTP server** that handles all business logic:
 
 Every business endpoint is mounted on one versioned sub-app (`app.route('/api/v1', v1)`), so the public paths are `/api/v1/<route>`; the lock/trace/settings middlewares still match `/api/*`. A breaking API change ships as a new `/api/v2` sub-app beside v1 rather than mutating v1 in place. Any client of this backend (the renderer, `tests/api`, `actovia-ios`) must address `/api/v1/...`.
 
-`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart`, `/install-update` (the update the app has downloaded, `409 UPDATE_NOT_READY` otherwise — `actovia app update` hands off to it rather than swapping the bundle under Squirrel) sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
+`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/projects`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart`, `/install-update` (the update the app has downloaded, `409 UPDATE_NOT_READY` otherwise — `actovia app update` hands off to it rather than swapping the bundle under Squirrel) sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
+
+The desktop-only `POST /api/v1/projects/conversations/:id/reveal-folder` reveals the Group's bound project folder in the system file manager; it is a write route and requires the window's presence token.
 
 The `/api/v1/settings` route includes `POST /api/v1/settings/models` — dispatches to the appropriate list-models handler based on the provider in the request body, reading the API key from the request (not from saved settings) to fetch live model catalogs; a posted mask stands for the stored key, and only with the stored (or default) base URL — a mask with another base URL is a 400 ("re-enter the API key"; code `SECRET_REENTRY_REQUIRED`, `params.field: 'apiKey'` — the model picker shows it inline under the key), so a stored key is never sent to a caller-chosen host.
 
@@ -795,7 +796,7 @@ the tool definitions, the binder, the system prompt, the renderer's dispatch
 and the settings registry (migration 0007 rewrote stored rows from the old
 camelCase; `toToolName()` maps a pre-rename `disabledTools` key):
 
-`computer_use`, `create_artifact`, `deep_research`, `edit_file`, `find_files`, `grep`, `image_generation`, `lcm_describe`, `lcm_expand`, `lcm_grep`, `list_directory`, `map_itinerary`, `read_file`, `recall`, `search_knowledge_base`, `terminal`, `update_memory`, `weather`, `web_fetch`, `web_search`, `write_file`.
+`browser_use`, `computer_use`, `create_artifact`, `deep_research`, `edit_file`, `find_files`, `grep`, `image_generation`, `lcm_describe`, `lcm_expand`, `lcm_grep`, `list_directory`, `map_itinerary`, `read_file`, `recall`, `search_knowledge_base`, `terminal`, `update_memory`, `weather`, `web_fetch`, `web_search`, `write_file`.
 
 `map_itinerary` enriches places through Google Places from main with
 `googleCloud.googleApiKey`. That key is masked by the API like every other
@@ -1007,7 +1008,11 @@ the settings registry).
    whose settings decrypt is connected over stdio (`command` / `args` /
    `env`), SSE or streamable HTTP (`url` / `headers`) with
    `@modelcontextprotocol/sdk`, and its tools are cached for five minutes. No
-   server is connected at startup.
+   server is connected at startup. Remote servers do not all require OAuth:
+   Settings marks one as unauthorized only after its connection receives an
+   MCP OAuth challenge; `/api/v1/mcp/tools` returns the resulting per-server
+   `authStatusById` alongside the tools. The authorization callback times out,
+   rejects on cancellation, and escapes provider error text before rendering it.
 2. **Tool execution**: through the MCP toolbox (`list_mcp_tools` /
    `call_mcp_tool`, see Tool Architecture). `call_mcp_tool` goes through the
    approval gate like the file tools: every string leaf of its `arguments` is
@@ -1123,9 +1128,12 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   answers only the rows saved after that one (ordered by `createdAt`, then
   `id`; `404` for an id not of the group — `getMessagesAfter()` in
   `db/conversation-queries.ts`). Saved rows are edited later (an agent card's
-  parts) with no record of when, so `after` is only for the re-read after a
-  `message_end`; a client reads the whole list when it opens or reconnects
-  (`GroupChat` does, through `useGroupHistory()` in `chat/group-history.ts`: a failed re-read reads the whole group, and an answer for a group no longer on show is dropped); a group's
+  parts) with no record of when; `after` remains available for incremental
+  reads, while the desktop reads the full list on open and
+  after each `message_end` (`GroupChat` does, through `useGroupHistory()` in
+  `chat/group-history.ts`) to retain database ordering and edits, and drops a
+  response for a group no longer on show; a failed refresh keeps the last
+  successfully read transcript and retries on the next revision. A group's
   photos are data URLs, as in Chat — `POST …/messages` refuses an image
   attachment that is a link (400) and fits each one before the row is saved
   (`fitImageDataUrl()` in `ai/utils/image-fit.ts`)
@@ -1139,7 +1147,9 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   and ring behind it (`lib/hue.ts`'s `pickHue`, FNV-1a over the seed) are
   the client's to draw, as the renderer's wrapper draws them
 - **No money** (ISSUE-235, 2026-10-27): the Costs page and `GET /costs` are
-  gone; the Dashboard is the Schedule tab. Employees' `task_execution.tokenUsage`
+  gone. The Dashboard monitors active and recently resolved Group execution
+  plans (`GET /api/v1/philharmonic/plans/monitor`); Schedule remains a
+  separate view for timed tasks. Employees' `task_execution.tokenUsage`
   and the PM's round `usage` events carry tokens only — a CLI employee's step
   records its turn's tokens (Claude Code's `result` event; Codex reports none
   yet). Older rows may still hold a `cost` / `costUsd`; nothing reads it
@@ -1147,17 +1157,40 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   is roomy rows under 40 px round avatars, the group on show in the
   sidebar's active fill, no outline; the group's bar is its avatar and name, with the members as a small
   avatar stack at the right; the transcript draws the group's voices on
-  grey bubbles (a voice's following messages without its avatar and name
-  again — `continuesFrom()` in `chat/group-chat.tsx`), your own on the
-  tone's fill (`bg-primary` — black in the neutral tone, unlike Chat's
-  `--bubble`), system lines as plain centred text; the composer is a plain
-  pill reading "Message <group>", without Chat's `BorderBeam`. Workforce and
-  Schedule use the same grey `rounded-2xl` cards and `rounded-full` buttons.
-  Every empty state carries Philharmonic's mark (`empty-state.tsx`): the
-  conductor glyph in a round tile on a five-line staff, not hue bubbles; the
-  group search is on `bg-sidebar-accent` (`bg-input/50` vanishes on the
-  material)
-- Each Group gets an isolated workspace under `~/.actovia/groups`
+  full-width assistant responses, with a conductor glyph for the PM and an
+  avatar/name header above the Markdown. Owner messages use `--bubble` and
+  `--foreground` in both themes. Activity and reasoning share a folded disclosure;
+  a waiting CLI permission remains visible. The compact plan is collapsed by
+  default and pinned above the transcript. The right panel contains Monitor
+  (colored Context + Members) and Archive (only explicit `archive_output`
+  deliveries). Archive validates existing files/folders within the bound workspace;
+  downloads folders as ZIP and offers Reveal. Artifacts are absent from this panel.
+  The Dashboard charts actual plan updates over seven local calendar days and
+  the current step distribution; empty data stays empty.
+- A Group uses its selected project's workDir, falling back to
+  `~/.actovia/groups/<id>`. PM and employees receive that same directory in their
+  prompts, tool bindings and guards. The PM can perform operational tools itself.
+  Owner messages steer a busy PM at the next tool boundary; queued owner rounds
+  precede employee reports. `choose_model` switches among configured provider/model
+  candidates (including Ollama), while respecting observed context size. Repeated
+  identical failed tool calls stop before a fourth attempt, and per-run call budgets
+  bound other loops. Every employee runtime shares Settings' maxRunning pool;
+  interruption cancels active and waiting tasks. Photos can answer owner questions.
+- **Employee experience** (ISSUE-346): ordinary `agent_memory` rows stay
+  Group-scoped. Only after the PM accepts a completed plan step,
+  `reflectOnReviewedTask()` may store up to five redacted, reusable lessons
+  with a null `conversationId`; employee loops read these beside their current
+  Group memories. Raw task output is never shared across Groups, and reflection
+  failures cannot change the completed task's status
+- **Recruitment models** (ISSUE-350): the PM's `recruitEmployee` tool receives
+  a bounded list of configured provider/model candidates from the live model
+  catalogs and selects one for the employee based on task difficulty. The
+  chosen model is validated and persisted; an employee's run resolves it with
+  the matching settings snapshot
+- A Group created with the localized default title is named from its first
+  user instruction after the PM answers. The database update is conditional
+  on the title still being the default, and the saved title lands before the
+  existing `message_end` refresh so both the sidebar and active header update.
 - **MCP and skills**: the PM holds the MCP toolbox (`list_mcp_tools` /
   `call_mcp_tool`) over every active server, with an `<mcp_servers>` block
   (`pmMcpSection()` in `pm-prompt.ts`), so it files, reads and moves issues
@@ -1209,8 +1242,8 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
 - Scheduled tasks (`task.cronExpression` for recurring, `task.runAt` for
   one-off) run via `src/main/lib/ai/philharmonic/scheduler.ts`
   (per-task `node-cron` jobs + a once-a-minute sweep for one-off tasks);
-  managed from the Schedule tab on the Dashboard page and the chat sidebar's
-  `/scheduled` page (`containers/scheduled.tsx`, shared
+  managed from the chat sidebar's `/scheduled` page
+  (`containers/scheduled.tsx`, shared
   `components/philharmonic/schedule/`). The global page aggregates normal
   Chat and Group schedules: `POST /api/v1/philharmonic/tasks` accepts exactly
   one of `chatId` / `conversationId`; normal-chat tasks store
@@ -1235,9 +1268,7 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   the origin was deleted. Task cards link to their Chat/Group; deleted Chat
   origins are marked explicitly. Philharmonic schedules are read-only in this
   manager (including the cancellation API), while Chat schedules can be
-  deleted without the origin. The existing Group Dashboard creation form
-  lists Group tasks and retains its searchable Conversation picker and
-  no-drag Sheet controls.
+  deleted without the origin.
   Chat's `manage_schedule` tool supports list/get/create/update/delete via
   `ai/chat-schedules.ts`. It binds only to interactive ordinary Chat (not a
   Group, Deep Research or a scheduled firing), follows the built-in tool
@@ -1276,7 +1307,9 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   round records, through `ai/philharmonic/round-recorder.ts`, its trigger, the employee reports it
   read (ids and names), thinking, text, each tool call with its arguments and result, usage and any
   error, masked (`maskLogText`), in `pm_round_event` (migration `0018_pm_round_event`, storage
-  `db/pm-round-queries.ts`). The recorder never throws into a round: a capture or append failure is
+  `db/pm-round-queries.ts`). A token-only context snapshot is also stored per round and served by
+  `GET /api/v1/philharmonic/conversations/:id/context`; it includes the PM prompt, tools, rolling
+  summary, recent group messages, provider input usage when reported, and the LCM mark. The recorder never throws into a round: a capture or append failure is
   logged, and a cycle in a call's arguments is stored as `[circular]`. The PM's message — and its
   error or interrupted system row — carries `roundId` and a `{ kind: 'decision', delegations, waits }`
   part; the collapsed "Decision process" line takes its counts from that part, so nothing is fetched
@@ -1693,8 +1726,12 @@ hundreds of times per answer. What keeps it cheap — all of it guarded by
   scrolling to their run (`lib/scroll-to-run.ts`, the rail's rule), and an
   artifact row opening its card (`revealArtifactAtom`). It replaced the
   Sources panel: a message's Sources button opens the panel on that run.
-  Philharmonic's `chat/group-resources-panel.tsx` provides Members / Files /
-  Activity in the same fixed-width panel. `lib/group-panel-items.ts` combines
+  Philharmonic's `chat/group-resources-panel.tsx` leads with Context / Members
+  in the same fixed-width panel; Files / Activity sit under More.
+  `chat/group-context-section.tsx` draws the PM context snapshot using Chat's
+  context meter; `chat/group-context-ring.tsx` opens that section from the
+  header. The plan summary in the header opens the full `PlanCard` popover,
+  rather than occupying the transcript. `lib/group-panel-items.ts` combines
   live bubbles and persisted tool results from
   `GET /api/v1/philharmonic/conversations/:id/tool-results` (the latest 2,000
   employee tool-end events, joined to their message), so files and sources
@@ -2327,23 +2364,28 @@ Main process:
   thrown inside pi's own code (a provider's request builder) never reaches
   the logger as an Error — pi catches it and keeps its message; what the
   kernel's own functions throw is logged first (`kernel/log-throws.ts`)
-- `src/main/lib/computer/` — window-scoped screenshot-loop Computer Use V0: the
-  `actovia-input` Swift helper (list-windows / list-apps / screenshot / activate /
-  CGEvent input), `capture`/`target`/`hands`/`guard`, `runComputerSession` (the
-  perceive→act loop; input is screen-coordinate HID events, so before every
-  action `front.ts`'s `bringToFront()` raises the target app and the action is
-  skipped — the model told why — unless the target window is on screen, its
-  app frontmost and no other app's window, nor an Actovia one, overlaps it; a
-  window the app replaced or a Space it moved to is followed by
-  `refreshOrRaise()`, which re-runs the self and allowlist checks),
-  `liveness` (the ⌥⇧⎋ kill switch). Marked **Experimental** (owner, 2026-10-22: much still to polish) — a badge on its Settings sidebar item (`experimental: true` in `settings-menu.ts`) and a notice on its page; `target.resolveOrLaunch`
-  opens an allowlisted app that isn't running; `self.ts` — Actovia itself (its
-  bundle id, its own windows) is never a target, whatever the allowlist says,
-  and never offered in the picker. The inner-loop agent is
-  `src/main/lib/ai/computer-use/`. Bound as the `computerUse` calling-tool,
-  gated on `settings.computerUse.enabled`. `GET /api/v1/computer-use/apps` feeds the
-  Settings allowlist picker. See
-  `docs/superpowers/specs/2026-09-06-computer-use-v0-design.md`
+- `src/main/lib/automation/runtime.ts` — thin native CLI adapters for upstream
+  `agent-desktop` (1.1.0) and `agent-browser` (0.41.2), shipped via asarUnpack.
+  `calling-tools/computer-use.ts` limits desktop actions to allowlisted running
+  apps and refs from that app's snapshots; it excludes Actovia and retains the
+  ⌥⇧⎋ stop switch. `calling-tools/browser-use.ts` owns an isolated browser session
+  and closes it when a run ends. Neither adapter accepts caller overrides of
+  sessions, executable paths or connection targets. Desktop availability remains
+  gated by `settings.computerUse.enabled`; `/computer-use/apps` lists upstream
+  running apps. No in-house screenshot loop or Swift input helper is shipped.
+  Settings → Computer & Browser Use also persists `computerUse.browser`:
+  availability, visible windows for new sessions, and the per-run action budget.
+  Disabling browser use blocks subsequent actions but still permits cleanup.
+- Settings → Philharmonic (`?tab=philharmonic`) persists Group controls under
+  `agents.philharmonic` in the existing JSON settings column. Shared defaults
+  and `resolvePhilharmonicSettings` drive Staff concurrency (separate from the
+  coding CLI limit), PM/API employee tool budgets, repeated-failure limits,
+  and optional model routing. New rounds/tasks pick up the settings; coding
+  CLIs retain their own internal tool limits. The Philharmonic page also
+  contains coding CLI installation, worktrees, and session keep-alive. Legacy
+  `?tab=agents` links resolve to Philharmonic; Agents is no longer a separate
+  sidebar entry. Group Markdown explicitly uses the Chat body size (16px),
+  with the shared 1.75 line height and block spacing, even inside traces.
 - `src/main/lib/i18n.ts` — the main-process i18next instance (`mainI18n`),
   `resolveEffectiveLocale`, and the `get-app-locale` / `set-app-locale` IPC
 - `src/main/lib/ipc.ts` — main-process IPC handlers
@@ -2455,7 +2497,8 @@ Renderer:
 - `src/renderer/components/chat/assistant-turn-segment.tsx` — `AssistantTurnSegment`: one run's answer (timeline, blocks in run order, action bar, foot); `chat/compare-turns.tsx` + `chat/other-version-dialog.tsx` — a regenerate group's answers (see the render-path notes)
 - `src/renderer/components/calling-tools/tool-cards.ts` — which tools draw a card (`hasToolCard()`), shared by the card dispatch and the turn builder
 - `src/renderer/components/philharmonic/` — Philharmonic UI
-- `src/renderer/components/philharmonic/schedule/` — Schedule tab (agenda: upcoming one-off + recurring tasks)
+- `src/renderer/components/philharmonic/dashboard/` — Group execution-plan monitor (active and recent plans, step progress, linked Groups)
+- `src/renderer/components/philharmonic/schedule/` — standalone Scheduled manager (upcoming one-off + recurring tasks)
 - `src/renderer/components/settings/` — settings. Every page is put together
   from `settings-row.tsx` (`SettingsSection` — a titled card of hairline rows —
   and `SettingsRow`) plus `settings-kit.tsx`: `SettingsIntro` at the top (what the
