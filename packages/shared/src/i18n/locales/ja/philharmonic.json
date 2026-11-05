@@ -512,5 +512,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "グループコマンド",
+    "mentionTitle": "担当者を指定",
+    "noMatches": "一致する項目がありません",
+    "staffDescription": "利用可能な担当者",
+    "mentionHint": "PM が計画に沿って指定した担当者を調整します。",
+    "removeMention": "@{{name}} を削除",
+    "waitForPm": "現在の PM 処理が終わってから圧縮してください。",
+    "compacting": "コンテキストを圧縮中…",
+    "compacted": "圧縮完了：約 {{before}} → {{after}} トークン",
+    "alreadyCompact": "最近のコンテキストは既にコンパクトです。",
+    "compactFailed": "圧縮できませんでした。PM の待機中に再試行してください。",
+    "briefTitle": "グループ方針",
+    "briefDescription": "PM と担当者が共有する AGENTS.md。目標、制約、決定、完了条件を保存します。変更は新しい処理から適用されます。",
+    "briefEmpty": "最初の依頼で自動作成されます。今すぐ記入することもできます。",
+    "briefSaved": "方針を保存しました",
+    "briefSaveFailed": "保存できませんでした。変更されている場合は再読み込みしてください。",
+    "reloadBrief": "再読み込みして編集を破棄",
+    "loading": "読み込み中…",
+    "retry": "再試行",
+    "saving": "保存中…",
+    "save": "保存",
+    "edit": "編集",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "コンテキスト圧縮",
+        "description": "過去のメッセージを要約し、最近の内容と方針を保持。"
+      },
+      "brief": {
+        "label": "グループ方針",
+        "description": "AGENTS.md を表示・編集。"
+      },
+      "status": {
+        "label": "状態",
+        "description": "コンテキストとチームの活動を確認。"
+      },
+      "archive": {
+        "label": "成果物",
+        "description": "完了した成果物を開く。"
+      },
+      "stop": {
+        "label": "停止",
+        "description": "PM と担当者の作業を中断。"
+      }
+    },
+    "compactionDisabled": "圧縮する前に Settings → Memory でコンテキスト管理を有効にしてください。"
   }
 }

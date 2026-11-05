@@ -47,7 +47,7 @@ const WRITE_PREFIXES = [
  * posting either could get the PM to hand an `auto` coding agent work.
  */
 const GROUP_POSTS =
-  /^\/api\/v1\/philharmonic\/conversations\/[^/]+\/(?:messages|respond|archive\/reveal)\/?$/u
+  /^\/api\/v1\/philharmonic\/conversations\/[^/]+\/(?:messages|respond|brief|compact|archive\/reveal)\/?$/u
 /** Deleting a group deletes its scheduled tasks with it. */
 const GROUP_ROW = /^\/api\/v1\/philharmonic\/conversations\/[^/]+\/?$/u
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])

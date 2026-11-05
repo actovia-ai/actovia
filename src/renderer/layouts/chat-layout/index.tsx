@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router'
+import type { CSSProperties } from 'react'
+import { Outlet, useMatch } from 'react-router'
 
 import { HeaderSidebarTrigger } from '@/components/app/update-ready'
 import { ChatHeader } from '@/components/chat/header/chat-header'
@@ -22,23 +23,26 @@ import { ChatDeletionConfirmationDialog } from './chat-deletion-confirmation-dia
 import { RenameChatDialog } from './rename-chat-dialog'
 import { SearchDialog } from './search-dialog'
 
-function ContentHeader() {
+function ContentHeader({ chat }: { chat: boolean }) {
   const { open } = useSidebar()
   const isFullscreen = useIsFullscreen()
+  if (!chat && open) {
+    return (
+      <div
+        aria-hidden
+        className="draggable absolute inset-x-0 top-0 z-10 h-6"
+      />
+    )
+  }
   return (
     <header
       className={cn(
-        // 44 px, the sidebar's own top row's height, so the toggle sits at the
-        // same spot in both (Claude's bar is this low). No rule under it: the
-        // page dissolves into the header's colour as it scrolls under — a
-        // strip of that colour fading to nothing, as Claude's, not a dark
-        // shadow (owner, 2026-10-08).
-        // `pt-0.5` and `pl-23` put the toggle where the sidebar's own row has
-        // it (app-sidebar.tsx: the header's `p-2` with `pt-2.25`, the row's
-        // `pl-21` and `h-7`): 92 px in, centred 23 px down — level with the
-        // traffic lights (window.ts, y 16) and 20 px clear of them.
-        'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
-        'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
+        // Chat content scrolls behind the material. Pages without toolbar
+        // content retain only the controls needed when their sidebar is closed.
+        'draggable z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 transition-[padding] duration-200 ease-out',
+        chat
+          ? 'bg-card/70 absolute inset-x-0 top-0 backdrop-blur-xl'
+          : 'relative bg-transparent',
         open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
       )}
     >
@@ -53,15 +57,21 @@ function ContentHeader() {
           <HistoryArrows />
         </>
       )}
-      <ChatHeader />
+      {chat && <ChatHeader />}
     </header>
   )
 }
 
 function InsertedSidebar() {
+  const chat = useMatch('/chat/:id') !== null
   return (
-    <SidebarInset className="flex h-full min-w-0 flex-col overflow-hidden">
-      <ContentHeader />
+    <SidebarInset
+      className="relative flex h-full min-w-0 flex-col overflow-hidden"
+      style={
+        { '--chat-header-inset': chat ? '2.75rem' : '0rem' } as CSSProperties
+      }
+    >
+      <ContentHeader chat={chat} />
       <Outlet />
       <Toaster />
       <SearchDialog />

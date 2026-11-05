@@ -318,7 +318,7 @@
     "nav": {
       "new": "Nuovo",
       "search": "Cerca",
-      "artifacts": "Artefatti",
+      "library": "Libreria",
       "scheduled": "Programmate"
     },
     "account": {
@@ -532,12 +532,12 @@
     "openFailed": "Impossibile aprire il file",
     "revealFailed": "Impossibile mostrare il file"
   },
-  "artifacts": {
-    "title": "Artefatti",
+  "library": {
+    "title": "Libreria",
     "description": "Tutto ciò che è stato creato nelle tue chat. Aprine uno per tornare dove è nato.",
-    "searchPlaceholder": "Cerca artefatti",
-    "noMatches": "Nessun artefatto corrisponde a “{{query}}”",
-    "emptyTitle": "Ancora nessun artefatto",
+    "searchPlaceholder": "Cerca nella libreria",
+    "noMatches": "Nessun elemento corrisponde a “{{query}}”",
+    "emptyTitle": "La tua libreria è vuota",
     "emptyDescription": "Chiedi in una chat un grafico, una dashboard o una piccola app e comparirà qui.",
     "untitled": "Senza titolo"
   },

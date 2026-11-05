@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
-// ISSUE-265: a card on the Artifacts page draws its page — the chat card's
+// ISSUE-265: a card on the Library page draws its page — the chat card's
 // own sandbox, scaled down, mounted only while the card is near the screen.
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/hooks/use-artifacts', () => ({
-  useArtifactCode: (_c: string, _a: string, enabled: boolean) => ({
+vi.mock('@/hooks/use-library', () => ({
+  useLibraryItemCode: (_c: string, _a: string, enabled: boolean) => ({
     data: enabled
       ? { title: 'Kyoto', code: 'export default () => null' }
       : undefined
@@ -28,8 +28,7 @@ class FakeObserver {
   }
 }
 
-const { ArtifactPreview } =
-  await import('@/components/artifacts/artifact-preview')
+const { LibraryPreview } = await import('@/components/library/library-preview')
 const { ARTIFACT_ORIGIN } =
   await import('@/components/calling-tools/artifact/sandbox-frame')
 
@@ -46,7 +45,7 @@ beforeEach(() => {
   root = createRoot(container)
   act(() =>
     root.render(
-      createElement(ArtifactPreview, {
+      createElement(LibraryPreview, {
         chatId: 'c1',
         artifactId: 'art-1',
         title: 'Kyoto'
@@ -82,7 +81,7 @@ function fromSandbox(type: string, source: Window | null) {
   })
 }
 
-describe('ArtifactPreview', () => {
+describe('LibraryPreview', () => {
   it('mounts no frame until the card is near the screen, and drops it after', () => {
     expect(frame()).toBeNull()
     act(() => observed?.(true))

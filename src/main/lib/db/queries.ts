@@ -1,8 +1,8 @@
 import { ErrorCode, DatabaseError } from '@actovia/shared'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
-import type { ArtifactListItem } from '@actovia/shared/types/artifact-list'
 import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
+import type { LibraryItem } from '@actovia/shared/types/library'
 import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
 import {
   and,
@@ -290,11 +290,11 @@ export async function updateMessage({
 }
 
 /**
- * Every artifact the chats made, newest first (ISSUE-237's Artifacts page):
+ * Every artifact the chats made, newest first (ISSUE-237's Library page):
  * a `create_artifact` result that did not fail and carries an artifact id,
  * with its chat's title and the run it came from. The code stays in the row.
  */
-export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
+export async function listLibraryItems(): Promise<LibraryItem[]> {
   try {
     const rows = await db
       .select({
@@ -374,7 +374,7 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
       seen.add(key)
       return true
     })
-    const artifacts: ArtifactListItem[] = rows.map((r) => ({
+    const artifacts: LibraryItem[] = rows.map((r) => ({
       ...r,
       title: r.title ?? '',
       // Every tool result carries its call's id; the column is nullable only
@@ -401,20 +401,20 @@ export async function listAllArtifacts(): Promise<ArtifactListItem[]> {
       }))
     ].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   } catch (error) {
-    logDbError('Failed to list artifacts', error)
+    logDbError('Failed to list library items', error)
     throw new DatabaseError(
       ErrorCode.DB_QUERY_FAILED,
-      'Failed to list artifacts'
+      'Failed to list library items'
     )
   }
 }
 
 /**
  * One artifact's code as the chat's card renders it (ISSUE-265: the
- * Artifacts page draws each card's page): the newest successful
+ * Library page draws each card's page): the newest successful
  * `create_artifact` result of that artifact in that chat, or null.
  */
-export async function getArtifactCode(
+export async function getLibraryItemCode(
   chatId: string,
   artifactId: string
 ): Promise<{ title: string; code: string } | null> {

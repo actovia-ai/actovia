@@ -524,5 +524,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Команды группы",
+    "mentionTitle": "Упомянуть сотрудника",
+    "noMatches": "Совпадений нет",
+    "staffDescription": "Активный сотрудник",
+    "mentionHint": "PM координирует запрос с выбранными сотрудниками.",
+    "removeMention": "Убрать @{{name}}",
+    "waitForPm": "Дождитесь завершения текущего раунда PM.",
+    "compacting": "Сжатие контекста…",
+    "compacted": "Контекст сжат: ~{{before}} → ~{{after}} токенов",
+    "alreadyCompact": "Недавний контекст уже компактен.",
+    "compactFailed": "Не удалось сжать контекст. Повторите, когда PM освободится.",
+    "briefTitle": "Инструкции группы",
+    "briefDescription": "Общий AGENTS.md для PM и сотрудников: цели, ограничения, решения и критерии приёмки. Изменения действуют со следующих раундов и задач.",
+    "briefEmpty": "Первый запрос создаст инструкции. Их можно написать и сейчас.",
+    "briefSaved": "Инструкции сохранены",
+    "briefSaveFailed": "Не удалось сохранить. Инструкции могли измениться; загрузите их заново.",
+    "reloadBrief": "Перезагрузить и отменить правки",
+    "loading": "Загрузка…",
+    "retry": "Повторить",
+    "saving": "Сохранение…",
+    "save": "Сохранить",
+    "edit": "Изменить",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Сжать контекст",
+        "description": "Суммировать ранние сообщения, сохранив недавние и инструкции."
+      },
+      "brief": {
+        "label": "Инструкции группы",
+        "description": "Прочитать или изменить AGENTS.md."
+      },
+      "status": {
+        "label": "Статус",
+        "description": "Посмотреть контекст и работу команды."
+      },
+      "archive": {
+        "label": "Результаты",
+        "description": "Открыть готовые результаты."
+      },
+      "stop": {
+        "label": "Остановить",
+        "description": "Прервать PM и сотрудников."
+      }
+    },
+    "compactionDisabled": "Перед сжатием включите управление контекстом в Settings → Memory."
   }
 }

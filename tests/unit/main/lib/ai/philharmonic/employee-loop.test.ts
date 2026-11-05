@@ -147,6 +147,12 @@ describe('runEmployeeLoop', () => {
     return context.messages[0].content
   }
 
+  it('sends the shared writing defaults in the employee system message', async () => {
+    const { RESPONSE_FORMAT_PROMPT } =
+      await import('@main/lib/ai/response-format-prompt')
+    expect(await systemPromptFor([])).toContain(RESPONSE_FORMAT_PROMPT)
+  })
+
   it('an employee who searches cites by link, never by number — its readers never see the results', async () => {
     const { WEB_CITATIONS } =
       await import('@main/lib/ai/philharmonic/employee-loop')

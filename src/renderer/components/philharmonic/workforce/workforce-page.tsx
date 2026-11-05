@@ -522,7 +522,7 @@ export function WorkforcePage() {
         </div>
       </PhilharmonicHeaderSlot>
 
-      <div className="flex-1 overflow-y-auto px-5 py-5">
+      <div className="flex-1 overflow-y-auto px-5 pt-[calc(1.25rem+var(--philharmonic-header-inset,0rem))] pb-5">
         {totalEmpty ? (
           <PhilharmonicEmptyState
             title={t('philharmonic:workforce.emptyState.title')}

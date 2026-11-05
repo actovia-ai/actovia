@@ -1,9 +1,9 @@
 /**
- * One artifact on the Artifacts page (`GET /api/v1/artifacts`): read from a
+ * One item in the Library (`GET /api/v1/library`): read from a
  * chat's `create_artifact` result, without its code — the page links to the
  * run that made it, where the card draws it.
  */
-export interface ArtifactListItem {
+export interface LibraryItem {
   /** Absent on older servers: an interactive artifact. */
   kind?: 'workspace-file' | 'research'
   path?: string

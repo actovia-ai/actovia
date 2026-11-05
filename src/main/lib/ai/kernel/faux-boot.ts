@@ -239,7 +239,7 @@ function respondToChatCall(ctx: Transcript): AssistantMessage {
     )
   }
 
-  // The Artifacts e2e: a long answer, then the page, so its card sits far
+  // The Library e2e: a long answer, then the page, so its card sits far
   // below the run's top.
   if (last?.role === 'user' && textOf(last).includes(ARTIFACT_QUESTION)) {
     return fauxAssistantMessage(
@@ -281,7 +281,7 @@ function respondToChatCall(ctx: Transcript): AssistantMessage {
  * (an `update_memory` tool call and the engine call underneath it) and a
  * question the memory read filter answers for, and
  * `tests/e2e/regenerate-compare.spec.ts` a question answered differently
- * each time it is asked, and `tests/e2e/artifacts.spec.ts` a page made after
+ * each time it is asked, and `tests/e2e/library.spec.ts` a page made after
  * a long answer — see the branches above.
  */
 export function bootFauxProviderIfRequested(): FauxProviderHandle | null {

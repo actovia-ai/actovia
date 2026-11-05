@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  type ReactNode,
+  type CSSProperties
+} from 'react'
 import { createPortal } from 'react-dom'
 
 import { HeaderSidebarTrigger } from '@/components/app/update-ready'
@@ -7,36 +13,37 @@ import { useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { cn } from '@/lib/utils'
 
-/**
- * The content pane's bar, Chat's own (`chat-layout`'s ContentHeader): 44 px,
- * no rule under it — the page dissolves into the bar's colour as it scrolls
- * under — and the sidebar toggle and New group only once the
- * sidebar is away (while it is open they sit in its top row). `children` is
- * the page's title and actions, laid out as Chat's title group: on the
- * left, actions pushed right by the page itself. The bar is the window's drag
- * region, so every control in it must be `no-drag`.
+/** Group configuration toolbar; empty pages retain only a transparent drag region.
+ * Controls are no-drag and return to this bar when the sidebar is closed.
  */
 export function PhilharmonicContentHeader({
   children,
   className,
   onCreateGroup,
-  compactWhenSidebarOpen = false
+  empty = false
 }: {
   children?: ReactNode
   className?: string
-  compactWhenSidebarOpen?: boolean
+  empty?: boolean
   /** New group, beside the toggle while the sidebar is away (as its top row has it). */
   onCreateGroup: () => void
 }) {
   const { open } = useSidebar()
   const isFullscreen = useIsFullscreen()
 
+  if (empty && open) {
+    return (
+      <div
+        aria-hidden
+        className="draggable absolute inset-x-0 top-0 z-10 h-6"
+      />
+    )
+  }
   return (
     <header
       className={cn(
-        'draggable bg-card/80 relative z-10 flex shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[height,padding] duration-200 ease-out',
-        compactWhenSidebarOpen && open ? 'h-6' : 'h-11',
-        'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
+        'draggable absolute inset-x-0 top-0 z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 transition-[padding] duration-200 ease-out',
+        empty ? 'bg-transparent' : 'bg-card/70 backdrop-blur-xl',
         open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23',
         className
       )}
@@ -63,25 +70,32 @@ const HeaderSlotContext = createContext<HTMLElement | null>(null)
 export function PhilharmonicSlottedHeader({
   children,
   onCreateGroup,
-  compactWhenSidebarOpen = false
+  empty = false
 }: {
   children: ReactNode
   onCreateGroup: () => void
-  compactWhenSidebarOpen?: boolean
+  empty?: boolean
 }) {
   const [slot, setSlot] = useState<HTMLElement | null>(null)
+  const { open } = useSidebar()
   return (
     <HeaderSlotContext.Provider value={slot}>
-      <PhilharmonicContentHeader
-        onCreateGroup={onCreateGroup}
-        compactWhenSidebarOpen={compactWhenSidebarOpen}
+      <div
+        className="relative flex min-h-0 flex-1 flex-col"
+        style={
+          {
+            '--philharmonic-header-inset': empty && open ? '0rem' : '2.75rem'
+          } as CSSProperties
+        }
       >
-        <div
-          ref={setSlot}
-          className="flex min-w-0 flex-1 items-center gap-2 self-stretch"
-        />
-      </PhilharmonicContentHeader>
-      {children}
+        <PhilharmonicContentHeader onCreateGroup={onCreateGroup} empty={empty}>
+          <div
+            ref={setSlot}
+            className="flex min-w-0 flex-1 items-center gap-2 self-stretch"
+          />
+        </PhilharmonicContentHeader>
+        {children}
+      </div>
     </HeaderSlotContext.Provider>
   )
 }

@@ -1,5 +1,8 @@
 import type { AgentCard } from '@actovia/shared/types/agents'
-import type { GroupQuestionStatus } from '@actovia/shared/types/philharmonic'
+import type {
+  GroupMention,
+  GroupQuestionStatus
+} from '@actovia/shared/types/philharmonic'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { memo, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,6 +28,7 @@ interface ArtifactPart {
 export interface BubbleModel {
   conversationId?: string
   messageId: string
+  mentions?: GroupMention[]
   // 'user' | 'pm' | 'employee' | 'system'
   role: string
   agentId?: string | null
@@ -139,6 +143,18 @@ function GroupMessageBubbleView({
           )}
         </div>
       )}
+      {user && Boolean(bubble.mentions?.length) && (
+        <div className="text-primary mb-2 flex flex-wrap justify-end gap-1 text-xs">
+          {bubble.mentions?.map((mention) => (
+            <span
+              key={mention.agentId}
+              className="bg-primary/10 rounded-full px-2 py-1"
+            >
+              @{agentsById[mention.agentId]?.name ?? mention.name}
+            </span>
+          ))}
+        </div>
+      )}
       {bubble.attachments?.length ? (
         <div className="mb-2 flex max-w-full flex-wrap justify-end gap-2">
           {bubble.attachments
@@ -226,6 +242,11 @@ function sameBubble(a: BubbleModel, b: BubbleModel): boolean {
     a.decision?.waits === b.decision?.waits &&
     a.question?.questionId === b.question?.questionId &&
     a.question?.status === b.question?.status &&
+    sameArray(
+      a.mentions,
+      b.mentions,
+      (x, y) => x.agentId === y.agentId && x.name === y.name
+    ) &&
     sameArray(a.question?.options, b.question?.options, (x, y) => x === y) &&
     sameArray(
       a.attachments,

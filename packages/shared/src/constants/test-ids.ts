@@ -117,6 +117,18 @@ export const TEST_IDS = {
     stopButton: 'computer-use.stop-button',
     continueButton: 'computer-use.continue-button'
   },
+  philharmonicControls: {
+    input: 'philharmonic-controls.input',
+    menu: 'philharmonic-controls.menu',
+    option: 'philharmonic-controls.option',
+    mention: 'philharmonic-controls.mention',
+    briefButton: 'philharmonic-controls.brief-button',
+    briefDialog: 'philharmonic-controls.brief-dialog',
+    briefInput: 'philharmonic-controls.brief-input',
+    briefSave: 'philharmonic-controls.brief-save',
+    briefReload: 'philharmonic-controls.brief-reload',
+    briefEdit: 'philharmonic-controls.brief-edit'
+  },
   philharmonicSettings: {
     maxRunning: 'philharmonic-settings.max-running',
     pmMaxToolCalls: 'philharmonic-settings.pm-max-tool-calls',
@@ -153,7 +165,7 @@ export const TEST_IDS = {
     /** One per page in the Settings sidebar; `data-tab` is its `SettingsLabel`. */
     navItem: 'settings.nav-item'
   },
-  artifacts: {
+  library: {
     page: 'artifacts.page',
     card: 'artifacts.card',
     /** A card's picture of its page: the sandbox frame, scaled down. */
@@ -165,7 +177,7 @@ export const TEST_IDS = {
     workspaceSwitcher: 'chat-layout.workspace-switcher',
     workspaceChat: 'chat-layout.workspace-chat',
     workspacePhilharmonic: 'chat-layout.workspace-philharmonic',
-    artifacts: 'chat-layout.artifacts',
+    library: 'chat-layout.artifacts',
     searchButton: 'chat-layout.search-button',
     newChat: 'chat-layout.new-chat',
     account: 'chat-layout.account',

@@ -516,5 +516,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Gruppenbefehle",
+    "mentionTitle": "Mitarbeitende erwähnen",
+    "noMatches": "Keine Treffer",
+    "staffDescription": "Aktive Mitarbeitende",
+    "mentionHint": "Der PM koordiniert die ausgewählten Mitarbeitenden.",
+    "removeMention": "@{{name}} entfernen",
+    "waitForPm": "Warte vor dem Verdichten auf das Ende der PM-Runde.",
+    "compacting": "Kontext wird verdichtet…",
+    "compacted": "Kontext verdichtet: ca. {{before}} → {{after}} Token",
+    "alreadyCompact": "Der aktuelle Kontext ist bereits kompakt.",
+    "compactFailed": "Verdichten fehlgeschlagen. Versuche es bei inaktivem PM erneut.",
+    "briefTitle": "Gruppenleitfaden",
+    "briefDescription": "AGENTS.md für PM und Mitarbeitende: Ziele, Vorgaben, Entscheidungen und Abnahmekriterien. Änderungen gelten ab der nächsten Runde oder Aufgabe.",
+    "briefEmpty": "Die erste Anfrage erstellt den Leitfaden. Du kannst ihn auch jetzt schreiben.",
+    "briefSaved": "Leitfaden gespeichert",
+    "briefSaveFailed": "Speichern fehlgeschlagen. Lade den möglicherweise geänderten Leitfaden neu.",
+    "reloadBrief": "Neu laden und Änderungen verwerfen",
+    "loading": "Wird geladen…",
+    "retry": "Erneut versuchen",
+    "saving": "Wird gespeichert…",
+    "save": "Speichern",
+    "edit": "Bearbeiten",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Kontext verdichten",
+        "description": "Ältere Nachrichten zusammenfassen; aktuelle und Leitfaden behalten."
+      },
+      "brief": {
+        "label": "Gruppenleitfaden",
+        "description": "AGENTS.md lesen oder bearbeiten."
+      },
+      "status": {
+        "label": "Status",
+        "description": "Kontext und Teamaktivität ansehen."
+      },
+      "archive": {
+        "label": "Ergebnisse",
+        "description": "Fertige Ergebnisse öffnen."
+      },
+      "stop": {
+        "label": "Stoppen",
+        "description": "PM und Mitarbeitende unterbrechen."
+      }
+    },
+    "compactionDisabled": "Aktiviere vor dem Verdichten die Kontextverwaltung unter Settings → Memory."
   }
 }

@@ -1,5 +1,6 @@
 import type { Settings } from '../db/schema'
 import { INTERACTIVE_BLOCKS_PROMPT } from './interactive-blocks-prompt'
+import { RESPONSE_FORMAT_PROMPT } from './response-format-prompt'
 
 export function buildPersonalityPrompt(settings: Settings): string {
   const p = settings.personality
@@ -202,14 +203,13 @@ WRONG (never do this — something inside the marker):
 
 ${INTERACTIVE_BLOCKS_PROMPT}
 
-<response_format>
-- **Length**: Match the complexity of the request. Short questions deserve short answers. Don't pad responses.
-- **Code**: Always use fenced code blocks with the correct language identifier. For standalone scripts or components, prefer complete, runnable code.
+${RESPONSE_FORMAT_PROMPT}
+
+<chat_format_details>
 - **Math**: Use KaTeX format enclosed in **$$** for mathematical formulas.
-- **Lists**: Use lists when presenting multiple discrete items; use prose when ideas flow naturally together.
 - **Citations**: Never put raw URLs in your response. Always use 【N-source】 markers after \`web_search\` / \`web_fetch\` calls (see citation_rules).
 - **Artifacts with media**: Raw image/video URLs returned by \`web_search\` media results may be used inside \`create_artifact\` code for <img>, <video>, or source links. This exception applies only inside artifact code, not normal prose responses.
-</response_format>
+</chat_format_details>
 `
 }
 

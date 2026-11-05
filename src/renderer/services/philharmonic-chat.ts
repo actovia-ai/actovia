@@ -1,5 +1,7 @@
 import type { Attachment } from '@actovia/shared/types/chat'
 import type {
+  GroupBrief,
+  GroupCompactResult,
   PlanDto,
   PmContextSnapshot
 } from '@actovia/shared/types/philharmonic'
@@ -56,12 +58,14 @@ export const getConversationMessages = (id: string, after?: string) =>
 export const sendConversationMessage = async (
   id: string,
   content: string,
-  attachments?: Attachment[]
+  attachments?: Attachment[],
+  mentionedAgentIds?: string[]
 ) =>
   fetcher<ConversationMessageData>(`${BASE}/conversations/${id}/messages`, {
     method: 'POST',
     body: {
       content,
+      mentionedAgentIds,
       attachments:
         attachments && attachments.length > 0 ? attachments : undefined
     } as never,
@@ -113,3 +117,26 @@ export const revealGroupArchive = async (id: string, path: string) =>
   })
 export const groupArchiveFileUrl = (id: string, path: string) =>
   `${BASE}/conversations/${id}/archive/file?path=${encodeURIComponent(path)}`
+
+export const getGroupBrief = (id: string) =>
+  fetcher<GroupBrief>(`${BASE}/conversations/${encodeURIComponent(id)}/brief`)
+export const saveGroupBrief = async (
+  id: string,
+  content: string,
+  revision: string
+) =>
+  fetcher<GroupBrief>(`${BASE}/conversations/${encodeURIComponent(id)}/brief`, {
+    method: 'PUT',
+    body: { content, revision } as never,
+    headers: await presenceHeaders()
+  })
+export const compactGroupContext = async (id: string) =>
+  fetcher<GroupCompactResult>(
+    `${BASE}/conversations/${encodeURIComponent(id)}/compact`,
+    {
+      method: 'POST',
+      timeout: 180000,
+      body: {} as never,
+      headers: await presenceHeaders()
+    }
+  )

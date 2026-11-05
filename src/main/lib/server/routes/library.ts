@@ -4,23 +4,23 @@ import { Hono } from 'hono'
 
 import { getArtifact, listArtifacts } from '../../ai/artifacts'
 import {
-  getArtifactCode,
-  listAllArtifacts,
+  getLibraryItemCode,
+  listLibraryItems,
   updateArtifactCodeByArtifactId
 } from '../../db/queries'
 import { Variables } from '../types'
 import { successResponse } from '../utils'
 
-const artifactsRouter = new Hono<{ Variables: Variables }>()
+const libraryRouter = new Hono<{ Variables: Variables }>()
 
-// Every artifact the chats made, newest first: the Artifacts page.
-artifactsRouter.get('/', async (c) => {
-  return successResponse(c, await listAllArtifacts())
+// Every artifact the chats made, newest first: the Library page.
+libraryRouter.get('/', async (c) => {
+  return successResponse(c, await listLibraryItems())
 })
 
-// One artifact's code from its row, for the Artifacts page's preview.
-artifactsRouter.get('/:chatId/:artifactId/code', async (c) => {
-  const result = await getArtifactCode(
+// One artifact's code from its row, for the Library page's preview.
+libraryRouter.get('/:chatId/:artifactId/code', async (c) => {
+  const result = await getLibraryItemCode(
     c.req.param('chatId'),
     c.req.param('artifactId')
   )
@@ -29,12 +29,12 @@ artifactsRouter.get('/:chatId/:artifactId/code', async (c) => {
   return successResponse(c, result)
 })
 
-artifactsRouter.get('/:chatId', async (c) => {
+libraryRouter.get('/:chatId', async (c) => {
   const chatId = c.req.param('chatId')
   return successResponse(c, listArtifacts(chatId))
 })
 
-artifactsRouter.get('/:chatId/:artifactId', async (c) => {
+libraryRouter.get('/:chatId/:artifactId', async (c) => {
   const chatId = c.req.param('chatId')
   const artifactId = c.req.param('artifactId')
   const result = getArtifact(chatId, artifactId)
@@ -46,7 +46,7 @@ artifactsRouter.get('/:chatId/:artifactId', async (c) => {
 // Re-sync a hand-edited .tsx file on disk back into the DB row the card
 // actually renders from. Useful after manually fixing an artifact (e.g.
 // converting hardcoded colors to theme tokens) without regenerating it.
-artifactsRouter.post('/:chatId/:artifactId/resync', async (c) => {
+libraryRouter.post('/:chatId/:artifactId/resync', async (c) => {
   const chatId = c.req.param('chatId')
   const artifactId = c.req.param('artifactId')
   const onDisk = getArtifact(chatId, artifactId)
@@ -68,4 +68,4 @@ artifactsRouter.post('/:chatId/:artifactId/resync', async (c) => {
   return successResponse(c, { updated, bytes: onDisk.code.length })
 })
 
-export default artifactsRouter
+export default libraryRouter

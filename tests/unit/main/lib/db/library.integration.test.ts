@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto'
 
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// ISSUE-237: the Artifacts page lists every artifact a chat made — read from
+// ISSUE-237: the Library page lists every artifact a chat made — read from
 // the create_artifact tool results, newest first, with the chat and run it
 // was made in so a click can open the chat there.
 vi.mock('electron', () => ({ app: { getPath: () => '/tmp' } }))
@@ -19,7 +19,7 @@ vi.mock('@main/lib/db/db', async () => {
 
 const { pglite, db } = await import('@main/lib/db/db')
 const { chat, message, deepResearch } = await import('@main/lib/db/schema')
-const { getArtifactCode, listAllArtifacts } =
+const { getLibraryItemCode, listLibraryItems } =
   await import('@main/lib/db/queries')
 
 afterAll(async () => {
@@ -63,7 +63,7 @@ async function addResult(
   return { id, runId, toolCallId: `call-${id}` }
 }
 
-describe('listAllArtifacts', () => {
+describe('listLibraryItems', () => {
   it('includes the latest Markdown write per path, with completed research reports', async () => {
     const a = await addChat('Research')
     await addResult(
@@ -101,7 +101,7 @@ describe('listAllArtifacts', () => {
       startTime: at(3),
       endTime: at(6)
     })
-    const rows = await listAllArtifacts()
+    const rows = await listLibraryItems()
     expect(rows).toHaveLength(2)
     expect(rows[0]).toMatchObject({
       kind: 'research',
@@ -132,7 +132,7 @@ describe('listAllArtifacts', () => {
       title: 'Q3 revenue'
     })
 
-    const rows = await listAllArtifacts()
+    const rows = await listLibraryItems()
     expect(rows).toEqual([
       {
         artifactId: 'art-2',
@@ -166,11 +166,11 @@ describe('listAllArtifacts', () => {
     )
     await addResult(a, 2, { results: [] }, { toolName: 'web_search' })
     await addResult(a, 3, null)
-    expect(await listAllArtifacts()).toEqual([])
+    expect(await listLibraryItems()).toEqual([])
   })
 })
 
-describe('getArtifactCode', () => {
+describe('getLibraryItemCode', () => {
   it('is the newest row’s code of that artifact in that chat', async () => {
     const a = await addChat('Trip planning')
     const b = await addChat('Other')
@@ -182,18 +182,18 @@ describe('getArtifactCode', () => {
       code: 'x'
     })
 
-    expect(await getArtifactCode(a, 'art-1')).toEqual({
+    expect(await getLibraryItemCode(a, 'art-1')).toEqual({
       title: 'Kyoto',
       code: 'v2'
     })
-    expect(await getArtifactCode(a, 'art-9')).toBeNull()
+    expect(await getLibraryItemCode(a, 'art-9')).toBeNull()
   })
 
   it('is null for a failed call or a result without code', async () => {
     const a = await addChat('Mixed')
     await addResult(a, 1, { artifactId: 'bad', code: 'x' }, { isError: true })
     await addResult(a, 2, { artifactId: 'empty', title: 'No code' })
-    expect(await getArtifactCode(a, 'bad')).toBeNull()
-    expect(await getArtifactCode(a, 'empty')).toBeNull()
+    expect(await getLibraryItemCode(a, 'bad')).toBeNull()
+    expect(await getLibraryItemCode(a, 'empty')).toBeNull()
   })
 })

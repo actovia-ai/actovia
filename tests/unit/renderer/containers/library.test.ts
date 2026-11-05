@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-// ISSUE-237: the Artifacts page lists every artifact, filters by title or
+// ISSUE-237: the Library page lists every artifact, filters by title or
 // chat, and a card opens its chat at the run that made it.
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { act, createElement } from 'react'
@@ -36,11 +36,11 @@ const items = [
     createdAt: '2026-10-14T00:01:00.000Z'
   }
 ]
-vi.mock('@/services/artifacts', () => ({
-  getAllArtifacts: vi.fn(async () => items)
+vi.mock('@/services/library', () => ({
+  getLibraryItems: vi.fn(async () => items)
 }))
 
-const { Artifacts } = await import('@/containers/artifacts')
+const { Library } = await import('@/containers/library')
 
 let seen: { pathname: string; state: unknown } | null = null
 function Where() {
@@ -53,13 +53,13 @@ async function render() {
   const { host } = await renderWithQueryClient(
     createElement(
       MemoryRouter,
-      { initialEntries: ['/artifacts'] },
+      { initialEntries: ['/library'] },
       createElement(
         Routes,
         null,
         createElement(Route, {
-          path: '/artifacts',
-          element: createElement(Artifacts)
+          path: '/library',
+          element: createElement(Library)
         }),
         createElement(Route, { path: '*', element: createElement(Where) })
       )
@@ -73,11 +73,11 @@ async function render() {
 
 const cards = (host: HTMLElement) => [
   ...host.querySelectorAll<HTMLButtonElement>(
-    `[data-testid="${TEST_IDS.artifacts.card}"]`
+    `[data-testid="${TEST_IDS.library.card}"]`
   )
 ]
 
-describe('Artifacts page', () => {
+describe('Library page', () => {
   it('lists them newest first', async () => {
     const host = await render()
     expect(cards(host).map((c) => c.textContent)).toEqual([
@@ -89,7 +89,7 @@ describe('Artifacts page', () => {
   it('filters by the chat’s title too', async () => {
     const host = await render()
     const input = host.querySelector<HTMLInputElement>(
-      `[data-testid="${TEST_IDS.artifacts.search}"]`
+      `[data-testid="${TEST_IDS.library.search}"]`
     )!
     await act(async () => {
       const set = Object.getOwnPropertyDescriptor(

@@ -735,6 +735,11 @@
     :scope :where(h4, h5, h6) {
       @apply mx-0 mt-[1.3em] mb-[0.4em] font-semibold;
     }
+    /* Saved replies can contain a long identifier/path in a heading. Keep
+       those readable in narrow windows without widening the whole message. */
+    :scope :where(h1, h2, h3, h4, h5, h6) {
+      overflow-wrap: anywhere;
+    }
     :scope :where(h1, h2, h3, h4, h5, h6):first-child {
       @apply mt-0;
     }
@@ -800,6 +805,7 @@
        mid-sentence. */
     :scope :where(code):not(:where(pre *)) {
       @apply bg-muted text-foreground rounded-[0.3125rem] px-[0.4em] py-[0.12em] text-[0.9em] font-medium;
+      overflow-wrap: anywhere;
     }
 
     /* Code blocks — bordered wrapper; SyntaxHighlighter supplies the bg.

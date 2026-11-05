@@ -318,7 +318,7 @@
     "nav": {
       "new": "Novo",
       "search": "Pesquisar",
-      "artifacts": "Artefatos",
+      "library": "Biblioteca",
       "scheduled": "Agendadas"
     },
     "account": {
@@ -532,12 +532,12 @@
     "openFailed": "Não foi possível abrir o arquivo",
     "revealFailed": "Não foi possível mostrar o arquivo"
   },
-  "artifacts": {
-    "title": "Artefatos",
+  "library": {
+    "title": "Biblioteca",
     "description": "Tudo o que suas conversas criaram. Abra um para voltar aonde ele foi feito.",
-    "searchPlaceholder": "Pesquisar artefatos",
-    "noMatches": "Nenhum artefato corresponde a “{{query}}”",
-    "emptyTitle": "Nenhum artefato ainda",
+    "searchPlaceholder": "Pesquisar na biblioteca",
+    "noMatches": "Nenhum item corresponde a “{{query}}”",
+    "emptyTitle": "Sua biblioteca está vazia",
     "emptyDescription": "Peça um gráfico, um painel ou um pequeno app em uma conversa e ele aparecerá aqui.",
     "untitled": "Sem título"
   },

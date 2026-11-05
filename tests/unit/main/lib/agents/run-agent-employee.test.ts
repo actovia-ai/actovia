@@ -253,7 +253,11 @@ describe('runAgentEmployee', () => {
       args({ instructions: 'Build a page', emit }),
       deps(run, starts)
     )
-    expect(run.sent).toEqual(['You review.\n\nBuild a page'])
+    const { RESPONSE_FORMAT_PROMPT } =
+      await import('@main/lib/ai/response-format-prompt')
+    expect(run.sent).toEqual([
+      `You review.\n\nBuild a page\n\n${RESPONSE_FORMAT_PROMPT}`
+    ])
     expect(starts[0]).toMatchObject({
       binPath: '/bin/claude',
       cwd: '/x/notes',

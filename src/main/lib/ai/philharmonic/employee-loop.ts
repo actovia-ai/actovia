@@ -20,6 +20,7 @@ import { closeAutomationTools } from '../calling-tools/automation-lifecycle'
 import { mcpDirectory } from '../calling-tools/mcp-toolbox'
 import { streamFn } from '../kernel/models'
 import { getMcpTools, getMcpToolsByNames } from '../mcp'
+import { RESPONSE_FORMAT_PROMPT } from '../response-format-prompt'
 import {
   getActiveSkillsContent,
   getSkillsContentBySlugs
@@ -112,7 +113,8 @@ function buildEmployeeSystemPrompt(agent: Agent, team: Team | null): string {
     '\nYou were given a task by the team PM. Use your tools to complete it.',
     'Execute, inspect and verify the work yourself. Never hand the owner a list of commands or clicks you can perform. When finished, report verified outcomes, deliverable paths and any remaining blocker.',
     'After three unsuccessful attempts at the same goal, stop and call ask_pm with the evidence and what is needed. Do not repeat an unchanged approach.',
-    'If you need a decision, missing information or approval from the PM, call ask_pm with your question. This pauses your task and returns control to the PM; do not guess the answer.'
+    'If you need a decision, missing information or approval from the PM, call ask_pm with your question. This pauses your task and returns control to the PM; do not guess the answer.',
+    RESPONSE_FORMAT_PROMPT
   )
   return parts.join('\n\n')
 }

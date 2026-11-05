@@ -318,7 +318,7 @@
     "nav": {
       "new": "Nuevo",
       "search": "Buscar",
-      "artifacts": "Artefactos",
+      "library": "Biblioteca",
       "scheduled": "Programadas"
     },
     "account": {
@@ -532,12 +532,12 @@
     "openFailed": "No se pudo abrir el archivo",
     "revealFailed": "No se pudo mostrar el archivo"
   },
-  "artifacts": {
-    "title": "Artefactos",
+  "library": {
+    "title": "Biblioteca",
     "description": "Todo lo que se ha creado en tus chats. Abre uno para volver a donde se hizo.",
-    "searchPlaceholder": "Buscar artefactos",
-    "noMatches": "Ningún artefacto coincide con «{{query}}»",
-    "emptyTitle": "Aún no hay artefactos",
+    "searchPlaceholder": "Buscar en la biblioteca",
+    "noMatches": "Ningún elemento coincide con «{{query}}»",
+    "emptyTitle": "Tu biblioteca está vacía",
     "emptyDescription": "Pide en un chat un gráfico, un panel o una pequeña app y aparecerá aquí.",
     "untitled": "Sin título"
   },

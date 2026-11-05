@@ -13,7 +13,7 @@ export const SEARCH_HIGHLIGHT = 'actovia-search-hit'
 
 /**
  * What the search dialog hands the chat page in the location's state. The
- * Artifacts page sends the same with no words and the card's `toolCallId`.
+ * Library page sends the same with no words and the card's `toolCallId`.
  */
 export interface SearchReveal {
   runId: string

@@ -318,7 +318,7 @@
     "nav": {
       "new": "New",
       "search": "Search",
-      "artifacts": "Artifacts",
+      "library": "Library",
       "scheduled": "Scheduled"
     },
     "account": {
@@ -532,12 +532,12 @@
     "openFailed": "Couldn't open the file",
     "revealFailed": "Couldn't show the file"
   },
-  "artifacts": {
-    "title": "Artifacts",
+  "library": {
+    "title": "Library",
     "description": "Everything your chats have built. Open one to go back to where it was made.",
-    "searchPlaceholder": "Search artifacts",
-    "noMatches": "No artifacts match “{{query}}”",
-    "emptyTitle": "No artifacts yet",
+    "searchPlaceholder": "Search library",
+    "noMatches": "No items match “{{query}}”",
+    "emptyTitle": "Your library is empty",
     "emptyDescription": "Ask for a chart, a dashboard or a small app in a chat, and it will appear here.",
     "untitled": "Untitled"
   },

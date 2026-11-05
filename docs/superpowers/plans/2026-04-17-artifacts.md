@@ -516,7 +516,7 @@ git commit -m "feat: add artifact card component with iframe sandbox rendering"
 **Files:**
 
 - Create: `src/main/lib/ai/artifacts.ts`
-- Create: `src/main/lib/server/routes/artifacts.ts`
+- Create: `src/main/lib/server/routes/library.ts`
 - Modify: `src/main/lib/server/app.ts` — register route
 - Modify: `src/main/lib/paths.ts` — add `getArtifactsDir()`
 - Modify: `src/main/lib/ai/calling-tools/create-artifact.ts` — persist on execute
@@ -612,21 +612,21 @@ export function listArtifacts(chatId: string): ArtifactMeta[] {
 - [ ] **Step 3: Create artifacts API route**
 
 ```ts
-// src/main/lib/server/routes/artifacts.ts
+// src/main/lib/server/routes/library.ts
 import { Variables } from '@shared/types/server'
 import { Hono } from 'hono'
 
 import { getArtifact, listArtifacts } from '../../ai/artifacts'
 import { successResponse } from '../utils'
 
-const artifactsRouter = new Hono<{ Variables: Variables }>()
+const libraryRouter = new Hono<{ Variables: Variables }>()
 
-artifactsRouter.get('/:chatId', async (c) => {
+libraryRouter.get('/:chatId', async (c) => {
   const chatId = c.req.param('chatId')
   return successResponse(c, listArtifacts(chatId))
 })
 
-artifactsRouter.get('/:chatId/:artifactId', async (c) => {
+libraryRouter.get('/:chatId/:artifactId', async (c) => {
   const chatId = c.req.param('chatId')
   const artifactId = c.req.param('artifactId')
   const result = getArtifact(chatId, artifactId)
@@ -634,7 +634,7 @@ artifactsRouter.get('/:chatId/:artifactId', async (c) => {
   return successResponse(c, result)
 })
 
-export default artifactsRouter
+export default libraryRouter
 ```
 
 - [ ] **Step 4: Register route in app.ts**
@@ -642,9 +642,9 @@ export default artifactsRouter
 In `src/main/lib/server/app.ts`, add:
 
 ```ts
-import artifactsRouter from './routes/artifacts'
+import libraryRouter from './routes/library'
 // In routes section:
-app.route('/api/artifacts', artifactsRouter)
+app.route('/api/artifacts', libraryRouter)
 ```
 
 - [ ] **Step 5: Update createArtifact tool to persist**
@@ -687,7 +687,7 @@ Expected: PASS
 
 ```bash
 git add src/main/lib/ai/artifacts.ts \
-  src/main/lib/server/routes/artifacts.ts \
+  src/main/lib/server/routes/library.ts \
   src/main/lib/server/app.ts \
   src/main/lib/paths.ts \
   src/main/lib/ai/calling-tools/create-artifact.ts

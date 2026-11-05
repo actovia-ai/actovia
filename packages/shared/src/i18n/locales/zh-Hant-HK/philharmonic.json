@@ -512,5 +512,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "群組命令",
+    "mentionTitle": "提及員工",
+    "noMatches": "沒有符合的項目",
+    "staffDescription": "可用員工",
+    "mentionHint": "PM 會結合計畫協調你指定的員工。",
+    "removeMention": "移除 @{{name}}",
+    "waitForPm": "請等目前 PM 輪次結束後再壓縮。",
+    "compacting": "正在壓縮上下文…",
+    "compacted": "上下文已壓縮：約 {{before}} → {{after}} tokens",
+    "alreadyCompact": "近期上下文已足夠精簡。",
+    "compactFailed": "壓縮失敗，請在 PM 空閒時重試。",
+    "briefTitle": "會話綱領",
+    "briefDescription": "PM 和員工共用的 AGENTS.md，用於保存目標、約束、決策和驗收標準。修改從新輪次和新任務生效。",
+    "briefEmpty": "首次請求會自動建立綱領，也可以現在編寫。",
+    "briefSaved": "會話綱領已儲存",
+    "briefSaveFailed": "儲存失敗，綱領可能已更新，請重新載入後再試。",
+    "reloadBrief": "重新載入並放棄編輯",
+    "loading": "正在載入…",
+    "retry": "重試",
+    "saving": "正在儲存…",
+    "save": "儲存",
+    "edit": "編輯",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "壓縮上下文",
+        "description": "摘要較早的訊息，保留近期訊息和會話綱領。"
+      },
+      "brief": {
+        "label": "會話綱領",
+        "description": "查看或編輯群組的 AGENTS.md。"
+      },
+      "status": {
+        "label": "執行狀態",
+        "description": "查看上下文和團隊動態。"
+      },
+      "archive": {
+        "label": "歸檔產物",
+        "description": "開啟已完成的交付物。"
+      },
+      "stop": {
+        "label": "停止",
+        "description": "中斷 PM 和員工任務。"
+      }
+    },
+    "compactionDisabled": "請先在 Settings → Memory 啟用上下文管理，再進行壓縮。"
   }
 }

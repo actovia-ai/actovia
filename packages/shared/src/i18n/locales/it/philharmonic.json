@@ -516,5 +516,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Comandi del gruppo",
+    "mentionTitle": "Menziona un dipendente",
+    "noMatches": "Nessun risultato",
+    "staffDescription": "Dipendente attivo",
+    "mentionHint": "Il PM coordina la richiesta con i dipendenti selezionati.",
+    "removeMention": "Rimuovi @{{name}}",
+    "waitForPm": "Attendi la fine del turno del PM prima di compattare.",
+    "compacting": "Compattazione del contesto…",
+    "compacted": "Contesto compattato: ~{{before}} → ~{{after}} token",
+    "alreadyCompact": "Il contesto recente è già compatto.",
+    "compactFailed": "Compattazione non riuscita. Riprova quando il PM è libero.",
+    "briefTitle": "Linee guida del gruppo",
+    "briefDescription": "Un AGENTS.md condiviso con PM e dipendenti: obiettivi, vincoli, decisioni e criteri di accettazione. Le modifiche valgono dai prossimi turni e attività.",
+    "briefEmpty": "La prima richiesta crea le linee guida. Puoi anche scriverle ora.",
+    "briefSaved": "Linee guida salvate",
+    "briefSaveFailed": "Salvataggio non riuscito. Le linee guida potrebbero essere cambiate: ricaricale.",
+    "reloadBrief": "Ricarica e scarta le modifiche",
+    "loading": "Caricamento…",
+    "retry": "Riprova",
+    "saving": "Salvataggio…",
+    "save": "Salva",
+    "edit": "Modifica",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Compatta il contesto",
+        "description": "Riassumi i messaggi precedenti; conserva quelli recenti e le linee guida."
+      },
+      "brief": {
+        "label": "Linee guida",
+        "description": "Leggi o modifica AGENTS.md."
+      },
+      "status": {
+        "label": "Stato",
+        "description": "Esamina contesto e attività del team."
+      },
+      "archive": {
+        "label": "Risultati",
+        "description": "Apri i risultati completati."
+      },
+      "stop": {
+        "label": "Interrompi",
+        "description": "Interrompi PM e dipendenti."
+      }
+    },
+    "compactionDisabled": "Attiva la gestione del contesto in Settings → Memory prima di compattare."
   }
 }

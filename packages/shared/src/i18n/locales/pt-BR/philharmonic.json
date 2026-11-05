@@ -516,5 +516,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Comandos do grupo",
+    "mentionTitle": "Mencionar funcionário",
+    "noMatches": "Nenhum resultado",
+    "staffDescription": "Funcionário ativo",
+    "mentionHint": "O PM coordena a solicitação com os funcionários selecionados.",
+    "removeMention": "Remover @{{name}}",
+    "waitForPm": "Aguarde o fim da rodada do PM para compactar.",
+    "compacting": "Compactando contexto…",
+    "compacted": "Contexto compactado: ~{{before}} → ~{{after}} tokens",
+    "alreadyCompact": "O contexto recente já está compacto.",
+    "compactFailed": "Não foi possível compactar. Tente quando o PM estiver livre.",
+    "briefTitle": "Diretrizes do grupo",
+    "briefDescription": "Um AGENTS.md compartilhado com PM e funcionários: objetivos, restrições, decisões e critérios de aceitação. As mudanças valem para novas rodadas e tarefas.",
+    "briefEmpty": "A primeira solicitação cria as diretrizes. Você também pode escrevê-las agora.",
+    "briefSaved": "Diretrizes salvas",
+    "briefSaveFailed": "Não foi possível salvar. As diretrizes podem ter mudado; recarregue.",
+    "reloadBrief": "Recarregar e descartar alterações",
+    "loading": "Carregando…",
+    "retry": "Tentar novamente",
+    "saving": "Salvando…",
+    "save": "Salvar",
+    "edit": "Editar",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Compactar contexto",
+        "description": "Resumir mensagens antigas; manter as recentes e as diretrizes."
+      },
+      "brief": {
+        "label": "Diretrizes do grupo",
+        "description": "Ler ou editar AGENTS.md."
+      },
+      "status": {
+        "label": "Status",
+        "description": "Ver contexto e atividade da equipe."
+      },
+      "archive": {
+        "label": "Entregas",
+        "description": "Abrir entregas concluídas."
+      },
+      "stop": {
+        "label": "Parar",
+        "description": "Interromper PM e funcionários."
+      }
+    },
+    "compactionDisabled": "Ative o gerenciamento de contexto em Settings → Memory antes de compactar."
   }
 }

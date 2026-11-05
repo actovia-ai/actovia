@@ -306,7 +306,7 @@
     "nav": {
       "new": "새로 만들기",
       "search": "검색",
-      "artifacts": "아티팩트",
+      "library": "라이브러리",
       "scheduled": "예약된 작업"
     },
     "account": {
@@ -514,12 +514,12 @@
     "openFailed": "파일을 열 수 없음",
     "revealFailed": "파일을 표시할 수 없음"
   },
-  "artifacts": {
-    "title": "아티팩트",
+  "library": {
+    "title": "라이브러리",
     "description": "채팅에서 만든 모든 것입니다. 열면 만든 곳으로 돌아갑니다.",
-    "searchPlaceholder": "아티팩트 검색",
-    "noMatches": "“{{query}}”와 일치하는 아티팩트가 없습니다",
-    "emptyTitle": "아직 아티팩트가 없습니다",
+    "searchPlaceholder": "라이브러리 검색",
+    "noMatches": "“{{query}}”와 일치하는 항목이 없습니다",
+    "emptyTitle": "라이브러리가 비어 있습니다",
     "emptyDescription": "채팅에서 차트, 대시보드, 작은 앱을 요청하면 여기에 나타납니다.",
     "untitled": "제목 없음"
   },

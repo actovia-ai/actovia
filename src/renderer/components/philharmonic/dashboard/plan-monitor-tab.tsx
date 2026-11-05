@@ -173,7 +173,7 @@ export function PlanMonitorTab({
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto w-full max-w-5xl px-6 pt-7 pb-10">
+      <div className="mx-auto w-full max-w-5xl px-6 pt-[calc(1.75rem+var(--philharmonic-header-inset,0rem))] pb-10">
         <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
           <div className="min-w-0">
             <h1 className="text-foreground text-xl font-semibold tracking-tight">

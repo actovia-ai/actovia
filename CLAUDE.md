@@ -498,7 +498,7 @@ The main process runs a **Hono HTTP server** that handles all business logic:
 
 Every business endpoint is mounted on one versioned sub-app (`app.route('/api/v1', v1)`), so the public paths are `/api/v1/<route>`; the lock/trace/settings middlewares still match `/api/*`. A breaking API change ships as a new `/api/v2` sub-app beside v1 rather than mutating v1 in place. Any client of this backend (the renderer, `tests/api`, `actovia-ios`) must address `/api/v1/...`.
 
-`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/artifacts`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/projects`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart`, `/install-update` (the update the app has downloaded, `409 UPDATE_NOT_READY` otherwise — `actovia app update` hands off to it rather than swapping the bundle under Squirrel) sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
+`/api/v1/chat`, `/api/v1/lcm`, `/api/v1/history`, `/api/v1/knowledge-base`, `/api/v1/settings`, `/api/v1/skills`, `/api/v1/audio`, `/api/v1/db-io`, `/api/v1/deep-research`, `/api/v1/discover`, `/api/v1/tools`, `/api/v1/philharmonic`, `/api/v1/s3`, `/api/v1/mcp`, `/api/v1/memory`, `/api/v1/usage`, `/api/v1/logs`, `/api/v1/backup`, `/api/v1/library`, `/api/v1/media`, `/api/v1/maps`, `/api/v1/computer-use`, `/api/v1/analytics`, `/api/v1/pair`, `/api/v1/devices`, `/api/v1/workspace`, `/api/v1/projects`, `/api/v1/host` (loopback only, for the CLI: `GET /status` is mounted directly on `app` ahead of the lock gate so a locked app still answers it — version, lock state, LAN, device and re-entry counts, the updater's state; `POST /lock`, `/quit`, `/restart`, `/install-update` (the update the app has downloaded, `409 UPDATE_NOT_READY` otherwise — `actovia app update` hands off to it rather than swapping the bundle under Squirrel) sit in v1 behind the presence gate, which a CLI pass opens), `/api/v1/lock` (mounted directly on `app`, ahead of the lock gate — see App Lock).
 
 The desktop-only `POST /api/v1/projects/conversations/:id/reveal-folder` reveals the Group's bound project folder in the system file manager; it is a write route and requires the window's presence token.
 
@@ -1385,7 +1385,7 @@ Compacts long conversations without losing information, surfacing summaries the 
   when it counted messages). Philharmonic's own LCM keeps a fixed 16-message
   tail
 
-### Sidebar, Artifacts and the account menu
+### Sidebar, Library and the account menu
 
 The chat sidebar (`layouts/chat-layout/app-sidebar.tsx`, `SIDEBAR_WIDTH` in
 `layouts/shared/resizable-sidebar.tsx`), Philharmonic's and Settings' are
@@ -1395,14 +1395,14 @@ title row is `components/app/workspace-switcher.tsx`, the sidebar's title:
 the surface on show (Chat / Philharmonic) and a chevron, a shadcn
 `DropdownMenu` listing both with a line on what each is for and a check on
 the one on show — ChatGPT's ChatGPT / Codex menu (owner, 2026-10-28, back
-from ISSUE-237/266's icon tabs). Under it: New, Search, and **Artifacts**
-(`/artifacts`, `containers/artifacts.tsx`): interactive artifacts, the latest
+from ISSUE-237/266's icon tabs). Under it: New, Search, and **Library**
+(`/library`, `containers/library.tsx`): interactive artifacts, the latest
 successful Markdown write/edit per chat and path, and completed Deep Research
-reports, newest first, from `GET /api/v1/artifacts` (`listAllArtifacts()`
-in `db/queries.ts`, no code; `ArtifactListItem` in
-`@actovia/shared/types/artifact-list`; optional `kind` distinguishes file and
+reports, newest first, from `GET /api/v1/library` (`listLibraryItems()`
+in `db/queries.ts`, no code; `LibraryItem` in
+`@actovia/shared/types/library`; optional `kind` distinguishes file and
 research reports from older interactive items). Report cards use
-`components/artifacts/report-preview.tsx` and open the actual Markdown or
+`components/library/report-preview.tsx` and open the actual Markdown or
 research report directly; workspace reads retain main's file guard. An
 IPC file action accepts a path under either the chat workspace root or the
 Group workspace root, resolving symlinks against the selected root before
@@ -1412,10 +1412,10 @@ that drew it, through the same `SearchReveal` state Search chats uses (its
 `toolCallId`; the chat's card carries `data-artifact-call`, and
 `revealTarget()` lands on it — after a long answer the run's top is a window
 or more above it, ISSUE-265). A card draws its page
-(`components/artifacts/artifact-preview.tsx`): the chat card's sandbox
+(`components/library/library-preview.tsx`): the chat card's sandbox
 (`calling-tools/artifact/sandbox-frame.ts`) laid out at 1280 × 720 and scaled
-down, with the code from `GET /api/v1/artifacts/:chatId/:artifactId/code`
-(`getArtifactCode()`, the row the chat's card renders), mounted only while the
+down, with the code from `GET /api/v1/library/:chatId/:artifactId/code`
+(`getLibraryItemCode()`, the row the chat's card renders), mounted only while the
 card is within 400 px of the screen (`hooks/use-in-view.ts`) and out of reach —
 no pointer, no focus, `aria-hidden`; the card's title button covers the card
 (a frame may not sit inside a button). The account
@@ -2641,3 +2641,47 @@ Docs:
 - `docs/lightrag-setup.md` — end-user guide for running the self-hosted
   LightRAG server that backs the optional knowledge base (Actovia is a
   client only, see `src/main/lib/knowledge-base/`)
+
+Library naming: the collection page, query keys, service and API use Library (`/library`, `/api/v1/library`, `LibraryItem`). The collection has no legacy `/artifacts` page or `/api/v1/artifacts` alias. Artifact generation (`create_artifact`), persisted artifact IDs, storage and sandbox origins remain artifact runtime concepts. Test-id property names use Library while existing literal values stay stable for automation compatibility. iOS has no Library collection page; its artifact renderer still uses the existing sandbox protocol.
+
+Human-facing Chat and Philharmonic replies share `ai/response-format-prompt.ts`:
+paragraphs, headings, lists, tables, emphasis and code follow one writing policy.
+PM/API employees receive it in their system prompt; CLI employees receive it in
+their task payload without replacing the CLI's own system instructions. Dedicated
+JSON-producing and compaction prompts keep their contracts. The homepage's
+Built-in Prompts catalogue is generated from source by
+`scripts/export-built-in-prompts.mjs`, using `scripts/built-in-prompts.json`;
+run the exporter and its `--check` mode when changing a documented prompt.
+
+Chat layout: only `/chat/:id` has the material toolbar, overlaid on the transcript. The inherited `--chat-header-inset` supplies its 44px clearance inside the message scroll area so messages can pass behind the blur. Home, Library and Scheduled use an invisible top drag region while the sidebar is open; closing it restores the navigation controls in a transparent bar.
+
+Philharmonic follows the same header rules: Group chat and Workforce toolbars overlay scrollable content with frosted material, without gradient strips. Dashboard and the no-group page have no header while the sidebar is open, retaining a transparent drag region. The pinned group plan stays below its 44px toolbar; configuration scroll padding uses `--philharmonic-header-inset` when navigation controls are needed.
+
+### Group controls (ISSUE-367)
+
+Philharmonic's composer has a caret-aware `/` command palette (`lib/group-composer.ts`)
+with `/compact`, `/brief`, `/status`, `/archive` and `/stop`, and active-staff `@`
+autocomplete. Commands are opened by typing `/`; there is no separate slash
+button or persistent shortcut hint. Usage is documented in the homepage
+repository’s `content/docs/agents/philharmonic.mdx`. Mention selections are ID-backed chips, sent as `mentionedAgentIds`,
+validated against active employees, saved as `mention` message parts and supplied
+separately to PM turns, steering, historical context and compaction. PM scheduling,
+plan review and concurrency limits still apply. IME Enter selects composition text;
+Arrow keys, Enter/Tab and Escape operate the palette. Failed sends retain the draft
+and selected staff; switching Groups resets the composer's local state.
+
+Each Group owns `groups/<id>/AGENTS.md` under Actovia's metadata root, separate from
+any bound project's AGENTS.md/CLAUDE.md. `ai/philharmonic/group-brief.ts` seeds it from
+the first request and serializes atomic, revision-checked saves. `/brief` and the
+composer's AGENTS.md button open a preview/editor. PMs maintain it with
+`update_group_brief`; PM/API employee workspace prompts and CLI employee requests
+all receive the current brief. Goal, constraints, decisions and acceptance criteria
+are durable instructions, never part of the rolling transcript summary.
+
+`routes/philharmonic-controls.ts` provides `GET/PUT /conversations/:id/brief` and
+`POST /conversations/:id/compact` under `/api/v1/philharmonic`. Mutations require
+presence on loopback. Brief conflicts return 409; the editor preserves unsaved
+text. Manual compaction requires enabled context management and an idle PM, runs
+through the Group's exclusive queue, keeps six recent messages and reports token
+estimates. It honors Stop and never replaces a summary on failure, cancellation or
+when the result would increase context size. The transcript is retained in full.

@@ -334,7 +334,7 @@ test('Group Monitor shows context, activity and registered Archive deliveries', 
   await expect(mainWindow.getByRole('tab', { name: 'Schedule' })).toHaveCount(0)
 })
 
-test('Artifacts includes a Markdown report and opens it directly', async ({
+test('Library includes a Markdown report and opens it directly', async ({
   mainWindow
 }) => {
   const path = join(
@@ -349,7 +349,7 @@ test('Artifacts includes a Markdown report and opens it directly', async ({
     path,
     '# Research findings\n\nA report saved from the conversation.\n'
   )
-  await mainWindow.route('**/api/v1/artifacts', (route) =>
+  await mainWindow.route('**/api/v1/library', (route) =>
     route.fulfill({
       json: [
         {
@@ -366,8 +366,8 @@ test('Artifacts includes a Markdown report and opens it directly', async ({
       ]
     })
   )
-  await mainWindow.getByTestId(TEST_IDS.chatLayout.artifacts).click()
-  await mainWindow.getByTestId(TEST_IDS.artifacts.card).click()
+  await mainWindow.getByTestId(TEST_IDS.chatLayout.library).click()
+  await mainWindow.getByTestId(TEST_IDS.library.card).click()
   await expect(
     mainWindow
       .getByTestId(TEST_IDS.chat.workspaceFile.preview)

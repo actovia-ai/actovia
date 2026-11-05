@@ -306,7 +306,7 @@
     "nav": {
       "new": "新建",
       "search": "搜索",
-      "artifacts": "Artifacts",
+      "library": "资料库",
       "scheduled": "定时任务"
     },
     "account": {
@@ -514,12 +514,12 @@
     "openFailed": "无法打开文件",
     "revealFailed": "无法显示文件"
   },
-  "artifacts": {
-    "title": "Artifacts",
-    "description": "聊天中生成的所有 Artifact。点开即可回到生成它的位置。",
-    "searchPlaceholder": "搜索 Artifact",
-    "noMatches": "没有与“{{query}}”匹配的 Artifact",
-    "emptyTitle": "还没有 Artifact",
+  "library": {
+    "title": "资料库",
+    "description": "聊天中生成的内容汇集于此。打开内容即可回到生成它的位置。",
+    "searchPlaceholder": "搜索资料库",
+    "noMatches": "没有与“{{query}}”匹配的内容",
+    "emptyTitle": "资料库为空",
     "emptyDescription": "在聊天里让它做一张图表、一个看板或一个小应用，就会出现在这里。",
     "untitled": "未命名"
   },

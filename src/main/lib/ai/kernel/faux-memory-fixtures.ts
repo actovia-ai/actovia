@@ -55,7 +55,7 @@ export const COMPARE_QUESTION = 'Give me your take on tabs versus spaces.'
 export const compareAnswer = (take: number) =>
   `Take ${take}: it depends on the team.`
 
-/** The Artifacts e2e's question (`tests/e2e/artifacts.spec.ts`): answered
+/** The Library e2e's question (`tests/e2e/library.spec.ts`): answered
  *  with a long answer, then a `create_artifact` call — the card sits far
  *  below its run's top, where the reveal used to land (ISSUE-265). */
 export const ARTIFACT_QUESTION = 'Make me a page that says hello.'

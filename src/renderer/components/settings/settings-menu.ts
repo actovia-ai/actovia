@@ -17,7 +17,8 @@ import {
   CompassIcon,
   MonitorSmartphoneIcon,
   SparklesIcon,
-  BrainCircuitIcon
+  BrainCircuitIcon,
+  MusicNote01Icon
 } from '@hugeicons/core-free-icons'
 import type { ParseKeys } from 'i18next'
 
@@ -126,7 +127,7 @@ export const menus = {
           icon: MousePointer2,
           experimental: true
         },
-        { title: SettingsLabel.Philharmonic, icon: BrainCircuitIcon },
+        { title: SettingsLabel.Philharmonic, icon: MusicNote01Icon },
         { title: SettingsLabel.McpServers, icon: HammerIcon },
         { title: SettingsLabel.SkillsMarket, icon: ShoppingBagIcon },
         { title: SettingsLabel.Devices, icon: MonitorSmartphoneIcon }

@@ -10,6 +10,8 @@ import { CLI_NAMES } from '@actovia/shared/types/agents'
 import { v4 as uuidV4 } from 'uuid'
 
 import type { SseEmitter } from '../ai/philharmonic/employee-loop'
+import { groupBriefPrompt } from '../ai/philharmonic/group-brief'
+import { RESPONSE_FORMAT_PROMPT } from '../ai/response-format-prompt'
 import {
   createAgentSession,
   findResumableSession,
@@ -367,9 +369,13 @@ export async function runAgentEmployee(
       const liveRun = run
       const owner = {}
       stepOwner.set(liveRun, owner)
-      const prompt = agent.systemPrompt?.trim()
-        ? `${agent.systemPrompt.trim()}\n\n${instructions}`
-        : instructions
+      const brief = await groupBriefPrompt(conversationId)
+      const taskPrompt = agent.systemPrompt?.trim()
+        ? `${agent.systemPrompt.trim()}\n\n${instructions}${brief}`
+        : `${instructions}${brief}`
+      // CLIs own their system prompt; pass the same report defaults as task
+      // guidance, without replacing their tool/permission instructions.
+      const prompt = `${taskPrompt}\n\n${RESPONSE_FORMAT_PROMPT}`
 
       const result = new Promise<void>((resolve, reject) => {
         const off = liveRun.on((e) => {

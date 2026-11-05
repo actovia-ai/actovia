@@ -61,7 +61,7 @@ describe('isSearchReveal', () => {
     expect(isSearchReveal(null)).toBe(false)
   })
 
-  it('takes the Artifacts page’s card id, and nothing else in its place', () => {
+  it('takes the Library page’s card id, and nothing else in its place', () => {
     const base = { runId: 'r', role: 'assistant', words: [] }
     expect(isSearchReveal({ ...base, toolCallId: 'call-1' })).toBe(true)
     expect(isSearchReveal({ ...base, toolCallId: 7 })).toBe(false)

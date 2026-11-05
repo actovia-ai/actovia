@@ -14,7 +14,7 @@ export interface ArtifactMeta {
 /**
  * `<artifacts>/<chatId>`, or null when `chatId` / `artifactId` would climb out
  * of it. Both reach this module straight from URL params
- * (`/api/v1/artifacts/:chatId/:artifactId`, where `..%2F` decodes to `../`), so
+ * (`/api/v1/library/:chatId/:artifactId`, where `..%2F` decodes to `../`), so
  * without the check the route read any `.tsx` / `.json` on disk and `mkdir`ed
  * wherever it was pointed. Same rule as the `reveal-artifact-file` IPC.
  */

@@ -21,7 +21,6 @@ import {
 import agentsRouter from './routes/agents'
 import analyticsRouter from './routes/analytics'
 import artifactSandboxRouter from './routes/artifact-sandbox'
-import artifactsRouter from './routes/artifacts'
 import audioRouter from './routes/audio'
 import backupRouter from './routes/backup'
 import chatRouter from './routes/chat'
@@ -36,6 +35,7 @@ import historyRouter from './routes/history'
 import { hostRouter, hostStatusRouter } from './routes/host'
 import knowledgeBaseRouter from './routes/knowledge-base'
 import lcmStatusRouter from './routes/lcm-status'
+import libraryRouter from './routes/library'
 import lockRouter from './routes/lock'
 import logsRouter from './routes/logs'
 import mapsRouter from './routes/maps'
@@ -144,9 +144,9 @@ export function createApp() {
   v1.route('/logs', logsRouter)
   v1.route('/backup', backupRouter)
   v1.route('/host', hostRouter)
-  // Ahead of `/artifacts/:chatId/:artifactId`, which would take `sandbox/x`.
+  // Artifact execution is separate from the Library collection API.
   v1.route('/artifacts/sandbox', artifactSandboxRouter)
-  v1.route('/artifacts', artifactsRouter)
+  v1.route('/library', libraryRouter)
   v1.route('/media', mediaRouter)
   v1.route('/maps', mapsRouter)
   v1.route('/analytics', analyticsRouter)

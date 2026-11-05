@@ -2,7 +2,7 @@ import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   PlusIcon,
   SearchIcon,
-  SparklesIcon,
+  LibraryBigIcon,
   Clock01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -82,12 +82,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              data-testid={TEST_IDS.chatLayout.artifacts}
-              isActive={pathname === '/artifacts'}
-              onClick={() => navigate('/artifacts')}
+              data-testid={TEST_IDS.chatLayout.library}
+              isActive={pathname === '/library'}
+              onClick={() => navigate('/library')}
             >
-              <HugeiconsIcon icon={SparklesIcon} />
-              <span>{t('sidebar.nav.artifacts')}</span>
+              <HugeiconsIcon icon={LibraryBigIcon} />
+              <span>{t('sidebar.nav.library')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

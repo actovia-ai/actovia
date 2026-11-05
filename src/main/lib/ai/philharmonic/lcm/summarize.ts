@@ -1,3 +1,7 @@
+import {
+  withGroupMentions,
+  type GroupMention
+} from '@actovia/shared/types/philharmonic'
 // src/main/lib/ai/philharmonic/lcm/summarize.ts
 import type { Message, Model } from '@earendil-works/pi-ai'
 
@@ -11,7 +15,7 @@ Your job: produce a SINGLE paragraph (3–8 sentences) that captures everything 
 - The user's running ask and any constraints they've stated
 - Concrete decisions already made (designs chosen, employees recruited, files produced)
 - Open threads / unresolved questions
-- Any explicit instructions or preferences the user gave
+- Any explicit instructions or preferences the user gave, including directed employee names and IDs
 
 Do NOT speculate or restate generic process. Do NOT use lists. Output only the paragraph — no preamble, no headers, no closing remarks.`
 
@@ -27,6 +31,7 @@ export async function summarizeMessages(args: {
   agents?: Map<string, LabelledAgent>
   model: Model<string>
   apiKey: string
+  signal?: AbortSignal
 }): Promise<string> {
   const transcript = formatTranscript(
     args.messages,
@@ -44,7 +49,7 @@ export async function summarizeMessages(args: {
       systemPrompt: SYSTEM_PROMPT,
       messages: [promptMessage]
     },
-    { apiKey: args.apiKey }
+    { apiKey: args.apiKey, ...(args.signal ? { signal: args.signal } : {}) }
   )
   const summary = result.content
     .filter((c): c is { type: 'text'; text: string } => c.type === 'text')
@@ -83,7 +88,18 @@ function formatTranscript(
   lines.push('Transcript to summarize:')
   for (const m of messages) {
     const label = roleLabel(m, agents)
-    const text = m.content.replace(/\s+/g, ' ').trim()
+    const mentions = (m.parts ?? []).filter(
+      (p) =>
+        p.kind === 'mention' &&
+        typeof p.agentId === 'string' &&
+        typeof p.name === 'string'
+    ) as unknown as GroupMention[]
+    const text = withGroupMentions(
+      m.content,
+      m.role === 'user' ? mentions : undefined
+    )
+      .replace(/\s+/g, ' ')
+      .trim()
     if (text.length === 0) continue
     lines.push(`- ${label}: ${text}`)
   }

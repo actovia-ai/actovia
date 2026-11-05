@@ -266,3 +266,51 @@ describe('trackAndCompact', () => {
     expect(upsertSessionSummary).not.toHaveBeenCalled()
   })
 })
+
+describe('owner-requested compaction', () => {
+  const prepare = () => {
+    getMessagesByConversationId.mockResolvedValue(
+      Array.from({ length: 10 }, (_, i) =>
+        makeMessage({ id: `m${i}`, content: 'x'.repeat(100) })
+      )
+    )
+    getSessionSummary.mockResolvedValue(null)
+    summarizeMessages.mockResolvedValue('A short summary')
+    return new PhilharmonicLcm('manual', fakeModel, 'k', {
+      contextWindow: 128000,
+      freshTailSize: 3
+    })
+  }
+  it('compacts below the automatic threshold while keeping the recent tail', async () => {
+    const result = await prepare().compactNow()
+    expect(result).toMatchObject({
+      compacted: true,
+      beforeTokens: 1000,
+      absorbedMessages: 7
+    })
+    expect(result.afterTokens).toBeLessThan(result.beforeTokens)
+    expect(upsertSessionSummary.mock.calls[0][0]).toMatchObject({
+      coversThroughMessageId: 'm6'
+    })
+  })
+  it('reports failure without replacing a usable summary', async () => {
+    const lcm = prepare()
+    summarizeMessages.mockRejectedValue(new Error('Unavailable'))
+    await expect(lcm.compactNow()).rejects.toThrow('Unavailable')
+    expect(upsertSessionSummary).not.toHaveBeenCalled()
+  })
+  it('does not install a summary that makes the context larger', async () => {
+    const lcm = prepare()
+    summarizeMessages.mockResolvedValue('long'.repeat(1000))
+    expect((await lcm.compactNow()).compacted).toBe(false)
+    expect(upsertSessionSummary).not.toHaveBeenCalled()
+  })
+  it('honors cancellation before modifying stored context', async () => {
+    const lcm = prepare()
+    const controller = new AbortController()
+    controller.abort()
+    await expect(lcm.compactNow(controller.signal)).rejects.toThrow()
+    expect(summarizeMessages).not.toHaveBeenCalled()
+    expect(upsertSessionSummary).not.toHaveBeenCalled()
+  })
+})

@@ -1,4 +1,5 @@
 import type { Attachment } from '@actovia/shared/types/chat'
+import type { GroupMention } from '@actovia/shared/types/philharmonic'
 
 type Round = (signal: AbortSignal) => Promise<void>
 type Job = {
@@ -9,6 +10,7 @@ type Job = {
 }
 export interface OwnerInput {
   text: string
+  mentions?: GroupMention[]
   attachments?: Attachment[]
   messageId?: string
 }

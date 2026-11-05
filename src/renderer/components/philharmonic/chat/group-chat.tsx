@@ -152,14 +152,11 @@ export function GroupChat({
 
   return (
     <div className="flex h-full min-w-0">
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Chat's bar (the content header of `chat-layout`): 44 px, no rule —
-          the transcript fades into the bar's colour under it — and the sidebar
-          toggle with New group only once the sidebar is away. */}
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        {/* The transcript scrolls behind the toolbar's frosted material. */}
         <header
           className={cn(
-            'draggable bg-card/80 relative z-10 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-sm transition-[padding] duration-200 ease-out',
-            'after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-5 after:bg-linear-to-b after:from-card after:to-transparent',
+            'draggable bg-card/70 absolute inset-x-0 top-0 z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-xl transition-[padding] duration-200 ease-out',
             sidebarOpen ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
           )}
         >
@@ -233,7 +230,7 @@ export function GroupChat({
           className="relative flex min-h-0 flex-1 flex-col"
         >
           {plan && plan.steps.length > 0 && (
-            <div className="absolute inset-x-0 top-0 z-20 px-4 pt-2">
+            <div className="absolute inset-x-0 top-11 z-20 px-4 pt-2">
               <div className="mx-auto w-full max-w-3xl">
                 <PlanCard plan={plan} agentsById={agentsById} />
               </div>
@@ -251,7 +248,7 @@ export function GroupChat({
             }}
             className={cn(
               'flex-1 overflow-y-auto px-4 pb-40 [overflow-anchor:none]',
-              plan?.steps.length ? 'pt-16' : 'pt-3'
+              plan?.steps.length ? 'pt-27' : 'pt-14'
             )}
           >
             {merged.length === 0 ? (
@@ -354,15 +351,19 @@ export function GroupChat({
           </div>
           <div className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-linear-to-t to-transparent pt-8 pb-6 [&>*]:pointer-events-auto">
             <Composer
+              key={conversationId}
               conversationId={conversationId}
+              employees={Object.values(agentsById)}
+              onInspect={openPanel}
               groupTitle={conversation.title}
-              onSend={async (text, attachments) => {
+              onSend={async (text, attachments, mentionedAgentIds) => {
                 setSending(true)
                 try {
                   await sendConversationMessage(
                     conversationId,
                     text,
-                    attachments
+                    attachments,
+                    mentionedAgentIds
                   )
                 } finally {
                   setSending(false)

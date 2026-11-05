@@ -1,9 +1,9 @@
 import { createHashRouter } from 'react-router'
 
 import { RouteErrorBoundary } from '@/components/app/error-boundary'
-import { Artifacts } from '@/containers/artifacts'
 import { ChatDetail } from '@/containers/chat-detail'
 import { Home } from '@/containers/home'
+import { Library } from '@/containers/library'
 import { Layout as ChatLayout } from '@/layouts/chat-layout'
 
 // Settings + Philharmonic are large feature surfaces (Monaco, recharts)
@@ -41,7 +41,7 @@ export const router = createHashRouter([
     ErrorBoundary: RouteErrorBoundary,
     children: [
       { path: '/', Component: Home },
-      { path: '/artifacts', Component: Artifacts },
+      { path: '/library', Component: Library },
       {
         path: '/scheduled',
         lazy: () =>

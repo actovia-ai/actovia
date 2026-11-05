@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 
 import type { Variables } from '../types'
 import philharmonicAvatar from './philharmonic-avatar'
+import philharmonicControls from './philharmonic-controls'
 import philharmonicConversations from './philharmonic-conversations'
 import philharmonicCrud from './philharmonic-crud'
 import philharmonicSse from './philharmonic-sse'
@@ -15,6 +16,7 @@ philharmonic.route('/', philharmonicAvatar)
 philharmonic.route('/', philharmonicCrud)
 philharmonic.route('/', philharmonicSse)
 philharmonic.route('/', philharmonicConversations)
+philharmonic.route('/', philharmonicControls)
 philharmonic.route('/', philharmonicTasks)
 
 export default philharmonic

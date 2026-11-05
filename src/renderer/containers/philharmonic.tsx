@@ -225,7 +225,7 @@ export function PhilharmonicContainer({
           ) : (
             <PhilharmonicSlottedHeader
               onCreateGroup={handleCreate}
-              compactWhenSidebarOpen={activePage === 'dashboard'}
+              empty={activePage !== 'workforce'}
             >
               <div className="min-h-0 flex-1 overflow-hidden">
                 {mainContent}

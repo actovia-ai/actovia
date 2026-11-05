@@ -8,8 +8,8 @@ import {
   sandboxMessageType,
   sendToIframe
 } from '@/components/calling-tools/artifact/sandbox-frame'
-import { useArtifactCode } from '@/hooks/use-artifacts'
 import { useInView } from '@/hooks/use-in-view'
+import { useLibraryItemCode } from '@/hooks/use-library'
 import { cn } from '@/lib/utils'
 
 /** The page is laid out at this size, then scaled down to the card. */
@@ -17,14 +17,14 @@ const PAGE_WIDTH = 1280
 const PAGE_HEIGHT = 720
 
 /**
- * An Artifacts-page card's picture of its page (ISSUE-265): the chat card's
+ * An Library card's picture of its page (ISSUE-265): the chat card's
  * own sandbox — its origin, its CSP with no network — laid out at a desktop
  * width and scaled to the card. A frame runs the artifact's code, so one is
  * mounted only while its card is near the screen, and is never reachable:
  * no pointer, no focus, hidden from assistive tech (the card is the button).
  * Until the page has rendered, or if it fails, the placeholder shows.
  */
-export function ArtifactPreview({
+export function LibraryPreview({
   chatId,
   artifactId,
   title
@@ -36,7 +36,7 @@ export function ArtifactPreview({
   const boxRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const inView = useInView(boxRef, '400px')
-  const { data } = useArtifactCode(chatId, artifactId, inView)
+  const { data } = useLibraryItemCode(chatId, artifactId, inView)
   const live = inView && !!data
   const [rendered, setRendered] = useState(false)
   const [scale, setScale] = useState(0)
@@ -105,7 +105,7 @@ export function ArtifactPreview({
           tabIndex={-1}
           sandbox="allow-scripts allow-same-origin"
           data-state={rendered ? 'rendered' : 'loading'}
-          data-testid={TEST_IDS.artifacts.preview}
+          data-testid={TEST_IDS.library.preview}
           className={cn(
             'bg-background pointer-events-none absolute top-0 left-0 origin-top-left border-0 transition-opacity duration-200 ease-out',
             rendered ? 'opacity-100' : 'opacity-0'

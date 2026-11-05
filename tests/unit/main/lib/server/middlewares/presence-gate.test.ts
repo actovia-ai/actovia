@@ -82,6 +82,8 @@ describe('presenceGate', () => {
     ['DELETE', '/api/v1/philharmonic/agents/a1'],
     // A group message or an answer to the PM can set an `auto` agent to work.
     ['POST', '/api/v1/philharmonic/conversations/c1/messages'],
+    ['PUT', '/api/v1/philharmonic/conversations/c1/brief'],
+    ['POST', '/api/v1/philharmonic/conversations/c1/compact'],
     ['POST', '/api/v1/philharmonic/conversations/c1/respond'],
     // Another door to the PM: a scheduled task's run is a PM run…
     ['POST', '/api/v1/philharmonic/tasks'],

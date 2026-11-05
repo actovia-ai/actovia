@@ -1,4 +1,4 @@
-import type { ArtifactListItem } from '@actovia/shared/types/artifact-list'
+import type { LibraryItem } from '@actovia/shared/types/library'
 import { File01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useRef } from 'react'
@@ -18,7 +18,7 @@ import { useDeepResearchResult } from '@/hooks/use-deep-research'
 import { useInView } from '@/hooks/use-in-view'
 import { useWorkspaceFileContent } from '@/hooks/use-workspace-files'
 
-export function ReportThumbnail({ item }: { item: ArtifactListItem }) {
+export function ReportThumbnail({ item }: { item: LibraryItem }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, '400px')
   const { data } = useWorkspaceFileContent(
@@ -49,7 +49,7 @@ export function ResearchReportPreview({
   item,
   onClose
 }: {
-  item: ArtifactListItem
+  item: LibraryItem
   onClose: () => void
 }) {
   const { t } = useTranslation('chat')

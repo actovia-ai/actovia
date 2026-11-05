@@ -516,5 +516,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Group commands",
+    "mentionTitle": "Mention an employee",
+    "noMatches": "No matches",
+    "staffDescription": "Active employee",
+    "mentionHint": "The PM coordinates your request with the selected staff.",
+    "removeMention": "Remove @{{name}}",
+    "waitForPm": "Wait for the current PM round before compacting.",
+    "compacting": "Compacting context…",
+    "compacted": "Context compacted: ~{{before}} → ~{{after}} tokens",
+    "alreadyCompact": "Recent context is already compact.",
+    "compactFailed": "Could not compact context. Try again when the PM is idle.",
+    "briefTitle": "Group brief",
+    "briefDescription": "A durable AGENTS.md shared by the PM and staff. Keep goals, constraints, decisions and acceptance criteria here. Changes apply to new rounds and tasks.",
+    "briefEmpty": "The first request creates this brief. You can write it now, too.",
+    "briefSaved": "Group brief saved",
+    "briefSaveFailed": "Could not save. The brief may have changed; reload it before retrying.",
+    "reloadBrief": "Reload & discard edits",
+    "loading": "Loading…",
+    "retry": "Retry",
+    "saving": "Saving…",
+    "save": "Save",
+    "edit": "Edit",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Compact context",
+        "description": "Summarize earlier messages; keep recent messages and the brief."
+      },
+      "brief": {
+        "label": "Group brief",
+        "description": "Read or edit this Group’s AGENTS.md."
+      },
+      "status": {
+        "label": "Status",
+        "description": "Inspect context and team activity."
+      },
+      "archive": {
+        "label": "Archive",
+        "description": "Open completed deliverables."
+      },
+      "stop": {
+        "label": "Stop",
+        "description": "Interrupt the PM and staff."
+      }
+    },
+    "compactionDisabled": "Enable context management in Settings → Memory before compacting."
   }
 }

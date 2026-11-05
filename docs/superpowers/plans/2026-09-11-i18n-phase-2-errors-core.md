@@ -719,7 +719,7 @@ git commit -m "feat(i18n): rewire 6 error call sites onto code+params"
 **Files:**
 
 - Modify: `src/main/lib/server/middlewares/lock-gate.ts`
-- Modify: `src/main/lib/server/routes/artifacts.ts`
+- Modify: `src/main/lib/server/routes/library.ts`
 - Modify: `src/main/lib/server/routes/logs.ts`
 
 **Interfaces:**
@@ -752,7 +752,7 @@ export async function lockGate(c: Context, next: Next) {
 
 - [ ] **Step 2: `artifacts.ts` — 3 sites**
 
-Add `NotFoundError` and `ErrorCode` to the imports at the top of `src/main/lib/server/routes/artifacts.ts`:
+Add `NotFoundError` and `ErrorCode` to the imports at the top of `src/main/lib/server/routes/library.ts`:
 
 ```ts
 import { ErrorCode } from '@shared/constants/error-codes'
@@ -849,7 +849,7 @@ Trigger each of the 4 fixed sites (request a non-existent artifact; resync a non
 - [ ] **Step 6: Commit**
 
 ```bash
-git add src/main/lib/server/middlewares/lock-gate.ts src/main/lib/server/routes/artifacts.ts src/main/lib/server/routes/logs.ts
+git add src/main/lib/server/middlewares/lock-gate.ts src/main/lib/server/routes/library.ts src/main/lib/server/routes/logs.ts
 git commit -m "fix(i18n): route 3 malformed-JSON error responses through AppError"
 ```
 

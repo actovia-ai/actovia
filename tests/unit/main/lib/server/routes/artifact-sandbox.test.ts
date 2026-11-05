@@ -31,8 +31,8 @@ vi.mock('@main/lib/db/queries', () => ({
 
 const { createArtifactSandboxRouter, resolveSandboxFile, SANDBOX_PAGE } =
   await import('@main/lib/server/routes/artifact-sandbox')
-const { default: artifactsRouter } =
-  await import('@main/lib/server/routes/artifacts')
+const { default: libraryRouter } =
+  await import('@main/lib/server/routes/library')
 const { authGate } = await import('@main/lib/server/middlewares/auth-gate')
 const { errorHandler } =
   await import('@main/lib/server/middlewares/error-handler')
@@ -55,7 +55,7 @@ function makeApp(opts: Parameters<typeof createArtifactSandboxRouter>[0]) {
   const app = new Hono()
   app.use('/api/*', authGate)
   app.route('/api/v1/artifacts/sandbox', createArtifactSandboxRouter(opts))
-  app.route('/api/v1/artifacts', artifactsRouter)
+  app.route('/api/v1/library', libraryRouter)
   app.onError(errorHandler)
   return app
 }

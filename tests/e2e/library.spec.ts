@@ -1,5 +1,5 @@
 /**
- * E2E: the Artifacts page (ISSUE-237), reached from the sidebar. A fresh
+ * E2E: the Library page (ISSUE-237), reached from the sidebar. A fresh
  * data dir has made none, so the page shows its empty state: no cards and
  * no search box. Then, on the scripted provider, a chat makes one after a
  * long answer: the page draws it (ISSUE-265) and opens the chat at its card,
@@ -16,7 +16,7 @@ import { electronTest as test, expect } from '../fixtures/electron'
 
 const ANSWER_TIMEOUT = 30_000
 
-test.describe('Artifacts', () => {
+test.describe('Library', () => {
   test.beforeEach(async ({ mainWindow: _mw }) => {
     await new ApiClient().updateSettings({
       providers: { openaiApiKey: 'faux' },
@@ -26,17 +26,15 @@ test.describe('Artifacts', () => {
   })
 
   test('the sidebar opens the page', async ({ mainWindow }) => {
-    await mainWindow.getByTestId(TEST_IDS.chatLayout.artifacts).click()
-    await expect(mainWindow.getByTestId(TEST_IDS.artifacts.page)).toBeVisible({
+    await mainWindow.getByTestId(TEST_IDS.chatLayout.library).click()
+    await expect(mainWindow.getByTestId(TEST_IDS.library.page)).toBeVisible({
       timeout: 10_000
     })
     await expect
       .poll(() => mainWindow.evaluate(() => window.location.hash))
-      .toContain('artifacts')
-    await expect(mainWindow.getByTestId(TEST_IDS.artifacts.card)).toHaveCount(0)
-    await expect(mainWindow.getByTestId(TEST_IDS.artifacts.search)).toHaveCount(
-      0
-    )
+      .toContain('library')
+    await expect(mainWindow.getByTestId(TEST_IDS.library.card)).toHaveCount(0)
+    await expect(mainWindow.getByTestId(TEST_IDS.library.search)).toHaveCount(0)
   })
 
   test('a chat’s page is drawn on its card and opens at it', async ({
@@ -51,16 +49,16 @@ test.describe('Artifacts', () => {
       timeout: ANSWER_TIMEOUT
     })
 
-    await mainWindow.getByTestId(TEST_IDS.chatLayout.artifacts).click()
-    const card = mainWindow.getByTestId(TEST_IDS.artifacts.card)
+    await mainWindow.getByTestId(TEST_IDS.chatLayout.library).click()
+    const card = mainWindow.getByTestId(TEST_IDS.library.card)
     await expect(card).toHaveText(ARTIFACT_CALL.title, { timeout: 10_000 })
-    const preview = mainWindow.getByTestId(TEST_IDS.artifacts.preview)
+    const preview = mainWindow.getByTestId(TEST_IDS.library.preview)
     await expect(preview).toHaveAttribute('data-state', 'rendered', {
       timeout: 15_000
     })
     await expect(
       mainWindow
-        .frameLocator(`[data-testid="${TEST_IDS.artifacts.preview}"]`)
+        .frameLocator(`[data-testid="${TEST_IDS.library.preview}"]`)
         .getByText(ARTIFACT_GREETING)
     ).toBeVisible()
 

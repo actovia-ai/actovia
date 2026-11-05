@@ -1,0 +1,440 @@
+[
+  {
+    "slug": "writing",
+    "title": "Response formatting",
+    "description": "Shared writing defaults for Chat and Philharmonic.",
+    "introduction": "Chat, the Philharmonic PM and model-based employees receive the same writing defaults. Coding-agent employees receive them as task guidance because each CLI owns its system prompt. These defaults govern human-facing replies; explicit user formats and required JSON, tool protocols and deliverable formats take precedence. They guide new generations and do not rewrite saved messages.",
+    "entries": [
+      {
+        "title": "Shared response format",
+        "file": "src/main/lib/ai/response-format-prompt.ts",
+        "name": "RESPONSE_FORMAT_PROMPT",
+        "description": "Headings, paragraphs, lists, tables, emphasis, code and Markdown structure.",
+        "mode": "text"
+      }
+    ]
+  },
+  {
+    "slug": "chat",
+    "title": "Chat",
+    "description": "Chat identity, tools, personalization, interactive blocks and conversation titles.",
+    "introduction": "The main prompt inserts the shared [response formatting](/docs/prompts/writing) and interactive-block sections below. It also adds the current date and conditional MCP, workspace and skills directories. Personalization is appended separately. User-written custom prompts are not built-in prompts and are not reproduced here.",
+    "entries": [
+      {
+        "title": "Chat system prompt",
+        "file": "src/main/lib/ai/prompts.ts",
+        "name": "getSystemPrompt",
+        "description": "The default Chat system prompt. Conditional sections show both branches of the source template.",
+        "mode": "return"
+      },
+      {
+        "title": "Personality builder",
+        "file": "src/main/lib/ai/prompts.ts",
+        "name": "buildPersonalityPrompt",
+        "description": "All built-in tone/style variants and how optional user instructions are attached. Shown as a builder so the conditions remain explicit.",
+        "mode": "source"
+      },
+      {
+        "title": "Interactive reply blocks",
+        "file": "src/main/lib/ai/interactive-blocks-prompt.ts",
+        "name": "INTERACTIVE_BLOCKS_PROMPT",
+        "description": "Questionnaires, confirmations, illustrated steps, stock charts and entity links. Example data is defined in the following source block.",
+        "mode": "text"
+      },
+      {
+        "title": "Interactive block examples",
+        "file": "src/main/lib/ai/interactive-blocks-prompt.ts",
+        "name": "ASK_EXAMPLE",
+        "description": "The static examples and fence delimiter used by the interactive prompt.",
+        "mode": "examples"
+      },
+      {
+        "title": "Conversation title",
+        "file": "src/main/lib/ai/prompts.ts",
+        "name": "titleGenerationPrompt",
+        "description": "Generates a short conversation title.",
+        "mode": "text"
+      }
+    ]
+  },
+  {
+    "slug": "philharmonic",
+    "title": "Philharmonic",
+    "description": "PM coordination, employee reports, recruitment and group context.",
+    "introduction": "The PM and employees append the current workspace, group brief and permitted tools/skills at runtime. The builders below document those boundaries without publishing anyone’s workspace, messages or employee configuration. System-role interruption/error notices in the transcript are status messages, not model instructions.",
+    "entries": [
+      {
+        "title": "PM system prompt",
+        "file": "src/main/lib/ai/philharmonic/pm-prompt.ts",
+        "name": "PM_SYSTEM_PROMPT",
+        "description": "Planning, delegation, review, quotas, autonomy and completion. Includes the shared response-format block by reference.",
+        "mode": "text"
+      },
+      {
+        "title": "PM MCP directory",
+        "file": "src/main/lib/ai/philharmonic/pm-prompt.ts",
+        "name": "pmMcpSection",
+        "description": "Conditional instructions for connected MCP servers.",
+        "mode": "return"
+      },
+      {
+        "title": "PM context assembly",
+        "file": "src/main/lib/ai/philharmonic/pm-coordinator.ts",
+        "name": "pmSystemPrompt",
+        "description": "How the current workspace, roster, quota and plan are attached.",
+        "mode": "source",
+        "scope": "coordinate"
+      },
+      {
+        "title": "Employee system prompt builder",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "buildEmployeeSystemPrompt",
+        "description": "Built-in employee identity and execution/reporting instructions, plus the shared response format. Team and employee prompts are user configuration.",
+        "mode": "source"
+      },
+      {
+        "title": "Employee web citations",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "WEB_CITATIONS",
+        "description": "Included only when the employee can search or fetch the web.",
+        "mode": "text"
+      },
+      {
+        "title": "Employee MCP directory",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "mcpServersBlock",
+        "description": "Conditional MCP discovery guidance.",
+        "mode": "return"
+      },
+      {
+        "title": "Earlier employee reports",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "earlierReportsBlock",
+        "description": "Continuity guidance around earlier reports. Report bodies are runtime data.",
+        "mode": "source"
+      },
+      {
+        "title": "Employee experience and group notes",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "memoryBlock",
+        "description": "Conditional wrappers around reviewed lessons and group-local notes.",
+        "mode": "text",
+        "scope": "runEmployeeLoop"
+      },
+      {
+        "title": "Employee context assembly",
+        "file": "src/main/lib/ai/philharmonic/employee-loop.ts",
+        "name": "systemPrompt",
+        "description": "How workspace, citations, memories, reports, skills and MCP instructions are combined.",
+        "mode": "source",
+        "scope": "runEmployeeLoop"
+      },
+      {
+        "title": "Bound workspace",
+        "file": "src/main/lib/ai/philharmonic/workspace.ts",
+        "name": "groupWorkspace",
+        "description": "Default working folder and availability rules. Includes the group brief separately.",
+        "mode": "source"
+      },
+      {
+        "title": "Group brief wrapper",
+        "file": "src/main/lib/ai/philharmonic/group-brief.ts",
+        "name": "groupBriefPrompt",
+        "description": "Durable owner constraints and precedence of newer owner instructions.",
+        "mode": "source"
+      },
+      {
+        "title": "CLI employee task wrapper",
+        "file": "src/main/lib/agents/run-agent-employee.ts",
+        "name": "taskPrompt",
+        "description": "The employee instructions, delegated task and brief, followed by RESPONSE_FORMAT_PROMPT. The CLI’s own system/tool/permission prompts are not replaced.",
+        "mode": "source",
+        "scope": "runAgentEmployee"
+      },
+      {
+        "title": "CLI report guidance",
+        "file": "src/main/lib/agents/run-agent-employee.ts",
+        "name": "prompt",
+        "description": "The exact task payload sent to the coding CLI, including the shared writing defaults.",
+        "mode": "source",
+        "scope": "runAgentEmployee"
+      },
+      {
+        "title": "Employee recruitment",
+        "file": "src/main/lib/ai/philharmonic/recruit.ts",
+        "name": "SPEC_PROMPT",
+        "description": "Generates an employee specification as JSON.",
+        "mode": "text"
+      },
+      {
+        "title": "Recruitment fallback",
+        "file": "src/main/lib/ai/philharmonic/recruit.ts",
+        "name": "systemPrompt",
+        "description": "The deterministic role prompt when spec generation is unavailable.",
+        "mode": "text",
+        "scope": "autoCreateEmployee"
+      },
+      {
+        "title": "Reviewed experience extraction",
+        "file": "src/main/lib/ai/philharmonic/agent-memory.ts",
+        "name": "REFLECTION_PROMPT",
+        "description": "Extracts reusable lessons from work the PM has accepted.",
+        "mode": "text"
+      },
+      {
+        "title": "Experience review input",
+        "file": "src/main/lib/ai/philharmonic/agent-memory.ts",
+        "name": "reflectOnReviewedTask",
+        "description": "Task, role, output and prior lessons sent for review. Shown as a builder to retain the exact data envelope.",
+        "mode": "source"
+      },
+      {
+        "title": "Group compaction system prompt",
+        "file": "src/main/lib/ai/philharmonic/lcm/summarize.ts",
+        "name": "SYSTEM_PROMPT",
+        "description": "Compresses older group messages into one paragraph.",
+        "mode": "text"
+      },
+      {
+        "title": "Group compaction transcript",
+        "file": "src/main/lib/ai/philharmonic/lcm/summarize.ts",
+        "name": "formatTranscript",
+        "description": "Preserves role labels, directed employee mentions and any previous summary.",
+        "mode": "source"
+      },
+      {
+        "title": "Owner-directed employee mentions",
+        "file": "packages/shared/src/types/philharmonic.ts",
+        "name": "withGroupMentions",
+        "description": "Instructions appended when the owner directs a request to selected active employees, preserving PM coordination and review rules.",
+        "mode": "source"
+      }
+    ]
+  },
+  {
+    "slug": "memory",
+    "title": "Memory & context",
+    "description": "Long-term memory, relevance filtering and depth-aware conversation summaries.",
+    "introduction": "These internal tasks have dedicated formats. The conversational writing defaults are not added to JSON-producing memory operations or compact summaries.",
+    "entries": [
+      {
+        "title": "Memory consolidation",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "CONSOLIDATE_SYSTEM",
+        "description": "Extracts and updates durable user memory.",
+        "mode": "text"
+      },
+      {
+        "title": "Direct memory instruction",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "INSTRUCTION_SYSTEM",
+        "description": "Applies the user’s explicit memory edits.",
+        "mode": "text"
+      },
+      {
+        "title": "Memory relevance filter",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "READ_FILTER_SYSTEM",
+        "description": "Selects entries relevant to the current message.",
+        "mode": "text"
+      },
+      {
+        "title": "Memory consolidation input",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "runMemoryConsolidation",
+        "description": "The consolidation request envelope and validated response handling.",
+        "mode": "source"
+      },
+      {
+        "title": "Direct memory instruction input",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "runMemoryInstruction",
+        "description": "The existing memory and owner instruction supplied to the editor.",
+        "mode": "source"
+      },
+      {
+        "title": "Relevance filter input",
+        "file": "src/main/lib/ai/memory/manager.ts",
+        "name": "loadRelevantMemories",
+        "description": "The memory index and current question supplied to the relevance filter.",
+        "mode": "source"
+      },
+      {
+        "title": "Per-message memory wrapper",
+        "file": "src/main/lib/ai/memory/run-memory.ts",
+        "name": "formatRunMemory",
+        "description": "Selected memory is prepended to the user message rather than changing the system prompt.",
+        "mode": "source"
+      },
+      {
+        "title": "Leaf summary (depth 0)",
+        "file": "src/main/lib/ai/context-management/prompts.ts",
+        "name": "getLeafSummaryPrompt",
+        "description": "Detailed segment compaction with optional previous context.",
+        "mode": "source"
+      },
+      {
+        "title": "Session summary (depth 1)",
+        "file": "src/main/lib/ai/context-management/prompts.ts",
+        "name": "getD1SummaryPrompt",
+        "description": "Condenses segments into a session history.",
+        "mode": "return"
+      },
+      {
+        "title": "Phase summary (depth 2)",
+        "file": "src/main/lib/ai/context-management/prompts.ts",
+        "name": "getD2SummaryPrompt",
+        "description": "Preserves decisions and outcomes across sessions.",
+        "mode": "return"
+      },
+      {
+        "title": "Strategic summary (depth 3+)",
+        "file": "src/main/lib/ai/context-management/prompts.ts",
+        "name": "getDeeperSummaryPrompt",
+        "description": "Retains only durable strategic context.",
+        "mode": "return"
+      },
+      {
+        "title": "Summary length guidance",
+        "file": "src/main/lib/ai/context-management/compaction.ts",
+        "name": "targetNote",
+        "description": "Normal and aggressive retry length constraints.",
+        "mode": "text",
+        "scope": "callLlm"
+      },
+      {
+        "title": "Memory recall synthesis",
+        "file": "src/main/lib/ai/calling-tools/lcm-expand.ts",
+        "name": "systemPrompt",
+        "description": "Answers from retrieved summaries, citing summary IDs.",
+        "mode": "property"
+      }
+    ]
+  },
+  {
+    "slug": "research",
+    "title": "Research & search",
+    "description": "Deep Research prompts and search query expansion.",
+    "introduction": "Deep Research uses its own system prompt and task-specific JSON envelopes. The chat boot message starts clarification; subsequent stages generate queries, extract findings and write the report.",
+    "entries": [
+      {
+        "title": "Deep Research boot message",
+        "file": "src/main/lib/ai/prompts.ts",
+        "name": "deepResearchBootPrompt",
+        "description": "Initial research clarification.",
+        "mode": "text"
+      },
+      {
+        "title": "Deep Research system prompt",
+        "file": "src/main/lib/ai/prompts.ts",
+        "name": "deepResearchSystemPrompt",
+        "description": "The shared researcher role and standards.",
+        "mode": "text"
+      },
+      {
+        "title": "Research query generation",
+        "file": "src/main/lib/ai/deep-research/generate-queries.ts",
+        "name": "prompt",
+        "description": "Research query request and JSON response contract.",
+        "mode": "text",
+        "scope": "generateSerpQueries"
+      },
+      {
+        "title": "Search results to findings",
+        "file": "src/main/lib/ai/deep-research/process-search-results.ts",
+        "name": "prompt",
+        "description": "Extracts findings, citations and follow-up questions in the topic’s language.",
+        "mode": "text",
+        "scope": "processSerpResult"
+      },
+      {
+        "title": "Final research report",
+        "file": "src/main/lib/ai/deep-research/final-report.ts",
+        "name": "userPrompt",
+        "description": "Report assembly, factual citations and image instructions.",
+        "mode": "text",
+        "scope": "writeFinalReport"
+      },
+      {
+        "title": "Search query expansion",
+        "file": "src/main/lib/ai/utils/query-expansion.ts",
+        "name": "SYSTEM",
+        "description": "Produces complementary query variants as a JSON array.",
+        "mode": "text"
+      }
+    ]
+  },
+  {
+    "slug": "discover",
+    "title": "Discover",
+    "description": "Daily personalized news queries and relevance checks.",
+    "entries": [
+      {
+        "title": "Personalized news queries",
+        "file": "src/main/lib/discover/manager.ts",
+        "name": "DISCOVER_QUERY_SYSTEM",
+        "description": "Turns selected memories into followed news subjects and search queries.",
+        "mode": "text"
+      },
+      {
+        "title": "Query generation input",
+        "file": "src/main/lib/discover/manager.ts",
+        "name": "prompt",
+        "description": "Memory entries supplied as runtime data.",
+        "mode": "text",
+        "scope": "runDiscoverRefresh"
+      },
+      {
+        "title": "News relevance judge",
+        "file": "src/main/lib/discover/manager.ts",
+        "name": "DISCOVER_JUDGE_SYSTEM",
+        "description": "Filters search hits for the actual followed subject.",
+        "mode": "text"
+      },
+      {
+        "title": "Relevance judge input",
+        "file": "src/main/lib/discover/manager.ts",
+        "name": "prompt",
+        "description": "Numbered subjects and search results sent to the judge.",
+        "mode": "source",
+        "scope": "judgeRelevance"
+      }
+    ]
+  },
+  {
+    "slug": "health",
+    "title": "Health",
+    "description": "Daily Health notes and completed-period reports for iPhone.",
+    "introduction": "Health uses structured responses for the iPhone UI. Snapshot values and relevant personal memories are runtime input, not published prompt text.",
+    "entries": [
+      {
+        "title": "Daily Health system prompt",
+        "file": "src/main/lib/server/routes/health.ts",
+        "name": "HEALTH_SUMMARY_SYSTEM",
+        "description": "Locale, evidence, tone, safe interpretation and JSON structure for a daily note.",
+        "mode": "text"
+      },
+      {
+        "title": "Daily Health input",
+        "file": "src/main/lib/server/routes/health.ts",
+        "name": "userText",
+        "description": "The daily snapshot and memory envelope.",
+        "mode": "source"
+      },
+      {
+        "title": "Period Health system prompt",
+        "file": "src/main/lib/server/routes/health.ts",
+        "name": "HEALTH_PERIOD_REPORT_SYSTEM",
+        "description": "Weekly, monthly, quarterly and yearly report instructions.",
+        "mode": "text"
+      },
+      {
+        "title": "Period Health input",
+        "file": "src/main/lib/server/routes/health.ts",
+        "name": "periodUserText",
+        "description": "Period aggregates, comparisons and memories supplied to the reporter.",
+        "mode": "source"
+      }
+    ]
+  }
+]

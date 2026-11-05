@@ -5,6 +5,10 @@ import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import { CLI_NAMES, type CliId } from '@actovia/shared/types/agents'
 import type { McpTools } from '@actovia/shared/types/ai'
 import type { Attachment } from '@actovia/shared/types/chat'
+import {
+  withGroupMentions,
+  type GroupMention
+} from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
 import { Type, type Message } from '@earendil-works/pi-ai'
@@ -67,6 +71,7 @@ import { createEscalateToUserTool } from './agent-tools'
 import { archiveOutput, type ArchiveEntry } from './archive'
 import type { SseEmitter } from './employee-loop'
 import { runDelegatedTask } from './execution-engine'
+import { groupBriefTool, initializeGroupBrief } from './group-brief'
 import { askOwner } from './group-questions'
 import { PhilharmonicLcm } from './lcm'
 import { loopBudget } from './loop-budget'
@@ -159,6 +164,7 @@ function buildUserContent(
 export interface RunPmArgs {
   conversationId: string
   userText: string
+  mentions?: GroupMention[]
   /** Image attachments accompanying the current user turn. Persisted on the
    * user message row; the PM sees them as `image` content parts. v1 does
    * not pass them through to delegated employees. */
@@ -396,6 +402,7 @@ async function coordinate(args: RunPmArgs): Promise<void> {
     for (const t of waiting) await updateTask(t.id, { status: 'cancelled' })
   }
 
+  await initializeGroupBrief(conversationId, userText)
   const workspace = await groupWorkspace(conversationId)
   const operationalNames = new Set<string>([
     TOOL_NAMES.terminal,
@@ -421,6 +428,7 @@ async function coordinate(args: RunPmArgs): Promise<void> {
   const controls = resolvePhilharmonicSettings(setting.agents)
   const budget = loopBudget(controls.pmMaxToolCalls, controls.failureLimit)
   const tools: AgentTool[] = [
+    groupBriefTool(conversationId),
     ...operationalTools,
     ...router.tools,
     {
@@ -873,7 +881,10 @@ async function coordinate(args: RunPmArgs): Promise<void> {
 
   const userMessage: Message = {
     role: 'user',
-    content: buildUserContent(userText, attachments),
+    content: buildUserContent(
+      withGroupMentions(userText, args.mentions),
+      attachments
+    ),
     timestamp: Date.now()
   }
 
@@ -1057,7 +1068,10 @@ async function coordinate(args: RunPmArgs): Promise<void> {
             pmRunRegistry.closeSteering(conversationId)
           return pending.map((input) => ({
             role: 'user' as const,
-            content: buildUserContent(input.text, input.attachments),
+            content: buildUserContent(
+              withGroupMentions(input.text, input.mentions),
+              input.attachments
+            ),
             timestamp: Date.now()
           }))
         }

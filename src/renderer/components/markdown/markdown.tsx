@@ -56,13 +56,14 @@ const themes = {
   dark: { codeTheme: xcodeDark }
 }
 
-// 12px (ChatGPT's) in the app's mono stack (`font-mono`: SF Mono on a Mac),
+// 13px in the app's mono stack (`font-mono`: SF Mono on a Mac), close enough
+// to the 16px body for mixed prose/code reports to stay readable,
 // the code tag inheriting so the two never disagree; no background of its own
 // — the block's panel (`.markdown pre`) is the one background the header
 // strip and the code share (owner, 2026-10-06).
 const codeBlockStyle = {
   padding: '0.25rem 1rem 1rem',
-  fontSize: '0.75rem',
+  fontSize: '0.8125rem',
   lineHeight: '1.6',
   margin: 0,
   background: 'transparent',
@@ -206,7 +207,7 @@ export function Markdown({
           (String(children).endsWith('\n') ? 'text' : null)
         return language ? (
           <>
-            <section className="bg-code text-muted-foreground flex h-10 items-center justify-between px-4 text-xs">
+            <section className="bg-code text-muted-foreground flex h-10 items-center justify-between px-4 font-sans text-xs">
               <span className="flex items-center gap-2 font-medium">
                 <HugeiconsIcon
                   icon={SourceCodeIcon}
@@ -369,8 +370,9 @@ export function Markdown({
         return (
           <th
             {...rest}
+            style={style}
             className={cn(
-              'text-foreground py-2.5 pr-6 text-left align-top font-medium last:pr-0',
+              'text-foreground min-w-[8em] py-2.5 pr-6 text-left align-top font-medium whitespace-nowrap last:pr-0',
               className
             )}
           >
@@ -384,7 +386,7 @@ export function Markdown({
           <td
             {...rest}
             className={cn(
-              'text-foreground py-2.5 pr-6 align-top font-normal last:pr-0',
+              'text-foreground min-w-[8em] py-2.5 pr-6 align-top font-normal last:pr-0',
               className
             )}
           >

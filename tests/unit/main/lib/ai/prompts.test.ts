@@ -1,5 +1,7 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
+import { PM_SYSTEM_PROMPT } from '@main/lib/ai/philharmonic/pm-prompt'
 import { getSystemPrompt } from '@main/lib/ai/prompts'
+import { RESPONSE_FORMAT_PROMPT } from '@main/lib/ai/response-format-prompt'
 import { describe, expect, it } from 'vitest'
 
 const MCP_TOOLS = new Set<string>([
@@ -8,6 +10,15 @@ const MCP_TOOLS = new Set<string>([
 ])
 
 describe('getSystemPrompt', () => {
+  it('shares human-facing Markdown defaults with the PM, separately from Chat citations and interactive blocks', () => {
+    const chat = getSystemPrompt({})
+    expect(chat).toContain(RESPONSE_FORMAT_PROMPT)
+    expect(PM_SYSTEM_PROMPT).toContain(RESPONSE_FORMAT_PROMPT)
+    expect(chat).toContain('<chat_format_details>')
+    expect(PM_SYSTEM_PROMPT).not.toContain('<chat_format_details>')
+    expect(PM_SYSTEM_PROMPT).not.toContain('<interactive_blocks>')
+  })
+
   it('explains every built-in tool by its wire name, so a new tool cannot go unmentioned', () => {
     const prompt = getSystemPrompt({})
     for (const name of Object.values(TOOL_NAMES)) {
@@ -112,10 +123,8 @@ describe('getSystemPrompt', () => {
   })
 
   it('stays within budget', () => {
-    // Roughly 3.5 chars a token: keep the fixed part under ~3.2k tokens. The
-    // ceiling includes the interactive-blocks section (~2.2k characters: both
-    // blocks with an example each, their limits and the answer message), which
-    // brought the chat prompt to ~11.2k characters; phase 2 (steps, the entity link, the stock chart) adds ~1.8k.
-    expect(getSystemPrompt({}).length).toBeLessThan(13_500)
+    // Roughly 3.5 chars a token: under ~4.7k tokens including interactive
+    // blocks and the shared writing policy (~2.7k characters).
+    expect(getSystemPrompt({}).length).toBeLessThan(16_500)
   })
 })

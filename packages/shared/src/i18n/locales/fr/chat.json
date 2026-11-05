@@ -318,7 +318,7 @@
     "nav": {
       "new": "Nouveau",
       "search": "Rechercher",
-      "artifacts": "Artefacts",
+      "library": "Bibliothèque",
       "scheduled": "Tâches planifiées"
     },
     "account": {
@@ -532,12 +532,12 @@
     "openFailed": "Impossible d’ouvrir le fichier",
     "revealFailed": "Impossible d’afficher le fichier"
   },
-  "artifacts": {
-    "title": "Artefacts",
+  "library": {
+    "title": "Bibliothèque",
     "description": "Tout ce que vos conversations ont créé. Ouvrez-en un pour revenir là où il a été fait.",
-    "searchPlaceholder": "Rechercher des artefacts",
-    "noMatches": "Aucun artefact ne correspond à « {{query}} »",
-    "emptyTitle": "Aucun artefact pour l’instant",
+    "searchPlaceholder": "Rechercher dans la bibliothèque",
+    "noMatches": "Aucun élément ne correspond à « {{query}} »",
+    "emptyTitle": "Votre bibliothèque est vide",
     "emptyDescription": "Demandez un graphique, un tableau de bord ou une petite app dans une conversation : il apparaîtra ici.",
     "untitled": "Sans titre"
   },

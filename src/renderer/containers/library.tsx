@@ -1,17 +1,17 @@
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
-import type { ArtifactListItem } from '@actovia/shared/types/artifact-list'
+import type { LibraryItem } from '@actovia/shared/types/library'
 import { SearchIcon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
-import { ArtifactPreview } from '@/components/artifacts/artifact-preview'
+import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
+import { LibraryPreview } from '@/components/library/library-preview'
 import {
   ReportThumbnail,
   ResearchReportPreview
-} from '@/components/artifacts/report-preview'
-import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
+} from '@/components/library/report-preview'
 import {
   Empty,
   EmptyDescription,
@@ -25,20 +25,20 @@ import {
   InputGroupInput
 } from '@/components/ui/input-group'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAllArtifacts } from '@/hooks/use-artifacts'
+import { useLibraryItems } from '@/hooks/use-library'
 import { useFormat } from '@/lib/format'
 import { ENTER_UP, staggerDelay } from '@/lib/motion'
 import type { SearchReveal } from '@/lib/reveal-search-hit'
 import { cn } from '@/lib/utils'
 
 /**
- * The Artifacts page (ISSUE-237): every artifact the chats made, newest
+ * The Library page (ISSUE-237): every item the chats made, newest
  * first. A card opens its chat at the card that drew it — the same reveal
  * Search chats uses, with no words to mark and the call's id to land on.
  */
-export function Artifacts() {
+export function Library() {
   const { t } = useTranslation('chat')
-  const { data, isPending } = useAllArtifacts()
+  const { data, isPending } = useLibraryItems()
   const [query, setQuery] = useState('')
 
   const shown = useMemo(() => {
@@ -54,16 +54,16 @@ export function Artifacts() {
   return (
     <div
       className="relative min-h-0 flex-1 overflow-y-auto"
-      data-testid={TEST_IDS.artifacts.page}
+      data-testid={TEST_IDS.library.page}
     >
       <div className="mx-auto w-full max-w-5xl px-8 pt-6 pb-12">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-medium tracking-tight">
-              {t('artifacts.title')}
+              {t('library.title')}
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              {t('artifacts.description')}
+              {t('library.description')}
             </p>
           </div>
           {(data?.length ?? 0) > 0 && (
@@ -71,8 +71,8 @@ export function Artifacts() {
               <InputGroupInput
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('artifacts.searchPlaceholder')}
-                data-testid={TEST_IDS.artifacts.search}
+                placeholder={t('library.searchPlaceholder')}
+                data-testid={TEST_IDS.library.search}
               />
               <InputGroupAddon align="inline-start">
                 <HugeiconsIcon icon={SearchIcon} />
@@ -95,24 +95,20 @@ export function Artifacts() {
               </EmptyMedia>
               <EmptyTitle>
                 {query
-                  ? t('artifacts.noMatches', { query: query.trim() })
-                  : t('artifacts.emptyTitle')}
+                  ? t('library.noMatches', { query: query.trim() })
+                  : t('library.emptyTitle')}
               </EmptyTitle>
               {!query && (
                 <EmptyDescription>
-                  {t('artifacts.emptyDescription')}
+                  {t('library.emptyDescription')}
                 </EmptyDescription>
               )}
             </EmptyHeader>
           </Empty>
         ) : (
           <Grid>
-            {shown.map((artifact, i) => (
-              <ArtifactCard
-                key={artifact.artifactId}
-                artifact={artifact}
-                index={i}
-              />
+            {shown.map((item, i) => (
+              <LibraryCard key={item.artifactId} item={item} index={i} />
             ))}
           </Grid>
         )}
@@ -129,31 +125,25 @@ function Grid({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ArtifactCard({
-  artifact,
-  index
-}: {
-  artifact: ArtifactListItem
-  index: number
-}) {
+function LibraryCard({ item, index }: { item: LibraryItem; index: number }) {
   const { t } = useTranslation('chat')
   const navigate = useNavigate()
   const format = useFormat()
   const [previewing, setPreviewing] = useState(false)
-  const title = artifact.title || t('artifacts.untitled')
+  const title = item.title || t('library.untitled')
 
   const open = () => {
-    if (artifact.kind) {
+    if (item.kind) {
       setPreviewing(true)
       return
     }
     const reveal: SearchReveal = {
-      runId: artifact.runId,
+      runId: item.runId,
       role: 'assistant',
       words: [],
-      toolCallId: artifact.toolCallId
+      toolCallId: item.toolCallId
     }
-    navigate(`/chat/${artifact.chatId}`, { state: reveal })
+    navigate(`/chat/${item.chatId}`, { state: reveal })
   }
 
   // The entrance's delay sits on a wrapper: on the button it would hold back
@@ -166,12 +156,12 @@ function ArtifactCard({
       {/* The preview is a frame, which a button may not hold: the button is
           the title's, stretched over the whole card by its ::after. */}
       <div className="group bg-background ring-border/70 hover:ring-border has-[:focus-visible]:ring-ring relative flex flex-col overflow-hidden rounded-xl ring-1 transition-[box-shadow,transform] duration-150 ease-out hover:shadow-sm has-[:active]:scale-[0.99] has-[:focus-visible]:ring-2">
-        {artifact.kind ? (
-          <ReportThumbnail item={artifact} />
+        {item.kind ? (
+          <ReportThumbnail item={item} />
         ) : (
-          <ArtifactPreview
-            chatId={artifact.chatId}
-            artifactId={artifact.artifactId}
+          <LibraryPreview
+            chatId={item.chatId}
+            artifactId={item.artifactId}
             title={title}
           />
         )}
@@ -179,28 +169,27 @@ function ArtifactCard({
           <button
             type="button"
             onClick={open}
-            data-testid={TEST_IDS.artifacts.card}
+            data-testid={TEST_IDS.library.card}
             className="truncate text-left text-sm font-medium outline-none after:absolute after:inset-0"
             title={title}
           >
             {title}
           </button>
           <span className="text-muted-foreground truncate text-xs">
-            {artifact.chatTitle} ·{' '}
-            {format.relativeTime(new Date(artifact.createdAt))}
+            {item.chatTitle} · {format.relativeTime(new Date(item.createdAt))}
           </span>
         </div>
       </div>
-      {previewing && artifact.kind === 'workspace-file' && artifact.path && (
+      {previewing && item.kind === 'workspace-file' && item.path && (
         <WorkspaceFilePreview
-          path={artifact.path}
+          path={item.path}
           open
           onOpenChange={setPreviewing}
         />
       )}
-      {previewing && artifact.kind === 'research' && (
+      {previewing && item.kind === 'research' && (
         <ResearchReportPreview
-          item={artifact}
+          item={item}
           onClose={() => setPreviewing(false)}
         />
       )}

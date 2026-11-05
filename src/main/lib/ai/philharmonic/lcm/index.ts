@@ -7,6 +7,11 @@ import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
 // keeps a DAG of leaf and condensed summaries; for Philharmonic v1 we keep
 // one summary row per conversation. Future iterations can graduate if needed.
 import type { Attachment } from '@actovia/shared/types/chat'
+import {
+  withGroupMentions,
+  type GroupCompactResult,
+  type GroupMention
+} from '@actovia/shared/types/philharmonic'
 import type { Message, Model } from '@earendil-works/pi-ai'
 
 import { getMessagesByConversationId } from '../../../db/conversation-queries'
@@ -92,7 +97,18 @@ function rowToLlmMessage(
     const attachments = extractAttachments(row.parts)
     return {
       role: 'user',
-      content: buildUserContent(row.content, attachments),
+      content: buildUserContent(
+        withGroupMentions(
+          row.content,
+          (row.parts ?? []).filter(
+            (p) =>
+              p.kind === 'mention' &&
+              typeof p.agentId === 'string' &&
+              typeof p.name === 'string'
+          ) as unknown as GroupMention[]
+        ),
+        attachments
+      ),
       timestamp: new Date(row.createdAt).getTime()
     } as Message
   }
@@ -256,9 +272,36 @@ export class PhilharmonicLcm {
     return next
   }
 
-  private async runCompactionIfNeeded(): Promise<void> {
+  async compactNow(signal?: AbortSignal): Promise<GroupCompactResult> {
+    const id = this.conversationId
+    const previous =
+      PhilharmonicLcm.compactionQueues.get(id) ?? Promise.resolve()
+    const next = previous.then(() => this.runCompactionIfNeeded(true, signal))
+    const settled = next.then(
+      () => {},
+      () => {}
+    )
+    PhilharmonicLcm.compactionQueues.set(id, settled)
+    void settled.finally(() => {
+      if (PhilharmonicLcm.compactionQueues.get(id) === settled)
+        PhilharmonicLcm.compactionQueues.delete(id)
+    })
+    return next
+  }
+
+  private async runCompactionIfNeeded(
+    force = false,
+    signal?: AbortSignal
+  ): Promise<GroupCompactResult> {
+    signal?.throwIfAborted()
     const rows = await getMessagesByConversationId(this.conversationId)
-    if (rows.length === 0) return
+    if (rows.length === 0)
+      return {
+        compacted: false,
+        beforeTokens: 0,
+        afterTokens: 0,
+        absorbedMessages: 0
+      }
 
     const summary = await getSessionSummary(this.conversationId)
 
@@ -275,15 +318,22 @@ export class PhilharmonicLcm {
       (summary?.tokenCount ?? 0) +
       uncovered.reduce((sum, m) => sum + estimateMessageTokens(m.content), 0)
 
-    if (liveTokens <= this.thresholdTokens) return
+    const unchanged = {
+      compacted: false,
+      beforeTokens: liveTokens,
+      afterTokens: liveTokens,
+      absorbedMessages: 0
+    }
+    if (!force && liveTokens <= this.thresholdTokens) return unchanged
 
     // Compaction range = everything older than the fresh tail.
     const target = Math.max(0, rows.length - this.freshTailSize)
-    if (target === 0) return // nothing to absorb — we're already minimal
+    if (target === 0) return unchanged // nothing to absorb — we're already minimal
 
     const toAbsorb = rows.slice(0, target)
     const boundary = toAbsorb.at(-1)
-    if (!boundary) return
+    if (!boundary) return unchanged
+    if (summary?.coversThroughMessageId === boundary.id) return unchanged
 
     logger.info('philharmonic', 'LCM compacting', {
       conversationId: this.conversationId,
@@ -297,9 +347,17 @@ export class PhilharmonicLcm {
       previousSummary: summary?.content,
       agents: await loadAgents(),
       model: this.model,
-      apiKey: this.apiKey
+      apiKey: this.apiKey,
+      signal
     })
 
+    const afterTokens =
+      estimateTokens(newContent) +
+      rows
+        .slice(target)
+        .reduce((sum, row) => sum + estimateMessageTokens(row.content), 0)
+    if (afterTokens >= liveTokens) return unchanged
+    signal?.throwIfAborted()
     await upsertSessionSummary({
       conversationId: this.conversationId,
       content: newContent,
@@ -313,5 +371,11 @@ export class PhilharmonicLcm {
       summaryTokens: estimateTokens(newContent),
       absorbed: toAbsorb.length
     })
+    return {
+      compacted: true,
+      beforeTokens: liveTokens,
+      afterTokens,
+      absorbedMessages: toAbsorb.length
+    }
   }
 }

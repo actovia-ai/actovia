@@ -1,4 +1,5 @@
 import type { AgentCard } from '@actovia/shared/types/agents'
+import type { GroupMention } from '@actovia/shared/types/philharmonic'
 import type {
   GroupQuestionPart,
   GroupQuestionStatus
@@ -83,6 +84,17 @@ export function mergeGroupMessages({
       agentId: h.agentId,
       text: h.content,
       createdAt: h.createdAt,
+      mentions: parts
+        .filter(
+          (p) =>
+            p.kind === 'mention' &&
+            typeof p.agentId === 'string' &&
+            typeof p.name === 'string'
+        )
+        .map((p) => ({
+          agentId: p.agentId as string,
+          name: p.name as string
+        })) as GroupMention[],
       attachments: attachments.length > 0 ? attachments : undefined,
       artifacts: artifacts.length > 0 ? artifacts : undefined,
       finalOutput,

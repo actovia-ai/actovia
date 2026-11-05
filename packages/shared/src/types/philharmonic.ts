@@ -270,3 +270,30 @@ export type GroupAnswerPart = {
   kind: 'answer'
   questionId: string
 }
+
+/** A stable employee reference, independent of future display-name changes. */
+export interface GroupMention {
+  agentId: string
+  name: string
+}
+export interface GroupBrief {
+  content: string
+  revision: string
+  path: string
+  exists: boolean
+}
+export interface GroupCompactResult {
+  compacted: boolean
+  beforeTokens: number
+  afterTokens: number
+  absorbedMessages: number
+}
+
+/** Text supplied to the coordinator, kept separate from the displayed message. */
+export function withGroupMentions(
+  text: string,
+  mentions?: GroupMention[]
+): string {
+  if (!mentions?.length) return text
+  return `${text}\n\nOwner-directed staff: ${JSON.stringify(mentions)}. Coordinate this request with these active employees. Keep the plan, review and concurrency rules; explain if an intended recipient cannot do this work.`
+}

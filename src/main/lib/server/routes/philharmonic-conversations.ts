@@ -1,8 +1,14 @@
 import { extname } from 'node:path'
 
 // src/main/lib/server/routes/philharmonic-conversations.ts
-import { NotFoundError } from '@actovia/shared/errors/app-error'
-import type { PhilharmonicSseEvent } from '@actovia/shared/types/philharmonic'
+import {
+  NotFoundError,
+  ValidationError
+} from '@actovia/shared/errors/app-error'
+import type {
+  GroupMention,
+  PhilharmonicSseEvent
+} from '@actovia/shared/types/philharmonic'
 import { shell } from 'electron'
 import { Hono } from 'hono'
 import { z } from 'zod'
@@ -31,7 +37,10 @@ import {
   getMessagesByConversationId,
   updateConversation
 } from '../../db/conversation-queries'
-import { getConversationToolResults } from '../../db/philharmonic-queries'
+import {
+  getAgentById,
+  getConversationToolResults
+} from '../../db/philharmonic-queries'
 import {
   getActivePlanByConversationId,
   getPlansForDashboard
@@ -258,6 +267,7 @@ router.post('/conversations/:id/messages', async (c) => {
     z
       .object({
         content: z.string(),
+        mentionedAgentIds: z.array(z.string().uuid()).max(10).optional(),
         attachments: z.array(attachmentSchema).optional()
       })
       .refine(
@@ -269,6 +279,16 @@ router.post('/conversations/:id/messages', async (c) => {
     await c.req.json(),
     'Invalid message'
   )
+  const mentions: GroupMention[] = []
+  for (const agentId of new Set(body.mentionedAgentIds ?? [])) {
+    const employee = await getAgentById(agentId)
+    if (!employee?.isActive)
+      throw new ValidationError(
+        undefined,
+        'A mentioned employee is no longer active'
+      )
+    mentions.push({ agentId, name: employee.name })
+  }
   // Attachments live alongside other message parts so the JSONB column stays
   // one source of truth. `kind` discriminator keeps them addressable.
   // Fitted once, before the row is saved, with Chat's rules
@@ -278,12 +298,13 @@ router.post('/conversations/:id/messages', async (c) => {
       ? { ...a, ...fitImageDataUrl(a.url, a.contentType) }
       : a
   )
-  const parts = attachments?.map((a) => ({
+  const parts: Record<string, unknown>[] = (attachments ?? []).map((a) => ({
     kind: 'attachment' as const,
     name: a.name,
     url: a.url,
     contentType: a.contentType
   }))
+  parts.push(...mentions.map((mention) => ({ kind: 'mention', ...mention })))
   const userMsg = await createConversationMessage({
     conversationId: id,
     role: 'user',
@@ -307,6 +328,7 @@ router.post('/conversations/:id/messages', async (c) => {
   if (
     pmRunRegistry.steer(id, {
       text: body.content,
+      mentions,
       attachments,
       messageId: userMsg.id
     })
@@ -319,6 +341,7 @@ router.post('/conversations/:id/messages', async (c) => {
         runPmCoordinator({
           conversationId: id,
           userText: body.content,
+          mentions,
           attachments,
           excludeMessageId: userMsg.id,
           emit: (event) => emitToConversation(id, event),

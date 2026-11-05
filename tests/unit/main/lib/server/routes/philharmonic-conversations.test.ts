@@ -29,6 +29,10 @@ vi.mock('@main/lib/ai/utils/image-fit', () => ({
     fitImageDataUrl(url, contentType)
 }))
 vi.mock('@main/lib/db/philharmonic-queries', () => ({
+  getAgentById: async (id: string) =>
+    id === 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+      ? { id, name: 'Avery', isActive: true }
+      : null,
   getPhilharmonicCostRows: getPhilharmonicCostRows
 }))
 const getPhilharmonicCostRows = vi.fn()
@@ -447,5 +451,49 @@ describe('GET /costs', () => {
     app.route('/', conversationsRouter)
     const res = await app.request('/costs?days=7')
     expect(res.status).toBe(404)
+  })
+})
+
+describe('owner-directed employee mentions', () => {
+  it('saves stable recipients as message parts and forwards them to the PM', async () => {
+    const { Hono } = await import('hono')
+    const app = new Hono().route('/', conversationsRouter)
+    const agentId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+    const response = await app.request('/conversations/c1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        content: 'Review the report',
+        mentionedAgentIds: [agentId]
+      })
+    })
+    expect(response.ok).toBe(true)
+    expect(createConversationMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        content: 'Review the report',
+        parts: [{ kind: 'mention', agentId, name: 'Avery' }]
+      })
+    )
+    expect(runPmCoordinator).toHaveBeenLastCalledWith(
+      expect.objectContaining({ mentions: [{ agentId, name: 'Avery' }] })
+    )
+  })
+  it('does not persist or execute a request to an unavailable employee', async () => {
+    const { Hono } = await import('hono')
+    const app = new Hono().route('/', conversationsRouter)
+    const { errorHandler } =
+      await import('@main/lib/server/middlewares/error-handler')
+    app.onError(errorHandler)
+    const count = createConversationMessage.mock.calls.length
+    const response = await app.request('/conversations/c1/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        content: 'Do it',
+        mentionedAgentIds: ['bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb']
+      })
+    })
+    expect(response.status).toBe(400)
+    expect(createConversationMessage.mock.calls).toHaveLength(count)
   })
 })

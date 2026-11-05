@@ -516,5 +516,53 @@
       "label": "Allow automatic model selection",
       "description": "Let the PM and API employees choose among configured models, including Ollama, between requests. Off keeps their assigned model."
     }
+  },
+  "controls": {
+    "menuTitle": "Commandes du groupe",
+    "mentionTitle": "Mentionner une personne",
+    "noMatches": "Aucun résultat",
+    "staffDescription": "Personne active",
+    "mentionHint": "Le PM coordonne les personnes sélectionnées.",
+    "removeMention": "Retirer @{{name}}",
+    "waitForPm": "Attendez la fin du tour du PM avant de compacter.",
+    "compacting": "Compactage du contexte…",
+    "compacted": "Contexte compacté : ~{{before}} → ~{{after}} jetons",
+    "alreadyCompact": "Le contexte récent est déjà compact.",
+    "compactFailed": "Échec du compactage. Réessayez lorsque le PM est disponible.",
+    "briefTitle": "Consignes du groupe",
+    "briefDescription": "Un AGENTS.md partagé avec le PM et les agents : objectifs, contraintes, décisions et critères de validation. Les modifications prennent effet aux prochains tours et tâches.",
+    "briefEmpty": "La première demande crée ces consignes. Vous pouvez aussi les rédiger maintenant.",
+    "briefSaved": "Consignes enregistrées",
+    "briefSaveFailed": "Enregistrement impossible. Les consignes ont peut-être changé ; rechargez-les.",
+    "reloadBrief": "Recharger et abandonner les modifications",
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "edit": "Modifier",
+    "briefShort": "AGENTS.md",
+    "commands": {
+      "compact": {
+        "label": "Compacter le contexte",
+        "description": "Résumer les anciens messages ; conserver les récents et les consignes."
+      },
+      "brief": {
+        "label": "Consignes du groupe",
+        "description": "Lire ou modifier AGENTS.md."
+      },
+      "status": {
+        "label": "État",
+        "description": "Voir le contexte et l’activité de l’équipe."
+      },
+      "archive": {
+        "label": "Livrables",
+        "description": "Ouvrir les livrables terminés."
+      },
+      "stop": {
+        "label": "Arrêter",
+        "description": "Interrompre le PM et les agents."
+      }
+    },
+    "compactionDisabled": "Activez la gestion du contexte dans Settings → Memory avant de compacter."
   }
 }

@@ -15,14 +15,22 @@ describe('TEST_IDS', () => {
     expect(new Set(values).size).toBe(values.length)
   })
 
-  it('value matches the camelCase→kebab of its path', () => {
+  it('value matches its path or the pinned selector from before a feature rename', () => {
+    // Selector values are a durable automation contract even when code symbols move.
+    const legacySelectors: Record<string, string> = {
+      'library.page': 'artifacts.page',
+      'library.card': 'artifacts.card',
+      'library.preview': 'artifacts.preview',
+      'library.search': 'artifacts.search',
+      'chat-layout.library': 'chat-layout.artifacts'
+    }
     for (const { accessor, value } of flattenTestIds()) {
       const path = accessor
         .replace(/^TEST_IDS\./, '')
         .split('.')
         .map((seg) => seg.replaceAll(/[A-Z]/g, (m) => `-${m.toLowerCase()}`))
         .join('.')
-      expect(value).toBe(path)
+      expect(value).toBe(legacySelectors[path] ?? path)
     }
   })
 })
