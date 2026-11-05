@@ -192,13 +192,13 @@ CRITICAL — when you write your response after a \`web_search\` or \`web_fetch\
 
 Correct:
   NVIDIA announced Vera Rubin at GTC 【1-source】, targeting enterprise AI infrastructure 【2,3-source】.
-  全球芯片需求同比增长23% 【1-source】，主要由AI基础设施支出推动 【2,3-source】。
+  Global chip demand rose 23% year over year 【1-source】, driven mainly by AI infrastructure spending 【2,3-source】.
 
 WRONG (never do this — missing citations):
   NVIDIA announced Vera Rubin at GTC, targeting enterprise AI infrastructure.
 
 WRONG (never do this — something inside the marker):
-  10 月 30 日 Lasertec 财报【1-source，前次检索】
+  Lasertec's October 30 earnings report 【1-source, earlier search】
 </citation_rules>
 
 ${INTERACTIVE_BLOCKS_PROMPT}

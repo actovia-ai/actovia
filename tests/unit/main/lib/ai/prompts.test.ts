@@ -97,10 +97,10 @@ describe('getSystemPrompt', () => {
       prompt.indexOf('</citation_rules>')
     )
     // An earlier turn's source is cited the same way: the model once wrote
-    // 【1-source，前次检索】, which no chip can read.
+    // 【1-source, earlier search】, which no chip can read.
     expect(rules).toMatch(/whole conversation/u)
     expect(rules).toMatch(/earlier (turn|search)/u)
-    expect(rules).toContain('【1-source，前次检索】')
+    expect(rules).toContain('【1-source, earlier search】')
     expect(rules).toMatch(/nothing else inside/u)
   })
 

@@ -12,7 +12,8 @@
         "description": "Headings, paragraphs, lists, tables, emphasis, code and Markdown structure.",
         "mode": "text"
       }
-    ]
+    ],
+    "icon": "CaseSensitive"
   },
   {
     "slug": "chat",
@@ -55,7 +56,8 @@
         "description": "Generates a short conversation title.",
         "mode": "text"
       }
-    ]
+    ],
+    "icon": "MessageSquare"
   },
   {
     "slug": "philharmonic",
@@ -209,7 +211,8 @@
         "description": "Instructions appended when the owner directs a request to selected active employees, preserving PM coordination and review rules.",
         "mode": "source"
       }
-    ]
+    ],
+    "icon": "Users"
   },
   {
     "slug": "memory",
@@ -309,7 +312,8 @@
         "description": "Answers from retrieved summaries, citing summary IDs.",
         "mode": "property"
       }
-    ]
+    ],
+    "icon": "Brain"
   },
   {
     "slug": "research",
@@ -362,7 +366,8 @@
         "description": "Produces complementary query variants as a JSON array.",
         "mode": "text"
       }
-    ]
+    ],
+    "icon": "Search"
   },
   {
     "slug": "discover",
@@ -399,7 +404,8 @@
         "mode": "source",
         "scope": "judgeRelevance"
       }
-    ]
+    ],
+    "icon": "Newspaper"
   },
   {
     "slug": "health",
@@ -435,6 +441,7 @@
         "description": "Period aggregates, comparisons and memories supplied to the reporter.",
         "mode": "source"
       }
-    ]
+    ],
+    "icon": "HeartPulse"
   }
 ]
