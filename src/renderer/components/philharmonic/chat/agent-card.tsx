@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import type { AgentCard } from '@actovia/shared/types/agents'
 import { CLI_NAMES } from '@actovia/shared/types/agents'
 import {
@@ -177,7 +178,7 @@ export function AgentCardView({
             {t('agents.card.stop')}
           </Button>
         )}
-        {!running && !superseded && (
+        {!IS_WEB_CLIENT && !running && !superseded && (
           <Button
             variant="ghost"
             size="xs"

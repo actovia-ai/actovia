@@ -41,7 +41,7 @@ const startedAt = new Date()
 export const hostStatusRouter = new Hono<{ Variables: Variables }>()
 
 hostStatusRouter.get('/status', async (c) => {
-  if (listenerOf(c) === 'lan') return loopbackOnly(c)
+  if (listenerOf(c) !== 'loopback') return loopbackOnly(c)
   const lock = getLockManager()
   const settings = await getSettings()
   const secrets = getSecretsStatus(
@@ -78,7 +78,7 @@ hostStatusRouter.get('/status', async (c) => {
 export const hostRouter = new Hono<{ Variables: Variables }>()
 
 hostRouter.use('*', async (c, next) => {
-  if (listenerOf(c) === 'lan') return loopbackOnly(c)
+  if (listenerOf(c) !== 'loopback') return loopbackOnly(c)
   return next()
 })
 

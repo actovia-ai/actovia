@@ -188,6 +188,68 @@ settings and memories as the packaged app:
   real `~/.actovia` through it. To test a
   packaged build by hand, sandbox `$HOME` and pass `--user-data-dir` the same way.
 
+### Paired browser terminals (ISSUE-331)
+
+`src/main/lib/web-access/` serves the browser entry on `127.0.0.1:63130`,
+only when enabled in Settings → Devices. The owner configures a private HTTPS
+reverse proxy (for example Tailscale Serve) and its exact origin; Actovia
+never configures a VPN or publishes the existing `60223` listener. The shared
+Hono app receives trusted `{ listener: 'web', webDeviceId, webOrigin }`
+bindings after verification. A caller-supplied HTTP header cannot grant this
+identity. `desktopOnly` means loopback explicitly, not merely “not LAN”.
+
+Browser profiles and phones are independent rows in `paired_device`:
+`kind = ios | web` (migration 0024 preserves existing phones), with a public
+WebAuthn credential for Web. Phone Bearers and browser binding tokens are
+transport-specific. `hasDevices()` only activates the phone listener for
+phones. Revoking a browser leaves other devices paired and aborts that
+browser's active SSE connections through `lan/device-events.ts`.
+
+`POST /api/web-terminal/pair/options` exchanges the desktop's one-use,
+two-minute invitation for a WebAuthn challenge; `/pair/verify` adds a new
+device only after required user verification. `/unlock/options` and
+`/unlock/verify` resume the same device. Binding and unlocked-session cookies
+are Secure, HttpOnly, SameSite=Strict and `__Host-` scoped. The binding lasts
+90 days; server-side sessions expire after 30 minutes without user activity,
+or 12 hours absolutely. Polling/SSE does not extend idle time. `/activity`,
+`/lock` and `/forget` affect only this browser; a native App Lock invalidates
+all Web sessions and pending invitations/challenges. Exact Host/Origin and
+`x-actovia-web: 1` protect writes, including pairing. No long-lived bearer is
+placed in localStorage or a URL. Challenges are one-use and expire after two
+minutes; cancelling/replacing an invitation invalidates outstanding ones.
+
+Desktop-only `/api/v1/web-access` GET/PUT and POST/DELETE `/pairing` require
+window presence; their non-secret configuration lives in
+`~/.actovia/web-access.json`, outside general remotely editable settings.
+Browser API access to host/lock/CLI-pass/device management and native sandbox
+routes is refused. The native workspace/CLI shell operations also retain
+`desktopOnly` guards. Remote Chat, Philharmonic and approvals use the paired
+principal; automation executes on the host, recording/uploads in the browser.
+
+`web.html` marks the explicit Web entry. The renderer uses the same-origin
+API there and mounts no settings consumers until its pairing/unlock gate
+passes. Native menu, update, window, lock and file dialogs are not shimmed.
+Unsupported host controls are hidden. Generated HTML Artifact code is inert
+source with download; execution stays in the native custom-scheme sandbox.
+WebAuthn stays external in the main build to preserve decorator initialization;
+`forge.config.ts` retains its full runtime dependency tree through
+`scripts/runtime-package-paths.ts`, including nested package versions.
+The production renderer build includes Web assets beside its native entries;
+`bun run build:web` writes `.vite/web` for development without a Vite proxy.
+`WebEntryPlugin` (`scripts/web-entry-plugin.ts`) runs after VitePlugin in the
+preStart plugin sequence: Forge first clears `.vite`, then builds the static
+Web entry before Electron launches, so `bun run dev` needs no manual Web build.
+Asset roots are resolved per request, allowing a listener to recover after a
+development asset rebuild without toggling access.
+`web-access/assets.ts` serves only the Web entry and compiled assets, excluding
+source maps, native HTML and paths/symlinks leaving that directory.
+
+`bun run test:e2e:web` builds a separate `.vite/web-test` and tests the real
+WebAuthn exchange using Chromium virtual authenticators. Its
+`tests/browser/fixtures/server.ts` uses memory only on localhost:63131, with
+no Electron, user database, tools or credentials. Fixture controls and the
+settings harness are never included in the production build.
+
 ### Updates and code signing
 
 A macOS build is signed with the owner's **Developer ID** when

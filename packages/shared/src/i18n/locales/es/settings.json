@@ -1032,9 +1032,9 @@
   },
   "devices": {
     "heading": "Dispositivos vinculados",
-    "description": "Teléfonos y tabletas que pueden usar Actovia a través de tu red local. Primero hay que vincular el dispositivo aquí; hasta que haya alguno vinculado, Actovia no es accesible desde la red en absoluto.",
+    "description": "Teléfonos, tabletas y navegadores emparejados con este Mac. Cada uno es un dispositivo remoto independiente con acceso que se puede revocar por separado.",
     "empty": "No hay dispositivos vinculados",
-    "emptyHint": "Empareja tu iPhone para chatear con Actovia en este ordenador, usar sus herramientas y desbloquearlo desde el teléfono. Puedes revocar un dispositivo en cualquier momento.",
+    "emptyHint": "Empareja un teléfono o un navegador para usar Actovia a distancia. Puedes revocar cada dispositivo por separado en cualquier momento.",
     "pair": "Vincular un dispositivo",
     "pairCard": {
       "title": "Conecta un iPhone o iPad",
@@ -1112,5 +1112,39 @@
       "mcp": "Servidor MCP «{{server}}»: {{field}}"
     }
   },
-  "examplePlaceholder": "p. ej., {{example}}"
+  "examplePlaceholder": "p. ej., {{example}}",
+  "webAccess": {
+    "heading": "Terminales del navegador",
+    "enabledLabel": "Activar acceso desde el navegador",
+    "description": "Empareja los navegadores como dispositivos independientes, igual que los teléfonos. Este Mac sigue siendo el centro y debe permanecer encendido.",
+    "originLabel": "Dirección del navegador",
+    "originHint": "La dirección HTTPS privada que reenvía a este Mac. Si la cambias, los navegadores tendrán que verificarse de nuevo.",
+    "proxyHint": "Reenvía esta dirección HTTPS a 127.0.0.1:{{port}}, conservando la cabecera Host original. Con Tailscale, ejecuta el comando de abajo en este Mac e introduce arriba la dirección HTTPS que indique.",
+    "save": "Guardar acceso",
+    "saveFailed": "No se pudo actualizar el acceso del navegador",
+    "pairBrowser": "Emparejar navegador",
+    "pairHint": "Abre la dirección, pon nombre al nuevo dispositivo e introduce el código de un solo uso. Cada perfil del navegador es un dispositivo independiente.",
+    "expiresHint": "El código solo se puede usar una vez y caduca a los dos minutos. No lo compartas. Si cancelas la verificación, genera un código nuevo.",
+    "copyCode": "Copiar código",
+    "copyFailed": "No se pudo copiar el código",
+    "cancelPairing": "Cancelar emparejamiento",
+    "connectTitle": "Conectar con Actovia",
+    "connectDescription": "En Actovia en tu Mac, abre Ajustes → Dispositivos → Emparejar navegador. Introduce aquí el código y crea una clave de acceso para proteger este terminal.",
+    "pairedHint": "{{name}} está emparejado con tu Mac. Verifica tu identidad con tu clave de acceso para continuar.",
+    "nameLabel": "Nombre del dispositivo navegador",
+    "codeLabel": "Código de emparejamiento",
+    "unlock": "Desbloquear este navegador",
+    "verifying": "Verificando…",
+    "forget": "Olvidar este navegador",
+    "forgetHint": "Elimina solo este dispositivo y su acceso. Para volver a conectarlo, empareja de nuevo desde tu Mac.",
+    "lock": "Bloquear este navegador",
+    "lockHint": "Finaliza esta sesión del navegador. Los demás dispositivos siguen conectados.",
+    "remoteTerminal": "Terminal del navegador emparejado",
+    "connectionFailed": "No se pudo conectar o verificar. Comprueba que tu Mac esté encendido y accesible. Para emparejar, solicita un código nuevo y vuelve a intentarlo.",
+    "cancelled": "Verificación cancelada. Vuelve a intentarlo; para emparejar, solicita un código nuevo en tu Mac.",
+    "unsupported": "Abre esta página mediante su dirección HTTPS en un navegador compatible con claves de acceso. Las conexiones inseguras no permiten emparejar.",
+    "retry": "Reintentar conexión",
+    "staticArtifact": "Las vistas previas interactivas están disponibles en la app para Mac. Aquí puedes leer y descargar el código fuente.",
+    "downloadSource": "Descargar código fuente"
+  }
 }

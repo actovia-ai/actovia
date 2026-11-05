@@ -42,6 +42,7 @@ devicesRouter.get('/', async (c) => {
   const devices = (await listDevices()).map((d) => ({
     id: d.id,
     name: d.name,
+    kind: d.kind ?? 'ios',
     createdAt: d.createdAt.toISOString(),
     lastSeenAt: d.lastSeenAt?.toISOString() ?? null
   }))

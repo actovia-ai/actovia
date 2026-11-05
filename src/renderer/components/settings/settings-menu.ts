@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import {
   CloudIcon,
   CogIcon,
@@ -93,7 +94,7 @@ export const NAV_TITLE_KEYS = {
 // group has no label — it holds "About", pinned to the bottom.
 // `label` holds a settings.json key path (empty string for the unlabeled
 // group), not display text — settings-sidebar.tsx renders `t(group.label)`.
-export const menus = {
+const allMenus = {
   navMain: [
     {
       label: 'nav.group.personal',
@@ -156,3 +157,25 @@ export const menus = {
     }
   ]
 } as const
+
+const NATIVE_SETTINGS = new Set<SettingsLabel>([
+  SettingsLabel.AboutActovia,
+  SettingsLabel.Logger,
+  SettingsLabel.ChatAudit,
+  SettingsLabel.DataControls,
+  SettingsLabel.KeyboardShortcuts,
+  SettingsLabel.ComputerUse
+])
+
+export function settingsPageAvailable(page: SettingsLabel) {
+  return !IS_WEB_CLIENT || !NATIVE_SETTINGS.has(page)
+}
+
+export const menus = {
+  navMain: allMenus.navMain
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => settingsPageAvailable(item.title))
+    }))
+    .filter((group) => group.items.length > 0)
+}

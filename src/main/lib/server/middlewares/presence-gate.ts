@@ -17,6 +17,7 @@ import { listenerOf } from '../types'
 export const PRESENCE_PATHS = [
   '/api/v1/chat/approval',
   '/api/v1/devices',
+  '/api/v1/web-access',
   // Locking, quitting and restarting the app (host.ts). `GET /host/status`
   // is answered ahead of this gate, by a router of its own.
   '/api/v1/host'
@@ -62,7 +63,7 @@ export function needsPresenceFor(path: string, method: string): boolean {
 
 export async function presenceGate(c: Context, next: Next) {
   if (!needsPresenceFor(c.req.path, c.req.method)) return next()
-  if (listenerOf(c) === 'lan') return next()
+  if (listenerOf(c) !== 'loopback' && c.get('deviceId')) return next()
   const presented = c.req.header(PRESENCE_HEADER)
   if (isPresenceToken(presented)) return next()
   // `actovia pair` / `devices` / `lock` / `app quit|restart`: a pass the CLI

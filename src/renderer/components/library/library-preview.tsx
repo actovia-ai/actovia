@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { SparklesIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -36,8 +37,12 @@ export function LibraryPreview({
   const boxRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const inView = useInView(boxRef, '400px')
-  const { data } = useLibraryItemCode(chatId, artifactId, inView)
-  const live = inView && !!data
+  const { data } = useLibraryItemCode(
+    chatId,
+    artifactId,
+    !IS_WEB_CLIENT && inView
+  )
+  const live = !IS_WEB_CLIENT && inView && !!data
   const [rendered, setRendered] = useState(false)
   const [scale, setScale] = useState(0)
   const ready = useRef(false)

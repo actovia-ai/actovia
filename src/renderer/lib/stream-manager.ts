@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type {
   ChatMessage,
@@ -6,6 +7,10 @@ import type {
   ToolNoticeLevel
 } from '@actovia/shared/types/chat'
 import type { UsedMemory } from '@actovia/shared/types/memory'
+import {
+  WEB_CLIENT_HEADER,
+  WEB_SESSION_EVENT
+} from '@actovia/shared/types/web-terminal'
 import { mergeRun } from '@actovia/shared/utils/run-merge'
 
 import { toast } from '@/components/ui/toast'
@@ -241,12 +246,20 @@ export function startStream(opts: {
     try {
       const response = await fetch(opts.api, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(IS_WEB_CLIENT ? { [WEB_CLIENT_HEADER]: '1' } : {})
+        },
         body: JSON.stringify(opts.body),
         signal: abortController.signal
       })
 
       if (!response.ok) {
+        if (
+          IS_WEB_CLIENT &&
+          (response.status === 401 || response.status === 423)
+        )
+          window.dispatchEvent(new Event(WEB_SESSION_EVENT))
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`
         try {
           const ct = response.headers.get('content-type') || ''

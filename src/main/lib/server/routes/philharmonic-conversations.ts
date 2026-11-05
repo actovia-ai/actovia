@@ -52,6 +52,7 @@ import {
 import { mainT } from '../../i18n'
 import { logger } from '../../logger'
 import { removeGroupMedia } from '../../media/store'
+import { desktopOnly } from '../middlewares/desktop-only'
 import type { Variables } from '../types'
 import {
   deletionSuccessResponse,
@@ -118,7 +119,7 @@ router.get('/conversations/:id/archive/file', async (c) => {
   return c.body(new Uint8Array(file.data))
 })
 
-router.post('/conversations/:id/archive/reveal', async (c) => {
+router.post('/conversations/:id/archive/reveal', desktopOnly, async (c) => {
   const body = validateSchema(
     z.object({ path: z.string() }),
     await c.req.json(),

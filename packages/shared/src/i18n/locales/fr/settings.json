@@ -1032,9 +1032,9 @@
   },
   "devices": {
     "heading": "Appareils jumelés",
-    "description": "Téléphones et tablettes autorisés à utiliser Actovia sur votre réseau local. Un appareil doit d’abord être jumelé ici ; tant qu’aucun ne l’est, Actovia est totalement inaccessible depuis le réseau.",
+    "description": "Téléphones, tablettes et navigateurs associés à ce Mac. Chaque appareil distant dispose d’un accès indépendant, révocable séparément.",
     "empty": "Aucun appareil jumelé",
-    "emptyHint": "Associez votre iPhone pour discuter avec Actovia sur cet ordinateur, utiliser ses outils et le déverrouiller depuis le téléphone. Vous pouvez révoquer un appareil à tout moment.",
+    "emptyHint": "Associez un téléphone ou un navigateur pour utiliser Actovia à distance. Vous pouvez révoquer chaque appareil séparément à tout moment.",
     "pair": "Jumeler un appareil",
     "pairCard": {
       "title": "Connecter un iPhone ou un iPad",
@@ -1112,5 +1112,39 @@
       "mcp": "Serveur MCP « {{server}} » : {{field}}"
     }
   },
-  "examplePlaceholder": "ex. : {{example}}"
+  "examplePlaceholder": "ex. : {{example}}",
+  "webAccess": {
+    "heading": "Terminaux navigateur",
+    "enabledLabel": "Activer l’accès par navigateur",
+    "description": "Associez les navigateurs comme des appareils distincts, comme les téléphones. Ce Mac reste le point central et doit rester allumé.",
+    "originLabel": "Adresse du navigateur",
+    "originHint": "L’adresse HTTPS privée qui redirige vers ce Mac. Après un changement, les navigateurs doivent se vérifier à nouveau.",
+    "proxyHint": "Transférez cette adresse HTTPS vers 127.0.0.1:{{port}} en conservant l’en-tête Host d’origine. Avec Tailscale, exécutez la commande ci-dessous sur ce Mac, puis saisissez l’adresse HTTPS indiquée plus haut.",
+    "save": "Enregistrer l’accès",
+    "saveFailed": "Impossible de mettre à jour l’accès par navigateur",
+    "pairBrowser": "Associer un navigateur",
+    "pairHint": "Ouvrez l’adresse, nommez le nouvel appareil et saisissez le code à usage unique. Chaque profil de navigateur est un appareil distinct.",
+    "expiresHint": "Ce code ne peut servir qu’une fois et expire après deux minutes. Gardez-le confidentiel. Si la vérification est annulée, créez un nouveau code.",
+    "copyCode": "Copier le code",
+    "copyFailed": "Impossible de copier le code",
+    "cancelPairing": "Annuler l’association",
+    "connectTitle": "Se connecter à Actovia",
+    "connectDescription": "Dans Actovia sur votre Mac, ouvrez Réglages → Appareils → Associer un navigateur. Saisissez le code ici, puis créez une clé d’accès pour protéger ce terminal.",
+    "pairedHint": "{{name}} est associé à votre Mac. Vérifiez votre identité avec votre clé d’accès pour continuer.",
+    "nameLabel": "Nom de l’appareil navigateur",
+    "codeLabel": "Code d’association",
+    "unlock": "Déverrouiller ce navigateur",
+    "verifying": "Vérification…",
+    "forget": "Oublier ce navigateur",
+    "forgetHint": "Supprime uniquement cet appareil et son accès. Pour vous reconnecter, associez-le à nouveau depuis votre Mac.",
+    "lock": "Verrouiller ce navigateur",
+    "lockHint": "Termine cette session de navigateur. Les autres appareils restent connectés.",
+    "remoteTerminal": "Terminal navigateur associé",
+    "connectionFailed": "Connexion ou vérification impossible. Vérifiez que votre Mac est allumé et accessible. Pour une association, demandez un nouveau code et réessayez.",
+    "cancelled": "Vérification annulée. Réessayez ; pour une association, demandez un nouveau code sur votre Mac.",
+    "unsupported": "Ouvrez cette page à son adresse HTTPS dans un navigateur compatible avec les clés d’accès. Une connexion non sécurisée ne permet pas l’association.",
+    "retry": "Réessayer la connexion",
+    "staticArtifact": "Les aperçus interactifs sont disponibles dans l’app Mac. Ici, vous pouvez lire et télécharger le code source.",
+    "downloadSource": "Télécharger le code source"
+  }
 }

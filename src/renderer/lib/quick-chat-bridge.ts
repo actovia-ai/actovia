@@ -1,4 +1,5 @@
 import { QUICK_CHAT_KEY } from '@actovia/shared/constants/misc'
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 
 import { subscribeQuickChatInput } from '@/lib/ipc'
 import { router } from '@/routes'
@@ -16,7 +17,7 @@ import { router } from '@/routes'
 let installed = false
 
 export function installQuickChatBridge(): void {
-  if (installed) return
+  if (installed || IS_WEB_CLIENT) return
   installed = true
 
   subscribeQuickChatInput((_, text) => {

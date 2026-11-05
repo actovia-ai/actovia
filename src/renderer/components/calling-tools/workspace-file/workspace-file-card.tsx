@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import {
@@ -67,7 +68,7 @@ export function WorkspaceFileCard({
       ? output.bytes
       : undefined)
   let status: string | null = null
-  if (stat && !stat.ok) {
+  if (!IS_WEB_CLIENT && stat && !stat.ok) {
     status =
       stat.reason === 'not-found' || stat.reason === 'not-a-file'
         ? t('workspaceFile.missing')

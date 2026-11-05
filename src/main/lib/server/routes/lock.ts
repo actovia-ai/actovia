@@ -55,7 +55,7 @@ lockRouter.post('/cli-pass', async (c) => {
     extra: Record<string, unknown> = {}
   ) =>
     c.json({ type: 'error', error: { code, message: code, ...extra } }, status)
-  if (listenerOf(c) === 'lan') return refuse(403, 'LOOPBACK_ONLY')
+  if (listenerOf(c) !== 'loopback') return refuse(403, 'LOOPBACK_ONLY')
   const body = (await c.req.json().catch(() => null)) as {
     pin?: unknown
   } | null

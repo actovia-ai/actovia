@@ -72,12 +72,15 @@ export function MonitorCharts({ plans }: { plans: PlanDto[] }) {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) =>
-                    format.dateTime(new Date(Number(value)), {
+                  labelFormatter={(value) => {
+                    if (typeof value !== 'number') return null
+                    const date = new Date(value)
+                    if (!Number.isFinite(date.getTime())) return null
+                    return format.dateTime(date, {
                       month: 'short',
                       day: 'numeric'
                     })
-                  }
+                  }}
                 />
               }
             />

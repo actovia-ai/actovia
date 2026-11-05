@@ -1,3 +1,5 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
+import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   artifactShortId,
   artifactSlug
@@ -10,6 +12,13 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 
+import { Button } from '@/components/ui/button'
+import {
+  CodeBlock,
+  CodeBlockHeader,
+  CodeBlockTitle,
+  CodeBlockContent
+} from '@/components/ui/code-block'
 import { toast } from '@/components/ui/toast'
 import {
   checkFullScreen,
@@ -260,7 +269,64 @@ export function ArtifactDraft({
   )
 }
 
-export function ArtifactCard({
+type ArtifactCardProps = {
+  chatId: string
+  toolResult: ArtifactDetails
+  toolCallId?: string
+}
+
+export function ArtifactCard(props: ArtifactCardProps) {
+  return IS_WEB_CLIENT ? (
+    <WebArtifactCard {...props} />
+  ) : (
+    <NativeArtifactCard {...props} />
+  )
+}
+
+function WebArtifactCard({ toolResult, toolCallId }: ArtifactCardProps) {
+  const { t } = useTranslation('settings')
+  const [url, setUrl] = useState('')
+  useEffect(() => {
+    const value = URL.createObjectURL(
+      new Blob([toolResult.code], { type: 'text/plain;charset=utf-8' })
+    )
+    setUrl(value)
+    return () => URL.revokeObjectURL(value)
+  }, [toolResult.code])
+  return (
+    <div className="min-w-0 space-y-3" data-artifact-call={toolCallId}>
+      <p className="text-muted-foreground text-sm">
+        {t('webAccess.staticArtifact')}
+      </p>
+      <CodeBlock>
+        <CodeBlockHeader>
+          <CodeBlockTitle>{toolResult.title}</CodeBlockTitle>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            data-testid={TEST_IDS.webTerminal.downloadSource}
+            disabled={!url}
+            render={
+              <a
+                href={url}
+                download={`${artifactSlug(toolResult.title)}.txt`}
+              />
+            }
+          >
+            {t('webAccess.downloadSource')}
+          </Button>
+        </CodeBlockHeader>
+        <CodeBlockContent className="max-h-96">
+          {toolResult.code}
+        </CodeBlockContent>
+      </CodeBlock>
+    </div>
+  )
+}
+
+function NativeArtifactCard({
   chatId,
   toolResult,
   toolCallId

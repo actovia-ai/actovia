@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { WorkspaceFileReadResult } from '@actovia/shared/types/workspace-files'
 import {
@@ -33,15 +34,17 @@ import {
  */
 export function WorkspaceFilePreview({
   path,
+  chatId,
   open,
   onOpenChange
 }: {
   path: string
+  chatId?: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }) {
   const { t, i18n } = useTranslation('chat')
-  const { data, isPending } = useWorkspaceFileContent(path, open)
+  const { data, isPending } = useWorkspaceFileContent(path, open, chatId)
   const { copied, handleCopy } = useClipboard()
   const name = (data && 'file' in data && data.file?.name) || fileNameOf(path)
   const content = data?.ok ? data.content : null
@@ -99,14 +102,16 @@ export function WorkspaceFilePreview({
               {isCopied ? t('workspaceFile.copied') : t('workspaceFile.copy')}
             </Button>
           )}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => void openWorkspaceFileWithFeedback(path, t)}
-          >
-            <HugeiconsIcon icon={LinkSquare02Icon} />
-            {t('workspaceFile.open')}
-          </Button>
+          {!IS_WEB_CLIENT && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void openWorkspaceFileWithFeedback(path, t)}
+            >
+              <HugeiconsIcon icon={LinkSquare02Icon} />
+              {t('workspaceFile.open')}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

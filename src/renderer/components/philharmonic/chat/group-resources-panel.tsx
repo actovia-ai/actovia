@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   File01Icon,
@@ -139,18 +140,20 @@ export function GroupResourcesPanel({
                           {entry.path}
                         </p>
                         <div className="mt-2 flex flex-wrap gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              void revealGroupArchive(
-                                conversationId,
-                                entry.path
-                              ).catch(report)
-                            }
-                          >
-                            {t('philharmonic:chat.archive.reveal')}
-                          </Button>
+                          {!IS_WEB_CLIENT && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() =>
+                                void revealGroupArchive(
+                                  conversationId,
+                                  entry.path
+                                ).catch(report)
+                              }
+                            >
+                              {t('philharmonic:chat.archive.reveal')}
+                            </Button>
+                          )}
                           {
                             <Button
                               size="sm"
@@ -179,7 +182,7 @@ export function GroupResourcesPanel({
                 </div>
               )}
             </div>
-            {project.data?.project && (
+            {!IS_WEB_CLIENT && project.data?.project && (
               <div className="border-t p-3">
                 <Button
                   variant="ghost"

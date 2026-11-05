@@ -11,7 +11,16 @@ export const LAN_SERVER_PORT = 63129
 // open. The main process enforces it; the renderer only draws the countdown.
 export const PAIRING_TTL_MS = 120_000
 
-export const BASE_URL = `http://localhost:${SERVER_PORT}`
+/** Explicit entry marker: a missing preload alone must not redefine a desktop build. */
+const clientGlobal = globalThis as typeof globalThis & {
+  document?: { documentElement: { dataset: { actoviaClient?: string } } }
+  location?: { origin: string }
+}
+export const IS_WEB_CLIENT =
+  clientGlobal.document?.documentElement.dataset.actoviaClient === 'web'
+export const BASE_URL = IS_WEB_CLIENT
+  ? clientGlobal.location!.origin
+  : `http://localhost:${SERVER_PORT}`
 
 // How much of one stack (an error's own, React's component stack) a client
 // sends with an error report — `POST /api/v1/logs` — and the main process

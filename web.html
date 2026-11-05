@@ -1,0 +1,19 @@
+<!doctype html>
+<html class="app-shell" data-actovia-client="web" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Actovia</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; worker-src 'self' blob:; script-src-elem 'self' https://maps.googleapis.com https://*.tradingview.com; font-src 'self' data: https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com; img-src * data: blob:; connect-src 'self' https://*.googleapis.com; media-src 'self' blob:; frame-src https://*.tradingview.com https://*.tradingview-widget.com; object-src 'none'; base-uri 'none'; form-action 'self'"
+    />
+    <link rel="icon" type="image/png" href="/public/favicon.svg" />
+    <link rel="apple-touch-icon" href="/public/apple-touch-icon.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/renderer/main.tsx"></script>
+  </body>
+</html>

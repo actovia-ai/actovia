@@ -82,6 +82,9 @@ export function isAllowedHost(
 
 export function createOriginGate(opts: { devOrigin?: string }) {
   return async function originGate(c: Context, next: Next) {
+    // The dedicated Web entry has already checked its exact Host, Origin and
+    // CSRF header. Never accept this branch via a caller-supplied HTTP header.
+    if (listenerOf(c) === 'web' && (c.env as Bindings).webOrigin) return next()
     const origin = c.req.header('origin')
     const host = c.req.header('host')
     // `c.env` is @hono/node-server's bindings; absent under `app.request()`.

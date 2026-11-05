@@ -1,6 +1,8 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   Alert02Icon,
+  ComputerIcon,
   SmartPhone01Icon,
   Tablet01Icon
 } from '@hugeicons/core-free-icons'
@@ -39,6 +41,7 @@ import {
 } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { PairCard, PairingPanel } from './devices-pairing'
+import { BrowserDeviceSettings, WebAccessSettings } from './web-access'
 
 function DeviceRow({
   device,
@@ -63,7 +66,9 @@ function DeviceRow({
       data-testid={TEST_IDS.devices.deviceRow}
       className={ENTER_UP}
       icon={
-        /ipad|tablet/iu.test(device.name) ? (
+        device.kind === 'web' ? (
+          <HugeiconsIcon icon={ComputerIcon} />
+        ) : /ipad|tablet/iu.test(device.name) ? (
           <HugeiconsIcon icon={Tablet01Icon} />
         ) : (
           <HugeiconsIcon icon={SmartPhone01Icon} />
@@ -128,6 +133,10 @@ function RevokedRow({ device }: { device: RevokedDeviceInfo }) {
  * from the primary action.
  */
 export function Devices() {
+  return IS_WEB_CLIENT ? <BrowserDeviceSettings /> : <DesktopDevices />
+}
+
+function DesktopDevices() {
   const { t } = useTranslation('settings')
   // Confirmations are controlled from here (the house pattern): the dialog's
   // action is a plain button, so closing it is this component's job.
@@ -193,6 +202,8 @@ export function Devices() {
       ) : (
         <PairCard onPair={() => openPairing.mutate()} />
       )}
+
+      <WebAccessSettings />
 
       {data && (
         <SettingsSection title={t('devices.heading')}>

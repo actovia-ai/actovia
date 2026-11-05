@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   SearchIcon,
@@ -207,7 +208,7 @@ export function ConversationList({
         <div
           className={cn(
             'flex h-7 items-center gap-1 transition-[padding] duration-200 ease-out',
-            isFullscreen ? 'pl-2' : 'pl-21'
+            IS_WEB_CLIENT || isFullscreen ? 'pl-2' : 'pl-21'
           )}
         >
           <SidebarTrigger className="no-drag" />

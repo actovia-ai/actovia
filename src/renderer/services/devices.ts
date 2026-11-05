@@ -3,6 +3,7 @@ import { fetcher } from '@actovia/shared/utils/http'
 import { presenceHeaders } from '@/lib/presence'
 
 export interface PairedDeviceInfo {
+  kind?: 'ios' | 'web'
   id: string
   name: string
   createdAt: string

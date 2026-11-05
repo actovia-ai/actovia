@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useHotkeys } from '@tanstack/react-hotkeys'
 import type { ParseKeys } from 'i18next'
@@ -207,7 +208,7 @@ export function useKeyboardShortcuts() {
           void closeSearchbar()
         },
         options: {
-          enabled: !disabled.has('close-find-bar'),
+          enabled: !IS_WEB_CLIENT && !disabled.has('close-find-bar'),
           preventDefault: false,
           conflictBehavior: 'allow'
         }

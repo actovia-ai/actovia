@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 interface Row {
   id: string
   name: string
+  kind?: 'ios' | 'web'
   tokenHash: string
   createdAt: Date
   lastSeenAt: Date | null
@@ -49,6 +50,7 @@ const {
   listDevices,
   mintToken,
   registerDevice,
+  registerWebDevice,
   revokeAllDevices,
   revokeDevice
 } = await import('@main/lib/lan/devices')
@@ -170,5 +172,82 @@ describe('devices', () => {
     touchDevice.mockRejectedValueOnce(new Error('disk full'))
 
     expect(await authenticate(token)).toBe(deviceId)
+  })
+})
+
+describe('browser devices share the list, not phone transport credentials', () => {
+  it('keeps each registration independent and prevents cross-transport authentication', async () => {
+    const credential = { id: 'passkey', publicKey: 'public-key', counter: 0 }
+    const a = await registerWebDevice('Browser A', credential)
+    const b = await registerWebDevice('Browser B', {
+      ...credential,
+      id: 'passkey-b'
+    })
+    expect(a.deviceId).not.toBe(b.deviceId)
+    expect(a.token).not.toBe(b.token)
+    expect(await hasDevices()).toBe(false)
+    expect(await authenticate(a.token)).toBeNull()
+    expect(await authenticate(a.token, 'web')).toBe(a.deviceId)
+    const phone = await registerDevice('iPhone')
+    expect(await hasDevices()).toBe(true)
+    expect(await authenticate(phone.token, 'web')).toBeNull()
+    expect(await authenticate(phone.token)).toBe(phone.deviceId)
+    expect(await listDevices()).toHaveLength(3)
+    await revokeDevice(a.deviceId)
+    expect(rememberRevoked).not.toHaveBeenCalled()
+    expect(await authenticate(a.token, 'web')).toBeNull()
+    expect(await authenticate(b.token, 'web')).toBe(b.deviceId)
+    expect(await authenticate(phone.token)).toBe(phone.deviceId)
+  })
+})
+
+describe('revocation during an in-flight device read', () => {
+  it.each(['ios', 'web'] as const)(
+    'never resurrects a revoked %s device from a stale DB snapshot',
+    async (kind) => {
+      const device =
+        kind === 'web'
+          ? await registerWebDevice('Browser', {
+              id: 'passkey',
+              publicKey: 'public-only',
+              counter: 0
+            })
+          : await registerDevice('iPhone')
+      const snapshot = rows.map((row) => ({ ...row }))
+      let resolve!: (value: Row[]) => void
+      listDeviceRows.mockImplementationOnce(
+        () =>
+          new Promise<Row[]>((done) => {
+            resolve = done
+          })
+      )
+      const request = authenticate(device.token, kind)
+      await leaveDevice(device.deviceId)
+      resolve(snapshot)
+      expect(await request).toBeNull()
+      expect(await listDevices()).toEqual([])
+    }
+  )
+})
+
+describe('device connection timestamps', () => {
+  it('keeps each listed last-seen time current while database writes are throttled', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-11-05T10:00:00Z'))
+    const a = await registerDevice('Phone A')
+    const b = await registerDevice('Phone B')
+    await authenticate(a.token)
+    vi.setSystemTime(new Date('2026-11-05T10:00:10Z'))
+    await authenticate(a.token)
+    const devices = await listDevices()
+    expect(
+      devices
+        .find((device) => device.id === a.deviceId)
+        ?.lastSeenAt?.toISOString()
+    ).toBe('2026-11-05T10:00:10.000Z')
+    expect(
+      devices.find((device) => device.id === b.deviceId)?.lastSeenAt
+    ).toBeNull()
+    expect(touchDevice).toHaveBeenCalledTimes(1)
   })
 })

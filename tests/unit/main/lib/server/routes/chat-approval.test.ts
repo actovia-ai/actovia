@@ -111,6 +111,8 @@ const USER_ID = '22222222-2222-4222-8222-222222222222'
 function buildApp() {
   const app = new Hono()
   app.use('*', async (c, next) => {
+    if (c.env?.authenticatedDeviceId)
+      c.set('deviceId', c.env.authenticatedDeviceId)
     c.set('settings', {
       id: 'settings-1',
       memory: { lcmEnabled: true, autoCapture: true, useInChat: false }
@@ -291,7 +293,7 @@ describe('the approval gate through the chat route', () => {
       app,
       { runId: USER_ID, toolCallId: 'call_1', decision: 'deny' },
       {},
-      { listener: 'lan' }
+      { listener: 'lan', authenticatedDeviceId: 'paired-phone' }
     )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ outcome: 'denied' })

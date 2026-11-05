@@ -2,12 +2,15 @@ import type { Context } from 'hono'
 
 import type { Settings } from '../db/schema'
 
-export type ListenerKind = 'loopback' | 'lan'
+export type ListenerKind = 'loopback' | 'lan' | 'web'
 
-/** @hono/node-server's bindings, plus which of our two listeners took the request. */
+/** @hono/node-server's bindings, plus which listener took the request. */
 export interface Bindings {
   listener?: ListenerKind
   incoming?: { socket?: { remoteAddress?: string } }
+  /** Set only by the dedicated Web listener, after verifying its session. */
+  webDeviceId?: string
+  webOrigin?: string
 }
 
 export interface Variables {

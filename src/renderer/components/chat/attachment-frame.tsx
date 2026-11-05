@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { AttachmentRequest } from '@actovia/shared/types/attachment-actions'
 import { DownloadIcon } from '@hugeicons/core-free-icons'
@@ -54,7 +55,7 @@ export function AttachmentDownloadButton({
 export function useAttachmentContextMenu(attachment: AttachmentRequest | null) {
   const { t } = useTranslation('common')
   return (event: MouseEvent) => {
-    if (!attachment) return
+    if (!attachment || IS_WEB_CLIENT) return
     event.preventDefault()
     event.stopPropagation()
     void openAttachmentMenu(attachment, t)

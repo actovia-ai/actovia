@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { ArrowLeft02Icon, SearchIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
@@ -52,7 +53,10 @@ export function SettingsSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props} collapsible="none" className="select-none">
       <SidebarHeader
-        className={cn('draggable shrink-0', isFullscreen ? 'pt-2' : 'pt-11')}
+        className={cn(
+          'draggable shrink-0',
+          IS_WEB_CLIENT || isFullscreen ? 'pt-2' : 'pt-11'
+        )}
       >
         <Button
           variant="ghost"

@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import {
   ArrowDown01Icon,
   Folder01Icon,
@@ -52,7 +53,36 @@ const errorMessage = (err: unknown) =>
   err instanceof Error ? err.message : String(err)
 
 /** The group's folder (spec §4): where its coding agents work. */
-export function FolderChip({ conversationId }: { conversationId: string }) {
+export function FolderChip(props: { conversationId: string }) {
+  return IS_WEB_CLIENT ? (
+    <WebFolderChip {...props} />
+  ) : (
+    <NativeFolderChip {...props} />
+  )
+}
+
+function WebFolderChip({ conversationId }: { conversationId: string }) {
+  const [state, setState] = useState<FolderState | null>(null)
+  useEffect(() => {
+    let alive = true
+    void loadFolder(conversationId, () => alive, setState).catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [conversationId])
+  if (!state?.project) return null
+  return (
+    <span className="text-muted-foreground flex max-w-64 items-center gap-1 text-xs">
+      <HugeiconsIcon icon={Folder01Icon} className="size-3.5 shrink-0" />
+      <span className="truncate">
+        {state.project.name}
+        {state.branch ? ` · ${state.branch}` : ''}
+      </span>
+    </span>
+  )
+}
+
+function NativeFolderChip({ conversationId }: { conversationId: string }) {
   const { t } = useTranslation('philharmonic')
   const [project, setProject] = useState<ProjectData | null>(null)
   const [branch, setBranch] = useState<string | null>(null)

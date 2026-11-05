@@ -1032,9 +1032,9 @@
   },
   "devices": {
     "heading": "Dispositivi abbinati",
-    "description": "Telefoni e tablet che possono usare Actovia tramite la rete locale. Un dispositivo deve prima essere abbinato qui; finché non ce n’è uno abbinato, Actovia non è raggiungibile dalla rete in alcun modo.",
+    "description": "Telefoni, tablet e browser associati a questo Mac. Ognuno è un dispositivo remoto indipendente con un accesso revocabile separatamente.",
     "empty": "Nessun dispositivo abbinato",
-    "emptyHint": "Associa il tuo iPhone per chattare con Actovia su questo computer, usarne gli strumenti e sbloccarlo dal telefono. Puoi revocare un dispositivo in qualsiasi momento.",
+    "emptyHint": "Associa un telefono o un browser per usare Actovia a distanza. Puoi revocare ogni dispositivo separatamente in qualsiasi momento.",
     "pair": "Abbina un dispositivo",
     "pairCard": {
       "title": "Collega un iPhone o un iPad",
@@ -1112,5 +1112,39 @@
       "mcp": "Server MCP «{{server}}»: {{field}}"
     }
   },
-  "examplePlaceholder": "es. {{example}}"
+  "examplePlaceholder": "es. {{example}}",
+  "webAccess": {
+    "heading": "Terminali browser",
+    "enabledLabel": "Abilita accesso dal browser",
+    "description": "Associa i browser come dispositivi indipendenti, proprio come i telefoni. Questo Mac resta il punto centrale e deve rimanere acceso.",
+    "originLabel": "Indirizzo del browser",
+    "originHint": "L’indirizzo HTTPS privato che inoltra a questo Mac. Se lo cambi, i browser devono verificarsi di nuovo.",
+    "proxyHint": "Inoltra questo indirizzo HTTPS a 127.0.0.1:{{port}} mantenendo l’intestazione Host originale. Con Tailscale, esegui il comando seguente su questo Mac e inserisci sopra l’indirizzo HTTPS indicato.",
+    "save": "Salva accesso",
+    "saveFailed": "Impossibile aggiornare l’accesso dal browser",
+    "pairBrowser": "Associa un browser",
+    "pairHint": "Apri l’indirizzo, assegna un nome al nuovo dispositivo e inserisci il codice monouso. Ogni profilo del browser è un dispositivo distinto.",
+    "expiresHint": "Il codice si può usare una sola volta e scade dopo due minuti. Tienilo riservato. Se annulli la verifica, genera un nuovo codice.",
+    "copyCode": "Copia codice",
+    "copyFailed": "Impossibile copiare il codice",
+    "cancelPairing": "Annulla associazione",
+    "connectTitle": "Connettiti ad Actovia",
+    "connectDescription": "In Actovia sul Mac, apri Impostazioni → Dispositivi → Associa un browser. Inserisci qui il codice e crea una passkey per proteggere questo terminale.",
+    "pairedHint": "{{name}} è associato al tuo Mac. Verifica la tua identità con la passkey per continuare.",
+    "nameLabel": "Nome del dispositivo browser",
+    "codeLabel": "Codice di associazione",
+    "unlock": "Sblocca questo browser",
+    "verifying": "Verifica in corso…",
+    "forget": "Dimentica questo browser",
+    "forgetHint": "Rimuove solo questo dispositivo e il suo accesso. Per riconnetterlo, associalo di nuovo dal Mac.",
+    "lock": "Blocca questo browser",
+    "lockHint": "Termina questa sessione del browser. Gli altri dispositivi restano connessi.",
+    "remoteTerminal": "Terminale browser associato",
+    "connectionFailed": "Connessione o verifica non riuscita. Controlla che il Mac sia acceso e raggiungibile. Per l’associazione, richiedi un nuovo codice e riprova.",
+    "cancelled": "Verifica annullata. Riprova; per l’associazione, richiedi un nuovo codice sul Mac.",
+    "unsupported": "Apri la pagina al suo indirizzo HTTPS in un browser che supporti le passkey. Le connessioni non sicure non consentono l’associazione.",
+    "retry": "Riprova connessione",
+    "staticArtifact": "Le anteprime interattive sono disponibili nell’app Mac. Qui puoi leggere e scaricare il codice sorgente.",
+    "downloadSource": "Scarica codice sorgente"
+  }
 }

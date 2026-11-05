@@ -22,6 +22,7 @@ import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { DiscoverGroup } from '@actovia/shared/types/discover'
 import type { PmRoundEventKind } from '@actovia/shared/types/pm-round'
 import { WebSearchResult } from '@actovia/shared/types/web-search'
+import type { WebTerminalCredential } from '@actovia/shared/types/web-terminal'
 import type { Usage } from '@earendil-works/pi-ai'
 import { sql, type InferSelectModel } from 'drizzle-orm'
 import {
@@ -283,6 +284,8 @@ export const pairedDevice = pgTable('paired_device', {
   id: uuid('id').primaryKey().notNull().defaultRandom(),
   name: text('name').notNull(),
   tokenHash: text('tokenHash').notNull().unique(),
+  kind: text('kind').$type<'ios' | 'web'>().default('ios').notNull(),
+  webCredential: jsonb('webCredential').$type<WebTerminalCredential>(),
   createdAt: timestamp('createdAt').defaultNow().notNull(),
   lastSeenAt: timestamp('lastSeenAt')
 })

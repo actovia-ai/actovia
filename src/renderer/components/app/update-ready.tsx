@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -15,6 +16,10 @@ import { ENTER_UP } from '@/lib/motion'
  * click; nothing restarts by itself.
  */
 export function UpdateReadyCard({ className }: { className?: string }) {
+  return IS_WEB_CLIENT ? null : <NativeUpdateReadyCard className={className} />
+}
+
+function NativeUpdateReadyCard({ className }: { className?: string }) {
   const { t } = useTranslation('chat')
   const { payload, install } = useUpdater()
   const [restarting, setRestarting] = useState(false)
@@ -60,6 +65,14 @@ export function UpdateReadyCard({ className }: { className?: string }) {
  * while an update waits — the card it would show is hidden with it.
  */
 export function HeaderSidebarTrigger({ className }: { className?: string }) {
+  return IS_WEB_CLIENT ? (
+    <SidebarTrigger className={className} />
+  ) : (
+    <NativeHeaderSidebarTrigger className={className} />
+  )
+}
+
+function NativeHeaderSidebarTrigger({ className }: { className?: string }) {
   const { t } = useTranslation('chat')
   const { payload } = useUpdater()
   const ready = payload.state === 'ready' && payload.mode === 'auto'

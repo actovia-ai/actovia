@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process'
 import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerDMG } from '@electron-forge/maker-dmg'
@@ -19,6 +19,15 @@ import { appBuilderPath } from 'app-builder-bin'
 import DMG from './build/dmg.json'
 import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
 import { writeMacUpdateFeed } from './scripts/mac-update-feed'
+import { runtimePackagePaths } from './scripts/runtime-package-paths'
+import { WebEntryPlugin } from './scripts/web-entry-plugin'
+
+// WebAuthn stays external, so ship its real dependency tree, including both
+// ASN.1 major versions. Keeping only the top-level package breaks installed apps.
+const webAuthnPackages = runtimePackagePaths(
+  ['@simplewebauthn/server'],
+  resolve('.')
+)
 
 // macOS signing is switched on by the environment, so a build without it
 // (`bun run package` for e2e, a fork's CI) stays ad-hoc and still valid (see
@@ -118,6 +127,9 @@ const config: ForgeConfig = {
     // `ignore` when packagerConfig.ignore is unset.
     ignore: (file: string) => {
       if (!file) return false
+      // Never ship the browser fixture entry or its test-only settings harness.
+      if (file === '/.vite/web-test' || file.startsWith('/.vite/web-test/'))
+        return true
       if (file.startsWith('/.vite')) return false
       // Ancestor directories (e.g. `/node_modules`) must also be kept, not
       // just the leaf files — the packager's walker prunes recursion at
@@ -134,7 +146,8 @@ const config: ForgeConfig = {
         '/node_modules/detect-libc',
         '/node_modules/@resvg',
         '/node_modules/agent-desktop',
-        '/node_modules/agent-browser'
+        '/node_modules/agent-browser',
+        ...webAuthnPackages
       ]
       for (const target of kept) {
         if (
@@ -270,6 +283,8 @@ const config: ForgeConfig = {
         }
       ]
     }),
+    // Must follow VitePlugin: its preStart clears .vite before this build.
+    new WebEntryPlugin({ projectRoot: resolve('.') }),
     // Unpacks native (.node) modules from the asar at package time — they
     // can't be dlopen'd from inside the archive. No-op until a dependency
     // actually ships one, but wiring it now means nobody has to remember to

@@ -108,6 +108,7 @@ export default defineConfig({
       // artifact-card.tsx (artifact sandbox iframe) load them from there.
       input: {
         main: resolve('index.html'),
+        web: resolve('web.html'),
         searchbar: resolve('src/renderer/sub-apps/searchbar/index.html'),
         quickChat: resolve('src/renderer/sub-apps/quick-chat/index.html'),
         artifacts: resolve('src/renderer/sub-apps/artifacts/index.html')

@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { isSameDay, isToday, isYesterday } from 'date-fns'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -157,7 +158,11 @@ export function GroupChat({
         <header
           className={cn(
             'draggable bg-card/70 absolute inset-x-0 top-0 z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-xl transition-[padding] duration-200 ease-out',
-            sidebarOpen ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
+            sidebarOpen
+              ? 'pl-1'
+              : IS_WEB_CLIENT || isFullscreen
+                ? 'pl-4'
+                : 'pl-23'
           )}
         >
           {!sidebarOpen && (

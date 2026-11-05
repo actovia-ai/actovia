@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import {
   ATTACHMENT_CHANNELS,
   type AttachmentRequest,
@@ -50,7 +51,9 @@ export async function saveAttachment(
   request: AttachmentRequest,
   t: CommonT
 ): Promise<AttachmentResult> {
-  const result = await invoke(ATTACHMENT_CHANNELS.save, request)
+  const result = IS_WEB_CLIENT
+    ? await downloadAttachment(request)
+    : await invoke(ATTACHMENT_CHANNELS.save, request)
   reportAttachmentResult(result, t)
   return result
 }
@@ -60,7 +63,38 @@ export async function openAttachmentMenu(
   request: AttachmentRequest,
   t: CommonT
 ): Promise<AttachmentResult> {
+  if (IS_WEB_CLIENT) return { status: 'cancelled' }
   const result = await invoke(ATTACHMENT_CHANNELS.contextMenu, request)
   reportAttachmentResult(result, t)
   return result
+}
+
+/** Browser downloads stay in the browser; never launch a host save dialog. */
+async function downloadAttachment(
+  request: AttachmentRequest
+): Promise<AttachmentResult> {
+  try {
+    const url = new URL(request.url, window.location.origin)
+    if (
+      !['https:', 'data:', 'blob:'].includes(url.protocol) &&
+      url.origin !== window.location.origin
+    )
+      return { status: 'failed', reason: 'invalid-request' }
+    const response = await fetch(url, {
+      credentials:
+        url.origin === window.location.origin ? 'same-origin' : 'omit'
+    })
+    if (!response.ok) throw new Error('Download failed.')
+    const blob = await response.blob()
+    const objectUrl = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = objectUrl
+    link.download =
+      request.name ?? (request.kind === 'image' ? 'image' : 'attachment')
+    link.click()
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000)
+    return { status: 'saved', name: link.download }
+  } catch {
+    return { status: 'failed', reason: 'write-failed' }
+  }
 }

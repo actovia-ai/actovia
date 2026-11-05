@@ -1027,9 +1027,9 @@
   },
   "devices": {
     "heading": "已配對的裝置",
-    "description": "可透過區域網路使用 Actovia 的手機與平板。裝置必須先在這裡配對；在配對任何裝置之前，網路上完全無法連線到 Actovia。",
+    "description": "與這部 Mac 配對的手機、平板電腦和瀏覽器。每個都是獨立的遠端裝置，有自己的存取權限，可分別撤銷。",
     "empty": "尚未配對任何裝置",
-    "emptyHint": "配對你的 iPhone，就能在手機上與這台電腦的 Actovia 對話、使用它的工具並解鎖。你可以隨時撤銷裝置。",
+    "emptyHint": "配對手機或瀏覽器後即可遠端使用 Actovia。你可以隨時單獨撤銷任何裝置。",
     "pair": "配對裝置",
     "pairCard": {
       "title": "連接 iPhone 或 iPad",
@@ -1107,5 +1107,39 @@
       "mcp": "MCP 伺服器「{{server}}」：{{field}}"
     }
   },
-  "examplePlaceholder": "例如：{{example}}"
+  "examplePlaceholder": "例如：{{example}}",
+  "webAccess": {
+    "heading": "瀏覽器終端",
+    "enabledLabel": "啟用瀏覽器存取",
+    "description": "像手機一樣，將瀏覽器配對為獨立裝置。這部 Mac 是中心，需要保持執行。",
+    "originLabel": "瀏覽器位址",
+    "originHint": "填寫轉送到這部 Mac 的私人 HTTPS 位址。變更位址後，瀏覽器需要重新驗證。",
+    "proxyHint": "將此 HTTPS 位址轉送到 127.0.0.1:{{port}}，並保留原始 Host 標頭。使用 Tailscale 時，請在這部 Mac 執行下方指令，再將提供的 HTTPS 位址填入上方。",
+    "save": "儲存瀏覽器存取設定",
+    "saveFailed": "無法更新瀏覽器存取設定",
+    "pairBrowser": "配對瀏覽器",
+    "pairHint": "開啟瀏覽器位址，為新裝置命名並輸入一次性配對碼。每個瀏覽器設定檔都是獨立裝置。",
+    "expiresHint": "配對碼只能使用一次，兩分鐘後到期，請勿洩漏。若取消驗證，請重新產生配對碼。",
+    "copyCode": "複製配對碼",
+    "copyFailed": "無法複製配對碼",
+    "cancelPairing": "取消配對",
+    "connectTitle": "連線至 Actovia",
+    "connectDescription": "在 Mac 的 Actovia 中開啟 設定 → 裝置 → 配對瀏覽器。在此輸入配對碼，再建立通行密鑰來保護這個終端。",
+    "pairedHint": "{{name}} 已與 Mac 配對。請使用通行密鑰驗證後繼續。",
+    "nameLabel": "瀏覽器裝置名稱",
+    "codeLabel": "配對碼",
+    "unlock": "解鎖此瀏覽器",
+    "verifying": "正在驗證…",
+    "forget": "忘記此瀏覽器",
+    "forgetHint": "僅移除此裝置及其存取權限。需要再次連線時，請在 Mac 重新配對。",
+    "lock": "鎖定此瀏覽器",
+    "lockHint": "結束此瀏覽器的工作階段，其他裝置保持連線。",
+    "remoteTerminal": "已配對的瀏覽器終端",
+    "connectionFailed": "無法連線或完成驗證。請確認 Mac 正在執行且網路可達。如果正在配對，請取得新的配對碼後重試。",
+    "cancelled": "已取消驗證，請重試。如果正在配對，請從 Mac 取得新的配對碼。",
+    "unsupported": "請透過 HTTPS 位址，在支援通行密鑰的瀏覽器中開啟此頁面。不安全的連線無法配對。",
+    "retry": "重新連線",
+    "staticArtifact": "互動預覽可在 Mac App 中使用。你可以在這裡閱讀與下載原始碼。",
+    "downloadSource": "下載原始碼"
+  }
 }

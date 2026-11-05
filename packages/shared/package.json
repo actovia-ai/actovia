@@ -74,7 +74,8 @@
     "./utils/strip-test-id": "./src/utils/strip-test-id.ts",
     "./utils/thinking-tags": "./src/utils/thinking-tags.ts",
     "./constants/error-codes": "./src/constants/error-codes.ts",
-    "./errors/app-error": "./src/errors/app-error.ts"
+    "./errors/app-error": "./src/errors/app-error.ts",
+    "./types/web-terminal": "./src/types/web-terminal.ts"
   },
   "dependencies": {
     "@actovia-ai/brave-search": "workspace:*",

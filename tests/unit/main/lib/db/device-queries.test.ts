@@ -19,7 +19,8 @@ const {
   deleteDevice,
   insertDevice,
   listDeviceRows,
-  touchDevice
+  touchDevice,
+  updateDeviceCredential
 } = await import('@main/lib/db/device-queries')
 
 beforeAll(async () => {
@@ -32,6 +33,26 @@ beforeAll(async () => {
     'utf8'
   )
   await pglite.exec(migration.replaceAll('--> statement-breakpoint', ''))
+  // Upgrade an existing paired phone, without changing its id or token.
+  await pglite.exec(
+    "INSERT INTO paired_device (name, \"tokenHash\") VALUES ('Existing phone', 'legacy-token')"
+  )
+  const webMigration = readFileSync(
+    resolve(
+      import.meta.dirname,
+      '../../../../../resources/drizzle/0024_sturdy_luckman.sql'
+    ),
+    'utf8'
+  )
+  await pglite.exec(webMigration.replaceAll('--> statement-breakpoint', ''))
+  const previous = await listDeviceRows()
+  expect(previous[0]).toMatchObject({
+    name: 'Existing phone',
+    tokenHash: 'legacy-token',
+    kind: 'ios',
+    webCredential: null
+  })
+  await deleteAllDevices()
 }, 60_000)
 
 afterAll(async () => {
@@ -71,6 +92,30 @@ describe('paired_device queries', () => {
     await touchDevice(device.id, at)
     const [after] = await listDeviceRows()
     expect(after.lastSeenAt?.toISOString()).toBe(at.toISOString())
+  })
+
+  it('stores and updates a browser credential without changing its device identity', async () => {
+    const credential = {
+      id: 'passkey',
+      publicKey: 'public-only',
+      counter: 0,
+      transports: ['internal']
+    }
+    const browser = await insertDevice({
+      name: 'Chrome',
+      tokenHash: 'c'.repeat(64),
+      kind: 'web',
+      webCredential: credential
+    })
+    await updateDeviceCredential(browser.id, { ...credential, counter: 3 })
+    expect(
+      (await listDeviceRows()).find((row) => row.id === browser.id)
+    ).toMatchObject({
+      kind: 'web',
+      tokenHash: 'c'.repeat(64),
+      webCredential: { ...credential, counter: 3 }
+    })
+    await deleteDevice(browser.id)
   })
 
   it('removes one device, then all of them', async () => {

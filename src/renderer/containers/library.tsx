@@ -183,6 +183,7 @@ function LibraryCard({ item, index }: { item: LibraryItem; index: number }) {
       {previewing && item.kind === 'workspace-file' && item.path && (
         <WorkspaceFilePreview
           path={item.path}
+          chatId={item.chatId}
           open
           onOpenChange={setPreviewing}
         />

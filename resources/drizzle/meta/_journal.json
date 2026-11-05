@@ -169,6 +169,13 @@
       "when": 1793618308866,
       "tag": "0023_concerned_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793881312011,
+      "tag": "0024_sturdy_luckman",
+      "breakpoints": true
     }
   ]
 }

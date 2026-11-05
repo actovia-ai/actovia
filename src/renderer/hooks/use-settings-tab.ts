@@ -1,7 +1,10 @@
 import { useCallback } from 'react'
 import { useSearchParams } from 'react-router'
 
-import { SettingsLabel } from '@/components/settings/settings-menu'
+import {
+  SettingsLabel,
+  settingsPageAvailable
+} from '@/components/settings/settings-menu'
 
 /**
  * `?tab=` slug ⇆ settings page. Slugs are the stable deep-link contract
@@ -42,7 +45,8 @@ export function settingsTabFromSlug(
 ): SettingsLabel {
   // Keep previously shared Agents links working after consolidating the page.
   if (slug === 'agents') return SettingsLabel.Philharmonic
-  return (slug && SLUG_TO_LABEL[slug]) || SettingsLabel.General
+  const page = (slug && SLUG_TO_LABEL[slug]) || SettingsLabel.General
+  return settingsPageAvailable(page) ? page : SettingsLabel.General
 }
 
 /** Hash-router href that deep-links straight to a settings tab. */

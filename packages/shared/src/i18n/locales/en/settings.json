@@ -1032,9 +1032,9 @@
   },
   "devices": {
     "heading": "Paired devices",
-    "description": "Phones and tablets that may use Actovia over your local network. A device has to be paired here first; until one is, Actovia is not reachable from the network at all.",
+    "description": "Phones, tablets and browsers paired with this Mac. Each is an independent remote device with its own access and revocation.",
     "empty": "No paired devices",
-    "emptyHint": "Pair your iPhone to chat with Actovia on this computer, use its tools and unlock it from the phone. You can revoke a device at any time.",
+    "emptyHint": "Pair a phone or browser to use Actovia remotely. You can revoke each device separately at any time.",
     "pair": "Pair a device",
     "pairCard": {
       "title": "Connect an iPhone or iPad",
@@ -1112,5 +1112,39 @@
       "mcp": "MCP server “{{server}}”: {{field}}"
     }
   },
-  "examplePlaceholder": "e.g. {{example}}"
+  "examplePlaceholder": "e.g. {{example}}",
+  "webAccess": {
+    "heading": "Browser terminals",
+    "enabledLabel": "Enable browser access",
+    "description": "Pair browsers as separate devices, just like phones. This Mac stays the hub and must remain running.",
+    "originLabel": "Browser address",
+    "originHint": "Use the private HTTPS address that forwards to this Mac. Changing it requires browsers to verify again.",
+    "proxyHint": "Forward this HTTPS address to 127.0.0.1:{{port}}, preserving the original Host header. For Tailscale, run the command below on this Mac, then enter its HTTPS address above.",
+    "save": "Save browser access",
+    "saveFailed": "Could not update browser access",
+    "pairBrowser": "Pair a browser",
+    "pairHint": "Open the browser address, name the new device, and enter a one-time code. Each browser profile is its own device.",
+    "expiresHint": "This code can be used once and expires after two minutes. Keep it private. If verification is cancelled, create a new code.",
+    "copyCode": "Copy code",
+    "copyFailed": "Could not copy the code",
+    "cancelPairing": "Cancel pairing",
+    "connectTitle": "Connect to Actovia",
+    "connectDescription": "In Actovia on your Mac, open Settings → Devices → Pair a browser. Enter the code here, then create a passkey to protect this terminal.",
+    "pairedHint": "{{name}} is paired with your Mac. Verify with your passkey to continue.",
+    "nameLabel": "Browser device name",
+    "codeLabel": "Pairing code",
+    "unlock": "Unlock this browser",
+    "verifying": "Verifying…",
+    "forget": "Forget this browser",
+    "forgetHint": "Remove only this device and its access. To reconnect, pair it again from your Mac.",
+    "lock": "Lock this browser",
+    "lockHint": "End this browser session. Your other devices stay connected.",
+    "remoteTerminal": "Paired browser terminal",
+    "connectionFailed": "Could not connect or verify. Check that your Mac is running and reachable. For pairing, request a fresh code and try again.",
+    "cancelled": "Verification was cancelled. Try again; for pairing, request a fresh code from your Mac.",
+    "unsupported": "Open this page at its HTTPS address in a browser that supports passkeys. Insecure connections cannot pair.",
+    "retry": "Retry connection",
+    "staticArtifact": "Interactive previews are available in the Mac app. You can read and download the source here.",
+    "downloadSource": "Download source"
+  }
 }

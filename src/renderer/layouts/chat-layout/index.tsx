@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import type { CSSProperties } from 'react'
 import { Outlet, useMatch } from 'react-router'
 
@@ -43,7 +44,7 @@ function ContentHeader({ chat }: { chat: boolean }) {
         chat
           ? 'bg-card/70 absolute inset-x-0 top-0 backdrop-blur-xl'
           : 'relative bg-transparent',
-        open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23'
+        open ? 'pl-1' : IS_WEB_CLIENT || isFullscreen ? 'pl-4' : 'pl-23'
       )}
     >
       {/* While the sidebar is open its toggle and the history arrows sit in

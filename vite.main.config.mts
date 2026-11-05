@@ -49,6 +49,10 @@ export default defineConfig({
       // ("Value is none of these types Array<T>, ThreadsafeFunction" on
       // BindingInputOptions.external).
       external: [
+        // Keep WebAuthn's decorator metadata and versioned ASN.1 registries
+        // in their real modules. Bundling split tsyringe ahead of reflect-metadata
+        // and prevented Electron from booting even with Web access disabled.
+        '@simplewebauthn/server',
         '@electric-sql/pglite',
         '@electric-sql/pglite-pgmq',
         '@electric-sql/pglite-pgvector',

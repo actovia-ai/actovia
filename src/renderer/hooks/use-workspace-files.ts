@@ -1,4 +1,11 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
+import type {
+  WorkspaceFileReadResult,
+  WorkspaceFileInfo,
+  WorkspaceFileKind
+} from '@actovia/shared/types/workspace-files'
 import { workspacePathCandidate } from '@actovia/shared/types/workspace-files'
+import { fetcher } from '@actovia/shared/utils/http'
 import { useQuery } from '@tanstack/react-query'
 
 import {
@@ -20,6 +27,7 @@ export function useWorkspaceRoots() {
   const { data } = useQuery({
     queryKey: workspaceFilesKeys.roots(),
     queryFn: () => getWorkspaceRoots(),
+    enabled: !IS_WEB_CLIENT,
     staleTime: Infinity,
     gcTime: Infinity
   })
@@ -36,7 +44,7 @@ export function useWorkspaceFileStat(path: string | null) {
   const { data } = useQuery({
     queryKey: workspaceFilesKeys.stat(path ?? ''),
     queryFn: () => statWorkspaceFile(path ?? ''),
-    enabled: path !== null && path !== '',
+    enabled: !IS_WEB_CLIENT && path !== null && path !== '',
     staleTime: (query) => (query.state.data?.ok ? 60_000 : 5_000),
     retry: false
   })
@@ -55,10 +63,25 @@ export function useWorkspacePath(text: string | null) {
 }
 
 /** The text for the preview: read fresh each time it opens. */
-export function useWorkspaceFileContent(path: string, enabled: boolean) {
+export function useWorkspaceFileContent(
+  path: string,
+  enabled: boolean,
+  chatId?: string
+) {
   const { data, isPending } = useQuery({
-    queryKey: workspaceFilesKeys.content(path),
-    queryFn: () => readWorkspaceFile(path),
+    queryKey: IS_WEB_CLIENT
+      ? [...workspaceFilesKeys.content(path), chatId]
+      : workspaceFilesKeys.content(path),
+    queryFn: async (): Promise<WorkspaceFileReadResult> => {
+      if (!IS_WEB_CLIENT) return readWorkspaceFile(path)
+      if (!chatId) return { ok: false, reason: 'invalid-path' }
+      const { content, kind, ...file } = await fetcher<
+        WorkspaceFileInfo & { kind: WorkspaceFileKind; content: string }
+      >(`/api/v1/workspace/${encodeURIComponent(chatId)}/file`, {
+        query: { path }
+      })
+      return { ok: true, file, content, kind }
+    },
     enabled,
     staleTime: 0,
     gcTime: 0,

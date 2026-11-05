@@ -95,6 +95,25 @@ export const TEST_IDS = {
     /** In that notice: Reset all, the way back. */
     certificateResetButton: 'devices.certificate-reset-button'
   },
+  webAccess: {
+    origin: 'web-access.origin',
+    enabled: 'web-access.enabled',
+    save: 'web-access.save',
+    pair: 'web-access.pair',
+    pairingCode: 'web-access.pairing-code',
+    copyCode: 'web-access.copy-code',
+    cancelPairing: 'web-access.cancel-pairing'
+  },
+  webTerminal: {
+    downloadSource: 'web-terminal.download-source',
+    gate: 'web-terminal.gate',
+    name: 'web-terminal.name',
+    code: 'web-terminal.code',
+    connect: 'web-terminal.connect',
+    retry: 'web-terminal.retry',
+    forget: 'web-terminal.forget',
+    lock: 'web-terminal.lock'
+  },
   knowledgeBase: {
     testConnectionButton: 'knowledge-base.test-connection-button',
     reindexButton: 'knowledge-base.reindex-button',

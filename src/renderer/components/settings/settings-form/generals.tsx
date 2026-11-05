@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   LOCALE_IDS,
@@ -182,11 +183,11 @@ export function General({ form }: { form: UseFormReturnType }) {
   )
 
   useEffect(() => {
-    setLoginItem(runOnStartup)
+    if (!IS_WEB_CLIENT) setLoginItem(runOnStartup)
   }, [runOnStartup])
 
   useEffect(() => {
-    setMenuBar(menuBarEnabled)
+    if (!IS_WEB_CLIENT) setMenuBar(menuBarEnabled)
   }, [menuBarEnabled])
 
   return (
@@ -244,30 +245,34 @@ export function General({ form }: { form: UseFormReturnType }) {
           />
         </SettingsRow>
 
-        <SettingsRow
-          label={t('general.runOnStartup.label')}
-          description={t('general.runOnStartup.description')}
-        >
-          <Switch
-            checked={runOnStartup}
-            onCheckedChange={(checked) =>
-              form.setValue('runOnStartup', checked)
-            }
-          />
-        </SettingsRow>
+        {!IS_WEB_CLIENT && (
+          <SettingsRow
+            label={t('general.runOnStartup.label')}
+            description={t('general.runOnStartup.description')}
+          >
+            <Switch
+              checked={runOnStartup}
+              onCheckedChange={(checked) =>
+                form.setValue('runOnStartup', checked)
+              }
+            />
+          </SettingsRow>
+        )}
 
-        <SettingsRow
-          label={t('general.menuBar.label')}
-          description={t('general.menuBar.description')}
-        >
-          <Switch
-            checked={menuBarEnabled}
-            onCheckedChange={(checked) => form.setValue('menuBar', checked)}
-          />
-        </SettingsRow>
+        {!IS_WEB_CLIENT && (
+          <SettingsRow
+            label={t('general.menuBar.label')}
+            description={t('general.menuBar.description')}
+          >
+            <Switch
+              checked={menuBarEnabled}
+              onCheckedChange={(checked) => form.setValue('menuBar', checked)}
+            />
+          </SettingsRow>
+        )}
       </SettingsSection>
 
-      <LockPrivacy />
+      {!IS_WEB_CLIENT && <LockPrivacy />}
     </>
   )
 }

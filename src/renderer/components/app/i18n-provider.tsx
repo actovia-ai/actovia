@@ -1,9 +1,10 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { isLocaleId } from '@actovia/shared/i18n/locales'
 import { useEffect, type ReactNode } from 'react'
 import { I18nextProvider } from 'react-i18next'
 
 import { useSettings } from '@/hooks/use-settings'
-import { i18n } from '@/lib/i18n'
+import { getBootLocale, i18n } from '@/lib/i18n'
 import { setAppLocale } from '@/lib/ipc'
 import { reportRendererError } from '@/lib/report-error'
 
@@ -50,7 +51,15 @@ function LocaleBridge() {
     // rather than guessing, and skip the round trip entirely without an
     // Electron bridge (falls back to whatever `getBootLocale()` already
     // applied at renderer boot).
-    if (!settingsLoaded || !hasElectronBridge) return
+    if (!settingsLoaded) return
+    if (IS_WEB_CLIENT) {
+      const next = getBootLocale()
+      void i18n.changeLanguage(next)
+      document.documentElement.lang = next
+      document.documentElement.dir = 'ltr'
+      return
+    }
+    if (!hasElectronBridge) return
 
     let cancelled = false
     setAppLocale('auto')
@@ -72,10 +81,16 @@ function LocaleBridge() {
   return null
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
+export function I18nProvider({
+  children,
+  connected = true
+}: {
+  children: ReactNode
+  connected?: boolean
+}) {
   return (
     <I18nextProvider i18n={i18n}>
-      <LocaleBridge />
+      {connected && <LocaleBridge />}
       {children}
     </I18nextProvider>
   )

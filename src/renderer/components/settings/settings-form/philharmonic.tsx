@@ -1,4 +1,5 @@
 import { SETTING_DEFAULTS } from '@actovia/shared/constants/setting-defaults'
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { Controller } from 'react-hook-form'
@@ -102,7 +103,7 @@ export function PhilharmonicSettings({ form }: { form: UseFormReturnType }) {
           )}
         />
       </SettingsSection>
-      <Agents form={form} embedded />
+      {!IS_WEB_CLIENT && <Agents form={form} embedded />}
     </>
   )
 }

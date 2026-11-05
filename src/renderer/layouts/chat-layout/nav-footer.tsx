@@ -2,6 +2,7 @@ import {
   ACTOVIA_DOCS,
   ACTOVIA_RELEASES
 } from '@actovia/shared/constants/external-urls'
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   HelpCircleIcon,
@@ -36,6 +37,7 @@ import {
 } from '@/components/ui/sidebar'
 import { useSettings } from '@/hooks/use-settings'
 import { lockNow } from '@/lib/lock-ipc'
+import { lockWebTerminal } from '@/services/web-terminal'
 import { lockStatusAtom } from '@/stores/lock'
 
 /** Opens a page in the browser; the window-open handler sends it out safely. */
@@ -46,7 +48,7 @@ const openInBrowser = (url: string) => {
 export function NavFooter({
   ...props
 }: React.ComponentProps<typeof SidebarMenu>) {
-  const { t } = useTranslation(['common', 'chat'])
+  const { t } = useTranslation(['common', 'chat', 'settings'])
   const navigate = useNavigate()
   const location = useLocation()
   const { data: settings } = useSettings()
@@ -87,7 +89,11 @@ export function NavFooter({
             </Avatar>
             <div className="text-ui grid flex-1 text-left leading-tight">
               <span className="truncate font-medium">{nickname}</span>
-              <span className="truncate text-xs">{t('state.runOnLocal')}</span>
+              <span className="truncate text-xs">
+                {IS_WEB_CLIENT
+                  ? t('settings:webAccess.remoteTerminal')
+                  : t('state.runOnLocal')}
+              </span>
             </div>
             <HugeiconsIcon icon={UnfoldMoreIcon} className="ml-auto size-4" />
           </DropdownMenuTrigger>
@@ -112,7 +118,9 @@ export function NavFooter({
                   <div className="text-ui grid flex-1 text-left leading-tight">
                     <span className="truncate font-medium">{nickname}</span>
                     <span className="truncate text-xs">
-                      {t('state.runOnLocal')}
+                      {IS_WEB_CLIENT
+                        ? t('settings:webAccess.remoteTerminal')
+                        : t('state.runOnLocal')}
                     </span>
                   </div>
                 </div>
@@ -127,13 +135,15 @@ export function NavFooter({
                 <HugeiconsIcon icon={SettingsIcon} />
                 {t('nav.settings')}
               </DropdownMenuItem>
-              <DropdownMenuItem
-                data-testid={TEST_IDS.chatLayout.accountApps}
-                onClick={() => setAppsOpen(true)}
-              >
-                <HugeiconsIcon icon={SmartPhone01Icon} />
-                {t('chat:sidebar.account.apps')}
-              </DropdownMenuItem>
+              {!IS_WEB_CLIENT && (
+                <DropdownMenuItem
+                  data-testid={TEST_IDS.chatLayout.accountApps}
+                  onClick={() => setAppsOpen(true)}
+                >
+                  <HugeiconsIcon icon={SmartPhone01Icon} />
+                  {t('chat:sidebar.account.apps')}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
@@ -146,21 +156,27 @@ export function NavFooter({
                 {t('chat:sidebar.account.whatsNew')}
               </DropdownMenuItem>
             </DropdownMenuGroup>
-            {lockStatus?.hasPin && (
+            {(IS_WEB_CLIENT || lockStatus?.hasPin) && (
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   data-testid={TEST_IDS.chatLayout.accountLock}
-                  onClick={() => void lockNow()}
+                  onClick={() =>
+                    void (IS_WEB_CLIENT ? lockWebTerminal() : lockNow())
+                  }
                 >
                   <HugeiconsIcon icon={LockIcon} />
-                  {t('chat:sidebar.account.lock')}
+                  {IS_WEB_CLIENT
+                    ? t('settings:webAccess.lock')
+                    : t('chat:sidebar.account.lock')}
                 </DropdownMenuItem>
               </>
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-        <AppsDialog open={appsOpen} onOpenChange={setAppsOpen} />
+        {!IS_WEB_CLIENT && (
+          <AppsDialog open={appsOpen} onOpenChange={setAppsOpen} />
+        )}
       </SidebarMenuItem>
     </SidebarMenu>
   )

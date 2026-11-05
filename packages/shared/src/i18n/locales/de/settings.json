@@ -1032,9 +1032,9 @@
   },
   "devices": {
     "heading": "Gekoppelte Geräte",
-    "description": "Smartphones und Tablets, die Actovia über Ihr lokales Netzwerk nutzen dürfen. Ein Gerät muss zuerst hier gekoppelt werden; solange keines gekoppelt ist, ist Actovia aus dem Netzwerk überhaupt nicht erreichbar.",
+    "description": "Mit diesem Mac gekoppelte Telefone, Tablets und Browser. Jedes ist ein eigenes Remote-Gerät mit separat widerrufbarem Zugriff.",
     "empty": "Keine gekoppelten Geräte",
-    "emptyHint": "Kopple dein iPhone, um vom Telefon aus mit Actovia auf diesem Computer zu chatten, seine Werkzeuge zu nutzen und es zu entsperren. Du kannst ein Gerät jederzeit widerrufen.",
+    "emptyHint": "Kopple ein Telefon oder einen Browser, um Actovia aus der Ferne zu nutzen. Du kannst den Zugriff jedes Geräts einzeln widerrufen.",
     "pair": "Gerät koppeln",
     "pairCard": {
       "title": "iPhone oder iPad verbinden",
@@ -1112,5 +1112,39 @@
       "mcp": "MCP-Server „{{server}}“: {{field}}"
     }
   },
-  "examplePlaceholder": "z. B. {{example}}"
+  "examplePlaceholder": "z. B. {{example}}",
+  "webAccess": {
+    "heading": "Browser-Terminals",
+    "enabledLabel": "Browserzugriff aktivieren",
+    "description": "Browser werden wie Telefone als eigene Geräte gekoppelt. Dieser Mac bleibt die Zentrale und muss weiterlaufen.",
+    "originLabel": "Browseradresse",
+    "originHint": "Die private HTTPS-Adresse, die an diesen Mac weiterleitet. Nach einer Änderung müssen Browser sich erneut bestätigen.",
+    "proxyHint": "Leite diese HTTPS-Adresse an 127.0.0.1:{{port}} weiter und behalte den ursprünglichen Host-Header bei. Führe für Tailscale den folgenden Befehl auf diesem Mac aus und trage dann die angezeigte HTTPS-Adresse oben ein.",
+    "save": "Zugriffseinstellungen speichern",
+    "saveFailed": "Browserzugriff konnte nicht aktualisiert werden",
+    "pairBrowser": "Browser koppeln",
+    "pairHint": "Öffne die Adresse im Browser, benenne das neue Gerät und gib den Einmalcode ein. Jedes Browserprofil ist ein eigenes Gerät.",
+    "expiresHint": "Der Code ist einmalig und läuft nach zwei Minuten ab. Halte ihn geheim. Erstelle nach einem Abbruch der Bestätigung einen neuen Code.",
+    "copyCode": "Code kopieren",
+    "copyFailed": "Code konnte nicht kopiert werden",
+    "cancelPairing": "Kopplung abbrechen",
+    "connectTitle": "Mit Actovia verbinden",
+    "connectDescription": "Öffne in Actovia auf dem Mac Einstellungen → Geräte → Browser koppeln. Gib hier den Code ein und erstelle einen Passkey zum Schutz dieses Terminals.",
+    "pairedHint": "{{name}} ist mit deinem Mac gekoppelt. Bestätige dich mit deinem Passkey, um fortzufahren.",
+    "nameLabel": "Name des Browsergeräts",
+    "codeLabel": "Kopplungscode",
+    "unlock": "Diesen Browser entsperren",
+    "verifying": "Wird bestätigt…",
+    "forget": "Diesen Browser entfernen",
+    "forgetHint": "Entfernt nur den Zugriff dieses Geräts. Kopple es auf dem Mac erneut, um es wieder zu verbinden.",
+    "lock": "Diesen Browser sperren",
+    "lockHint": "Beendet diese Browsersitzung. Andere Geräte bleiben verbunden.",
+    "remoteTerminal": "Gekoppeltes Browser-Terminal",
+    "connectionFailed": "Verbindung oder Bestätigung fehlgeschlagen. Prüfe, ob dein Mac läuft und erreichbar ist. Fordere beim Koppeln einen neuen Code an und versuche es erneut.",
+    "cancelled": "Bestätigung abgebrochen. Versuche es erneut; fordere beim Koppeln einen neuen Code auf dem Mac an.",
+    "unsupported": "Öffne diese Seite über ihre HTTPS-Adresse in einem Browser mit Passkey-Unterstützung. Unsichere Verbindungen können nicht gekoppelt werden.",
+    "retry": "Verbindung erneut versuchen",
+    "staticArtifact": "Interaktive Vorschauen sind in der Mac-App verfügbar. Hier kannst du den Quelltext lesen und herunterladen.",
+    "downloadSource": "Quelltext herunterladen"
+  }
 }

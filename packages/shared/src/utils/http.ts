@@ -1,6 +1,7 @@
 import type { i18n as I18nInstance } from 'i18next'
 
-import { BASE_URL } from '../constants/systems'
+import { BASE_URL, IS_WEB_CLIENT } from '../constants/systems'
+import { WEB_CLIENT_HEADER, WEB_SESSION_EVENT } from '../types/web-terminal'
 
 type HttpMethod =
   | 'GET'
@@ -156,7 +157,10 @@ export async function fetcher<T>(
   }
 
   // Clone headers to avoid mutating input
-  const fetchHeaders: Record<string, string> = { ...headers }
+  const fetchHeaders: Record<string, string> = {
+    ...(IS_WEB_CLIENT ? { [WEB_CLIENT_HEADER]: '1' } : {}),
+    ...headers
+  }
 
   // Prepare fetch options
   const fetchOptions: RequestInit = {
@@ -205,6 +209,10 @@ export async function fetcher<T>(
 
   try {
     const response = await fetch(requestUrl, fetchOptions)
+    if (IS_WEB_CLIENT && (response.status === 401 || response.status === 423))
+      (
+        globalThis as unknown as { dispatchEvent(event: Event): boolean }
+      ).dispatchEvent(new Event(WEB_SESSION_EVENT))
     if (timeoutId !== undefined) clearTimeout(timeoutId)
 
     if (!response.ok) {

@@ -28,6 +28,38 @@ const bearer = (token: string) => ({
 })
 
 describe('authGate', () => {
+  it('requires the trusted Web entry principal, never a caller-supplied header', async () => {
+    expect(
+      (
+        await app.request(
+          '/api/v1/history',
+          {
+            headers: {
+              'x-actovia-device-id': 'a',
+              authorization: 'Bearer good'
+            }
+          },
+          { listener: 'web' }
+        )
+      ).status
+    ).toBe(401)
+    const valid = await app.request(
+      '/api/v1/history',
+      {},
+      { listener: 'web', webDeviceId: 'web-a' }
+    )
+    expect(await valid.text()).toBe('web-a')
+    expect(
+      (
+        await app.request(
+          '/api/v1/devices',
+          {},
+          { listener: 'web', webDeviceId: 'web-a' }
+        )
+      ).status
+    ).toBe(403)
+  })
+
   it('lets loopback through untouched, token or none', async () => {
     const res = await app.request('/api/v1/history')
     expect(res.status).toBe(200)

@@ -58,7 +58,8 @@ settingsRouter.post('/', async (c) => {
   // where it works: only the Actovia window may change them, never a paired
   // phone or a process on loopback without the presence token.
   const fromWindow =
-    listenerOf(c) !== 'lan' && isPresenceToken(c.req.header(PRESENCE_HEADER))
+    listenerOf(c) === 'loopback' &&
+    isPresenceToken(c.req.header(PRESENCE_HEADER))
   if (fromWindow) {
     const dir = payload.agents?.projectsDir
     if (dir) await assertProjectsDirAllowed(dir)

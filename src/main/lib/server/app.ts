@@ -9,6 +9,7 @@ import { getSettings } from '../db/queries'
 import { initJobQueue } from '../jobs/worker'
 import { initLan, stopLan, syncLan } from '../lan'
 import { logger } from '../logger'
+import { initWebAccess, stopWebAccess, syncWebAccess } from '../web-access'
 import {
   authGate,
   compressLan,
@@ -53,6 +54,7 @@ import settingsRouter from './routes/settings'
 import skillsRouter from './routes/skills'
 import toolsRouter from './routes/tools'
 import usageRouter from './routes/usage'
+import webAccessRouter from './routes/web-access'
 import workspaceRouter from './routes/workspace'
 import type { Bindings, Variables } from './types'
 
@@ -153,6 +155,7 @@ export function createApp() {
   v1.route('/pair', pairRouter)
   v1.route('/devices', devicesRouter)
   v1.route('/workspace', workspaceRouter)
+  v1.route('/web-access', webAccessRouter)
   v1.route('/agents', agentsRouter)
   v1.route('/projects', projectsRouter)
   app.route('/api/v1', v1)
@@ -174,6 +177,7 @@ export async function connectHttpServer() {
   return {
     close(callback?: (err?: Error) => void) {
       stopLan()
+      stopWebAccess()
       const closing = servers
       servers = []
       if (closing.length === 0) return callback?.()
@@ -213,6 +217,10 @@ export async function connectHttpServer() {
       // now only if a device is already paired — see ../lan/.
       initLan((request, env) => app.fetch(request, env))
       void syncLan()
+      initWebAccess((request, env) => app.fetch(request, env))
+      void syncWebAccess().catch((error) =>
+        logger.error('server', 'Web access failed to start', { error })
+      )
 
       // Initialize cron scheduler after server is up
       initScheduler((event) => {

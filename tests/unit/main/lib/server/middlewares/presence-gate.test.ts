@@ -8,6 +8,12 @@ import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
 const app = new Hono()
+// Simulate the authenticated principal normally established by authGate.
+app.use('*', async (c, next) => {
+  if (c.env?.listener === 'lan' && c.env?.authenticated !== false)
+    c.set('deviceId', 'paired-phone')
+  await next()
+})
 app.use('/api/*', presenceGate)
 app.post('/api/v1/chat/approval', (c) => c.text('answered'))
 app.get('/api/v1/devices', (c) => c.text('devices'))
@@ -61,6 +67,27 @@ describe('presenceGate', () => {
       { listener: 'lan' }
     )
     expect(res.status).toBe(200)
+  })
+
+  it('never treats a remote listener alone as user presence', async () => {
+    expect(
+      (
+        await app.request(
+          '/api/v1/chat/approval',
+          { method: 'POST' },
+          { listener: 'lan', authenticated: false }
+        )
+      ).status
+    ).toBe(403)
+    expect(
+      (
+        await app.request(
+          '/api/v1/chat/approval',
+          { method: 'POST' },
+          { listener: 'web' }
+        )
+      ).status
+    ).toBe(403)
   })
 
   it('leaves every other route alone', async () => {

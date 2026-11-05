@@ -8,7 +8,7 @@ import { listenerOf } from '../types'
  * API but never these.
  */
 export async function desktopOnly(c: Context, next: Next) {
-  if (listenerOf(c) !== 'lan') return next()
+  if (listenerOf(c) === 'loopback') return next()
   return c.json(
     {
       type: 'error',

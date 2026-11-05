@@ -3,7 +3,7 @@ import type { Context, Next } from 'hono'
 import { syncLan } from '../../lan'
 import { authenticate } from '../../lan/devices'
 import { takeRevoked } from '../../lan/revoked'
-import { listenerOf } from '../types'
+import { listenerOf, type Bindings } from '../types'
 
 const PAIR_PATH = '/api/v1/pair'
 const DEVICES_PREFIX = '/api/v1/devices'
@@ -23,6 +23,20 @@ function deny(c: Context, status: 401 | 403, code: string, message: string) {
  */
 export async function authGate(c: Context, next: Next) {
   if (listenerOf(c) === 'loopback') return next()
+  if (listenerOf(c) === 'web') {
+    const id = (c.env as Bindings).webDeviceId
+    if (!id)
+      return deny(
+        c,
+        401,
+        'UNAUTHORIZED',
+        'Pair and unlock this browser terminal.'
+      )
+    if (c.req.path.startsWith(DEVICES_PREFIX))
+      return deny(c, 403, 'FORBIDDEN', 'Devices are managed on the computer.')
+    c.set('deviceId', id)
+    return next()
+  }
   if (c.req.method === 'POST' && c.req.path === PAIR_PATH) return next()
 
   const header = c.req.header('authorization') ?? ''

@@ -1027,9 +1027,9 @@
   },
   "devices": {
     "heading": "페어링된 기기",
-    "description": "로컬 네트워크를 통해 Actovia를 사용할 수 있는 휴대폰과 태블릿입니다. 기기는 먼저 여기에서 페어링해야 하며, 페어링하기 전에는 네트워크에서 Actovia에 전혀 접근할 수 없습니다.",
+    "description": "이 Mac과 페어링된 휴대폰, 태블릿, 브라우저입니다. 각각 별도의 접근 권한을 가진 독립 기기이며 개별적으로 해제할 수 있습니다.",
     "empty": "페어링된 기기가 없습니다",
-    "emptyHint": "iPhone을 페어링하면 휴대폰에서 이 컴퓨터의 Actovia와 채팅하고, 도구를 사용하고, 잠금을 해제할 수 있습니다. 기기는 언제든지 해제할 수 있습니다.",
+    "emptyHint": "휴대폰이나 브라우저를 페어링하여 Actovia를 원격으로 사용하세요. 기기별 접근을 언제든 해제할 수 있습니다.",
     "pair": "기기 페어링",
     "pairCard": {
       "title": "iPhone 또는 iPad 연결",
@@ -1107,5 +1107,39 @@
       "mcp": "MCP 서버 “{{server}}”: {{field}}"
     }
   },
-  "examplePlaceholder": "예: {{example}}"
+  "examplePlaceholder": "예: {{example}}",
+  "webAccess": {
+    "heading": "브라우저 터미널",
+    "enabledLabel": "브라우저 접근 활성화",
+    "description": "휴대폰처럼 브라우저를 독립된 기기로 페어링합니다. 이 Mac을 계속 실행해 두세요.",
+    "originLabel": "브라우저 주소",
+    "originHint": "이 Mac으로 전달되는 비공개 HTTPS 주소를 입력하세요. 주소를 변경하면 브라우저에서 다시 인증해야 합니다.",
+    "proxyHint": "원래 Host 헤더를 유지하여 이 HTTPS 주소를 127.0.0.1:{{port}}로 전달하세요. Tailscale을 사용한다면 이 Mac에서 아래 명령을 실행한 후 제공된 HTTPS 주소를 위에 입력하세요.",
+    "save": "접근 설정 저장",
+    "saveFailed": "브라우저 접근을 업데이트하지 못했습니다",
+    "pairBrowser": "브라우저 페어링",
+    "pairHint": "브라우저에서 주소를 열고 새 기기 이름과 일회용 코드를 입력하세요. 브라우저 프로필마다 별도 기기로 등록됩니다.",
+    "expiresHint": "코드는 한 번만 사용할 수 있으며 2분 후 만료됩니다. 다른 사람에게 공유하지 마세요. 인증을 취소했다면 새 코드를 생성하세요.",
+    "copyCode": "코드 복사",
+    "copyFailed": "코드를 복사하지 못했습니다",
+    "cancelPairing": "페어링 취소",
+    "connectTitle": "Actovia에 연결",
+    "connectDescription": "Mac의 Actovia에서 설정 → 기기 → 브라우저 페어링을 여세요. 코드를 입력하고 이 터미널을 보호할 패스키를 생성하세요.",
+    "pairedHint": "{{name}}이(가) Mac과 페어링되어 있습니다. 패스키로 인증하여 계속하세요.",
+    "nameLabel": "브라우저 기기 이름",
+    "codeLabel": "페어링 코드",
+    "unlock": "이 브라우저 잠금 해제",
+    "verifying": "인증 중…",
+    "forget": "이 브라우저 등록 해제",
+    "forgetHint": "이 기기의 접근 권한만 삭제합니다. 다시 연결하려면 Mac에서 재페어링하세요.",
+    "lock": "이 브라우저 잠금",
+    "lockHint": "이 브라우저의 세션을 종료합니다. 다른 기기는 연결된 상태로 유지됩니다.",
+    "remoteTerminal": "페어링된 브라우저 터미널",
+    "connectionFailed": "연결 또는 인증하지 못했습니다. Mac이 실행 중이고 연결 가능한지 확인하세요. 페어링 중이라면 새 코드를 받아 다시 시도하세요.",
+    "cancelled": "인증이 취소되었습니다. 다시 시도하세요. 페어링 중이라면 Mac에서 새 코드를 받으세요.",
+    "unsupported": "패스키를 지원하는 브라우저에서 HTTPS 주소로 이 페이지를 여세요. 안전하지 않은 연결로는 페어링할 수 없습니다.",
+    "retry": "연결 재시도",
+    "staticArtifact": "대화형 미리 보기는 Mac 앱에서 사용할 수 있습니다. 여기서는 소스를 읽고 다운로드할 수 있습니다.",
+    "downloadSource": "소스 다운로드"
+  }
 }

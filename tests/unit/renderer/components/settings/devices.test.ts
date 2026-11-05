@@ -53,6 +53,11 @@ vi.mock('@/components/ui/toast', () => {
   }
 })
 
+vi.mock('@/components/settings/settings-form/web-access', () => ({
+  WebAccessSettings: () => null,
+  BrowserDeviceSettings: () => null
+}))
+
 const { Devices } = await import('@/components/settings/settings-form/devices')
 const { createAppQueryClient } = await import('@/lib/query-client')
 

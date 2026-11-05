@@ -1,3 +1,5 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
+
 import { router } from '@/routes'
 
 /**
@@ -11,7 +13,7 @@ import { router } from '@/routes'
 let installed = false
 
 export function installMenuBridge(): void {
-  if (installed) return
+  if (installed || IS_WEB_CLIENT) return
   installed = true
 
   window.electron.ipcRenderer.on('menu:new-chat', () => {

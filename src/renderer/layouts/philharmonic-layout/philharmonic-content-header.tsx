@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import {
   createContext,
   useContext,
@@ -44,7 +45,7 @@ export function PhilharmonicContentHeader({
       className={cn(
         'draggable absolute inset-x-0 top-0 z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 transition-[padding] duration-200 ease-out',
         empty ? 'bg-transparent' : 'bg-card/70 backdrop-blur-xl',
-        open ? 'pl-1' : isFullscreen ? 'pl-4' : 'pl-23',
+        open ? 'pl-1' : IS_WEB_CLIENT || isFullscreen ? 'pl-4' : 'pl-23',
         className
       )}
     >

@@ -1,3 +1,4 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
 // Consumers should import `useTheme` from 'next-themes' directly — this file
 // only owns the ThemeProvider wrapper and the Theme type alias.
@@ -38,8 +39,9 @@ function NativeThemeBridge() {
  */
 export function ThemeProvider({
   children,
+  connected = true,
   ...props
-}: ComponentProps<typeof NextThemesProvider>) {
+}: ComponentProps<typeof NextThemesProvider> & { connected?: boolean }) {
   return (
     <NextThemesProvider
       attribute="class"
@@ -47,10 +49,11 @@ export function ThemeProvider({
       enableSystem
       storageKey="vite-ui-theme"
       disableTransitionOnChange
+      scriptProps={IS_WEB_CLIENT ? { type: 'application/json' } : undefined}
       {...props}
     >
-      <NativeThemeBridge />
-      <MotionProvider>{children}</MotionProvider>
+      {!IS_WEB_CLIENT && <NativeThemeBridge />}
+      {connected ? <MotionProvider>{children}</MotionProvider> : children}
     </NextThemesProvider>
   )
 }
