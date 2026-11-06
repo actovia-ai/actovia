@@ -1,3 +1,22 @@
+# [2.9.0](https://github.com/actovia-ai/actovia/compare/v2.8.0...v2.9.0) (2026-11-06)
+
+
+### Bug Fixes
+
+* complete DMG setup and restore paragraph selection ([2454a62](https://github.com/actovia-ai/actovia/commit/2454a626d0820c2979fe0895f185f06dfc930684))
+* keep built-in prompt examples in English and add docs icons ([1479d6e](https://github.com/actovia-ai/actovia/commit/1479d6e1a837e7784b0777482c0b7a9afd86a167))
+* **philharmonic:** draw the owner's own message on the tone's fill again ([3d04ab7](https://github.com/actovia-ai/actovia/commit/3d04ab7f638d2d2347fbac180d12708d986c96de))
+* restore packaging and harden text parsing ([fae380a](https://github.com/actovia-ai/actovia/commit/fae380ade2c354f9aa45af9077e8ef570fc02c6d))
+
+
+### Features
+
+* **philharmonic:** improve autonomous workflows and desktop experience ([e3b72e0](https://github.com/actovia-ai/actovia/commit/e3b72e062aae3d46854a2a359af0472cc18767f8))
+* **philharmonic:** keep the PM's question to the owner in the group ([8452e37](https://github.com/actovia-ai/actovia/commit/8452e37c36d2dc0216d74a1ec7c1a55d0b6dd5df))
+* **philharmonic:** the PM works the owner's MCP servers itself ([8d317c3](https://github.com/actovia-ai/actovia/commit/8d317c3ad2e1f621be24972e91eab3f02332516b))
+* refine Library, group controls and response formatting ([1529575](https://github.com/actovia-ai/actovia/commit/15295755ccebcf1725fb63d67099c6429a55fcd3))
+* **web:** add paired browser terminals and fix dashboard tooltips ([9b2acdf](https://github.com/actovia-ai/actovia/commit/9b2acdf0b7865098b6138acbeeec09f1db1cf3d8))
+
 # [2.8.0](https://github.com/actovia-ai/actovia/compare/v2.7.2...v2.8.0) (2026-11-01)
 
 
