@@ -191,7 +191,11 @@ function fenceRun(
  * an ideographic space is text.
  */
 const blank = (s: string) => /^[ \t]*$/u.test(s)
-export const trimTrailingBlanks = (s: string) => s.replace(/[ \t]+$/u, '')
+export const trimTrailingBlanks = (s: string) => {
+  let end = s.length
+  while (end > 0 && (s[end - 1] === ' ' || s[end - 1] === '\t')) end--
+  return s.slice(0, end)
+}
 
 /**
  * A reply's block: its first `actovia-ask` / `actovia-confirm` fence that opens a

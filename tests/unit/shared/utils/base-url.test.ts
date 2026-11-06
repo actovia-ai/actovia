@@ -5,6 +5,13 @@ import { describe, expect, it } from 'vitest'
 // clears a key, the list-models guard) and the renderer (the form's mirror of
 // that rule): these cases decide whether a key survives an address edit.
 describe('normalizeBaseUrl', () => {
+  it('keeps internal slash runs and trims only the suffix', () => {
+    const path = `a${'/'.repeat(50_000)}b`
+    expect(normalizeBaseUrl(`https://host.test/${path}//`)).toBe(
+      `https://host.test/${path}`
+    )
+    expect(normalizeBaseUrl(`${path}//`)).toBe(path)
+  })
   it.each([
     ['https://api.openai.com/v1', 'https://api.openai.com/v1'],
     ['https://API.OpenAI.com/v1/', 'https://api.openai.com/v1'],

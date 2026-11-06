@@ -1,3 +1,4 @@
+import { remarkHtmlBreaks } from '@actovia-ai/streaming-markdown'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import ReactMarkdown from 'react-markdown'
@@ -25,6 +26,15 @@ const render = (text: string) =>
   )
 
 describe('an HTML line break in an answer', () => {
+  it('does not reinterpret HTML with trailing content after a long space run', () => {
+    const value = `<br>${' '.repeat(50_000)}x`
+    const tree = {
+      type: 'root',
+      children: [{ type: 'paragraph', children: [{ type: 'html', value }] }]
+    }
+    remarkHtmlBreaks()(tree)
+    expect(tree.children[0].children).toEqual([{ type: 'html', value }])
+  })
   it('breaks the line inside a sentence', () => {
     expect(render('one<br>two')).toBe('<p>one<br/>\ntwo</p>')
   })

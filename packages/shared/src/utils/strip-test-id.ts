@@ -23,10 +23,15 @@ const lineBreaksOf = (removed: string): string => removed.replace(/[^\n]+/g, '')
  * What is removed leaves its line breaks behind, so every line after it stays
  * where it was: the transform hands Vite no source map of its own, and a
  * release build's maps would otherwise name a line a few above the real one.
+ * The lookbehind permits only the start of each whitespace run, so a file
+ * with long indentation is scanned without retrying every suffix of the run.
  */
 export function stripDataTestId(code: string): string {
   return code
-    .replace(/\s+data-testid=\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, lineBreaksOf)
-    .replace(/\s+data-testid="[^"]*"/g, lineBreaksOf)
-    .replace(/\s+data-testid='[^']*'/g, lineBreaksOf)
+    .replace(
+      /(?<!\s)\s+data-testid=\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/gu,
+      lineBreaksOf
+    )
+    .replace(/(?<!\s)\s+data-testid="[^"]*"/gu, lineBreaksOf)
+    .replace(/(?<!\s)\s+data-testid='[^']*'/gu, lineBreaksOf)
 }

@@ -13,10 +13,14 @@ test.describe('App Launch', () => {
     expect(windows.length).toBeGreaterThanOrEqual(1)
 
     // Window should be visible
-    const isVisible = await electronApp.evaluate(({ BrowserWindow }) =>
-      BrowserWindow.getAllWindows()[0]?.isVisible()
-    )
-    expect(isVisible).toBe(true)
+    // DOMContentLoaded can precede ready-to-show on a loaded CI runner.
+    await expect
+      .poll(() =>
+        electronApp.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows()[0]?.isVisible()
+        )
+      )
+      .toBe(true)
   })
 
   test('window has correct minimum dimensions', async ({

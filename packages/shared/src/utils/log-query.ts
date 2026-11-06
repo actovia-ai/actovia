@@ -21,12 +21,23 @@ const FIELD_ONLY = /^(?:scope|trace):$/iu
 
 // A token: an optional `-`, an optional `field:`, then a quoted phrase or a
 // run of non-space characters.
-const TOKEN = /(-?)(?:([a-z]+):)?(?:"([^"]*)"?|(\S+))/giu
+const TOKEN = /(-?)(?:([a-z]+):)?(?:"([^"]*)"?|(\S+))/iuy
 
 export function parseLogQuery(input: string | undefined): LogQuery {
   const query: LogQuery = { terms: [], excludes: [] }
   if (!input) return query
-  for (const match of input.matchAll(TOKEN)) {
+  for (let at = 0; at < input.length;) {
+    if (/\s/u.test(input[at])) {
+      at++
+      continue
+    }
+    TOKEN.lastIndex = at
+    const match = TOKEN.exec(input)
+    if (!match) {
+      at++
+      continue
+    }
+    at = TOKEN.lastIndex
     const [, minus, field, phrase, word] = match
     const value = phrase ?? word ?? ''
     // `scope:` with nothing after it yet is a field being typed, not a word.

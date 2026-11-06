@@ -66,7 +66,7 @@ describe('healStreamingTail', () => {
   })
 
   it('drops the caller’s own marker while it arrives', () => {
-    expect(healStreamingTail('Fact 【1-sou', { drop: /【[^】]*$/u })).toBe(
+    expect(healStreamingTail('Fact 【1-sou', { drop: /【[^【】]*$/u })).toBe(
       'Fact'
     )
   })

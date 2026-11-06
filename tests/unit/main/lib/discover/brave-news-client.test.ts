@@ -174,6 +174,11 @@ describe('searchBraveNews', () => {
 })
 
 describe('withoutSourceSuffix', () => {
+  it('only trims a real source suffix after long title whitespace', () => {
+    const title = `A${' '.repeat(50_000)}B`
+    expect(withoutSourceSuffix(title, 'Reuters')).toBe(title)
+    expect(withoutSourceSuffix(`${title} — Reuters`, 'Reuters')).toBe(title)
+  })
   it('drops the outlet a site appends when it is the source shown', async () => {
     expect(
       withoutSourceSuffix(

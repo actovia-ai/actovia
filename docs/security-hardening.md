@@ -4,6 +4,21 @@ What protects Actovia today, what was fixed in the 2026-09-19 audit, and what is
 still open. Read this before changing the HTTP server's middleware, the preload
 bridge, window creation, or the artifact sandbox.
 
+## Code scanning follow-up (2026-11-06)
+
+The CodeQL-reported string matching in Markdown, URLs and approval commands uses
+linear scans, sticky tokenization or suffix patterns that cannot retry inside
+a repeated run. Regression inputs exercise long whitespace, delimiter and
+flag runs without changing credential masking or approval decisions.
+
+`plainTitle` is text normalization, not an HTML sanitizer. Its consumers use
+React text children or escaped attributes; decoded angle brackets must never
+be passed to an HTML sink. The incomplete-sanitization alert is a false
+positive for that contract. LAN TLS tests intentionally skip CA validation
+for the fixture's self-signed certificate, but compare its SHA-256 pin before
+sending any HTTP request or credential; the two alerts are test-only. No
+production TLS verification is disabled by these tests.
+
 ## Threat model
 
 Actovia is local-first, but three things make it a target anyway:

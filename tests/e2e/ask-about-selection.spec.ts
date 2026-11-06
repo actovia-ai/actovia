@@ -26,16 +26,13 @@ test.describe('ask about selected text', () => {
     await composer.press('Enter')
     const answer = mainWindow.getByText('It is sunny in Oslo.')
     await expect(answer).toBeVisible({ timeout: 30_000 })
+    await expect(
+      mainWindow.getByRole('button', { name: 'Stop', exact: true })
+    ).toHaveCount(0)
 
-    // Select the answer's sentence the way a double-drag would.
-    await answer.evaluate((node) => {
-      const range = document.createRange()
-      range.selectNodeContents(node)
-      const selection = window.getSelection()
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-    })
+    // A real triple-click selects the paragraph and blurs the composer. A
+    // synthetic Range while the textarea stays focused is not a user selection.
+    await answer.click({ clickCount: 3 })
 
     await mainWindow.getByTestId(TEST_IDS.chat.ask.button).click()
     const quote = mainWindow.getByTestId(TEST_IDS.composer.quote)
@@ -44,14 +41,7 @@ test.describe('ask about selected text', () => {
     // It can be let go of, and made again.
     await mainWindow.getByTestId(TEST_IDS.composer.quoteRemove).click()
     await expect(quote).toHaveCount(0)
-    await answer.evaluate((node) => {
-      const range = document.createRange()
-      range.selectNodeContents(node)
-      const selection = window.getSelection()
-      selection?.removeAllRanges()
-      selection?.addRange(range)
-      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
-    })
+    await answer.click({ clickCount: 3 })
     await mainWindow.getByTestId(TEST_IDS.chat.ask.button).click()
 
     await composer.fill('and tomorrow?')

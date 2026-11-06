@@ -10,6 +10,21 @@ import { describe, expect, it } from 'vitest'
 const roots = { root: '/Users/me/.actovia/workspace', home: '/Users/me' }
 
 describe('workspacePathCandidate', () => {
+  it('accepts trailing root separators without treating a long internal slash run as a suffix', () => {
+    const home = `${roots.home}${'/'.repeat(50_000)}`
+    expect(
+      workspacePathCandidate('~/.actovia/workspace/c1/a.txt', {
+        ...roots,
+        home
+      })
+    ).toBe(`${roots.root}/c1/a.txt`)
+    expect(
+      workspacePathCandidate(`${roots.root}/c1/a.txt`, {
+        ...roots,
+        root: `${roots.root}${'/'.repeat(50_000)}`
+      })
+    ).toBe(`${roots.root}/c1/a.txt`)
+  })
   it('takes an absolute or ~/ path to a file under the workspace root', () => {
     expect(
       workspacePathCandidate(

@@ -20,14 +20,14 @@ export {
  */
 export const splitMarkdownBlocks = createBlockSplitter(remarkPluginsStable)
 
-/** A citation marker still arriving: `【`, `【1`, `【1,2-sou` … at the very end. */
-const PARTIAL_CITATION = /【[^】]*$/u
-
 /**
  * The block that is still streaming, made renderable as it stands (`remend`
  * closes open markup); a half-streamed `【N-source】` marker is ours alone:
  * dropped until whole.
  */
 export function healStreamingTail(block: string): string {
-  return heal(block, { drop: PARTIAL_CITATION })
+  // The first opener after the last closer starts the unfinished suffix.
+  // Searching indices avoids retrying a suffix regex at every stray opener.
+  const start = block.indexOf('【', block.lastIndexOf('】') + 1)
+  return heal(start === -1 ? block : block.slice(0, start))
 }

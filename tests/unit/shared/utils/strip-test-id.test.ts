@@ -2,6 +2,17 @@ import { stripDataTestId } from '@actovia/shared/utils/strip-test-id'
 import { describe, expect, it } from 'vitest'
 
 describe('stripDataTestId', () => {
+  it('scans long indentation without retrying each whitespace suffix', () => {
+    const padding = ' '.repeat(50_000)
+    expect(stripDataTestId(`<b${padding}className="x" />`)).toBe(
+      `<b${padding}className="x" />`
+    )
+    for (const value of ['"x"', "'x'", '{id}']) {
+      expect(stripDataTestId(`<b\n${padding}data-testid=${value}\n />`)).toBe(
+        '<b\n\n />'
+      )
+    }
+  })
   it('removes a double-quoted literal attribute', () => {
     expect(stripDataTestId('<b data-testid="lock.unlock-button" />')).toBe(
       '<b />'

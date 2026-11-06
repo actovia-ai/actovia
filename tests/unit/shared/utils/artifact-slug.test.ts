@@ -5,6 +5,9 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('artifactSlug', () => {
+  it('collapses long separator runs without losing the following word', () => {
+    expect(artifactSlug(`a${'-'.repeat(50_000)}b`)).toBe('a-b')
+  })
   it('lowercases and joins words with dashes', () => {
     expect(artifactSlug('Corning Furukawa YTD')).toBe('corning-furukawa-ytd')
   })

@@ -731,12 +731,41 @@ const CREDENTIAL_COMMAND =
  * `lsof -p`, and `/proc/<pid>/cmdline` or `environ`. A documented heuristic, not a
  * list of every tool that can read a process table.
  */
-const PROCESS_ARGS_COMMAND =
-  /(?:^|[\s;|&(`/])(ps[ \t]+[^\s;|&)]\S*|pgrep\b[^;|&\n]*[ \t]-[a-z]*[al][a-z]*\b|pstree\b[^;|&\n]*[ \t]-[a-z]*a|lsof\b[^;|&\n]*[ \t]-[a-z]*p)|(\/proc\/[^\s/]+\/(?:cmdline|environ))\b/iu
-
 function processArgsTrigger(command: string): string | undefined {
-  const m = PROCESS_ARGS_COMMAND.exec(command)
-  return m ? (m[1] ?? m[2]) : undefined
+  const proc = /\/proc\/[^\s/]+\/(?:cmdline|environ)\b/iu.exec(command)
+  if (proc) return proc[0]
+  // Scan tokens once, keeping at most three command heads. Flags can occur
+  // anywhere after a head, including in a shell substitution. Do not let a
+  // greedy command pattern consume and conceal a later nested command.
+  for (const part of command.split(/[;|&\n()`]/u)) {
+    const heads = new Map<string, number>()
+    const words = [...part.matchAll(/\S+/gu)]
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i][0]
+      const name = word.slice(word.lastIndexOf('/') + 1).toLowerCase()
+      if (name === 'ps' && i + 1 < words.length) {
+        return part.slice(
+          words[i].index,
+          words[i + 1].index + words[i + 1][0].length
+        )
+      }
+      if (name === 'pgrep' || name === 'pstree' || name === 'lsof') {
+        heads.set(name, words[i].index)
+      }
+      const flags = /^-([a-z]+)/iu.exec(word)?.[1].toLowerCase()
+      if (!flags) continue
+      for (const [head, start] of heads) {
+        if (
+          (head === 'pgrep' && (flags.includes('a') || flags.includes('l'))) ||
+          (head === 'pstree' && flags.includes('a')) ||
+          (head === 'lsof' && flags.includes('p'))
+        ) {
+          return part.slice(start, words[i].index + word.length)
+        }
+      }
+    }
+  }
+  return undefined
 }
 
 /** A credential location named anywhere in a command, however it is spelled. */

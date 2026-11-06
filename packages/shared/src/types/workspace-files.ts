@@ -103,7 +103,7 @@ export function workspacePathCandidate(
   if (!value || value.length > 1024 || /[\n\r\t\0]/u.test(value)) return null
   let absolute: string
   if (value.startsWith('~/')) {
-    absolute = `${roots.home.replace(/\/+$/u, '')}/${value.slice(2)}`
+    absolute = `${roots.home.replace(/(?<!\/)\/+$/u, '')}/${value.slice(2)}`
   } else if (value.startsWith('/')) {
     absolute = value
   } else {
@@ -112,9 +112,9 @@ export function workspacePathCandidate(
   const segments = absolute.split('/')
   // Lexically inside means no `.` / `..` segment can walk it back out.
   if (segments.some((s) => s === '..' || s === '.')) return null
-  const root = roots.root.replace(/\/+$/u, '')
+  const root = roots.root.replace(/(?<!\/)\/+$/u, '')
   if (!root || !absolute.startsWith(`${root}/`)) return null
-  const rest = absolute.slice(root.length + 1).replace(/\/+$/u, '')
+  const rest = absolute.slice(root.length + 1).replace(/(?<!\/)\/+$/u, '')
   // `<chatId>/<file…>`: the workspace dir itself, or a chat's, is not a file.
   if (rest.split('/').filter(Boolean).length < 2) return null
   return `${root}/${rest}`

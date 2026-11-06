@@ -208,6 +208,9 @@
   "productName": "Actovia",
   "trustedDependencies": [
     "agent-browser",
-    "agent-desktop"
+    "agent-desktop",
+    "electron",
+    "electron-winstaller",
+    "macos-alias"
   ]
 }

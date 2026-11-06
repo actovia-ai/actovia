@@ -287,6 +287,12 @@ describe('the shared remark config', () => {
 })
 
 describe('healStreamingTail', () => {
+  it('drops the first unfinished opener after the last complete citation', async () => {
+    const { healStreamingTail } = await import('@/lib/markdown-blocks')
+    expect(
+      healStreamingTail(`Fact 【1-source】 text ${'【'.repeat(50_000)}`)
+    ).toBe('Fact 【1-source】 text')
+  })
   it('closes what is open at the end of a streaming block so it does not flash as literal markup', async () => {
     const { healStreamingTail } = await import('@/lib/markdown-blocks')
     expect(healStreamingTail('This is **important and')).toBe(

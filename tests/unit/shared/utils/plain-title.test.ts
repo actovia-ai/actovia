@@ -2,6 +2,13 @@ import { plainTitle } from '@actovia/shared/utils/plain-title'
 import { describe, expect, it } from 'vitest'
 
 describe('plainTitle', () => {
+  it('keeps incomplete tags and decoded markup as literal display text', () => {
+    const incomplete = '<a'.repeat(25_000)
+    expect(plainTitle(incomplete)).toBe(incomplete)
+    expect(plainTitle('&lt;script&gt;literal&lt;/script&gt;')).toBe(
+      '<script>literal</script>'
+    )
+  })
   it('turns a line break into a space', () => {
     expect(
       plainTitle(

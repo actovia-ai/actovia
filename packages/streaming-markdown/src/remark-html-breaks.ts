@@ -10,8 +10,7 @@ interface Node {
   children?: Node[]
 }
 
-/** One or more `<br>`, `<br/>`, `<br />`, in any case, and nothing else. */
-const BREAKS_ONLY = /^(?:\s*<br\s*\/?>\s*)+$/iu
+/** Individual tags; rewrite checks that all remaining text is whitespace. */
 const BREAK = /<br\s*\/?>/giu
 
 const isBlank = (paragraph: Node) =>
@@ -25,9 +24,10 @@ function rewrite(parent: Node, isRoot: boolean): void {
   if (!parent.children) return
   const next: Node[] = []
   for (const child of parent.children) {
+    const value = child.type === 'html' ? (child.value ?? '') : ''
     const breaks =
-      child.type === 'html' && BREAKS_ONLY.test(child.value ?? '')
-        ? (child.value?.match(BREAK)?.length ?? 0)
+      value.replace(BREAK, '').trim() === ''
+        ? (value.match(BREAK)?.length ?? 0)
         : 0
     if (breaks === 0) {
       rewrite(child, false)

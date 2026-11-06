@@ -84,7 +84,7 @@ export function isSecretName(name: string): boolean {
 // ─── secrets inside an MCP url / args (review S1 I2, N3) ─────────────────────
 
 export const URL_PARTS =
-  /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]*)([^?#]*)(\?[^#]*)?(#.*)?$/iu
+  /^([a-z][a-z0-9+.-]*:\/\/)([^/?#]*)((?:\/[^?#]*)?)(\?[^#]*)?(#.*)?$/iu
 const CAPABILITY_SEGMENT = /^[\w-]{24,}$/u
 // Base64-ish (`=`, `+`, `.`): only when long, so a dotted file name is not one.
 const BASE64_SEGMENT = /^[\w\-=+.]{32,}$/u

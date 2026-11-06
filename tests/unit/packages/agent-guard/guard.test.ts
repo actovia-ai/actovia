@@ -81,6 +81,23 @@ describe('createGuard', () => {
     expect(await check('shell', { command: 'ls -la' })).toBeNull()
   })
 
+  it('checks nested process commands and long flag groups without backtracking', async () => {
+    for (const command of [
+      'pgrep -f $(ps -ef)',
+      'pgrep -f `lsof -p123`',
+      'pgrep -fa node',
+      'pstree -a'
+    ]) {
+      expect(await check('shell', { command })).toMatchObject({ kind: 'ask' })
+    }
+    expect(
+      await check('shell', { command: `pgrep -${'x'.repeat(50_000)} node` })
+    ).toBeNull()
+    expect(
+      await check('shell', { command: `pgrep -${'x'.repeat(50_000)}a node` })
+    ).toMatchObject({ kind: 'ask' })
+  })
+
   it('refuses an MCP call at the app’s own port, naming the app', async () => {
     expect(
       await check('mcp', {

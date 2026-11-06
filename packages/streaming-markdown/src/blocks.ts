@@ -102,7 +102,7 @@ export const INCOMPLETE_LINK_HREF = 'streamdown:incomplete-link'
  * — so `remend` (streamdown's healer) closes them; a half-typed link keeps
  * its text and gets `INCOMPLETE_LINK_HREF`, for the renderer to show as plain
  * text. `drop` removes a marker of the caller's own that is still arriving
- * (match it at the end: `/【[^】]*$/u`). Finished text and `$200 - $300`
+ * (match it at the end without overlapping starts: `/【[^【】]*$/u`). Finished text and `$200 - $300`
  * pass through unchanged.
  */
 export function healStreamingTail(

@@ -3,9 +3,16 @@
 // vectors — keep them in step.
 import {
   findInteractiveBlock,
-  parseInteractiveBlock
+  parseInteractiveBlock,
+  trimTrailingBlanks
 } from '@actovia/shared/types/interactive'
 import { describe, expect, it } from 'vitest'
+
+it('trims only ASCII fence blanks, preserving Unicode spaces and long internal runs', () => {
+  const text = `a${' '.repeat(50_000)}b`
+  expect(trimTrailingBlanks(`${text}\t `)).toBe(text)
+  expect(trimTrailingBlanks('a \u00a0\t')).toBe('a \u00a0')
+})
 
 const ASK_SOURCE =
   '{"title":"我想先确认一下你的具体情况","questions":[{"id":"where","text":"哪里最痒？","type":"single","options":["小腿","手臂","全身到处都痒"],"other":true},{"id":"when","text":"什么时候最痒？","type":"multi","options":["洗澡后","晚上","全天"]}],"note":"还有什么想补充的？","submit":"提交，帮我判断"}'

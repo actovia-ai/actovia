@@ -34,9 +34,20 @@ function safeHostname(url: string): string {
 export function withoutSourceSuffix(title: string, source: string): string {
   const name = source.trim().toLowerCase()
   if (!name) return title
-  const match = /^(.*\S)\s+[-–—|]\s+([^-–—|]+)$/u.exec(title.trim())
-  if (!match) return title
-  return match[2].trim().toLowerCase() === name ? match[1] : title
+  const text = title.trim()
+  const at = Math.max(
+    ...['-', '–', '—', '|'].map((separator) => text.lastIndexOf(separator))
+  )
+  if (at < 1 || !/\s/u.test(text[at - 1]) || !/\s/u.test(text[at + 1] ?? ''))
+    return title
+  const head = text.slice(0, at).trimEnd()
+  return head &&
+    text
+      .slice(at + 1)
+      .trim()
+      .toLowerCase() === name
+    ? head
+    : title
 }
 
 /** Brave's `page_age` is UTC but usually ships without the trailing `Z`. */

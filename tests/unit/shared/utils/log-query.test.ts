@@ -15,6 +15,13 @@ const rec = (over: Partial<Parameters<typeof matchesLogQuery>[0]> = {}) => ({
 })
 
 describe('parseLogQuery', () => {
+  it('keeps long unrecognized tokens and advances through empty fields', () => {
+    const word = 'a'.repeat(50_000)
+    expect(parseLogQuery(`${word} scope: -trace: "" tail`)).toEqual({
+      terms: [word, 'tail'],
+      excludes: []
+    })
+  })
   it('reads words, phrases, exclusions and the two fields', () => {
     expect(
       parseLogQuery(

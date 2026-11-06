@@ -1,5 +1,17 @@
-import { argsHoldSecret, maskMcpArgs } from '@actovia-ai/secret-detect'
+import {
+  argsHoldSecret,
+  maskMcpArgs,
+  maskMcpUrl
+} from '@actovia-ai/secret-detect'
 import { describe, expect, it } from 'vitest'
+
+it('keeps malformed long URLs unchanged and still masks valid URL credentials', () => {
+  const malformed = `https://${'"'.repeat(50_000)}#\ninvalid`
+  expect(maskMcpUrl(malformed)).toBe(malformed)
+  expect(maskMcpUrl('https://user:pass@host.test/path?token=secret')).toBe(
+    'https://••••@host.test/path?token=••••'
+  )
+})
 
 describe('argsHoldSecret — the MCP form notice (I1)', () => {
   it.each([

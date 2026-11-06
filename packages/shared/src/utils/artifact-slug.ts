@@ -5,9 +5,9 @@ export function artifactSlug(title: string): string {
     .toLowerCase()
     .replace(/[\s\p{P}\p{S}]+/gu, '-')
     .replace(/^-+/, '')
-    .replace(/-+$/, '')
+    .replace(/(?<!-)-+$/u, '')
     .slice(0, MAX_SLUG_LENGTH)
-    .replace(/-+$/, '')
+    .replace(/(?<!-)-+$/u, '')
 
   return cleaned.length > 0 ? cleaned : 'untitled'
 }
