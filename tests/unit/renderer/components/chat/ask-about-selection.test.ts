@@ -167,6 +167,7 @@ describe('selecting text in a message', () => {
           { 'data-askable': '', id: 'answer' },
           'An answer to select from.'
         ),
+        createElement('span', { id: 'toolbar' }, '  '),
         createElement('p', { id: 'elsewhere' }, 'The sidebar, say.'),
         createElement(SelectionAsk, { chatId: 'chat-1' })
       )
@@ -204,6 +205,37 @@ describe('selecting text in a message', () => {
     expect(store.get(chatInputFocusAtom)).toBe(focusBefore + 1)
     expect(find(TEST_IDS.chat.ask.button)).toBeNull()
     expect(window.getSelection()?.toString()).toBe('')
+  })
+
+  it('accepts a paragraph selection ending in the empty action toolbar', async () => {
+    await page()
+    const range = document.createRange()
+    range.setStart(document.querySelector('#answer')!.firstChild!, 0)
+    range.setEnd(document.querySelector('#toolbar')!.firstChild!, 2)
+    const selection = window.getSelection()!
+    selection.removeAllRanges()
+    selection.addRange(range)
+    await act(async () => {
+      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    await act(async () => find(TEST_IDS.chat.ask.button)?.click())
+    expect(store.get(chatQuoteAtom)?.text).toBe('An answer to select from.')
+  })
+
+  it('rejects a selection extending into non-message text', async () => {
+    await page()
+    const range = document.createRange()
+    range.setStart(document.querySelector('#answer')!.firstChild!, 0)
+    range.setEnd(document.querySelector('#elsewhere')!.firstChild!, 5)
+    const selection = window.getSelection()!
+    selection.removeAllRanges()
+    selection.addRange(range)
+    await act(async () => {
+      document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    expect(find(TEST_IDS.chat.ask.button)).toBeNull()
   })
 
   it('offers nothing for a selection outside a message', async () => {

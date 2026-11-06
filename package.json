@@ -211,6 +211,7 @@
     "agent-desktop",
     "electron",
     "electron-winstaller",
+    "fs-xattr",
     "macos-alias"
   ]
 }

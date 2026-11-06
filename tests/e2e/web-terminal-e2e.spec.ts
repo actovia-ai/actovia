@@ -42,6 +42,9 @@ test('the production bundles pair a browser as a separate device and revokes it 
   await page.getByTestId(TEST_IDS.webTerminal.code).fill(code!)
   await page.getByTestId(TEST_IDS.webTerminal.connect).click()
   await expect(page.getByTestId(TEST_IDS.composer.textarea)).toBeVisible()
+  // Return to the native window as a user would after pairing in Chrome.
+  // Chromium may throttle its background timers while the browser is focused.
+  await mainWindow.bringToFront()
   // Native Devices refreshes once its browser invitation has been consumed.
   await expect(mainWindow.getByTestId(TEST_IDS.devices.deviceRow)).toHaveCount(
     1

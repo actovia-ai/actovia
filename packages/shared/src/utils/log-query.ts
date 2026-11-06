@@ -19,10 +19,6 @@ export interface LogQuery {
 const FIELDS = ['scope', 'trace'] as const
 const FIELD_ONLY = /^(?:scope|trace):$/iu
 
-// A token: an optional `-`, an optional `field:`, then a quoted phrase or a
-// run of non-space characters.
-const TOKEN = /(-?)(?:([a-z]+):)?(?:"([^"]*)"?|(\S+))/iuy
-
 export function parseLogQuery(input: string | undefined): LogQuery {
   const query: LogQuery = { terms: [], excludes: [] }
   if (!input) return query
@@ -31,15 +27,36 @@ export function parseLogQuery(input: string | undefined): LogQuery {
       at++
       continue
     }
-    TOKEN.lastIndex = at
-    const match = TOKEN.exec(input)
-    if (!match) {
-      at++
-      continue
+    let minus = input[at] === '-'
+    if (minus) at++
+    const fieldStart = at
+    while (at < input.length && /[a-z]/iu.test(input[at])) at++
+    let field: string | undefined
+    if (
+      at > fieldStart &&
+      input[at] === ':' &&
+      at + 1 < input.length &&
+      !/\s/u.test(input[at + 1])
+    ) {
+      field = input.slice(fieldStart, at++)
+    } else {
+      at = fieldStart
     }
-    at = TOKEN.lastIndex
-    const [, minus, field, phrase, word] = match
-    const value = phrase ?? word ?? ''
+    const quoted = input[at] === '"'
+    if (quoted) at++
+    const valueStart = at
+    while (
+      at < input.length &&
+      (quoted ? input[at] !== '"' : !/\s/u.test(input[at]))
+    )
+      at++
+    let value = input.slice(valueStart, at)
+    if (quoted && input[at] === '"') at++
+    // A bare '-' is a word; an excluded empty quoted phrase is ignored.
+    if (!quoted && value === '' && minus) {
+      minus = false
+      value = '-'
+    }
     // `scope:` with nothing after it yet is a field being typed, not a word.
     if (!field && FIELD_ONLY.test(value)) continue
     const name = field?.toLowerCase()

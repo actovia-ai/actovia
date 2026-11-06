@@ -98,11 +98,11 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
-      # appdmg loads this host-Node addon, not an Electron runtime addon.
-      # Fail before packaging/signing if its trusted install did not build it.
-      - name: Verify macOS DMG native dependency
+      # appdmg loads host-Node addons, not Electron runtime addons.
+      # Load the whole engine before packaging/signing to verify their builds.
+      - name: Verify macOS DMG native dependencies
         if: matrix.os == 'macos-26'
-        run: node -e "require('macos-alias')"
+        run: node -e "require('appdmg')"
 
       - name: Verify Windows Squirrel archive dependencies
         if: matrix.os == 'windows-latest'

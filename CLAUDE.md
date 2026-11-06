@@ -89,9 +89,9 @@ files in `.vite/`, and they ship inside `app.asar`: an error in the log names
 `src/main/lib/logger/` and the Vite configs under Code Structure.
 
 Bun's explicit `trustedDependencies` replaces its built-in list. Keep Electron,
-`electron-winstaller` and `macos-alias` trusted along with the automation
+`electron-winstaller`, `fs-xattr` and `macos-alias` trusted along with the automation
 engines. Electron needs its runtime download; Squirrel needs the install hook
-that selects `7z.exe`/`7z.dll`; appdmg needs the host-Node addon. The release
+that selects `7z.exe`/`7z.dll`; appdmg needs both host-Node addons. The release
 workflow checks the packaging dependencies immediately after installation,
 before packaging and signing.
 

@@ -7,7 +7,7 @@ bridge, window creation, or the artifact sandbox.
 ## Code scanning follow-up (2026-11-06)
 
 The CodeQL-reported string matching in Markdown, URLs and approval commands uses
-linear scans, sticky tokenization or suffix patterns that cannot retry inside
+linear scans, explicit tokenization or suffix patterns that cannot retry inside
 a repeated run. Regression inputs exercise long whitespace, delimiter and
 flag runs without changing credential masking or approval decisions.
 

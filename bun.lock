@@ -219,6 +219,7 @@
     "agent-browser",
     "agent-desktop",
     "electron-winstaller",
+    "fs-xattr",
     "macos-alias",
   ],
   "packages": {

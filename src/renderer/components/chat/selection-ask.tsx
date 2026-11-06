@@ -31,11 +31,25 @@ function readSelection(): Offer | null {
   if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
     return null
   }
-  const range = selection.getRangeAt(0)
-  if (!askableOf(range.startContainer) || !askableOf(range.endContainer)) {
-    return null
+  const range = selection.getRangeAt(0).cloneRange()
+  const start = askableOf(range.startContainer)
+  const end = askableOf(range.endContainer)
+  if (!start && !end) return null
+  // Chromium's paragraph selection can end in the empty action toolbar.
+  // Trim only whitespace outside the message; selected sidebar/control text
+  // must still disqualify the selection.
+  if (start && !end) {
+    const trailing = range.cloneRange()
+    trailing.setStartAfter(start)
+    if (trailing.toString().trim()) return null
+    range.setEnd(start, start.childNodes.length)
+  } else if (!start && end) {
+    const leading = range.cloneRange()
+    leading.setEndBefore(end)
+    if (leading.toString().trim()) return null
+    range.setStart(end, 0)
   }
-  const text = selection.toString().trim()
+  const text = range.toString().trim()
   if (text === '') return null
   // Over where the selection starts: its first line, not the box around all
   // of it, which for three lines begins at the paragraph's edge.
