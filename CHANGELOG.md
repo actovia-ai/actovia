@@ -1,3 +1,10 @@
+## [2.9.1](https://github.com/actovia-ai/actovia/compare/v2.9.0...v2.9.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* refine appearance and restore Codex CLI discovery ([1a26400](https://github.com/actovia-ai/actovia/commit/1a26400d4583e2da374a3730b6e08de4ea0e2619))
+
 # [2.9.0](https://github.com/actovia-ai/actovia/compare/v2.8.0...v2.9.0) (2026-11-06)
 
 
