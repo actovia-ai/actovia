@@ -125,7 +125,7 @@ function GroupMessageBubbleView({
       {!user && !continued && (
         <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
           {pm ? (
-            <span className="bg-primary/10 text-primary flex size-7 shrink-0 items-center justify-center rounded-full">
+            <span className="bg-primary/10 text-primary-ink flex size-7 shrink-0 items-center justify-center rounded-full">
               <HugeiconsIcon icon={MusicConductor} className="size-4" />
             </span>
           ) : (
@@ -144,7 +144,7 @@ function GroupMessageBubbleView({
         </div>
       )}
       {user && Boolean(bubble.mentions?.length) && (
-        <div className="text-primary mb-2 flex flex-wrap justify-end gap-1 text-xs">
+        <div className="text-primary-ink mb-2 flex flex-wrap justify-end gap-1 text-xs">
           {bubble.mentions?.map((mention) => (
             <span
               key={mention.agentId}

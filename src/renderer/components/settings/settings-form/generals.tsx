@@ -10,31 +10,19 @@ import {
   type ColorTone,
   type UseFormReturnType
 } from '@actovia/shared/schemas/settings-schema'
-import {
-  ComputerIcon,
-  Globe02Icon,
-  MoonIcon,
-  Sun03Icon
-} from '@hugeicons/core-free-icons'
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
-import type { ParseKeys } from 'i18next'
-import { useTheme } from 'next-themes'
+import { Globe02Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Flag } from '@/components/app/flag'
-import { Theme } from '@/components/app/theme-provider'
 import { Switch } from '@/components/ui/switch'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
 import { setLoginItem, setMenuBar } from '@/lib/ipc'
 import { applyReducedMotion } from '@/lib/reduced-motion'
 import { applyTone } from '@/lib/tone'
 import { cn } from '@/lib/utils'
 
+import { AppearanceSwitcher } from '../appearance-switcher'
 import { SettingsRow, SettingsSection } from '../settings-row'
 import { SettingsSelect } from '../settings-select'
 import { LockPrivacy } from './lock-privacy'
@@ -57,56 +45,6 @@ const LANGUAGE_OPTIONS: {
     flagCode: LOCALES[id].flagCode
   }))
 ]
-
-const APPEARANCE_MODES: {
-  value: Theme
-  labelKey: ParseKeys<'settings'>
-  icon: IconSvgElement
-}[] = [
-  { value: 'system', labelKey: 'general.theme.system', icon: ComputerIcon },
-  { value: 'light', labelKey: 'general.theme.light', icon: Sun03Icon },
-  { value: 'dark', labelKey: 'general.theme.dark', icon: MoonIcon }
-]
-
-function AppearanceSwitcher() {
-  const { t } = useTranslation('settings')
-  const { theme, setTheme } = useTheme()
-
-  return (
-    <div className="bg-muted inline-flex w-fit gap-0.5 rounded-full p-0.5">
-      {APPEARANCE_MODES.map(({ value, labelKey, icon: Icon }) => (
-        <span key={value}>
-          <input
-            className="peer sr-only"
-            type="radio"
-            id={`appearance-mode-${value}`}
-            name="appearance-mode"
-            value={value}
-            checked={theme === value}
-            onChange={(event) => setTheme(event.target.value)}
-          />
-          {/* Three bare glyphs: each names itself on hover, and to a
-              screen reader through its label. */}
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <label
-                  htmlFor={`appearance-mode-${value}`}
-                  data-testid={`${TEST_IDS.settings.themeMode}-${value}`}
-                  aria-label={t(labelKey)}
-                  className="text-muted-foreground peer-checked:bg-background peer-checked:text-foreground peer-focus-visible:ring-ring/50 flex size-7 cursor-pointer items-center justify-center rounded-full transition-colors peer-checked:shadow-sm peer-focus-visible:ring-2"
-                />
-              }
-            >
-              <HugeiconsIcon icon={Icon} className="size-4" />
-            </TooltipTrigger>
-            <TooltipContent>{t(labelKey)}</TooltipContent>
-          </Tooltip>
-        </span>
-      ))}
-    </div>
-  )
-}
 
 // The dot for each tone is its fill, `--primary` of its `[data-tone]` block
 // in globals.css (`tone-palette.test.ts` holds the two equal); neutral is

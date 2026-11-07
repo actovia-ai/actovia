@@ -1,7 +1,7 @@
 // The colour tones (Settings → General → Color tone). The accents are the
 // owner's reference — ChatGPT's accent colours, 2026-09-29 — and the same
-// ones actovia-ios draws. A tone is shadcn's `--primary`, with
-// `--primary-foreground` on it.
+// ones actovia-ios draws. Fill, readable ink and selection are independent
+// of the neutral structural surfaces.
 import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
 
@@ -37,8 +37,14 @@ const palettes = [
   { name: 'neutral, light', tokens: block(':root') },
   { name: 'neutral, dark', tokens: block('.dark') },
   ...Object.keys(FILLS).flatMap((tone) => [
-    { name: `${tone}, light`, tokens: block(`[data-tone='${tone}']`) },
-    { name: `${tone}, dark`, tokens: block(`.dark[data-tone='${tone}']`) }
+    {
+      name: `${tone}, light`,
+      tokens: { ...block(':root'), ...block(`[data-tone='${tone}']`) }
+    },
+    {
+      name: `${tone}, dark`,
+      tokens: { ...block('.dark'), ...block(`.dark[data-tone='${tone}']`) }
+    }
   ])
 ]
 
@@ -94,36 +100,88 @@ describe('colour tones', () => {
     }
   })
 
-  it.each(palettes)('$name: a glyph reads on the fill', ({ tokens }) => {
-    // A glyph or a button's label on the accent: 3:1, the floor for
-    // graphics and large text. The softer fills cannot give white more.
+  it.each(palettes)('$name: button text reads on the fill', ({ tokens }) => {
     expect(
       contrastOf(tokens['--primary-foreground'], tokens['--primary'])
-    ).toBeGreaterThanOrEqual(3)
+    ).toBeGreaterThanOrEqual(4.5)
   })
 
-  // A hover, a chip or a selected row is `--accent` / `--sidebar-accent`; a
-  // light accent equal to `--muted` vanished on a muted card, and the active
-  // sidebar row at 0.97 on 0.975 was 1.01:1 (2026-10-21). Each stays a
-  // visible step from the surface it sits on.
-  const lightnessOf = (value: string) => {
-    const m = /^oklch\(\s*([\d.]+)\s/u.exec(value)
-    if (!m) throw new Error(`not an opaque oklch: ${value}`)
-    return Number(m[1])
-  }
-  const tones = palettes.filter((p) => !p.name.startsWith('neutral'))
-  it.each(tones)('$name: the accent is a step from muted', ({ tokens }) => {
-    expect(
-      Math.abs(lightnessOf(tokens['--accent']) - lightnessOf(tokens['--muted']))
-    ).toBeGreaterThanOrEqual(0.03 - 1e-9)
+  it('keeps structural surfaces, ordinary hovers, text and charts in the base theme', () => {
+    const structural = [
+      '--background',
+      '--foreground',
+      '--card',
+      '--card-foreground',
+      '--popover',
+      '--popover-foreground',
+      '--secondary',
+      '--secondary-foreground',
+      '--muted',
+      '--muted-foreground',
+      '--accent',
+      '--accent-foreground',
+      '--border',
+      '--input',
+      '--sidebar',
+      '--sidebar-foreground',
+      '--sidebar-accent',
+      '--sidebar-accent-foreground',
+      '--sidebar-border',
+      '--code',
+      '--destructive',
+      '--warning',
+      '--chart-1',
+      '--chart-2',
+      '--chart-3',
+      '--chart-4',
+      '--chart-5'
+    ]
+    for (const tone of Object.keys(FILLS)) {
+      for (const selector of [
+        `[data-tone='${tone}']`,
+        `.dark[data-tone='${tone}']`
+      ]) {
+        const overrides = block(selector)
+        for (const name of structural)
+          expect(overrides[name], `${selector} ${name}`).toBeUndefined()
+        expect(overrides['--selected']).toContain('color-mix(')
+      }
+    }
   })
-  it.each(tones.filter((p) => p.name.endsWith('light')))(
-    '$name: the active sidebar row shows on the sidebar',
+
+  it.each(palettes)(
+    '$name: accent text reads on neutral surfaces and the message bubble',
     ({ tokens }) => {
-      expect(
-        lightnessOf(tokens['--sidebar']) -
-          lightnessOf(tokens['--sidebar-accent'])
-      ).toBeGreaterThanOrEqual(0.035 - 1e-9)
+      for (const surface of ['--background', '--card', '--muted', '--bubble']) {
+        expect(
+          contrastOf(tokens['--primary-ink'], tokens[surface])
+        ).toBeGreaterThanOrEqual(4.5)
+      }
+    }
+  )
+
+  it.each(palettes.filter((palette) => !palette.name.startsWith('neutral')))(
+    '$name: accent text reads in a tinted chip on a muted surface',
+    ({ name, tokens }) => {
+      const dark = name.endsWith('dark')
+      const fill = tokens['--primary'].slice(1)
+      const share = dark ? 0.3 : 0.2
+      const base = dark ? 38 : 245
+      const chip =
+        '#' +
+        [0, 2, 4]
+          .map((offset) =>
+            Math.round(
+              base * (1 - share) +
+                parseInt(fill.slice(offset, offset + 2), 16) * share
+            )
+              .toString(16)
+              .padStart(2, '0')
+          )
+          .join('')
+      expect(contrastOf(tokens['--primary-ink'], chip)).toBeGreaterThanOrEqual(
+        4.5
+      )
     }
   )
 
@@ -155,7 +213,7 @@ describe('colour tones', () => {
   it('draws links in the tone', () => {
     const links = css.slice(css.indexOf(':scope :where(a) {'))
     expect(links.slice(0, links.indexOf('}'))).toContain(
-      'color: var(--primary)'
+      'color: var(--primary-ink)'
     )
   })
 })
@@ -169,7 +227,9 @@ describe('a code block’s panel', () => {
     expect(block('.dark')['--code']).toBe('oklch(0.269 0 0)')
     for (const palette of palettes) {
       if (palette.name.startsWith('neutral')) continue
-      expect(palette.tokens['--code'], palette.name).toBeUndefined()
+      expect(palette.tokens['--code'], palette.name).toBe(
+        block(palette.name.endsWith('dark') ? '.dark' : ':root')['--code']
+      )
     }
   })
 

@@ -62,7 +62,7 @@ export function GroupContextRing({
           viewBox="0 0 16 16"
           className={cn(
             'size-4 -rotate-90',
-            meter.pastCompaction ? 'text-warning' : 'text-primary'
+            meter.pastCompaction ? 'text-warning' : 'text-primary-ink'
           )}
           aria-hidden
         >

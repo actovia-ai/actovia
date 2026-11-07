@@ -49,7 +49,7 @@ export function EntityLink({
       <PopoverTrigger
         data-testid={TEST_IDS.chat.richBlocks.entityLink}
         data-entity={title}
-        className="text-primary cursor-pointer underline decoration-dotted underline-offset-4 hover:decoration-solid"
+        className="text-primary-ink cursor-pointer underline decoration-dotted underline-offset-4 hover:decoration-solid"
       >
         {children}
       </PopoverTrigger>

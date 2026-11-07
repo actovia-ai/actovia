@@ -277,7 +277,7 @@ function TeamSection({
             <button
               type="button"
               onClick={() => onAddEmployeeToTeam(team.id)}
-              className="border-border text-muted-foreground hover:text-primary flex min-h-[88px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-xs transition-colors"
+              className="border-border text-muted-foreground hover:text-primary-ink flex min-h-[88px] items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-xs transition-colors"
             >
               <HugeiconsIcon
                 icon={Add01Icon}

@@ -113,7 +113,7 @@ export function TemperatureCurve({
           y1="0"
           x2="0"
           y2="1"
-          className="text-primary"
+          className="text-primary-ink"
         >
           <stop offset="0" stopColor="currentColor" stopOpacity="0.18" />
           <stop offset="1" stopColor="currentColor" stopOpacity="0" />

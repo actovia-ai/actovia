@@ -363,7 +363,7 @@ export function Composer({
                       )
                     )
                   }
-                  className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs"
+                  className="bg-primary/10 text-primary-ink rounded-full px-2.5 py-1 text-xs"
                 >
                   @{mention.name} <span aria-hidden>×</span>
                 </button>

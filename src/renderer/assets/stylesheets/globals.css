@@ -28,6 +28,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-selected: var(--selected);
   --color-primary-foreground: var(--primary-foreground);
   --color-bubble: var(--bubble);
   --color-secondary: var(--secondary);
@@ -104,7 +106,8 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  /* The accent as text (see the tones below); neutral's is its fill. */
+  --primary-ink: oklch(0.205 0 0);
+  --selected: oklch(0.97 0 0);
   /* The user's message. */
   --bubble: oklch(0.97 0 0);
   /* Neutral's dot in Settings → Color tone: a tone's block overrides
@@ -114,9 +117,7 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  /* A code block's panel: neutral in every tone — a tone tints --muted, and
-     code on a tinted panel read as part of the decoration (owner,
-     2026-10-08). Only :root and .dark set it. */
+  /* Code and all other structural surfaces stay neutral in every tone. */
   --code: oklch(0.97 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -151,6 +152,8 @@
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
+  --primary-ink: oklch(0.922 0 0);
+  --selected: oklch(0.269 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --bubble: oklch(0.269 0 0);
   --tone-neutral: oklch(0.922 0 0);
@@ -182,375 +185,154 @@
 }
 
 /* ── Colour tones (Settings → General → Color tone) ─────────────────────────
- * `data-tone` on <html> selects a hue-tinted palette; `neutral` is the base
- * `:root` / `.dark` above (shadcn's black and white).
- *
- * The accents are the owner's reference (ChatGPT's accent colours,
- * 2026-09-29) and the ones actovia-ios draws: softer and lighter than the
- * oklch(0.52 0.17 h) they replace. A tone is --primary (the fill, with
- * --primary-foreground on it), as shadcn has it, and text in the tone's
- * colour is `text-primary`; --bubble is the user's message: the fill, far
- * toward the page. The greys around them (page, card, border…) carry the
- * tone's hue. `tests/unit/renderer/tone-palette.test.ts` holds the colours. */
+ * A functional accent over the same neutral light/dark surfaces. The fills
+ * match iOS ColorTone.fill; text uses a readable ink, as ColorTone.ink does.
+ * Page, card, popover, secondary, muted, borders, ordinary hovers and charts
+ * inherit the base theme. Only explicit selected states use --selected.
+ * --bubble retains the quiet wash in the user's message. */
 
 [data-tone='emerald'] {
-  --background: oklch(0.985 0.004 141);
-  --foreground: oklch(0.16 0.02 141);
-  --card: oklch(0.995 0.003 141);
-  --card-foreground: oklch(0.16 0.02 141);
-  --popover: oklch(0.995 0.003 141);
-  --popover-foreground: oklch(0.16 0.02 141);
   --primary: #6cb362;
+  --primary-ink: #2c7322;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #eaf4e9;
-  --secondary: oklch(0.955 0.01 141);
-  --secondary-foreground: oklch(0.2 0.02 141);
-  --muted: oklch(0.955 0.01 141);
-  --muted-foreground: oklch(0.5 0.015 141);
-  --accent: oklch(0.925 0.02 141);
-  --accent-foreground: oklch(0.2 0.02 141);
-  --border: oklch(0.905 0.012 141);
-  --input: oklch(0.905 0.012 141);
   --ring: #3b8131;
-  --chart-1: #6cb362;
-  --sidebar: oklch(0.96 0.006 141);
-  --sidebar-foreground: oklch(0.16 0.02 141);
   --sidebar-primary: #6cb362;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.925 0.018 141);
-  --sidebar-accent-foreground: oklch(0.2 0.02 141);
-  --sidebar-border: oklch(0.905 0.012 141);
   --sidebar-ring: #3b8131;
+  --selected: color-mix(in oklab, #6cb362 12%, var(--background));
 }
 
 [data-tone='blue'] {
-  --background: oklch(0.985 0.004 265);
-  --foreground: oklch(0.16 0.02 265);
-  --card: oklch(0.995 0.003 265);
-  --card-foreground: oklch(0.16 0.02 265);
-  --popover: oklch(0.995 0.003 265);
-  --popover-foreground: oklch(0.16 0.02 265);
   --primary: #5480f0;
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-ink: #3359c5;
+  --primary-foreground: oklch(0.145 0 0);
   --bubble: #e7edfd;
-  --secondary: oklch(0.955 0.01 265);
-  --secondary-foreground: oklch(0.2 0.02 265);
-  --muted: oklch(0.955 0.01 265);
-  --muted-foreground: oklch(0.5 0.015 265);
-  --accent: oklch(0.925 0.02 265);
-  --accent-foreground: oklch(0.2 0.02 265);
-  --border: oklch(0.905 0.012 265);
-  --input: oklch(0.905 0.012 265);
   --ring: #426bd9;
-  --chart-1: #5480f0;
-  --sidebar: oklch(0.96 0.006 265);
-  --sidebar-foreground: oklch(0.16 0.02 265);
   --sidebar-primary: #5480f0;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.925 0.018 265);
-  --sidebar-accent-foreground: oklch(0.2 0.02 265);
-  --sidebar-border: oklch(0.905 0.012 265);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
   --sidebar-ring: #426bd9;
+  --selected: color-mix(in oklab, #5480f0 12%, var(--background));
 }
 
 [data-tone='violet'] {
-  --background: oklch(0.985 0.004 294);
-  --foreground: oklch(0.16 0.02 294);
-  --card: oklch(0.995 0.003 294);
-  --card-foreground: oklch(0.16 0.02 294);
-  --popover: oklch(0.995 0.003 294);
-  --popover-foreground: oklch(0.16 0.02 294);
   --primary: #8553e7;
+  --primary-ink: #713bcf;
   --primary-foreground: oklch(0.985 0 0);
   --bubble: #eee7fc;
-  --secondary: oklch(0.955 0.01 294);
-  --secondary-foreground: oklch(0.2 0.02 294);
-  --muted: oklch(0.955 0.01 294);
-  --muted-foreground: oklch(0.5 0.015 294);
-  --accent: oklch(0.925 0.02 294);
-  --accent-foreground: oklch(0.2 0.02 294);
-  --border: oklch(0.905 0.012 294);
-  --input: oklch(0.905 0.012 294);
   --ring: #8452e6;
-  --chart-1: #8553e7;
-  --sidebar: oklch(0.96 0.006 294);
-  --sidebar-foreground: oklch(0.16 0.02 294);
   --sidebar-primary: #8553e7;
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.925 0.018 294);
-  --sidebar-accent-foreground: oklch(0.2 0.02 294);
-  --sidebar-border: oklch(0.905 0.012 294);
   --sidebar-ring: #8452e6;
+  --selected: color-mix(in oklab, #8553e7 12%, var(--background));
 }
 
 [data-tone='rose'] {
-  --background: oklch(0.985 0.004 351);
-  --foreground: oklch(0.16 0.02 351);
-  --card: oklch(0.995 0.003 351);
-  --card-foreground: oklch(0.16 0.02 351);
-  --popover: oklch(0.995 0.003 351);
-  --popover-foreground: oklch(0.16 0.02 351);
   --primary: #e17ead;
+  --primary-ink: #a04371;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #fbedf4;
-  --secondary: oklch(0.955 0.01 351);
-  --secondary-foreground: oklch(0.2 0.02 351);
-  --muted: oklch(0.955 0.01 351);
-  --muted-foreground: oklch(0.5 0.015 351);
-  --accent: oklch(0.925 0.02 351);
-  --accent-foreground: oklch(0.2 0.02 351);
-  --border: oklch(0.905 0.012 351);
-  --input: oklch(0.905 0.012 351);
   --ring: #b05280;
-  --chart-1: #e17ead;
-  --sidebar: oklch(0.96 0.006 351);
-  --sidebar-foreground: oklch(0.16 0.02 351);
   --sidebar-primary: #e17ead;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.925 0.018 351);
-  --sidebar-accent-foreground: oklch(0.2 0.02 351);
-  --sidebar-border: oklch(0.905 0.012 351);
   --sidebar-ring: #b05280;
+  --selected: color-mix(in oklab, #e17ead 12%, var(--background));
 }
 
 [data-tone='orange'] {
-  --background: oklch(0.985 0.004 53);
-  --foreground: oklch(0.16 0.02 53);
-  --card: oklch(0.995 0.003 53);
-  --card-foreground: oklch(0.16 0.02 53);
-  --popover: oklch(0.995 0.003 53);
-  --popover-foreground: oklch(0.16 0.02 53);
   --primary: #de8344;
+  --primary-ink: #9e4d00;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #faeee5;
-  --secondary: oklch(0.955 0.01 53);
-  --secondary-foreground: oklch(0.2 0.02 53);
-  --muted: oklch(0.955 0.01 53);
-  --muted-foreground: oklch(0.5 0.015 53);
-  --accent: oklch(0.925 0.02 53);
-  --accent-foreground: oklch(0.2 0.02 53);
-  --border: oklch(0.905 0.012 53);
-  --input: oklch(0.905 0.012 53);
   --ring: #b15a11;
-  --chart-1: #de8344;
-  --sidebar: oklch(0.96 0.006 53);
-  --sidebar-foreground: oklch(0.16 0.02 53);
   --sidebar-primary: #de8344;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.925 0.018 53);
-  --sidebar-accent-foreground: oklch(0.2 0.02 53);
-  --sidebar-border: oklch(0.905 0.012 53);
   --sidebar-ring: #b15a11;
+  --selected: color-mix(in oklab, #de8344 12%, var(--background));
 }
 
 [data-tone='yellow'] {
-  --background: oklch(0.985 0.004 91);
-  --foreground: oklch(0.16 0.02 91);
-  --card: oklch(0.995 0.003 91);
-  --card-foreground: oklch(0.16 0.02 91);
-  --popover: oklch(0.995 0.003 91);
-  --popover-foreground: oklch(0.16 0.02 91);
   --primary: #edc859;
+  --primary-ink: #826700;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #fcf7e8;
-  --secondary: oklch(0.955 0.01 91);
-  --secondary-foreground: oklch(0.2 0.02 91);
-  --muted: oklch(0.955 0.01 91);
-  --muted-foreground: oklch(0.5 0.015 91);
-  --accent: oklch(0.925 0.02 91);
-  --accent-foreground: oklch(0.2 0.02 91);
-  --border: oklch(0.905 0.012 91);
-  --input: oklch(0.905 0.012 91);
   --ring: #8b6e00;
-  --chart-1: #edc859;
-  --sidebar: oklch(0.96 0.006 91);
-  --sidebar-foreground: oklch(0.16 0.02 91);
   --sidebar-primary: #edc859;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(0.925 0.018 91);
-  --sidebar-accent-foreground: oklch(0.2 0.02 91);
-  --sidebar-border: oklch(0.905 0.012 91);
   --sidebar-ring: #8b6e00;
+  --selected: color-mix(in oklab, #edc859 12%, var(--background));
 }
 
 .dark[data-tone='emerald'] {
-  --background: oklch(0.13 0.02 141);
-  --foreground: oklch(0.93 0.006 141);
-  --card: oklch(0.17 0.025 141);
-  --card-foreground: oklch(0.93 0.006 141);
-  --popover: oklch(0.17 0.025 141);
-  --popover-foreground: oklch(0.93 0.006 141);
   --primary: #79ba6f;
+  --primary-ink: #8ed084;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #1b2918;
-  --secondary: oklch(0.22 0.025 141);
-  --secondary-foreground: oklch(0.93 0.006 141);
-  --muted: oklch(0.22 0.025 141);
-  --muted-foreground: oklch(0.62 0.015 141);
-  --accent: oklch(0.255 0.035 141);
-  --accent-foreground: oklch(0.93 0.006 141);
-  --border: oklch(1 0.02 141 / 12%);
-  --input: oklch(1 0.02 141 / 16%);
   --ring: #79ba6f;
-  --chart-1: #79ba6f;
-  --sidebar: oklch(0.15 0.025 141);
-  --sidebar-foreground: oklch(0.93 0.006 141);
   --sidebar-primary: #79ba6f;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #79ba6f l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 141);
-  --sidebar-border: oklch(1 0.02 141 / 12%);
   --sidebar-ring: #79ba6f;
+  --selected: color-mix(in oklab, #79ba6f 20%, var(--background));
 }
 
 .dark[data-tone='blue'] {
-  --background: oklch(0.13 0.02 265);
-  --foreground: oklch(0.93 0.006 265);
-  --card: oklch(0.17 0.025 265);
-  --card-foreground: oklch(0.93 0.006 265);
-  --popover: oklch(0.17 0.025 265);
-  --popover-foreground: oklch(0.93 0.006 265);
   --primary: #5f89f1;
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-ink: #90b2ff;
+  --primary-foreground: oklch(0.145 0 0);
   --bubble: #151e35;
-  --secondary: oklch(0.22 0.025 265);
-  --secondary-foreground: oklch(0.93 0.006 265);
-  --muted: oklch(0.22 0.025 265);
-  --muted-foreground: oklch(0.62 0.015 265);
-  --accent: oklch(0.255 0.035 265);
-  --accent-foreground: oklch(0.93 0.006 265);
-  --border: oklch(1 0.02 265 / 12%);
-  --input: oklch(1 0.02 265 / 16%);
   --ring: #5f89f1;
-  --chart-1: #5f89f1;
-  --sidebar: oklch(0.15 0.025 265);
-  --sidebar-foreground: oklch(0.93 0.006 265);
   --sidebar-primary: #5f89f1;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(from #5f89f1 l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 265);
-  --sidebar-border: oklch(1 0.02 265 / 12%);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
   --sidebar-ring: #5f89f1;
+  --selected: color-mix(in oklab, #5f89f1 20%, var(--background));
 }
 
 .dark[data-tone='violet'] {
-  --background: oklch(0.13 0.02 294);
-  --foreground: oklch(0.93 0.006 294);
-  --card: oklch(0.17 0.025 294);
-  --card-foreground: oklch(0.93 0.006 294);
-  --popover: oklch(0.17 0.025 294);
-  --popover-foreground: oklch(0.93 0.006 294);
   --primary: #8b60e7;
-  --primary-foreground: oklch(0.985 0 0);
+  --primary-ink: #b49bff;
+  --primary-foreground: oklch(0.145 0 0);
   --bubble: #1f1533;
-  --secondary: oklch(0.22 0.025 294);
-  --secondary-foreground: oklch(0.93 0.006 294);
-  --muted: oklch(0.22 0.025 294);
-  --muted-foreground: oklch(0.62 0.015 294);
-  --accent: oklch(0.255 0.035 294);
-  --accent-foreground: oklch(0.93 0.006 294);
-  --border: oklch(1 0.02 294 / 12%);
-  --input: oklch(1 0.02 294 / 16%);
   --ring: #9c73fc;
-  --chart-1: #8b60e7;
-  --sidebar: oklch(0.15 0.025 294);
-  --sidebar-foreground: oklch(0.93 0.006 294);
   --sidebar-primary: #8b60e7;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(from #8b60e7 l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 294);
-  --sidebar-border: oklch(1 0.02 294 / 12%);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
   --sidebar-ring: #9c73fc;
+  --selected: color-mix(in oklab, #8b60e7 20%, var(--background));
 }
 
 .dark[data-tone='rose'] {
-  --background: oklch(0.13 0.02 351);
-  --foreground: oklch(0.93 0.006 351);
-  --card: oklch(0.17 0.025 351);
-  --card-foreground: oklch(0.93 0.006 351);
-  --popover: oklch(0.17 0.025 351);
-  --popover-foreground: oklch(0.93 0.006 351);
   --primary: #e589b4;
+  --primary-ink: #ffa0cc;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #321e28;
-  --secondary: oklch(0.22 0.025 351);
-  --secondary-foreground: oklch(0.93 0.006 351);
-  --muted: oklch(0.22 0.025 351);
-  --muted-foreground: oklch(0.62 0.015 351);
-  --accent: oklch(0.255 0.035 351);
-  --accent-foreground: oklch(0.93 0.006 351);
-  --border: oklch(1 0.02 351 / 12%);
-  --input: oklch(1 0.02 351 / 16%);
   --ring: #e589b4;
-  --chart-1: #e589b4;
-  --sidebar: oklch(0.15 0.025 351);
-  --sidebar-foreground: oklch(0.93 0.006 351);
   --sidebar-primary: #e589b4;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #e589b4 l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 351);
-  --sidebar-border: oklch(1 0.02 351 / 12%);
   --sidebar-ring: #e589b4;
+  --selected: color-mix(in oklab, #e589b4 20%, var(--background));
 }
 
 .dark[data-tone='orange'] {
-  --background: oklch(0.13 0.02 53);
-  --foreground: oklch(0.93 0.006 53);
-  --card: oklch(0.17 0.025 53);
-  --card-foreground: oklch(0.93 0.006 53);
-  --popover: oklch(0.17 0.025 53);
-  --popover-foreground: oklch(0.93 0.006 53);
   --primary: #e28d55;
+  --primary-ink: #fea76f;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #321f13;
-  --secondary: oklch(0.22 0.025 53);
-  --secondary-foreground: oklch(0.93 0.006 53);
-  --muted: oklch(0.22 0.025 53);
-  --muted-foreground: oklch(0.62 0.015 53);
-  --accent: oklch(0.255 0.035 53);
-  --accent-foreground: oklch(0.93 0.006 53);
-  --border: oklch(1 0.02 53 / 12%);
-  --input: oklch(1 0.02 53 / 16%);
   --ring: #e28d55;
-  --chart-1: #e28d55;
-  --sidebar: oklch(0.15 0.025 53);
-  --sidebar-foreground: oklch(0.93 0.006 53);
   --sidebar-primary: #e28d55;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #e28d55 l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 53);
-  --sidebar-border: oklch(1 0.02 53 / 12%);
   --sidebar-ring: #e28d55;
+  --selected: color-mix(in oklab, #e28d55 20%, var(--background));
 }
 
 .dark[data-tone='yellow'] {
-  --background: oklch(0.13 0.02 91);
-  --foreground: oklch(0.93 0.006 91);
-  --card: oklch(0.17 0.025 91);
-  --card-foreground: oklch(0.93 0.006 91);
-  --popover: oklch(0.17 0.025 91);
-  --popover-foreground: oklch(0.93 0.006 91);
   --primary: #f3d16e;
+  --primary-ink: #f3d16e;
   --primary-foreground: oklch(0.145 0 0);
   --bubble: #352e18;
-  --secondary: oklch(0.22 0.025 91);
-  --secondary-foreground: oklch(0.93 0.006 91);
-  --muted: oklch(0.22 0.025 91);
-  --muted-foreground: oklch(0.62 0.015 91);
-  --accent: oklch(0.255 0.035 91);
-  --accent-foreground: oklch(0.93 0.006 91);
-  --border: oklch(1 0.02 91 / 12%);
-  --input: oklch(1 0.02 91 / 16%);
   --ring: #f3d16e;
-  --chart-1: #f3d16e;
-  --sidebar: oklch(0.15 0.025 91);
-  --sidebar-foreground: oklch(0.93 0.006 91);
   --sidebar-primary: #f3d16e;
   --sidebar-primary-foreground: oklch(0.145 0 0);
-  --sidebar-accent: oklch(from #f3d16e l c h / 12%);
-  --sidebar-accent-foreground: oklch(0.93 0.006 91);
-  --sidebar-border: oklch(1 0.02 91 / 12%);
   --sidebar-ring: #f3d16e;
+  --selected: color-mix(in oklab, #f3d16e 20%, var(--background));
 }
 
 /* ── Where the tone stops ────────────────────────────────────────────────────
@@ -558,11 +340,13 @@
  * as Chat, whose chrome has no fill of the tone). `data-tone-scope="neutral"`
  * puts the accents back to the neutral tone's — a page's buttons, its focus
  * rings, its charts — and `data-tone-scope="tone"` inside it brings the
- * chosen tone back, for a transcript and its composer. The greys keep the
- * tone's hue in both, as Chat's do. `--toned-*` is the chosen tone's value,
+ * chosen tone back, for a transcript and its composer. Structural surfaces
+ * stay neutral in both. `--toned-*` is the chosen tone's value,
  * computed on <html> (where `[data-tone]` set it) and inherited from there. */
 :root {
   --toned-primary: var(--primary);
+  --toned-primary-ink: var(--primary-ink);
+  --toned-selected: var(--selected);
   --toned-primary-foreground: var(--primary-foreground);
   --toned-bubble: var(--bubble);
   --toned-accent: var(--accent);
@@ -577,6 +361,8 @@
 /* The neutral tone's values: `:root`'s and `.dark`'s, above. */
 [data-tone-scope='neutral'] {
   --primary: oklch(0.205 0 0);
+  --primary-ink: oklch(0.205 0 0);
+  --selected: oklch(0.97 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --bubble: oklch(0.97 0 0);
   --accent: oklch(0.97 0 0);
@@ -590,6 +376,8 @@
 
 .dark [data-tone-scope='neutral'] {
   --primary: oklch(0.922 0 0);
+  --primary-ink: oklch(0.922 0 0);
+  --selected: oklch(0.269 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --bubble: oklch(0.269 0 0);
   --accent: oklch(0.269 0 0);
@@ -603,6 +391,8 @@
 
 [data-tone-scope='tone'] {
   --primary: var(--toned-primary);
+  --primary-ink: var(--toned-primary-ink);
+  --selected: var(--toned-selected);
   --primary-foreground: var(--toned-primary-foreground);
   --bubble: var(--toned-bubble);
   --accent: var(--toned-accent);
@@ -794,7 +584,7 @@
 
     /* Links — subtle by default, underline on hover. */
     :scope :where(a) {
-      color: var(--primary);
+      color: var(--primary-ink);
       @apply wrap-break-word [text-decoration:none];
     }
     :scope :where(a):hover {

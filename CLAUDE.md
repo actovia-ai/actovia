@@ -423,20 +423,29 @@ asar (the `.node` dlopens `libduckdb` beside itself). Research notes:
 
 ### Colour tone
 
+The General appearance picker (`components/settings/appearance-switcher.tsx`)
+uses three labeled native radios with hand-drawn Actovia chat previews: System
+splits the same scene into light/dark halves. Its CSS keeps preview surfaces
+fixed to their represented appearance; selection uses the focus-ring token.
+The existing themeMode test ids and next-themes persistence remain unchanged.
+
 The accents are the owner's reference of 2026-09-29 (ChatGPT's accent
 colours) and the ones actovia-ios draws; neutral is shadcn's black and white.
-A tone is shadcn's `--primary` (with `--primary-foreground` on it; text in
-the tone's colour is `text-primary`, as shadcn writes it), plus `--bubble`
-for the user's message. `tests/unit/renderer/tone-palette.test.ts` holds the
-colours and their contrast. The tone colours a
-conversation, not the page around it (owner, 2026-10-09): a
-`data-tone-scope="neutral"` region is drawn with the neutral tone's accents
-(`--primary`, `--accent`, `--ring`, `--bubble`,
-`--chart-1`, `--sidebar-primary`…; the greys keep the tone's hue, as Chat's
-do) and `data-tone-scope="tone"` inside it takes the chosen tone back
-through `--toned-*`, which `:root` computes from the tone on `<html>`
-(globals.css, "Where the tone stops"). Philharmonic's layout is neutral; a
-group's transcript and composer (`group-chat.tsx`) are toned.
+A tone supplies `--primary` (fill), `--primary-foreground` (text on that
+fill), `--primary-ink` (readable links and glyphs, as iOS's `ColorTone.ink`),
+`--selected` (a quiet wash for explicit selection), focus rings and `--bubble`
+for the user's message. The `text-primary-ink` Tailwind utility uses the ink;
+`bg-primary` uses the fill. Button labels meet 4.5:1. Pages, cards, popovers,
+sidebars, ordinary hovers, secondary surfaces, text, borders and chart series
+keep the neutral base theme in every tone. Navigation's `data-active` uses
+`bg-selected`; its ordinary hover stays `bg-sidebar-accent`. Every Sidebar
+root, including mobile sheets, uses `data-tone-scope="neutral"`, so its
+selection, controls and focus rings stay neutral in every colour tone.
+`tests/unit/renderer/tone-palette.test.ts` holds the colours and contrast.
+A `data-tone-scope="neutral"` region uses the neutral accents and a nested
+`data-tone-scope="tone"` restores the chosen tone through `--toned-*`,
+computed on `<html>` (globals.css, "Where the tone stops"). Philharmonic's
+layout is neutral; its group transcript and composer are toned.
 
 **What leaves the app** (same date): Copy writes an answer's `【N-source】`
 markers as `[n]` with a References list under it (`lib/citation-references.ts`,
@@ -1346,6 +1355,12 @@ Philharmonic runs multi-agent "Groups" (teams of agents collaborating on tasks).
   DB update refuses a concurrent execution/adoption. Missing Chat targets
   become failed, visible tasks; they are never recreated or automatically
   re-armed on restart. Failed one-off tasks remain visible for recovery.
+- **CLI discovery:** `agents/login-shell.ts` reads the owner's interactive
+  login-shell environment. Its PATH stays first; standard user install paths
+  and installed nvm Node versions are appended (newest first, honoring
+  `NVM_DIR`). Switching nvm's default does not hide a Codex npm installation
+  in another Node version. Both successful shell discovery and its failure
+  fallback use this augmentation; Settings → Check refreshes the environment.
 - **Quota-aware dealing** (spec `docs/superpowers/specs/2026-10-16-pm-quota-aware-dealing-design.md`):
   what each CLI reports of the owner's quota — Claude Code's `rate_limit_event` on every turn,
   Codex's `account/rateLimits/read` (free; `refreshQuotas()` in `quota-refresh.ts`, at most once a
@@ -2054,16 +2069,15 @@ audit that applied it is in the commit history (`style(motion): …`).
   reason in a comment. `prefers-reduced-motion` in `globals.css` removes
   movement and keeps opacity/colour at 150 ms — do not add a second rule
   that zeroes everything.
-- **Colour:** the neutral tone is shadcn's own `:root` / `.dark`, unchanged
-  (`tone-palette.test.ts` pins it); a colour tone's light palette sits at
-  `0.985` (page) / `0.995` (card, popover) / `0.96` (sidebar).
-  No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces (a
-  heads-up is `--warning`, `text-warning` — only `:root` / `.dark` set it) and no
-  `bg-black`/`bg-white` except an overlay scrim; use the tokens. In a colour
-  tone `--accent` (a hover, a chip, a selected item) stays at least 0.03 L
-  from `--muted`, and the light `--sidebar-accent` (the active row) 0.035
-  under `--sidebar`
-  (`tone-palette.test.ts`); a chip on a muted card is `bg-background` with
+- **Colour:** every tone inherits shadcn's neutral light/dark structural
+  surfaces. Tone only functional accents, explicit selection and the user's
+  message (`tone-palette.test.ts`). Keep ordinary hover neutral and use
+  `bg-selected` for active navigation within the sidebar’s neutral tone scope.
+  `text-primary-ink` is readable ink;
+  `bg-primary` is the fill, paired with `text-primary-foreground`.
+  No raw Tailwind palette colours (`bg-blue-400`) on chat surfaces; use
+  semantic tokens (`text-warning` for a heads-up). No `bg-black`/`bg-white`
+  except an overlay scrim. A chip on a muted card is `bg-background` with
   `ring-1 ring-border`.
 - **Ody in the UI:** `components/app/ody-mark.tsx` (`OdyMark`, the app
   icon's Liquid Glass export, still) on the landing and the lock screen,

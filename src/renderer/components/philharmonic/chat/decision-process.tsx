@@ -215,7 +215,7 @@ function Line({
                 key={r.messageId}
                 type="button"
                 onClick={() => onJumpTo(r.messageId)}
-                className="text-primary hover:underline"
+                className="text-primary-ink hover:underline"
               >
                 {name}
               </button>

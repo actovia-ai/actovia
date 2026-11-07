@@ -1,5 +1,11 @@
 // tests/unit/main/lib/agents/cli-check.test.ts
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'fs'
+import {
+  chmodSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync
+} from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
@@ -12,6 +18,7 @@ import {
   readCodexQuota,
   type CheckDeps
 } from '@main/lib/agents/cli-check'
+import { withCliFallbacks } from '@main/lib/agents/login-shell'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@main/lib/db/queries', () => ({ getSettings: vi.fn() }))
@@ -203,6 +210,31 @@ describe('CLI check', () => {
       models: ['gpt-x']
     })
     expect(asked).toEqual([`codex ${join(dir, 'codex')}`])
+  })
+
+  it('finds Codex installed under the previous nvm version after the default Node changes', async () => {
+    const home = mkdtempSync(join(tmpdir(), 'actovia-codex-nvm-'))
+    const current = join(home, '.nvm/versions/node/v26.13.0/bin')
+    const previous = join(home, '.nvm/versions/node/v24.14.0/bin')
+    mkdirSync(current, { recursive: true })
+    mkdirSync(previous, { recursive: true })
+    const cli = join(previous, 'codex')
+    writeFileSync(
+      cli,
+      readFileSync(
+        join(codexBin('0.167.0', 'Logged in using ChatGPT'), 'codex')
+      )
+    )
+    chmodSync(cli, 0o755)
+    const runtime = deps(current)
+    const selected = await runtime.env()
+    runtime.env = () => withCliFallbacks(selected, home)
+    expect(await checkCli('codex', runtime)).toMatchObject({
+      state: 'ready',
+      path: cli,
+      version: '0.167.0',
+      authMethod: 'ChatGPT'
+    })
   })
 
   it('Codex below 0.162.1 is too old', async () => {

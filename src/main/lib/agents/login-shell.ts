@@ -1,5 +1,6 @@
 // src/main/lib/agents/login-shell.ts
 import { execFile } from 'child_process'
+import { readdir } from 'fs/promises'
 import { homedir } from 'os'
 import { join } from 'path'
 
@@ -7,13 +8,37 @@ import { logger } from '../logger'
 
 const MARK = '__ACTOVIA_ENV__'
 const DROP = /^(ACTOVIA_|ELECTRON_|VITE_)/
-/** Where CLIs install when the login shell cannot tell us (spec §3). */
-const FALLBACK_DIRS = [
-  join(homedir(), '.local/bin'),
-  join(homedir(), '.claude/local'),
-  '/opt/homebrew/bin',
-  '/usr/local/bin'
-]
+/** Keep the selected shell tools first, then look for CLIs installed elsewhere.
+ * npm globals belong to a Node version: switching nvm's default must not make
+ * an otherwise working Codex installation disappear from the app's PATH. */
+export async function withCliFallbacks(
+  env: Record<string, string>,
+  home = homedir()
+): Promise<Record<string, string>> {
+  const nvmVersions = join(env.NVM_DIR || join(home, '.nvm'), 'versions/node')
+  const versions = await readdir(nvmVersions, { withFileTypes: true }).catch(
+    () => []
+  )
+  const nvmBins = versions
+    .filter(
+      (entry) => entry.isDirectory() && /^v\d+\.\d+\.\d+$/u.test(entry.name)
+    )
+    .toSorted((a, b) => b.name.localeCompare(a.name, 'en', { numeric: true }))
+    .map((entry) => join(nvmVersions, entry.name, 'bin'))
+  return {
+    ...env,
+    PATH: [
+      ...new Set([
+        ...(env.PATH ?? '').split(':').filter(Boolean),
+        join(home, '.local/bin'),
+        join(home, '.claude/local'),
+        '/opt/homebrew/bin',
+        '/usr/local/bin',
+        ...nvmBins
+      ])
+    ].join(':')
+  }
+}
 
 export function parseEnvDump(out: string): Record<string, string> {
   const start = out.indexOf(MARK)
@@ -63,18 +88,13 @@ export function loginShellEnv(): Promise<Record<string, string>> {
           TERM: 'dumb'
         }
       },
-      (err, stdout) => {
+      async (err, stdout) => {
         const env = parseEnvDump(String(stdout ?? ''))
-        if (env.PATH) return resolve(scrubEnv(env))
+        if (env.PATH) return resolve(scrubEnv(await withCliFallbacks(env)))
         logger.warn('agents', 'login shell gave no PATH; using fallbacks', {
           err: err?.message
         })
-        resolve(
-          scrubEnv({
-            ...process.env,
-            PATH: [process.env.PATH, ...FALLBACK_DIRS].filter(Boolean).join(':')
-          })
-        )
+        resolve(scrubEnv(await withCliFallbacks(scrubEnv(process.env))))
       }
     )
   })
