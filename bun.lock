@@ -42,7 +42,7 @@
         "@tanstack/react-hotkeys": "0.17.0",
         "@tanstack/react-query": "^5.105.0",
         "agent-browser": "0.41.2",
-        "agent-desktop": "1.1.0",
+        "agent-desktop": "1.2.0",
         "asn1js": "^4.0.0",
         "border-beam": "^1.4.1",
         "cheerio": "^1.2.0",
@@ -1171,7 +1171,7 @@
 
     "agent-browser": ["agent-browser@0.41.2", "", { "bin": { "agent-browser": "./bin/agent-browser.js" } }, "sha512-/agCKB5rw1EEK8SKWo4zid7a5kOwlclqALC0P3c69buJvKdhrl/dJkKdfLqGGaiNIbWzRdqqT0PxZVkwVEf2fg=="],
 
-    "agent-desktop": ["agent-desktop@1.1.0", "", { "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ], "bin": { "agent-desktop": "bin/agent-desktop" } }, "sha512-4aITRplPcbV6xBFNKeehMbxSN0/L+IOhnn6LBuPXezoyr08Xl73Y6rwZiR4sM4rM/eBO6iJMoKL+IvFQvHwLEw=="],
+    "agent-desktop": ["agent-desktop@1.2.0", "", { "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", ], "bin": { "agent-desktop": "bin/agent-desktop" } }, "sha512-sp8hHs8JfnuZe8ZQwiKZrqSOlu26SSeZXkjDog4KsU31L09G3uZJa8pITGN2vORif9uuh0iOSJHD146CEyTqag=="],
 
     "agentkeepalive": ["agentkeepalive@4.6.0", "", { "dependencies": { "humanize-ms": "^1.2.1" } }, "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ=="],
 

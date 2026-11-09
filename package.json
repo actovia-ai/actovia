@@ -90,7 +90,7 @@
     "@tanstack/react-hotkeys": "0.17.0",
     "@tanstack/react-query": "^5.105.0",
     "agent-browser": "0.41.2",
-    "agent-desktop": "1.1.0",
+    "agent-desktop": "1.2.0",
     "asn1js": "^4.0.0",
     "border-beam": "^1.4.1",
     "cheerio": "^1.2.0",
