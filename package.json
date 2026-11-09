@@ -185,7 +185,7 @@
     "monaco-editor": "^0.57.0",
     "motion": "^14.7.1",
     "oxfmt": "^0.75.0",
-    "oxlint": "^1.90.0",
+    "oxlint": "^1.91.0",
     "qrcode.react": "^4.2.0",
     "react-hook-form": "^7.91.0",
     "react-markdown": "^10.1.0",
