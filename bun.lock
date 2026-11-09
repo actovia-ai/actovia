@@ -22,7 +22,7 @@
         "@earendil-works/pi-ai": "^1.4.0",
         "@electric-sql/pglite": "^0.5.13",
         "@electric-sql/pglite-pgmq": "^0.0.11",
-        "@electric-sql/pglite-pgvector": "^0.0.14",
+        "@electric-sql/pglite-pgvector": "^0.0.16",
         "@googlemaps/places": "^3.1.0",
         "@hono/node-server": "^2.1.5",
         "@hugeicons/core-free-icons": "^4.4.0",
@@ -413,7 +413,7 @@
 
     "@electric-sql/pglite-pgmq": ["@electric-sql/pglite-pgmq@0.0.11", "", { "peerDependencies": { "@electric-sql/pglite": "0.5.13" } }, "sha512-ICfgDvguSD8NkexcvwoPY4goQmVOWfFwEvrvyrkVMdf7sHEH+Jti+DzjkDwITRiXKx/dnglvqrJKGtCwiHi87w=="],
 
-    "@electric-sql/pglite-pgvector": ["@electric-sql/pglite-pgvector@0.0.14", "", { "peerDependencies": { "@electric-sql/pglite": "0.5.13" } }, "sha512-sJCsaVnuqo18CJyPV32pbVCDlhjV+iFCSlwOW7+kTkzIRJSWkju+LnQ9DlWpRR+S+V5m//LA+w4+Ne2afBQ0wg=="],
+    "@electric-sql/pglite-pgvector": ["@electric-sql/pglite-pgvector@0.0.16", "", { "peerDependencies": { "@electric-sql/pglite": "0.5.15" } }, "sha512-3usbMM/Zkn0h7wpSft1rsa8lcXz77Q+rGdTpm7UORwtISg4CSGprinmu5qnF23GE0FHLH0LxEyKoPPteHuZPIg=="],
 
     "@electron-forge/cli": ["@electron-forge/cli@8.0.1", "", { "dependencies": { "@electron-forge/core": "8.0.1", "@electron-forge/core-utils": "8.0.1", "@electron-forge/shared-types": "8.0.1", "@electron/get": "^5.1.0", "commander": "^11.1.0", "debug": "^4.3.1", "listr2": "^11.1.0", "semver": "^7.2.1" }, "bin": { "electron-forge": "dist/electron-forge.js", "electron-forge-vscode-nix": "script/vscode.sh", "electron-forge-vscode-win": "script/vscode.cmd" } }, "sha512-zbkmgt7vtL8OBY7YDwVizhCfAHJLpmQtA35iOKGWPpLWRZbGADVyIUZz3QZrbc2V81/BkrBerURIBXdd/fnyhQ=="],
 
