@@ -58,7 +58,7 @@
         "embla-carousel-react": "^8.6.0",
         "hono": "^4.13.14",
         "i18next": "^26.5.11",
-        "i18next-resources-to-backend": "^1.2.3",
+        "i18next-resources-to-backend": "^1.2.4",
         "input-otp": "^1.5.0",
         "jszip": "^3.10.2",
         "next-themes": "^0.4.6",
@@ -1801,7 +1801,7 @@
 
     "i18next": ["i18next@26.5.12", "", { "peerDependencies": { "typescript": "^5 || ^6 || ^7" }, "optionalPeers": ["typescript"] }, "sha512-vTt8tc3y5axoU7wwTYg8vjpILLyP33a5GyGJAVI7FDRx1XueYxZVIkcVeStoftrVnAM/o28hKvK0sslucDI9aQ=="],
 
-    "i18next-resources-to-backend": ["i18next-resources-to-backend@1.2.3", "", { "dependencies": { "@babel/runtime": "^7.23.2" } }, "sha512-8Y/LLAm5fqZc2ckQxtTWbu75ndjNLzF7mcYl6rhc4g+WBopIsG3YhdYqF5qhJy64tlYhlU2KSSnEgW3gGHLqwg=="],
+    "i18next-resources-to-backend": ["i18next-resources-to-backend@1.2.4", "", { "dependencies": { "@babel/runtime": "^7.23.2" } }, "sha512-NV0bCktHrBNyEnjS5sq5k6J8HL3A+iR2MORcSJ7ZbQOnRwizrRmq+8K9WsdYy9mJv/Vki3VPnspBcFmF97UsQw=="],
 
     "ibm-cloud-sdk-core": ["ibm-cloud-sdk-core@5.9.1", "", { "dependencies": { "@types/debug": "4.1.13", "@types/node": "18.19.130", "axios": "1.20.0", "camelcase": "6.3.0", "debug": "4.4.3", "dotenv": "16.6.1", "extend": "3.0.2", "file-type": "21.3.4", "form-data": "4.0.6", "isstream": "0.1.2", "jsonwebtoken": "9.0.3", "load-esm": "1.0.3", "mime-types": "2.1.35", "retry-axios": "2.6.0", "tough-cookie": "6.0.2" } }, "sha512-IVHz9YHSdu06bWndJ+UpIqk2165gGm0sFQPl9Wd4mzr1FB2Lotm3mrZJq90cx/e0yL8oEFZAo0lafto0rZkoLg=="],
 
