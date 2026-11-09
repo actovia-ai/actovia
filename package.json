@@ -155,7 +155,7 @@
     "@react-three/fiber": "^9.8.2",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",
-    "@tanstack/react-query-devtools": "^5.105.0",
+    "@tanstack/react-query-devtools": "^5.106.1",
     "@types/electron-squirrel-startup": "^1.0.2",
     "@types/google.maps": "^3.66.9",
     "@types/lodash-es": "^4.17.12",
