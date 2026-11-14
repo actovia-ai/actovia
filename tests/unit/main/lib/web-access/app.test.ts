@@ -133,8 +133,7 @@ describe('paired browser HTTP entry', () => {
       '/web-access',
       '/pair',
       '/lock/cli-pass',
-      '/host/quit',
-      '/artifacts/sandbox/index.html'
+      '/host/quit'
     ])
       expect(
         (await f.request(`/api/v1${path}`, { headers: { Cookie: f.cookie() } }))
@@ -142,6 +141,55 @@ describe('paired browser HTTP entry', () => {
         path
       ).toBe(403)
     expect(f.upstream).not.toHaveBeenCalled()
+  })
+
+  it('serves the artifact sandbox read-only to the opaque iframe origin', async () => {
+    const f = fixture()
+    const response = await f.request(
+      '/api/v1/artifacts/sandbox/src/renderer/sub-apps/artifacts/index.html',
+      {
+        headers: {
+          Cookie: f.cookie(),
+          Origin: 'null'
+        }
+      }
+    )
+    expect(response.status).toBe(200)
+    expect(f.upstream).not.toHaveBeenCalled()
+    expect(response.headers.get('access-control-allow-origin')).toBe('*')
+    expect(response.headers.get('content-security-policy')).toContain(
+      'sandbox allow-scripts'
+    )
+    // Static runtime is public like other compiled JS; no cookies or user code.
+    expect(
+      (
+        await f.request('/api/v1/artifacts/sandbox/assets/runtime.js', {
+          headers: { Origin: 'null' }
+        })
+      ).status
+    ).toBe(200)
+    expect(
+      (
+        await f.request('/api/v1/history', {
+          headers: { Cookie: f.cookie(), Origin: 'null' }
+        })
+      ).status
+    ).toBe(403)
+    expect(
+      (
+        await f.request(
+          '/api/v1/artifacts/sandbox/src/renderer/sub-apps/artifacts/index.html',
+          {
+            method: 'POST',
+            headers: {
+              Cookie: f.cookie(),
+              Origin: ORIGIN,
+              'x-actovia-web': '1'
+            }
+          }
+        )
+      ).status
+    ).toBe(403)
   })
 
   it('locking and forgetting affect only the bound device, never a supplied id', async () => {

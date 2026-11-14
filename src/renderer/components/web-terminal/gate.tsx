@@ -11,10 +11,12 @@ import {
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import pairingWelcome from '@/assets/images/pairing-welcome-desktop.jpg'
 import { OdyMark } from '@/components/app/ody-mark'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { queryClient } from '@/lib/query-client'
 import {
   forgetWebTerminal,
@@ -128,116 +130,145 @@ export function WebTerminalGate({ children }: { children: ReactNode }) {
   if (status?.unlocked) return children
   return (
     <main
-      className="bg-background text-foreground flex min-h-svh items-center justify-center p-6"
+      className="bg-muted text-foreground flex min-h-svh flex-col items-center justify-center p-6 md:p-10"
       data-testid={TEST_IDS.webTerminal.gate}
+      data-tone-scope="neutral"
     >
-      <div className="w-full max-w-sm">
-        <OdyMark className="mb-6 size-10" />
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {t('webAccess.connectTitle')}
-        </h1>
-        <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-          {t(
-            status?.paired
-              ? 'webAccess.pairedHint'
-              : 'webAccess.connectDescription',
-            { name: status?.deviceName }
-          )}
-        </p>
-        {!supported ? (
-          <p className="text-muted-foreground mt-6 text-sm" role="status">
-            {t('webAccess.unsupported')}
-          </p>
-        ) : !status && checking ? (
-          <p className="text-muted-foreground mt-6 text-sm" role="status">
-            {t('webAccess.verifying')}
-          </p>
-        ) : !status ? (
-          <Button
-            className="mt-6"
-            type="button"
-            data-testid={TEST_IDS.webTerminal.retry}
-            onClick={() => void refresh()}
-          >
-            {t('webAccess.retry')}
-          </Button>
-        ) : (
-          <form
-            className="mt-8 flex flex-col gap-5"
-            onSubmit={(event) => {
-              event.preventDefault()
-              void connect()
-            }}
-          >
-            {!status.paired && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="terminal-name">
-                    {t('webAccess.nameLabel')}
-                  </Label>
-                  <Input
-                    id="terminal-name"
-                    data-testid={TEST_IDS.webTerminal.name}
-                    value={name}
-                    maxLength={64}
-                    required
-                    autoComplete="off"
-                    onChange={(event) => setName(event.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="terminal-code">
-                    {t('webAccess.codeLabel')}
-                  </Label>
-                  <Input
-                    id="terminal-code"
-                    data-testid={TEST_IDS.webTerminal.code}
-                    value={code}
-                    maxLength={128}
-                    required
-                    autoComplete="off"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    onChange={(event) => setCode(event.target.value)}
-                  />
-                </div>
-              </>
-            )}
-            <Button
-              type="submit"
-              data-testid={TEST_IDS.webTerminal.connect}
-              disabled={
-                busy || (!status.paired && (!name.trim() || !code.trim()))
-              }
-            >
-              {busy
-                ? t('webAccess.verifying')
-                : t(
-                    status.paired ? 'webAccess.unlock' : 'webAccess.pairBrowser'
+      <div className="w-full max-w-sm md:max-w-4xl">
+        <Card className="p-0">
+          <CardContent className="grid p-0 md:grid-cols-2">
+            <section className="flex min-w-0 flex-col justify-center p-6 md:min-h-128 md:p-8">
+              <div className="mb-8 flex flex-col items-center gap-3 text-center">
+                <OdyMark className="size-10" />
+                <h1 className="text-2xl font-semibold tracking-tight text-balance">
+                  {t('webAccess.connectTitle')}
+                </h1>
+                <p className="text-muted-foreground text-sm leading-relaxed text-pretty wrap-anywhere">
+                  {t(
+                    status?.paired
+                      ? 'webAccess.pairedHint'
+                      : 'webAccess.connectDescription',
+                    { name: status?.deviceName }
                   )}
-            </Button>
-            {status.paired && (
-              <Button
-                variant="ghost"
-                type="button"
-                disabled={busy}
-                data-testid={TEST_IDS.webTerminal.forget}
-                onClick={() =>
-                  void forgetWebTerminal()
-                    .then(refresh)
-                    .catch(() => setError(t('webAccess.connectionFailed')))
-                }
-              >
-                {t('webAccess.forget')}
-              </Button>
-            )}
-          </form>
-        )}
-        {error && (
-          <p className="text-destructive mt-4 text-sm" role="alert">
-            {error}
-          </p>
-        )}
+                </p>
+              </div>
+              {supported ? (
+                !status && checking ? (
+                  <p className="text-muted-foreground text-sm" role="status">
+                    {t('webAccess.verifying')}
+                  </p>
+                ) : !status ? (
+                  <Button
+                    className="w-full"
+                    type="button"
+                    data-testid={TEST_IDS.webTerminal.retry}
+                    onClick={() => void refresh()}
+                  >
+                    {t('webAccess.retry')}
+                  </Button>
+                ) : (
+                  <form
+                    className="flex flex-col gap-5"
+                    onSubmit={(event) => {
+                      event.preventDefault()
+                      void connect()
+                    }}
+                  >
+                    <FieldGroup>
+                      {!status.paired && (
+                        <>
+                          <Field>
+                            <FieldLabel htmlFor="terminal-name">
+                              {t('webAccess.nameLabel')}
+                            </FieldLabel>
+                            <Input
+                              id="terminal-name"
+                              data-testid={TEST_IDS.webTerminal.name}
+                              value={name}
+                              maxLength={64}
+                              required
+                              autoComplete="off"
+                              onChange={(event) => setName(event.target.value)}
+                            />
+                          </Field>
+                          <Field>
+                            <FieldLabel htmlFor="terminal-code">
+                              {t('webAccess.codeLabel')}
+                            </FieldLabel>
+                            <Input
+                              id="terminal-code"
+                              data-testid={TEST_IDS.webTerminal.code}
+                              value={code}
+                              maxLength={128}
+                              required
+                              autoComplete="off"
+                              autoCapitalize="none"
+                              spellCheck={false}
+                              onChange={(event) => setCode(event.target.value)}
+                            />
+                          </Field>
+                        </>
+                      )}
+                      <Button
+                        type="submit"
+                        data-testid={TEST_IDS.webTerminal.connect}
+                        disabled={
+                          busy ||
+                          (!status.paired && (!name.trim() || !code.trim()))
+                        }
+                      >
+                        {busy
+                          ? t('webAccess.verifying')
+                          : t(
+                              status.paired
+                                ? 'webAccess.unlock'
+                                : 'webAccess.pairBrowser'
+                            )}
+                      </Button>
+                      {status.paired && (
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          disabled={busy}
+                          data-testid={TEST_IDS.webTerminal.forget}
+                          onClick={() =>
+                            void forgetWebTerminal()
+                              .then(refresh)
+                              .catch(() =>
+                                setError(t('webAccess.connectionFailed'))
+                              )
+                          }
+                        >
+                          {t('webAccess.forget')}
+                        </Button>
+                      )}
+                    </FieldGroup>
+                  </form>
+                )
+              ) : (
+                <p className="text-muted-foreground text-sm" role="status">
+                  {t('webAccess.unsupported')}
+                </p>
+              )}
+              {error && (
+                <p className="text-destructive mt-4 text-sm" role="alert">
+                  {error}
+                </p>
+              )}
+            </section>
+            <div
+              className="bg-muted/60 relative hidden items-center justify-center overflow-hidden md:flex"
+              aria-hidden="true"
+            >
+              <img
+                src={pairingWelcome}
+                alt=""
+                draggable={false}
+                className="h-full max-h-160 w-full object-cover select-none"
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </main>
   )

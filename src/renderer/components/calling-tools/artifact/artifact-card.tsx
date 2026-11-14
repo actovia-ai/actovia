@@ -6,32 +6,25 @@ import {
 } from '@actovia/shared/utils/artifact-slug'
 import { Maximize01Icon, Minimize01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { useHotkey } from '@tanstack/react-hotkeys'
 import { useAtom } from 'jotai'
-import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type SyntheticEvent
+} from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import {
-  CodeBlock,
-  CodeBlockHeader,
-  CodeBlockTitle,
-  CodeBlockContent
-} from '@/components/ui/code-block'
 import { toast } from '@/components/ui/toast'
-import {
-  checkFullScreen,
-  revealArtifactFile,
-  subscribeFullScreenChanged,
-  unsubscribeFullScreenChanged
-} from '@/lib/ipc'
+import { revealArtifactFile } from '@/lib/ipc'
 import { cn } from '@/lib/utils'
 import { revealArtifactAtom } from '@/stores/chat'
 
 import {
-  ARTIFACT_ORIGIN,
   getArtifactSandboxUrl,
+  isSandboxMessageFrom,
   sendToIframe
 } from './sandbox-frame'
 
@@ -40,20 +33,6 @@ interface ArtifactDetails {
   title: string
   code: string
   artifactId: string
-}
-
-/** Track whether the Electron window is in macOS native fullscreen. */
-function useIsNativeFullscreen() {
-  const [isFs, setIsFs] = useState(false)
-
-  useEffect(() => {
-    checkFullScreen().then((v: boolean) => setIsFs(v))
-    const handler = (_: unknown, v: boolean) => setIsFs(v)
-    subscribeFullScreenChanged(handler)
-    return () => unsubscribeFullScreenChanged(handler)
-  }, [])
-
-  return isFs
 }
 
 const TRAFFIC_LIGHT_COLORS = ['#ff5f57', '#febc2e', '#28c840']
@@ -118,7 +97,7 @@ function UrlPill({
       )}
     >
       <span className="mr-1 opacity-60">🔒</span>
-      <span className="text-foreground/50">artifact://</span>
+      <span className="text-foreground/50">{'artifact://'}</span>
       <span className="truncate">
         {shortId}/{slug}
       </span>
@@ -159,56 +138,53 @@ function FullscreenButton({
   )
 }
 
-function InlineChromeBar({
+function ArtifactChromeBar({
   title,
   artifactId,
   chatId,
-  onEnterFullscreen
+  isFullscreen,
+  onToggleFullscreen,
+  sourceUrl
 }: {
   title: string
   artifactId: string
   chatId: string
-  onEnterFullscreen: () => void
+  isFullscreen: boolean
+  onToggleFullscreen: () => void
+  sourceUrl: string
 }) {
+  const { t } = useTranslation('settings')
   return (
     <div className="bg-muted/70 flex h-10 items-center gap-3 border-b px-3">
-      <DecorativeTrafficLights />
-      <div className="flex min-w-0 flex-1 justify-center">
+      <span
+        className="min-w-0 flex-1 truncate text-sm font-medium"
+        title={title}
+      >
+        {title}
+      </span>
+      {IS_WEB_CLIENT ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          data-testid={TEST_IDS.webTerminal.downloadSource}
+          disabled={!sourceUrl}
+          render={
+            <a
+              href={sourceUrl || undefined}
+              download={`${artifactSlug(title)}.txt`}
+            />
+          }
+        >
+          {t('webAccess.downloadSource')}
+        </Button>
+      ) : (
         <UrlPill title={title} artifactId={artifactId} chatId={chatId} />
-      </div>
-      <FullscreenButton isFullscreen={false} onClick={onEnterFullscreen} />
-    </div>
-  )
-}
-
-function FullscreenChromeBar({
-  title,
-  artifactId,
-  chatId,
-  isNativeFullscreen,
-  onExitFullscreen
-}: {
-  title: string
-  artifactId: string
-  chatId: string
-  isNativeFullscreen: boolean
-  onExitFullscreen: () => void
-}) {
-  // When Electron is NOT in macOS native fullscreen, the OS traffic lights sit
-  // at the top-left of our window — pad our chrome content to 88px to avoid
-  // collision. When native-fullscreen, the OS lights move into the menu bar so
-  // we can start at normal padding.
-  const leftPadding = isNativeFullscreen ? 16 : 88
-
-  return (
-    <div
-      className="bg-muted/70 flex h-10 items-center gap-3 border-b pr-3"
-      style={{ paddingLeft: leftPadding }}
-    >
-      <div className="flex min-w-0 flex-1 justify-center">
-        <UrlPill title={title} artifactId={artifactId} chatId={chatId} />
-      </div>
-      <FullscreenButton isFullscreen={true} onClick={onExitFullscreen} />
+      )}
+      <FullscreenButton
+        isFullscreen={isFullscreen}
+        onClick={onToggleFullscreen}
+      />
     </div>
   )
 }
@@ -276,201 +252,128 @@ type ArtifactCardProps = {
 }
 
 export function ArtifactCard(props: ArtifactCardProps) {
-  return IS_WEB_CLIENT ? (
-    <WebArtifactCard {...props} />
-  ) : (
-    <NativeArtifactCard {...props} />
-  )
+  return <ArtifactCardView {...props} />
 }
 
-function WebArtifactCard({ toolResult, toolCallId }: ArtifactCardProps) {
-  const { t } = useTranslation('settings')
-  const [url, setUrl] = useState('')
-  useEffect(() => {
-    const value = URL.createObjectURL(
-      new Blob([toolResult.code], { type: 'text/plain;charset=utf-8' })
-    )
-    setUrl(value)
-    return () => URL.revokeObjectURL(value)
-  }, [toolResult.code])
-  return (
-    <div className="min-w-0 space-y-3" data-artifact-call={toolCallId}>
-      <p className="text-muted-foreground text-sm">
-        {t('webAccess.staticArtifact')}
-      </p>
-      <CodeBlock>
-        <CodeBlockHeader>
-          <CodeBlockTitle>{toolResult.title}</CodeBlockTitle>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="ml-auto"
-            data-testid={TEST_IDS.webTerminal.downloadSource}
-            disabled={!url}
-            render={
-              <a
-                href={url}
-                download={`${artifactSlug(toolResult.title)}.txt`}
-              />
-            }
-          >
-            {t('webAccess.downloadSource')}
-          </Button>
-        </CodeBlockHeader>
-        <CodeBlockContent className="max-h-96">
-          {toolResult.code}
-        </CodeBlockContent>
-      </CodeBlock>
-    </div>
-  )
-}
-
-function NativeArtifactCard({
+function ArtifactCardView({
   chatId,
   toolResult,
   toolCallId
-}: {
-  chatId: string
-  toolResult: ArtifactDetails
-  /** The call's id: the header's panel names it to open this card. */
-  toolCallId?: string
-}) {
-  const inlineIframeRef = useRef<HTMLIFrameElement>(null)
-  const fullscreenIframeRef = useRef<HTMLIFrameElement>(null)
-  const inlineReady = useRef(false)
-  const fullscreenReady = useRef(false)
+}: ArtifactCardProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const ready = useRef(false)
   const codeRef = useRef(toolResult.code)
   const titleRef = useRef(toolResult.title)
   const [expanded, setExpanded] = useState(false)
+  const [sourceUrl, setSourceUrl] = useState('')
   const [reveal, setReveal] = useAtom(revealArtifactAtom)
-  // The panel's Files row for this artifact: open full screen, once.
+
+  useEffect(() => {
+    if (!IS_WEB_CLIENT) return
+    const value = URL.createObjectURL(
+      new Blob([toolResult.code], { type: 'text/plain;charset=utf-8' })
+    )
+    setSourceUrl(value)
+    return () => URL.revokeObjectURL(value)
+  }, [toolResult.code])
+
+  const enterFullscreen = useCallback(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    if (dialog.open) dialog.close()
+    dialog.showModal()
+    setExpanded(true)
+  }, [])
+
+  const exitFullscreen = useCallback(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    dialog.close()
+    dialog.setAttribute('open', '')
+    setExpanded(false)
+  }, [])
+
   useEffect(() => {
     if (toolCallId && reveal === toolCallId) {
-      setExpanded(true)
+      enterFullscreen()
       setReveal(null)
     }
-  }, [reveal, toolCallId, setReveal])
-  const isNativeFullscreen = useIsNativeFullscreen()
+  }, [enterFullscreen, reveal, setReveal, toolCallId])
 
-  // Keep refs current so the message listener (attached once) always reads
-  // the latest code/title when responding to a sandbox ready handshake.
   useEffect(() => {
     codeRef.current = toolResult.code
     titleRef.current = toolResult.title
   }, [toolResult.code, toolResult.title])
 
-  // Listen for the sandbox ready handshake from each iframe and send the
-  // render message in response. Fixes a race where the parent's `onLoad`
-  // fired before the sandbox attached its message listener, dropping the
-  // initial render message and stranding the UI on "Waiting for artifact…".
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.origin !== ARTIFACT_ORIGIN) return
       if (
         typeof event.data !== 'object' ||
         event.data === null ||
-        (event.data as { type?: unknown }).type !== 'artifact-sandbox-ready'
+        (event.data as { type?: unknown }).type !== 'artifact-sandbox-ready' ||
+        !isSandboxMessageFrom(event, iframeRef.current)
       ) {
         return
       }
-      if (event.source === inlineIframeRef.current?.contentWindow) {
-        inlineReady.current = true
-        sendToIframe(inlineIframeRef.current, codeRef.current, titleRef.current)
-      } else if (event.source === fullscreenIframeRef.current?.contentWindow) {
-        fullscreenReady.current = true
-        sendToIframe(
-          fullscreenIframeRef.current,
-          codeRef.current,
-          titleRef.current
-        )
-      }
+      ready.current = true
+      sendToIframe(iframeRef.current, codeRef.current, titleRef.current)
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
   }, [])
 
-  // Re-send on streaming code/title updates (iframes already mounted).
   useEffect(() => {
-    if (inlineReady.current) {
-      sendToIframe(inlineIframeRef.current, toolResult.code, toolResult.title)
-    }
+    if (ready.current)
+      sendToIframe(iframeRef.current, toolResult.code, toolResult.title)
   }, [toolResult.code, toolResult.title])
 
-  useEffect(() => {
-    if (fullscreenReady.current && expanded) {
-      sendToIframe(
-        fullscreenIframeRef.current,
-        toolResult.code,
-        toolResult.title
-      )
-    }
-  }, [toolResult.code, toolResult.title, expanded])
-
-  useHotkey(
-    'Escape',
-    () => {
-      // Reset ready flag on exit so the next mount's handshake re-triggers a render.
-      fullscreenReady.current = false
-      setExpanded(false)
-    },
-    // Every card on screen registers Escape; each is only enabled while open.
-    {
-      enabled: expanded,
-      conflictBehavior: 'allow',
-      preventDefault: false,
-      stopPropagation: false
-    }
-  )
+  const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
+    event.preventDefault()
+    exitFullscreen()
+  }
 
   return (
-    <>
-      <div
-        className="border-border/70 bg-card overflow-hidden rounded-lg border shadow-sm"
-        style={expanded ? { display: 'none' } : undefined}
-        // Where the Library page's reveal lands (`revealTarget`).
-        data-artifact-call={toolCallId}
+    <div className="relative" data-artifact-call={toolCallId}>
+      {expanded && (
+        <div
+          aria-hidden="true"
+          className="h-[442px] rounded-lg border border-transparent"
+        />
+      )}
+      <dialog
+        ref={dialogRef}
+        open
+        aria-label={toolResult.title}
+        onCancel={handleCancel}
+        className={cn(
+          'm-0 flex w-full max-w-none flex-col overflow-hidden border p-0 text-foreground',
+          expanded
+            ? 'fixed inset-0 z-50 h-dvh max-h-none rounded-none border-0 bg-background'
+            : 'relative max-h-none rounded-lg border-border/70 bg-card shadow-sm'
+        )}
       >
-        <InlineChromeBar
+        <ArtifactChromeBar
           title={toolResult.title}
           artifactId={toolResult.artifactId}
           chatId={chatId}
-          onEnterFullscreen={() => setExpanded(true)}
+          isFullscreen={expanded}
+          onToggleFullscreen={expanded ? exitFullscreen : enterFullscreen}
+          sourceUrl={sourceUrl}
         />
         <iframe
-          ref={inlineIframeRef}
+          ref={iframeRef}
           src={getArtifactSandboxUrl()}
-          className="w-full border-0"
-          style={{ height: '400px' }}
-          sandbox="allow-scripts allow-same-origin"
+          className={cn(
+            'w-full border-0',
+            expanded ? 'min-h-0 flex-1' : 'h-[400px]'
+          )}
+          sandbox={
+            IS_WEB_CLIENT ? 'allow-scripts' : 'allow-scripts allow-same-origin'
+          }
           title={toolResult.title}
         />
-      </div>
-
-      {expanded &&
-        createPortal(
-          <div className="bg-background fixed inset-0 z-50 flex flex-col">
-            <FullscreenChromeBar
-              title={toolResult.title}
-              artifactId={toolResult.artifactId}
-              chatId={chatId}
-              isNativeFullscreen={isNativeFullscreen}
-              onExitFullscreen={() => {
-                // Reset ready flag so the next mount's handshake re-triggers a render.
-                fullscreenReady.current = false
-                setExpanded(false)
-              }}
-            />
-            <iframe
-              ref={fullscreenIframeRef}
-              src={getArtifactSandboxUrl()}
-              className="w-full flex-1 border-0"
-              sandbox="allow-scripts allow-same-origin"
-              title={toolResult.title}
-            />
-          </div>,
-          document.body
-        )}
-    </>
+      </dialog>
+    </div>
   )
 }

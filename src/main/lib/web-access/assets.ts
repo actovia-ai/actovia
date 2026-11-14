@@ -20,15 +20,29 @@ const TYPES: Record<string, string> = {
 /** Only the dedicated entry and compiled assets, never the desktop HTML/source maps. */
 export async function webAsset(root: string, path: string): Promise<Response> {
   try {
-    const name = decodeURIComponent(path === '/' ? '/web.html' : path)
-    if (name !== '/web.html' && !name.startsWith('/assets/'))
+    const sandboxPrefix = '/api/v1/artifacts/sandbox'
+    const sandbox = path.startsWith(`${sandboxPrefix}/`)
+    const name = decodeURIComponent(
+      sandbox
+        ? path.slice(sandboxPrefix.length)
+        : path === '/'
+          ? '/web.html'
+          : path
+    )
+    const sandboxPage =
+      sandbox && name === '/src/renderer/sub-apps/artifacts/index.html'
+    if (
+      sandbox
+        ? !sandboxPage && !name.startsWith('/assets/')
+        : name !== '/web.html' && !name.startsWith('/assets/')
+    )
       return new Response(null, { status: 404 })
     if (
       name.includes('\\') ||
       name.split('/').some((part) => part === '.' || part === '..')
     )
       return new Response(null, { status: 404 })
-    if (name !== '/web.html' && extname(name) === '.html')
+    if (!sandboxPage && name !== '/web.html' && extname(name) === '.html')
       return new Response(null, { status: 404 })
     const type = TYPES[extname(name)]
     if (!type) return new Response(null, { status: 404 })
@@ -44,7 +58,19 @@ export async function webAsset(root: string, path: string): Promise<Response> {
     )
       return new Response(null, { status: 404 })
     const data = await readFile(file)
-    return new Response(data, {
+    let body: Uint8Array | string = data
+    if (sandbox && /(?:html|javascript|css)/u.test(type)) {
+      body = data
+        .toString('utf8')
+        .replaceAll('/assets/', `${sandboxPrefix}/assets/`)
+      // The HTTP CSP supplies the exact host for this opaque-origin runtime.
+      if (sandboxPage)
+        body = body.replace(
+          /<meta\s+http-equiv="Content-Security-Policy"\s+content="[^"]*"\s*\/>/u,
+          ''
+        )
+    }
+    return new Response(body, {
       headers: {
         'Content-Type': type,
         'Cache-Control':

@@ -22,13 +22,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { artifactIcons } from './sandbox-icons'
 import { observeSize } from './size-report'
 
+type ArtifactTooltipProps = React.ComponentProps<typeof Recharts.Tooltip>
+
+/**
+ * Recharts renders tooltip content with its own browser-default text colors.
+ * Supply theme-aware defaults even when generated artifacts only set the
+ * tooltip surface, as the chart in ISSUE-370 did.
+ */
+function ArtifactTooltip(props: ArtifactTooltipProps) {
+  return React.createElement(Recharts.Tooltip, {
+    ...props,
+    contentStyle: {
+      background: 'var(--popover)',
+      border: '1px solid var(--border)',
+      color: 'var(--popover-foreground)',
+      ...props.contentStyle
+    },
+    labelStyle: {
+      color: 'var(--popover-foreground)',
+      ...props.labelStyle
+    },
+    itemStyle: {
+      color: 'var(--popover-foreground)',
+      ...props.itemStyle
+    }
+  })
+}
+
 const MODULE_REGISTRY: Record<string, unknown> = {
   react: React,
   // Required by the automatic JSX runtime: sucrase compiles JSX to
   // `require("react/jsx-runtime").jsx(...)` (or the dev runtime in dev mode).
   'react/jsx-runtime': ReactJsxRuntime,
   'react/jsx-dev-runtime': ReactJsxDevRuntime,
-  recharts: Recharts,
+  recharts: { ...Recharts, Tooltip: ArtifactTooltip },
   // The icons an artifact may draw: a curated set of Hugeicons (the whole
   // free package is 14k icons) behind a Proxy that hands an unknown name a
   // placeholder, so a misremembered name never breaks the artifact.
@@ -72,8 +99,9 @@ function artifactRequire(moduleId: string): unknown {
   if (resolved !== undefined) {
     return resolved
   }
-  console.warn(`[artifact-sandbox] Unknown module requested: "${moduleId}"`)
-  return {}
+  throw new Error(
+    `Artifact imports unsupported module "${moduleId}". Available modules: ${Object.keys(MODULE_REGISTRY).join(', ')}`
+  )
 }
 
 interface ErrorBoundaryProps {

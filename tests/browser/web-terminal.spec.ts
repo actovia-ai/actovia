@@ -141,20 +141,54 @@ test('desktop setup controls save the address and open or cancel a one-time invi
   await expect(page.getByTestId(TEST_IDS.webAccess.pairingCode)).toHaveCount(0)
 })
 
-test('web Artifact displays inert source and downloads it without executing generated code', async ({
-  page
+test('web Artifact renders and responds to input inside an isolated sandbox', async ({
+  page,
+  context
 }) => {
+  await authenticator(context, page)
+  await pair(page, 'Artifact browser')
+  const failures: string[] = []
+  page.on('pageerror', (error) => failures.push(error.message))
+  page.on('response', (response) => {
+    if (
+      response.url().includes('/artifacts/sandbox/') &&
+      response.status() >= 400
+    )
+      failures.push(`${response.status()} ${response.url()}`)
+  })
   await page.goto('/__test/settings?artifact')
+  const frame = page.frameLocator('iframe')
   await expect(
-    page.getByText('Interactive previews are available in the Mac app.', {
-      exact: false
-    })
+    frame.getByRole('heading', { name: 'Interactive artifact' })
   ).toBeVisible()
-  await expect(page.locator('iframe')).toHaveCount(0)
-  expect(await page.evaluate(() => '__unsafeArtifact' in window)).toBe(false)
+  await expect(frame.getByText('Parent isolated')).toBeVisible()
+  await frame.getByRole('button', { name: 'Count 0' }).click()
+  await expect(frame.getByRole('button', { name: 'Count 1' })).toBeVisible()
+  expect(await page.locator('iframe').getAttribute('sandbox')).toBe(
+    'allow-scripts'
+  )
   const download = page.waitForEvent('download')
   await page.getByTestId(TEST_IDS.webTerminal.downloadSource).click()
   expect((await download).suggestedFilename()).toBe('untrusted-source.txt')
+  expect(failures).toEqual([])
+})
+
+test('web Library thumbnail renders fetched artifact code', async ({
+  page,
+  context
+}) => {
+  await authenticator(context, page)
+  await pair(page, 'Library browser')
+  await page.goto('/__test/settings?library')
+  await expect(page.getByTestId(TEST_IDS.library.preview)).toHaveAttribute(
+    'data-state',
+    'rendered'
+  )
+  await expect(
+    page
+      .frameLocator('iframe')
+      .getByRole('heading', { name: 'Library preview rendered' })
+  ).toBeVisible()
 })
 
 test('pairing and setup remain usable in narrow and dark browser windows', async ({
@@ -185,6 +219,67 @@ test('pairing and setup remain usable in narrow and dark browser windows', async
     contentType: 'image/png'
   })
 })
+
+for (const colorScheme of ['light', 'dark'] as const) {
+  test(`browser pairing gate shows the brand illustration in ${colorScheme} mode`, async ({
+    page
+  }, testInfo) => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.emulateMedia({ colorScheme })
+    await page.goto('/')
+    const gate = page.getByTestId(TEST_IDS.webTerminal.gate)
+    await expect(
+      gate.getByRole('heading', { name: 'Connect to Actovia' })
+    ).toBeVisible()
+    const illustration = gate.locator('[aria-hidden="true"] img')
+    await expect(illustration).toBeVisible()
+    expect(
+      await illustration.evaluate(
+        (image: HTMLImageElement) => image.complete && image.naturalWidth > 0
+      )
+    ).toBe(true)
+    const palette = () =>
+      gate.evaluate((element) => {
+        const style = getComputedStyle(element)
+        const button = getComputedStyle(element.querySelector('button')!)
+        return [
+          style.backgroundColor,
+          style.color,
+          style.getPropertyValue('--ring'),
+          button.backgroundColor,
+          button.color
+        ]
+      })
+    const neutral = await palette()
+    for (const tone of [
+      'emerald',
+      'blue',
+      'violet',
+      'rose',
+      'orange',
+      'yellow'
+    ]) {
+      await page.evaluate((tone) => {
+        document.documentElement.dataset.tone = tone
+      }, tone)
+      expect(await palette()).toEqual(neutral)
+    }
+    await testInfo.attach(`pairing-${colorScheme}`, {
+      body: await page.screenshot({
+        path: testInfo.outputPath('pairing-desktop.png')
+      }),
+      contentType: 'image/png'
+    })
+    await page.setViewportSize({ width: 390, height: 844 })
+    await expect(illustration).toBeHidden()
+    await expect(page.getByTestId(TEST_IDS.webTerminal.connect)).toBeVisible()
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth
+      )
+    ).toBe(true)
+  })
+}
 
 test('workspace preview reads the chat-scoped HTTP API and offers no native Open action', async ({
   page,

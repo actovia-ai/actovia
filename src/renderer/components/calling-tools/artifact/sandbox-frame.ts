@@ -1,3 +1,5 @@
+import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
+
 // The sandbox is another HTML entry of this same renderer build (see
 // vite.renderer.config.mts). Vite's root is the repo root, so its page keeps
 // the `src/renderer/sub-apps/` prefix — in the dev server and in the built
@@ -12,7 +14,19 @@ const ARTIFACT_SANDBOX_PAGE = 'src/renderer/sub-apps/artifacts/index.html'
 export const ARTIFACT_ORIGIN = 'actovia-artifact://sandbox'
 
 export function getArtifactSandboxUrl(): string {
-  return `${ARTIFACT_ORIGIN}/${ARTIFACT_SANDBOX_PAGE}`
+  return IS_WEB_CLIENT
+    ? `/api/v1/artifacts/sandbox/${ARTIFACT_SANDBOX_PAGE}`
+    : `${ARTIFACT_ORIGIN}/${ARTIFACT_SANDBOX_PAGE}`
+}
+
+export function isSandboxMessageFrom(
+  event: MessageEvent,
+  iframe: HTMLIFrameElement | null
+): boolean {
+  if (!iframe || event.source !== iframe.contentWindow) return false
+  return IS_WEB_CLIENT
+    ? event.origin === 'null'
+    : event.origin === ARTIFACT_ORIGIN
 }
 
 export function sendToIframe(
@@ -23,10 +37,11 @@ export function sendToIframe(
   const win = iframe?.contentWindow
   if (!win || !code) return
   const theme = window.localStorage.getItem('vite-ui-theme') ?? 'system'
-  // Addressed to the sandbox's origin: if the frame were ever navigated
-  // elsewhere, the artifact's code would not be delivered to it.
-  win.postMessage({ type: 'theme', theme }, ARTIFACT_ORIGIN)
-  win.postMessage({ type: 'render', code, artifactId: title }, ARTIFACT_ORIGIN)
+  // Web previews use an opaque origin (sandbox without allow-same-origin),
+  // so targetOrigin must be '*'. The receiver checks event.source === parent.
+  const targetOrigin = IS_WEB_CLIENT ? '*' : ARTIFACT_ORIGIN
+  win.postMessage({ type: 'theme', theme }, targetOrigin)
+  win.postMessage({ type: 'render', code, artifactId: title }, targetOrigin)
 }
 
 /**
@@ -34,7 +49,10 @@ export function sendToIframe(
  * `type` it carries (`artifact-sandbox-ready`, `-rendered`, `-error`, …).
  */
 export function sandboxMessageType(event: MessageEvent): string | null {
-  if (event.origin !== ARTIFACT_ORIGIN) return null
+  if (
+    IS_WEB_CLIENT ? event.origin !== 'null' : event.origin !== ARTIFACT_ORIGIN
+  )
+    return null
   const data = event.data as { type?: unknown } | null
   return typeof data === 'object' && data && typeof data.type === 'string'
     ? data.type

@@ -1,8 +1,8 @@
 import { createHash } from 'crypto'
-import { mkdtempSync, rmSync } from 'fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import http from 'http'
 import http2 from 'http2'
-import { brotliDecompressSync } from 'node:zlib'
+import { brotliDecompressSync, gunzipSync } from 'node:zlib'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import tls from 'tls'
@@ -66,6 +66,15 @@ const { revokeDevice } = await import('@main/lib/lan/devices')
 const { createLanListener } = await import('@main/lib/lan/listener')
 
 const { compressLan } = await import('@main/lib/server/middlewares/compress')
+const { createArtifactSandboxRouter, SANDBOX_PAGE } =
+  await import('@main/lib/server/routes/artifact-sandbox')
+
+const rendererDir = join(tlsDir, 'renderer')
+const sandboxHTML = '<!doctype html><p>塞尔达 artifact</p>'.repeat(100)
+mkdirSync(join(rendererDir, 'src/renderer/sub-apps/artifacts'), {
+  recursive: true
+})
+writeFileSync(join(rendererDir, SANDBOX_PAGE), sandboxHTML)
 
 const BIG = { rows: Array.from({ length: 300 }, (_, i) => `result ${i}`) }
 
@@ -74,6 +83,10 @@ app.use('*', compressLan)
 app.use('/api/*', authGate)
 app.get('/big', (c) => c.json(BIG))
 app.route('/api/v1/pair', pairRouter)
+app.route(
+  '/api/v1/artifacts/sandbox',
+  createArtifactSandboxRouter({ rendererDir })
+)
 app.get('/api/v1/history', (c) => c.json({ device: c.get('deviceId') }))
 app.onError(errorHandler)
 
@@ -144,7 +157,7 @@ async function call(
 }
 
 /** The raw bytes of a response, as a client that asks for brotli gets them. */
-async function callRaw(path: string, acceptEncoding: string) {
+async function callRaw(path: string, acceptEncoding: string, token?: string) {
   const socket = await pinnedSocket(pin)
   return new Promise<{ headers: http.IncomingHttpHeaders; body: Buffer }>(
     (resolve, reject) => {
@@ -154,7 +167,11 @@ async function callRaw(path: string, acceptEncoding: string) {
           host: '127.0.0.1',
           port,
           path,
-          headers: { connection: 'close', 'accept-encoding': acceptEncoding }
+          headers: {
+            connection: 'close',
+            'accept-encoding': acceptEncoding,
+            ...(token ? { authorization: `Bearer ${token}` } : {})
+          }
         },
         (res) => {
           const chunks: Buffer[] = []
@@ -183,6 +200,30 @@ afterAll(() => {
 })
 
 describe('LAN access, end to end', () => {
+  it.each(['br', 'gzip'])(
+    'serves the paired artifact page with the correct %s length over HTTPS',
+    async (encoding) => {
+      const { code } = pairing.open()
+      const paired = await call('/api/v1/pair', {
+        method: 'POST',
+        json: { code, deviceName: 'Artifact test' }
+      })
+      const { token } = JSON.parse(paired.body)
+      const { headers, body } = await callRaw(
+        `/api/v1/artifacts/sandbox/${SANDBOX_PAGE}`,
+        encoding,
+        token
+      )
+      expect(headers['content-encoding']).toBe(encoding)
+      expect(Number(headers['content-length'])).toBe(body.length)
+      expect(
+        (encoding === 'br'
+          ? brotliDecompressSync(body)
+          : gunzipSync(body)
+        ).toString()
+      ).toBe(sandboxHTML)
+    }
+  )
   // What the phone gets over Wi-Fi or Tailscale: brotli, decoded by the
   // client, the length on the wire the compressed one.
   it('sends a large response brotli-compressed over the pinned TLS listener', async () => {
@@ -197,6 +238,12 @@ describe('LAN access, end to end', () => {
   // its requests on one connection. (Every other test here speaks HTTP/1.1,
   // which the listener still serves.)
   it('speaks HTTP/2 to a client that offers it, many requests on one connection', async () => {
+    const { code } = pairing.open()
+    const paired = await call('/api/v1/pair', {
+      method: 'POST',
+      json: { code, deviceName: 'HTTP/2 artifact test' }
+    })
+    const { token } = JSON.parse(paired.body)
     const session = http2.connect(`https://127.0.0.1:${port}`, {
       // codeql[js/disabling-certificate-validation]: intentional — the pin below is the check.
       rejectUnauthorized: false
@@ -213,37 +260,47 @@ describe('LAN access, end to end', () => {
         .digest('base64url')
       expect(seen).toBe(pin)
 
-      const get = (path: string, acceptEncoding?: string) =>
-        new Promise<{ status: number; encoding?: string; body: Buffer }>(
-          (resolve, reject) => {
-            const stream = session.request({
-              ':path': path,
-              ...(acceptEncoding ? { 'accept-encoding': acceptEncoding } : {})
-            })
-            let status = 0
-            let encoding: string | undefined
-            const chunks: Buffer[] = []
-            stream.on('response', (headers) => {
-              status = Number(headers[':status'])
-              encoding = headers['content-encoding'] as string | undefined
-            })
-            stream.on('data', (d: Buffer) => chunks.push(d))
-            stream.on('end', () =>
-              resolve({ status, encoding, body: Buffer.concat(chunks) })
-            )
-            stream.on('error', reject)
-            stream.end()
-          }
-        )
-      const [big, refused] = await Promise.all([
+      const get = (path: string, acceptEncoding?: string, token?: string) =>
+        new Promise<{
+          status: number
+          encoding?: string
+          length?: number
+          body: Buffer
+        }>((resolve, reject) => {
+          const stream = session.request({
+            ':path': path,
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+            ...(acceptEncoding ? { 'accept-encoding': acceptEncoding } : {})
+          })
+          let status = 0
+          let encoding: string | undefined
+          let length: number | undefined
+          const chunks: Buffer[] = []
+          stream.on('response', (headers) => {
+            status = Number(headers[':status'])
+            encoding = headers['content-encoding'] as string | undefined
+            length = Number(headers['content-length'])
+          })
+          stream.on('data', (d: Buffer) => chunks.push(d))
+          stream.on('end', () =>
+            resolve({ status, encoding, length, body: Buffer.concat(chunks) })
+          )
+          stream.on('error', reject)
+          stream.end()
+        })
+      const [big, refused, sandbox] = await Promise.all([
         get('/big', 'gzip, deflate, br'),
-        get('/api/v1/history')
+        get('/api/v1/history'),
+        get(`/api/v1/artifacts/sandbox/${SANDBOX_PAGE}`, 'br', token)
       ])
       expect(big.status).toBe(200)
       expect(big.encoding).toBe('br')
       expect(JSON.parse(brotliDecompressSync(big.body).toString())).toEqual(BIG)
       // No token: the auth gate answers over HTTP/2 as over HTTP/1.1.
       expect(refused.status).toBe(401)
+      expect(sandbox.status).toBe(200)
+      expect(sandbox.length).toBe(sandbox.body.length)
+      expect(brotliDecompressSync(sandbox.body).toString()).toBe(sandboxHTML)
     } finally {
       session.close()
     }

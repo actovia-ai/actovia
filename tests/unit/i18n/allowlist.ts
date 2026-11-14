@@ -26,12 +26,6 @@ export const ALLOWLIST: AllowlistEntry[] = [
     reason: 'The CLI executable name, shown as the terminal title.'
   },
   {
-    file: 'src/renderer/components/calling-tools/artifact/artifact-card.tsx',
-    text: 'artifact://',
-    line: 121,
-    reason: "The app's own URI scheme prefix, not user-facing prose."
-  },
-  {
     file: 'src/renderer/components/calling-tools/drawio/drawio-card.tsx',
     text: 'draw.io ·',
     line: 139,

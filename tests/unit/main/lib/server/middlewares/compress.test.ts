@@ -19,6 +19,19 @@ const app = new Hono<{ Bindings: { listener?: 'lan' | 'loopback' } }>()
 app.use('*', compressLan)
 app.get('/json', (c) => c.json(big))
 app.get('/small', (c) => c.json({ ok: true }))
+const sandboxPage = '<!doctype html><p>塞尔达 artifact</p>'.repeat(100)
+app.get(
+  '/sandbox',
+  () =>
+    new Response(sandboxPage, {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Length': String(Buffer.byteLength(sandboxPage)),
+        Vary: 'Origin',
+        'Cache-Control': 'no-cache'
+      }
+    })
+)
 app.get('/png', (c) =>
   c.body(new Uint8Array(4096), 200, { 'Content-Type': 'image/png' })
 )
@@ -47,6 +60,20 @@ const get = (path: string, accept?: string, env: object = lan) =>
   )
 
 describe('compressLan', () => {
+  it.each(['br', 'gzip'])(
+    'replaces an explicit static-file length when compressing with %s',
+    async (encoding) => {
+      const res = await get('/sandbox', encoding)
+      const body = Buffer.from(await res.arrayBuffer())
+      expect(res.headers.get('content-encoding')).toBe(encoding)
+      expect(Number(res.headers.get('content-length'))).toBe(body.length)
+      const decoded =
+        encoding === 'br' ? brotliDecompressSync(body) : gunzipSync(body)
+      expect(decoded.toString()).toBe(sandboxPage)
+      expect(res.headers.get('cache-control')).toBe('no-cache')
+      expect(res.headers.get('vary')).toBe('Origin, Accept-Encoding')
+    }
+  )
   it('sends brotli to a client that takes it, and says the response varies', async () => {
     const res = await get('/json', 'gzip, deflate, br')
     expect(res.headers.get('content-encoding')).toBe('br')

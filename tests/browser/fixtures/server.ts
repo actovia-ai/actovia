@@ -71,6 +71,12 @@ api.get('/api/v1/workspace/:chatId/file', (c) =>
     modifiedAt: Date.now()
   })
 )
+api.get('/api/v1/library/fixture/fixture/code', (c) =>
+  c.json({
+    title: 'Library artifact',
+    code: 'export default function Preview() { return <h1>Library preview rendered</h1> }'
+  })
+)
 api.get('/api/v1/library', (c) => c.json({ items: [], total: 0 }))
 api.get('/api/v1/discover/topics', (c) => c.json([]))
 api.get('/api/v1/chat/:id', (c) =>

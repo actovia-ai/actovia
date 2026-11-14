@@ -74,6 +74,7 @@ export async function compressLan(c: Context, next: Next) {
 
   if (body.length < MIN_BYTES) {
     c.res = new Response(body, { status: res.status, headers })
+    c.header('Vary', headers.get('Vary') ?? 'Accept-Encoding')
     return
   }
 
@@ -88,6 +89,10 @@ export async function compressLan(c: Context, next: Next) {
       : await gzipAsync(body, { level: GZIP_LEVEL })
 
   headers.set('Content-Encoding', encoding)
-  headers.set('Content-Length', String(compressed.length))
   c.res = new Response(compressed, { status: res.status, headers })
+  // Hono merges the previous response's headers when c.res is replaced.
+  // Set these afterwards so a static file's original length (and Vary)
+  // cannot overwrite the metadata for the compressed bytes on the wire.
+  c.header('Content-Length', String(compressed.length))
+  c.header('Vary', headers.get('Vary') ?? 'Accept-Encoding')
 }

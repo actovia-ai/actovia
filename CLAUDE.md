@@ -228,16 +228,19 @@ minutes; cancelling/replacing an invitation invalidates outstanding ones.
 Desktop-only `/api/v1/web-access` GET/PUT and POST/DELETE `/pairing` require
 window presence; their non-secret configuration lives in
 `~/.actovia/web-access.json`, outside general remotely editable settings.
-Browser API access to host/lock/CLI-pass/device management and native sandbox
-routes is refused. The native workspace/CLI shell operations also retain
+Browser API access to host/lock/CLI-pass/device management is refused. The native workspace/CLI shell operations also retain
 `desktopOnly` guards. Remote Chat, Philharmonic and approvals use the paired
 principal; automation executes on the host, recording/uploads in the browser.
 
 `web.html` marks the explicit Web entry. The renderer uses the same-origin
 API there and mounts no settings consumers until its pairing/unlock gate
 passes. Native menu, update, window, lock and file dialogs are not shimmed.
-Unsupported host controls are hidden. Generated HTML Artifact code is inert
-source with download; execution stays in the native custom-scheme sandbox.
+Unsupported host controls are hidden. Web Artifacts and Library thumbnails execute in an opaque-origin iframe served
+from `/api/v1/artifacts/sandbox/*`. This public static runtime contains no user
+code or data; code arrives through the parent-checked message bridge. HTTP CSP
+forces `sandbox allow-scripts` even on direct navigation, blocks network access,
+and allows only compiled assets through the static relay with CORS. Both Web
+builds include the artifact entry; native and phone sandbox routes are unchanged.
 WebAuthn stays external in the main build to preserve decorator initialization;
 `forge.config.ts` retains its full runtime dependency tree through
 `scripts/runtime-package-paths.ts`, including nested package versions.
@@ -599,7 +602,10 @@ The `/api/v1/chat` route includes `GET /api/v1/chat/:id/context` (ISSUE-235) —
    JSON/text body of 1 KB or more goes out brotli (quality 5) when the client
    takes it — URLSession does over HTTPS by itself — else gzip; never an
    event stream (each frame must leave at once). A chat's history measured
-   2.4 MB raw, 360 KB brotli, 725 KB gzip (2026-10-01)
+   2.4 MB raw, 360 KB brotli, 725 KB gzip (2026-10-01). Compression updates
+   `Content-Length` and `Vary` after replacing Hono's response, because its
+   setter merges the previous headers; retaining a static file's original
+   length makes the phone reject its compressed sandbox page.
 1. Origin gate (`createOriginGate`) — a request must carry no `Origin` (actovia-ios, the Actovia CLI, `tests/api`, and the packaged renderer: a `file://` page in Electron sends none) or, in a dev build only, exactly the Vite renderer's; anything else — a website, another loopback port, `null`, an extension, the artifact sandbox — gets `403`, as does a request on the loopback listener addressed by a public `Host` (DNS rebinding). Runs before CORS so a refused origin gets no `Access-Control-Allow-Origin`. Which listener took a request is in the bindings (`listenerOf(c)` in `server/types.ts`)
 2. CORS middleware (`hono/cors`)
 3. Auth gate (`authGate`) — on the LAN listener a request needs `Authorization: Bearer <token>` of a paired device (`401` otherwise), except `POST /api/v1/pair`, which the pairing window guards; `/api/v1/devices*` is refused there outright (`403`). Loopback passes straight through. Ahead of the lock gate so an unauthenticated request learns nothing, not even that the app is locked

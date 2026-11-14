@@ -22,9 +22,11 @@ const NATIVE_PATHS = [
   '/api/v1/host',
   '/api/v1/lock',
   '/api/v1/web-access',
-  '/api/v1/pair',
-  '/api/v1/artifacts/sandbox'
+  '/api/v1/pair'
 ]
+const isArtifactSandboxPath = (path: string) =>
+  path === '/api/v1/artifacts/sandbox' ||
+  path.startsWith('/api/v1/artifacts/sandbox/')
 
 export function createWebApp(deps: {
   config(): WebAccessConfig
@@ -43,9 +45,12 @@ export function createWebApp(deps: {
     if (!config.enabled || !config.origin) return c.notFound()
     const host = c.req.header('host')?.toLowerCase()
     const origin = c.req.header('origin')
+    const artifactSandboxRequest = isArtifactSandboxPath(c.req.path)
     if (
       host !== new URL(config.origin).host.toLowerCase() ||
-      (origin !== undefined && origin !== config.origin)
+      (origin !== undefined &&
+        origin !== config.origin &&
+        !(artifactSandboxRequest && origin === 'null'))
     )
       return refuse(403, 'FORBIDDEN_ORIGIN')
     if (
@@ -58,7 +63,9 @@ export function createWebApp(deps: {
     c.header('Referrer-Policy', 'no-referrer')
     c.header(
       'Content-Security-Policy',
-      "frame-ancestors 'none'; base-uri 'none'"
+      artifactSandboxRequest
+        ? `default-src 'none'; script-src ${config.origin} 'unsafe-inline' 'unsafe-eval'; style-src ${config.origin} 'unsafe-inline'; img-src ${config.origin} data: blob:; font-src ${config.origin} data:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors ${config.origin}; sandbox allow-scripts`
+        : "frame-ancestors 'none'; base-uri 'none'"
     )
     c.header('Cache-Control', 'no-store')
   })
@@ -68,6 +75,17 @@ export function createWebApp(deps: {
     binding: getCookie(c, DEVICE_COOKIE) ?? '',
     session: getCookie(c, SESSION_COOKIE) ?? ''
   })
+
+  // Public compiled runtime only: generated code is supplied by the parent.
+  // Enforce an opaque origin even when this page is opened without an iframe.
+  app.get('/api/v1/artifacts/sandbox/*', async (c) => {
+    const response = await deps.asset(c.req.path)
+    const headers = new Headers(response.headers)
+    headers.set('Access-Control-Allow-Origin', '*')
+    return new Response(response.body, { status: response.status, headers })
+  })
+  app.all('/api/v1/artifacts/sandbox/*', () => refuse(403, 'FORBIDDEN'))
+  app.all('/api/v1/artifacts/sandbox', () => refuse(403, 'FORBIDDEN'))
   const setSession = (c: Parameters<typeof setCookie>[0], value: string) =>
     setCookie(c, SESSION_COOKIE, value, {
       httpOnly: true,

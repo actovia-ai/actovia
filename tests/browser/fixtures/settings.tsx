@@ -10,6 +10,7 @@ import { BrowserRouter } from 'react-router'
 import { ThemeProvider } from '@/components/app/theme-provider'
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
 import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
+import { LibraryPreview } from '@/components/library/library-preview'
 import { MonitorCharts } from '@/components/philharmonic/dashboard/monitor-charts'
 import { ComputerUse } from '@/components/settings/settings-form/computer-use'
 import { General } from '@/components/settings/settings-form/generals'
@@ -105,6 +106,12 @@ void i18nReady.then(() =>
                     open
                     onOpenChange={() => {}}
                   />
+                ) : location.search.includes('library') ? (
+                  <LibraryPreview
+                    chatId="fixture"
+                    artifactId="fixture"
+                    title="Library artifact"
+                  />
                 ) : location.search.includes('artifact') ? (
                   <ArtifactCard
                     chatId="fixture"
@@ -112,7 +119,13 @@ void i18nReady.then(() =>
                       type: 'artifact',
                       title: 'Untrusted source',
                       artifactId: 'fixture',
-                      code: '<script>window.__unsafeArtifact = true</script><h1>Source only</h1>'
+                      code: `import React, { useState } from 'react'
+export default function Artifact() {
+  const [count, setCount] = useState(0)
+  let isolated = false
+  try { void window.parent.document } catch { isolated = true }
+  return <main><h1>Interactive artifact</h1><p>{isolated ? 'Parent isolated' : 'Unsafe parent'}</p><button onClick={() => setCount(count + 1)}>Count {count}</button></main>
+}`
                     }}
                   />
                 ) : (

@@ -37,12 +37,8 @@ export function LibraryPreview({
   const boxRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLIFrameElement>(null)
   const inView = useInView(boxRef, '400px')
-  const { data } = useLibraryItemCode(
-    chatId,
-    artifactId,
-    !IS_WEB_CLIENT && inView
-  )
-  const live = !IS_WEB_CLIENT && inView && !!data
+  const { data } = useLibraryItemCode(chatId, artifactId, inView)
+  const live = inView && !!data
   const [rendered, setRendered] = useState(false)
   const [scale, setScale] = useState(0)
   const ready = useRef(false)
@@ -108,7 +104,9 @@ export function LibraryPreview({
           title={title}
           aria-hidden="true"
           tabIndex={-1}
-          sandbox="allow-scripts allow-same-origin"
+          sandbox={
+            IS_WEB_CLIENT ? 'allow-scripts' : 'allow-scripts allow-same-origin'
+          }
           data-state={rendered ? 'rendered' : 'loading'}
           data-testid={TEST_IDS.library.preview}
           className={cn(

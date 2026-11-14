@@ -11,7 +11,13 @@ import { ArtifactSandbox } from './sandbox'
 // We don't use ThemeProvider here because it calls setNativeTheme via IPC,
 // which is unavailable inside a sandboxed iframe without preload scripts.
 function applyTheme() {
-  const stored = window.localStorage.getItem('vite-ui-theme') ?? 'system'
+  let stored = 'system'
+  try {
+    stored = window.localStorage.getItem('vite-ui-theme') ?? 'system'
+  } catch {
+    // Web preview iframes have an opaque origin and no localStorage. Their
+    // parent sends the selected theme over the sandbox message bridge.
+  }
   const root = document.documentElement
   root.classList.remove('light', 'dark')
 
