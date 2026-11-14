@@ -1,6 +1,6 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { findToolCall } from '../../chat/history'
 import { getChatSource } from '../../chat/sources'

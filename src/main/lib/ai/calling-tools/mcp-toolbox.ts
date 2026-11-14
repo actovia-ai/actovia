@@ -1,7 +1,7 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { McpTools } from '@actovia/shared/types/ai'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 /**
  * MCP servers are not bound tool by tool — a single server can expose 100+

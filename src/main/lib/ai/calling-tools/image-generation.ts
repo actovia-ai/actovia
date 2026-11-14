@@ -4,9 +4,9 @@ import { join } from 'path'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { ImageGenerationDetails } from '@actovia/shared/types/chat'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
 import OpenAI from 'openai'
 import { ImageGenerateParams } from 'openai/resources/images'
+import { Type } from 'typebox'
 
 import { Settings } from '../../db/schema'
 import {

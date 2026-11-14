@@ -1,8 +1,8 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { ToolNotice } from '@actovia/shared/types/chat'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
 import { v1 } from '@googlemaps/places'
+import { Type } from 'typebox'
 
 import { Settings } from '../../db/schema'
 import { logger } from '../../logger'

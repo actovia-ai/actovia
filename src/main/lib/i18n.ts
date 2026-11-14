@@ -37,7 +37,9 @@ export function mainT(
   params?: Record<string, string | number>
 ): string {
   if (mainI18n?.exists(key))
-    return params ? mainI18n.t(key, params) : mainI18n.t(key)
+    return params
+      ? (mainI18n.t(key as never, params as never) as unknown as string)
+      : (mainI18n.t(key as never) as unknown as string)
   if (!params) return fallback
   return fallback.replace(/\{\{(\w+)\}\}/g, (match, k: string) =>
     k in params ? String(params[k]) : match

@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { StringEnum, Type } from '@earendil-works/pi-ai'
+import { StringEnum } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { listDesktopApps, runAutomation } from '../../automation/runtime'
 import { Guard } from '../../computer/guard'

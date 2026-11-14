@@ -4,7 +4,7 @@ import { join, relative } from 'path'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 function matchGlob(name: string, pattern: string): boolean {
   // Simple glob: * matches anything, ? matches single char

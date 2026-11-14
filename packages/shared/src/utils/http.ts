@@ -92,7 +92,8 @@ interface ErrorI18n {
  */
 export function toErrorI18n(instance: I18nInstance): ErrorI18n {
   return {
-    t: (key, params) => instance.t(key as never, params),
+    t: (key, params) =>
+      instance.t(key as never, params as never) as unknown as string,
     exists: (key) => instance.exists(key as never)
   }
 }

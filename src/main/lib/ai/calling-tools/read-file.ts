@@ -3,7 +3,8 @@ import { homedir } from 'os'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { StringEnum, Type } from '@earendil-works/pi-ai'
+import { StringEnum } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { resolveToolPath } from './tool-path'
 

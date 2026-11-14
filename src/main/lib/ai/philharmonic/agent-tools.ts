@@ -1,5 +1,5 @@
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 /** Yield a blocked employee back to its waiting PM, without starting a nested PM round. */
 export function createAskPmTool(

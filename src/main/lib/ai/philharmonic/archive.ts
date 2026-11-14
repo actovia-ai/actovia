@@ -2,8 +2,8 @@ import { realpath, stat, readdir, readFile } from 'node:fs/promises'
 import { basename, join, relative, resolve, sep } from 'node:path'
 
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
 import JSZip from 'jszip'
+import { Type } from 'typebox'
 
 export type ArchiveEntry = {
   kind: 'archive'

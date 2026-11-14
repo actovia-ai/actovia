@@ -3,7 +3,7 @@ import { mkdir, open } from 'fs/promises'
 import { join } from 'path'
 
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 const schema = Type.Object({
   command: Type.String({

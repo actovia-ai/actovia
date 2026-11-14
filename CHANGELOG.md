@@ -1,3 +1,16 @@
+## [2.10.0](https://github.com/actovia-ai/actovia/compare/v2.9.1...v2.10.0) (2026-11-14)
+
+
+### Bug Fixes
+
+* **artifact:** keep the full-screen title clear of macOS window controls
+
+
+### Features
+
+* **artifact:** preserve the live preview when expanding to full screen on desktop and web ([eb225f0](https://github.com/actovia-ai/actovia/commit/eb225f0d))
+* **web:** refresh the pairing welcome page with a desktop and phone illustration ([eb225f0](https://github.com/actovia-ai/actovia/commit/eb225f0d))
+
 ## [2.9.1](https://github.com/actovia-ai/actovia/compare/v2.9.0...v2.9.1) (2026-11-07)
 
 

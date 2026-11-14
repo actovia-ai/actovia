@@ -1,7 +1,8 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { StringEnum, Type } from '@earendil-works/pi-ai'
+import { StringEnum } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { Settings } from '../../db/schema'
 import { getModelFromProvider } from '../utils/model-util'
@@ -88,9 +89,9 @@ export const webSearch = (
           recencyFilter: ws.recencyFilter,
           domainFilter: ws.domainFilter
             ? ws.domainFilter
-                .split(',')
-                .map((d) => d.trim())
-                .filter(Boolean)
+              .split(',')
+              .map((d) => d.trim())
+              .filter(Boolean)
             : null,
           deep,
           threshold: precision,
@@ -143,8 +144,8 @@ export const webSearch = (
 
       const result = searchQueue.then(search, search)
       searchQueue = result.then(
-        () => undefined,
-        () => undefined
+        () => { },
+        () => { }
       )
       return result
     }

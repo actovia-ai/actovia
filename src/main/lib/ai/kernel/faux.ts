@@ -2,11 +2,11 @@ import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { WeatherResult } from '@actovia/shared/types/weather'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
-  Type,
   fauxProvider,
   type FauxProviderHandle,
   type RegisterFauxProviderOptions
 } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { getKernelModels } from './models'
 

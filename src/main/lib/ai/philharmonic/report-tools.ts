@@ -8,7 +8,7 @@
 // turn's final conversation_message row.
 
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 import { v4 as uuidV4 } from 'uuid'
 
 import { saveArtifact } from '../artifacts'

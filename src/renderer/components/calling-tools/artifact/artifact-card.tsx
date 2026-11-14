@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
+import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { revealArtifactFile } from '@/lib/ipc'
 import { cn } from '@/lib/utils'
 import { revealArtifactAtom } from '@/stores/chat'
@@ -143,6 +144,7 @@ function ArtifactChromeBar({
   artifactId,
   chatId,
   isFullscreen,
+  nativeFullscreen,
   onToggleFullscreen,
   sourceUrl
 }: {
@@ -150,12 +152,18 @@ function ArtifactChromeBar({
   artifactId: string
   chatId: string
   isFullscreen: boolean
+  nativeFullscreen: boolean
   onToggleFullscreen: () => void
   sourceUrl: string
 }) {
   const { t } = useTranslation('settings')
   return (
-    <div className="bg-muted/70 flex h-10 items-center gap-3 border-b px-3">
+    <div
+      className={cn(
+        'bg-muted/70 flex h-10 items-center gap-3 border-b px-3',
+        isFullscreen && !IS_WEB_CLIENT && !nativeFullscreen && 'pl-23'
+      )}
+    >
       <span
         className="min-w-0 flex-1 truncate text-sm font-medium"
         title={title}
@@ -268,6 +276,7 @@ function ArtifactCardView({
   const [expanded, setExpanded] = useState(false)
   const [sourceUrl, setSourceUrl] = useState('')
   const [reveal, setReveal] = useAtom(revealArtifactAtom)
+  const nativeFullscreen = useIsFullscreen()
 
   useEffect(() => {
     if (!IS_WEB_CLIENT) return
@@ -358,6 +367,7 @@ function ArtifactCardView({
           artifactId={toolResult.artifactId}
           chatId={chatId}
           isFullscreen={expanded}
+          nativeFullscreen={nativeFullscreen}
           onToggleFullscreen={expanded ? exitFullscreen : enterFullscreen}
           sourceUrl={sourceUrl}
         />

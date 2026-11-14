@@ -5,7 +5,7 @@ import { promisify } from 'util'
 
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 const execAsync = promisify(exec)
 

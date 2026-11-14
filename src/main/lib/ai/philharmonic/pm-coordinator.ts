@@ -11,7 +11,8 @@ import {
 } from '@actovia/shared/types/philharmonic'
 import type { AgentMessage, AgentTool } from '@earendil-works/pi-agent-core'
 import { agentLoop } from '@earendil-works/pi-agent-core'
-import { Type, type Message } from '@earendil-works/pi-ai'
+import { type Message } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 import { v4 as uuidV4 } from 'uuid'
 
 import { cliOf, isCliId } from '../../agents/drivers'

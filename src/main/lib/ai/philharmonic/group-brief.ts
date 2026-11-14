@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 import type { GroupBrief } from '@actovia/shared/types/philharmonic'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { getGroupDir } from '../../paths'
 

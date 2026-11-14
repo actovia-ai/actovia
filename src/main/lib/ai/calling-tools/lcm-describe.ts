@@ -1,6 +1,6 @@
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import { describeConversation } from '../context-management/conversation-overview'
 import {

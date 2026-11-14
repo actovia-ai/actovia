@@ -5,7 +5,7 @@ import {
   type WeatherResult
 } from '@actovia/shared/types/weather'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { Type } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 /**
  * Weather from Open-Meteo (open-meteo.com): no key, no account, a seven-day

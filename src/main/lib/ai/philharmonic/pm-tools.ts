@@ -1,7 +1,8 @@
 import type { AiProviders } from '@actovia/shared/types/ai'
 // src/main/lib/ai/philharmonic/pm-tools.ts
 import type { AgentTool } from '@earendil-works/pi-agent-core'
-import { StringEnum, Type } from '@earendil-works/pi-ai'
+import { StringEnum } from '@earendil-works/pi-ai'
+import { Type } from 'typebox'
 
 import type { RecruitmentModelOption } from './recruit'
 
