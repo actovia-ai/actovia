@@ -1,3 +1,10 @@
+## [2.9.2](https://github.com/actovia-ai/actovia/compare/v2.9.1...v2.9.2) (2026-11-16)
+
+
+### Bug Fixes
+
+* use readable foreground for blue tone actions ([8fbb253](https://github.com/actovia-ai/actovia/commit/8fbb253f1beb2d7f65e949a09b5519b39654068c))
+
 ## [2.10.0](https://github.com/actovia-ai/actovia/compare/v2.9.1...v2.10.0) (2026-11-14)
 
 
