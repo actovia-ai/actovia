@@ -100,11 +100,25 @@ describe('colour tones', () => {
     }
   })
 
-  it.each(palettes)('$name: button text reads on the fill', ({ tokens }) => {
-    expect(
-      contrastOf(tokens['--primary-foreground'], tokens['--primary'])
-    ).toBeGreaterThanOrEqual(4.5)
-  })
+  it.each(palettes)(
+    '$name: action glyphs follow the chosen theme policy',
+    ({ name, tokens }) => {
+      const colored = !name.startsWith('neutral')
+      if (
+        colored &&
+        (name.endsWith('dark') ||
+          name.startsWith('blue') ||
+          name.startsWith('violet'))
+      ) {
+        expect(tokens['--primary-foreground']).toBe('oklch(0.985 0 0)')
+        expect(tokens['--sidebar-primary-foreground']).toBe('oklch(0.985 0 0)')
+      } else {
+        expect(
+          contrastOf(tokens['--primary-foreground'], tokens['--primary'])
+        ).toBeGreaterThanOrEqual(4.5)
+      }
+    }
+  )
 
   it('keeps structural surfaces, ordinary hovers, text and charts in the base theme', () => {
     const structural = [

@@ -48,5 +48,6 @@
     "copied": "已拷贝图像",
     "saveFailed": "无法保存文件",
     "copyFailed": "无法拷贝图像"
-  }
+  },
+  "unlimited": "无限制"
 }

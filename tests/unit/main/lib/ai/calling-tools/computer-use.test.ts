@@ -30,6 +30,8 @@ const { browserUse } = await import('@main/lib/ai/calling-tools/browser-use')
 
 describe('upstream automation bindings', () => {
   beforeEach(() => {
+    settings.computerUse.maxSteps = 3
+    settings.computerUse.targetAllowlist = ['Chess']
     settings.computerUse.browser = {
       enabled: true,
       headed: false,
@@ -86,6 +88,29 @@ describe('upstream automation bindings', () => {
         args: []
       })
     expect(run).toHaveBeenCalledTimes(3)
+  })
+  it('operates running apps without an allowlist and supports unlimited desktop steps', async () => {
+    settings.computerUse.targetAllowlist = []
+    settings.computerUse.maxSteps = 0
+    const tool = computerUse()
+    for (let i = 0; i < 105; i++)
+      await tool.execute(String(i), {
+        target: 'Chess',
+        command: 'snapshot',
+        args: []
+      })
+    expect(run).toHaveBeenCalledTimes(105)
+  })
+  it('supports unlimited browser actions while still honoring the enabled switch', async () => {
+    settings.computerUse.browser.maxSteps = 0
+    const tool = browserUse()
+    for (let i = 0; i < 105; i++)
+      await tool.execute(String(i), { command: 'snapshot', args: [] })
+    expect(run).toHaveBeenCalledTimes(105)
+    settings.computerUse.browser.enabled = false
+    await expect(
+      tool.execute('disabled', { command: 'snapshot', args: [] })
+    ).rejects.toThrow('disabled')
   })
   it('applies browser visibility and budget, and always permits closing', async () => {
     settings.computerUse.browser = { enabled: true, headed: true, maxSteps: 1 }

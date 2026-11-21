@@ -1,9 +1,9 @@
 {
   "experimental": "桌面操作使用 agent-desktop 的无焦点辅助功能，浏览器操作使用独立的 agent-browser 会话。按 Alt+Shift+Escape 可停止操作。",
-  "alert": "Actovia 使用开源引擎 agent-desktop 和 agent-browser。桌面控制默认关闭，仅限下方允许的运行中应用。浏览器任务使用独立会话。AI 使用所选模型观察、操作并检查结果。",
+  "alert": "Actovia 使用 agent-desktop 操作正在运行的应用，使用 agent-browser 在独立会话中执行浏览器任务。桌面控制默认关闭，AI 会通过你选择的模型观察、操作并检查结果。",
   "enable": {
     "label": "启用电脑操控",
-    "description": "让 AI 操作允许列表中的窗口。"
+    "description": "允许 AI 操作这台电脑上正在运行的应用。"
   },
   "allowlist": {
     "label": "允许的应用",

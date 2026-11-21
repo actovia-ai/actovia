@@ -45,12 +45,6 @@ export const ALLOWLIST: AllowlistEntry[] = [
   },
   {
     file: 'src/renderer/components/settings/settings-form/system-info.tsx',
-    text: 'actovia.yancey.app',
-    line: 147,
-    reason: 'Website domain, a proper noun.'
-  },
-  {
-    file: 'src/renderer/components/settings/settings-form/system-info.tsx',
     text: 'MIT',
     line: 150,
     reason: 'Software license name — never translated.'

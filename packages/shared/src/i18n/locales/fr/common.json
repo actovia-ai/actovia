@@ -48,5 +48,6 @@
     "copied": "Image copiée",
     "saveFailed": "Impossible d’enregistrer le fichier",
     "copyFailed": "Impossible de copier l’image"
-  }
+  },
+  "unlimited": "Illimité"
 }

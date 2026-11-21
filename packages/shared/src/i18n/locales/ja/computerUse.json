@@ -1,9 +1,9 @@
 {
   "experimental": "デスクトップ操作には agent-desktop のアクセシビリティ操作を使用します。ブラウザ操作には独立した agent-browser セッションを使用します。Alt+Shift+Escape で操作を停止できます。",
-  "alert": "Actovia はオープンソースの agent-desktop と agent-browser を使用します。デスクトップ操作は初期状態では無効で、以下で許可した実行中のアプリに限定されます。ブラウザのタスクには専用セッションを使用します。AI は選択したモデルで観察、操作、結果確認を行います。",
+  "alert": "Actovia は agent-desktop で実行中のアプリを操作し、agent-browser で専用セッションのブラウザータスクを実行します。デスクトップ操作は初期状態では無効です。選択したモデルで状況を確認し、操作と結果の検証を行います。",
   "enable": {
     "label": "Computer Useを有効にする",
-    "description": "許可リストに登録したウィンドウをAIに操作させます。"
+    "description": "AI がこのコンピューターで実行中のアプリを操作できるようにします。"
   },
   "allowlist": {
     "label": "許可リストのアプリ",

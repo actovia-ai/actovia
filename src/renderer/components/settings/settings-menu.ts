@@ -101,10 +101,6 @@ const allMenus = {
       items: [
         { title: SettingsLabel.General, icon: CogIcon },
         { title: SettingsLabel.Profile, icon: CircleUserRound },
-        { title: SettingsLabel.Personality, icon: UserIcon },
-        { title: SettingsLabel.Memory, icon: BrainCircuitIcon },
-        { title: SettingsLabel.Discover, icon: CompassIcon },
-        { title: SettingsLabel.Voice, icon: MicIcon },
         { title: SettingsLabel.KeyboardShortcuts, icon: KeyboardIcon }
       ]
     },
@@ -112,23 +108,21 @@ const allMenus = {
       label: 'nav.group.aiTools',
       items: [
         { title: SettingsLabel.AiProviders, icon: SparklesIcon },
+        { title: SettingsLabel.Personality, icon: UserIcon },
+        { title: SettingsLabel.Memory, icon: BrainCircuitIcon },
+        { title: SettingsLabel.Philharmonic, icon: MusicNote01Icon },
         { title: SettingsLabel.BuiltinTools, icon: Wrench01Icon },
-        { title: SettingsLabel.DeepResearch, icon: TelescopeIcon }
+        { title: SettingsLabel.DeepResearch, icon: TelescopeIcon },
+        { title: SettingsLabel.ComputerUse, icon: MousePointer2 },
+        { title: SettingsLabel.Voice, icon: MicIcon },
+        { title: SettingsLabel.Discover, icon: CompassIcon }
       ]
     },
     {
-      // External, connection-backed capabilities: the knowledge base, the
-      // computer-use sandbox, MCP connectors, the skills marketplace — and
-      // the devices allowed to connect to this one.
+      // Connections to external knowledge, tools and paired devices.
       label: 'nav.group.integrations',
       items: [
         { title: SettingsLabel.KnowledgeBase, icon: NetworkIcon },
-        {
-          title: SettingsLabel.ComputerUse,
-          icon: MousePointer2,
-          experimental: true
-        },
-        { title: SettingsLabel.Philharmonic, icon: MusicNote01Icon },
         { title: SettingsLabel.McpServers, icon: HammerIcon },
         { title: SettingsLabel.SkillsMarket, icon: ShoppingBagIcon },
         { title: SettingsLabel.Devices, icon: MonitorSmartphoneIcon }

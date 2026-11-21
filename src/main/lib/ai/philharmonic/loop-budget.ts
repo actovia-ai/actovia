@@ -15,9 +15,13 @@ export function loopBudget(maxCalls = 80, failureLimit = 3) {
       return reason
     },
     before(context: BeforeToolCallContext) {
-      if (!reason && ++calls > maxCalls)
+      if (!reason && maxCalls > 0 && ++calls > maxCalls)
         reason = `Stopped after ${maxCalls} tool calls. Report progress and wait for the owner before continuing.`
-      if (!reason && (failures.get(key(context)) ?? 0) >= failureLimit)
+      if (
+        !reason &&
+        failureLimit > 0 &&
+        (failures.get(key(context)) ?? 0) >= failureLimit
+      )
         reason = `The same operation failed ${failureLimit} times. Stop, explain the evidence and wait for the owner; do not retry with a different wrapper.`
       return reason ? { block: true, terminate: true, reason } : undefined
     },

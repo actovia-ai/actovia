@@ -5,12 +5,11 @@ import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 
+import { LimitInput } from '../limit-input'
 import { SettingsIntro } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
-import { ShownDefault } from '../shown-default'
 import { Agents } from './agents'
 
 const limits = [
@@ -53,30 +52,15 @@ export function PhilharmonicSettings({ form }: { form: UseFormReturnType }) {
                 description={t(`runtimeSettings.${key}.description`)}
                 error={fieldState.error}
               >
-                <ShownDefault
+                <LimitInput
                   value={field.value}
                   fallback={SETTING_DEFAULTS.philharmonic[key]}
+                  max={max}
+                  onChange={field.onChange}
                   onBlur={field.onBlur}
-                >
-                  {(shown) => (
-                    <Input
-                      type="number"
-                      min={1}
-                      max={max}
-                      step={1}
-                      className="w-20"
-                      {...field}
-                      {...shown}
-                      aria-label={t(`runtimeSettings.${key}.label`)}
-                      data-testid={testId}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === '' ? null : Number(e.target.value)
-                        )
-                      }
-                    />
-                  )}
-                </ShownDefault>
+                  label={t(`runtimeSettings.${key}.label`)}
+                  testId={testId}
+                />
               </SettingsRow>
             )}
           />

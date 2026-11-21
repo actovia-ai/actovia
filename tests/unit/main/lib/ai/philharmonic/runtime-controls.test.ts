@@ -84,6 +84,26 @@ describe('Group runtime controls', () => {
     const secondRelease = await acquireStaffSlot(1)
     secondRelease()
   })
+  it('allows unlimited tool calls, repeated failures and concurrent staff when set to zero', async () => {
+    const budget = loopBudget(0, 0)
+    const context = {
+      toolCall: { name: 'terminal' },
+      args: { command: 'fail' }
+    } as never
+    for (let i = 0; i < 510; i++) {
+      expect(budget.before(context)).toBeUndefined()
+      budget.after({
+        ...(context as object),
+        isError: true,
+        result: { details: {} }
+      } as never)
+    }
+    const releases = await Promise.all(
+      Array.from({ length: 12 }, () => acquireStaffSlot(0))
+    )
+    releases.forEach((release) => release())
+    expect(budget.reason).toBe('')
+  })
   it('honors a configured repeated-failure limit', () => {
     const budget = loopBudget(10, 1)
     const context = {

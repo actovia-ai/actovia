@@ -18,7 +18,7 @@ export async function acquireStaffSlot(
   signal?.throwIfAborted()
   await new Promise<void>((resolve, reject) => {
     const entry = {
-      limit: Math.max(1, limit),
+      limit: limit === 0 ? Infinity : Math.max(1, limit),
       signal,
       start() {
         signal?.removeEventListener('abort', entry.cancel)

@@ -35,6 +35,7 @@ import {
   getLatestMessagePerConversation,
   getMessagesAfter,
   getMessagesByConversationId,
+  getConversationMessagePage,
   updateConversation
 } from '../../db/conversation-queries'
 import {
@@ -240,6 +241,15 @@ router.get('/conversations/:id/messages', async (c) => {
   const rows = await getMessagesAfter(id, after)
   if (!rows) throw new NotFoundError()
   return successResponse(c, rows)
+})
+
+router.get('/conversations/:id/messages/page', async (c) => {
+  const page = await getConversationMessagePage(
+    getRequiredParam(c, 'id'),
+    c.req.query('before')
+  )
+  if (!page) throw new NotFoundError()
+  return successResponse(c, page)
 })
 
 // A PM round's decision trail, in order — what the disclosure under its message shows.

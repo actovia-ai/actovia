@@ -26,7 +26,6 @@ import type {
 
 import { EmployeeAvatar } from '../employees/employee-avatar'
 import { PhilharmonicEmptyState } from '../empty-state'
-import { hueStyle, pickHue } from '../lib/hue'
 import { Composer } from './composer'
 import { GroupContextRing } from './group-context-ring'
 import { useGroupHistory } from './group-history'
@@ -36,6 +35,7 @@ import { GroupResourcesPanel } from './group-resources-panel'
 import { mergeGroupMessages, type BubbleWithDate } from './merge-group-messages'
 import { NewGroupButton } from './new-group-button'
 import { PlanCard } from './plan-card'
+import { PmAvatar } from './pm-avatar'
 
 /**
  * A message that follows one from the same voice goes under it without the
@@ -174,12 +174,11 @@ export function GroupChat({
           {/* Grok's bar (ISSUE-272): the group's avatar and its name, nothing
             under it; who is in it is the button at the right end. */}
           <div className="flex min-w-0 flex-1 items-center gap-2 pl-2">
-            <span
-              className="flex size-6 shrink-0 items-center justify-center rounded-full text-xs"
-              style={hueStyle(pickHue(conversation.id))}
-            >
-              {conversation.icon ?? '💬'}
-            </span>
+            <PmAvatar
+              seed={conversation.id}
+              icon={conversation.icon}
+              size={26}
+            />
             {/* Renamed from the sidebar's menu, as a chat is. */}
             <h1 className="text-foreground truncate text-sm font-medium">
               {conversation.title}
@@ -286,6 +285,7 @@ export function GroupChat({
                       )}
                       <GroupMessageBubble
                         bubble={b}
+                        pmIcon={conversation.icon}
                         continued={!showDay && continuesFrom(prev, b)}
                         agentsById={agentsById}
                         teamsById={teamsById}

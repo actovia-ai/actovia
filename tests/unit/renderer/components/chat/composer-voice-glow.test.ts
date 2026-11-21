@@ -37,7 +37,10 @@ vi.mock('border-beam', () => ({
 }))
 let resolvedTheme = 'light'
 vi.mock('next-themes', () => ({ useTheme: () => ({ resolvedTheme }) }))
-vi.mock('react-router', () => ({ useParams: () => ({ id: 'chat-1' }) }))
+vi.mock('react-router', () => ({
+  useParams: () => ({ id: 'chat-1' }),
+  useNavigate: () => vi.fn()
+}))
 vi.mock('@/hooks/use-upload', () => ({
   useUpload: () => ({ uploadFile: vi.fn() })
 }))

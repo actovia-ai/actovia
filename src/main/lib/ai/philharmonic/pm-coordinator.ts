@@ -550,7 +550,7 @@ async function coordinate(args: RunPmArgs): Promise<void> {
       async ({ employeeId, instructions, stepId, mode = 'await' }) => {
         const attemptKey = stepId || instructions.trim()
         const attempts = delegationAttempts.get(attemptKey) ?? 0
-        if (attempts >= controls.failureLimit)
+        if (controls.failureLimit > 0 && attempts >= controls.failureLimit)
           return `Not started: this step has already been attempted ${controls.failureLimit} times. Stop and ask the owner for the missing decision or evidence; do not delegate it again.`
         delegationAttempts.set(attemptKey, attempts + 1)
         // A CLI that has rejected this employee's model starts no process.

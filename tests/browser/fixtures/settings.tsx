@@ -5,20 +5,26 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRoot } from 'react-dom/client'
 import { useForm } from 'react-hook-form'
 import { I18nextProvider } from 'react-i18next'
-import { BrowserRouter } from 'react-router'
+import { BrowserRouter, MemoryRouter } from 'react-router'
 
 import { ThemeProvider } from '@/components/app/theme-provider'
 import { ArtifactCard } from '@/components/calling-tools/artifact/artifact-card'
 import { WorkspaceFilePreview } from '@/components/calling-tools/workspace-file/workspace-file-preview'
+import ChatComposer from '@/components/chat/composer/composer'
 import { LibraryPreview } from '@/components/library/library-preview'
+import { Composer as GroupComposer } from '@/components/philharmonic/chat/composer'
+import { GroupEmojiPicker } from '@/components/philharmonic/chat/group-emoji-picker'
+import { GroupMessageBubble } from '@/components/philharmonic/chat/group-message-bubble'
 import { MonitorCharts } from '@/components/philharmonic/dashboard/monitor-charts'
 import { ComputerUse } from '@/components/settings/settings-form/computer-use'
 import { General } from '@/components/settings/settings-form/generals'
+import { PhilharmonicSettings } from '@/components/settings/settings-form/philharmonic'
 import { WebAccessSettings } from '@/components/settings/settings-form/web-access'
 import { SettingsSidebar } from '@/components/settings/settings-sidebar'
 import { Button } from '@/components/ui/button'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { i18n, i18nReady } from '@/lib/i18n'
+import type { AgentData } from '@/stores/philharmonic'
 const client = new QueryClient({
   defaultOptions: { queries: { retry: false } }
 })
@@ -39,6 +45,61 @@ function ComputerUseExample() {
     <div className="flex flex-col gap-8">
       <h1 className="text-xl font-semibold">Computer &amp; Browser Use</h1>
       <ComputerUse form={form} />
+    </div>
+  )
+}
+
+function IterationExample() {
+  const form = useForm<Settings>({
+    defaultValues: { agents: { philharmonic: {} } }
+  })
+  return (
+    <div className="flex flex-col gap-8">
+      <h1 className="text-xl font-semibold">Philharmonic</h1>
+      <GroupMessageBubble
+        bubble={{
+          messageId: 'pm1',
+          role: 'pm',
+          text: 'The report is ready. Review `report.md` for the findings.',
+          createdAt: '2026-11-21T08:00:00Z',
+          conversationId: 'fixture'
+        }}
+        agentsById={{}}
+        teamsById={{}}
+      />
+      <GroupMessageBubble
+        bubble={{
+          messageId: 'pm2',
+          role: 'pm',
+          text: 'The next step is to compare the results.',
+          conversationId: 'fixture'
+        }}
+        continued
+        agentsById={{}}
+        teamsById={{}}
+      />
+      <GroupEmojiPicker saving={false} onSelect={() => {}} />
+      <GroupComposer
+        conversationId="fixture"
+        onSend={() => {}}
+        employees={
+          [
+            {
+              id: 'a1',
+              name: 'Avery',
+              isActive: true,
+              description: 'Research',
+              avatarSeed: 'avery',
+              avatarStyle: 'notionists',
+              type: 'api'
+            }
+          ] as AgentData[]
+        }
+      />
+      <MemoryRouter>
+        <ChatComposer chatId="fixture" sendMessage={() => {}} />
+      </MemoryRouter>
+      <PhilharmonicSettings form={form} />
     </div>
   )
 }
@@ -95,6 +156,8 @@ void i18nReady.then(() =>
               <div className="mx-auto max-w-3xl">
                 {location.search.includes('computer-use') ? (
                   <ComputerUseExample />
+                ) : location.search.includes('iteration') ? (
+                  <IterationExample />
                 ) : location.search.includes('dashboard') ? (
                   <MonitorCharts
                     plans={location.search.includes('empty') ? [] : plans}

@@ -108,7 +108,7 @@ export function PlanCard({
       open={!collapsed}
       onOpenChange={(open) => setCollapsed(!open)}
       className={cn(
-        'bg-card border-border/70 overflow-hidden rounded-xl border shadow-sm',
+        'bg-card border-border/70 overflow-hidden rounded-xl border shadow-xs',
         className
       )}
     >

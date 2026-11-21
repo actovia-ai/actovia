@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "Подождите",
     "pleaseWaitDescription": "Модель ещё формирует ответ.",
     "stop": "Остановить",
-    "send": "Отправить"
+    "send": "Отправить",
+    "commands": "Команды чата",
+    "noCommands": "Нет подходящих команд"
   },
   "composerTools": {
     "attachFiles": "Прикрепить файлы",

@@ -16,7 +16,7 @@ import {
   useState
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import { VoiceBeam } from 'voice-glow'
 
 import { toast } from '@/components/ui/toast'
@@ -41,6 +41,7 @@ import {
 
 import { Button } from '../../ui/button'
 import { Textarea } from '../../ui/textarea'
+import { ComposerCommandMenu, useComposerCommands } from './composer-commands'
 import { compactFieldWidth, wrapsPastOneLine } from './composer-layout'
 import { ActiveToolPills, ComposerToolsButton } from './composer-tools'
 import { ComposerTurnButton } from './composer-turn-button'
@@ -90,6 +91,8 @@ function InputBox({
   const status = mode === 'draft' ? 'idle' : chatStatus
   const stop = useAtomValue(chatStopFnAtom)
   const { id } = useParams()
+  const navigate = useNavigate()
+  const [caret, setCaret] = useState(0)
   const { uploadFile } = useUpload()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
@@ -134,6 +137,8 @@ function InputBox({
 
   const handleInput = (event: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(event.target.value)
+    setCaret(event.target.selectionStart)
+    commandMenu.reset()
   }
 
   const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
@@ -153,11 +158,55 @@ function InputBox({
     if (pasteUploadsImages(clipboard)) uploadFile(images)
   }
 
+  const runCommand = useCallback(
+    (command: string) => {
+      if (command === 'stop') stop?.()
+      if (command === 'new') {
+        navigate('/')
+        setAttachments(undefined)
+        setQuote(null)
+      }
+      setInput('')
+      setCaret(0)
+    },
+    [navigate, setAttachments, setQuote, setInput, stop]
+  )
+  const commandMenu = useComposerCommands({
+    text: mode === 'chat' ? input : '',
+    caret,
+    commands:
+      mode === 'draft'
+        ? []
+        : [
+            { id: 'new', label: '/new', description: t('sidebar.newChat') },
+            ...(status === 'streaming'
+              ? [
+                  {
+                    id: 'stop',
+                    label: '/stop',
+                    description: t('composer.stop')
+                  }
+                ]
+              : [])
+          ],
+    onCommand: runCommand
+  })
+
   const submitForm = useCallback(() => {
     // URL update is handled by Chat's onFinish to avoid interrupting the stream.
     // The hash, not the path: the router is a hash router, and in the packaged
     // app a path rewrite pointed `file://` at a file that does not exist, so a
     // reload after a new chat's first message was ERR_FILE_NOT_FOUND.
+    if (
+      mode === 'chat' &&
+      !attachments?.length &&
+      quote === null &&
+      (input.trim() === '/new' ||
+        (input.trim() === '/stop' && status === 'streaming'))
+    ) {
+      runCommand(input.trim().slice(1))
+      return
+    }
     if (!input.trim() && !attachments?.length) return
     if (mode === 'chat' && !id) {
       window.history.replaceState({}, '', `#/chat/${chatId}`)
@@ -176,6 +225,9 @@ function InputBox({
     if (quote !== null) setQuote(null)
   }, [
     attachments,
+    runCommand,
+    status,
+    id,
     mode,
     chatId,
     input,
@@ -214,10 +266,15 @@ function InputBox({
       // voice says Actovia is listening.
       active={voiceStream === null && !reduce}
       className={cn(
-        'mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',
+        'relative mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',
         mode === 'chat' && !id && 'mb-4'
       )}
     >
+      <ComposerCommandMenu
+        menu={commandMenu}
+        title={t('composer.commands')}
+        empty={t('composer.noCommands')}
+      />
       {/*
         Lit only while recording, from the recorder's own stream, and faded
         out when it stops. Always mounted, so the field inside keeps its focus.
@@ -299,6 +356,8 @@ function InputBox({
                   : t('composer.listening')
               }
               value={input}
+              {...(mode === 'chat' ? commandMenu.inputProps : {})}
+              onSelect={(event) => setCaret(event.currentTarget.selectionStart)}
               onChange={handleInput}
               className={cn(
                 'max-h-[45dvh] min-h-8 w-full min-w-0 resize-none rounded-none border-none bg-transparent! px-1 py-1 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-sm',
@@ -307,6 +366,8 @@ function InputBox({
               rows={1}
               autoFocus
               onKeyDown={(event) => {
+                if (isTypingRef.current || event.nativeEvent.isComposing) return
+                if (commandMenu.onKeyDown(event)) return
                 if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault()
 

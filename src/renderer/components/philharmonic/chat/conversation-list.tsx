@@ -67,6 +67,7 @@ import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
 import { GroupEmojiPicker } from './group-emoji-picker'
 import { NewGroupButton } from './new-group-button'
+import { PmAvatar } from './pm-avatar'
 
 export type ConfigPage = 'workforce' | 'dashboard'
 
@@ -271,15 +272,13 @@ export function ConversationList({
                         // own active fill — no outline (owner: the outlined
                         // card looked heavy).
                         className={cn(
-                          'flex w-full items-center gap-2 rounded-lg p-1 text-left transition-colors duration-150 ease-out',
+                          'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors duration-150 ease-out',
                           isActive
                             ? 'bg-sidebar-accent'
                             : 'hover:bg-sidebar-accent/60'
                         )}
                       >
-                        <span className="flex size-12 shrink-0 items-center justify-center text-3xl">
-                          {c.icon ?? '💬'}
-                        </span>
+                        <PmAvatar seed={c.id} icon={c.icon} size={34} />
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="flex items-baseline justify-between gap-2">
                             <span className="truncate text-sm font-medium">

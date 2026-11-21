@@ -31,7 +31,7 @@ describe('computerUse namespace (en)', () => {
   it('has the enable toggle keys', () => {
     expect(computerUse.enable).toMatchObject({
       label: 'Enable Computer Use',
-      description: 'Let the AI drive an allowlisted window.'
+      description: 'Let the AI operate running apps on this computer.'
     })
   })
 

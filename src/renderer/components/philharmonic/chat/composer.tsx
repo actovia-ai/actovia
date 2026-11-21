@@ -8,7 +8,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import {
   type ClipboardEvent,
-  useId,
   useCallback,
   useLayoutEffect,
   useRef,
@@ -16,6 +15,10 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  ComposerCommandMenu,
+  useComposerCommands
+} from '@/components/chat/composer/composer-commands'
 import {
   compactFieldWidth,
   wrapsPastOneLine
@@ -26,7 +29,6 @@ import { toast } from '@/components/ui/toast'
 import { usePhilharmonicUpload } from '@/hooks/use-philharmonic-upload'
 import {
   GROUP_COMMANDS,
-  composerTrigger,
   exactGroupCommand,
   type GroupCommand
 } from '@/lib/group-composer'
@@ -36,6 +38,7 @@ import type { AgentData } from '@/stores/philharmonic'
 import { philharmonicAttachmentAtom } from '@/stores/philharmonic'
 
 import { AttachmentPreview } from './attachment-preview'
+import { ComposerMentionMenu, useComposerMentions } from './composer-mentions'
 import { FolderChip } from './folder-chip'
 import { GroupBriefDialog } from './group-brief-dialog'
 import { ComposerUploader } from './uploader'
@@ -83,13 +86,9 @@ export function Composer({
   const [sending, setSending] = useState(false)
   const [mentions, setMentions] = useState<GroupMention[]>([])
   const [caret, setCaret] = useState(0)
-  const [dismissed, setDismissed] = useState(false)
-  const [activeOption, setActiveOption] = useState(0)
   const [briefOpen, setBriefOpen] = useState(false)
   const [compacting, setCompacting] = useState(false)
   const queryClient = useQueryClient()
-  const menuId = useId()
-  const menuRef = useRef<HTMLDivElement>(null)
   const [attachments, setAttachments] = useAtom(philharmonicAttachmentAtom)
   const { upload } = usePhilharmonicUpload()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -125,46 +124,7 @@ export function Composer({
 
   useLayoutEffect(() => fitField(), [text, expanded, fitField])
 
-  const trigger = composerTrigger(text, caret)
-  const menuKind = trigger?.kind
-  const needle = (trigger?.query ?? '').toLocaleLowerCase()
-  const options =
-    menuKind === 'command'
-      ? GROUP_COMMANDS.filter((command) =>
-          `${command} ${t(`controls.commands.${command}.label`)}`
-            .toLocaleLowerCase()
-            .includes(needle)
-        ).map((command) => ({
-          id: command,
-          label: `/${command}`,
-          description: t(`controls.commands.${command}.description`),
-          name: t(`controls.commands.${command}.label`)
-        }))
-      : employees
-          .filter(
-            (employee) =>
-              employee.isActive &&
-              !mentions.some((mention) => mention.agentId === employee.id) &&
-              `${employee.name} ${employee.description ?? ''}`
-                .toLocaleLowerCase()
-                .includes(needle)
-          )
-          .map((employee) => ({
-            id: employee.id,
-            label: employee.name,
-            description: employee.description || t('controls.staffDescription'),
-            name: employee.name
-          }))
-  const menuOpen = !dismissed && Boolean(menuKind)
-  const chosenIndex = Math.min(activeOption, Math.max(0, options.length - 1))
-  useLayoutEffect(() => {
-    menuRef.current
-      ?.querySelector('[aria-selected="true"]')
-      ?.scrollIntoView({ block: 'nearest' })
-  }, [chosenIndex, menuOpen])
-
   const runCommand = async (command: GroupCommand) => {
-    setDismissed(true)
     if (command === 'brief') {
       setBriefOpen(true)
       return
@@ -213,27 +173,37 @@ export function Composer({
       setCompacting(false)
     }
   }
-  const selectOption = (option: (typeof options)[number]) => {
-    if (menuKind === 'command') {
-      if (trigger?.kind === 'command') {
-        setText(text.slice(trigger.end))
-        setCaret(0)
-      }
-      void runCommand(option.id as GroupCommand)
-    } else if (trigger?.kind === 'mention') {
-      setMentions((previous) => [
-        ...previous,
-        { agentId: option.id, name: option.name }
-      ])
-      setText(text.slice(0, trigger.start) + text.slice(trigger.end))
-      setCaret(trigger.start)
-      setDismissed(true)
+  const commandMenu = useComposerCommands({
+    text,
+    caret,
+    commands: GROUP_COMMANDS.map((command) => ({
+      id: command,
+      label: `/${command}`,
+      description: t(`controls.commands.${command}.description`)
+    })),
+    onCommand: (command) => {
+      setText(text.slice(caret))
+      setCaret(0)
+      void runCommand(command as GroupCommand)
+    }
+  })
+  const mentionMenu = useComposerMentions({
+    text,
+    caret,
+    employees,
+    mentions,
+    fallback: t('controls.staffDescription'),
+    onMention: (mention, start, end) => {
+      setMentions((previous) => [...previous, mention])
+      setText(text.slice(0, start) + text.slice(end))
+      setCaret(start)
       requestAnimationFrame(() => {
         textareaRef.current?.focus()
-        textareaRef.current?.setSelectionRange(trigger.start, trigger.start)
+        textareaRef.current?.setSelectionRange(start, start)
       })
     }
-  }
+  })
+  const menu = commandMenu.open ? commandMenu : mentionMenu
 
   const submit = async () => {
     const trimmed = text.trim()
@@ -284,53 +254,20 @@ export function Composer({
 
   return (
     <div className="relative mx-auto flex w-[calc(100%-2rem)] max-w-3xl flex-col">
-      {menuOpen && (
-        <div
-          id={menuId}
-          ref={menuRef}
-          role="listbox"
-          aria-label={t('controls.menuTitle')}
-          data-testid={TEST_IDS.philharmonicControls.menu}
-          onMouseDown={(e) => e.preventDefault()}
-          className="bg-popover text-popover-foreground absolute inset-x-2 bottom-full z-30 mb-2 max-h-64 overflow-y-auto rounded-xl border p-1 shadow-lg"
-        >
-          <div className="text-muted-foreground px-3 py-2 text-xs">
-            {menuKind === 'command'
-              ? t('controls.menuTitle')
-              : t('controls.mentionTitle')}
-          </div>
-          {options.length === 0 && (
-            <p className="text-muted-foreground px-3 py-3 text-sm">
-              {t('controls.noMatches')}
-            </p>
-          )}
-          {options.map((option, index) => (
-            <button
-              key={option.id}
-              id={`${menuId}-${index}`}
-              type="button"
-              role="option"
-              aria-selected={index === chosenIndex}
-              data-testid={TEST_IDS.philharmonicControls.option}
-              data-option={option.id}
-              disabled={menuKind === 'mention' && mentions.length >= 10}
-              onMouseEnter={() => setActiveOption(index)}
-              onClick={() => selectOption(option)}
-              className={cn(
-                'flex w-full items-start gap-3 rounded-lg px-3 py-2 text-left disabled:opacity-50',
-                index === chosenIndex && 'bg-accent'
-              )}
-            >
-              <span className="min-w-20 shrink-0 text-sm font-medium">
-                {option.label}
-              </span>
-              <span className="text-muted-foreground text-sm">
-                {option.description}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
+      <ComposerCommandMenu
+        menu={commandMenu}
+        title={t('controls.menuTitle')}
+        empty={t('controls.noMatches')}
+        testId={TEST_IDS.philharmonicControls.menu}
+        optionTestId={TEST_IDS.philharmonicControls.option}
+      />
+      <ComposerMentionMenu
+        menu={mentionMenu}
+        title={t('controls.mentionTitle')}
+        empty={t('controls.noMatches')}
+        testId={TEST_IDS.philharmonicControls.menu}
+        optionTestId={TEST_IDS.philharmonicControls.option}
+      />
       <div className="mx-2 -mb-3 min-w-0 rounded-t-2xl px-3 pt-2 pb-5 backdrop-blur-md">
         <div className="flex items-center justify-between gap-2">
           <FolderChip key={conversationId} conversationId={conversationId} />
@@ -383,53 +320,24 @@ export function Composer({
               ref={textareaRef}
               value={text}
               data-testid={TEST_IDS.philharmonicControls.input}
-              role="combobox"
-              aria-expanded={menuOpen}
-              aria-controls={menuOpen ? menuId : undefined}
-              aria-autocomplete="list"
-              aria-activedescendant={
-                menuOpen && options.length > 0
-                  ? `${menuId}-${chosenIndex}`
-                  : undefined
-              }
+              {...menu.inputProps}
               onSelect={(e) => {
                 const next = e.currentTarget.selectionStart
                 if (next !== caret) {
                   setCaret(next)
-                  setActiveOption(0)
+                  commandMenu.reset()
+                  mentionMenu.reset()
                 }
               }}
               onChange={(e) => {
                 setText(e.target.value)
                 setCaret(e.target.selectionStart)
-                setDismissed(false)
-                setActiveOption(0)
+                commandMenu.reset()
+                mentionMenu.reset()
               }}
               onKeyDown={(e) => {
                 if (isComposingRef.current || e.nativeEvent.isComposing) return
-                if (menuOpen && e.key === 'Escape') {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  setDismissed(true)
-                  return
-                }
-                if (
-                  menuOpen &&
-                  options.length > 0 &&
-                  ['ArrowDown', 'ArrowUp', 'Enter', 'Tab'].includes(e.key) &&
-                  !e.shiftKey
-                ) {
-                  e.preventDefault()
-                  if (e.key === 'ArrowDown')
-                    setActiveOption((chosenIndex + 1) % options.length)
-                  else if (e.key === 'ArrowUp')
-                    setActiveOption(
-                      (chosenIndex - 1 + options.length) % options.length
-                    )
-                  else if (menuKind !== 'mention' || mentions.length < 10)
-                    selectOption(options[chosenIndex])
-                  return
-                }
+                if (commandMenu.onKeyDown(e) || mentionMenu.onKeyDown(e)) return
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
                   if (isComposingRef.current || e.nativeEvent.isComposing)

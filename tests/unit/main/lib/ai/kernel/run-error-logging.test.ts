@@ -4,13 +4,13 @@
 // does not change.
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
-  Type,
   fauxAssistantMessage,
   fauxText,
   fauxToolCall
 } from '@earendil-works/pi-ai'
 import type { KernelEvent } from '@main/lib/ai/kernel/events'
 import type { RunInput } from '@main/lib/ai/kernel/run'
+import { Type } from 'typebox'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({

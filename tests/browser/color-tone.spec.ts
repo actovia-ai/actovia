@@ -66,6 +66,16 @@ for (const theme of ['light', 'dark']) {
       await expect(page.locator('html')).toHaveAttribute('data-tone', tone)
       expect(await surfaces()).toEqual(baseline)
       expect(await sidebarPalette()).toEqual(neutralSidebar)
+      if (theme === 'dark' && tone !== 'neutral') {
+        const glyphs = await page.evaluate(() => {
+          const style = getComputedStyle(document.documentElement)
+          return ['--primary-foreground', '--sidebar-primary-foreground'].map(
+            (key) => style.getPropertyValue(key).trim()
+          )
+        })
+        for (const glyph of glyphs)
+          expect(glyph).toMatch(/^oklch\((?:0\.985|98\.5%) 0 0\)$/u)
+      }
       await idle.hover()
       // Wait for the actual transition rather than sampling its first frame.
       await page.waitForTimeout(200)

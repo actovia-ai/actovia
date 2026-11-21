@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { PhilharmonicEmptyState } from '@/components/philharmonic/empty-state'
-import { hueStyle, pickHue } from '@/components/philharmonic/lib/hue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -13,6 +12,7 @@ import { usePlanMonitor } from '@/hooks/use-plan-monitor'
 import { useFormat } from '@/lib/format'
 import type { ConversationData } from '@/stores/philharmonic'
 
+import { PmAvatar } from '../chat/pm-avatar'
 import { MonitorCharts } from './monitor-charts'
 
 function stepProgress(steps: StepDto[]) {
@@ -77,12 +77,7 @@ function PlanRow({
             className="hover:text-foreground flex min-w-0 items-center gap-1.5 underline-offset-4 hover:underline"
             title={group?.title ?? t('schedule.unknownGroup')}
           >
-            <span
-              className="text-2xs flex size-5 shrink-0 items-center justify-center rounded-full"
-              style={hueStyle(pickHue(plan.conversationId))}
-            >
-              {group?.icon || '💬'}
-            </span>
+            <PmAvatar seed={plan.conversationId} icon={group?.icon} size={20} />
             <span className="truncate">
               {group?.title ?? t('schedule.unknownGroup')}
             </span>

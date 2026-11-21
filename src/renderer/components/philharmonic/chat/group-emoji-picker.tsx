@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import catalog from '@/lib/emoji-catalog.json'
 
+import { HUE_NAMES } from '../lib/hue'
+import { PmAvatar } from './pm-avatar'
+
 const RECENT = 'actovia-recent-emoji'
 function recentEmoji(): string[] {
   try {
@@ -81,6 +84,20 @@ export function GroupEmojiPicker({
       className="flex min-h-0 flex-col gap-3"
       data-testid={TEST_IDS.philharmonic.emojiPicker}
     >
+      <div className="flex flex-wrap gap-1" aria-label="Ody">
+        {HUE_NAMES.map((hue) => (
+          <Button
+            key={hue}
+            variant="ghost"
+            size="icon"
+            disabled={saving}
+            aria-label={`Ody · ${hue}`}
+            onClick={() => onSelect(`ody:${hue}`)}
+          >
+            <PmAvatar seed={hue} icon={`ody:${hue}`} />
+          </Button>
+        ))}
+      </div>
       <Input
         type="search"
         autoFocus

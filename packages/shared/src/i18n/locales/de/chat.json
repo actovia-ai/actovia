@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "Bitte warten",
     "pleaseWaitDescription": "Das Modell generiert noch eine Antwort.",
     "stop": "Stopp",
-    "send": "Senden"
+    "send": "Senden",
+    "commands": "Chatbefehle",
+    "noCommands": "Keine passenden Befehle"
   },
   "composerTools": {
     "attachFiles": "Dateien anhängen",

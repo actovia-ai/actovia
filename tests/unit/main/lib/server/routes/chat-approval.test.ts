@@ -5,12 +5,12 @@
 // Same mocks as chat.faux.test.ts; the kernel and the gates are real.
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
-  Type,
   fauxAssistantMessage,
   fauxText,
   fauxToolCall
 } from '@earendil-works/pi-ai'
 import { Hono } from 'hono'
+import { Type } from 'typebox'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({

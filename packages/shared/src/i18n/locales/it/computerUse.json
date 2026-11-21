@@ -1,9 +1,9 @@
 {
   "experimental": "Il desktop usa agent-desktop tramite accessibilità senza cambiare il focus. Il browser usa una sessione separata di agent-browser. Alt+Maiusc+Esc interrompe le azioni.",
-  "alert": "Actovia usa i motori open source agent-desktop e agent-browser. Il controllo del desktop è disattivato per impostazione predefinita e limitato alle app in esecuzione autorizzate sotto. Le attività del browser usano una propria sessione. L’IA osserva, agisce e verifica con il modello scelto.",
+  "alert": "Actovia usa agent-desktop per controllare le app aperte e agent-browser per le attività web in una sessione privata. Il controllo del desktop è disattivato per impostazione predefinita. L’IA osserva, agisce e verifica il risultato con il modello scelto.",
   "enable": {
     "label": "Attiva Computer Use",
-    "description": "Consenti all'AI di controllare una finestra nell'elenco consentiti."
+    "description": "Consenti all’IA di controllare le app aperte su questo computer."
   },
   "allowlist": {
     "label": "App consentite",

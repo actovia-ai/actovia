@@ -1,9 +1,9 @@
 {
   "experimental": "Le bureau utilise agent-desktop via l’accessibilité, sans changer le focus. Le navigateur utilise une session agent-browser distincte. Alt+Maj+Échap arrête les actions.",
-  "alert": "Actovia utilise les moteurs libres agent-desktop et agent-browser. Le contrôle du bureau est désactivé par défaut et limité aux applications en cours autorisées ci-dessous. Les tâches du navigateur utilisent leur propre session. L’IA observe, agit et vérifie avec le modèle choisi.",
+  "alert": "Actovia utilise agent-desktop pour piloter les applications ouvertes et agent-browser pour les tâches web dans une session privée. Le contrôle du bureau est désactivé par défaut. L’IA observe, agit et vérifie le résultat avec le modèle choisi.",
   "enable": {
     "label": "Activer l'utilisation de l'ordinateur",
-    "description": "Laisser l'IA piloter une fenêtre autorisée."
+    "description": "Permettre à l’IA de piloter les applications ouvertes sur cet ordinateur."
   },
   "allowlist": {
     "label": "Applications autorisées",

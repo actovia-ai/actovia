@@ -133,6 +133,43 @@ export async function getMessagesByConversationId(conversationId: string) {
     .orderBy(...MESSAGE_ORDER)
 }
 
+/** Newest rows first in the query, chronological on the wire. Tuple cursors preserve microsecond ordering. */
+export async function getConversationMessagePage(
+  conversationId: string,
+  before?: string,
+  limit = 30
+) {
+  const anchor = db
+    .select({
+      createdAt: conversationMessage.createdAt,
+      id: conversationMessage.id
+    })
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        eq(conversationMessage.id, before ?? '')
+      )
+    )
+  if (before && (await anchor).length === 0) return null
+  const rows = await db
+    .select()
+    .from(conversationMessage)
+    .where(
+      and(
+        eq(conversationMessage.conversationId, conversationId),
+        before
+          ? sql`(${conversationMessage.createdAt}, ${conversationMessage.id}) < (${anchor})`
+          : undefined
+      )
+    )
+    .orderBy(desc(conversationMessage.createdAt), desc(conversationMessage.id))
+    .limit(limit + 1)
+  const hasOlder = rows.length > limit
+  const messages = rows.slice(0, limit).toReversed()
+  return { messages, olderCursor: hasOlder ? messages[0].id : null }
+}
+
 /**
  * The rows saved after `afterId`, in the order above; null when `afterId` is
  * not a row of the conversation. Rows are edited after they are saved (an

@@ -1,9 +1,9 @@
 {
   "experimental": "Die Desktop-Steuerung nutzt agent-desktop über Bedienungshilfen ohne Fensterfokus. Die Browser-Steuerung nutzt eine eigene agent-browser-Sitzung. Alt+Umschalt+Escape stoppt aktive Aktionen.",
-  "alert": "Actovia verwendet die Open-Source-Engines agent-desktop und agent-browser. Die Desktop-Steuerung ist standardmäßig aus und auf die unten erlaubten laufenden Apps begrenzt. Browser-Aufgaben erhalten eine eigene Sitzung. Die KI beobachtet, handelt und prüft mit dem ausgewählten Modell.",
+  "alert": "Actovia steuert laufende Apps mit agent-desktop und erledigt Browseraufgaben mit agent-browser in einer privaten Sitzung. Die Desktopsteuerung ist standardmäßig deaktiviert. Die KI beobachtet, handelt und prüft das Ergebnis mit dem gewählten Modell.",
   "enable": {
     "label": "Computer Use aktivieren",
-    "description": "Lässt die KI ein zugelassenes Fenster bedienen."
+    "description": "Der KI erlauben, laufende Apps auf diesem Computer zu bedienen."
   },
   "allowlist": {
     "label": "Zugelassene Apps",

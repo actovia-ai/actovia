@@ -132,7 +132,6 @@ export const TEST_IDS = {
     browserHeaded: 'computer-use.browser-headed',
     browserMaxSteps: 'computer-use.browser-max-steps',
     enableToggle: 'computer-use.enable-toggle',
-    allowlistInput: 'computer-use.allowlist-input',
     stopButton: 'computer-use.stop-button',
     continueButton: 'computer-use.continue-button'
   },

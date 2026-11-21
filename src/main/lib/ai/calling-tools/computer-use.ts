@@ -35,7 +35,7 @@ const commands = [
 ] as const
 const schema = Type.Object({
   target: Type.String({
-    description: 'Exact allowlisted running app name or bundle ID.'
+    description: 'Exact running app name or bundle ID.'
   }),
   command: StringEnum([...commands]),
   args: Type.Array(Type.String(), {
@@ -95,21 +95,13 @@ export function computerUse(): AgentTool<typeof schema> {
         [a.name, a.bundleId].some((v) => norm(v) === norm(target))
       )
       if (matches.length !== 1)
-        return fail(
-          'Choose one exact running app from the allowlist; start it first if needed.'
-        )
+        return fail('Choose one exact running app; start it first if needed.')
       const app = matches[0]
       if (
         isSelfTarget({ bundleId: app.bundleId }) ||
         /^(actovia|electron)$/i.test(app.name)
       )
         return fail(SELF_TARGET_MESSAGE)
-      if (
-        !(settings.computerUse.targetAllowlist ?? []).some((a) =>
-          [app.name, app.bundleId].some((v) => norm(v) === norm(a))
-        )
-      )
-        return fail(`Target "${target}" is not on the allowlist.`)
       if (
         args.some(
           (a) =>
@@ -126,7 +118,8 @@ export function computerUse(): AgentTool<typeof schema> {
         return fail('Use a ref from your own snapshot of this app.')
       if (command !== 'snapshot' && command !== 'press' && !usedRefs.length)
         return fail('Observe with snapshot first, then act on a qualified ref.')
-      if (++steps > (settings.computerUse.maxSteps ?? 25))
+      const maxSteps = settings.computerUse.maxSteps ?? 25
+      if (maxSteps > 0 && ++steps > maxSteps)
         return fail(
           'Action budget reached. Stop and report the blocker; do not retry in another way.'
         )

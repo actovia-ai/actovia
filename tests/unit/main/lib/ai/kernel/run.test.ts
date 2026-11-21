@@ -1,7 +1,6 @@
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
   type Message,
-  Type,
   fauxAssistantMessage,
   fauxText,
   fauxToolCall
@@ -10,6 +9,7 @@ import { clampMaxTokensToContext } from '@earendil-works/pi-ai/api/simple-option
 import type { KernelEvent } from '@main/lib/ai/kernel/events'
 import { registerFauxProvider } from '@main/lib/ai/kernel/faux'
 import { runAgent, type RunInput } from '@main/lib/ai/kernel/run'
+import { Type } from 'typebox'
 import { describe, expect, it, vi } from 'vitest'
 
 // The kernel logs through the main-process logger, which reads Electron's

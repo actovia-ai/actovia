@@ -5,7 +5,6 @@ import { join } from 'path'
 import { TOOL_NAMES } from '@actovia/shared/constants/tool-names'
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
-  Type,
   fauxAssistantMessage,
   fauxText,
   fauxToolCall
@@ -18,6 +17,7 @@ import {
   resetApprovalsForTests
 } from '@main/lib/ai/kernel/pending-approvals'
 import { runAgent, type RunInput } from '@main/lib/ai/kernel/run'
+import { Type } from 'typebox'
 import {
   afterAll,
   afterEach,

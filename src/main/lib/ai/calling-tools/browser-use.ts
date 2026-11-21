@@ -84,10 +84,8 @@ export function browserUse(): AgentTool<typeof schema> {
         throw new Error(
           'Browser connection and session flags are managed by Actovia.'
         )
-      if (
-        command !== 'close' &&
-        ++calls > (options?.maxSteps ?? SETTING_DEFAULTS.browserUse.maxSteps)
-      )
+      const maxSteps = options?.maxSteps ?? SETTING_DEFAULTS.browserUse.maxSteps
+      if (command !== 'close' && maxSteps > 0 && ++calls > maxSteps)
         throw new Error(
           'Browser action budget reached. Stop and report the blocker.'
         )

@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "少々お待ちください",
     "pleaseWaitDescription": "モデルが応答を生成しています。",
     "stop": "停止",
-    "send": "送信"
+    "send": "送信",
+    "commands": "チャットコマンド",
+    "noCommands": "一致するコマンドがありません"
   },
   "composerTools": {
     "attachFiles": "ファイルを添付",

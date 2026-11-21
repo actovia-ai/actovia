@@ -1,9 +1,9 @@
 {
   "experimental": "Desktop automation uses agent-desktop with headless accessibility actions. Browser automation uses agent-browser in a separate browser session. Stop active actions with Alt+Shift+Escape.",
-  "alert": "Actovia uses the open-source agent-desktop and agent-browser engines. Desktop control is off by default and limited to the running apps you allow below. Browser tasks use their own private session. The AI observes, acts and checks the result with your selected model.",
+  "alert": "Actovia uses agent-desktop to control running apps and agent-browser for browser tasks in a private session. Desktop control is off by default. The AI observes, acts and checks the result with your selected model.",
   "enable": {
     "label": "Enable Computer Use",
-    "description": "Let the AI drive an allowlisted window."
+    "description": "Let the AI operate running apps on this computer."
   },
   "allowlist": {
     "label": "Allowlisted apps",

@@ -144,7 +144,7 @@ export function SystemInfo({ form }: { form: UseFormReturnType }) {
           <ExternalLink href={ACTOVIA_TWITTER}>@actovia_ai</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.website')}>
-          <ExternalLink href={ACTOVIA_WEBSITE}>actovia.yancey.app</ExternalLink>
+          <ExternalLink href={ACTOVIA_WEBSITE}>{ACTOVIA_WEBSITE}</ExternalLink>
         </SettingsRow>
         <SettingsRow label={t('about.license')}>
           <Value>MIT</Value>

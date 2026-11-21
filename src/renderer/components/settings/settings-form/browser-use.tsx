@@ -4,11 +4,10 @@ import type { UseFormReturnType } from '@actovia/shared/schemas/settings-schema'
 import { Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 
-import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 
+import { LimitInput } from '../limit-input'
 import { SettingsRow, SettingsSection } from '../settings-row'
-import { ShownDefault } from '../shown-default'
 
 export function BrowserUseSettings({ form }: { form: UseFormReturnType }) {
   const { t } = useTranslation('computerUse')
@@ -47,30 +46,15 @@ export function BrowserUseSettings({ form }: { form: UseFormReturnType }) {
             description={t('browser.maxSteps.description')}
             error={fieldState.error}
           >
-            <ShownDefault
+            <LimitInput
               value={field.value}
               fallback={SETTING_DEFAULTS.browserUse.maxSteps}
+              max={500}
+              onChange={field.onChange}
               onBlur={field.onBlur}
-            >
-              {(shown) => (
-                <Input
-                  type="number"
-                  min={1}
-                  max={500}
-                  step={1}
-                  className="w-20"
-                  {...field}
-                  {...shown}
-                  aria-label={t('browser.maxSteps.label')}
-                  data-testid={TEST_IDS.computerUse.browserMaxSteps}
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value === '' ? null : Number(e.target.value)
-                    )
-                  }
-                />
-              )}
-            </ShownDefault>
+              label={t('browser.maxSteps.label')}
+              testId={TEST_IDS.computerUse.browserMaxSteps}
+            />
           </SettingsRow>
         )}
       />

@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "잠시만 기다려 주세요",
     "pleaseWaitDescription": "모델이 아직 응답을 생성하고 있습니다.",
     "stop": "중지",
-    "send": "전송"
+    "send": "전송",
+    "commands": "채팅 명령",
+    "noCommands": "일치하는 명령이 없습니다"
   },
   "composerTools": {
     "attachFiles": "파일 첨부",

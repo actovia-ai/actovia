@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "Attendere prego",
     "pleaseWaitDescription": "Il modello sta ancora generando una risposta.",
     "stop": "Interrompi",
-    "send": "Invia"
+    "send": "Invia",
+    "commands": "Comandi della chat",
+    "noCommands": "Nessun comando corrispondente"
   },
   "composerTools": {
     "attachFiles": "Allega file",

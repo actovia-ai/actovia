@@ -1,6 +1,5 @@
 import type { AgentTool } from '@earendil-works/pi-agent-core'
 import {
-  Type,
   fauxAssistantMessage,
   fauxText,
   fauxToolCall
@@ -8,6 +7,7 @@ import {
 import type { KernelEvent } from '@main/lib/ai/kernel/events'
 import { registerFauxProvider } from '@main/lib/ai/kernel/faux'
 import { runAgent } from '@main/lib/ai/kernel/run'
+import { Type } from 'typebox'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('electron', () => ({

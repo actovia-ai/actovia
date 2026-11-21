@@ -1,9 +1,9 @@
 {
   "experimental": "데스크톱은 agent-desktop의 접근성 기능으로 조작합니다. 브라우저는 별도의 agent-browser 세션을 사용합니다. Alt+Shift+Escape로 동작을 중지할 수 있습니다.",
-  "alert": "Actovia는 오픈 소스 엔진 agent-desktop과 agent-browser를 사용합니다. 데스크톱 제어는 기본적으로 꺼져 있으며 아래에서 허용한 실행 중인 앱으로 제한됩니다. 브라우저 작업은 전용 세션에서 실행됩니다. AI가 선택한 모델로 관찰하고 조작한 뒤 결과를 확인합니다.",
+  "alert": "Actovia는 agent-desktop으로 실행 중인 앱을 제어하고 agent-browser로 별도 세션에서 브라우저 작업을 수행합니다. 데스크톱 제어는 기본적으로 꺼져 있습니다. AI는 선택한 모델로 관찰하고 작업한 후 결과를 확인합니다.",
   "enable": {
     "label": "Computer Use 사용",
-    "description": "허용 목록에 있는 창을 AI가 조작하도록 합니다."
+    "description": "AI가 이 컴퓨터에서 실행 중인 앱을 제어하도록 허용합니다."
   },
   "allowlist": {
     "label": "허용된 앱",

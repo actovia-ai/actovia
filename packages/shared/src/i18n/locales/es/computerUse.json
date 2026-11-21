@@ -1,9 +1,9 @@
 {
   "experimental": "El escritorio usa agent-desktop mediante accesibilidad sin cambiar el foco. El navegador usa agent-browser en una sesión independiente. Alt+Mayús+Escape detiene las acciones.",
-  "alert": "Actovia utiliza los motores de código abierto agent-desktop y agent-browser. El control del escritorio está desactivado por defecto y limitado a las aplicaciones en ejecución que permitas abajo. Las tareas del navegador usan su propia sesión. La IA observa, actúa y comprueba el resultado con el modelo elegido.",
+  "alert": "Actovia usa agent-desktop para controlar las aplicaciones abiertas y agent-browser para tareas web en una sesión privada. El control del escritorio está desactivado por defecto. La IA observa, actúa y comprueba el resultado con el modelo elegido.",
   "enable": {
     "label": "Activar Uso del equipo",
-    "description": "Permitir que la IA maneje una ventana de la lista de permitidas."
+    "description": "Permitir que la IA controle las aplicaciones abiertas en este equipo."
   },
   "allowlist": {
     "label": "Aplicaciones permitidas",

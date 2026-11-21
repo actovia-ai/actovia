@@ -3,11 +3,9 @@ import type {
   GroupMention,
   GroupQuestionStatus
 } from '@actovia/shared/types/philharmonic'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { memo, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { MusicConductor } from '@/components/icons/music-conductor'
 import { useFormat } from '@/lib/format'
 import { isMotionReduced } from '@/lib/reduced-motion'
 import { cn } from '@/lib/utils'
@@ -17,6 +15,7 @@ import { EmployeeAvatar } from '../employees/employee-avatar'
 import { BubbleMarkdown } from './bubble-markdown'
 import { DecisionProcess } from './decision-process'
 import { GroupActivity } from './group-activity'
+import { PmAvatar } from './pm-avatar'
 import { QuestionCard } from './question-card'
 
 interface ArtifactPart {
@@ -82,12 +81,14 @@ function GroupMessageBubbleView({
   bubble,
   agentsById,
   teamsById,
-  continued = false
+  continued = false,
+  pmIcon
 }: {
   bubble: BubbleModel
   agentsById: Record<string, AgentData>
   teamsById: Record<string, TeamData>
   continued?: boolean
+  pmIcon?: string | null
 }) {
   const { t } = useTranslation(['common', 'philharmonic'])
   const { dateTime } = useFormat()
@@ -117,30 +118,33 @@ function GroupMessageBubbleView({
     <article
       data-message-id={bubble.messageId}
       className={cn(
-        'flex min-w-0 flex-col',
+        'relative flex min-w-0 flex-col',
+        !user && 'pl-11',
         continued ? 'pt-2 pb-1' : 'pt-6 pb-2',
         user && 'items-end'
       )}
     >
       {!user && !continued && (
-        <div className="text-muted-foreground mb-2 flex items-center gap-2 text-xs">
-          {pm ? (
-            <span className="bg-primary/10 text-primary-ink flex size-7 shrink-0 items-center justify-center rounded-full">
-              <HugeiconsIcon icon={MusicConductor} className="size-4" />
-            </span>
-          ) : (
-            <EmployeeAvatar
-              seed={agent?.avatarSeed ?? null}
-              style={agent?.avatarStyle ?? null}
-              size={28}
-            />
-          )}
-          <span className="text-foreground font-medium">{name}</span>
+        <div className="text-muted-foreground mb-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1 text-xs">
+          <span className="absolute top-6 left-0">
+            {pm ? (
+              <PmAvatar
+                seed={bubble.conversationId ?? 'pm'}
+                icon={pmIcon}
+                size={32}
+              />
+            ) : (
+              <EmployeeAvatar
+                seed={agent?.avatarSeed ?? null}
+                style={agent?.avatarStyle ?? null}
+                size={32}
+              />
+            )}
+          </span>
+          <span className="text-foreground text-sm font-semibold">{name}</span>
           {!pm && <span>{t('philharmonic:chat.activity.toPm')}</span>}
           {team && <span className="truncate">{team.name}</span>}
-          {time && (
-            <time className="ml-auto shrink-0 tabular-nums">{time}</time>
-          )}
+          {time && <time className="shrink-0 tabular-nums">{time}</time>}
         </div>
       )}
       {user && Boolean(bubble.mentions?.length) && (
@@ -274,7 +278,8 @@ function sameProps(
     sameBubble(a.bubble, b.bubble) &&
     a.agentsById === b.agentsById &&
     a.teamsById === b.teamsById &&
-    a.continued === b.continued
+    a.continued === b.continued &&
+    a.pmIcon === b.pmIcon
   )
 }
 

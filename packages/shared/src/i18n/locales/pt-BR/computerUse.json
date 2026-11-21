@@ -1,9 +1,9 @@
 {
   "experimental": "O desktop usa agent-desktop por acessibilidade sem mudar o foco. O navegador usa uma sessão separada do agent-browser. Alt+Shift+Escape interrompe as ações.",
-  "alert": "O Actovia usa os motores de código aberto agent-desktop e agent-browser. O controle do desktop vem desativado e é limitado aos aplicativos em execução permitidos abaixo. As tarefas do navegador usam uma sessão própria. A IA observa, age e verifica com o modelo selecionado.",
+  "alert": "O Actovia usa agent-desktop para controlar os aplicativos em execução e agent-browser para tarefas web em uma sessão privada. O controle da área de trabalho vem desativado. A IA observa, age e verifica o resultado com o modelo escolhido.",
   "enable": {
     "label": "Ativar Uso do Computador",
-    "description": "Permitir que a IA controle uma janela da lista de permissões."
+    "description": "Permitir que a IA controle os aplicativos em execução neste computador."
   },
   "allowlist": {
     "label": "Apps permitidos",

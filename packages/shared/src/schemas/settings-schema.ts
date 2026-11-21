@@ -143,14 +143,14 @@ export const KnowledgeBaseSchema = z.object({
 export const BrowserUseSchema = z.object({
   enabled: z.boolean().nullish(),
   headed: z.boolean().nullish(),
-  maxSteps: formNumber(z.number().int().gte(1).lte(500)).nullish()
+  maxSteps: formNumber(z.number().int().gte(0).lte(500)).nullish()
 })
 
 export const PhilharmonicSettingsSchema = z.object({
-  maxRunning: formNumber(z.number().int().gte(1).lte(8)).nullish(),
-  pmMaxToolCalls: formNumber(z.number().int().gte(1).lte(500)).nullish(),
-  staffMaxToolCalls: formNumber(z.number().int().gte(1).lte(500)).nullish(),
-  failureLimit: formNumber(z.number().int().gte(1).lte(10)).nullish(),
+  maxRunning: formNumber(z.number().int().gte(0).lte(8)).nullish(),
+  pmMaxToolCalls: formNumber(z.number().int().gte(0).lte(500)).nullish(),
+  staffMaxToolCalls: formNumber(z.number().int().gte(0).lte(500)).nullish(),
+  failureLimit: formNumber(z.number().int().gte(0).lte(10)).nullish(),
   autoModelRouting: z.boolean().nullish()
 })
 
@@ -159,7 +159,7 @@ export const ComputerUseSchema = z.object({
   enabled: z.boolean().default(false),
   targetAllowlist: z.array(z.string()).default([]),
   model: z.enum(['claude']).default('claude'),
-  maxSteps: formNumber(z.number().gte(1).lte(100)).nullish(),
+  maxSteps: formNumber(z.number().int().gte(0).lte(100)).nullish(),
   settleMs: formNumber(z.number().gte(100).lte(5000)).nullish(),
   askHumanTimeoutMs: formNumber(z.number().gte(10_000).lte(1_800_000)).nullish()
 })

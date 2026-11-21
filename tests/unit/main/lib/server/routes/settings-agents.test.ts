@@ -83,7 +83,7 @@ describe('settings write keeps the CLI path and projects folder', () => {
 
   it('rejects invalid runtime limits before storing them', async () => {
     for (const section of [
-      { agents: { philharmonic: { maxRunning: 0 } } },
+      { agents: { philharmonic: { maxRunning: -1 } } },
       { agents: { philharmonic: { failureLimit: 1.5 } } },
       { computerUse: { browser: { maxSteps: 501 } } }
     ]) {

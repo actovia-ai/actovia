@@ -19,7 +19,9 @@
     "pleaseWaitTitle": "请稍候",
     "pleaseWaitDescription": "模型仍在生成回复。",
     "stop": "停止",
-    "send": "发送"
+    "send": "发送",
+    "commands": "聊天命令",
+    "noCommands": "没有匹配的命令"
   },
   "composerTools": {
     "attachFiles": "添加附件",
