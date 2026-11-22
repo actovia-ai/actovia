@@ -253,7 +253,7 @@ export function Composer({
   }
 
   return (
-    <div className="relative mx-auto flex w-[calc(100%-2rem)] max-w-3xl flex-col">
+    <div className="relative mx-auto flex w-[calc(100%-3rem)] max-w-(--chat-measure) flex-col">
       <ComposerCommandMenu
         menu={commandMenu}
         title={t('controls.menuTitle')}

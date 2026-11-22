@@ -266,7 +266,7 @@ function InputBox({
       // voice says Actovia is listening.
       active={voiceStream === null && !reduce}
       className={cn(
-        'relative mx-auto flex w-[calc(100%-8rem)] flex-col md:max-w-3xl',
+        'relative mx-auto flex w-[calc(100%-3rem)] flex-col max-w-(--chat-measure)',
         mode === 'chat' && !id && 'mb-4'
       )}
     >

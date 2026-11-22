@@ -110,7 +110,11 @@ function turnBlockContent({
           <pre className="font-sans whitespace-pre-wrap">{block.text}</pre>
         }
       >
-        <Markdown src={block.text} webSearchResults={citationResults} />
+        <Markdown
+          src={block.text}
+          webSearchResults={citationResults}
+          className="text-sm"
+        />
       </ErrorBoundary>
     )
   }

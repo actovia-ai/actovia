@@ -130,7 +130,7 @@ export function AgentCardView({
 
       {text && (
         <div className="text-sm leading-relaxed">
-          <BubbleMarkdown text={text} />
+          <BubbleMarkdown text={text} className="text-ui" />
         </div>
       )}
 

@@ -226,7 +226,7 @@ function Line({
     case 'thinking':
       return (
         <Folded label={t('chat.decision.thinking')}>
-          <BubbleMarkdown text={line.text} />
+          <BubbleMarkdown text={line.text} className="text-ui" />
         </Folded>
       )
     case 'text':

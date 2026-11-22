@@ -68,9 +68,11 @@ export function GroupActivity({
         <TraceCollapsibleContent className="space-y-3 text-sm">
           {open && (
             <>
-              {bubble.thinking && <BubbleMarkdown text={bubble.thinking} />}
+              {bubble.thinking && (
+                <BubbleMarkdown text={bubble.thinking} className="text-ui" />
+              )}
               {bubble.streaming && bubble.text && (
-                <BubbleMarkdown text={bubble.text} />
+                <BubbleMarkdown text={bubble.text} className="text-ui" />
               )}
               {bubble.agentCard && (
                 <AgentCardView

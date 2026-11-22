@@ -82,7 +82,7 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* The type scale, set by the 14px body (`text-sm`; the Markdown answer too):
+/* The chat reading scale, with a 14px body (`text-sm`):
  * 2xs 11 — the floor: badges, counters, keyboard hints, uppercase labels
  * xs  12 — captions and meta under the body
  * ui  13 — dense UI: sidebar rows, code inside prose (the macOS control size)
@@ -97,6 +97,19 @@
 }
 
 :root {
+  --chat-measure: 44rem;
+  --diff-added: oklch(0.46 0.13 155);
+  --diff-removed: var(--destructive);
+  --diff-added-background: color-mix(
+    in oklab,
+    var(--diff-added) 11%,
+    transparent
+  );
+  --diff-removed-background: color-mix(
+    in oklab,
+    var(--diff-removed) 11%,
+    transparent
+  );
   /* shadcn's neutral, as the generator writes it. */
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -108,6 +121,7 @@
   --primary-foreground: oklch(0.985 0 0);
   --primary-ink: oklch(0.205 0 0);
   --selected: oklch(0.97 0 0);
+  --search-hit-background: color-mix(in oklab, var(--primary) 28%, transparent);
   /* The user's message. */
   --bubble: oklch(0.97 0 0);
   /* Neutral's dot in Settings → Color tone: a tone's block overrides
@@ -145,6 +159,7 @@
 }
 
 .dark {
+  --diff-added: oklch(0.76 0.16 155);
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -407,9 +422,11 @@
 /* A search hit a chat was opened at (`lib/reveal-search-hit.ts`): marked
    like the Search chats dialog marks its words, a shade stronger to be found
    in a whole answer. A highlight, not an element — the Markdown tree stays
-   as it was rendered. */
+   as it was rendered. Keep color-mix in the root token: Tailwind emits a
+   nested @supports fallback for it, which crashes Electron's DevTools
+   highlight cascade parser when nested inside ::highlight(). */
 ::highlight(actovia-search-hit) {
-  background-color: color-mix(in oklab, var(--primary) 28%, transparent);
+  background-color: var(--search-hit-background);
   color: inherit;
 }
 
@@ -484,11 +501,11 @@
      of a message are flush. No per-adjacency special-casing — that's what
      made the old rhythm feel uneven and cramped. */
 
-  /* ChatGPT's measure (ISSUE-294): 16px at 1.75, so a line holding a
-     citation chip or bold CJK is as tall as the one beside it. */
+  /* A compact reading size needs room between mixed CJK/Latin lines;
+     citations and inline code share the same baseline and line box. */
   .markdown {
     --md-gap: 1em;
-    line-height: 1.75;
+    line-height: 1.8;
   }
 
   .markdown > :first-child {
@@ -517,7 +534,7 @@
       @apply mx-0 mt-[1.6em] mb-[0.6em] text-[1.5em]/[1.3] font-semibold tracking-[-0.01em];
     }
     :scope :where(h2) {
-      @apply mx-0 mt-[1.7em] mb-[0.7em] text-[1.3em]/[1.35] font-semibold tracking-[-0.005em];
+      @apply mx-0 mt-[1.6em] mb-[0.6em] text-[1.3em]/[1.4] font-semibold tracking-[-0.005em];
     }
     :scope :where(h3) {
       @apply mx-0 mt-[1.5em] mb-[0.5em] text-[1.15em]/[1.4] font-semibold;
@@ -529,6 +546,7 @@
        those readable in narrow windows without widening the whole message. */
     :scope :where(h1, h2, h3, h4, h5, h6) {
       overflow-wrap: anywhere;
+      text-wrap: balance;
     }
     :scope :where(h1, h2, h3, h4, h5, h6):first-child {
       @apply mt-0;
@@ -612,6 +630,7 @@
        markdown prose should read); only hard breaks / blank lines split them. */
     :scope :where(p) {
       @apply wrap-break-word [word-break:break-word];
+      text-wrap: pretty;
     }
 
     /* Blockquote — a single gradient pill on the inside-start edge. */

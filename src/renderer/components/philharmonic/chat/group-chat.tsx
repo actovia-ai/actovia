@@ -1,4 +1,3 @@
-import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { isSameDay, isToday, isYesterday } from 'date-fns'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -12,6 +11,7 @@ import { useSidebar } from '@/components/ui/sidebar'
 import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { i18n } from '@/lib/i18n'
 import { ROW_ENTER } from '@/lib/motion'
+import { HAS_MAC_TRAFFIC_LIGHTS } from '@/lib/platform'
 import { cn } from '@/lib/utils'
 import {
   interruptConversation,
@@ -160,7 +160,7 @@ export function GroupChat({
             'draggable bg-card/70 absolute inset-x-0 top-0 z-30 flex h-11 shrink-0 items-center gap-1 pt-0.5 pr-3 backdrop-blur-xl transition-[padding] duration-200 ease-out',
             sidebarOpen
               ? 'pl-1'
-              : IS_WEB_CLIENT || isFullscreen
+              : !HAS_MAC_TRAFFIC_LIGHTS || isFullscreen
                 ? 'pl-4'
                 : 'pl-23'
           )}
@@ -234,8 +234,8 @@ export function GroupChat({
           className="relative flex min-h-0 flex-1 flex-col"
         >
           {plan && plan.steps.length > 0 && (
-            <div className="absolute inset-x-0 top-11 z-20 px-4 pt-2">
-              <div className="mx-auto w-full max-w-3xl">
+            <div className="absolute inset-x-0 top-11 z-20 px-6 pt-2">
+              <div className="mx-auto w-full max-w-(--chat-measure)">
                 <PlanCard plan={plan} agentsById={agentsById} />
               </div>
             </div>
@@ -251,7 +251,7 @@ export function GroupChat({
                 96
             }}
             className={cn(
-              'flex-1 overflow-y-auto px-4 pb-40 [overflow-anchor:none]',
+              'flex-1 overflow-y-auto px-6 pb-40 [overflow-anchor:none]',
               plan?.steps.length ? 'pt-27' : 'pt-14'
             )}
           >
@@ -261,7 +261,7 @@ export function GroupChat({
                 description={t('chat.groupChat.emptyState.description')}
               />
             ) : (
-              <div className="mx-auto flex max-w-3xl flex-col">
+              <div className="mx-auto flex max-w-(--chat-measure) flex-col">
                 {merged.map((b, i) => {
                   const prev = i > 0 ? merged[i - 1] : null
                   // Use null when createdAt is absent (e.g. live streaming bubble) so
@@ -300,7 +300,7 @@ export function GroupChat({
                 (bubble) => bubble.role === 'pm' && bubble.streaming
               ) && (
                 <div
-                  className="mx-auto mt-5 max-w-3xl"
+                  className="mx-auto mt-5 max-w-(--chat-measure)"
                   role="status"
                   aria-label={t('chat.decision.thinking')}
                 >
@@ -308,7 +308,7 @@ export function GroupChat({
                 </div>
               )}
             {error && (
-              <div className="text-destructive bg-destructive/10 mx-auto mt-2 flex max-w-3xl items-center gap-2 rounded-lg px-3 py-2 text-xs">
+              <div className="text-destructive bg-destructive/10 mx-auto mt-2 flex max-w-(--chat-measure) items-center gap-2 rounded-lg px-3 py-2 text-xs">
                 <HugeiconsIcon
                   icon={Alert02Icon}
 
@@ -320,7 +320,7 @@ export function GroupChat({
             {/* Only a question the server could not save: a saved one is a
               card in the transcript (question-card.tsx). */}
             {askUser && (
-              <div className="border-border bg-muted mx-auto my-3 max-w-3xl rounded-xl border p-3">
+              <div className="border-border bg-muted mx-auto my-3 max-w-(--chat-measure) rounded-xl border p-3">
                 <div className="text-foreground mb-2 flex items-start gap-2 text-sm">
                   <HugeiconsIcon
                     icon={HelpCircleIcon}

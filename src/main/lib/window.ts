@@ -10,6 +10,7 @@ import {
 
 import { logger } from './logger'
 import { getResourcePath } from './paths'
+import { mainWindowChrome } from './window-chrome'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
 declare const MAIN_WINDOW_VITE_NAME: string
@@ -25,20 +26,14 @@ export function createWindow(): void {
     minHeight: 820,
     show: false,
     autoHideMenuBar: true,
-    frame: false,
-    title: '',
-    titleBarStyle: 'hidden',
-    trafficLightPosition: {
-      x: 20,
-      y: 16
-    },
+    ...mainWindowChrome(process.platform),
     ...(process.platform === 'darwin'
       ? {
           vibrancy: 'sidebar' as const,
           visualEffectState: 'active' as const
         }
       : {}),
-    ...(process.platform === 'linux'
+    ...(process.platform !== 'darwin'
       ? { icon: getResourcePath('icon.png') }
       : {}),
     webPreferences: {

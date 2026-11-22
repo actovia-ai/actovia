@@ -61,6 +61,7 @@ export function useDbIo() {
         type: 'success',
         title: t('dataControls.import.successToast')
       })
+      return true
     } catch (e) {
       toast.add({
         type: 'error',
@@ -70,6 +71,7 @@ export function useDbIo() {
             ? e.message
             : t('dataControls.import.errorFallback')
       })
+      return false
     } finally {
       setImportLoading(false)
     }

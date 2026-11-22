@@ -1,4 +1,3 @@
-import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import type { CSSProperties } from 'react'
 import { Outlet, useMatch } from 'react-router'
 
@@ -17,6 +16,7 @@ import { useIsFullscreen } from '@/hooks/use-is-full-screen'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useRouteHistoryRecorder } from '@/hooks/use-route-history'
 import { ResizableSidebarShell } from '@/layouts/shared/resizable-sidebar'
+import { HAS_MAC_TRAFFIC_LIGHTS } from '@/lib/platform'
 import { cn } from '@/lib/utils'
 
 import { AppSidebar } from './app-sidebar'
@@ -44,7 +44,11 @@ function ContentHeader({ chat }: { chat: boolean }) {
         chat
           ? 'bg-card/70 absolute inset-x-0 top-0 backdrop-blur-xl'
           : 'relative bg-transparent',
-        open ? 'pl-1' : IS_WEB_CLIENT || isFullscreen ? 'pl-4' : 'pl-23'
+        open
+          ? 'pl-1'
+          : !HAS_MAC_TRAFFIC_LIGHTS || isFullscreen
+            ? 'pl-4'
+            : 'pl-23'
       )}
     >
       {/* While the sidebar is open its toggle and the history arrows sit in

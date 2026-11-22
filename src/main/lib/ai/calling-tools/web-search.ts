@@ -89,9 +89,9 @@ export const webSearch = (
           recencyFilter: ws.recencyFilter,
           domainFilter: ws.domainFilter
             ? ws.domainFilter
-              .split(',')
-              .map((d) => d.trim())
-              .filter(Boolean)
+                .split(',')
+                .map((d) => d.trim())
+                .filter(Boolean)
             : null,
           deep,
           threshold: precision,
@@ -144,8 +144,8 @@ export const webSearch = (
 
       const result = searchQueue.then(search, search)
       searchQueue = result.then(
-        () => { },
-        () => { }
+        () => {},
+        () => {}
       )
       return result
     }

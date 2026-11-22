@@ -33,6 +33,8 @@ export class AppError extends Error {
     this.hasCustomMessage = message !== undefined
 
     if (Error.captureStackTrace) {
+      // The constructor argument removes concrete subclass constructor frames.
+      // oxlint-disable-next-line unicorn/no-useless-error-capture-stack-trace
       Error.captureStackTrace(this, this.constructor)
     }
   }

@@ -25,6 +25,8 @@ import { Button } from '@/components/ui/button'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { i18n, i18nReady } from '@/lib/i18n'
 import type { AgentData } from '@/stores/philharmonic'
+
+import { ReadingExample } from './reading'
 const client = new QueryClient({
   defaultOptions: { queries: { retry: false } }
 })
@@ -154,7 +156,9 @@ void i18nReady.then(() =>
           ) : (
             <main className="bg-background text-foreground min-h-screen p-8">
               <div className="mx-auto max-w-3xl">
-                {location.search.includes('computer-use') ? (
+                {location.search.includes('reading') ? (
+                  <ReadingExample />
+                ) : location.search.includes('computer-use') ? (
                   <ComputerUseExample />
                 ) : location.search.includes('iteration') ? (
                   <IterationExample />

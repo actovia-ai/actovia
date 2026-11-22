@@ -4,6 +4,7 @@ import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
 import type { LibraryItem } from '@actovia/shared/types/library'
 import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
+import type { PGliteInterface, Transaction } from '@electric-sql/pglite'
 import {
   and,
   asc,
@@ -37,6 +38,7 @@ import { recordSettingsWrite } from '../secrets/moved'
 import { SETTINGS_SECRET_PATHS } from '../secrets/registry'
 import { recordSettingsDecryptFailures } from '../secrets/status'
 import { settingsSecretValues } from '../secrets/values'
+import { importCsv, IMPORTABLE_TABLES, type CsvImport } from './csv-import'
 import { db, pglite } from './db'
 import {
   chat,
@@ -726,7 +728,9 @@ export async function updateSettingField(
   }
 }
 
-export async function resetAllData() {
+export async function resetAllData(
+  client: Pick<PGliteInterface | Transaction, 'query'> = pglite
+) {
   // Order matters for foreign key constraints — children before parents
   const tables = [
     'vote',
@@ -749,13 +753,22 @@ export async function resetAllData() {
   ]
 
   for (const table of tables) {
-    await pglite.query(`TRUNCATE "${table}" CASCADE`)
+    await client.query(`TRUNCATE "${table}" CASCADE`)
   }
 }
 
 export async function importData(tableName: string, blob: Blob) {
-  await pglite.query(`COPY "${tableName}" FROM '/dev/blob';`, [], {
-    blob
+  await importCsv(pglite, tableName, blob)
+}
+
+/** A failed import must leave the user's existing database intact. */
+export async function replaceImportedData(files: CsvImport[]) {
+  await pglite.transaction(async (tx) => {
+    await resetAllData(tx)
+    for (const tableName of IMPORTABLE_TABLES) {
+      const file = files.find((entry) => entry.tableName === tableName)
+      if (file) await importCsv(tx, tableName, file.blob)
+    }
   })
 }
 

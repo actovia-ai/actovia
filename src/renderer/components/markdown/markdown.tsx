@@ -25,6 +25,7 @@ import {
   rehypePluginsStable,
   remarkPluginsStable
 } from '@/lib/markdown-plugins'
+import { isDiffBlock } from '@/lib/unified-diff'
 import { cn } from '@/lib/utils'
 
 import {
@@ -36,6 +37,7 @@ import {
   InteractiveFence,
   MarkdownSourceContext
 } from '../chat/interactive/interactive-fence'
+import { CodeDiff } from './code-diff'
 import { xcodeDark, xcodeLight } from './code-themes'
 import { languageName } from './language-names'
 import {
@@ -57,7 +59,7 @@ const themes = {
 }
 
 // 13px in the app's mono stack (`font-mono`: SF Mono on a Mac), close enough
-// to the 16px body for mixed prose/code reports to stay readable,
+// to the 14px chat body for mixed prose/code reports to stay readable,
 // the code tag inheriting so the two never disagree; no background of its own
 // — the block's panel (`.markdown pre`) is the one background the header
 // strip and the code share (owner, 2026-10-06).
@@ -125,7 +127,24 @@ function useTextsAbove(blocks: string[]): string[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- ReactMarkdown component overrides use broad prop types
-function Pre({ className, children, node, ...rest }: any) {
+function Pre({ className, children, node, interactive = true, ...rest }: any) {
+  // A diff owns a file header and a scrollable pre. Do not nest its figure
+  // inside the ordinary code fence's pre, or apply prose rules to its rows.
+  const diff = node?.children?.some(
+    (child: {
+      tagName?: string
+      properties?: { className?: string[] }
+      children?: { value?: string }[]
+    }) =>
+      child.tagName === 'code' &&
+      isDiffBlock(
+        /language-([\w-]+)/u.exec(
+          child.properties?.className?.join(' ') ?? ''
+        )?.[1],
+        child.children?.map((part) => part.value ?? '').join('') ?? ''
+      )
+  )
+  if (diff) return <>{children}</>
   const pre = (
     <pre {...rest} className={className}>
       {children}
@@ -134,7 +153,7 @@ function Pre({ className, children, node, ...rest }: any) {
   // A reply's block — a questionnaire, a confirmation, steps or a chart: the
   // control, or this code when it is not the turn's block (see
   // interactive-fence.tsx).
-  const fence = fenceOf(node)
+  const fence = interactive ? fenceOf(node) : null
   return fence ? (
     <InteractiveFence
       kind={fence.kind}
@@ -205,6 +224,9 @@ export function Markdown({
         const language =
           /language-([\w-]+)/u.exec(className ?? '')?.[1] ??
           (String(children).endsWith('\n') ? 'text' : null)
+        if (language && isDiffBlock(language, String(children))) {
+          return <CodeDiff source={String(children).replace(/\n$/, '')} />
+        }
         return language ? (
           <>
             <section className="bg-code text-muted-foreground flex h-10 items-center justify-between px-4 font-sans text-xs">
@@ -269,11 +291,9 @@ export function Markdown({
           </WorkspacePathCode>
         )
       },
-      pre: interactive
-        ? Pre
-        : ({ children }: { children: React.ReactNode }) => (
-            <pre>{children}</pre>
-          ),
+      pre: (props: React.ComponentProps<typeof Pre>) => (
+        <Pre {...props} interactive={interactive} />
+      ),
       // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
       li({ className, node, children, ...rest }: any) {
         return (

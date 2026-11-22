@@ -1,6 +1,7 @@
 name: PR Check
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - master
@@ -61,7 +62,29 @@ jobs:
         # macos-26, not -latest: packaging compiles build/icon.icon (the Icon
         # Composer app icon) with actool, which needs macOS 26 + Xcode 26 and
         # fails the build rather than falling back to the .icns.
-        os: [macos-26, windows-latest, ubuntu-latest]
+        include:
+          - os: macos-26
+            platform: darwin
+            arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: windows-11-arm
+            platform: win32
+            arch: arm64
+          - os: ubuntu-24.04
+            platform: linux
+            arch: x64
+          - os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+
+    env:
+      npm_config_arch: ${{ matrix.arch }}
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Check out code
@@ -82,11 +105,26 @@ jobs:
 
       # Forge's deb / rpm makers shell out to dpkg+fakeroot and rpmbuild.
       - name: Install Linux packaging tools
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot rpm
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Build distributables
-        run: bun run make
+        run: bun run make --arch=${{ matrix.arch }}
+
+      - name: Verify packaged runtime architecture
+        if: matrix.platform != 'darwin'
+        run: node scripts/verify-package-architecture.mjs ${{ matrix.platform }} ${{ matrix.arch }}
+
+      - name: Upload test installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-installers-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            out/make/**/*.exe
+            out/make/**/*.dmg
+            out/make/**/*.deb
+            out/make/**/*.rpm
+          if-no-files-found: error

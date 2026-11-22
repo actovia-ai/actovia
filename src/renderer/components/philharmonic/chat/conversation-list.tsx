@@ -1,4 +1,3 @@
-import { IS_WEB_CLIENT } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import {
   SearchIcon,
@@ -62,6 +61,7 @@ import { NavFooter } from '@/layouts/chat-layout/nav-footer'
 import { makeFormatters } from '@/lib/format'
 import { i18n } from '@/lib/i18n'
 import { plainText } from '@/lib/plain-text'
+import { HAS_MAC_TRAFFIC_LIGHTS } from '@/lib/platform'
 import { cn } from '@/lib/utils'
 import type { AgentData, ConversationData } from '@/stores/philharmonic'
 
@@ -209,7 +209,7 @@ export function ConversationList({
         <div
           className={cn(
             'flex h-7 items-center gap-1 transition-[padding] duration-200 ease-out',
-            IS_WEB_CLIENT || isFullscreen ? 'pl-2' : 'pl-21'
+            !HAS_MAC_TRAFFIC_LIGHTS || isFullscreen ? 'pl-2' : 'pl-21'
           )}
         >
           <SidebarTrigger className="no-drag" />
@@ -256,7 +256,7 @@ export function ConversationList({
             })}
           </div>
         ) : (
-          <SidebarMenu className="px-2">
+          <SidebarMenu className="gap-0.5 px-2">
             {filtered.map((c) => {
               const isActive = activePage === 'chat' && c.id === activeId
               const preview = previewLine(c.latestMessage, agentsById)
@@ -354,7 +354,7 @@ export function ConversationList({
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenu>
+        <SidebarMenu className="gap-0.5">
           {configNav.map((item) => {
             const Icon = item.icon
             return (

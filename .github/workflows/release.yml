@@ -40,7 +40,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          NEXT_VERSION=$(npx semantic-release --dry-run --no-ci | grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' || true)
+          npx semantic-release --dry-run --no-ci | tee "$RUNNER_TEMP/next-release.log"
+          NEXT_VERSION=$(grep -oP 'The next release version is \K[0-9]+\.[0-9]+\.[0-9]+' "$RUNNER_TEMP/next-release.log" || true)
           echo "Next version: ${NEXT_VERSION:-<none — nothing to release>}"
           echo "version=$NEXT_VERSION" >> $GITHUB_OUTPUT
 
@@ -56,7 +57,23 @@ jobs:
         # macos-26, not -latest: packaging compiles build/icon.icon (the Icon
         # Composer app icon) with actool, which needs macOS 26 + Xcode 26 and
         # fails the build rather than falling back to the .icns.
-        os: [macos-26, windows-latest, ubuntu-latest]
+        include:
+          - os: macos-26
+            platform: darwin
+            arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+          - os: windows-11-arm
+            platform: win32
+            arch: arm64
+          # Keep the x64 and ARM64 Linux packaging baseline aligned (glibc/RPM).
+          - os: ubuntu-24.04
+            platform: linux
+            arch: x64
+          - os: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
 
     # Windows runners default to PowerShell, where `$NEXT_VERSION` is not the
     # environment variable (that is `$env:NEXT_VERSION`): the "Set package
@@ -76,6 +93,8 @@ jobs:
     env:
       HAS_MAC_CERT: ${{ secrets.MACOS_CERTIFICATE != '' }}
       HAS_NOTARY_KEY: ${{ secrets.APPLE_API_KEY_P8 != '' }}
+      HAS_WINDOWS_CERT: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
+      npm_config_arch: ${{ matrix.arch }}
 
     steps:
       - uses: actions/checkout@v4
@@ -93,10 +112,19 @@ jobs:
 
       # Forge's deb / rpm makers shell out to dpkg+fakeroot and rpmbuild.
       - name: Install Linux packaging tools
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.platform == 'linux'
         run: sudo apt-get update && sudo apt-get install -y dpkg fakeroot rpm
 
       - run: bun install --frozen-lockfile
+
+      # Host-native installs pull the matching DuckDB and agent helper binaries.
+      # A wrong runner architecture must fail here, not ship an emulated build.
+      - name: Verify native runtime architecture
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          node -e "if (process.arch !== process.env.EXPECTED_ARCH) throw new Error('Runner architecture mismatch: ' + process.arch)"
+          node -e "require('@duckdb/node-api')"
 
       # appdmg loads host-Node addons, not Electron runtime addons.
       # Load the whole engine before packaging/signing to verify their builds.
@@ -105,7 +133,7 @@ jobs:
         run: node -e "require('appdmg')"
 
       - name: Verify Windows Squirrel archive dependencies
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform == 'win32' && matrix.arch == 'x64'
         run: |
           node <<'NODE'
           const { accessSync } = require('node:fs');
@@ -113,6 +141,14 @@ jobs:
           const root = dirname(require.resolve('electron-winstaller/package.json'));
           for (const file of ['7z.exe', '7z.dll']) accessSync(join(root, 'vendor', file));
           NODE
+
+      - name: Prepare Windows signing certificate
+        if: matrix.platform == 'win32' && env.HAS_WINDOWS_CERT == 'true'
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+        run: |
+          printf '%s' "$WINDOWS_CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/windows-signing.pfx"
+          echo "WINDOWS_CERTIFICATE_FILE=$(cygpath -w "$RUNNER_TEMP/windows-signing.pfx")" >> "$GITHUB_ENV"
 
       # The version lives in package.json, which is what the makers stamp into
       # the installers; semantic-release commits the real bump afterwards.
@@ -168,14 +204,37 @@ jobs:
 
       # `make` = electron-forge make with data-testid stripped (see package.json).
       # Output: macOS ZIP + DMG (+ latest-mac.yml and the zip's .blockmap,
-      # electron-updater's feed — forge.config.ts postMake), Windows Squirrel (.exe/.nupkg/RELEASES),
+      # electron-updater's feed — forge.config.ts postMake), Windows NSIS (x64/ARM64)
+      # plus the legacy x64 Squirrel feed (.exe/.nupkg/RELEASES),
       # Linux .deb + .rpm — all under out/make/. The macOS build is signed and
       # notarized when the steps above ran, ad-hoc otherwise.
       - name: Build distributables
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        run: bun run make
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          WINDOWS_PUBLISHER_NAME: ${{ vars.WINDOWS_PUBLISHER_NAME }}
+        run: bun run make --arch=${{ matrix.arch }}
+
+      - name: Verify packaged runtime architecture
+        if: matrix.platform != 'darwin'
+        run: node scripts/verify-package-architecture.mjs ${{ matrix.platform }} ${{ matrix.arch }}
+
+      - name: Verify Windows signatures
+        if: matrix.platform == 'win32' && env.HAS_WINDOWS_CERT == 'true'
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem out/make -Recurse -Filter *.exe
+          if (!$files) { throw 'No Windows installers generated' }
+          foreach ($file in $files) {
+            $signature = Get-AuthenticodeSignature $file.FullName
+            if ($signature.Status -ne 'Valid') { throw "Invalid signature: $($file.Name) ($($signature.Status))" }
+          }
+
+      - name: Remove Windows signing certificate
+        if: always() && matrix.platform == 'win32' && env.HAS_WINDOWS_CERT == 'true'
+        run: rm -f "$RUNNER_TEMP/windows-signing.pfx"
 
       - name: Remove the signing keychain
         if: always() && matrix.os == 'macos-26' && env.HAS_MAC_CERT == 'true'
@@ -186,13 +245,16 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: electron-artifacts-${{ matrix.os }}
+          name: electron-artifacts-${{ matrix.platform }}-${{ matrix.arch }}
           path: |
             out/make/**/*.zip
             out/make/**/*.zip.blockmap
             out/make/**/latest-mac.yml
             out/make/**/*.dmg
             out/make/**/*.exe
+            out/make/**/*.exe.blockmap
+            out/make/**/latest.yml
+            out/make/**/latest-arm64.yml
             out/make/**/*.nupkg
             out/make/**/RELEASES
             out/make/**/*.deb
@@ -231,7 +293,15 @@ jobs:
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
-          find all-artifacts -type f -not -path "*/\.*" | xargs -I {} cp {} release-assets/
+          # Never silently overwrite an architecture's feed or installer.
+          while IFS= read -r -d '' asset; do
+            name=$(basename "$asset")
+            if [ -e "release-assets/$name" ]; then
+              echo "Duplicate release asset: $name" >&2
+              exit 1
+            fi
+            cp "$asset" "release-assets/$name"
+          done < <(find all-artifacts -type f -not -path "*/\.*" -print0)
           # `actovia app update` refuses a download these do not vouch for.
           (cd release-assets && sha256sum -- * > SHA256SUMS)
           ls -la release-assets

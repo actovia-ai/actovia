@@ -943,7 +943,7 @@ function Messages({
         className={cn(
           // A query container: a comparison takes its width from the chat
           // area (`cqw`), not from the reading column it stands in.
-          'no-scrollbar @container flex flex-1 flex-col items-center gap-8 overflow-y-scroll px-16 pt-[calc(1rem+var(--chat-header-inset,0rem))] transition-[padding] duration-200 ease-out [overflow-anchor:none]',
+          'no-scrollbar @container flex flex-1 flex-col items-center gap-8 overflow-y-scroll px-6 pt-[calc(1rem+var(--chat-header-inset,0rem))] transition-[padding] duration-200 ease-out [overflow-anchor:none]',
           // Room for the floating composer to clear the last message — but
           // only once it's floating (the landing screen keeps it in flow).
           // The height of the dock in `chat.tsx` (`--composer-dock`: its
@@ -960,7 +960,7 @@ function Messages({
           <div
             className={cn(
               ENTER_UP,
-              'mx-auto flex size-full max-w-3xl flex-col px-8',
+              'mx-auto flex size-full max-w-(--chat-measure) flex-col px-8',
               discoverHasContent
                 ? 'justify-start pt-4'
                 : 'justify-center md:mt-20'
@@ -983,7 +983,7 @@ function Messages({
           </div>
         )}
 
-        <div className="w-full md:max-w-3xl">
+        <div className="w-full max-w-(--chat-measure)">
           {showOlderSpinner && (
             <div
               className="text-muted-foreground flex justify-center pb-6"

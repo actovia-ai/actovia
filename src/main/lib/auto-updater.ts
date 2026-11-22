@@ -4,11 +4,12 @@ import { inspect, promisify } from 'node:util'
 
 import { ACTOVIA_REPO } from '@actovia/shared/constants/external-urls'
 import { app, autoUpdater, BrowserWindow } from 'electron'
-import { autoUpdater as macUpdater } from 'electron-updater'
+import { autoUpdater as nativeUpdater } from 'electron-updater'
 import { updateElectronApp } from 'update-electron-app'
 
 import { logger } from './logger'
 import { openExternalSafely } from './security'
+import { isSquirrelInstallation } from './windows-installation'
 
 const execFileAsync = promisify(execFile)
 
@@ -48,9 +49,14 @@ let payload: UpdaterPayload = {
 let autoUpdateEnabled = true
 let modeReady: Promise<UpdateMode> = Promise.resolve('auto')
 const RELEASES_LATEST_URL = `${ACTOVIA_REPO}/releases/latest`
-/** update-electron-app's own cadence, kept for macOS. */
+/** Periodic checks for macOS and NSIS Windows installations. */
 const CHECK_INTERVAL_MS = 10 * 60 * 1000
 const isMac = () => process.platform === 'darwin' && app.isPackaged
+const usesModernUpdater = () =>
+  isMac() ||
+  (process.platform === 'win32' &&
+    app.isPackaged &&
+    !isSquirrelInstallation(app.getPath('exe')))
 
 function broadcast() {
   BrowserWindow.getAllWindows().forEach((win) => {
@@ -88,7 +94,7 @@ export async function detectUpdateMode(): Promise<UpdateMode> {
 
 // Every step is logged: a packaged app has no console, and without this an
 // update that fails (or claims "up to date") leaves nothing to look at.
-const macUpdaterLogger = {
+const nativeUpdaterLogger = {
   info: (message?: unknown) =>
     logger.info('app', 'electron-updater', { message: String(message) }),
   warn: (message?: unknown) =>
@@ -100,7 +106,7 @@ const macUpdaterLogger = {
 }
 
 /**
- * macOS: electron-updater against the GitHub release's `latest-mac.yml`
+ * macOS and NSIS Windows: electron-updater against the GitHub release feed
  * (ISSUE-290). It downloads only the blocks of the zip that changed since the
  * zip it downloaded last (`.blockmap`, made by forge.config.ts's postMake), so
  * the first update after an install by hand is a whole download and the ones
@@ -108,45 +114,49 @@ const macUpdaterLogger = {
  * on quit. In `manual` mode (ad-hoc build) it only checks: nothing is
  * downloaded, and the panel's button opens the release page.
  */
-function startMacUpdater(mode: UpdateMode): void {
+function startNativeUpdater(mode: UpdateMode): void {
+  if (process.platform === 'win32' && process.arch === 'arm64') {
+    nativeUpdater.channel = 'latest-arm64'
+    nativeUpdater.allowDowngrade = false
+  }
   const [owner, repo] = new URL(ACTOVIA_REPO).pathname.slice(1).split('/')
   // ACTOVIA_UPDATE_FEED: a directory served over http holding latest-mac.yml,
   // the zip and its blockmap, for trying an update end to end before a
   // release. Squirrel.Mac still installs only a build that satisfies this
   // one's designated requirement (the team's signature), whatever the feed.
   const feed = process.env.ACTOVIA_UPDATE_FEED
-  macUpdater.setFeedURL(
+  nativeUpdater.setFeedURL(
     feed
       ? { provider: 'generic', url: feed }
       : { provider: 'github', owner, repo }
   )
-  macUpdater.logger = macUpdaterLogger
-  macUpdater.autoDownload = mode === 'auto' && autoUpdateEnabled
-  macUpdater.autoInstallOnAppQuit = mode === 'auto'
+  nativeUpdater.logger = nativeUpdaterLogger
+  nativeUpdater.autoDownload = mode === 'auto' && autoUpdateEnabled
+  nativeUpdater.autoInstallOnAppQuit = mode === 'auto'
 
-  macUpdater.on('checking-for-update', () => setState('checking'))
-  macUpdater.on('update-not-available', () => setState('up-to-date'))
-  macUpdater.on('update-available', (info) => {
+  nativeUpdater.on('checking-for-update', () => setState('checking'))
+  nativeUpdater.on('update-not-available', () => setState('up-to-date'))
+  nativeUpdater.on('update-available', (info) => {
     logger.info('app', 'Updater: update available', { version: info.version })
-    setState(macUpdater.autoDownload ? 'downloading' : 'available', {
+    setState(nativeUpdater.autoDownload ? 'downloading' : 'available', {
       availableVersion: info.version,
       downloadProgress: 0
     })
   })
-  macUpdater.on('download-progress', (progress) => {
+  nativeUpdater.on('download-progress', (progress) => {
     setState('downloading', { downloadProgress: Math.round(progress.percent) })
   })
-  macUpdater.on('update-downloaded', (info) => {
+  nativeUpdater.on('update-downloaded', (info) => {
     logger.info('app', 'Updater: update downloaded', { version: info.version })
     setState('ready', { availableVersion: info.version, downloadProgress: 100 })
   })
-  macUpdater.on('error', (err) => {
+  nativeUpdater.on('error', (err) => {
     logger.error('app', 'Updater: error', { error: err })
     setState('error', { errorMessage: err.message ?? 'Unknown error' })
   })
 
   const check = () => {
-    macUpdater.checkForUpdates().catch(() => {
+    nativeUpdater.checkForUpdates().catch(() => {
       // Reported through the 'error' event above.
     })
   }
@@ -211,12 +221,13 @@ function startSquirrel(): void {
 /**
  * Update flow, by platform:
  *
- * - macOS: electron-updater (`startMacUpdater`), in one of two modes. `auto`, a
+ * - macOS: electron-updater (`startNativeUpdater`), in one of two modes. `auto`, a
  *   build signed with the Developer ID: downloads by itself, with progress, and
  *   installs on quit or on "Restart & Install". `manual`, an ad-hoc build:
  *   Squirrel.Mac can never validate an update for it, so it only checks, and
  *   `updaterDownload()` opens the release page.
- * - Windows: Electron's `autoUpdater` (Squirrel.Windows) against
+ * - Windows NSIS: electron-updater with latest.yml / latest-arm64.yml.
+ * - Legacy Windows: Electron's `autoUpdater` (Squirrel.Windows) against
  *   update.electronjs.org, wired by `update-electron-app`. Squirrel downloads by
  *   itself and reports no progress, so an update goes straight to
  *   `downloading` (indeterminate) and then `ready`.
@@ -234,14 +245,14 @@ export function setupAutoUpdater(autoUpdate = true): void {
     return mode
   })
   void modeReady.then((mode) => {
-    if (isMac()) {
+    if (usesModernUpdater()) {
       if (mode === 'manual') {
         logger.info(
           'app',
           'Updater: this build has no stable code signature, so Squirrel cannot validate updates; checking only, the release page installs'
         )
       }
-      startMacUpdater(mode)
+      startNativeUpdater(mode)
     } else {
       startSquirrel()
     }
@@ -270,9 +281,9 @@ export async function updaterCheck(): Promise<void> {
     version: app.getVersion(),
     mode
   })
-  if (isMac()) {
-    macUpdater.autoDownload = mode === 'auto'
-    await macUpdater.checkForUpdates().catch(() => {
+  if (usesModernUpdater()) {
+    nativeUpdater.autoDownload = mode === 'auto'
+    await nativeUpdater.checkForUpdates().catch(() => {
       // Reported through the 'error' event.
     })
     return
@@ -298,15 +309,15 @@ export function updaterDownload(): void {
     openExternalSafely(RELEASES_LATEST_URL)
     return
   }
-  if (isMac()) {
-    macUpdater.downloadUpdate().catch(() => {
+  if (usesModernUpdater()) {
+    nativeUpdater.downloadUpdate().catch(() => {
       // Reported through the 'error' event.
     })
   }
 }
 
 export function updaterInstall(): void {
-  if (isMac()) macUpdater.quitAndInstall()
+  if (usesModernUpdater()) nativeUpdater.quitAndInstall()
   else autoUpdater.quitAndInstall()
 }
 
@@ -318,5 +329,6 @@ export function updaterInstall(): void {
  */
 export function updaterSetAutoDownload(enable: boolean): void {
   autoUpdateEnabled = enable
-  if (isMac()) macUpdater.autoDownload = enable && payload.mode === 'auto'
+  if (usesModernUpdater())
+    nativeUpdater.autoDownload = enable && payload.mode === 'auto'
 }

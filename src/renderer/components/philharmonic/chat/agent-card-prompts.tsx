@@ -12,6 +12,7 @@ import {
   CHOICE_ROW,
   ChoiceIndicator
 } from '@/components/chat/interactive/static-choice'
+import { CodeDiff } from '@/components/markdown/code-diff'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/toast'
@@ -80,9 +81,13 @@ export function PermissionPrompt({
         )}
       </p>
       {/* Everything the owner is approving, whole — never clipped. */}
-      <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">
-        {prompt.detail}
-      </pre>
+      {/^@@ -\d|^diff --git /mu.test(prompt.detail) ? (
+        <CodeDiff source={prompt.detail} />
+      ) : (
+        <pre className="bg-background/60 max-h-64 overflow-auto rounded-lg p-2 font-mono text-xs wrap-anywhere whitespace-pre-wrap">
+          {prompt.detail}
+        </pre>
+      )}
       {/* Codex's decline carries no words, so it is not asked for one. */}
       {card.runtime === 'claude-code' && (
         <Input

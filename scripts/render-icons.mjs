@@ -16,6 +16,10 @@ if (!existsSync(renderer)) {
   )
   process.exit(1)
 }
-execFileSync(process.execPath, [renderer, '--app-root', appRoot], {
-  stdio: 'inherit'
-})
+execFileSync(
+  process.execPath,
+  [renderer, '--app-root', appRoot, ...process.argv.slice(2)],
+  {
+    stdio: 'inherit'
+  }
+)

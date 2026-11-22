@@ -8,6 +8,7 @@ vi.mock('@main/lib/backup', () => ({ createAutoBackup: vi.fn(async () => {}) }))
 vi.mock('@main/lib/db/queries', () => ({
   exportData: vi.fn(),
   importData: vi.fn(async () => {}),
+  replaceImportedData: vi.fn(async () => {}),
   resetAllData: vi.fn(async () => {})
 }))
 vi.mock('@main/lib/logger', () => ({
@@ -22,7 +23,8 @@ const forgetAllMovedSecrets = vi.fn()
 vi.mock('@main/lib/secrets/moved', () => ({ forgetAllMovedSecrets }))
 
 const { default: dbIo } = await import('@main/lib/server/routes/db-io')
-const { importData, resetAllData } = await import('@main/lib/db/queries')
+const { importData, replaceImportedData, resetAllData } =
+  await import('@main/lib/db/queries')
 
 function buildApp() {
   const app = new Hono()
@@ -114,6 +116,9 @@ describe('imports', () => {
       body
     })
     expect(res.status).toBe(200)
-    expect(vi.mocked(importData).mock.calls.map((c) => c[0])).toEqual(['chat'])
+    expect(vi.mocked(replaceImportedData)).toHaveBeenCalledWith([
+      { tableName: 'chat', blob: expect.any(Blob) }
+    ])
+    expect(resetAllData).not.toHaveBeenCalled()
   })
 })

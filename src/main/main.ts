@@ -45,6 +45,7 @@ import { getServer, setServer } from './lib/server/instance'
 import { onSecondInstance } from './lib/single-instance'
 import { destroyTray, setTray } from './lib/tray'
 import { createWindow, raiseMainWindow } from './lib/window'
+import { isSquirrelInstallation } from './lib/windows-installation'
 
 declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined
 declare const MAIN_WINDOW_VITE_NAME: string
@@ -92,10 +93,18 @@ app.on('ready', async () => {
   // otherwise, see paths.ts) — the first thing to check if data seems missing.
   logger.info('app', 'Data directory', {
     dir: getActoviaHome(),
-    packaged: app.isPackaged
+    packaged: app.isPackaged,
+    platform: process.platform,
+    arch: process.arch
   })
 
-  app.setAppUserModelId('app.yancey.actovia')
+  // Must match Squirrel's shortcut AUMID, otherwise Windows cannot group the
+  // running window with its pinned shortcut or resolve its taskbar icon.
+  app.setAppUserModelId(
+    process.platform === 'win32' && isSquirrelInstallation(app.getPath('exe'))
+      ? 'com.squirrel.actovia.Actovia'
+      : 'app.yancey.actovia'
+  )
 
   // Must run before setupIPC() / createWindow() — both assume the schema
   // is already migrated once a renderer can issue DB queries.

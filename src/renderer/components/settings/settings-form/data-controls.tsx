@@ -73,7 +73,7 @@ export function DataControls() {
 
   const handleImportConfirm = async () => {
     if (!selectedFile) return
-    await importData(selectedFile)
+    if (!(await importData(selectedFile))) return
     setImportDialogOpen(false)
     setSelectedFile(null)
   }

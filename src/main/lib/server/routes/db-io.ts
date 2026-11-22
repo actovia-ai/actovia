@@ -8,7 +8,13 @@ import JSZip from 'jszip'
 
 import { forgetAllQuotas } from '../../agents/quota'
 import { createAutoBackup } from '../../backup'
-import { exportData, importData, resetAllData } from '../../db/queries'
+import { IMPORTABLE_TABLES, type CsvImport } from '../../db/csv-import'
+import {
+  exportData,
+  importData,
+  replaceImportedData,
+  resetAllData
+} from '../../db/queries'
 import { removeAllMedia } from '../../media/store'
 import { forgetAllMovedSecrets } from '../../secrets/moved'
 import { importDataSchema } from '../schemas/db-io'
@@ -38,7 +44,7 @@ const tableNames = [
  * bound to it), and a crafted one could carry anything — neither may land in
  * `settings`, `mcp_server` or `paired_device` as if it were this machine's.
  */
-const importableTables = new Set(tableNames.filter((t) => t !== 'settings'))
+const importableTables = new Set<string>(IMPORTABLE_TABLES)
 
 async function createZipFromBlobs(
   files: { filename: string; arraybuffer: ArrayBuffer }[]
@@ -116,23 +122,30 @@ dbIo.post('/import-all', async (c) => {
     throw new DatabaseError(ErrorCode.DB_QUERY_FAILED, 'No file uploaded')
   }
 
-  // Safety backup before import
-  await createAutoBackup()
-
   const zip = await JSZip.loadAsync(await file.arrayBuffer())
-
-  // Clear existing data
-  await resetAllData()
-
-  // Import each CSV found in the ZIP
+  const files: CsvImport[] = []
+  // Read and validate the archive before backing up or changing any data.
   for (const [fileName, zipEntry] of Object.entries(zip.files)) {
     if (!fileName.endsWith('.csv') || zipEntry.dir) continue
     const tableName = fileName.replace('.csv', '')
     // Settings, or a table an export never writes.
     if (!importableTables.has(tableName)) continue
-    const csvBlob = new Blob([await zipEntry.async('arraybuffer')])
-    await importData(tableName, csvBlob)
+    files.push({
+      tableName,
+      blob: new Blob([await zipEntry.async('arraybuffer')])
+    })
   }
+  if (!files.some((entry) => entry.tableName === 'chat')) {
+    throw new ValidationError(
+      ErrorCode.VALIDATION_FAILED,
+      'The archive does not contain chat.csv'
+    )
+  }
+  await createAutoBackup()
+  await handleDatabaseOperation(
+    () => replaceImportedData(files),
+    'Failed to import data'
+  )
 
   return successResponse(c, { success: true })
 })

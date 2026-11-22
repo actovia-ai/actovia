@@ -79,7 +79,7 @@ bun run dev              # Start the dev build via electron-forge (Vite dev serv
 
 ```bash
 bun run package          # Package the app for the current platform into out/ (keeps data-testid markers — e2e needs them)
-bun run make             # Build installers/archives (Squirrel, ZIP, DMG, deb, rpm); strips data-testid (STRIP_TEST_IDS=1)
+bun run make             # Build installers/archives (Windows NSIS + legacy Squirrel, ZIP, DMG, deb, rpm); strips data-testid (STRIP_TEST_IDS=1)
 bun run publish          # Publish a release to GitHub (needs GITHUB_TOKEN)
 ```
 
@@ -144,7 +144,7 @@ Actovia uses a three-process architecture:
    - Runs Hono HTTP server on `localhost:60223` (constant `SERVER_PORT` in `packages/shared/src/constants/systems.ts`)
    - Initializes PGlite database with pgvector extension
    - Connects the active MCP servers on demand — each chat request (and each Philharmonic employee loop) calls `getMcpTools()` (`src/main/lib/ai/mcp.ts`, a 5-minute per-server cache); nothing connects at startup
-   - Handles updates (`src/main/lib/auto-updater.ts`, which keeps the state machine the renderer's update panel speaks): electron-updater with blockmap downloads on macOS (a release-page link for an unsigned build), Squirrel via `update-electron-app` on Windows — see "Updates and code signing"
+   - Handles updates (`src/main/lib/auto-updater.ts`, which keeps the state machine the renderer's update panel speaks): electron-updater with blockmap downloads on macOS (a release-page link for an unsigned build), NSIS via electron-updater on Windows (legacy Squirrel installations keep `update-electron-app`) — see "Updates and code signing"
 
 2. **Renderer Process** (`src/renderer/`):
    - React 19 application with React Router v7
@@ -294,8 +294,12 @@ in the payload the panel receives):
   the zip to Squirrel.Mac. It downloads only the blocks of the zip that
   changed since the zip it downloaded last (the zip's `.blockmap`), so the
   first update after an install by hand is a whole download and the ones
-  after it are not. Windows stays on Squirrel through `update-electron-app`
-  (update.electronjs.org), which reports no progress.
+  after it are not. New Windows installations use an NSIS wizard and
+  electron-updater, with `latest.yml` (x64) or `latest-arm64.yml` (ARM64).
+  Existing Squirrel installations retain `update-electron-app`
+  (update.electronjs.org), which reports no progress. See
+  [Windows distribution](docs/windows-distribution.md) for architecture-specific
+  artifacts, signing and installer compatibility.
 - **`manual`** — a mac build with an ad-hoc or missing signature: the same
   electron-updater, checking only (at launch and on a manual check, no
   download); the panel's button opens the GitHub releases page

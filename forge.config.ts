@@ -5,7 +5,6 @@ import { join, resolve } from 'node:path'
 import { MakerDeb } from '@electron-forge/maker-deb'
 import { MakerDMG } from '@electron-forge/maker-dmg'
 import { MakerRpm } from '@electron-forge/maker-rpm'
-import { MakerSquirrel } from '@electron-forge/maker-squirrel'
 import { MakerZIP } from '@electron-forge/maker-zip'
 import { AutoUnpackNativesPlugin } from '@electron-forge/plugin-auto-unpack-natives'
 import { FusesPlugin } from '@electron-forge/plugin-fuses'
@@ -21,6 +20,11 @@ import { APP_DISPLAY_NAME } from './packages/shared/src/constants/brand'
 import { writeMacUpdateFeed } from './scripts/mac-update-feed'
 import { runtimePackagePaths } from './scripts/runtime-package-paths'
 import { WebEntryPlugin } from './scripts/web-entry-plugin'
+import {
+  LegacySquirrelMaker,
+  WindowsWizardMaker,
+  windowsSigningOptions
+} from './scripts/windows-makers'
 
 // WebAuthn stays external, so ship its real dependency tree, including both
 // ASN.1 major versions. Keeping only the top-level package breaks installed apps.
@@ -28,6 +32,14 @@ const webAuthnPackages = runtimePackagePaths(
   ['@simplewebauthn/server'],
   resolve('.')
 )
+
+// Forge's type omits specTemplate, which electron-installer-redhat supports.
+// The absolute staging path in our template works with RPM's isolated builddir.
+const linuxRpmOptions = {
+  bin: APP_DISPLAY_NAME,
+  productName: APP_DISPLAY_NAME,
+  specTemplate: resolve('build/rpm-spec.ejs')
+}
 
 // macOS signing is switched on by the environment, so a build without it
 // (`bun run package` for e2e, a fork's CI) stays ad-hoc and still valid (see
@@ -85,6 +97,11 @@ const config: ForgeConfig = {
     name: APP_DISPLAY_NAME,
     executableName: process.platform === 'win32' ? 'Actovia' : APP_DISPLAY_NAME,
     appBundleId: 'app.yancey.actovia',
+    // Packager and winstaller depend on two windows-sign versions whose hash
+    // enums are nominally different; the runtime options are identical.
+    windowsSign: windowsSigningOptions() as NonNullable<
+      ForgeConfig['packagerConfig']
+    >['windowsSign'],
     appCategoryType: 'public.app-category.utilities',
     // macOS permission prompts' purpose strings (carried over from
     // universal-client's electron-builder `mac.extendInfo`). Under the
@@ -210,7 +227,14 @@ const config: ForgeConfig = {
     }
   },
   makers: [
-    new MakerSquirrel({ setupIcon: './build/icon.ico' }),
+    new LegacySquirrelMaker({
+      setupIcon: './build/icon.ico',
+      loadingGif: './build/installer-loading.gif',
+      iconUrl:
+        'https://raw.githubusercontent.com/actovia-ai/actovia/master/build/icon.ico',
+      windowsSign: windowsSigningOptions()
+    }),
+    new WindowsWizardMaker(),
     // ZIP feeds the auto-updater (electron-updater, through latest-mac.yml and
     // the zip's blockmap — see postMake) and `actovia app update`; the DMG is
     // what people download.
@@ -239,7 +263,7 @@ const config: ForgeConfig = {
     // makers default `bin` to package.json's `name` ("actovia") and fail with
     // "could not find the Electron app binary" — Linux paths are case-sensitive.
     new MakerRpm({
-      options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }
+      options: linuxRpmOptions
     }),
     new MakerDeb({
       options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }

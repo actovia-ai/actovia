@@ -44,6 +44,10 @@ type MacUpdaterMock = EventEmitter & {
 }
 
 const updateElectronApp = vi.fn()
+const installation = vi.hoisted(() => ({ squirrel: true }))
+vi.mock('@main/lib/windows-installation', () => ({
+  isSquirrelInstallation: () => installation.squirrel
+}))
 vi.mock('update-electron-app', () => ({
   updateElectronApp: (opts: unknown) => updateElectronApp(opts)
 }))
@@ -112,6 +116,7 @@ beforeEach(async () => {
   updater.autoDownload = true
   updater.autoInstallOnAppQuit = true
   electronApp.isPackaged = true
+  installation.squirrel = true
   setPlatform('darwin')
   codesign.run.mockResolvedValue({ stdout: '', stderr: DEVELOPER_ID })
 })
@@ -338,6 +343,55 @@ describe('macOS, an ad-hoc build (electron-updater, manual)', () => {
 
     expect(codesign.run).not.toHaveBeenCalled()
     expect(updater.checkForUpdates).not.toHaveBeenCalled()
+    expect(updateElectronApp).not.toHaveBeenCalled()
+  })
+})
+
+describe('Windows NSIS', () => {
+  const realArch = process.arch
+  beforeEach(() => {
+    setPlatform('win32')
+    installation.squirrel = false
+  })
+  afterEach(() =>
+    Object.defineProperty(process, 'arch', {
+      value: realArch,
+      configurable: true
+    })
+  )
+
+  it('uses electron-updater and its install flow for new wizard installations', async () => {
+    const updater = await mac()
+    const {
+      setupAutoUpdater,
+      updaterGetState,
+      updaterInstall,
+      updaterSetAutoDownload
+    } = await load()
+    setupAutoUpdater(true)
+    await settle()
+    expect(updater.setFeedURL).toHaveBeenCalled()
+    expect(updateElectronApp).not.toHaveBeenCalled()
+    updater.emit('update-downloaded', { version: '3.0.0' })
+    expect(updaterGetState().state).toBe('ready')
+    updaterInstall()
+    expect(updater.quitAndInstall).toHaveBeenCalledOnce()
+    updaterSetAutoDownload(false)
+    expect(updater.autoDownload).toBe(false)
+  })
+
+  it('uses the ARM64 update channel on Windows ARM64', async () => {
+    Object.defineProperty(process, 'arch', {
+      value: 'arm64',
+      configurable: true
+    })
+    const updater = await mac()
+    const { setupAutoUpdater } = await load()
+    setupAutoUpdater(true)
+    await settle()
+    expect((updater as MacUpdaterMock & { channel?: string }).channel).toBe(
+      'latest-arm64'
+    )
     expect(updateElectronApp).not.toHaveBeenCalled()
   })
 })
