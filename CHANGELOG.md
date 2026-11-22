@@ -1,3 +1,11 @@
+# [2.10.0](https://github.com/actovia-ai/actovia/compare/v2.9.2...v2.10.0) (2026-11-22)
+
+
+### Features
+
+* refine desktop workflows and iOS companion support ([e16181d](https://github.com/actovia-ai/actovia/commit/e16181dda74829deea05ada84399f251e1cb835c))
+* ship Windows and Linux ARM64 installers ([85b26ef](https://github.com/actovia-ai/actovia/commit/85b26efd1836c77b32906f3dc37c06aa0ba8d279))
+
 ## [2.9.2](https://github.com/actovia-ai/actovia/compare/v2.9.1...v2.9.2) (2026-11-16)
 
 
