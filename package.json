@@ -206,7 +206,7 @@
     "unified": "^11.0.5",
     "vaul": "^1.1.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "productName": "Actovia",
   "trustedDependencies": [
