@@ -43,7 +43,7 @@
         "@tanstack/react-query": "^5.107.1",
         "agent-browser": "0.43.0",
         "agent-desktop": "1.3.1",
-        "asn1js": "^4.0.0",
+        "asn1js": "^4.1.0",
         "border-beam": "^1.4.1",
         "cheerio": "^1.2.0",
         "class-variance-authority": "^0.7.1",
@@ -1256,7 +1256,7 @@
 
     "array-ify": ["array-ify@1.0.0", "", {}, "sha512-c5AMf34bKdvPhQ7tBGhqkgKNUzMr4WUs+WDtC2ZUGOUncbxKMTvqxYctiseW3+L4bA8ec+GcZ6/A/FW4m8ukng=="],
 
-    "asn1js": ["asn1js@4.0.0", "", { "dependencies": { "@peculiar/utils": "^4.1.0" } }, "sha512-81NlooYbXCbBWL2+p1/ivGyT4AR2+bnfKYlPq/3rCoIPJSuLbdS8G70XYt561wOJnbaYfBS2HQDMENaX5hM2vA=="],
+    "asn1js": ["asn1js@4.1.0", "", { "dependencies": { "@peculiar/utils": "^4.1.0" } }, "sha512-kcL7adqQpfp+n+18Hh43X5bmN97JSULs26OpJSycfQA6pWXxxPUgMZc+SqfmB3im32zno+u2qxCd7fTJxVai+A=="],
 
     "assertion-error": ["assertion-error@2.0.1", "", {}, "sha512-Izi8RQcffqCeNVgFigKli1ssklIbpHnCYc6AknXGYoB6grJqyeby7jv12JUQgmTAnIDnbck1uxksT4dzN3PWBA=="],
 
