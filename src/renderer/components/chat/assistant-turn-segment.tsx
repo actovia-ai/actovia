@@ -4,6 +4,7 @@ import type { WebSearchResult } from '@actovia/shared/types/web-search'
 import { memo, type ReactNode, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useRunApprovals } from '@/hooks/use-approvals'
 import { ENTER } from '@/lib/motion'
 import { toolLabel } from '@/lib/tool-label'
 import { cn } from '@/lib/utils'
@@ -207,6 +208,9 @@ export const AssistantTurnSegment = memo(
     answerable = true
   }: AssistantTurnSegmentProps) {
     const { t } = useTranslation('chat')
+    const approvals = useRunApprovals(chatId, turn.runId)
+    const waitingForApproval =
+      isStreaming && approvals.some((approval) => approval.state === 'pending')
     // The turn's own searches drive the per-turn "Sources" panel; the
     // cumulative set drives inline citation badges.
     const ownSources =
@@ -240,6 +244,7 @@ export const AssistantTurnSegment = memo(
               steps={turn.steps}
               durationMs={turn.durationMs}
               isStreaming={isStreaming && turn.body.length === 0}
+              waitingForApproval={waitingForApproval}
             />
           )}
 

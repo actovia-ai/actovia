@@ -17,7 +17,8 @@ import {
   FolderOpenIcon,
   Link01Icon,
   Wrench01Icon,
-  CancelCircleIcon
+  CancelCircleIcon,
+  Clock01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { memo, useMemo, useState } from 'react'
@@ -59,6 +60,7 @@ interface ThinkingTimelineProps {
   steps: TimelineStep[]
   durationMs: number
   isStreaming: boolean
+  waitingForApproval?: boolean
 }
 
 type StepStatus = 'complete' | 'active' | 'pending'
@@ -273,7 +275,8 @@ export function ThinkingTimeline({
   chatId,
   steps,
   durationMs,
-  isStreaming
+  isStreaming,
+  waitingForApproval = false
 }: ThinkingTimelineProps) {
   const reduceMotion = useReducedMotion()
   const { t } = useTranslation('chat')
@@ -298,12 +301,14 @@ export function ThinkingTimeline({
     ? t('thinkingTimeline.thought')
     : t('thinkingTimeline.worked')
   const duration = formatDuration(durationMs)
-  const headerText = isStreaming
-    ? latestTitle
-    : duration
-      ? t('thinkingTimeline.thoughtFor', { verb, duration })
-      : verb
-  const icon = headerIcon(isStreaming, hasThinking)
+  const headerText = waitingForApproval
+    ? t('toast.approvalTitle')
+    : isStreaming
+      ? latestTitle
+      : duration
+        ? t('thinkingTimeline.thoughtFor', { verb, duration })
+        : verb
+  const icon = headerIcon(isStreaming && !waitingForApproval, hasThinking)
 
   // AI Elements' chain of thought, on shadcn's Trace: the header is one line
   // that opens on the steps, each a line of its own under the rule the
@@ -313,10 +318,18 @@ export function ThinkingTimeline({
     <Trace className="mb-3 max-w-full min-w-0">
       <TraceCollapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <TraceCollapsibleTrigger data-testid={TEST_IDS.chat.timelineToggle}>
-          <TraceLine status={isStreaming ? 'running' : undefined}>
+          <TraceLine
+            status={isStreaming && !waitingForApproval ? 'running' : undefined}
+          >
             {/* The orb draws at 20px only; the check sits in the same box. */}
             <TraceIcon className="size-5">
-              {icon === 'live' ? (
+              {waitingForApproval ? (
+                <HugeiconsIcon
+                  icon={Clock01Icon}
+                  strokeWidth={2}
+                  aria-hidden="true"
+                />
+              ) : icon === 'live' ? (
                 <ThinkingOrb
                   state="working"
                   size={20}
@@ -346,7 +359,9 @@ export function ThinkingTimeline({
               reorder or get removed while visible), so index keys are safe here. */}
           {steps.map((step, i) => {
             const status: StepStatus =
-              isStreaming && i === steps.length - 1 ? 'active' : 'complete'
+              isStreaming && !waitingForApproval && i === steps.length - 1
+                ? 'active'
+                : 'complete'
             return (
               <TimelineStepRow key={i} step={step} status={status}>
                 <div className="min-w-0 text-sm leading-relaxed wrap-break-word [&_h1]:text-sm [&_h2]:text-sm [&_h3]:text-sm [&_h4]:text-sm [&_ol]:my-0.5 [&_p]:my-0.5 [&_p:first-child]:mt-0 [&_ul]:my-0.5">

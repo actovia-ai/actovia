@@ -53,6 +53,10 @@ declare const MAIN_WINDOW_VITE_NAME: string
 // Before `ready`: a scheme can only be made privileged up front.
 registerArtifactScheme()
 
+// Both Linux makers install actovia.desktop. Match Wayland's app_id and
+// X11's WM_CLASS to it so GNOME resolves the installed brand icon.
+if (process.platform === 'linux') app.setDesktopName('actovia.desktop')
+
 // The runtime name stays "Actovia" (Keychain item, userData, lock); only what a
 // person sees says Actovia.
 app.setAboutPanelOptions({

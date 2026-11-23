@@ -510,6 +510,7 @@ chat.post('/', async (c) => {
 
   const recorder = new RunRecorder({
     chatId: id,
+    promptTimestamp: userMessage.timestamp,
     model,
     lcm: lcm
       ? {

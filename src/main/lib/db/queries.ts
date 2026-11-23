@@ -4,6 +4,7 @@ import type { ChatContextSnapshot } from '@actovia/shared/types/chat-context'
 import type { ChatSearchResult } from '@actovia/shared/types/chat-search'
 import type { LibraryItem } from '@actovia/shared/types/library'
 import { chatHistoryCursor } from '@actovia/shared/utils/chat-history-cursor'
+import { orderMessagesByRun } from '@actovia/shared/utils/run-order'
 import type { PGliteInterface, Transaction } from '@electric-sql/pglite'
 import {
   and,
@@ -244,11 +245,12 @@ export async function saveMessages({
 
 export async function getMessagesByChatId({ id }: { id: string }) {
   try {
-    return await db
+    const rows = await db
       .select()
       .from(message)
       .where(eq(message.chatId, id))
       .orderBy(asc(message.createdAt))
+    return orderMessagesByRun(rows)
   } catch (error) {
     logDbError('Failed to get messages by chat id', error)
     throw error

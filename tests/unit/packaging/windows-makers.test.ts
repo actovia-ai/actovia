@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { validateConfiguration } from 'app-builder-lib/out/util/config/config'
 import { DebugLogger } from 'builder-util'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -21,6 +23,11 @@ describe('Windows installer configuration', () => {
         allowToChangeInstallationDirectory: true,
         deleteAppDataOnUninstall: false
       })
+      const include = readFileSync(config.nsis!.include!, 'utf8')
+      expect(include).toContain('ManifestDPIAware true')
+      const sidebar = readFileSync(config.nsis!.installerSidebar!)
+      expect(sidebar.readInt32LE(18)).toBe(492)
+      expect(sidebar.readInt32LE(22)).toBe(942)
       expect(config.win?.requestedExecutionLevel).toBe('asInvoker')
       expect(config.publish).toMatchObject({
         channel: arch === 'arm64' ? 'latest-arm64' : 'latest'

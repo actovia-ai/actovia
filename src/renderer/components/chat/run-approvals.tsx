@@ -5,19 +5,20 @@ import {
   Clock01Icon,
   MultiplicationSignCircleIcon,
   StopIcon,
-  Key01Icon
+  Key01Icon,
+  ArrowRight01Icon
 } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { memo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { StatusStrip } from '@/components/app/status-strip'
 import { Button } from '@/components/ui/button'
 import {
   type RunApproval,
   useDecideApproval,
   useRunApprovals
 } from '@/hooks/use-approvals'
+import { toolLabel } from '@/lib/tool-label'
 import { isTrustedActivation } from '@/lib/trusted-input'
 
 const ICON = 'size-3.5 shrink-0'
@@ -41,9 +42,20 @@ function ApprovalSummary({ approval }: { approval: RunApproval }) {
   const { t } = useTranslation('chat')
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <code className="bg-muted/60 text-2xs max-h-40 overflow-y-auto rounded-md px-2 py-1 font-mono break-all whitespace-pre-wrap">
-        {approval.summary}
-      </code>
+      <pre
+        role="region"
+        aria-label={
+          isCommandSummary(approval)
+            ? t('approval.commandHint')
+            : t('approval.fileHint')
+        }
+        tabIndex={0}
+        className="bg-muted/60 text-foreground focus-visible:ring-ring max-h-40 overflow-y-auto rounded-lg px-3 py-2 text-xs leading-relaxed outline-none focus-visible:ring-2"
+      >
+        <code className="font-mono break-all whitespace-pre-wrap">
+          {approval.summary}
+        </code>
+      </pre>
       {approval.truncated ? (
         <p className="text-muted-foreground text-2xs">
           {t('approval.truncatedNote', { count: approval.hiddenChars ?? 0 })}
@@ -52,6 +64,9 @@ function ApprovalSummary({ approval }: { approval: RunApproval }) {
     </div>
   )
 }
+
+const isCommandSummary = (approval: RunApproval) =>
+  approval.toolName === TOOL_NAMES.terminal
 
 /**
  * The foot of a run whose tool call touched a secret outside Actovia (an SSH
@@ -145,15 +160,29 @@ function ApprovalCard({
       }
     }[state]
     return (
-      <StatusStrip
-        role="status"
+      <details
         data-testid={TEST_IDS.chat.approval.state}
         data-state={state}
-        icon={settled.icon}
+        className="group/approval text-muted-foreground max-w-full min-w-0 text-xs"
       >
-        <span className="shrink-0">{settled.label}</span>
-        <ApprovalSummary approval={approval} />
-      </StatusStrip>
+        <summary
+          data-testid={TEST_IDS.chat.approval.details}
+          className="hover:text-foreground focus-visible:ring-ring flex w-fit max-w-full cursor-pointer list-none items-center gap-2 rounded-md py-1 outline-none focus-visible:ring-2 [&::-webkit-details-marker]:hidden"
+        >
+          {settled.icon}
+          <span role="status">{settled.label}</span>
+          <span aria-hidden="true">·</span>
+          <span>{toolLabel(approval.toolName)}</span>
+          <HugeiconsIcon
+            icon={ArrowRight01Icon}
+            className="size-3.5 shrink-0 transition-transform group-open/approval:rotate-90"
+            aria-hidden="true"
+          />
+        </summary>
+        <div className="mt-1.5">
+          <ApprovalSummary approval={approval} />
+        </div>
+      </details>
     )
   }
 
@@ -161,45 +190,53 @@ function ApprovalCard({
     decide.mutate({ runId, toolCallId: approval.toolCallId, decision })
 
   return (
-    <StatusStrip
+    <section
       role="group"
       aria-label={t('approval.title')}
       data-testid={TEST_IDS.chat.approval.card}
-      icon={<HugeiconsIcon icon={Key01Icon} className={ICON} />}
-      className="text-foreground"
-      details={
-        <div className="flex flex-col gap-2 pt-2 pl-5.5">
-          <p className="text-muted-foreground">
+      className="border-border bg-background text-foreground w-full min-w-0 rounded-xl border p-4 text-sm"
+    >
+      <div className="flex items-start gap-2.5">
+        <HugeiconsIcon
+          icon={Key01Icon}
+          className="mt-0.5 size-4 shrink-0"
+          aria-hidden="true"
+        />
+        <div className="min-w-0 flex-1">
+          <p role="status" className="font-medium">
+            {t('toast.approvalTitle')}
+          </p>
+          <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
             {isCommand ? t('approval.commandHint') : t('approval.fileHint')}
           </p>
-          <ApprovalSummary approval={approval} />
-          <div className="flex gap-2">
-            <Button
-              size="xs"
-              data-testid={TEST_IDS.chat.approval.allow}
-              disabled={decide.isPending || !armed}
-              onClick={(event) => {
-                // A script in the page (`el.click()`) never allows.
-                if (!isTrustedActivation(event)) return
-                answer('allow')
-              }}
-            >
-              {t('approval.allow')}
-            </Button>
-            <Button
-              size="xs"
-              variant="outline"
-              data-testid={TEST_IDS.chat.approval.deny}
-              disabled={decide.isPending}
-              onClick={() => answer('deny')}
-            >
-              {t('approval.deny')}
-            </Button>
-          </div>
         </div>
-      }
-    >
-      <span className="font-medium">{t('approval.title')}</span>
-    </StatusStrip>
+      </div>
+      <div className="mt-3 flex min-w-0 flex-col gap-3">
+        <ApprovalSummary approval={approval} />
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            data-testid={TEST_IDS.chat.approval.allow}
+            disabled={decide.isPending || !armed}
+            onClick={(event) => {
+              // A script in the page (`el.click()`) never allows.
+              if (!isTrustedActivation(event)) return
+              answer('allow')
+            }}
+          >
+            {t('approval.allow')}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            data-testid={TEST_IDS.chat.approval.deny}
+            disabled={decide.isPending}
+            onClick={() => answer('deny')}
+          >
+            {t('approval.deny')}
+          </Button>
+        </div>
+      </div>
+    </section>
   )
 }

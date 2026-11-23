@@ -63,6 +63,7 @@ export function windowsInstallerConfig(
         : {})
     },
     nsis: {
+      include: resolve('build/installer.nsh'),
       oneClick: false,
       perMachine: false,
       selectPerMachineByDefault: false,

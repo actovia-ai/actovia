@@ -820,7 +820,12 @@ either client's chat code, and keep it true in the same change.
    (`chat/history.ts`: `loadChatHistory()`, `rowToChatMessage()`, every field
    kept), never from what a client posts (an older client's `messages` is
    accepted; only its last message is used). The question is stamped with the
-   server's clock (every read orders by `createdAt`). With `protocol: 2`,
+   server's clock. Reads first order rows by `createdAt`, then
+   `orderMessagesByRun()` (`packages/shared/src/utils/run-order.ts`) keeps
+   each run together with its question first, ordered by the user rows, so
+   a clock correction cannot place an answer above its question. The
+   recorder also stamps answers strictly after the saved question and one
+   another, before `done` and persistence. With `protocol: 2`,
    `done` is `{ messages: <the run: its question as stored, then its
    answer>, attempts: <every group's stored state> }` and the client merges
    (`mergeRun()` in `packages/shared/src/utils/run-merge.ts`; actovia-ios
@@ -867,7 +872,11 @@ either client's chat code, and keep it true in the same change.
    them in the React Query cache `['approvals', chatId]` (`hooks/use-approvals.ts`,
    written by `stream-manager.ts`) and shows the card at the run's foot
    (`components/chat/run-approvals.tsx`: Allow once / Deny, then the settled
-   state), beside the memory lines
+   state), beside the memory lines. Pending requests always show the full
+   summary and both buttons outside the folded timeline; the timeline says
+   "Waiting for your approval" and pauses its running indicator. Settled
+   requests are one quiet native disclosure; their full summary stays
+   available in a keyboard-accessible scrolling code region.
 4. However the run ends — done, a provider error midway, or Stop (which
    cancels the response stream) — `RunRecorder.persist()` saves the messages
    that completed and enqueues background jobs (LCM compaction, memory
@@ -2703,6 +2712,11 @@ Shared:
 Brand:
 
 - `scripts/render-icons.mjs` — delegates icon generation to `actovia-ai/assets`; `ACTOVIA_ASSETS_DIR` selects that checkout (`bun run icons`)
+- Linux deb/rpm explicitly use `build/icon.png` and `build/linux-desktop.ejs`;
+  `app.setDesktopName('actovia.desktop')` matches its `StartupWMClass` and
+  installed filename. Windows NSIS includes `build/installer.nsh` for native
+  DPI-aware text; `build/installer-sidebar.bmp` is rendered at 3× (492×942)
+  from the assets master (`bun run icons --installer-only`).
 - `build/dmg.json` — generated installer geometry; brand masters, Icon Composer exports, fonts and web/iOS exports live in `actovia-ai/assets`
 
 Tests & config:

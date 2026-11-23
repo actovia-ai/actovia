@@ -62,6 +62,7 @@
     "./utils/artifact-slug": "./src/utils/artifact-slug.ts",
     "./utils/attempts": "./src/utils/attempts.ts",
     "./utils/run-merge": "./src/utils/run-merge.ts",
+    "./utils/run-order": "./src/utils/run-order.ts",
     "./utils/quoted-text": "./src/utils/quoted-text.ts",
     "./utils/plain-title": "./src/utils/plain-title.ts",
     "./utils/health-context": "./src/utils/health-context.ts",

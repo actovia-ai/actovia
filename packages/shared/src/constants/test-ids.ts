@@ -308,7 +308,8 @@ export const TEST_IDS = {
       card: 'chat.approval.card',
       allow: 'chat.approval.allow',
       deny: 'chat.approval.deny',
-      state: 'chat.approval.state'
+      state: 'chat.approval.state',
+      details: 'chat.approval.details'
     },
     /** Over text selected in a message: asks about it (see composer.quote). */
     ask: {

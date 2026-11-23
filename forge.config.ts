@@ -38,6 +38,8 @@ const webAuthnPackages = runtimePackagePaths(
 const linuxRpmOptions = {
   bin: APP_DISPLAY_NAME,
   productName: APP_DISPLAY_NAME,
+  icon: resolve('build/icon.png'),
+  desktopTemplate: resolve('build/linux-desktop.ejs'),
   specTemplate: resolve('build/rpm-spec.ejs')
 }
 
@@ -266,7 +268,12 @@ const config: ForgeConfig = {
       options: linuxRpmOptions
     }),
     new MakerDeb({
-      options: { bin: APP_DISPLAY_NAME, productName: APP_DISPLAY_NAME }
+      options: {
+        bin: APP_DISPLAY_NAME,
+        productName: APP_DISPLAY_NAME,
+        desktopTemplate: resolve('build/linux-desktop.ejs'),
+        icon: resolve('build/icon.png')
+      }
     })
   ],
   // Manual publishing to GitHub Releases, which both updaters read (see

@@ -32,6 +32,9 @@ test.describe('approval for a secret outside Actovia', () => {
     const card = mainWindow.getByTestId(TEST_IDS.chat.approval.card)
     await expect(card).toBeVisible({ timeout: 30_000 })
     await expect(card).toContainText(SECRET_READ_PATH)
+    const timeline = mainWindow.getByTestId(TEST_IDS.chat.timelineToggle)
+    await expect(timeline).toHaveAttribute('aria-expanded', 'false')
+    await expect(timeline).toContainText('Waiting for your approval')
     await expect(
       mainWindow.getByTestId(TEST_IDS.chat.approval.allow)
     ).toBeVisible()
@@ -54,7 +57,10 @@ test.describe('approval for a secret outside Actovia', () => {
 
     const state = mainWindow.getByTestId(TEST_IDS.chat.approval.state)
     await expect(state).toHaveAttribute('data-state', 'denied')
-    await expect(state).toContainText(SECRET_READ_PATH)
+    await expect(state.locator('pre')).not.toBeVisible()
+    await mainWindow.getByTestId(TEST_IDS.chat.approval.details).click()
+    await expect(state.locator('pre')).toBeVisible()
+    await expect(state.locator('pre')).toContainText(SECRET_READ_PATH)
     await expect(card).toHaveCount(0)
     // The run goes on without the file.
     await expect(mainWindow.getByText('It is sunny in Oslo.')).toBeVisible({

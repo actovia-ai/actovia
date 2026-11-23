@@ -79,6 +79,19 @@ beforeEach(() => {
 })
 
 describe('RunRecorder', () => {
+  it('keeps the first answer after the question when the clock moves backwards, in done and storage', async () => {
+    const r = recorder({ promptTimestamp: 2000 })
+    const messages = [{ ...assistant, timestamp: 1000 }]
+    r.observe({ type: 'run_end', runId: RUN_ID, messages, durationMs: 10 })
+    expect(messages[0].timestamp).toBe(2001)
+    await r.persist()
+    const rows = (
+      saveMessages.mock.calls[0] as unknown as [
+        { messages: { createdAt: Date }[] }
+      ]
+    )[0].messages
+    expect(rows[0].createdAt.getTime()).toBe(2001)
+  })
   it('stamps the duration at run_end, before persist: the route sends these messages in done first', () => {
     const r = recorder()
     const messages = [{ ...assistant }]

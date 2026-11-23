@@ -17,6 +17,8 @@ import type { KernelEvent } from './events'
 
 export interface RecorderDeps {
   chatId: string
+  /** The saved question's stamp: the first answer must follow it. */
+  promptTimestamp?: number
   /** The run's model; the post-run jobs read its key from settings (R3). */
   model: Model<string>
   /** LCM's post-run compaction job, or null when LCM is off. */
@@ -61,6 +63,14 @@ export class RunRecorder {
     if (event.type === 'run_end') {
       this.done = event.messages
       this.durationMs = event.durationMs
+      // Include the question in the ordering constraint. VM clock corrections
+      // can put the provider's stream-start stamp before the question. Stamp
+      // before `done` is sent so live and reloaded transcripts agree.
+      let previous = this.deps.promptTimestamp ?? -Infinity
+      for (const message of this.done) {
+        message.timestamp = Math.max(message.timestamp, previous + 1)
+        previous = message.timestamp
+      }
       // "Worked for X seconds" reads the last assistant message of the run.
       // Stamped here, not at persist: the route sends these same messages in
       // `done` before it persists, and a client that merged them unstamped
@@ -86,16 +96,6 @@ export class RunRecorder {
     const { chatId, model, lcm, memoryCapture } = this.deps
 
     const rows = this.done.map((m) => toDbRow(m, chatId))
-    // Rows are read back ORDER BY createdAt. A tool result is stamped at
-    // tool_end and the next step at its stream start — often the same
-    // millisecond — so make the stamps strictly increasing within the run
-    // rather than leave the order to the database.
-    for (let i = 1; i < rows.length; i++) {
-      const prev = rows[i - 1].createdAt.getTime()
-      if (rows[i].createdAt.getTime() <= prev) {
-        rows[i] = { ...rows[i], createdAt: new Date(prev + 1) }
-      }
-    }
     await saveMessages({ messages: rows })
     // The run's numbered sources, for `recall` and the next run's numbering.
     await saveChatSources(sourcesOfRows(rows))

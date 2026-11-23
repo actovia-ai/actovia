@@ -16,6 +16,7 @@ const {
   getAllChats,
   getChatsPage,
   getFavoriteChats,
+  getMessagesByChatId,
   saveChatContextSnapshot,
   getChatContextSnapshot
 } = await import('@main/lib/db/queries')
@@ -81,6 +82,38 @@ describe('getChatsPage', () => {
 describe('getFavoriteChats', () => {
   it('answers every favourite, newest first', async () => {
     expect((await getFavoriteChats()).map((c) => c.id)).toEqual([id(6), id(2)])
+  })
+})
+
+describe('message order after a clock correction', () => {
+  it('reads the question before its answer, including through paged history', async () => {
+    await insert(80, '2026-11-22 08:00:00')
+    // The provider started after a backwards VM clock adjustment. Timestamp
+    // sorting alone puts this answer before the user's question.
+    for (const [rowId, role, stamp] of [
+      [81, 'user', '2026-11-22 08:00:10'],
+      [82, 'assistant', '2026-11-22 08:00:05']
+    ] as const) {
+      await pglite.query(
+        `INSERT INTO message (id, "chatId", "runId", role, content, "createdAt") VALUES ($1, $2, $3, $4, $5::jsonb, $6::timestamp)`,
+        [
+          id(rowId),
+          id(80),
+          id(81),
+          role,
+          JSON.stringify(
+            role === 'user' ? 'question' : [{ type: 'text', text: 'answer' }]
+          ),
+          stamp
+        ]
+      )
+    }
+    expect(
+      (await getMessagesByChatId({ id: id(80) })).map((row) => row.id)
+    ).toEqual([id(81), id(82)])
+    const { loadChatPage } = await import('@main/lib/chat/page')
+    const page = await loadChatPage(id(80), { runs: 10 })
+    expect(page.messages.map((row) => row.id)).toEqual([id(81), id(82)])
   })
 })
 
