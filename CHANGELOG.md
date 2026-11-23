@@ -1,3 +1,10 @@
+## [2.10.1](https://github.com/actovia-ai/actovia/compare/v2.10.0...v2.10.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* correct desktop packaging, message order and approval visibility ([873b981](https://github.com/actovia-ai/actovia/commit/873b981a4384967919f019f5c52623cdfe84dbae))
+
 # [2.10.0](https://github.com/actovia-ai/actovia/compare/v2.9.2...v2.10.0) (2026-11-22)
 
 
