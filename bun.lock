@@ -56,7 +56,7 @@
         "electron-squirrel-startup": "^1.0.1",
         "electron-updater": "^6.8.11",
         "embla-carousel-react": "^8.6.0",
-        "hono": "^4.13.18",
+        "hono": "^4.13.19",
         "i18next": "^27.1.1",
         "i18next-resources-to-backend": "^1.2.4",
         "input-otp": "^1.5.0",
@@ -1884,7 +1884,7 @@
 
     "hls.js": ["hls.js@1.7.4", "", {}, "sha512-3GlxGdPvT2YHvQYOt+yOzT/DEior/qJVNIylHA77kgeoBTdQQqi70GwefNEUmHQeNGyjC8U62+bruqW/Tpm+tg=="],
 
-    "hono": ["hono@4.13.18", "", {}, "sha512-H9q/E1XizaWstJxUW881dmLxEj+t/TrGGnyxINkm4+sK0qUwsMtFdo2BWI9Vs3cIS19MU6b6iCijoUoEf4f3DA=="],
+    "hono": ["hono@4.13.19", "", {}, "sha512-KmXvQAXwcAHV+muzbIwoJ23niEB5nMoDVr9WcRkU8mvjUECm/1+7v4Jgp7P7a+H6MLFrh+vXrGonGrGS+RQfkA=="],
 
     "hook-std": ["hook-std@4.0.0", "", {}, "sha512-IHI4bEVOt3vRUDJ+bFA9VUJlo7SzvFARPNLw75pqSmAOP2HmTWfFJtPvLBrDrlgjEYXY9zs7SFdHPQaJShkSCQ=="],
 
