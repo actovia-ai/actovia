@@ -1,3 +1,16 @@
+# [2.11.0](https://github.com/actovia-ai/actovia/compare/v2.10.1...v2.11.0) (2026-11-28)
+
+
+### Bug Fixes
+
+* improve browser access behind reverse proxies ([5fa66f3](https://github.com/actovia-ai/actovia/commit/5fa66f3896d17f825febe3203a3e5de066adb315))
+
+
+### Features
+
+* rename paired devices across desktop and remote clients ([a24d528](https://github.com/actovia-ai/actovia/commit/a24d528e5987ea1e6cadf79ae38f314c5e71ac61))
+* show provider icons in AI settings ([2a20784](https://github.com/actovia-ai/actovia/commit/2a20784bd550ad2b07123a78adfa9b29257569bb))
+
 ## [2.10.1](https://github.com/actovia-ai/actovia/compare/v2.10.0...v2.10.1) (2026-11-23)
 
 
