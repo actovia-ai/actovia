@@ -211,19 +211,25 @@ describe('useDevices', () => {
   })
 
   describe('polling', () => {
-    it('makes no further request, however long it waits, while no pairing window is open', async () => {
+    it('picks up a remote rename while no pairing window is open', async () => {
       vi.useFakeTimers()
-      getDevicesService.mockImplementation(() => Promise.resolve(closed()))
-      await mountHook(useDevices)
+      const renamed = { ...iphone, name: 'Work iPhone' }
+      getDevicesService
+        .mockResolvedValueOnce(stateOf({ devices: [iphone] }))
+        .mockResolvedValue(stateOf({ devices: [renamed] }))
+      const { api } = await mountHook(useDevices)
       await advance(0)
       expect(getDevicesService).toHaveBeenCalledTimes(1)
 
-      await advance(60_000)
-
+      await advance(4999)
       expect(getDevicesService).toHaveBeenCalledTimes(1)
+      await advance(1)
+      await settle()
+      expect(getDevicesService).toHaveBeenCalledTimes(2)
+      expect(api().data?.devices).toEqual([renamed])
     })
 
-    it('re-reads every 1500 ms while a pairing window is open, and stops after a response with none', async () => {
+    it('re-reads every 1500 ms while a pairing window is open, and slows down when it closes', async () => {
       vi.useFakeTimers()
       getDevicesService
         .mockResolvedValueOnce(open())
@@ -244,12 +250,14 @@ describe('useDevices', () => {
       await advance(1)
       expect(getDevicesService).toHaveBeenCalledTimes(3)
 
-      // That response had no pairing window: the polling is over.
-      await advance(60_000)
+      // The response had no pairing window: switch to the regular interval.
+      await advance(4999)
       expect(getDevicesService).toHaveBeenCalledTimes(3)
+      await advance(1)
+      expect(getDevicesService).toHaveBeenCalledTimes(4)
     })
 
-    it('starts polling once a read shows a pairing window (the read after opening one), and stops when it shows none', async () => {
+    it('speeds up after opening a pairing window and slows down when it closes', async () => {
       vi.useFakeTimers()
       getDevicesService
         .mockResolvedValueOnce(closed())
@@ -258,7 +266,7 @@ describe('useDevices', () => {
         .mockResolvedValue(closed())
       const { queryClient } = await mountHook(useDevices)
       await advance(0)
-      await advance(60_000)
+      await advance(4999)
       expect(getDevicesService).toHaveBeenCalledTimes(1)
 
       // What the mutations' settle does: mark the list stale and re-read.
@@ -271,7 +279,7 @@ describe('useDevices', () => {
       expect(getDevicesService).toHaveBeenCalledTimes(3)
       await advance(1500)
       expect(getDevicesService).toHaveBeenCalledTimes(4)
-      await advance(60_000)
+      await advance(4999)
       expect(getDevicesService).toHaveBeenCalledTimes(4)
     })
 

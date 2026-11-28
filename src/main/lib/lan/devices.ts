@@ -5,7 +5,8 @@ import {
   deleteDevice,
   insertDevice,
   listDeviceRows,
-  touchDevice
+  touchDevice,
+  updateDeviceName
 } from '../db/device-queries'
 import type { PairedDevice } from '../db/schema'
 import { deviceRevoked } from './device-events'
@@ -114,6 +115,13 @@ export async function revokeAllDevices(): Promise<void> {
   lastSeenWrite.clear()
   clearRevoked()
   deviceRevoked()
+}
+
+/** Rename a paired device (desktop UI or the device itself). */
+export async function renameDevice(id: string, name: string) {
+  const renamed = await updateDeviceName(id, name)
+  invalidateDeviceCache()
+  return renamed
 }
 
 /** The device unpaired itself (`DELETE /api/v1/pair`): nothing to tell it. */

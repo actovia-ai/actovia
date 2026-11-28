@@ -1049,10 +1049,16 @@
       "cancel": "취소"
     },
     "row": {
+      "rename": "이름 변경",
       "pairedOn": "{{date}}에 페어링됨",
       "lastSeen": "마지막 연결: {{date}}",
       "neverSeen": "연결된 적 없음",
       "revoke": "해제"
+    },
+    "renameDialog": {
+      "name": "기기 이름",
+      "title": "기기 이름 변경",
+      "confirm": "이름 변경"
     },
     "revokeDialog": {
       "title": "‘{{name}}’의 페어링을 해제할까요?",

@@ -10,6 +10,8 @@ export const LAN_SERVER_PORT = 63129
 // How long a pairing window (and the QR code on Settings → Devices) stays
 // open. The main process enforces it; the renderer only draws the countdown.
 export const PAIRING_TTL_MS = 120_000
+export const DEVICE_NAME_MAX_LENGTH = 64
+export const DEVICE_REFRESH_INTERVAL_MS = 5_000
 
 /** Explicit entry marker: a missing preload alone must not redefine a desktop build. */
 const clientGlobal = globalThis as typeof globalThis & {

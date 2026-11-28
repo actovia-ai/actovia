@@ -1,3 +1,4 @@
+import { DEVICE_REFRESH_INTERVAL_MS } from '@actovia/shared/constants/systems'
 import {
   type Query,
   type QueryClient,
@@ -12,18 +13,18 @@ import {
   type DevicesState,
   getDevices,
   openPairing,
+  renameDevice,
   resetDevices,
   revokeDevice
 } from '@/services/devices'
 
 export const devicesKeys = { all: ['devices'] as const }
 
-// While a pairing window is open the page polls: that is how it learns the
-// phone has paired.
+// Poll faster while pairing. The open list also reflects edits by paired clients.
 const PAIRING_POLL_MS = 1500
 
-const pollWhilePairing = (query: Query<DevicesState>) =>
-  query.state.data?.pairing ? PAIRING_POLL_MS : false
+const pollDevices = (query: Query<DevicesState>) =>
+  query.state.data?.pairing ? PAIRING_POLL_MS : DEVICE_REFRESH_INTERVAL_MS
 
 // `data` keeps its identity across polls that return equal data (structural
 // sharing — never turn it off): the "device paired" toast is an effect over it.
@@ -31,12 +32,11 @@ export function useDevices() {
   const { data } = useQuery({
     queryKey: devicesKeys.all,
     queryFn: () => getDevices(),
-    refetchInterval: pollWhilePairing,
+    refetchInterval: pollDevices,
     // The QR code is scanned from a phone, so this window is usually blurred
     // when the "device paired" toast has to land, and React Query would pause
-    // the interval on blur. The poll ends when a read shows `pairing: null`
-    // (the main process closes the window after PAIRING_TTL_MS) or when the
-    // page unmounts, which is what a lock mid-window does.
+    // the interval on blur. Keep the list current even when another device
+    // is being used to finish pairing or update its name.
     refetchIntervalInBackground: true,
     // A paired phone's `lastSeenAt` changes without the desktop's involvement
     // (the phone calls the LAN API); coming back to the window is when the
@@ -82,6 +82,16 @@ export function useRevokeDevice() {
   return useMutation({
     mutationFn: (id: string) => revokeDevice(id),
     meta: { errorTitle: i18n.t('settings:devices.toast.failedTitle') },
+    onSettled: () => refreshDevices(queryClient)
+  })
+}
+
+export function useRenameDevice() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      renameDevice(id, name),
+    meta: { silent: true },
     onSettled: () => refreshDevices(queryClient)
   })
 }

@@ -9,7 +9,8 @@ import {
   findDevice,
   invalidateDeviceCache,
   leaveDevice,
-  registerWebDevice
+  registerWebDevice,
+  renameDevice
 } from '../lan/devices'
 import { getLockManager } from '../lock/lock-manager'
 import { logger } from '../logger'
@@ -82,6 +83,7 @@ async function reconcile() {
     config: readWebAccessConfig,
     terminals: webTerminals,
     hostLocked: () => getLockManager().isLocked(),
+    renameDevice,
     api: fetch,
     asset: (path) =>
       webRendererAsset(app.getAppPath(), app.isPackaged, rendererName, path),

@@ -26,6 +26,7 @@ import {
   useCancelPairing,
   useDevices,
   useOpenPairing,
+  useRenameDevice,
   useResetDevices,
   useRevokeDevice
 } from '@/hooks/use-devices'
@@ -40,6 +41,7 @@ import {
   SettingsNotice
 } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
+import { DeviceRename } from './device-rename'
 import { PairCard, PairingPanel } from './devices-pairing'
 import { BrowserDeviceSettings, WebAccessSettings } from './web-access'
 
@@ -52,6 +54,7 @@ function DeviceRow({
 }) {
   const { t } = useTranslation('settings')
   const format = useFormat()
+  const renameDevice = useRenameDevice()
   const pairedOn = t('devices.row.pairedOn', {
     date: format.dateTime(new Date(device.createdAt), { dateStyle: 'medium' })
   })
@@ -81,15 +84,23 @@ function DeviceRow({
         </p>
       }
       actions={
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          data-testid={TEST_IDS.devices.revokeButton}
-          onClick={onRevoke}
-        >
-          {t('devices.row.revoke')}
-        </Button>
+        <div className="flex gap-2">
+          <DeviceRename
+            name={device.name}
+            onRename={(name) =>
+              renameDevice.mutateAsync({ id: device.id, name })
+            }
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            data-testid={TEST_IDS.devices.revokeButton}
+            onClick={onRevoke}
+          >
+            {t('devices.row.revoke')}
+          </Button>
+        </div>
       }
     />
   )

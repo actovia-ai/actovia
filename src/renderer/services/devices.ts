@@ -43,7 +43,10 @@ export const DEVICES_URL = '/api/v1/devices'
 // `curl` the model runs).
 const withPresence = async <T>(
   url: string,
-  options: { method?: 'GET' | 'POST' | 'DELETE' } = {}
+  options: {
+    method?: 'GET' | 'POST' | 'DELETE' | 'PATCH'
+    body?: Record<string, unknown>
+  } = {}
 ) => fetcher<T>(url, { ...options, headers: await presenceHeaders() })
 
 export const getDevices = () => withPresence<DevicesState>(DEVICES_URL)
@@ -56,6 +59,12 @@ export const cancelPairing = () =>
 
 export const revokeDevice = (id: string) =>
   withPresence(`${DEVICES_URL}/${id}`, { method: 'DELETE' })
+
+export const renameDevice = (id: string, name: string) =>
+  withPresence<{ name: string }>(`${DEVICES_URL}/${id}`, {
+    method: 'PATCH',
+    body: { name }
+  })
 
 export const resetDevices = () =>
   withPresence(`${DEVICES_URL}/reset`, { method: 'POST' })

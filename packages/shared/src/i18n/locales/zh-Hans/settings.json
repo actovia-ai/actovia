@@ -1052,12 +1052,18 @@
       "pairedOn": "配对于 {{date}}",
       "lastSeen": "上次连接：{{date}}",
       "neverSeen": "从未连接",
-      "revoke": "撤销"
+      "revoke": "撤销",
+      "rename": "重命名"
     },
     "revokeDialog": {
       "title": "要撤销“{{name}}”吗？",
       "description": "它会立即失去访问权限，必须重新配对才能再次使用。",
       "confirm": "撤销"
+    },
+    "renameDialog": {
+      "name": "设备名称",
+      "title": "重命名设备",
+      "confirm": "重命名"
     },
     "reset": {
       "label": "重置所有配对",

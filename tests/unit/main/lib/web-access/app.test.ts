@@ -32,6 +32,12 @@ function fixture() {
     config: () => ({ enabled, origin: ORIGIN }),
     hostLocked: () => locked,
     terminals,
+    renameDevice: async (id, name) => {
+      const record = records.get(id)
+      if (!record) return null
+      record.name = name
+      return { name }
+    },
     api: upstream,
     asset: async () => new Response('public entry')
   })
@@ -72,6 +78,43 @@ function fixture() {
 }
 
 describe('paired browser HTTP entry', () => {
+  it('renames only the browser that owns the unlocked session', async () => {
+    const f = fixture()
+    const path = '/api/web-terminal/name'
+    expect((await f.post(path, 'a', { name: '  ' })).status).toBe(400)
+    expect((await f.post(path, 'a', { name: 'a'.repeat(65) })).status).toBe(400)
+    expect(
+      (
+        await f.request(path, {
+          method: 'POST',
+          headers: { Cookie: f.cookie(), Origin: ORIGIN },
+          body: JSON.stringify({ name: 'No header' })
+        })
+      ).status
+    ).toBe(403)
+    const response = await f.post(path, 'a', {
+      name: '  Work Chrome  ',
+      id: 'b'
+    })
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ name: 'Work Chrome' })
+    for (const [id, deviceName] of [
+      ['a', 'Work Chrome'],
+      ['b', 'Other browser']
+    ]) {
+      const status = await f.request('/api/web-terminal', {
+        headers: { Cookie: f.cookie(id) }
+      })
+      expect(await status.json()).toMatchObject({ deviceName, unlocked: true })
+    }
+    await f.post('/api/web-terminal/lock', 'a')
+    expect((await f.post(path, 'a', { name: 'Locked browser' })).status).toBe(
+      401
+    )
+    f.lock()
+    expect((await f.post(path, 'b', { name: 'Locked host' })).status).toBe(401)
+  })
+
   it('only serves the entry while enabled and leaks no business data before unlock', async () => {
     const f = fixture()
     expect((await f.request('/')).status).toBe(200)

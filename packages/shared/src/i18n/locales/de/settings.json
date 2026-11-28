@@ -1054,10 +1054,16 @@
       "cancel": "Abbrechen"
     },
     "row": {
+      "rename": "Umbenennen",
       "pairedOn": "Gekoppelt am {{date}}",
       "lastSeen": "Zuletzt verbunden {{date}}",
       "neverSeen": "Noch nie verbunden",
       "revoke": "Widerrufen"
+    },
+    "renameDialog": {
+      "name": "Gerätename",
+      "title": "Gerät umbenennen",
+      "confirm": "Umbenennen"
     },
     "revokeDialog": {
       "title": "{{name}} widerrufen?",

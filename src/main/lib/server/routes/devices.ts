@@ -9,7 +9,13 @@ import {
   loadOrCreateCertificate,
   resetCertificate
 } from '../../lan/certificate'
-import { listDevices, revokeAllDevices, revokeDevice } from '../../lan/devices'
+import { renameDeviceSchema } from '../../lan/device-name'
+import {
+  listDevices,
+  renameDevice,
+  revokeAllDevices,
+  revokeDevice
+} from '../../lan/devices'
 import {
   buildPairingLink,
   pairingHosts,
@@ -17,7 +23,7 @@ import {
 } from '../../lan/pairing'
 import { pendingRevocations } from '../../lan/revoked'
 import type { Variables } from '../types'
-import { getRequiredParam, successResponse } from '../utils'
+import { getRequiredParam, successResponse, validateSchema } from '../utils'
 
 // Device management. Loopback only — authGate refuses this prefix on the LAN
 // listener, so a paired device can neither pair nor revoke another.
@@ -94,6 +100,17 @@ devicesRouter.post('/reset', async (c) => {
   await resetCertificate()
   await syncLan()
   return successResponse(c, { ok: true })
+})
+
+devicesRouter.patch('/:id', async (c) => {
+  const id = getRequiredParam(c, 'id')
+  const { name } = validateSchema(
+    renameDeviceSchema,
+    await c.req.json().catch(() => null),
+    'Invalid device name'
+  )
+  const renamed = await renameDevice(id, name)
+  return renamed ? successResponse(c, renamed) : c.notFound()
 })
 
 devicesRouter.delete('/:id', async (c) => {

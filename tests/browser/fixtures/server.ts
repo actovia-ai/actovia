@@ -15,6 +15,12 @@ import {
 
 const origin = 'http://localhost:63131'
 const records = new Map<string, TerminalDevice & { token: string }>()
+async function renameDevice(id: string, name: string) {
+  const record = records.get(id)
+  if (!record) return null
+  record.name = name
+  return { name }
+}
 let locked = false
 let now = Date.now()
 let enabled = true
@@ -92,6 +98,7 @@ const web = createWebApp({
   config: () => ({ enabled, origin }),
   hostLocked: () => locked,
   terminals,
+  renameDevice,
   api: (req) => api.fetch(req),
   asset: (path) => webAsset(resolve('.vite/web-test'), path)
 })
@@ -102,6 +109,10 @@ fixture.get('/__test/state', (c) =>
   c.json([...records.values()].map(({ id, name }) => ({ id, name })))
 )
 fixture.post('/__test/pair', (c) => c.json(terminals.pairing.open()))
+fixture.post('/__test/rename/:id', async (c) => {
+  const { name } = await c.req.json()
+  return c.json(await renameDevice(c.req.param('id'), name))
+})
 fixture.post('/__test/reset', (c) => {
   records.clear()
   terminals.invalidate()

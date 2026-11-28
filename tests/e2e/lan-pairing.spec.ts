@@ -174,16 +174,35 @@ test.describe('LAN pairing', () => {
     expect((await pinned(pin, '/api/v1/devices', { token })).status).toBe(403)
 
     // The page polls while a window is open, so the new device shows up.
-    const row = mainWindow
-      .getByTestId(TEST_IDS.devices.deviceRow)
-      .filter({ hasText: 'e2e phone' })
-    await expect(row).toBeVisible({ timeout: 10_000 })
-    await row.getByTestId(TEST_IDS.devices.revokeButton).click()
+    const row = (name: string) =>
+      mainWindow
+        .getByTestId(TEST_IDS.devices.deviceRow)
+        .filter({ hasText: name })
+    await expect(row('e2e phone')).toBeVisible({ timeout: 10_000 })
+    await row('e2e phone').getByTestId(TEST_IDS.devices.renameButton).click()
+    const rename = mainWindow.getByRole('dialog', { name: 'Rename device' })
+    await rename
+      .getByRole('textbox', { name: 'Device name' })
+      .fill('Desktop name')
+    await rename.getByRole('button', { name: 'Rename', exact: true }).click()
+    await expect(row('Desktop name')).toBeVisible()
+    expect(
+      JSON.parse((await pinned(pin, '/api/v1/pair', { token })).body).name
+    ).toBe('Desktop name')
+
+    const selfRename = await pinned(pin, '/api/v1/pair', {
+      method: 'PATCH',
+      token,
+      json: { name: 'iOS name' }
+    })
+    expect(selfRename.status).toBe(200)
+    await expect(row('iOS name')).toBeVisible({ timeout: 10_000 })
+    await row('iOS name').getByTestId(TEST_IDS.devices.revokeButton).click()
     await mainWindow
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Revoke', exact: true })
       .click()
-    await expect(row).toHaveCount(0)
+    await expect(row('iOS name')).toHaveCount(0)
 
     // The revoked phone has to be told, or it stays "paired" against a
     // listener that is gone (`lan/revoked.ts`): the listener stays up for

@@ -1049,10 +1049,16 @@
       "cancel": "キャンセル"
     },
     "row": {
+      "rename": "名前を変更",
       "pairedOn": "{{date}} にペアリング",
       "lastSeen": "最終接続：{{date}}",
       "neverSeen": "未接続",
       "revoke": "取り消す"
+    },
+    "renameDialog": {
+      "name": "デバイス名",
+      "title": "デバイス名を変更",
+      "confirm": "名前を変更"
     },
     "revokeDialog": {
       "title": "「{{name}}」のペアリングを取り消しますか？",

@@ -22,6 +22,8 @@ export async function webTerminalRequest<T>(
 
 export const getWebTerminalStatus = () =>
   webTerminalRequest<WebTerminalStatus>()
+export const renameWebTerminal = (name: string) =>
+  webTerminalRequest<{ name: string }>('/name', { name })
 export async function lockWebTerminal() {
   await webTerminalRequest('/lock', {})
   window.dispatchEvent(new Event(WEB_SESSION_EVENT))

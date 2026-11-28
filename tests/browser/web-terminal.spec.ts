@@ -33,6 +33,36 @@ test.beforeEach(async ({ request }) => {
   await request.post('/__test/reset')
 })
 
+test('browser rename persists and an open Devices page follows host-side renames', async ({
+  page,
+  context
+}) => {
+  await authenticator(context, page)
+  await pair(page, 'Work Browser')
+  await page.goto('/#/settings?tab=devices')
+  await page.getByTestId(TEST_IDS.devices.renameButton).click()
+  const dialog = page.getByRole('dialog', { name: 'Rename device' })
+  const name = dialog.getByRole('textbox', { name: 'Device name' })
+  await expect(name).toHaveValue('Work Browser')
+  await name.fill('  工作浏览器  ')
+  await name.press('Enter')
+  await expect(dialog).toHaveCount(0)
+  await expect(page.getByText('工作浏览器', { exact: true })).toBeVisible()
+
+  const [device] = await (await page.request.get('/__test/state')).json()
+  expect(device.name).toBe('工作浏览器')
+  await page.request.post(`/__test/rename/${device.id}`, {
+    data: { name: 'Desk Browser' }
+  })
+  await expect(page.getByText('Desk Browser', { exact: true })).toBeVisible({
+    timeout: 10_000
+  })
+  await page.getByTestId(TEST_IDS.webTerminal.lock).click()
+  await expect(page.getByTestId(TEST_IDS.webTerminal.gate)).toContainText(
+    'Desk Browser'
+  )
+})
+
 test('pairing adds an independent device; reload and passkey unlock keep the same device', async ({
   page,
   context,

@@ -2,14 +2,20 @@ import { Hono } from 'hono'
 import { z } from 'zod'
 
 import { pairing, syncLan } from '../../lan'
-import { findDevice, leaveDevice, registerDevice } from '../../lan/devices'
+import { deviceNameSchema, renameDeviceSchema } from '../../lan/device-name'
+import {
+  findDevice,
+  leaveDevice,
+  registerDevice,
+  renameDevice
+} from '../../lan/devices'
 import { logger } from '../../logger'
 import type { Variables } from '../types'
 import { successResponse, validateSchema } from '../utils'
 
 const pairSchema = z.object({
   code: z.string().min(1).max(64),
-  deviceName: z.string().trim().min(1).max(64)
+  deviceName: deviceNameSchema
 })
 
 const pairRouter = new Hono<{ Variables: Variables }>()
@@ -62,6 +68,23 @@ pairRouter.get('/', async (c) => {
   const device = await findDevice(deviceId)
   if (!device) return c.notFound()
   return successResponse(c, { deviceId: device.id, name: device.name })
+})
+
+/**
+ * A paired device renaming itself: how it appears in Settings → Devices here.
+ * Only a device can ask — authGate has matched its token; on loopback there
+ * is no device, and no route.
+ */
+pairRouter.patch('/', async (c) => {
+  const deviceId = c.get('deviceId')
+  if (!deviceId) return c.notFound()
+  const { name } = validateSchema(
+    renameDeviceSchema,
+    await c.req.json().catch(() => null),
+    'Invalid device name'
+  )
+  const renamed = await renameDevice(deviceId, name)
+  return renamed ? successResponse(c, renamed) : c.notFound()
 })
 
 /**

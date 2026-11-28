@@ -292,9 +292,9 @@ describe('Devices: the "device paired" toast', () => {
     })
     expect(byTestId(TEST_IDS.devices.deviceRow)).not.toBeNull()
 
-    // The window is closed now, so nothing polls and nothing toasts again.
-    await advance(60_000)
-    expect(getDevicesService).toHaveBeenCalledTimes(4)
+    // Idle polls keep the list fresh without repeating the pairing toast.
+    await advance(5_000)
+    expect(getDevicesService).toHaveBeenCalledTimes(5)
     expect(toastSuccess).toHaveBeenCalledTimes(1)
   })
 

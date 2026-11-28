@@ -35,6 +35,15 @@ export async function deleteAllDevices() {
   await db.delete(pairedDevice)
 }
 
+export async function updateDeviceName(id: string, name: string) {
+  const [device] = await db
+    .update(pairedDevice)
+    .set({ name })
+    .where(eq(pairedDevice.id, id))
+    .returning({ name: pairedDevice.name })
+  return device ?? null
+}
+
 export async function touchDevice(id: string, at: Date) {
   await db
     .update(pairedDevice)

@@ -9,6 +9,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { deleteCookie, getCookie, setCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
 
+import { deviceNameSchema, renameDeviceSchema } from '../lan/device-name'
 import type { Bindings } from '../server/types'
 import { WEB_ABSOLUTE_MS } from './sessions'
 import type { createWebTerminals } from './terminals'
@@ -32,6 +33,7 @@ export function createWebApp(deps: {
   config(): WebAccessConfig
   terminals: ReturnType<typeof createWebTerminals>
   hostLocked(): boolean
+  renameDevice(id: string, name: string): Promise<{ name: string } | null>
   api(request: Request, bindings: Bindings): Response | Promise<Response>
   asset(path: string): Promise<Response>
   onForbiddenOrigin?(detail: {
@@ -129,18 +131,13 @@ export function createWebApp(deps: {
     if (await terminals.device(cookies(c).binding))
       return refuse(409, 'WEB_ALREADY_PAIRED')
     const { code, name } = await c.req.json()
-    if (
-      typeof code !== 'string' ||
-      code.length > 128 ||
-      typeof name !== 'string' ||
-      !name.trim() ||
-      name.length > 64
-    )
+    const parsed = deviceNameSchema.safeParse(name)
+    if (typeof code !== 'string' || code.length > 128 || !parsed.success)
       return refuse(400, 'VALIDATION_FAILED')
     return c.json(
       await terminals.registrationOptions(
         code,
-        name.trim(),
+        parsed.data,
         deps.config().origin
       )
     )
@@ -240,6 +237,20 @@ export function createWebApp(deps: {
     if (!device || !terminals.sessions.touch(session, device.id, binding))
       return refuse(401, 'WEB_SESSION_REQUIRED')
     return c.json({ ok: true })
+  })
+
+  app.post(`${PREFIX}/name`, async (c) => {
+    const { binding, session } = cookies(c)
+    const device = await terminals.device(binding)
+    if (deps.hostLocked()) terminals.sessions.revoke()
+    if (!device || !terminals.sessions.touch(session, device.id, binding))
+      return refuse(401, 'WEB_SESSION_REQUIRED')
+    const parsed = renameDeviceSchema.safeParse(
+      await c.req.json().catch(() => null)
+    )
+    if (!parsed.success) return refuse(400, 'VALIDATION_FAILED')
+    const renamed = await deps.renameDevice(device.id, parsed.data.name)
+    return renamed ? c.json(renamed) : c.notFound()
   })
 
   app.all('/api/*', async (c) => {

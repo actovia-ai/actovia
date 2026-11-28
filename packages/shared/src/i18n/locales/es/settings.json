@@ -1054,10 +1054,16 @@
       "cancel": "Cancelar"
     },
     "row": {
+      "rename": "Cambiar nombre",
       "pairedOn": "Vinculado el {{date}}",
       "lastSeen": "Última conexión {{date}}",
       "neverSeen": "Nunca se ha conectado",
       "revoke": "Revocar"
+    },
+    "renameDialog": {
+      "name": "Nombre del dispositivo",
+      "title": "Cambiar nombre del dispositivo",
+      "confirm": "Cambiar nombre"
     },
     "revokeDialog": {
       "title": "¿Revocar {{name}}?",

@@ -1049,10 +1049,16 @@
       "cancel": "取消"
     },
     "row": {
+      "rename": "重新命名",
       "pairedOn": "配對於 {{date}}",
       "lastSeen": "上次連接：{{date}}",
       "neverSeen": "從未連接",
       "revoke": "撤銷"
+    },
+    "renameDialog": {
+      "name": "裝置名稱",
+      "title": "重新命名裝置",
+      "confirm": "重新命名"
     },
     "revokeDialog": {
       "title": "要撤銷「{{name}}」嗎？",

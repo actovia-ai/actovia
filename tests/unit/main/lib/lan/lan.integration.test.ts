@@ -47,6 +47,12 @@ vi.mock('@main/lib/db/device-queries', () => ({
     return device
   },
   listDeviceRows: async () => rows.map((r) => ({ ...r })),
+  updateDeviceName: async (id: string, name: string) => {
+    const row = rows.find((row) => row.id === id)
+    if (!row) return null
+    row.name = name
+    return { name }
+  },
   deleteDevice: async (id: string) => {
     rows = rows.filter((r) => r.id !== id)
   },
@@ -62,7 +68,8 @@ const { errorHandler } =
 const { default: pairRouter } = await import('@main/lib/server/routes/pair')
 const { pairing } = await import('@main/lib/lan')
 const { loadOrCreateCertificate } = await import('@main/lib/lan/certificate')
-const { revokeDevice } = await import('@main/lib/lan/devices')
+const { listDevices, renameDevice, revokeDevice } =
+  await import('@main/lib/lan/devices')
 const { createLanListener } = await import('@main/lib/lan/listener')
 
 const { compressLan } = await import('@main/lib/server/middlewares/compress')
@@ -349,6 +356,30 @@ describe('LAN access, end to end', () => {
     const served = await call('/api/v1/history', { token })
     expect(served.status).toBe(200)
     expect(JSON.parse(served.body)).toEqual({ device: deviceId })
+
+    await renameDevice(deviceId, 'Desk iPhone')
+    const renamedHere = await call('/api/v1/pair', { token })
+    expect(JSON.parse(renamedHere.body)).toEqual({
+      deviceId,
+      name: 'Desk iPhone'
+    })
+
+    const invalid = await call('/api/v1/pair', {
+      method: 'PATCH',
+      token,
+      json: { name: '  ' }
+    })
+    expect(invalid.status).toBe(400)
+    const renamedThere = await call('/api/v1/pair', {
+      method: 'PATCH',
+      token,
+      json: { name: '  工作 iPhone  ', id: 'another-device' }
+    })
+    expect(renamedThere.status).toBe(200)
+    expect(JSON.parse(renamedThere.body)).toEqual({ name: '工作 iPhone' })
+    expect((await listDevices()).find((row) => row.id === deviceId)?.name).toBe(
+      '工作 iPhone'
+    )
 
     expect((await call('/api/v1/history', { token: `${token}x` })).status).toBe(
       401

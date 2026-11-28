@@ -1,3 +1,4 @@
+import { DEVICE_REFRESH_INTERVAL_MS } from '@actovia/shared/constants/systems'
 import { TEST_IDS } from '@actovia/shared/constants/test-ids'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
@@ -16,13 +17,16 @@ import {
 import {
   forgetWebTerminal,
   getWebTerminalStatus,
-  lockWebTerminal
+  lockWebTerminal,
+  renameWebTerminal
 } from '@/services/web-terminal'
 
 import { SettingsIntro } from '../settings-kit'
 import { SettingsRow, SettingsSection } from '../settings-row'
+import { DeviceRename } from './device-rename'
 
 export const webAccessKeys = ['web-access'] as const
+const webTerminalKey = ['web-terminal'] as const
 
 export function WebAccessSettings() {
   const { t } = useTranslation('settings')
@@ -189,19 +193,36 @@ export function WebAccessSettings() {
 
 export function BrowserDeviceSettings() {
   const { t } = useTranslation('settings')
+  const client = useQueryClient()
   const action = useMutation({
     mutationFn: (kind: 'lock' | 'forget') =>
       kind === 'lock' ? lockWebTerminal() : forgetWebTerminal(),
     meta: { errorTitle: t('webAccess.connectionFailed') }
   })
   const { data } = useQuery({
-    queryKey: ['web-terminal'],
-    queryFn: getWebTerminalStatus
+    queryKey: webTerminalKey,
+    queryFn: getWebTerminalStatus,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
+    refetchInterval: DEVICE_REFRESH_INTERVAL_MS
+  })
+  const rename = useMutation({
+    mutationFn: renameWebTerminal,
+    onSettled: () => client.invalidateQueries({ queryKey: webTerminalKey }),
+    meta: { silent: true }
   })
   return (
     <>
       <SettingsIntro>{t('webAccess.remoteTerminal')}</SettingsIntro>
       <SettingsSection title={data?.deviceName}>
+        {data?.deviceName !== undefined && (
+          <SettingsRow label={t('devices.renameDialog.name')}>
+            <DeviceRename
+              name={data.deviceName}
+              onRename={(name) => rename.mutateAsync(name)}
+            />
+          </SettingsRow>
+        )}
         <SettingsRow
           label={t('webAccess.lock')}
           description={t('webAccess.lockHint')}

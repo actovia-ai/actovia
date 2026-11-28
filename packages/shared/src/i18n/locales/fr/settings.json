@@ -1054,10 +1054,16 @@
       "cancel": "Annuler"
     },
     "row": {
+      "rename": "Renommer",
       "pairedOn": "Jumelé le {{date}}",
       "lastSeen": "Dernière connexion {{date}}",
       "neverSeen": "Jamais connecté",
       "revoke": "Révoquer"
+    },
+    "renameDialog": {
+      "name": "Nom de l’appareil",
+      "title": "Renommer l’appareil",
+      "confirm": "Renommer"
     },
     "revokeDialog": {
       "title": "Révoquer {{name}} ?",

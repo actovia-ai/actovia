@@ -1057,12 +1057,18 @@
       "pairedOn": "Paired {{date}}",
       "lastSeen": "Last seen {{date}}",
       "neverSeen": "Never connected",
-      "revoke": "Revoke"
+      "revoke": "Revoke",
+      "rename": "Rename"
     },
     "revokeDialog": {
       "title": "Revoke {{name}}?",
       "description": "It loses access immediately and has to be paired again to come back.",
       "confirm": "Revoke"
+    },
+    "renameDialog": {
+      "name": "Device name",
+      "title": "Rename device",
+      "confirm": "Rename"
     },
     "reset": {
       "label": "Reset all pairings",
