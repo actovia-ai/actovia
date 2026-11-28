@@ -21,7 +21,7 @@
         "@duckdb/node-api": "2.0.0-r.1",
         "@earendil-works/pi-agent-core": "^1.5.2",
         "@earendil-works/pi-ai": "^1.5.2",
-        "@electric-sql/pglite": "^0.5.16",
+        "@electric-sql/pglite": "^0.5.17",
         "@electric-sql/pglite-pgmq": "^0.0.14",
         "@electric-sql/pglite-pgvector": "^0.0.17",
         "@googlemaps/places": "^3.1.0",
@@ -431,7 +431,7 @@
 
     "@earendil-works/pi-telemetry": ["@earendil-works/pi-telemetry@1.5.2", "", {}, "sha512-m+cumjIqNh1aMISi/9ttcG3ZOwIdriPbz/eMyWmRMJCGa/WcgY1RX4lrb7HvsHhSfI/JUeBESA4nOCr8C3y5ow=="],
 
-    "@electric-sql/pglite": ["@electric-sql/pglite@0.5.16", "", {}, "sha512-Nj8KcIsJL748W408U2N8q4+9IlONdpRIU8MJypIAAINMJ5nqKyqpX7Mgg/5XKkXiAib3AoZGR6hnJFlrlLBrcg=="],
+    "@electric-sql/pglite": ["@electric-sql/pglite@0.5.17", "", {}, "sha512-8SvKjiUjaU+0O0dbxjOfN+jXz14TEqDWbwDkYOW1aQ11y/ph2JvFVI27ABBo5nfw+ZfSqy4hKCNlbnbB1TDE+g=="],
 
     "@electric-sql/pglite-pgmq": ["@electric-sql/pglite-pgmq@0.0.14", "", { "peerDependencies": { "@electric-sql/pglite": "0.5.16" } }, "sha512-8ZUD9r8hqlESssQTbITeZ729LLINEPefYHCpi+YkS+RuQ7++VyU2ZnONjhWaeC70+E9IMQZxCo7twHYzf76a1A=="],
 
