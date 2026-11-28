@@ -78,7 +78,7 @@ export function ProvidersTabs({ form }: { form: UseFormReturnType }) {
           <TabsList className="w-full">
             {PROVIDER_TABS.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
-                {PROVIDER_LABELS[tab.provider]}
+                {PROVIDER_LABELS[tab.provider].label}
                 {tab.provider === provider && (
                   <>
                     <span
