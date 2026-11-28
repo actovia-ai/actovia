@@ -100,8 +100,15 @@ describe('paired browser HTTP entry', () => {
       { Host: 'evil.test' },
       { Origin: 'https://evil.test' },
       { Origin: 'null' }
-    ])
-      expect((await f.request('/', { headers })).status).toBe(403)
+    ]) {
+      const response = await f.request('/', { headers })
+      expect(response.status).toBe(403)
+      const payload = (await response.json()) as {
+        error: { code: string; message: string }
+      }
+      expect(payload.error.code).toBe('FORBIDDEN_ORIGIN')
+      expect(payload.error.message).not.toContain(ORIGIN)
+    }
     for (const headers of [
       {},
       { Origin: ORIGIN },
@@ -249,6 +256,7 @@ describe('paired browser HTTP entry', () => {
       const response = await f.request('/api/v1/events', {
         headers: { Cookie: f.cookie() }
       })
+      expect(response.headers.get('x-accel-buffering')).toBe('no')
       const reader = response.body!.getReader()
       if (!duringHandler) {
         await reader.read()

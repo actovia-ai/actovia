@@ -34,25 +34,43 @@ export function createWebApp(deps: {
   hostLocked(): boolean
   api(request: Request, bindings: Bindings): Response | Promise<Response>
   asset(path: string): Promise<Response>
+  onForbiddenOrigin?(detail: {
+    host?: string
+    expectedHost: string
+    origin?: string
+    path: string
+  }): void
 }) {
   const app = new Hono()
   const terminals = deps.terminals
-  const refuse = (status: number, code: string) =>
-    Response.json({ type: 'error', error: { code, message: code } }, { status })
+  const refuse = (status: number, code: string, message = code) =>
+    Response.json({ type: 'error', error: { code, message } }, { status })
 
   app.use('*', async (c, next) => {
     const config = deps.config()
     if (!config.enabled || !config.origin) return c.notFound()
     const host = c.req.header('host')?.toLowerCase()
+    const expectedHost = new URL(config.origin).host.toLowerCase()
     const origin = c.req.header('origin')
     const artifactSandboxRequest = isArtifactSandboxPath(c.req.path)
     if (
-      host !== new URL(config.origin).host.toLowerCase() ||
+      host !== expectedHost ||
       (origin !== undefined &&
         origin !== config.origin &&
         !(artifactSandboxRequest && origin === 'null'))
-    )
-      return refuse(403, 'FORBIDDEN_ORIGIN')
+    ) {
+      deps.onForbiddenOrigin?.({
+        host,
+        expectedHost,
+        origin,
+        path: c.req.path
+      })
+      return refuse(
+        403,
+        'FORBIDDEN_ORIGIN',
+        'Host or Origin does not match the configured Browser address in Actovia Settings.'
+      )
+    }
     if (
       !SAFE.has(c.req.method) &&
       (origin !== config.origin || c.req.header(WEB_CLIENT_HEADER) !== '1')
@@ -285,9 +303,11 @@ export function createWebApp(deps: {
           await reader.cancel(reason)
         }
       })
+      const headers = new Headers(response.headers)
+      headers.set('X-Accel-Buffering', 'no')
       return new Response(body, {
         status: response.status,
-        headers: response.headers
+        headers
       })
     } catch (error) {
       request.release()

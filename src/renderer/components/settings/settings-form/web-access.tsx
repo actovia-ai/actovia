@@ -56,7 +56,9 @@ export function WebAccessSettings() {
     onSettled: () => client.invalidateQueries({ queryKey: ['devices'] }),
     meta: { errorTitle: t('webAccess.saveFailed') }
   })
-  const proxyCommand = `tailscale serve --bg http://127.0.0.1:${data?.port ?? 63130}`
+  const port = data?.port ?? 63130
+  const caddyExample = `actovia.example.com {\n  reverse_proxy 127.0.0.1:${port}\n}`
+  const tailscaleExample = `tailscale serve --bg --https=8443 http://127.0.0.1:${port}`
   const changed = !!data && (enabled !== data.enabled || origin !== data.origin)
   return (
     <SettingsSection title={t('webAccess.heading')}>
@@ -84,7 +86,7 @@ export function WebAccessSettings() {
             aria-label={t('webAccess.originLabel')}
             value={origin}
             onChange={(event) => setOrigin(event.target.value)}
-            placeholder="https://your-mac.example.ts.net"
+            placeholder="https://actovia.example.com"
             className="min-w-0 flex-1 basis-64"
             disabled={!data || change.isPending}
           />
@@ -100,11 +102,26 @@ export function WebAccessSettings() {
           </Button>
         </div>
         <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
-          {t('webAccess.proxyHint', { port: data?.port ?? 63130 })}
+          {t('webAccess.proxyHint', { port })}
         </p>
-        <code className="bg-muted mt-2 block overflow-x-auto rounded-md p-3 text-xs">
-          {proxyCommand}
-        </code>
+        <div className="mt-2 flex flex-col gap-2">
+          <div>
+            <p className="text-muted-foreground text-xs font-medium">
+              {t('webAccess.reverseProxyExampleLabel')}
+            </p>
+            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-3 font-mono text-xs leading-relaxed">
+              <code>{caddyExample}</code>
+            </pre>
+          </div>
+          <div>
+            <p className="text-muted-foreground text-xs font-medium">
+              {t('webAccess.tailscaleExampleLabel')}
+            </p>
+            <pre className="bg-muted mt-1 overflow-x-auto rounded-md p-3 font-mono text-xs leading-relaxed">
+              <code>{tailscaleExample}</code>
+            </pre>
+          </div>
+        </div>
       </SettingsRow>
       <SettingsRow
         label={t('webAccess.pairBrowser')}

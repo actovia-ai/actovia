@@ -84,7 +84,13 @@ async function reconcile() {
     hostLocked: () => getLockManager().isLocked(),
     api: fetch,
     asset: (path) =>
-      webRendererAsset(app.getAppPath(), app.isPackaged, rendererName, path)
+      webRendererAsset(app.getAppPath(), app.isPackaged, rendererName, path),
+    onForbiddenOrigin: (detail) =>
+      logger.warn(
+        'server',
+        'Rejected web terminal request from mismatched Host or Origin',
+        detail
+      )
   })
   await new Promise<void>((resolve, reject) => {
     const starting = serve(
